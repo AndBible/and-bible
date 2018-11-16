@@ -57,8 +57,8 @@ public class OSISInputStreamTest {
 
 	@Before
 	public void setUp() throws Exception {
-        SwordBookDriver swordBookDriver = new SwordBookDriver();
-        books = swordBookDriver.getBooks();
+		SwordBookDriver swordBookDriver = new SwordBookDriver();
+		books = swordBookDriver.getBooks();
 		for (Book book : books) {
 			if (book.getInitials().startsWith("KJV")) {
 				this.kjvBook = book;
@@ -525,43 +525,43 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		fail("Not yet implemented");
 //	}
 
-    public String convertStreamToString(InputStream is) throws IOException {
-        /*
-         * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will appended to a StringBuilder
-         * and returned as String.
-         */
-        if (is != null) {
-            StringBuilder sb = new StringBuilder();
-            String line;
+	public String convertStreamToString(InputStream is) throws IOException {
+		/*
+		 * To convert the InputStream to String we use the BufferedReader.readLine()
+		 * method. We iterate until the BufferedReader return null which means
+		 * there's no more data to read. Each line will appended to a StringBuilder
+		 * and returned as String.
+		 */
+		if (is != null) {
+			StringBuilder sb = new StringBuilder();
+			String line;
 
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-            } finally {
-                is.close();
-            }
-            return sb.toString();
-        } else {        
-            return "";
-        }
-    }
-    
-    private int count(String base, String searchFor) {
-        int len   = searchFor.length();
-        int result = 0;
-      
-        if (len > 0) {  // search only if there is something
-            int start = base.indexOf(searchFor);
-            while (start != -1) {
-                result++;
-                start = base.indexOf(searchFor, start+len);
-            }
-        }
-        return result;
-    }
-    
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+				while ((line = reader.readLine()) != null) {
+					sb.append(line).append("\n");
+				}
+			} finally {
+				is.close();
+			}
+			return sb.toString();
+		} else {		
+			return "";
+		}
+	}
+	
+	private int count(String base, String searchFor) {
+		int len   = searchFor.length();
+		int result = 0;
+	  
+		if (len > 0) {  // search only if there is something
+			int start = base.indexOf(searchFor);
+			while (start != -1) {
+				result++;
+				start = base.indexOf(searchFor, start+len);
+			}
+		}
+		return result;
+	}
+	
 }

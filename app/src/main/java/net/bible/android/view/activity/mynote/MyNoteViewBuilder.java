@@ -15,7 +15,7 @@ import javax.inject.Inject;
  * Build a MyNote TextView for viewing or editing notes
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope
@@ -34,7 +34,7 @@ public class MyNoteViewBuilder {
 	public MyNoteViewBuilder(MainBibleActivity mainBibleActivity, MyNoteControl myNoteControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.mainActivity = mainBibleActivity;
 		
-        myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
+		myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
 
 		//noinspection ResourceType
 		myNoteText.setId(MYNOTE_TEXT_ID);
@@ -49,23 +49,23 @@ public class MyNoteViewBuilder {
 	}
 	
 	public void addMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	parent.setTag(TAG);
+		boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+		parent.setTag(TAG);
 
-    	if (!isMynoteTextEdit) {
-    		parent.addView(myNoteText);
-    		mainActivity.registerForContextMenu(myNoteText);
-    	}
+		if (!isMynoteTextEdit) {
+			parent.addView(myNoteText);
+			mainActivity.registerForContextMenu(myNoteText);
+		}
 	}
 
 	public void removeMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	
-    	if (isMynoteTextEdit) {
-        	parent.setTag("");
-    		parent.removeView(myNoteText);
-    		mainActivity.unregisterForContextMenu(myNoteText);
-    	}
+		boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+		
+		if (isMynoteTextEdit) {
+			parent.setTag("");
+			parent.removeView(myNoteText);
+			mainActivity.unregisterForContextMenu(myNoteText);
+		}
 	}
 
 	public DocumentView getView() {

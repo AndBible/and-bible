@@ -14,7 +14,7 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class AndBibleRepo extends RepoBase {
 
@@ -28,10 +28,10 @@ public class AndBibleRepo extends RepoBase {
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
 		
-        List<Book> bookList = getBookList(SUPPORTED_DOCUMENTS, refresh);
+		List<Book> bookList = getBookList(SUPPORTED_DOCUMENTS, refresh);
 
-        storeRepoNameInMetaData(bookList);
-        
+		storeRepoNameInMetaData(bookList);
+		
 		return bookList;		
 	}
 

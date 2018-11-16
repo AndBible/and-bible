@@ -28,30 +28,30 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class NoteHandler implements OsisTagHandler {
 
-    private OsisToHtmlParameters parameters;
-    private VerseInfo verseInfo;
+	private OsisToHtmlParameters parameters;
+	private VerseInfo verseInfo;
 
-    private int noteCount = 0;
+	private int noteCount = 0;
 
-    //todo temporarily use a string but later switch to Map<int,String> of verse->note
-    private List<Note> notesList = new ArrayList<>();
-    private boolean isInNote = false;
-    private String currentNoteRef;
+	//todo temporarily use a string but later switch to Map<int,String> of verse->note
+	private List<Note> notesList = new ArrayList<>();
+	private boolean isInNote = false;
+	private String currentNoteRef;
 
-    private HtmlTextWriter writer;
-    
+	private HtmlTextWriter writer;
+	
 	@SuppressWarnings("unused")
-    private static final Logger log = new Logger("NoteHandler");
-    
-    public NoteHandler(OsisToHtmlParameters osisToHtmlParameters, VerseInfo verseInfo, HtmlTextWriter theWriter) {
-        this.parameters = osisToHtmlParameters;
-        this.verseInfo = verseInfo;
-        this.writer = theWriter;
-    }
+	private static final Logger log = new Logger("NoteHandler");
+	
+	public NoteHandler(OsisToHtmlParameters osisToHtmlParameters, VerseInfo verseInfo, HtmlTextWriter theWriter) {
+		this.parameters = osisToHtmlParameters;
+		this.verseInfo = verseInfo;
+		this.writer = theWriter;
+	}
 
 	@Override
 	public String getTagName() {
@@ -66,14 +66,14 @@ public class NoteHandler implements OsisTagHandler {
 
 		// prepare to fetch the actual note into the notes repo
 		writer.writeToTempStore();
-    }
+	}
 
-    /*
-     * Called when the Ending of the current Element is reached. For example in the
-     * above explanation, this method is called when </Title> tag is reached
-    */
+	/*
+	 * Called when the Ending of the current Element is reached. For example in the
+	 * above explanation, this method is called when </Title> tag is reached
+	*/
 	@Override
-    public void end() {
+	public void end() {
 		String noteText = writer.getTempStoreString();
 		if (noteText.length()>0) {
 			if (!StringUtils.containsOnly(noteText, "[];()., ")) {
@@ -85,12 +85,12 @@ public class NoteHandler implements OsisTagHandler {
 		}
 		isInNote = false;
 		writer.finishWritingToTempStore();
-    }
+	}
 
-    /** a reference is finished and now the note must be added
-     */
-    public void addNoteForReference(String refText, String osisRef) {
-    	// add teh html to show a note character in the (bible) text
+	/** a reference is finished and now the note must be added
+	 */
+	public void addNoteForReference(String refText, String osisRef) {
+		// add teh html to show a note character in the (bible) text
 		// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
 		// special code to cope with HunUj problem
 		if (parameters.isAutoWrapUnwrappedRefsInNote() && !isInNote() ) {
@@ -103,29 +103,29 @@ public class NoteHandler implements OsisTagHandler {
 			Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, refText, NoteType.TYPE_REFERENCE, osisRef, parameters.getDocumentVersification());
 			notesList.add(note);
 		}
-    }
-    
-    /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
-     * 
-     * @return a single char to use as a note ref
-     */
-    private String getNoteRef(Attributes attrs) {
-    	// if the ref is specified as an attribute then use that
-    	String noteRef = attrs.getValue("n");
+	}
+	
+	/** either use the 'n' attribute for the note ref or just get the next character in a list a-z
+	 * 
+	 * @return a single char to use as a note ref
+	 */
+	private String getNoteRef(Attributes attrs) {
+		// if the ref is specified as an attribute then use that
+		String noteRef = attrs.getValue("n");
 		if (StringUtils.isEmpty(noteRef)) {
 			noteRef = createNoteRef();
 		}
-    	return noteRef;
-    }
-    /** either use the character passed in or get the next character in a list a-z
-     * 
-     * @return a single char to use as a note ref
-     */
+		return noteRef;
+	}
+	/** either use the character passed in or get the next character in a list a-z
+	 * 
+	 * @return a single char to use as a note ref
+	 */
 	private String createNoteRef() {
 		// else just get the next char
-    	int inta = (int)'a';
-    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
-    	return String.valueOf(nextNoteChar);
+		int inta = (int)'a';
+		char nextNoteChar = (char)(inta+(noteCount++ % 26));
+		return String.valueOf(nextNoteChar);
 	}
 
 	/** write noteref html to outputstream

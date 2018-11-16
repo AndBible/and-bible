@@ -23,7 +23,7 @@ import java.util.Stack;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class DivHandler implements OsisTagHandler {
 
@@ -53,8 +53,8 @@ public class DivHandler implements OsisTagHandler {
 
 	@Override
 	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_DIV;
-    }
+		return OSISUtil.OSIS_ELEMENT_DIV;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

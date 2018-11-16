@@ -25,7 +25,7 @@ import org.json.JSONObject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CurrentBiblePage extends VersePage implements CurrentPage {
 	
@@ -168,7 +168,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		Key key = doGetKey(true);
 		// it is already a Verse but this avoids a downcast
 		return KeyUtil.getVerse(key);
-    }
+	}
 	
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#getKey()
@@ -176,7 +176,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	@Override
 	public Key getKey() {
 		return doGetKey(false);
-    }
+	}
 
 	private Key doGetKey(boolean requireSingleKey) {
 		Verse verse = getVerseSelected();
@@ -185,7 +185,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerseRange()
-		        key = CommonUtils.getWholeChapter(verse);
+				key = CommonUtils.getWholeChapter(verse);
 			} else {
 				key = verse;
 			}
@@ -194,7 +194,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			Log.w(TAG, "No verse, returning default verse Gen 1.1");
 			return new Verse(getVersification(), BibleBook.GEN,1,1, true);
 		}
-    }
+	}
 
 	private Verse getVerseSelected() {
 		return getCurrentBibleVerse().getVerseSelected(getVersification());

@@ -12,7 +12,7 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ChooseMapKey extends ChooseKeyBase {
 
@@ -30,15 +30,15 @@ public class ChooseMapKey extends ChooseKeyBase {
 	}
 
 	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentMapPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
-    }
+	protected void itemSelected(Key key) {
+		try {
+			getCurrentMapPage().setKey(key);
+		} catch (Exception e) {
+			Log.e(TAG, "error on select of gen book key", e);
+		}
+	}
 
 	private CurrentMapPage getCurrentMapPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
-    }
+		return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
+	}
 }

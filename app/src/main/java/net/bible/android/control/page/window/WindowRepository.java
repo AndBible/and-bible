@@ -52,11 +52,11 @@ public class WindowRepository {
 		windowList = new ArrayList<>();
 
 		// restore state from previous invocation
-    	restoreState();
-    	setDefaultActiveWindow();
-    	
+		restoreState();
+		setDefaultActiveWindow();
+		
 		// listen for AppToBackgroundEvent to save state when moved to background
-    	ABEventBus.getDefault().safelyRegister(this);
+		ABEventBus.getDefault().safelyRegister(this);
 	}
 	
 	//TODO if user presses a link then should also show links window
@@ -251,24 +251,24 @@ public class WindowRepository {
 			saveState();
 		}
 	}
-    /** save current page and document state */
+	/** save current page and document state */
 	protected void saveState() {
-    	logger.info("Save instance state for screens");
-    	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
+		logger.info("Save instance state for screens");
+		SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
 
 	/** restore current page and document state */
-    private void restoreState() {
-    	try {
-        	logger.info("Restore instance state for screens");
-        	BibleApplication application = BibleApplication.getApplication();
+	private void restoreState() {
+		try {
+			logger.info("Restore instance state for screens");
+			BibleApplication application = BibleApplication.getApplication();
 			SharedPreferences settings = application.getAppStateSharedPreferences();
-    		restoreState(settings);
-    	} catch (Exception e) {
-    		logger.error("Restore error", e);
-    	}
-    }
+			restoreState(settings);
+		} catch (Exception e) {
+			logger.error("Restore error", e);
+		}
+	}
 	/** called during app close down to save state
 	 * 
 	 * @param outState

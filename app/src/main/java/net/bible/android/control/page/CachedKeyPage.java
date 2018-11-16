@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 abstract public class CachedKeyPage extends CurrentPageBase  {
 
@@ -48,14 +48,14 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 			try {
 				Log.d(TAG, "Start to create cached key list for "+getCurrentDocument());
 				// this cache is cleared in setCurrentDoc
-		    	mCachedGlobalKeyList = new ArrayList<>();
+				mCachedGlobalKeyList = new ArrayList<>();
 
-		    	for (Key key : getCurrentDocument().getGlobalKeyList()) {
-		    		// root key has no name and can be ignored but also check for any other keys with no name
-		    		if (!StringUtils.isEmpty(key.getName())) {
+				for (Key key : getCurrentDocument().getGlobalKeyList()) {
+					// root key has no name and can be ignored but also check for any other keys with no name
+					if (!StringUtils.isEmpty(key.getName())) {
 						mCachedGlobalKeyList.add(key);
-		    		}
-		    	}
+					}
+				}
 
 			} catch (OutOfMemoryError oom) {
 				mCachedGlobalKeyList = null;

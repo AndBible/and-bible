@@ -11,73 +11,73 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class OsisSaxHandler extends DefaultHandler {
-    
-    // debugging
-    private boolean isDebugMode = false;
+	
+	// debugging
+	private boolean isDebugMode = false;
 
-    private HtmlTextWriter writer;
-    
-    @SuppressWarnings("unused")
+	private HtmlTextWriter writer;
+	
+	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("OsisSaxHandler");
-    
-    public OsisSaxHandler() {
-        writer = new HtmlTextWriter();
-    }
+	
+	public OsisSaxHandler() {
+		writer = new HtmlTextWriter();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    /* @Override */
-    public String toString() {
-        return writer.getHtml();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	/* @Override */
+	public String toString() {
+		return writer.getHtml();
+	}
 
-    protected String getName(String eName, String qName) {
-        if (eName!=null && eName.length()>0) {
-            return eName;
-        } else {
-            return qName; // not namespace-aware
-        }
-    }
-    
+	protected String getName(String eName, String qName) {
+		if (eName!=null && eName.length()>0) {
+			return eName;
+		} else {
+			return qName; // not namespace-aware
+		}
+	}
+	
 	protected void write(String s) {
 		writer.write(s);
 	}
 
-    /** check the value of the specified attribute and return true if same as checkvalue
-     * 
-     * @param attrs
-     * @param attrName
-     * @param checkValue
-     * @return
-     */
-    protected boolean isAttrValue(Attributes attrs, String attrName, String checkValue) {
-    	if (attrs==null) {
-    		return false;
-    	}
-    	String value = attrs.getValue(attrName);
-    	return checkValue.equals(value);
-    }
-    
-    protected void debug(String name, Attributes attrs, boolean isStartTag) {
-	    if (isDebugMode) {
-	        write("*"+name);
-	        if (attrs != null) {
-	          for (int i = 0; i < attrs.getLength(); i++) {
-	            String aName = attrs.getLocalName(i); // Attr name
-	            if ("".equals(aName)) aName = attrs.getQName(i);
-	            write(" ");
-	            write(aName+"=\""+attrs.getValue(i)+"\"");
-	          }
-	        }
-	        write("*\n");
-	    }
-    }    
+	/** check the value of the specified attribute and return true if same as checkvalue
+	 * 
+	 * @param attrs
+	 * @param attrName
+	 * @param checkValue
+	 * @return
+	 */
+	protected boolean isAttrValue(Attributes attrs, String attrName, String checkValue) {
+		if (attrs==null) {
+			return false;
+		}
+		String value = attrs.getValue(attrName);
+		return checkValue.equals(value);
+	}
+	
+	protected void debug(String name, Attributes attrs, boolean isStartTag) {
+		if (isDebugMode) {
+			write("*"+name);
+			if (attrs != null) {
+			  for (int i = 0; i < attrs.getLength(); i++) {
+				String aName = attrs.getLocalName(i); // Attr name
+				if ("".equals(aName)) aName = attrs.getQName(i);
+				write(" ");
+				write(aName+"=\""+attrs.getValue(i)+"\"");
+			  }
+			}
+			write("*\n");
+		}
+	}	
 
 	public void setDebugMode(boolean isDebugMode) {
 		this.isDebugMode = isDebugMode;

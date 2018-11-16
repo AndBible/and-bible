@@ -17,32 +17,32 @@ import java.util.Properties;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class FontControl {
 
-    private Properties fontProperties = new Properties(); 
-    
-    private static final String FONT_DOWNLOAD_URL = "http://www.crosswire.org/and-bible/fonts/v1/";
-    private static String FONT_PROPERTIES_FILENAME = "fonts.properties";
-    private static String FONT_SIZE_ADJUSTMENT = ".fontSizeAdjustment";
-    private static String CSS_CLASS = ".cssClass";
-    
-    private static FontControl SINGLETON = new FontControl();
-    
+	private Properties fontProperties = new Properties(); 
+	
+	private static final String FONT_DOWNLOAD_URL = "http://www.crosswire.org/and-bible/fonts/v1/";
+	private static String FONT_PROPERTIES_FILENAME = "fonts.properties";
+	private static String FONT_SIZE_ADJUSTMENT = ".fontSizeAdjustment";
+	private static String CSS_CLASS = ".cssClass";
+	
+	private static FontControl SINGLETON = new FontControl();
+	
 	private static final Logger log = new Logger(FontControl.class.getName());
-    
-    private FontControl() {
-    	loadFontProperties();
-    }
-    
-    public void reloadProperties() {
-    	loadFontProperties();
-    }
-    
-    public static FontControl getInstance() {
-    	return SINGLETON;
-    }
+	
+	private FontControl() {
+		loadFontProperties();
+	}
+	
+	public void reloadProperties() {
+		loadFontProperties();
+	}
+	
+	public static FontControl getInstance() {
+		return SINGLETON;
+	}
 
 	public String getFontForBook(Book book) {
 		String font = null;
@@ -123,8 +123,8 @@ public class FontControl {
 		try {
 			source = new URI(FONT_DOWNLOAD_URL+font);
 		} catch (URISyntaxException use) {
-    		log.error("Invalid URI", use);
-    		throw new InstallException("Error downloading font");
+			log.error("Invalid URI", use);
+			throw new InstallException("Error downloading font");
 		}
 		File target = new File(SharedConstants.FONT_DIR, font);
 		
@@ -141,8 +141,8 @@ public class FontControl {
 			try {
 				source = new URI(FONT_DOWNLOAD_URL+FONT_PROPERTIES_FILENAME);
 			} catch (URISyntaxException use) {
-	    		log.error("Invalid URI", use);
-	    		throw new InstallException("Error downloading font");
+				log.error("Invalid URI", use);
+				throw new InstallException("Error downloading font");
 			}
 			File target = new File(SharedConstants.FONT_DIR, FONT_PROPERTIES_FILENAME);
 			

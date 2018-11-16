@@ -17,7 +17,7 @@ import org.crosswire.common.progress.Progress;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class DownloadStatus extends ProgressActivityBase {
 	private static final String TAG = "DownloadStatus";
@@ -26,22 +26,22 @@ public class DownloadStatus extends ProgressActivityBase {
 	private Button mOkayButton;
 	
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying "+TAG+" view");
-        setContentView(R.layout.download_status);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Displaying "+TAG+" view");
+		setContentView(R.layout.download_status);
 
 		super.buildActivityComponent().inject(this);
 
 		mOkayButton = (Button)findViewById(R.id.okButton);
-        enableOkay();
+		enableOkay();
 
-        Log.d(TAG, "Finished displaying Download Status view");
-    }
+		Log.d(TAG, "Finished displaying Download Status view");
+	}
 
-    
-    @Override
+	
+	@Override
 	protected void jobFinished(Progress job) {
 		super.jobFinished(job);
 		enableOkay();
@@ -60,7 +60,7 @@ public class DownloadStatus extends ProgressActivityBase {
 	private void enableOkay() {
 		mIsOkayButtonEnabled = isAllJobsFinished();
    		mOkayButton.setEnabled(mIsOkayButtonEnabled);
-    }
+	}
 	/** called in tight loop so must be quick and ensure disabled
 	 */
 	private void fastDisableOkay() {
@@ -68,16 +68,16 @@ public class DownloadStatus extends ProgressActivityBase {
 			mIsOkayButtonEnabled = isAllJobsFinished();
 	   		mOkayButton.setEnabled(mIsOkayButtonEnabled);
 		}
-    }
+	}
 	
-    protected void setMainText(String text) {
-    	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
-    }
-    
-    public void onOkay(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, DownloadStatus.class);
-    	setResult(Download.DOWNLOAD_FINISH, resultIntent);
-    	finish();    
-    }
+	protected void setMainText(String text) {
+		((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
+	}
+	
+	public void onOkay(View v) {
+		Log.i(TAG, "CLICKED");
+		Intent resultIntent = new Intent(this, DownloadStatus.class);
+		setResult(Download.DOWNLOAD_FINISH, resultIntent);
+		finish();	
+	}
 }

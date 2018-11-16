@@ -30,12 +30,12 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CompareTranslations extends ListActivityBase implements SwipeGestureEventHandler {
 
-    private List<TranslationDto> mTranslations = new ArrayList<TranslationDto>();
-    private ArrayAdapter<TranslationDto> mKeyArrayAdapter;
+	private List<TranslationDto> mTranslations = new ArrayList<TranslationDto>();
+	private ArrayAdapter<TranslationDto> mKeyArrayAdapter;
 
 	private VerseRange currentVerseRange;
 
@@ -50,83 +50,83 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 
 	private static final String TAG = "CompareTranslations";
 
-    /** Called when the activity is first created. */
-    @SuppressLint("MissingSuperCall")
+	/** Called when the activity is first created. */
+	@SuppressLint("MissingSuperCall")
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, true);
-        Log.i(TAG, "Displaying Compare Translations view");
-        setContentView(R.layout.list);
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState, true);
+		Log.i(TAG, "Displaying Compare Translations view");
+		setContentView(R.layout.list);
 
 		buildActivityComponent().inject(this);
 
-        //fetch verse from intent if set - so that goto via History works nicely
+		//fetch verse from intent if set - so that goto via History works nicely
 		currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(getIntent());
 
 		prepareScreenData();
 
-    	mKeyArrayAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mTranslations);
-        setListAdapter(mKeyArrayAdapter);
+		mKeyArrayAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mTranslations);
+		setListAdapter(mKeyArrayAdapter);
 
-        // create gesture related objects
-        gestureDetector = new GestureDetector( new SwipeGestureListener(this) );
-    }
-    
-    private void prepareScreenData() {
+		// create gesture related objects
+		gestureDetector = new GestureDetector( new SwipeGestureListener(this) );
+	}
+	
+	private void prepareScreenData() {
 
-        setTitle(compareTranslationsControl.getTitle(currentVerseRange));
+		setTitle(compareTranslationsControl.getTitle(currentVerseRange));
 
-        mTranslations.clear();
-        mTranslations.addAll(compareTranslationsControl.getAllTranslations(currentVerseRange));
-        
-        notifyDataSetChanged();
+		mTranslations.clear();
+		mTranslations.addAll(compareTranslationsControl.getAllTranslations(currentVerseRange));
+		
+		notifyDataSetChanged();
 
-        Log.d(TAG, "Finished displaying Compare Translations view");
-    }
+		Log.d(TAG, "Finished displaying Compare Translations view");
+	}
 
-    /** swiped left
-     */
-    @Override
+	/** swiped left
+	 */
+	@Override
 	public void onNext() {
-    	Log.d(TAG, "Next");
-    	currentVerseRange = compareTranslationsControl.getNextVerseRange(currentVerseRange);
-    	prepareScreenData();
-    }
+		Log.d(TAG, "Next");
+		currentVerseRange = compareTranslationsControl.getNextVerseRange(currentVerseRange);
+		prepareScreenData();
+	}
 
-    /** swiped right
-     */
-    @Override
+	/** swiped right
+	 */
+	@Override
 	public void onPrevious() {
-    	Log.d(TAG, "Previous");
+		Log.d(TAG, "Previous");
 		currentVerseRange = compareTranslationsControl.getPreviousVerseRange(currentVerseRange);
-    	prepareScreenData();
-    }
+		prepareScreenData();
+	}
 
-    @Override
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
-    		
-	    	translationSelected(mTranslations.get(position));
+		try {
+			// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+			
+			translationSelected(mTranslations.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
-    
-    private void translationSelected(TranslationDto translationDto) {
-    	if (translationDto!=null) {
-        	Log.i(TAG, "chose:"+translationDto.getBook());
-        	
-        	compareTranslationsControl.showTranslationForVerseRange(translationDto, currentVerseRange);
-    		
-    		// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
-    		returnToPreviousScreen();
-    	}
-    }
+	
+	private void translationSelected(TranslationDto translationDto) {
+		if (translationDto!=null) {
+			Log.i(TAG, "chose:"+translationDto.getBook());
+			
+			compareTranslationsControl.showTranslationForVerseRange(translationDto, currentVerseRange);
+			
+			// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
+			returnToPreviousScreen();
+		}
+	}
 
-    /** implement getHistoryIntent to allow correct verse to be shown if history nav occurs
-     */
+	/** implement getHistoryIntent to allow correct verse to be shown if history nav occurs
+	 */
 	@Override
 	public Intent getIntentForHistoryList() {
 		Intent intent = getIntent();

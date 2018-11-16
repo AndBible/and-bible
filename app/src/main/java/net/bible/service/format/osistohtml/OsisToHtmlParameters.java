@@ -17,7 +17,7 @@ import java.util.Set;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class OsisToHtmlParameters {
 	private boolean showChapterDivider;
@@ -34,11 +34,11 @@ public class OsisToHtmlParameters {
 	private boolean isShowNotes = false;
 	private boolean isAutoWrapUnwrappedRefsInNote = false;
 	// used as a basis if a reference has only chapter and no book
-    private Verse basisRef;
+	private Verse basisRef;
 	private Versification documentVersification;
 	private String font;
 
-    private String cssClassForCustomFont;
+	private String cssClassForCustomFont;
 	private boolean isShowStrongs = false;
 	private boolean isShowMorphology = false;
 	private boolean isRedLetter = false;

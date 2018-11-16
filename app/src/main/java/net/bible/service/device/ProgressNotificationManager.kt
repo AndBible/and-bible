@@ -30,121 +30,121 @@ import org.crosswire.common.progress.WorkListener
 // map them to Android Notifications
 
 class ProgressNotificationManager {
-    internal var progs: MutableSet<Progress> = ArraySet()
-    private var workListener: WorkListener? = null
+	internal var progs: MutableSet<Progress> = ArraySet()
+	private var workListener: WorkListener? = null
 
-    // add it to the NotificationManager
-    lateinit private var notificationManager: NotificationManager
+	// add it to the NotificationManager
+	lateinit private var notificationManager: NotificationManager
 
-    fun initialise() {
-        Log.i(TAG, "Initializing")
-        notificationManager = BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
-        val app = BibleApplication.getApplication()
+	fun initialise() {
+		Log.i(TAG, "Initializing")
+		notificationManager = BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+		val app = BibleApplication.getApplication()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
-                    app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW).apply {
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
+					app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW).apply {
+				lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+			}
+			notificationManager.createNotificationChannel(channel)
+		}
 
 
-        workListener = object : WorkListener {
+		workListener = object : WorkListener {
 
-            override fun workProgressed(ev: WorkEvent) {
-                val prog = ev.job
-                val done = prog.work
-                progs.add(prog)
+			override fun workProgressed(ev: WorkEvent) {
+				val prog = ev.job
+				val done = prog.work
+				progs.add(prog)
 
-                // updating notifications is really slow so we only update the notification manager every 5%
-                // TODO is it still slow or was it only back in the days?
-                if (prog.isFinished || done % 5 == 0) {
-                    // compose a descriptive string showing job name and current section if relevant
-                    var status = StringUtils.left(prog.jobName, 50) + SharedConstants.LINE_SEPARATOR
-                    if (!StringUtils.isEmpty(prog.sectionName) && !prog.sectionName.equals(prog.jobName, ignoreCase = true)) {
-                        status += prog.sectionName
-                    }
+				// updating notifications is really slow so we only update the notification manager every 5%
+				// TODO is it still slow or was it only back in the days?
+				if (prog.isFinished || done % 5 == 0) {
+					// compose a descriptive string showing job name and current section if relevant
+					var status = StringUtils.left(prog.jobName, 50) + SharedConstants.LINE_SEPARATOR
+					if (!StringUtils.isEmpty(prog.sectionName) && !prog.sectionName.equals(prog.jobName, ignoreCase = true)) {
+						status += prog.sectionName
+					}
 
-                    buildNotification(prog)
+					buildNotification(prog)
 
-                    if (prog.isFinished) {
-                        finished(prog)
-                    }
-                }
-            }
+					if (prog.isFinished) {
+						finished(prog)
+					}
+				}
+			}
 
-            override fun workStateChanged(ev: WorkEvent) {
-                Log.d(TAG, "WorkState changed")
-                // we don't care about these events
-            }
-        }
-        JobManager.addWorkListener(workListener)
+			override fun workStateChanged(ev: WorkEvent) {
+				Log.d(TAG, "WorkState changed")
+				// we don't care about these events
+			}
+		}
+		JobManager.addWorkListener(workListener)
 
-        Log.d(TAG, "Finished Initializing")
-    }
+		Log.d(TAG, "Finished Initializing")
+	}
 
-    private fun finished(prog: Progress) {
-        Log.d(TAG, "Finished")
-        notificationManager.cancel(getNotificationId(prog.hashCode()))
-        progs.remove(prog)
-    }
+	private fun finished(prog: Progress) {
+		Log.d(TAG, "Finished")
+		notificationManager.cancel(getNotificationId(prog.hashCode()))
+		progs.remove(prog)
+	}
 
-    fun close() {
-        Log.i(TAG, "Clearing Notifications")
-        try {
-            // clear map and all Notification objects
-            for (prog in progs) {
-                if (prog.isCancelable) {
-                    Log.i(TAG, "Cancelling job")
-                    prog.cancel()
-                }
-                finished(prog)
-            }
+	fun close() {
+		Log.i(TAG, "Clearing Notifications")
+		try {
+			// clear map and all Notification objects
+			for (prog in progs) {
+				if (prog.isCancelable) {
+					Log.i(TAG, "Cancelling job")
+					prog.cancel()
+				}
+				finished(prog)
+			}
 
-            // de-register from notifications
-            JobManager.removeWorkListener(workListener)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error tidying up", e)
-        }
+			// de-register from notifications
+			JobManager.removeWorkListener(workListener)
+		} catch (e: Exception) {
+			Log.e(TAG, "Error tidying up", e)
+		}
 
-    }
+	}
 
-    private fun buildNotification(prog: Progress) {
-        Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
-        val app = BibleApplication.getApplication()
-        val intent = Intent(app, ProgressStatus::class.java)
-        val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
-        val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
+	private fun buildNotification(prog: Progress) {
+		Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
+		val app = BibleApplication.getApplication()
+		val intent = Intent(app, ProgressStatus::class.java)
+		val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
+		val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
-        builder.setSmallIcon(R.drawable.ichthys_alpha)
-                .setContentTitle(prog.jobName)
-                .setShowWhen(true)
-                .setContentIntent(pendingIntent)
-                .setProgress(100, prog.work, false)
-                .setOngoing(true)
-                .setAutoCancel(true)
-                .setOnlyAlertOnce(true)
+		builder.setSmallIcon(R.drawable.ichthys_alpha)
+				.setContentTitle(prog.jobName)
+				.setShowWhen(true)
+				.setContentIntent(pendingIntent)
+				.setProgress(100, prog.work, false)
+				.setOngoing(true)
+				.setAutoCancel(true)
+				.setOnlyAlertOnce(true)
 
-        val notification = builder.build()
+		val notification = builder.build()
 
-        notificationManager.notify(getNotificationId(prog.hashCode()), notification)
-    }
+		notificationManager.notify(getNotificationId(prog.hashCode()), notification)
+	}
 
-    private fun getNotificationId(hashCode: Int): Int {
-        // Make some room for speak notification id (which is 1)
-        var code = hashCode
-        if(code > 0) {
-            code += 1
-        }
-        return code
-    }
+	private fun getNotificationId(hashCode: Int): Int {
+		// Make some room for speak notification id (which is 1)
+		var code = hashCode
+		if(code > 0) {
+			code += 1
+		}
+		return code
+	}
 
-    companion object {
-        private val TAG = "ProgressNotificatnMngr"
+	companion object {
+		private val TAG = "ProgressNotificatnMngr"
 
-        const val PROGRESS_NOTIFICATION_CHANNEL="proggress-notifications"
+		const val PROGRESS_NOTIFICATION_CHANNEL="proggress-notifications"
 
-        val instance = ProgressNotificationManager()
-    }
+		val instance = ProgressNotificationManager()
+	}
 }

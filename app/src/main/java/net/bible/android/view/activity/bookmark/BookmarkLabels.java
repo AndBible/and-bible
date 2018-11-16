@@ -31,7 +31,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BookmarkLabels extends ListActivityBase {
 
@@ -48,44 +48,44 @@ public class BookmarkLabels extends ListActivityBase {
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, false);
-        setContentView(R.layout.bookmark_labels);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState, false);
+		setContentView(R.layout.bookmark_labels);
 
 		buildActivityComponent().inject(this);
 
-        long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
-        bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
+		long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
+		bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
 
-        initialiseView();
-    }
+		initialiseView();
+	}
 
-    private void initialiseView() {
-    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+	private void initialiseView() {
+		getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-    	loadLabelList();
+		loadLabelList();
 
-    	ArrayAdapter<LabelDto> listArrayAdapter = new BookmarkLabelItemAdapter(this, LIST_ITEM_TYPE, labels);
-    	setListAdapter(listArrayAdapter);
-    	
+		ArrayAdapter<LabelDto> listArrayAdapter = new BookmarkLabelItemAdapter(this, LIST_ITEM_TYPE, labels);
+		setListAdapter(listArrayAdapter);
+		
 		initialiseCheckedLabels(bookmarks);
-    }
+	}
 
-    /** Finished selecting labels
-     */
-    public void onOkay(View v) {
-    	Log.i(TAG, "Okay clicked");
-    	// get the labels that are currently checked
-    	List<LabelDto> selectedLabels = getCheckedLabels();
+	/** Finished selecting labels
+	 */
+	public void onOkay(View v) {
+		Log.i(TAG, "Okay clicked");
+		// get the labels that are currently checked
+		List<LabelDto> selectedLabels = getCheckedLabels();
 
-    	//associate labels with bookmarks that were passed in
+		//associate labels with bookmarks that were passed in
 		for (BookmarkDto bookmark : bookmarks) {
 			bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
 		}
-       	finish();
-    }
+	   	finish();
+	}
 
 	/**
 	 * New Label requested
@@ -111,13 +111,13 @@ public class BookmarkLabels extends ListActivityBase {
 	 * 
 	 */
 	private void loadLabelList() {
-    	
-    	// get long book names to show in the select list
+		
+		// get long book names to show in the select list
 		// must clear rather than create because the adapter is linked to this specific list
-    	labels.clear();
+		labels.clear();
 		labels.addAll(bookmarkControl.getAssignableLabels());
 
-    	// ensure ui is updated
+		// ensure ui is updated
 		notifyDataSetChanged();
 	}
 
@@ -125,7 +125,7 @@ public class BookmarkLabels extends ListActivityBase {
 	 */
 	private void initialiseCheckedLabels(List<BookmarkDto> bookmarks) {
 		Set<LabelDto> allCheckedLabels = new HashSet<>();
-    	for (BookmarkDto bookmark : bookmarks) {
+		for (BookmarkDto bookmark : bookmarks) {
 			// pre-tick any labels currently associated with the bookmark
 			allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark));
 		}
@@ -137,15 +137,15 @@ public class BookmarkLabels extends ListActivityBase {
 	 */
 	private List<LabelDto> getCheckedLabels() {
 		// get selected labels
-    	ListView listView = getListView();
-    	List<LabelDto> checkedLabels = new ArrayList<>();
-    	for (int i=0; i<labels.size(); i++) {
-    		if (listView.isItemChecked(i)) {
-    			LabelDto label = labels.get(i);
-    			checkedLabels.add(label);
-    			Log.d(TAG, "Selected "+label.getName());
-    		}
-    	}
+		ListView listView = getListView();
+		List<LabelDto> checkedLabels = new ArrayList<>();
+		for (int i=0; i<labels.size(); i++) {
+			if (listView.isItemChecked(i)) {
+				LabelDto label = labels.get(i);
+				checkedLabels.add(label);
+				Log.d(TAG, "Selected "+label.getName());
+			}
+		}
 		return checkedLabels;
 	}
 
@@ -154,14 +154,14 @@ public class BookmarkLabels extends ListActivityBase {
 	 */
 	private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
 		for (int i=0; i<labels.size(); i++) {
-    		if (labelsToCheck.contains(labels.get(i))) {
-    			getListView().setItemChecked(i, true);
-    		} else {
-    			getListView().setItemChecked(i, false);
-    		}
-    	}
+			if (labelsToCheck.contains(labels.get(i))) {
+				getListView().setItemChecked(i, true);
+			} else {
+				getListView().setItemChecked(i, false);
+			}
+		}
 
-    	// ensure ui is updated
+		// ensure ui is updated
 		notifyDataSetChanged();
 	}
 

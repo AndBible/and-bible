@@ -18,7 +18,7 @@ import org.crosswire.jsword.index.IndexStatus;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class SearchIndexProgressStatus extends ProgressActivityBase {
 
@@ -29,7 +29,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_index_status);
+		setContentView(R.layout.search_index_status);
 
 		super.buildActivityComponent().inject(this);
 

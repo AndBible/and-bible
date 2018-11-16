@@ -9,7 +9,7 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class HistoryTraversal {
 
@@ -29,8 +29,8 @@ public class HistoryTraversal {
 	}
 
 	/**
-     * about to change activity so tell the HistoryManager so it can register the old activity in its list
-     */
+	 * about to change activity so tell the HistoryManager so it can register the old activity in its list
+	 */
 	public void beforeStartActivity() {
 		if (integrateWithHistoryManager) {
 			ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());

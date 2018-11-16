@@ -40,7 +40,7 @@ import javax.inject.Inject;
  * SesionFacade for CurrentPage used by View classes
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class PageControl {
@@ -113,16 +113,16 @@ public class PageControl {
 					new Verse(versification, BibleBook.JOHN,3,16),
 					new Verse(versification, BibleBook.GEN,1,1),
 					new Verse(versification, BibleBook.PS,1,1)};
-	    	List<Book> bibles = swordDocumentFacade.getBibles();
-	        if (bibles.size()==1) {
-	        	Book bible = bibles.get(0);
-	        	for (Verse verse : defaultVerses) {
-		        	if (bible.contains(verse)) {
-		        		getCurrentPageManager().getCurrentBible().setKey(verse);
-		        		return;
-		        	}
-	        	}
-	        }
+			List<Book> bibles = swordDocumentFacade.getBibles();
+			if (bibles.size()==1) {
+				Book bible = bibles.get(0);
+				for (Verse verse : defaultVerses) {
+					if (bible.contains(verse)) {
+						getCurrentPageManager().getCurrentBible().setKey(verse);
+						return;
+					}
+				}
+			}
 			
 		} catch (Exception e) {
 			Log.e(TAG, "Verse error");

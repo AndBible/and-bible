@@ -29,7 +29,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ActivityBase extends AppCompatActivity implements AndBibleActivity {
 
@@ -37,7 +37,7 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	public static final int STD_REQUEST_CODE = 1;
 	
 	// Special result that requests all activities to exit until the main/top Activity is reached
-    public static final int RESULT_RETURN_TO_TOP           = 900;
+	public static final int RESULT_RETURN_TO_TOP		   = 900;
 
 	private SharedActivityState sharedActivityState = SharedActivityState.getInstance();
 	
@@ -57,36 +57,36 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	private static final String TAG = "ActivityBase";
 	
 	/** Called when the activity is first created. */
-    @SuppressLint("MissingSuperCall")
+	@SuppressLint("MissingSuperCall")
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-    	this.onCreate(savedInstanceState, false);
-    }
+	public void onCreate(Bundle savedInstanceState) {
+		this.onCreate(savedInstanceState, false);
+	}
 
-    /** Called when the activity is first created. */
-    public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
-    	if (allowThemeChange) {
-    		UiUtils.applyTheme(this);
-    	}
+	/** Called when the activity is first created. */
+	public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
+		if (allowThemeChange) {
+			UiUtils.applyTheme(this);
+		}
 
 		super.onCreate(savedInstanceState);
-    	
-        Log.i(getLocalClassName(), "onCreate:"+this);
+		
+		Log.i(getLocalClassName(), "onCreate:"+this);
 
 		this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager;
 
-        // Register current activity in onCreate and onResume
-        CurrentActivityHolder.getInstance().setCurrentActivity(this);
+		// Register current activity in onCreate and onResume
+		CurrentActivityHolder.getInstance().setCurrentActivity(this);
 
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		// fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
+		// this affected jsword dynamic classloading
+		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		
-        setFullScreen(isFullScreen());
+		setFullScreen(isFullScreen());
 
 		// if locale is overridden then have to force title to be translated here
 		LocaleHelper.translateTitle(this);
-    }
+	}
 
 	protected ActivityComponent buildActivityComponent() {
 		return DaggerActivityComponent.builder()
@@ -94,17 +94,17 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 				.build();
 	}
 
-    @Override
+	@Override
 	public void startActivity(Intent intent) {
-    	historyTraversal.beforeStartActivity();
-    	
+		historyTraversal.beforeStartActivity();
+		
 		super.startActivity(intent);
 	}
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode) {
-    	historyTraversal.beforeStartActivity();
+		historyTraversal.beforeStartActivity();
 
-    	super.startActivityForResult(intent, requestCode);
+		super.startActivityForResult(intent, requestCode);
 	}
 
 	/**
@@ -127,41 +127,41 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	/**
 	 * Change fullscreen state for this and all future activities
 	 */
-    public void toggleFullScreen() {
-    	sharedActivityState.toggleFullScreen();
-    	setFullScreen(sharedActivityState.isFullScreen());
-    }
+	public void toggleFullScreen() {
+		sharedActivityState.toggleFullScreen();
+		setFullScreen(sharedActivityState.isFullScreen());
+	}
 	
-    /**
-     * Are all activities currently in full screen mode
-     */
+	/**
+	 * Are all activities currently in full screen mode
+	 */
 	public boolean isFullScreen() {
 		return sharedActivityState.isFullScreen();
 	}
 	
 	private void setFullScreen(boolean isFullScreen) {
-    	if (!isFullScreen) {
-    		Log.d(TAG, "NOT Fullscreen");
-    		// http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		if (!isFullScreen) {
+			Log.d(TAG, "NOT Fullscreen");
+			// http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			setLightsOutMode(false);
-    	} else {
-    		Log.d(TAG, "Fullscreen");
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+		} else {
+			Log.d(TAG, "Fullscreen");
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 			setLightsOutMode(true);
-    	}
+		}
 	}
 	
 	@SuppressLint("NewApi")
 	private void setLightsOutMode(boolean isLightsOut) {
 		if (mContentView!=null) {
-	    	if (isLightsOut) {
+			if (isLightsOut) {
 				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-	    	} else {
+			} else {
 				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-	    	}
+			}
 		}
 	}
 
@@ -171,27 +171,27 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 		// ignore long press on search because it causes errors
 		if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-	    	// ignore
+			// ignore
 			return true;
 		}
 		
 		//TODO make Long press Back work for screens other than main window e.g. does not work from search screen because wrong window is displayed
-	    if (keyCode == KeyEvent.KEYCODE_BACK && this instanceof MainBibleActivity) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && this instanceof MainBibleActivity) {
 			Log.d(TAG, "Back Long");
-	        // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
-	        // been performed on the long press, so will set the cancelled flag for the following up event.
-	    	Intent intent = new Intent(this, History.class);
-	    	startActivityForResult(intent, 1);
-	        return true;
-	    }
-	    
+			// a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
+			// been performed on the long press, so will set the cancelled flag for the following up event.
+			Intent intent = new Intent(this, History.class);
+			startActivityForResult(intent, 1);
+			return true;
+		}
+		
 		//TODO make Long press back - currently the History screen does not show the correct screen after item selection if not called from main window 
-	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	// ignore
-	    	return true;
-	    }
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			// ignore
+			return true;
+		}
 
-	    return super.onKeyLongPress(keyCode, event);
+		return super.onKeyLongPress(keyCode, event);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 		historyTraversal.setIntegrateWithHistoryManager(integrateWithHistoryManager);
 	}
 	
-    /** allow activity to enhance intent to correctly restore state */
+	/** allow activity to enhance intent to correctly restore state */
 	public Intent getIntentForHistoryList() {
 		return getIntent();
 	}
@@ -212,40 +212,40 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 		Dialogs.getInstance().showErrorMsg(msgResId);
 	}
 
-    protected void showHourglass() {
-    	Dialogs.getInstance().showHourglass();
-    }
-    protected void dismissHourglass() {
-    	Dialogs.getInstance().dismissHourglass();
-    }
+	protected void showHourglass() {
+		Dialogs.getInstance().showHourglass();
+	}
+	protected void dismissHourglass() {
+		Dialogs.getInstance().dismissHourglass();
+	}
 
-    protected void returnErrorToPreviousScreen() {
-    	// just pass control back to the previous screen
-    	Intent resultIntent = new Intent(this, this.getClass());
-    	setResult(Activity.RESULT_CANCELED, resultIntent);
-    	finish();    
-    }
-    protected void returnToPreviousScreen() {
-    	// just pass control back to the previous screen
-    	Intent resultIntent = new Intent(this, this.getClass());
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
-    
-    protected void returnToTop() {
-    	// just pass control back to the previous screen
-    	Intent resultIntent = new Intent(this, this.getClass());
-    	setResult(RESULT_RETURN_TO_TOP, resultIntent);
-    	finish();    
-    }
-    
+	protected void returnErrorToPreviousScreen() {
+		// just pass control back to the previous screen
+		Intent resultIntent = new Intent(this, this.getClass());
+		setResult(Activity.RESULT_CANCELED, resultIntent);
+		finish();	
+	}
+	protected void returnToPreviousScreen() {
+		// just pass control back to the previous screen
+		Intent resultIntent = new Intent(this, this.getClass());
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();	
+	}
+	
+	protected void returnToTop() {
+		// just pass control back to the previous screen
+		Intent resultIntent = new Intent(this, this.getClass());
+		setResult(RESULT_RETURN_TO_TOP, resultIntent);
+		finish();	
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
-        Log.i(getLocalClassName(), "onResume:"+this);
-        CurrentActivityHolder.getInstance().setCurrentActivity(this);
-        
-        //allow action to be called on screen being turned on
+		Log.i(getLocalClassName(), "onResume:"+this);
+		CurrentActivityHolder.getInstance().setCurrentActivity(this);
+		
+		//allow action to be called on screen being turned on
 		if (!isScreenOn && ScreenSettings.isScreenOn()) {
 			onScreenTurnedOn();
 		}
@@ -254,7 +254,7 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	@Override
 	protected void onPause() {
 		super.onPause();
-        Log.i(getLocalClassName(), "onPause:"+this);
+		Log.i(getLocalClassName(), "onPause:"+this);
 		if (isScreenOn && !ScreenSettings.isScreenOn()) {
 			onScreenTurnedOff();
 		}
@@ -273,26 +273,26 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-        Log.i(getLocalClassName(), "onRestart:"+this);
+		Log.i(getLocalClassName(), "onRestart:"+this);
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-        Log.i(getLocalClassName(), "onStart:"+this);
+		Log.i(getLocalClassName(), "onStart:"+this);
 	}
 
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-        Log.i(getLocalClassName(), "onStop:"+this);
-        // screen can still be considered as current screen if put on stand-by
-        // removing this if causes speech to stop when screen is put on stand-by
-        if (isScreenOn) {
-	        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-	        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
-        }
+		Log.i(getLocalClassName(), "onStop:"+this);
+		// screen can still be considered as current screen if put on stand-by
+		// removing this if causes speech to stop when screen is put on stand-by
+		if (isScreenOn) {
+			// call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+			CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+		}
 	}
 
 	public void setAllowThemeChange(boolean allowThemeChange) {
@@ -302,12 +302,12 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
 	 * and set the new titlebar layout just after
 	 */
-    @Override
+	@Override
 	public void setContentView(int layoutResID) {
 		super.setContentView(layoutResID);
 
-        mContentView = getWindow().getDecorView().findViewById(android.R.id.content);
-    }
+		mContentView = getWindow().getDecorView().findViewById(android.R.id.content);
+	}
 
 	public View getContentView() {
 		return mContentView;

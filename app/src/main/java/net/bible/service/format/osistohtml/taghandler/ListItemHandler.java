@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class ListItemHandler implements OsisTagHandler {
 
@@ -23,8 +23,8 @@ public class ListItemHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_ITEM;
-    }
+		return OSISUtil.OSIS_ELEMENT_ITEM;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

@@ -324,9 +324,9 @@ public class WindowControlTest {
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
-        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+		Window linksWindow = windowRepository.getDedicatedLinksWindow();
 
-        windowControl.setActiveWindow(linksWindow);
+		windowControl.setActiveWindow(linksWindow);
 		windowControl.updateOptionsMenu(menu);
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));

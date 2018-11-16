@@ -30,7 +30,7 @@ import javax.inject.Inject;
  * The HistoryManager keeps a different history list for each window.
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
@@ -55,13 +55,13 @@ public class HistoryManager {
 		ABEventBus.getDefault().safelyRegister(this);
 	}
 	
-    /** allow current page to save any settings or data before being changed
-     */
-    public void onEvent(BeforeCurrentPageChangeEvent event) {
-    	if(event.getUpdateHistory()) {
+	/** allow current page to save any settings or data before being changed
+	 */
+	public void onEvent(BeforeCurrentPageChangeEvent event) {
+		if(event.getUpdateHistory()) {
 			addHistoryItem();
 		}
-    }
+	}
 	
 	public boolean canGoBack() {
 		return getHistoryStack().size()>0;

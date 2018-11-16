@@ -14,27 +14,27 @@ import net.bible.android.view.activity.base.ProgressActivityBase;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ProgressStatus extends ProgressActivityBase {
 	private static final String TAG = "ProgressStatus";
 	
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying "+TAG+" view");
-        setContentView(R.layout.progress_status);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Displaying "+TAG+" view");
+		setContentView(R.layout.progress_status);
 
 		super.buildActivityComponent().inject(this);
 
-        Log.d(TAG, "Finished displaying Search Index view");
-    }
+		Log.d(TAG, "Finished displaying Search Index view");
+	}
 
-    public void onOkay(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, ProgressStatus.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+	public void onOkay(View v) {
+		Log.i(TAG, "CLICKED");
+		Intent resultIntent = new Intent(this, ProgressStatus.class);
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();	
+	}
 }

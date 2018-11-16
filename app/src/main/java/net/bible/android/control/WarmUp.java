@@ -43,10 +43,10 @@ public class WarmUp {
 	 */
 	public synchronized void warmUpSwordNow() {
 		if (!isInitialised) {
-	        // force Sword to initialise itself
-	        swordDocumentFacade.getBibles();
+			// force Sword to initialise itself
+			swordDocumentFacade.getBibles();
 
-	        isInitialised = true;
+			isInitialised = true;
 		}
 	}
 }

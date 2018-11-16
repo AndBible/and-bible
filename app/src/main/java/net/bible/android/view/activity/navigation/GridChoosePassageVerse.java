@@ -26,7 +26,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class GridChoosePassageVerse extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 	
@@ -40,53 +40,53 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 	private static final String TAG = "GridChoosePassageChaptr";
 
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	// background goes white in some circumstances if theme changes so prevent theme change
-    	setAllowThemeChange(false);
-        super.onCreate(savedInstanceState);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// background goes white in some circumstances if theme changes so prevent theme change
+		setAllowThemeChange(false);
+		super.onCreate(savedInstanceState);
 
 		buildActivityComponent().inject(this);
 
-        int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
-        mBibleBook = BibleBook.values()[bibleBookNo];
+		int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
+		mBibleBook = BibleBook.values()[bibleBookNo];
 
-        mBibleChapterNo = getIntent().getIntExtra(GridChoosePassageBook.CHAPTER_NO, navigationControl.getDefaultBibleChapterNo());
-        
-        // show chosen book in page title to confirm user choice
-        try {
-        	setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
-        } catch (Exception nsve) {
-        	Log.e(TAG, "Error in selected book no or chapter no", nsve);
-        }
-        
-        ButtonGrid grid = new ButtonGrid(this);
-        grid.setOnButtonGridActionListener(this);
-        
-        grid.addButtons(getBibleVersesButtonInfo(mBibleBook, mBibleChapterNo));
-        setContentView(grid);
-    }
-    
-    private List<ButtonInfo> getBibleVersesButtonInfo(BibleBook book, int chapterNo) {
-    	int verses;
-    	try {
-	    	verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
+		mBibleChapterNo = getIntent().getIntExtra(GridChoosePassageBook.CHAPTER_NO, navigationControl.getDefaultBibleChapterNo());
+		
+		// show chosen book in page title to confirm user choice
+		try {
+			setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
+		} catch (Exception nsve) {
+			Log.e(TAG, "Error in selected book no or chapter no", nsve);
+		}
+		
+		ButtonGrid grid = new ButtonGrid(this);
+		grid.setOnButtonGridActionListener(this);
+		
+		grid.addButtons(getBibleVersesButtonInfo(mBibleBook, mBibleChapterNo));
+		setContentView(grid);
+	}
+	
+	private List<ButtonInfo> getBibleVersesButtonInfo(BibleBook book, int chapterNo) {
+		int verses;
+		try {
+			verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
 		} catch (Exception nsve) {
 			Log.e(TAG, "Error getting number of verses", nsve);
 			verses = -1;
 		}
-    	
-    	List<ButtonInfo> keys = new ArrayList<>();
-    	for (int i=1; i<=verses; i++) {
-    		ButtonInfo buttonInfo = new ButtonInfo();
+		
+		List<ButtonInfo> keys = new ArrayList<>();
+		for (int i=1; i<=verses; i++) {
+			ButtonInfo buttonInfo = new ButtonInfo();
 			// this is used for preview
 			buttonInfo.id = i;
-    		buttonInfo.name = Integer.toString(i);
-    		keys.add(buttonInfo);
-    	}
-    	return keys;
-    }
-    
+			buttonInfo.name = Integer.toString(i);
+			keys.add(buttonInfo);
+		}
+		return keys;
+	}
+	
 	@Override
 	public void buttonPressed(ButtonInfo buttonInfo) {
 		int verse = buttonInfo.id;
@@ -100,12 +100,12 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 		}
 	}
 
-    public void onSave(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+	public void onSave(View v) {
+		Log.i(TAG, "CLICKED");
+		Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();	
+	}
 
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {

@@ -16,7 +16,7 @@ import javax.inject.Inject;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class ReadingPlanActionBarManager extends DefaultActionBarManager implements ActionBarManager {
@@ -39,10 +39,10 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 		this.dictionaryActionBarButton = dictionaryActionBarButton;
 
 		ABEventBus.getDefault().register(this);
-    }
+	}
 
-    public void onEvent(SpeakEvent e) {
-    	updateButtons();
+	public void onEvent(SpeakEvent e) {
+		updateButtons();
 	}
 
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {

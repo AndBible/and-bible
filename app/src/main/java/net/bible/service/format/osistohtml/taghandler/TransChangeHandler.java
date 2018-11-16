@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class TransChangeHandler implements OsisTagHandler {
 
@@ -30,8 +30,8 @@ public class TransChangeHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil2.OSIS_ELEMENT_TRANSCHANGE;
-    }
+		return OSISUtil2.OSIS_ELEMENT_TRANSCHANGE;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

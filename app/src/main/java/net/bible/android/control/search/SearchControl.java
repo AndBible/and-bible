@@ -39,7 +39,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SearchControl {
@@ -89,85 +89,85 @@ public class SearchControl {
 	 *
 	 * @return required Intent
 	 */
-    public Intent getSearchIntent(Book document) {
+	public Intent getSearchIntent(Book document) {
 
-    	IndexStatus indexStatus = document.getIndexStatus();
-    	Log.d(TAG, "Index status:"+indexStatus);
-    	Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
-    	if (indexStatus.equals(IndexStatus.DONE)) {
-    		Log.d(TAG, "Index status is DONE");
-    	    return new Intent(currentActivity, Search.class);
-    	} else {
-    		Log.d(TAG, "Index status is NOT DONE");
-    	    return new Intent(currentActivity, SearchIndex.class);
-    	}
-    }
+		IndexStatus indexStatus = document.getIndexStatus();
+		Log.d(TAG, "Index status:"+indexStatus);
+		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		if (indexStatus.equals(IndexStatus.DONE)) {
+			Log.d(TAG, "Index status is DONE");
+			return new Intent(currentActivity, Search.class);
+		} else {
+			Log.d(TAG, "Index status is NOT DONE");
+			return new Intent(currentActivity, SearchIndex.class);
+		}
+	}
 
-    public boolean validateIndex(Book document) {
-    	return document.getIndexStatus().equals(IndexStatus.DONE);
-    }
-    
-    public String getCurrentBookName() {
-    	try {
-    		CurrentBiblePage currentBiblePage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
-    		Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
-        	BibleBook book = currentBiblePage.getSingleKey().getBook();
-        	
-        	String longName = v11n.getLongName(book);
-        	if (StringUtils.isNotBlank(longName) && longName.length() < 14) {
-	    		return longName;
-	    	} else {
-	    		return v11n.getShortName(book);
-	    	}
-    	} catch (Exception nsve) {
-    		// This should never occur
-    		Log.e(TAG, "Error getting current book name", nsve);
-    		return "-";
-    	}
-    }
-    
-    public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection, String currentBookName) {
-    	String cleanSearchString = cleanSearchString(searchString);
-    	
-    	String decorated;
+	public boolean validateIndex(Book document) {
+		return document.getIndexStatus().equals(IndexStatus.DONE);
+	}
+	
+	public String getCurrentBookName() {
+		try {
+			CurrentBiblePage currentBiblePage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
+			Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
+			BibleBook book = currentBiblePage.getSingleKey().getBook();
+			
+			String longName = v11n.getLongName(book);
+			if (StringUtils.isNotBlank(longName) && longName.length() < 14) {
+				return longName;
+			} else {
+				return v11n.getShortName(book);
+			}
+		} catch (Exception nsve) {
+			// This should never occur
+			Log.e(TAG, "Error getting current book name", nsve);
+			return "-";
+		}
+	}
+	
+	public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection, String currentBookName) {
+		String cleanSearchString = cleanSearchString(searchString);
+		
+		String decorated;
 
-    	// add search type (all/any/phrase) to search string
-    	decorated = searchType.decorate(cleanSearchString);
+		// add search type (all/any/phrase) to search string
+		decorated = searchType.decorate(cleanSearchString);
 
-    	// add bible section limitation to search text
-    	decorated = getBibleSectionTerm(bibleSection, currentBookName)+" "+decorated;
-    	
-    	return decorated;
-    }
+		// add bible section limitation to search text
+		decorated = getBibleSectionTerm(bibleSection, currentBookName)+" "+decorated;
+		
+		return decorated;
+	}
 
-    /** do the search query and prepare results in lists ready for display
-     * 
-     */
-    public SearchResultsDto getSearchResults(String document, String searchText) throws BookException {
-    	Log.d(TAG, "Preparing search results");
-    	SearchResultsDto searchResults = new SearchResultsDto();
-    	
-    	// search the current book
-        Book book = swordDocumentFacade.getDocumentByInitials(document);
-    	Key result = swordContentFacade.search(book, searchText);
-    	if (result!=null) {
-    		int resNum = result.getCardinality();
-        	Log.d(TAG, "Number of results:"+resNum);
-        	
-        	//if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
-        	boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
-    		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
-    			Key key = result.get(i);
-    			boolean isMain = (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook()));
+	/** do the search query and prepare results in lists ready for display
+	 * 
+	 */
+	public SearchResultsDto getSearchResults(String document, String searchText) throws BookException {
+		Log.d(TAG, "Preparing search results");
+		SearchResultsDto searchResults = new SearchResultsDto();
+		
+		// search the current book
+		Book book = swordDocumentFacade.getDocumentByInitials(document);
+		Key result = swordContentFacade.search(book, searchText);
+		if (result!=null) {
+			int resNum = result.getCardinality();
+			Log.d(TAG, "Number of results:"+resNum);
+			
+			//if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
+			boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
+			for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
+				Key key = result.get(i);
+				boolean isMain = (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook()));
    				searchResults.add(key, isMain);
-    		}
-    	}
-    	
-    	return searchResults;
-    }
+			}
+		}
+		
+		return searchResults;
+	}
 
-    /** get the verse for a search result
-     */
+	/** get the verse for a search result
+	 */
 	public String getSearchResultVerseText(Key key) {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
@@ -191,26 +191,26 @@ public class SearchControl {
 		
 		return search.replace("  ", " ").trim();
 	}
-    /** get OT, NT, or all query limitation
-     */
-    private String getBibleSectionTerm(SearchBibleSection bibleSection, String currentBookName) {
-    	switch (bibleSection) {
-    	case ALL:
-    		return "";
-    	case OT:
-            return SEARCH_OLD_TESTAMENT;
-    	case NT:
-            return SEARCH_NEW_TESTAMENT;
-    	case CURRENT_BOOK:
-    		if (currentBookName==null) {
-    			currentBookName = getCurrentBookName();
-    		}
-            return "+[" + currentBookName + "]";
-        default:
-        	Log.e(TAG, "Unexpected radio selection");
-            return "";
-    	}
-    }
+	/** get OT, NT, or all query limitation
+	 */
+	private String getBibleSectionTerm(SearchBibleSection bibleSection, String currentBookName) {
+		switch (bibleSection) {
+		case ALL:
+			return "";
+		case OT:
+			return SEARCH_OLD_TESTAMENT;
+		case NT:
+			return SEARCH_NEW_TESTAMENT;
+		case CURRENT_BOOK:
+			if (currentBookName==null) {
+				currentBookName = getCurrentBookName();
+			}
+			return "+[" + currentBookName + "]";
+		default:
+			Log.e(TAG, "Unexpected radio selection");
+			return "";
+		}
+	}
 
 	/** download index 
 	 * 
@@ -218,31 +218,31 @@ public class SearchControl {
 	 */
 	public boolean downloadIndex(Book book) {
 		boolean ok = false;
-    	try {
-        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	} else if (!CommonUtils.isInternetAvailable()) {
-            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
-            	ok = false;
-        	} else {
-		        
-		        if (swordDocumentFacade.isIndexDownloadAvailable(book)) {
-			        // this starts a new thread to do the indexing and returns immediately
-			        // if index creation is already in progress then nothing will happen
-			        swordDocumentFacade.downloadIndex(book);
-			        
-			        ok = true;
-		        } else {
-		        	Dialogs.getInstance().showErrorMsg(R.string.index_not_available_for_download);
-		        	ok = false;
-		        }
-        	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    		ok = false;
-    	}
-    	return ok;
+		try {
+			if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+				Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+			} else if (!CommonUtils.isInternetAvailable()) {
+				Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
+				ok = false;
+			} else {
+				
+				if (swordDocumentFacade.isIndexDownloadAvailable(book)) {
+					// this starts a new thread to do the indexing and returns immediately
+					// if index creation is already in progress then nothing will happen
+					swordDocumentFacade.downloadIndex(book);
+					
+					ok = true;
+				} else {
+					Dialogs.getInstance().showErrorMsg(R.string.index_not_available_for_download);
+					ok = false;
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "error indexing:"+e.getMessage());
+			e.printStackTrace();
+			ok = false;
+		}
+		return ok;
 	}
 	
 	/** download index 
@@ -251,17 +251,17 @@ public class SearchControl {
 	 */
 	public boolean createIndex(Book book) {
 		boolean ok = false;
-    	try {
-	        // this starts a new thread to do the indexing and returns immediately
-	        // if index creation is already in progress then nothing will happen
-	        swordDocumentFacade.ensureIndexCreation(book);
-	        
-	        ok = true;
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    	}
-    	return ok;
+		try {
+			// this starts a new thread to do the indexing and returns immediately
+			// if index creation is already in progress then nothing will happen
+			swordDocumentFacade.ensureIndexCreation(book);
+			
+			ok = true;
+		} catch (Exception e) {
+			Log.e(TAG, "error indexing:"+e.getMessage());
+			e.printStackTrace();
+		}
+		return ok;
 	}
 
 	/** 

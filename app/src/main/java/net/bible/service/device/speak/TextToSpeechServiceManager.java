@@ -51,7 +51,7 @@ import javax.inject.Inject;
  * <ul>
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
 
  */
 @ApplicationScope
@@ -59,7 +59,7 @@ public class TextToSpeechServiceManager {
 
 	private static final String TAG = "Speak";
 
-    private TextToSpeech mTts;
+	private TextToSpeech mTts;
 
 	private List<Locale> localePreferenceList;
 	private Locale currentLocale = Locale.getDefault();
@@ -76,18 +76,18 @@ public class TextToSpeechServiceManager {
 	private GeneralSpeakTextProvider generalSpeakTextProvider;
 	private BibleSpeakTextProvider bibleSpeakTextProvider;
 
-    private SpeakTiming mSpeakTiming;
+	private SpeakTiming mSpeakTiming;
 
-    private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
-    
-    private static final String UTTERANCE_PREFIX = "AND-BIBLE-";
-    private long uniqueUtteranceNo = 0;
+	private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
+	
+	private static final String UTTERANCE_PREFIX = "AND-BIBLE-";
+	private long uniqueUtteranceNo = 0;
 
-    // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
-    private boolean isSpeaking = false;
-    
-    private boolean isPaused = false;
-    private boolean mockedTts = false;
+	// tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
+	private boolean isSpeaking = false;
+	
+	private boolean isPaused = false;
+	private boolean mockedTts = false;
 
 	@Inject
 	public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
@@ -105,9 +105,9 @@ public class TextToSpeechServiceManager {
 		restorePauseState();
 	}
 
-    public boolean isLanguageAvailable(String langCode) {
-    	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
-    }
+	public boolean isLanguageAvailable(String langCode) {
+		return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
+	}
 
 	public synchronized void speakBible(SwordBook book, Verse verse) {
 		switchProvider(bibleSpeakTextProvider);
@@ -123,7 +123,7 @@ public class TextToSpeechServiceManager {
 		handleQueue(queue);
 		localePreferenceList = calculateLocalePreferenceList(book);
 		initializeTtsOrStartSpeaking();
-    }
+	}
 
 	private void switchProvider(SpeakTextProvider newProvider) {
 		if(newProvider != mSpeakTextProvider) {
@@ -199,76 +199,76 @@ public class TextToSpeechServiceManager {
 
 	private void initializeTtsOrStartSpeaking() {
 		if (mTts==null) {
-        	Log.d(TAG, "mTts was null so initialising Tts");
+			Log.d(TAG, "mTts was null so initialising Tts");
 
-	    	try {
-		        // Initialize text-to-speech. This is an asynchronous operation.
-		        // The OnInitListener (second argument) (this class) is called after initialization completes.
-		        mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this.onInitListener);
-	    	} catch (Exception e) {
-	    		Log.e(TAG,  "Error initialising Tts", e);
-	    		showError(R.string.error_occurred, e);
-	    	}
-    	} else {
+			try {
+				// Initialize text-to-speech. This is an asynchronous operation.
+				// The OnInitListener (second argument) (this class) is called after initialization completes.
+				mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this.onInitListener);
+			} catch (Exception e) {
+				Log.e(TAG,  "Error initialising Tts", e);
+				showError(R.string.error_occurred, e);
+			}
+		} else {
    			startSpeaking();
-    	}
+		}
 	}
 
-    /**
-     * Add event listener to stop on call
-     */
+	/**
+	 * Add event listener to stop on call
+	 */
 	private void stopIfPhoneCall() {
 		PhoneCallMonitor.ensureMonitoringStarted();
 	}
-    
-    public synchronized void rewind(SpeakSettings.RewindAmount amount) {
-    	Log.d(TAG, "Rewind TTS");
-    	// prevent onUtteranceCompleted causing next text to be grabbed
-    	uniqueUtteranceNo++;
-    	boolean wasPaused = isPaused;
-    	isPaused = true;
-    	if (isSpeaking) {
-    		mTts.stop();
-    	}
-        isSpeaking = false;
-        
-        if (!wasPaused) {
-	        // ensure current position is saved which is done during pause
-	        mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
-        }
+	
+	public synchronized void rewind(SpeakSettings.RewindAmount amount) {
+		Log.d(TAG, "Rewind TTS");
+		// prevent onUtteranceCompleted causing next text to be grabbed
+		uniqueUtteranceNo++;
+		boolean wasPaused = isPaused;
+		isPaused = true;
+		if (isSpeaking) {
+			mTts.stop();
+		}
+		isSpeaking = false;
+		
+		if (!wasPaused) {
+			// ensure current position is saved which is done during pause
+			mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
+		}
 
-        // move current position back a bit
-        mSpeakTextProvider.rewind(amount);
+		// move current position back a bit
+		mSpeakTextProvider.rewind(amount);
 
-        isPaused = wasPaused;
-        if (!isPaused) {
-        	continueAfterPause();
-        }
-    }
+		isPaused = wasPaused;
+		if (!isPaused) {
+			continueAfterPause();
+		}
+	}
 
-    public synchronized void forward(SpeakSettings.RewindAmount amount) {
-    	Log.d(TAG, "Forward TTS");
-    	// prevent onUtteranceCompleted causing next text to be grabbed
-    	uniqueUtteranceNo++;
-    	boolean wasPaused = isPaused;
-    	isPaused = true;
-    	if (isSpeaking) {
-    		mTts.stop();
-    	}
-        isSpeaking = false;
-        
-        if (!wasPaused) {
-	        // ensure current position is saved which is done during pause
-        	mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
-        }
+	public synchronized void forward(SpeakSettings.RewindAmount amount) {
+		Log.d(TAG, "Forward TTS");
+		// prevent onUtteranceCompleted causing next text to be grabbed
+		uniqueUtteranceNo++;
+		boolean wasPaused = isPaused;
+		isPaused = true;
+		if (isSpeaking) {
+			mTts.stop();
+		}
+		isSpeaking = false;
+		
+		if (!wasPaused) {
+			// ensure current position is saved which is done during pause
+			mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
+		}
 
-        mSpeakTextProvider.forward(amount);
+		mSpeakTextProvider.forward(amount);
 
-        isPaused = wasPaused;
-        if (!isPaused) {
-            continueAfterPause();
-        }
-    }
+		isPaused = wasPaused;
+		if (!isPaused) {
+			continueAfterPause();
+		}
+	}
 
 	public synchronized void pause(boolean willContinueAfterThis) {
 		Log.d(TAG, "Pause TTS");
@@ -312,8 +312,8 @@ public class TextToSpeechServiceManager {
 		isPaused = false;
 	}
 
-    /** only check timing when paused to prevent concurrency problems
-     */
+	/** only check timing when paused to prevent concurrency problems
+	 */
 	public long getPausedTotalSeconds() {
 		return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getTotalChars());
 	}
@@ -349,69 +349,69 @@ public class TextToSpeechServiceManager {
 	}
 
 
-    /** flush cached text
-     */
+	/** flush cached text
+	 */
 	private void clearTtsQueue() {
-    	Log.d(TAG, "Stop TTS");
+		Log.d(TAG, "Stop TTS");
 		
-        // Don't forget to shutdown!
-        if (isSpeaking()) {
-        	Log.d(TAG, "Flushing speech");
-        	// flush remaining text
-	        mTts.speak(" ", TextToSpeech.QUEUE_FLUSH, null);
-        }
-        
-        mSpeakTextProvider.reset();
-        isSpeaking = false;
+		// Don't forget to shutdown!
+		if (isSpeaking()) {
+			Log.d(TAG, "Flushing speech");
+			// flush remaining text
+			mTts.speak(" ", TextToSpeech.QUEUE_FLUSH, null);
+		}
+		
+		mSpeakTextProvider.reset();
+		isSpeaking = false;
 	}
 
-    private void showError(int msgId, Exception e) {
-    	Dialogs.getInstance().showErrorMsg(msgId);
-    }
+	private void showError(int msgId, Exception e) {
+		Dialogs.getInstance().showErrorMsg(msgId);
+	}
 	
-    public void shutdown() {
-    	Log.d(TAG, "Shutdown TTS");
+	public void shutdown() {
+		Log.d(TAG, "Shutdown TTS");
 
-    	isSpeaking = false;
-        isPaused = false;
-        
-        // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
-    	shutdownTtsEngine();
-    	mSpeakTextProvider.stop();
+		isSpeaking = false;
+		isPaused = false;
+		
+		// tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
+		shutdownTtsEngine();
+		mSpeakTextProvider.stop();
 		clearPauseState();
-        fireStateChangeEvent();
-    }
+		fireStateChangeEvent();
+	}
 
-    private void shutdownTtsEngine() {
-    	Log.d(TAG, "Shutdown TTS Engine");
+	private void shutdownTtsEngine() {
+		Log.d(TAG, "Shutdown TTS Engine");
 		try {
-	        // Don't forget to shutdown!
-	        if (mTts != null) {
-	        	try {
-	        		mTts.stop();
-	        	} catch (Exception e) {
-	        		Log.e(TAG, "Error stopping Tts engine", e);
-	        	}
-	            mTts.shutdown();
-	        }
+			// Don't forget to shutdown!
+			if (mTts != null) {
+				try {
+					mTts.stop();
+				} catch (Exception e) {
+					Log.e(TAG, "Error stopping Tts engine", e);
+				}
+				mTts.shutdown();
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error shutting down Tts engine", e);
 		} finally {
 			mTts = null;
 		}
-    }
+	}
 
-    private void fireStateChangeEvent() {
-    	if (isPaused) {
+	private void fireStateChangeEvent() {
+		if (isPaused) {
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.PAUSED));
-    	} else if (isSpeaking) {
+		} else if (isSpeaking) {
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SPEAKING));
-    	} else {
+		} else {
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SILENT));
-    	}
+		}
 
-    }
-    
+	}
+	
 	public boolean isSpeaking() {
 		return isSpeaking;
 	}
@@ -584,7 +584,7 @@ public class TextToSpeechServiceManager {
 		if(mTts != null) {
 			mTts.setSpeechRate(speechRate/100F);
 		}
-    }
+	}
 
 	public String getStatusText(int showFlag) {
 		return mSpeakTextProvider.getStatusText(showFlag);

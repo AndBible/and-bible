@@ -11,7 +11,7 @@ import android.view.ViewConfiguration;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class SwipeGestureListener extends SimpleOnGestureListener {
 
@@ -28,9 +28,9 @@ public class SwipeGestureListener extends SimpleOnGestureListener {
 		super();
 		this.eventHandler = compareTranslationActivity;
 		scaledDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
-    	minScaledVelocity = ViewConfiguration.get(BibleApplication.getApplication()).getScaledMinimumFlingVelocity();
-    	// make it easier to swipe
-    	minScaledVelocity = (int)(minScaledVelocity*0.66);
+		minScaledVelocity = ViewConfiguration.get(BibleApplication.getApplication()).getScaledMinimumFlingVelocity();
+		// make it easier to swipe
+		minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}
 
 	@Override

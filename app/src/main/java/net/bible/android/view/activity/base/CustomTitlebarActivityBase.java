@@ -15,7 +15,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
@@ -42,57 +42,57 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
 	 * and set the new titlebar layout just after
 	 */
-    @Override
+	@Override
 	public void setContentView(int layoutResID) {
 		super.setContentView(layoutResID);
 
-//TODO hourglass        mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
-    }
-    
-    /** 
-     * load the default menu items from xml config 
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	if (optionsMenuId!=NO_OPTIONS_MENU) {
-	    	// Inflate the menu
-	        getMenuInflater().inflate(optionsMenuId, menu);
-    	}
-        
-        boolean showMenu = super.onCreateOptionsMenu(menu);
-        
-        return showMenu;
-    }
+//TODO hourglass		mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
+	}
+	
+	/** 
+	 * load the default menu items from xml config 
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (optionsMenuId!=NO_OPTIONS_MENU) {
+			// Inflate the menu
+			getMenuInflater().inflate(optionsMenuId, menu);
+		}
+		
+		boolean showMenu = super.onCreateOptionsMenu(menu);
+		
+		return showMenu;
+	}
 
-    /**
-     * Allow some menu items to be hidden or otherwise altered
-     */
-    @Override
+	/**
+	 * Allow some menu items to be hidden or otherwise altered
+	 */
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		
-        actionBarManager.prepareOptionsMenu(this, menu, getSupportActionBar());
+		actionBarManager.prepareOptionsMenu(this, menu, getSupportActionBar());
 		
 		// must return true for menu to be displayed
 		return true;
 	}
 
-    /** 
-     * Hide/show the actionbar and call base class to hide/show everything else
-     */
+	/** 
+	 * Hide/show the actionbar and call base class to hide/show everything else
+	 */
 	public void toggleFullScreen() {
-    	super.toggleFullScreen();
-    	
-    	if (!isFullScreen()) {
-    		Log.d(TAG, "Fullscreen off");
-    		getSupportActionBar().show();
-    	} else {
-    		Log.d(TAG, "Fullscreen on");
-    		getSupportActionBar().hide();
-    	}
+		super.toggleFullScreen();
+		
+		if (!isFullScreen()) {
+			Log.d(TAG, "Fullscreen off");
+			getSupportActionBar().show();
+		} else {
+			Log.d(TAG, "Fullscreen on");
+			getSupportActionBar().hide();
+		}
 
-    	getContentView().requestLayout();
-    }
+		getContentView().requestLayout();
+	}
 
 	/**
 	 *  Called whenever something like strong preferences have been changed by the user.  Should refresh the screen
@@ -100,7 +100,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	protected void preferenceSettingsChanged() {
 	}
 
-    @Override
+	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
@@ -109,10 +109,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	}
 
 	/** update the quick links in the title bar
-     */
-    public void updateActionBarButtons() {
-        actionBarManager.updateButtons();
-    }
+	 */
+	public void updateActionBarButtons() {
+		actionBarManager.updateButtons();
+	}
 
 	public void setProgressBar(boolean on) {
 //TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);

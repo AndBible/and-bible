@@ -7,18 +7,18 @@ import org.crosswire.jsword.passage.Key;
 
 public class SearchResultsDto {
 	
-    private List<Key> mainSearchResults = new ArrayList<Key>();
-    
-    private List<Key> otherSearchResults = new ArrayList<Key>();
-    
-    public void add(Key resultKey, boolean isMain) {
-    	if (isMain) {
-    		mainSearchResults.add(resultKey);
-    	} else {
-    		otherSearchResults.add(resultKey);
-    	}
-    }
-    
+	private List<Key> mainSearchResults = new ArrayList<Key>();
+	
+	private List<Key> otherSearchResults = new ArrayList<Key>();
+	
+	public void add(Key resultKey, boolean isMain) {
+		if (isMain) {
+			mainSearchResults.add(resultKey);
+		} else {
+			otherSearchResults.add(resultKey);
+		}
+	}
+	
 	public List<Key> getMainSearchResults() {
 		return mainSearchResults;
 	}

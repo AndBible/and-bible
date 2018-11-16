@@ -17,7 +17,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class ReadingPlanTitle extends Title {
@@ -50,8 +50,8 @@ public class ReadingPlanTitle extends Title {
 	protected void onDocumentTitleClick() {
 		Activity readingPlanActivity = getActivity();
 		Intent docHandlerIntent = new Intent(readingPlanActivity, ReadingPlanSelectorList.class);
-    	readingPlanActivity.startActivityForResult(docHandlerIntent, 1);
-    	readingPlanActivity.finish();
+		readingPlanActivity.startActivityForResult(docHandlerIntent, 1);
+		readingPlanActivity.finish();
 	}
 
 	@Override

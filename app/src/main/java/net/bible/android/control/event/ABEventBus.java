@@ -9,16 +9,16 @@ public class ABEventBus implements EventManager {
 	private static EventManager defaultInstance;
 	private ArrayList<Object> subscribers = new ArrayList<>();
 
-    public static EventManager getDefault() {
-        if (defaultInstance == null) {
-            synchronized (ABEventBus.class) {
-                if (defaultInstance == null) {
-                    defaultInstance = new ABEventBus();
-                }
-            }
-        }
-        return defaultInstance;
-    }
+	public static EventManager getDefault() {
+		if (defaultInstance == null) {
+			synchronized (ABEventBus.class) {
+				if (defaultInstance == null) {
+					defaultInstance = new ABEventBus();
+				}
+			}
+		}
+		return defaultInstance;
+	}
 
 	private ABEventBus() {
 	}

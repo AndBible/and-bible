@@ -20,13 +20,13 @@ public class WindowMenuCommandHandler {
 	}
 	
 	/** 
-     * on Click handlers
-     */
-    public boolean handleMenuRequest(MenuItem menuItem) {
-        boolean isHandled = false;
-        
-        // Handle item selection
-        Window activeWindow = windowControl.getActiveWindow();
+	 * on Click handlers
+	 */
+	public boolean handleMenuRequest(MenuItem menuItem) {
+		boolean isHandled = false;
+		
+		// Handle item selection
+		Window activeWindow = windowControl.getActiveWindow();
 		switch (menuItem.getItemId()) {
 		case R.id.windowNew:
 			windowControl.addNewWindow();
@@ -64,8 +64,8 @@ public class WindowMenuCommandHandler {
 			}
 			isHandled = true;
 			break;
-        }
-        
-        return isHandled;
+		}
+		
+		return isHandled;
 	}
 }

@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public abstract class Title {
 
@@ -50,32 +50,32 @@ public abstract class Title {
 
 		actionBar.setCustomView(R.layout.title);
 
-	    documentTitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentTitle);
-	    documentSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentSubtitle);
-	    pageTitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageTitle);
-	    pageSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageSubtitle);
+		documentTitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentTitle);
+		documentSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentSubtitle);
+		pageTitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageTitle);
+		pageSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageSubtitle);
 
-	    // clicking document title shows document selector
-	    ViewGroup documentTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.documentTitleContainer);
-	    documentTitleContainer.setOnClickListener(new OnClickListener() {
+		// clicking document title shows document selector
+		ViewGroup documentTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.documentTitleContainer);
+		documentTitleContainer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onDocumentTitleClick();
 			}
-	    });
+		});
 
-	    // clicking page title shows appropriate key selector
-	    ViewGroup pageTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.pageTitleContainer);
-	    pageTitleContainer.setOnClickListener(new OnClickListener() {
+		// clicking page title shows appropriate key selector
+		ViewGroup pageTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.pageTitleContainer);
+		pageTitleContainer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onPageTitleClick();
 			}
-	    });
+		});
 
-	    actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
+		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
 
-	    update(true);
+		update(true);
 		
 		// do not display the app icon in the actionbar
 		actionBar.setDisplayShowHomeEnabled(false);

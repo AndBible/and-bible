@@ -21,7 +21,7 @@ import java.util.Locale;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class TitleHandler implements OsisTagHandler {
 
@@ -47,8 +47,8 @@ public class TitleHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_TITLE;
-    }
+		return OSISUtil.OSIS_ELEMENT_TITLE;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

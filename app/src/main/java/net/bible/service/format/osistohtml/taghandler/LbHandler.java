@@ -13,7 +13,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class LbHandler implements OsisTagHandler {
 
@@ -35,8 +35,8 @@ public class LbHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_LB;
-    }
+		return OSISUtil.OSIS_ELEMENT_LB;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

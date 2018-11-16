@@ -44,7 +44,7 @@ import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @MainBibleActivityScope
 public class MenuCommandHandler {
@@ -83,64 +83,64 @@ public class MenuCommandHandler {
 	}
 	
 	/**
-     * on Click handlers
-     */
-    public boolean handleMenuRequest(MenuItem menuItem) {
-        boolean isHandled = false;
+	 * on Click handlers
+	 */
+	public boolean handleMenuRequest(MenuItem menuItem) {
+		boolean isHandled = false;
 
-    	// Activities
-    	{
-    		Intent handlerIntent = null;
+		// Activities
+		{
+			Intent handlerIntent = null;
 			int requestCode = ActivityBase.STD_REQUEST_CODE;
-	        // Handle item selection
-	        switch (menuItem.getItemId()) {
-		        case R.id.searchButton:
-		        	handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument());
-		        	break;
-		        case R.id.settingsButton:
-		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
-		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-		        	requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
-		        	break;
-		        case R.id.historyButton:
-		        	handlerIntent = new Intent(callingActivity, History.class);
-		        	break;
-		        case R.id.bookmarksButton:
-		        	handlerIntent = new Intent(callingActivity, Bookmarks.class);
-		        	break;
+			// Handle item selection
+			switch (menuItem.getItemId()) {
+				case R.id.searchButton:
+					handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument());
+					break;
+				case R.id.settingsButton:
+					handlerIntent = new Intent(callingActivity, SettingsActivity.class);
+					// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
+					requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+					break;
+				case R.id.historyButton:
+					handlerIntent = new Intent(callingActivity, History.class);
+					break;
+				case R.id.bookmarksButton:
+					handlerIntent = new Intent(callingActivity, Bookmarks.class);
+					break;
 				case (R.id.manageLabels):
 					handlerIntent = new Intent(callingActivity, ManageLabels.class);
 					requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 					break;
-		        case R.id.mynotesButton:
-		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
-		        	break;
+				case R.id.mynotesButton:
+					handlerIntent = new Intent(callingActivity, MyNotes.class);
+					break;
 				case R.id.speakButton:
 					boolean isBible = windowControl.getActiveWindowPageManager().getCurrentPage()
 							.getBookCategory().equals(BookCategory.BIBLE);
 					handlerIntent = new Intent(callingActivity, isBible ? BibleSpeakActivity.class : GeneralSpeakActivity.class);
 					break;
-		        case R.id.dailyReadingPlanButton:
-		        	// show todays plan or allow plan selection
-		        	if (readingPlanControl.isReadingPlanSelected()) {
-		        		handlerIntent = new Intent(callingActivity, DailyReading.class);
-		        	} else {
-		        		handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);
-		        	}
-		        	break;
-		        case R.id.downloadButton:
-		        	if (downloadControl.checkDownloadOkay()) {
-		        		handlerIntent = new Intent(callingActivity, Download.class);
-		        		requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
-		        	}
-		        	break;
-		        case R.id.installZipButton:
-		        	handlerIntent = new Intent(callingActivity, InstallZip.class);
+				case R.id.dailyReadingPlanButton:
+					// show todays plan or allow plan selection
+					if (readingPlanControl.isReadingPlanSelected()) {
+						handlerIntent = new Intent(callingActivity, DailyReading.class);
+					} else {
+						handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);
+					}
+					break;
+				case R.id.downloadButton:
+					if (downloadControl.checkDownloadOkay()) {
+						handlerIntent = new Intent(callingActivity, Download.class);
+						requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+					}
+					break;
+				case R.id.installZipButton:
+					handlerIntent = new Intent(callingActivity, InstallZip.class);
 		 
-		        	break;		        	
-		        case R.id.helpButton:
-		        	handlerIntent = new Intent(callingActivity, Help.class);
-		        	break;
+					break;					
+				case R.id.helpButton:
+					handlerIntent = new Intent(callingActivity, Help.class);
+					break;
 				case R.id.backup:
 					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_SAVE_REQUEST);
@@ -148,48 +148,48 @@ public class MenuCommandHandler {
 						backupControl.backupDatabase();
 					}
 					isHandled = true;
-		        	break;
-		        case R.id.restore:
+					break;
+				case R.id.restore:
 					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BACKUP_RESTORE_REQUEST);
 					} else {
 						backupControl.restoreDatabase();
 					}
 					isHandled = true;
-		        	break;
-	        }
-	        
-	        if (!isHandled) {
-	        	isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem);
-	        }
-	        
-	        if (handlerIntent!=null) {
-	        	callingActivity.startActivityForResult(handlerIntent, requestCode);
-	        	isHandled = true;
-	        } 
-    	}
+					break;
+			}
+			
+			if (!isHandled) {
+				isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem);
+			}
+			
+			if (handlerIntent!=null) {
+				callingActivity.startActivityForResult(handlerIntent, requestCode);
+				isHandled = true;
+			} 
+		}
 
-        return isHandled;
-    }
+		return isHandled;
+	}
 
 	public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
-    		Log.i(TAG, "Refresh on finish");
-    		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
+		if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
+			Log.i(TAG, "Refresh on finish");
+			if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
 				// must restart to change locale
-    			CommonUtils.restartApp(callingActivity);
-    		}
-    	}
-    	return false;
-    }
-
-    public boolean isDisplayRefreshRequired(int requestCode) { 
-    	return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+				CommonUtils.restartApp(callingActivity);
+			}
+		}
+		return false;
 	}
-    
-    public boolean isDocumentChanged(int requestCode) { 
-    	return requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
-    }
+
+	public boolean isDisplayRefreshRequired(int requestCode) { 
+		return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+	}
+	
+	public boolean isDocumentChanged(int requestCode) { 
+		return requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+	}
 
 	@Inject
 	void setBackupControl(BackupControl backupControl) {

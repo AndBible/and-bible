@@ -12,7 +12,7 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ChooseGeneralBookKey extends ChooseKeyBase {
 
@@ -30,15 +30,15 @@ public class ChooseGeneralBookKey extends ChooseKeyBase {
 	}
 
 	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentGeneralBookPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
-    }
+	protected void itemSelected(Key key) {
+		try {
+			getCurrentGeneralBookPage().setKey(key);
+		} catch (Exception e) {
+			Log.e(TAG, "error on select of gen book key", e);
+		}
+	}
 
 	private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
-    }
+		return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
+	}
 }

@@ -8,7 +8,7 @@ import net.bible.service.device.ScreenSettings;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class HtmlMessageFormatter {
 
@@ -25,7 +25,7 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(int msgId) {
-    	return format(msgId, false);
+		return format(msgId, false);
 	}
 
 	/** wrap text with nightmode css if required

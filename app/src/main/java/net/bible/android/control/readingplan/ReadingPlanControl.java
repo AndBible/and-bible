@@ -32,7 +32,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class ReadingPlanControl {
@@ -198,9 +198,9 @@ public class ReadingPlanControl {
 			}
 		}
 		
-    	//if user is not behind then do not show Daily Reading screen
-    	if (!isDueToBeRead(planInfo, nextDayToShow)) {
-    		nextDayToShow = -1;    	}
+		//if user is not behind then do not show Daily Reading screen
+		if (!isDueToBeRead(planInfo, nextDayToShow)) {
+			nextDayToShow = -1;		}
 
 		
 		return nextDayToShow;
@@ -230,23 +230,23 @@ public class ReadingPlanControl {
 	 * Also mark passage as read
 	 */
 	public void read(int day, int readingNo, Key readingKey) {
-    	if (readingKey!=null) {
-    		// mark reading as 'read'
-    		getReadingStatus(day).setRead(readingNo);
+		if (readingKey!=null) {
+			// mark reading as 'read'
+			getReadingStatus(day).setRead(readingNo);
 
-    		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
+			ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 
 			// show the current bible
 			final CurrentPageManager currentPageManager = getCurrentPageManager();
 			AbstractPassageBook bible = currentPageManager.getCurrentBible().getCurrentPassageBook();
-    		
-    		// convert the verse to the v11n of the current bible
-    		List<Key> keyList = convertReadingVersification(readingKey, bible);
-    		Key firstKey = keyList.get(0);
+			
+			// convert the verse to the v11n of the current bible
+			List<Key> keyList = convertReadingVersification(readingKey, bible);
+			Key firstKey = keyList.get(0);
 
-    		// go to correct passage
-    		currentPageManager.setCurrentDocumentAndKey(bible, firstKey);
-    	}
+			// go to correct passage
+			currentPageManager.setCurrentDocumentAndKey(bible, firstKey);
+		}
 	}
 
 	/** 

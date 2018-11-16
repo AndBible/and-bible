@@ -15,7 +15,7 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class LightSensor {
 
@@ -67,19 +67,19 @@ public class LightSensor {
 		}
 	};
 	
-    /**
-     * Returns true if at least one Orientation sensor is available
-     */
-    public boolean isLightSensor() {
+	/**
+	 * Returns true if at least one Orientation sensor is available
+	 */
+	public boolean isLightSensor() {
 		Log.d(TAG, "check for a light sensor");
 
-    	boolean isLightSensor = false;
+		boolean isLightSensor = false;
    		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-        if (sm != null) {
-            List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_LIGHT);
-            isLightSensor = (sensors.size() > 0);
-        }
+		if (sm != null) {
+			List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_LIGHT);
+			isLightSensor = (sensors.size() > 0);
+		}
 		Log.d(TAG, "Finished check for a light sensor");
 		return isLightSensor;
-    }
+	}
 }

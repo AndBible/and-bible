@@ -17,7 +17,7 @@ import javax.inject.Inject;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton implements OnMenuItemClickListener {
 
@@ -44,14 +44,14 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 
 	@Override
 	public void update(MenuItem menuItem) {
-        mSuggestedDocument = getSuggestedDocument();
-        super.update(menuItem);
+		mSuggestedDocument = getSuggestedDocument();
+		super.update(menuItem);
 	}
 
 	@Override
 	public boolean onMenuItemClick(MenuItem arg0) {
-    	getCurrentPageManager().setCurrentDocument(mSuggestedDocument);
-    	return true;
+		getCurrentPageManager().setCurrentDocument(mSuggestedDocument);
+		return true;
 	}
 
 	@Override

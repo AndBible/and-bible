@@ -12,35 +12,35 @@ import java.io.IOException;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class IndexDownloader {
 
 	private static final String TAG = "IndexDownloader";
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.book.install.Installer#install(org.crosswire.jsword
-     * .book.Book)
-     */
-    public void downloadIndexInNewThread(final Installer installer, final Book book) {
-    	// So now we know what we want to install - all we need to do
-        // is installer.install(name) however we are doing it in the
-        // background so we create a job for it.
-        final Thread worker = new Thread("DisplayPreLoader") //$NON-NLS-1$
-        {
-            public void run() {
-            	Log.i(TAG, "Starting index download thread - book:"+book.getInitials());
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.crosswire.jsword.book.install.Installer#install(org.crosswire.jsword
+	 * .book.Book)
+	 */
+	public void downloadIndexInNewThread(final Installer installer, final Book book) {
+		// So now we know what we want to install - all we need to do
+		// is installer.install(name) however we are doing it in the
+		// background so we create a job for it.
+		final Thread worker = new Thread("DisplayPreLoader") //$NON-NLS-1$
+		{
+			public void run() {
+				Log.i(TAG, "Starting index download thread - book:"+book.getInitials());
 
 				downloadIndex(installer, book);
 			}
 		};
 
-        // this actually starts the thread off
-        worker.setPriority(Thread.MIN_PRIORITY);
-        worker.start();
-    }
+		// this actually starts the thread off
+		worker.setPriority(Thread.MIN_PRIORITY);
+		worker.start();
+	}
 
 	public void downloadIndex(final Installer installer, final Book book) {
 		try {

@@ -41,7 +41,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class LinkControl {
@@ -90,7 +90,7 @@ public class LinkControl {
 			if (uriAnalyzer.analyze(uri)) {
 				switch (uriAnalyzer.getDocType()) {
 				case BIBLE:
-		        	showBible(uriAnalyzer.getKey());
+					showBible(uriAnalyzer.getKey());
 					break;
 				case GREEK_DIC:
 					showStrongs(swordDocumentFacade.getDefaultStrongsGreekDictionary(), uriAnalyzer.getKey());
@@ -102,7 +102,7 @@ public class LinkControl {
 					showRobinsonMorphology(uriAnalyzer.getKey());
 					break;
 				case ALL_GREEK:
-		        	showAllOccurrences(uriAnalyzer.getKey(), SearchBibleSection.ALL, "g");
+					showAllOccurrences(uriAnalyzer.getKey(), SearchBibleSection.ALL, "g");
 					break;
 				case ALL_HEBREW:
 					showAllOccurrences(uriAnalyzer.getKey(), SearchBibleSection.ALL, "h");
@@ -115,8 +115,8 @@ public class LinkControl {
 				}
 				
 			}
-	        // handled this url (or at least attempted to)
-	        return true;
+			// handled this url (or at least attempted to)
+			return true;
 		} catch (Exception e) {
 			Log.e(TAG, "Error going to link", e);
 			return false;
@@ -129,8 +129,8 @@ public class LinkControl {
 		} else {
 			Book document = swordDocumentFacade.getDocumentByInitials(initials);
 			if (document==null) {
-	        	// tell user to install book
-	        	Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials);
+				// tell user to install book
+				Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials);
 			} else {
 				//Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
 				ref = URLDecoder.decode(ref);
@@ -141,7 +141,7 @@ public class LinkControl {
 				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
-		        showLink(document, bookKey);
+				showLink(document, bookKey);
 			}
 		}
 	}
@@ -180,10 +180,10 @@ public class LinkControl {
 		}
 		
 		// create Passage with correct source Versification 
-        Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
-        
-        // Bible not specified so use the default Bible version
-        showLink(null, key);
+		Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
+		
+		// Bible not specified so use the default Bible version
+		showLink(null, key);
 		
 		return;
 	}
@@ -192,73 +192,73 @@ public class LinkControl {
 	 */
 	private void showStrongs(Book book, String key) throws NoSuchKeyException {
 		
-        // valid Strongs uri but Strongs refs not installed
-        if (book==null) {
-        	Dialogs.getInstance().showErrorMsg(R.string.strongs_not_installed);
-        	// this uri request was handled by showing an error message
-        	return;
-        }
+		// valid Strongs uri but Strongs refs not installed
+		if (book==null) {
+			Dialogs.getInstance().showErrorMsg(R.string.strongs_not_installed);
+			// this uri request was handled by showing an error message
+			return;
+		}
 
-        Key strongsNumberKey = book.getKey(key); 
-        showLink(book, strongsNumberKey);
+		Key strongsNumberKey = book.getKey(key); 
+		showLink(book, strongsNumberKey);
 	}
 
 	/** user has selected a morphology link so show morphology page for key in link
 	 */
 	private void showRobinsonMorphology(String key) throws NoSuchKeyException {
 		Book robinson = swordDocumentFacade.getDocumentByInitials("robinson");
-        // valid Strongs uri but Strongs refs not installed
-        if (robinson==null) {
-        	Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed);
-        	// this uri request was handled by showing an error message
-        	return;
-        }
+		// valid Strongs uri but Strongs refs not installed
+		if (robinson==null) {
+			Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed);
+			// this uri request was handled by showing an error message
+			return;
+		}
 
-        Key robinsonNumberKey = robinson.getKey(key); 
-        showLink(robinson, robinsonNumberKey);
+		Key robinsonNumberKey = robinson.getKey(key); 
+		showLink(robinson, robinsonNumberKey);
 	}
 
 	private void showAllOccurrences(String ref, SearchBibleSection biblesection, String refPrefix) {
-    	Book currentBible = getCurrentPageManager().getCurrentBible().getCurrentDocument();
-    	Book strongsBible = null;
+		Book currentBible = getCurrentPageManager().getCurrentBible().getCurrentDocument();
+		Book strongsBible = null;
 
-    	// if current bible has no Strongs refs then try to find one that has
-    	if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
-    		strongsBible = currentBible;
-    	} else {
-    		strongsBible = swordDocumentFacade.getDefaultBibleWithStrongs();
-    	}
-    	
-    	// possibly no Strong's bible or it has not been indexed
-    	boolean needToDownloadIndex = false;
-    	if (strongsBible == null) {
-    		Dialogs.getInstance().showErrorMsg(R.string.no_indexed_bible_with_strongs_ref);
-    		return;
-    	} else if (currentBible.equals(strongsBible) && !checkStrongs(currentBible)) {
-    		Log.d(TAG, "Index status is NOT DONE");
-    		needToDownloadIndex = true;
-    	}
-    	
-    	// The below uses ANY_WORDS because that does not add anything to the search string
-    	//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-    	String searchText = searchControl.decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection, null);
-    	Log.d(TAG, "Search text:"+searchText);
+		// if current bible has no Strongs refs then try to find one that has
+		if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+			strongsBible = currentBible;
+		} else {
+			strongsBible = swordDocumentFacade.getDefaultBibleWithStrongs();
+		}
+		
+		// possibly no Strong's bible or it has not been indexed
+		boolean needToDownloadIndex = false;
+		if (strongsBible == null) {
+			Dialogs.getInstance().showErrorMsg(R.string.no_indexed_bible_with_strongs_ref);
+			return;
+		} else if (currentBible.equals(strongsBible) && !checkStrongs(currentBible)) {
+			Log.d(TAG, "Index status is NOT DONE");
+			needToDownloadIndex = true;
+		}
+		
+		// The below uses ANY_WORDS because that does not add anything to the search string
+		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
+		String searchText = searchControl.decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection, null);
+		Log.d(TAG, "Search text:"+searchText);
 
-    	Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-    	Bundle searchParams = new Bundle();
-    	searchParams.putString(SearchControl.SEARCH_TEXT, searchText);
-    	searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.getInitials());
-    	searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.getInitials());
+		Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		Bundle searchParams = new Bundle();
+		searchParams.putString(SearchControl.SEARCH_TEXT, searchText);
+		searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.getInitials());
+		searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.getInitials());
 
-    	Intent intent = null;
-    	if (needToDownloadIndex) {
-    	    intent = new Intent(activity, SearchIndex.class);
-    	} else {
-        	//If an indexed Strong's module is in place then do the search - the normal situation
-        	intent = new Intent(activity, SearchResults.class);
-    	}
-    	
-    	intent.putExtras(searchParams);
+		Intent intent = null;
+		if (needToDownloadIndex) {
+			intent = new Intent(activity, SearchIndex.class);
+		} else {
+			//If an indexed Strong's module is in place then do the search - the normal situation
+			intent = new Intent(activity, SearchResults.class);
+		}
+		
+		intent.putExtras(searchParams);
 		activity.startActivity(intent);
 	}
 	

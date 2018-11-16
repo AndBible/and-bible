@@ -22,7 +22,7 @@ import org.apache.commons.lang3.ArrayUtils;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class SettingsActivity extends PreferenceActivity {
 
@@ -45,7 +45,7 @@ public class SettingsActivity extends PreferenceActivity {
 		try {
 			addPreferencesFromResource(R.xml.settings);
 			
-		    //If no light sensor exists switch to old boolean check box
+			//If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
 			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.getUnusedNightModePreferenceKey());
 			getPreferenceScreen().removePreference(unusedNightModePreference);
@@ -76,9 +76,9 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-        Log.i(getLocalClassName(), "onStop");
-        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+		Log.i(getLocalClassName(), "onStop");
+		// call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+		CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 
 }

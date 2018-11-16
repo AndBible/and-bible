@@ -12,7 +12,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class FigureHandler implements OsisTagHandler {
 
@@ -30,8 +30,8 @@ public class FigureHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_FIGURE;
-    }
+		return OSISUtil.OSIS_ELEMENT_FIGURE;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

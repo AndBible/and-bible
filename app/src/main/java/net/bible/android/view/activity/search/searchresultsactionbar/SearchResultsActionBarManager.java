@@ -15,7 +15,7 @@ import javax.inject.Inject;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SearchResultsActionBarManager extends DefaultActionBarManager implements ActionBarManager {
@@ -57,7 +57,7 @@ public class SearchResultsActionBarManager extends DefaultActionBarManager imple
 			@Override
 			public void run() {
 				scriptureToggleActionBarButton.update();
-		    }
+			}
 		});
 	}
 }

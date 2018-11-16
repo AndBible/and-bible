@@ -26,7 +26,7 @@ import java.util.Set;
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class VerseActionModeMediator {
 
@@ -58,9 +58,9 @@ public class VerseActionModeMediator {
 	}
 
 	public void verseLongPress(ChapterVerse verse) {
-        Log.d(TAG, "Verse selected event:"+verse);
-        startVerseActionMode(verse);
-    }
+		Log.d(TAG, "Verse selected event:"+verse);
+		startVerseActionMode(verse);
+	}
 
 	/**
 	 * Handle selection and deselection of extra verses after initial verse
@@ -110,7 +110,7 @@ public class VerseActionModeMediator {
 
 		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
 		bibleView.enableVerseTouchSelection();
-    }
+	}
 
 	/**
 	 * Ensure all state is left tidy

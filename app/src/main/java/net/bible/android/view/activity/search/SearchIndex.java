@@ -18,7 +18,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class SearchIndex extends CustomTitlebarActivityBase {
 
@@ -26,64 +26,64 @@ public class SearchIndex extends CustomTitlebarActivityBase {
 
 	private static final String TAG = "SearchIndex";
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying SearchIndex view");
-        setContentView(R.layout.search_index);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Displaying SearchIndex view");
+		setContentView(R.layout.search_index);
 
 		buildActivityComponent().inject(this);
-    
-        Log.d(TAG, "Finished displaying Search Index view");
-    }
+	
+		Log.d(TAG, "Finished displaying Search Index view");
+	}
 
-    /** Download the index from the sam place that Pocket Sword uses
-     *  
-     * @param v
-     */
-    public void onDownload(View v) {
-    	Log.i(TAG, "CLICKED");
-    	boolean bOk = searchControl.downloadIndex(getDocumentToIndex());
+	/** Download the index from the sam place that Pocket Sword uses
+	 *  
+	 * @param v
+	 */
+	public void onDownload(View v) {
+		Log.i(TAG, "CLICKED");
+		boolean bOk = searchControl.downloadIndex(getDocumentToIndex());
 
-    	if (bOk) {
-        	monitorProgress();
-    	}
-    }
+		if (bOk) {
+			monitorProgress();
+		}
+	}
 
-    /** Indexing is very slow
-     *  
-     * @param v
-     */
-    public void onIndex(View v) {
-    	Log.i(TAG, "CLICKED");
-    	try {
-    		// start background thread to create index
-        	boolean bOk = searchControl.createIndex(getDocumentToIndex());
+	/** Indexing is very slow
+	 *  
+	 * @param v
+	 */
+	public void onIndex(View v) {
+		Log.i(TAG, "CLICKED");
+		try {
+			// start background thread to create index
+			boolean bOk = searchControl.createIndex(getDocumentToIndex());
 
-        	if (bOk) {
-	        	monitorProgress();
-        	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    	}
-    }
-    
-    private Book getDocumentToIndex() {
-    	String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
+			if (bOk) {
+				monitorProgress();
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "error indexing:"+e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private Book getDocumentToIndex() {
+		String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 
-    	Book documentToIndex;
-        if (StringUtils.isNotEmpty(documentInitials)) {
-        	documentToIndex = getSwordDocumentFacade().getDocumentByInitials(documentInitials);
-        } else {
-        	documentToIndex = getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
-        }
+		Book documentToIndex;
+		if (StringUtils.isNotEmpty(documentInitials)) {
+			documentToIndex = getSwordDocumentFacade().getDocumentByInitials(documentInitials);
+		} else {
+			documentToIndex = getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
+		}
 
-        return documentToIndex;
-    }
+		return documentToIndex;
+	}
 
-    /**
+	/**
 	 * Show progress monitor screen
 	 */
 	private void monitorProgress() {

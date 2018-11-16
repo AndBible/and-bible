@@ -27,11 +27,11 @@ class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 
 	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper;
 
-    public BookmarkColourListPrefWrapperAdapter(Context context, ListAdapter origAdapter) {
+	public BookmarkColourListPrefWrapperAdapter(Context context, ListAdapter origAdapter) {
 		super(origAdapter);
 		this.context = context;
 		this.bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
-    }
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

@@ -16,58 +16,58 @@ import java.util.Stack;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
-    
-    @SuppressWarnings("unused")
+	
+	@SuppressWarnings("unused")
 	private int currentVerseNo;
 
-    private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
+	private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
 	private enum CONTENT_STATE {WRITE, IGNORE}
 
 	// Avoid space at the start and, extra space between words
 	private boolean spaceJustWritten = true;
-    
+	
 	private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
-    
-    public OsisToCanonicalTextSaxHandler() {
-        super();
-    }
+	
+	public OsisToCanonicalTextSaxHandler() {
+		super();
+	}
 
-    @Override
-    public void startDocument () {
-    	reset();
-    	// default mode is to write
-    	writeContentStack.push(CONTENT_STATE.WRITE);
-    }
+	@Override
+	public void startDocument () {
+		reset();
+		// default mode is to write
+		writeContentStack.push(CONTENT_STATE.WRITE);
+	}
 
-    /*
-     *Called when the Parser Completes parsing the Current XML File.
-    */
-    @Override
-    public void endDocument() {
-    	// pop initial value
-    	writeContentStack.pop();
-    	
-    	// assert
-    	if (!writeContentStack.isEmpty()) {
-    		log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty");
-    	}
-    }
+	/*
+	 *Called when the Parser Completes parsing the Current XML File.
+	*/
+	@Override
+	public void endDocument() {
+		// pop initial value
+		writeContentStack.pop();
+		
+		// assert
+		if (!writeContentStack.isEmpty()) {
+			log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty");
+		}
+	}
 
-    /*
-     * Called when the starting of the Element is reached. For Example if we have Tag
-     * called <Title> ... </Title>, then this method is called when <Title> tag is
-     * Encountered while parsing the Current XML File. The AttributeList Parameter has
-     * the list of all Attributes declared for the Current Element in the XML File.
-    */
-    @Override
-    public void startElement(String namespaceURI,
-            String sName, // simple name
-            String qName, // qualified name
-            Attributes attrs)
-    {
+	/*
+	 * Called when the starting of the Element is reached. For Example if we have Tag
+	 * called <Title> ... </Title>, then this method is called when <Title> tag is
+	 * Encountered while parsing the Current XML File. The AttributeList Parameter has
+	 * the list of all Attributes declared for the Current Element in the XML File.
+	*/
+	@Override
+	public void startElement(String namespaceURI,
+			String sName, // simple name
+			String qName, // qualified name
+			Attributes attrs)
+	{
 		String name = getName(sName, qName); // element name
 
 		debug(name, attrs, true);
@@ -100,17 +100,17 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 			writeContentStack.push(writeContentStack.peek());
 		}
 	}
-    
-    /*
-     * Called when the Ending of the current Element is reached. For example in the
-     * above explanation, this method is called when </Title> tag is reached
-    */
-    @Override
-    public void endElement(String namespaceURI,
-            String sName, // simple name
-            String qName  // qualified name
-            )
-    {
+	
+	/*
+	 * Called when the Ending of the current Element is reached. For example in the
+	 * above explanation, this method is called when </Title> tag is reached
+	*/
+	@Override
+	public void endElement(String namespaceURI,
+			String sName, // simple name
+			String qName  // qualified name
+			)
+	{
 		String name = getName(sName, qName);
 		debug(name, null, false);
 		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
@@ -122,14 +122,14 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		// now this tag has ended pop the write/ignore state for the parent tag
 		writeContentStack.pop();
 	}
-    
-    /*
-     * Handle characters encountered in tags
-    */
-    @Override
-    public void characters (char buf[], int offset, int len) {
-        if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
-        	String s = new String(buf, offset, len);
+	
+	/*
+	 * Handle characters encountered in tags
+	*/
+	@Override
+	public void characters (char buf[], int offset, int len) {
+		if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
+			String s = new String(buf, offset, len);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				if(s.charAt(0) == ' ') {
 					// fromHtml strips leading whitespaces, which is not desirable
@@ -138,8 +138,8 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 				s = Html.fromHtml(s, 0).toString();
 			}
 			write(s);
-        }
-    }
+		}
+	}
 
 	@Override
 	protected void write(String s) {
@@ -154,11 +154,11 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 	}
 
 	protected void writeContent(boolean writeContent) {
-    	if (writeContent) {
-    		writeContentStack.push(CONTENT_STATE.WRITE);    		
-    	} else {
-    		writeContentStack.push(CONTENT_STATE.IGNORE);
-    	}
-    }
+		if (writeContent) {
+			writeContentStack.push(CONTENT_STATE.WRITE);			
+		} else {
+			writeContentStack.push(CONTENT_STATE.IGNORE);
+		}
+	}
 }
 

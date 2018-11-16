@@ -17,7 +17,7 @@ import javax.inject.Inject;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 abstract public class QuickActionButton implements OnMenuItemClickListener {
 	
@@ -51,20 +51,20 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	}
 
 	public void update() {
-        if (menuItem!=null) {
-        	update(menuItem);
-        }
+		if (menuItem!=null) {
+			update(menuItem);
+		}
 	}
 	protected void update(MenuItem menuItem) {
-    	// canShow means must show because we rely on AB logic
-        menuItem.setVisible(canShow());
+		// canShow means must show because we rely on AB logic
+		menuItem.setVisible(canShow());
 
-        menuItem.setTitle(getTitle());
-        
-        int iconResId = getIcon();
-        if (iconResId!=NO_ICON) {
-        	menuItem.setIcon(iconResId);
-        }
+		menuItem.setTitle(getTitle());
+		
+		int iconResId = getIcon();
+		if (iconResId!=NO_ICON) {
+			menuItem.setIcon(iconResId);
+		}
 	}
 
 	/**

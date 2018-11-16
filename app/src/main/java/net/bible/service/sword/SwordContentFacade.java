@@ -54,7 +54,7 @@ import javax.xml.parsers.SAXParser;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SwordContentFacade {
@@ -74,7 +74,7 @@ public class SwordContentFacade {
 	// set to false for testing
 	private static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
-    private static final Logger log = new Logger(SwordContentFacade.class.getName());
+	private static final Logger log = new Logger(SwordContentFacade.class.getName());
 
 	@Inject
 	public SwordContentFacade(BookmarkFormatSupport bookmarkFormatSupport, MyNoteFormatSupport myNoteFormatSupport) {
@@ -137,7 +137,7 @@ public class SwordContentFacade {
 			} else {
 				Log.e(TAG, "No osis SEP returned");
 			}
-	        return retVal;
+			return retVal;
 		} catch (Exception e) {
 			log.error("Parsing error", e);
 			throw new ParseException("Parsing error", e);
@@ -193,24 +193,24 @@ public class SwordContentFacade {
 		
 				retVal = osisToHtml.toString();
 			}		
-	        return retVal;
+			return retVal;
 		} catch (Exception e) {
 			log.error("Parsing error", e);
 			throw new ParseException("Parsing error", e);
 		}
 	}
 
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     * 
-     * @param book
-     *            the book to use
-     * @param key
-     *            a reference, appropriate for the book, of one or more entries
-     */
-    public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
-    	try {
+	/**
+	 * Get just the canonical text of one or more book entries without any
+	 * markup.
+	 * 
+	 * @param book
+	 *			the book to use
+	 * @param key
+	 *			a reference, appropriate for the book, of one or more entries
+	 */
+	public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+		try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 		
@@ -219,11 +219,11 @@ public class SwordContentFacade {
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
-    	}
-    }
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return BibleApplication.getApplication().getString(R.string.error_occurred);
+		}
+	}
 
 	private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
 		try {
@@ -244,7 +244,7 @@ public class SwordContentFacade {
 		}
 	}
 
-    public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
+	public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
 		SpeakCommandArray lst = new SpeakCommandArray();
 		if (verse.getVerse() == 1) {
 			lst.addAll(getSpeakCommandsForVerse(settings, book,
@@ -253,18 +253,18 @@ public class SwordContentFacade {
 
 		lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
 		return lst;
-    }
+	}
 
-    /**
-     * Get text to be spoken without any markup.
-     * 
-     * @param book
-     *            the book to use
-     * @param key
-     *            a reference, appropriate for the book, of one or more entries
-     */
-    public String getTextToSpeak(Book book, Key key) {
-    	try {
+	/**
+	 * Get text to be spoken without any markup.
+	 * 
+	 * @param book
+	 *			the book to use
+	 * @param key
+	 *			a reference, appropriate for the book, of one or more entries
+	 */
+	public String getTextToSpeak(Book book, Key key) {
+		try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 		
@@ -274,63 +274,63 @@ public class SwordContentFacade {
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
-    	}
-    }
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return BibleApplication.getApplication().getString(R.string.error_occurred);
+		}
+	}
 
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     * 
-     * @param book
-     *            the book to use
-     * @param reference
-     *            a reference, appropriate for the book, of one or more entries
-     */
-    public String getPlainText(Book book, String reference) throws BookException, NoSuchKeyException {
-    	String plainText = "";
-    	try {
-    		if (book != null) {
-		        Key key = book.getKey(reference);
-		        plainText = getPlainText(book, key);
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting plain text", e);
-    	}
-    	return plainText;
-    }
+	/**
+	 * Get just the canonical text of one or more book entries without any
+	 * markup.
+	 * 
+	 * @param book
+	 *			the book to use
+	 * @param reference
+	 *			a reference, appropriate for the book, of one or more entries
+	 */
+	public String getPlainText(Book book, String reference) throws BookException, NoSuchKeyException {
+		String plainText = "";
+		try {
+			if (book != null) {
+				Key key = book.getKey(reference);
+				plainText = getPlainText(book, key);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting plain text", e);
+		}
+		return plainText;
+	}
 
-    /**
-     * Get just the canonical text of one or more book entries without any
-     * markup.
-     * 
-     * @param book
-     *            the book to use
-     * @param key
-     *            a reference, appropriate for the book, of one or more entries
-     */
-    public String getPlainText(Book book, Key key) throws BookException, NoSuchKeyException {
-    	String plainText = "";
-    	try {
-    		if (book != null) {
-		        plainText = getCanonicalText(book, key);
+	/**
+	 * Get just the canonical text of one or more book entries without any
+	 * markup.
+	 * 
+	 * @param book
+	 *			the book to use
+	 * @param key
+	 *			a reference, appropriate for the book, of one or more entries
+	 */
+	public String getPlainText(Book book, Key key) throws BookException, NoSuchKeyException {
+		String plainText = "";
+		try {
+			if (book != null) {
+				plainText = getCanonicalText(book, key);
 
 				// trim any preceeding spaces that make the final output look uneven
 				plainText = plainText.trim();
 			}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting plain text", e);
-    	}
-    	return plainText;
-    }
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting plain text", e);
+		}
+		return plainText;
+	}
 
-    public Key search(Book bible, String searchText) throws BookException {
+	public Key search(Book bible, String searchText) throws BookException {
 // 		  example of fetching Strongs ref - only works with downloaded indexes!
-//        Book book = getDocumentByInitials("KJV");
-//        Key key1 = book.find("strong:h3068");
-//        System.out.println("h3068 result count:"+key1.getCardinality());
+//		Book book = getDocumentByInitials("KJV");
+//		Key key1 = book.find("strong:h3068");
+//		System.out.println("h3068 result count:"+key1.getCardinality());
 
 		Log.d(TAG,	"Searching:"+bible+" Search term:" + searchText);
 		
@@ -366,9 +366,9 @@ public class SwordContentFacade {
 		}
 
 		if (isAndroid) {
-	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
-	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));
-	    	
+			// HunUj has an error in that refs are not wrapped so automatically add notes around refs
+			osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));
+			
 			SharedPreferences preferences = CommonUtils.getSharedPreferences();
 			if (preferences!=null) {
 				// prefs applying to any doc type
@@ -427,21 +427,21 @@ public class SwordContentFacade {
 	}
 
 	/**
-     * When checking a book contains a chapter SwordBook returns false if verse 0 is not in the chapter so this method compensates for that
-     * 
-     * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
-     */
-    private boolean bookContainsAnyOf(Book book, Key key) {
-        if (book.contains(key)) {
-            return true;
-        }
+	 * When checking a book contains a chapter SwordBook returns false if verse 0 is not in the chapter so this method compensates for that
+	 * 
+	 * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
+	 */
+	private boolean bookContainsAnyOf(Book book, Key key) {
+		if (book.contains(key)) {
+			return true;
+		}
 
 		for (Key aKey : key) {
 			if (book.contains(aKey)) {
 				return true;
 			}
 		}
-        
-        return false;
-    }
+		
+		return false;
+	}
 }

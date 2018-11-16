@@ -12,10 +12,10 @@ import net.bible.android.BibleApplication
  */
 class NumPagesToSpeakDefinition(var numPages: Int, private val resourceId: Int, private val isPlural: Boolean, val radioButtonId: Int) {
 
-    fun getPrompt() =
-            if (isPlural) {
-                BibleApplication.getApplication().resources.getQuantityString(resourceId, numPages, numPages)
-            } else {
-                BibleApplication.getApplication().resources.getString(resourceId)
-            }
+	fun getPrompt() =
+			if (isPlural) {
+				BibleApplication.getApplication().resources.getQuantityString(resourceId, numPages, numPages)
+			} else {
+				BibleApplication.getApplication().resources.getString(resourceId)
+			}
 }

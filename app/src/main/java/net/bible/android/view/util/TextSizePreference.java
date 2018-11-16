@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class TextSizePreference extends SeekBarPreference {
 
@@ -26,9 +26,9 @@ public class TextSizePreference extends SeekBarPreference {
 		setDialogMessage(CommonUtils.getResourceString(R.string.prefs_text_size_sample_text));
 	}
 	
-    protected void updateScreenValue(int value) {
-    	super.updateScreenValue(value);
+	protected void updateScreenValue(int value) {
+		super.updateScreenValue(value);
 
 		getDialogMessageView().setTextSize(value);
-    }
+	}
 }

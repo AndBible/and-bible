@@ -12,7 +12,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class DivineNameHandler implements OsisTagHandler {
 
@@ -24,8 +24,8 @@ public class DivineNameHandler implements OsisTagHandler {
 	
 	@Override
 	public String getTagName() {
-        return OSISUtil2.OSIS_ELEMENT_DIVINENAME;
-    }
+		return OSISUtil2.OSIS_ELEMENT_DIVINENAME;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

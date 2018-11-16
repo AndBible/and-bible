@@ -44,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BibleView extends WebView implements DocumentView, VerseActionModeMediator.VerseHighlightControl, BibleViewTextInserter {
 	
@@ -89,8 +89,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private static final String TAG = "BibleView";
 
 	/**
-     * Constructor.  This version is only needed if you will be instantiating
-     * the object manually (not from a layout XML file).
+	 * Constructor.  This version is only needed if you will be instantiating
+	 * the object manually (not from a layout XML file).
 	 */
 	public BibleView(Context context, Window window, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
@@ -251,9 +251,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	 */
 	@Override
 	protected int computeVerticalScrollExtent() {
-	    int result = super.computeVerticalScrollExtent();
+		int result = super.computeVerticalScrollExtent();
 
-	    // trigger jump to appropriate verse or offset into a book or commentary page...
+		// trigger jump to appropriate verse or offset into a book or commentary page...
 		invokeJumpToOffsetIfRequired(0);
 
 		return result;
@@ -267,7 +267,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			postDelayed(new Runnable() {
 				@Override
 				public void run() {
-				    jumpToOffset();
+					jumpToOffset();
 				}
 			}, delay);
 		}
@@ -290,22 +290,22 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 			// go to any specified verse or offset
 			if (ChapterVerse.isSet(mJumpToChapterVerse)) {
-			    // must clear mJumpToChapterVerse because setting location causes another onPageFinished
+				// must clear mJumpToChapterVerse because setting location causes another onPageFinished
 				ChapterVerse jumpToChapterVerse = mJumpToChapterVerse;
-			    mJumpToChapterVerse = ChapterVerse.Companion.getNOT_SET();
-			    
+				mJumpToChapterVerse = ChapterVerse.Companion.getNOT_SET();
+				
 				scrollOrJumpToVerse(jumpToChapterVerse);
 				
 			} else if (mJumpToYOffsetRatio != SharedConstants.NO_VALUE) {
-	            int contentHeight = getContentHeight(); 
-	            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
-	            
-	            // must zero mJumpToYOffsetRatio because setting location causes another onPageFinished
+				int contentHeight = getContentHeight(); 
+				int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
+				
+				// must zero mJumpToYOffsetRatio because setting location causes another onPageFinished
 				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 				
-		        scrollTo(0, Math.max(y, TOP_OF_SCREEN));
+				scrollTo(0, Math.max(y, TOP_OF_SCREEN));
 			}
-	    }
+		}
 	}
 
 	/** prevent swipe right if the user is scrolling the page right */
@@ -349,18 +349,18 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		}
 	}
 	
-    private void pauseTiltScroll() {
+	private void pauseTiltScroll() {
 		Log.d(TAG, "Pausing tilt to scroll " + window);
-        mPageTiltScroller.enableTiltScroll(false);
-    }
-    
-    private void resumeTiltScroll() {
-    	// but if multiple windows then only if the current active window
-    	if (windowControl.isActiveWindow(window)) {
+		mPageTiltScroller.enableTiltScroll(false);
+	}
+	
+	private void resumeTiltScroll() {
+		// but if multiple windows then only if the current active window
+		if (windowControl.isActiveWindow(window)) {
 			Log.d(TAG, "Resuming tilt to scroll "+window);
-	        mPageTiltScroller.enableTiltScroll(true);
-    	}
-    }
+			mPageTiltScroller.enableTiltScroll(true);
+		}
+	}
 
 	/** ensure auto-scroll does not continue when screen is powered off
 	 */
@@ -387,14 +387,14 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 
 	@Override
-    public float getCurrentPosition() {
-    	// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        int contentHeight = getContentHeight();
-        int scrollY = getScrollY();
-        float ratio = ((float) scrollY / ((float) contentHeight));
+	public float getCurrentPosition() {
+		// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
+		int contentHeight = getContentHeight();
+		int scrollY = getScrollY();
+		float ratio = ((float) scrollY / ((float) contentHeight));
 
-        return ratio;
-    }
+		return ratio;
+	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -437,24 +437,24 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	/** Used to prevent scroll off bottom using auto-scroll
 	 * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
 	 */
-    private int getMaxVerticalScroll() {
-    	//TODO get these once, they probably won't change 
-        return computeVerticalScrollRange()-computeVerticalScrollExtent();
-    }
+	private int getMaxVerticalScroll() {
+		//TODO get these once, they probably won't change 
+		return computeVerticalScrollRange()-computeVerticalScrollExtent();
+	}
 
-    private int getMaxHorizontalScroll() {
-        return computeHorizontalScrollRange()-computeHorizontalScrollExtent();
-    }
+	private int getMaxHorizontalScroll() {
+		return computeHorizontalScrollRange()-computeHorizontalScrollExtent();
+	}
 
-    /** allow vertical scroll bar to be hidden during auto-scroll
-     */
-    protected boolean awakenScrollBars(int startDelay, boolean invalidate) {
-    	if (!hideScrollBar) {
-    		return super.awakenScrollBars(startDelay, invalidate);
-    	} else {
-    		return false;
-    	}
-    }
+	/** allow vertical scroll bar to be hidden during auto-scroll
+	 */
+	protected boolean awakenScrollBars(int startDelay, boolean invalidate) {
+		if (!hideScrollBar) {
+			return super.awakenScrollBars(startDelay, invalidate);
+		} else {
+			return false;
+		}
+	}
 	@Override
 	public View asView() {
 		return this;

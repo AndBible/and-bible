@@ -22,7 +22,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ManageLabels extends ListActivityBase {
 
@@ -37,26 +37,26 @@ public class ManageLabels extends ListActivityBase {
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = R.layout.manage_labels_list_item;
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, false);
-        setContentView(R.layout.manage_labels);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState, false);
+		setContentView(R.layout.manage_labels);
 
 		super.buildActivityComponent().inject(this);
 
-        initialiseView();
-    }
+		initialiseView();
+	}
 
-    private void initialiseView() {
-    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+	private void initialiseView() {
+		getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-    	loadLabelList();
+		loadLabelList();
 
 		// prepare the document list view
-    	ArrayAdapter<LabelDto> listArrayAdapter = new ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this);
-    	setListAdapter(listArrayAdapter);
-    }
+		ArrayAdapter<LabelDto> listArrayAdapter = new ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this);
+		setListAdapter(listArrayAdapter);
+	}
 
 	public void delete(LabelDto label) {
 		// delete label from db
@@ -66,13 +66,13 @@ public class ManageLabels extends ListActivityBase {
 		loadLabelList();
 	}
 
-    /** 
-     * New Label requested
-     */
-    public void onNewLabel(View v) {
-    	Log.i(TAG, "New label clicked");
+	/** 
+	 * New Label requested
+	 */
+	public void onNewLabel(View v) {
+		Log.i(TAG, "New label clicked");
 
-    	LabelDto newLabel = new LabelDto();
+		LabelDto newLabel = new LabelDto();
 		labelDialogs.createLabel(this, newLabel, new Callback() {
 			@Override
 			public void okay() {
@@ -105,13 +105,13 @@ public class ManageLabels extends ListActivityBase {
 	 * 
 	 */
 	private void loadLabelList() {
-    	
-    	// get long book names to show in the select list
+		
+		// get long book names to show in the select list
 		// must clear rather than create because the adapter is linked to this specific list
-    	labels.clear();
+		labels.clear();
 		labels.addAll(bookmarkControl.getAssignableLabels());
 
-    	// ensure ui is updated
+		// ensure ui is updated
 		notifyDataSetChanged();
 	}
 

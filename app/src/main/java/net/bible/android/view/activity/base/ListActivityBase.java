@@ -20,7 +20,7 @@ import net.bible.android.activity.R;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ListActivityBase extends CustomTitlebarActivityBase {
 	/**
@@ -51,11 +51,11 @@ public class ListActivityBase extends CustomTitlebarActivityBase {
 	
 	protected void notifyDataSetChanged() {
 		ListAdapter listAdapter = getListAdapter();
-    	if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {
-    		((ArrayAdapter<?>)listAdapter).notifyDataSetChanged();
-    	} else {
-    		Log.w(TAG, "Could not update list Array Adapter");
-    	}
+		if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {
+			((ArrayAdapter<?>)listAdapter).notifyDataSetChanged();
+		} else {
+			Log.w(TAG, "Could not update list Array Adapter");
+		}
 	}
 
 	private Runnable mRequestFocus = new Runnable() {
@@ -71,13 +71,13 @@ public class ListActivityBase extends CustomTitlebarActivityBase {
 	 * associated with the selected item.
 	 * 
 	 * @param l
-	 *            The ListView where the click happened
+	 *			The ListView where the click happened
 	 * @param v
-	 *            The view that was clicked within the ListView
+	 *			The view that was clicked within the ListView
 	 * @param position
-	 *            The position of the view in the list
+	 *			The position of the view in the list
 	 * @param id
-	 *            The row id of the item that was clicked
+	 *			The row id of the item that was clicked
 	 */
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 	}

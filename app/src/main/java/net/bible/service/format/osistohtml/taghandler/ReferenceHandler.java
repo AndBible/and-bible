@@ -34,38 +34,38 @@ In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="cro
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ReferenceHandler implements OsisTagHandler {
 
-    private OsisToHtmlParameters parameters;
+	private OsisToHtmlParameters parameters;
 
-    private String currentRefOsisRef;
-    
-    private NoteHandler noteHandler;
+	private String currentRefOsisRef;
+	
+	private NoteHandler noteHandler;
 
-    private HtmlTextWriter writer;
+	private HtmlTextWriter writer;
 
-    private static final Logger log = new Logger("ReferenceHandler");
-    
-    public ReferenceHandler(OsisToHtmlParameters osisToHtmlParameters, NoteHandler noteHandler, HtmlTextWriter theWriter) {
-        this.parameters = osisToHtmlParameters;
-        this.noteHandler = noteHandler;
-        this.writer = theWriter;
-    }
+	private static final Logger log = new Logger("ReferenceHandler");
+	
+	public ReferenceHandler(OsisToHtmlParameters osisToHtmlParameters, NoteHandler noteHandler, HtmlTextWriter theWriter) {
+		this.parameters = osisToHtmlParameters;
+		this.noteHandler = noteHandler;
+		this.writer = theWriter;
+	}
 
 	@Override
 	public String getTagName() {
 		return OSISUtil.OSIS_ELEMENT_REFERENCE;
 	}
 
-    public void start(Attributes attrs) {
+	public void start(Attributes attrs) {
 		// store the osisRef attribute for use with the note
 		String target = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
 		start(target);
 	}
-    
-    protected void start(String target) {
+	
+	protected void start(String target) {
 		// don't need to do anything until closing reference tag except..
 		// delete separators like ';' that sometimes occur between reference tags
 		writer.clearTempStore();
@@ -73,8 +73,8 @@ public class ReferenceHandler implements OsisTagHandler {
 		// store the osisRef attribute for use with the note
 		this.currentRefOsisRef = target;
 	}
-    
-    public void end() {
+	
+	public void end() {
 		writer.finishWritingToTempStore();
 
 		if (noteHandler.isInNote() || parameters.isAutoWrapUnwrappedRefsInNote()) {
@@ -118,18 +118,18 @@ public class ReferenceHandler implements OsisTagHandler {
 		}
 		return reference;
 	}
-    
-    /** create a link tag from an OSISref and the content of the tag
-     */
-    private String getReferenceTag(String reference, String content) {
-    	log.debug("Ref:"+reference+" Content:"+content);
-    	StringBuilder result = new StringBuilder();
-    	boolean isFullSwordUrn;
-    	try {
+	
+	/** create a link tag from an OSISref and the content of the tag
+	 */
+	private String getReferenceTag(String reference, String content) {
+		log.debug("Ref:"+reference+" Content:"+content);
+		StringBuilder result = new StringBuilder();
+		boolean isFullSwordUrn;
+		try {
 
-    		if(reference==null) {
-    			reference = getReferenceFromContent(content);
-    			isFullSwordUrn = false;
+			if(reference==null) {
+				reference = getReferenceFromContent(content);
+				isFullSwordUrn = false;
 			}
 			else {
 				isFullSwordUrn = reference.contains("/") && reference.contains(":");
@@ -141,30 +141,30 @@ public class ReferenceHandler implements OsisTagHandler {
 				}
 			}
 
-    		if (isFullSwordUrn) {
-    			// e.g. sword://StrongsRealGreek/01909 or Genbook reference
-    			// don't play with the reference - just assume it is correct
+			if (isFullSwordUrn) {
+				// e.g. sword://StrongsRealGreek/01909 or Genbook reference
+				// don't play with the reference - just assume it is correct
 				result.append("<a href='").append(reference).append("'>");
 				result.append(content);
 				result.append("</a>");
-    		} else {
-		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
-		        boolean isSingleVerse = ref.countVerses()==1;
-		        boolean hasContent = content.length()>0;
+			} else {
+				Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
+				boolean isSingleVerse = ref.countVerses()==1;
+				boolean hasContent = content.length()>0;
 				boolean hasSeparateRefs = reference.contains(" ");
 				boolean isSingleRange = !isSingleVerse && !hasSeparateRefs;
 
 
-		        if ((isSingleVerse || isSingleRange) && hasContent) {
+				if ((isSingleVerse || isSingleRange) && hasContent) {
 					// simple verse no e.g. 1 or 2 preceding the actual verse in TSK
 					Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.NONE);
 					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
 					result.append(content);
 					result.append("</a>");
 				} else {
-		        	// multiple complex references
+					// multiple complex references
 					Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
-		        	boolean isFirst = true;
+					boolean isFirst = true;
 					while (it.hasNext()) {
 						Key key = it.next();
 						if (!isFirst) {
@@ -176,14 +176,14 @@ public class ReferenceHandler implements OsisTagHandler {
 						result.append("</a>");
 						isFirst = false;
 					}
-		        }
-    		}
-    	} catch (Exception e) {
-    		log.error("Error parsing OSIS reference:"+reference);
-    		// just return the content with no html markup
-    		result.append(content);
-    	}
-    	return result.toString();
-    }
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error parsing OSIS reference:"+reference);
+			// just return the content with no html markup
+			result.append(content);
+		}
+		return result.toString();
+	}
 }
 

@@ -13,7 +13,7 @@ import org.xml.sax.Attributes;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class OrthHandler extends HiHandler {
 
@@ -25,8 +25,8 @@ public class OrthHandler extends HiHandler {
 	
 	@Override
 	public String getTagName() {
-        return TEIUtil.TEI_ELEMENT_ORTH;
-    }
+		return TEIUtil.TEI_ELEMENT_ORTH;
+	}
 
 	@Override
 	public void start(Attributes attrs) {

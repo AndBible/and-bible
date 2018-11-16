@@ -11,15 +11,15 @@ public class ABStringUtils extends StringUtils {
 	 */
 	public static boolean isAllUpperCaseWherePossible(CharSequence cs) {
 		if (cs == null || isEmpty(cs)) {
-            return false;
-        }
-        int sz = cs.length();
-        for (int i = 0; i < sz; i++) {
-        	char ch = cs.charAt(i);
-            if (Character.isLowerCase(ch)) {
-                return false;
-            }
-        }
-        return true;
-    }
+			return false;
+		}
+		int sz = cs.length();
+		for (int i = 0; i < sz; i++) {
+			char ch = cs.charAt(i);
+			if (Character.isLowerCase(ch)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

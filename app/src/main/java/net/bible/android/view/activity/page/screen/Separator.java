@@ -17,7 +17,7 @@ import net.bible.android.view.util.TouchOwner;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class Separator extends View {
 
@@ -64,16 +64,16 @@ public class Separator extends View {
 		Resources res = BibleApplication.getApplication().getResources();
 		SEPARATOR_COLOUR = res.getColor(R.color.window_separator_colour);
 		SEPARATOR_DRAG_COLOUR = res.getColor(R.color.window_separator_drag_colour);
-        setBackgroundColor(SEPARATOR_COLOUR);
+		setBackgroundColor(SEPARATOR_COLOUR);
 
-        touchDelegateView1 = new TouchDelegateView(context, this);
-        touchDelegateView2 = new TouchDelegateView(context, this);
-        SEPARATOR_WIDTH = width;
-        this.parentLayout = parentLayout;
-        this.window1 = window;
-        this.window2 = nextWindow;
-        this.numWindows = numWindows;
-        this.isPortrait = isPortrait;
+		touchDelegateView1 = new TouchDelegateView(context, this);
+		touchDelegateView2 = new TouchDelegateView(context, this);
+		SEPARATOR_WIDTH = width;
+		this.parentLayout = parentLayout;
+		this.window1 = window;
+		this.window2 = nextWindow;
+		this.numWindows = numWindows;
+		this.isPortrait = isPortrait;
 	}
 	
 	/** 
@@ -81,59 +81,59 @@ public class Separator extends View {
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-	    switch (event.getAction() & MotionEvent.ACTION_MASK)   
-	    {
-	    case MotionEvent.ACTION_DOWN:
-	    	Log.d(TAG, " y:"+event.getRawY());
-	    	touchOwner.setTouchOwner(this);
-	    	windowControl.setSeparatorMoving(true);
-	        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
-	    	
-	    	int[] rawParentLocation = new int[2]; 
-	    	parentLayout.getLocationOnScreen(rawParentLocation);
-	    	parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
-	    	
-	        startTouchPx = isPortrait? (int)event.getRawY() : (int)event.getRawX();
-	        startWeight1 = view1LayoutParams.weight; //window1.getWeight();
-	        startWeight2 = view2LayoutParams.weight; //window2.getWeight();
-	        break;
-	    case MotionEvent.ACTION_UP:
-	    case MotionEvent.ACTION_POINTER_UP:
-	    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
-	        setBackgroundColor(SEPARATOR_COLOUR);
-	    	window1.getWindowLayout().setWeight(view1LayoutParams.weight);
-	    	window2.getWindowLayout().setWeight(view2LayoutParams.weight);
-	    	windowControl.setSeparatorMoving(false);
-	    	touchOwner.releaseOwnership(this);
-	        break;
-	    case MotionEvent.ACTION_MOVE:
-	    	if (System.currentTimeMillis()>lastTouchMoveEvent+DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
-		    	Log.d(TAG, "Touch move accepted");
-		    	int parentDimensionPx = getParentDimensionPx();
+		switch (event.getAction() & MotionEvent.ACTION_MASK)   
+		{
+		case MotionEvent.ACTION_DOWN:
+			Log.d(TAG, " y:"+event.getRawY());
+			touchOwner.setTouchOwner(this);
+			windowControl.setSeparatorMoving(true);
+			setBackgroundColor(SEPARATOR_DRAG_COLOUR);
+			
+			int[] rawParentLocation = new int[2]; 
+			parentLayout.getLocationOnScreen(rawParentLocation);
+			parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
+			
+			startTouchPx = isPortrait? (int)event.getRawY() : (int)event.getRawX();
+			startWeight1 = view1LayoutParams.weight; //window1.getWeight();
+			startWeight2 = view2LayoutParams.weight; //window2.getWeight();
+			break;
+		case MotionEvent.ACTION_UP:
+		case MotionEvent.ACTION_POINTER_UP:
+			Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
+			setBackgroundColor(SEPARATOR_COLOUR);
+			window1.getWindowLayout().setWeight(view1LayoutParams.weight);
+			window2.getWindowLayout().setWeight(view2LayoutParams.weight);
+			windowControl.setSeparatorMoving(false);
+			touchOwner.releaseOwnership(this);
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if (System.currentTimeMillis()>lastTouchMoveEvent+DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
+				Log.d(TAG, "Touch move accepted");
+				int parentDimensionPx = getParentDimensionPx();
 
-		    	// calculate y offset in pixels from top of parent layout
-		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX());
-		    	
-		    	// prevent going irretrievably off bottom or right edge
-	    		offsetFromEdgePx = Math.min(offsetFromEdgePx, parentDimensionPx-SEPARATOR_WIDTH);
-		    	
-		    	// if position has moved at least one px then redraw separator
-		    	if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
-		    		int changePx = (int)offsetFromEdgePx-startTouchPx;
-		    		float aveScreenSize = getAveScreenSize();
-		    		float variationPercent = changePx/aveScreenSize; 
-		    		
-			    	// change the weights of both bible views to effectively move the separator
-			    	view1LayoutParams.weight = startWeight1+variationPercent;
-			    	view2LayoutParams.weight = startWeight2-variationPercent;
-			    	parentLayout.requestLayout();
-			    	lastOffsetFromEdgePx = (int)offsetFromEdgePx;
-		    	}
-		    	lastTouchMoveEvent = System.currentTimeMillis();
-		    	Log.d(TAG, "Touch move finished");
-	    	}
-	        break;
-	    }   
+				// calculate y offset in pixels from top of parent layout
+				float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX());
+				
+				// prevent going irretrievably off bottom or right edge
+				offsetFromEdgePx = Math.min(offsetFromEdgePx, parentDimensionPx-SEPARATOR_WIDTH);
+				
+				// if position has moved at least one px then redraw separator
+				if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
+					int changePx = (int)offsetFromEdgePx-startTouchPx;
+					float aveScreenSize = getAveScreenSize();
+					float variationPercent = changePx/aveScreenSize; 
+					
+					// change the weights of both bible views to effectively move the separator
+					view1LayoutParams.weight = startWeight1+variationPercent;
+					view2LayoutParams.weight = startWeight2-variationPercent;
+					parentLayout.requestLayout();
+					lastOffsetFromEdgePx = (int)offsetFromEdgePx;
+				}
+				lastTouchMoveEvent = System.currentTimeMillis();
+				Log.d(TAG, "Touch move finished");
+			}
+			break;
+		}   
 
 		return true; //super.onTouchEvent(event);
 	}

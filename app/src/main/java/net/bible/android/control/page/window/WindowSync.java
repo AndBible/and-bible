@@ -38,8 +38,8 @@ public class WindowSync {
 	}
 
 	public void onEvent(PassageChangedEvent event) {
-    	synchronizeScreens();
-    }
+		synchronizeScreens();
+	}
 	
 	/**
 	 * Save/restore dynamic state that is not automatically saved as Preferences
@@ -173,13 +173,13 @@ public class WindowSync {
 		return result; 
 	}
 
-    private class UpdateInactiveScreenTextTask extends UpdateTextTask {
-        /** callback from base class when result is ready */
-    	@Override
-    	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
-    		ABEventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
-        }
-    }
+	private class UpdateInactiveScreenTextTask extends UpdateTextTask {
+		/** callback from base class when result is ready */
+		@Override
+		protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
+			ABEventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
+		}
+	}
 
 	public void setResynchRequired(boolean resynchRequired) {
 		this.resynchRequired = resynchRequired;

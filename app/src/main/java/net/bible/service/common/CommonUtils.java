@@ -43,7 +43,7 @@ import java.util.Properties;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CommonUtils {
 
@@ -56,9 +56,9 @@ public class CommonUtils {
 	
 	static {
 		try {
-	        if (android.os.Build.ID != null) {
-	            isAndroid = true;
-	        }
+			if (android.os.Build.ID != null) {
+				isAndroid = true;
+			}
 		} catch (Exception cnfe) {
 			isAndroid = false;
 		}
@@ -72,32 +72,32 @@ public class CommonUtils {
 	public static String getApplicationVersionName() {
 		String versionName;
 		try
-        {
-            PackageManager manager = BibleApplication.getApplication().getPackageManager();
-            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
-            versionName = info.versionName;
-        }
-        catch ( final NameNotFoundException e )
-        {
-            Log.e(TAG, "Error getting package name.", e);
-            versionName = "Error";
-        }
-        return versionName;
+		{
+			PackageManager manager = BibleApplication.getApplication().getPackageManager();
+			PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+			versionName = info.versionName;
+		}
+		catch ( final NameNotFoundException e )
+		{
+			Log.e(TAG, "Error getting package name.", e);
+			versionName = "Error";
+		}
+		return versionName;
 	}
 	public static int getApplicationVersionNumber() {
 		int versionNumber;
 		try
-        {
-            PackageManager manager = BibleApplication.getApplication().getPackageManager();
-            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
-            versionNumber = info.versionCode;
-        }
-        catch ( final NameNotFoundException e )
-        {
-            Log.e(TAG, "Error getting package name.", e);
-            versionNumber = -1;
-        }
-        return versionNumber;
+		{
+			PackageManager manager = BibleApplication.getApplication().getPackageManager();
+			PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+			versionNumber = info.versionCode;
+		}
+		catch ( final NameNotFoundException e )
+		{
+			Log.e(TAG, "Error getting package name.", e);
+			versionNumber = -1;
+		}
+		return versionNumber;
 	}
 	
 	public static boolean isNougatPlus() {
@@ -152,16 +152,16 @@ public class CommonUtils {
 		return text;
 	}
 	
-    public static boolean isInternetAvailable() {
-    	String testUrl = "https://www.crosswire.org/ftpmirror/pub/sword/packages/";
-    	return CommonUtils.isHttpUrlAvailable(testUrl);
-    }
+	public static boolean isInternetAvailable() {
+		String testUrl = "https://www.crosswire.org/ftpmirror/pub/sword/packages/";
+		return CommonUtils.isHttpUrlAvailable(testUrl);
+	}
 
-    /** return true if URL is accessible
-     * 
-     * Since Android 3 must do on different or NetworkOnMainThreadException is thrown
-     */
-    public static boolean isHttpUrlAvailable(final String urlString) {
+	/** return true if URL is accessible
+	 * 
+	 * Since Android 3 must do on different or NetworkOnMainThreadException is thrown
+	 */
+	public static boolean isHttpUrlAvailable(final String urlString) {
 		boolean isAvailable = false;
 		final int TIMEOUT_MILLIS = 3000;
 
@@ -170,28 +170,28 @@ public class CommonUtils {
 				public boolean checkUrlSuccess = false;
 	
 				public void run() {
-			 	    HttpURLConnection connection = null;
+			 		HttpURLConnection connection = null;
 					try {
-	    	    		// might as well test for the url we need to access
-	    		 	    URL url = new URL(urlString);
+						// might as well test for the url we need to access
+				 		URL url = new URL(urlString);
 	
-	    		 	    Log.d(TAG, "Opening test connection");
-	    		 	    connection = (HttpURLConnection)url.openConnection();
-	    		 	    connection.setConnectTimeout(TIMEOUT_MILLIS);
-	    		 	    connection.setReadTimeout(TIMEOUT_MILLIS);
-	    		 	    connection.setRequestMethod("HEAD");
-	    		 	    Log.d(TAG, "Connecting to test internet connection");
-	    		 	    connection.connect();
-	    		 	    checkUrlSuccess = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
-	    		 	    Log.d(TAG, "Url test result for:"+urlString+" is "+checkUrlSuccess);
-			    	} catch (IOException e) {
-			    		Log.i(TAG, "No internet connection");
-			    		checkUrlSuccess = false;
-			    	} finally {
-			    		if (connection!=null) {
-			    			connection.disconnect();
-			    		}
-			    	}
+				 		Log.d(TAG, "Opening test connection");
+				 		connection = (HttpURLConnection)url.openConnection();
+				 		connection.setConnectTimeout(TIMEOUT_MILLIS);
+				 		connection.setReadTimeout(TIMEOUT_MILLIS);
+				 		connection.setRequestMethod("HEAD");
+				 		Log.d(TAG, "Connecting to test internet connection");
+				 		connection.connect();
+				 		checkUrlSuccess = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
+				 		Log.d(TAG, "Url test result for:"+urlString+" is "+checkUrlSuccess);
+					} catch (IOException e) {
+						Log.i(TAG, "No internet connection");
+						checkUrlSuccess = false;
+					} finally {
+						if (connection!=null) {
+							connection.disconnect();
+						}
+					}
 				}
 			}
 			
@@ -199,11 +199,11 @@ public class CommonUtils {
 			checkThread.start();
 			checkThread.join(TIMEOUT_MILLIS);
 			isAvailable = checkThread.checkUrlSuccess;
-    	} catch (InterruptedException e) {
-    		Log.e(TAG, "Interrupted waiting for url check to complete", e);
-    	}
- 	    return isAvailable;
-    }
+		} catch (InterruptedException e) {
+			Log.e(TAG, "Interrupted waiting for url check to complete", e);
+		}
+ 		return isAvailable;
+	}
 
 	public static void ensureDirExists(File dir) {
 		if (!dir.exists() || !dir.isDirectory()) {
@@ -239,36 +239,36 @@ public class CommonUtils {
 		if (propertiesFile.exists()) {
 			FileInputStream in = null;
 			try {
-            	in = new FileInputStream(propertiesFile);
-            	properties.load(in);
+				in = new FileInputStream(propertiesFile);
+				properties.load(in);
 			} catch (Exception e) {
 				Log.e(TAG, "Error loading properties", e);
 			} finally {
-            	IOUtil.close(in);
+				IOUtil.close(in);
 			}
 		}
 		return properties;
 	}
 	
-    public static void pause(int seconds) {
+	public static void pause(int seconds) {
    		pauseMillis(seconds*1000);
-    }
-    public static void pauseMillis(int millis) {
-    	try {
-    		Thread.sleep(millis);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error sleeping", e);
-    	}
-    }
-    
-    public static boolean isPortrait() {
-    	return BibleApplication.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
-    }
+	}
+	public static void pauseMillis(int millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (Exception e) {
+			Log.e(TAG, "Error sleeping", e);
+		}
+	}
+	
+	public static boolean isPortrait() {
+		return BibleApplication.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+	}
 
-    public static String getLocalePref() {
-    	return getSharedPreferences().getString("locale_pref", null);
-    }
-    
+	public static String getLocalePref() {
+		return getSharedPreferences().getString("locale_pref", null);
+	}
+	
 	/** get preferences used by User Prefs screen
 	 * 
 	 * @return
@@ -278,7 +278,7 @@ public class CommonUtils {
 	}
 
 	public static String getSharedPreference(String key, String defaultValue) {
-    	return getSharedPreferences().getString(key, defaultValue);
+		return getSharedPreferences().getString(key, defaultValue);
 	}
 	public static void saveSharedPreference(String key, String value) {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
@@ -434,19 +434,19 @@ public class CommonUtils {
 	 */
 	public static void forcePopupMenuToShowIcons(PopupMenu popup) {
 		try {
-		    Field[] fields = popup.getClass().getDeclaredFields();
-		    for (Field field : fields) {
-		        if ("mPopup".equals(field.getName())) {
-		            field.setAccessible(true);
-		            Object menuPopupHelper = field.get(popup);
-		            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
-		            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
-		            setForceIcons.invoke(menuPopupHelper, true);
-		            break;
-		        }
-		    }
+			Field[] fields = popup.getClass().getDeclaredFields();
+			for (Field field : fields) {
+				if ("mPopup".equals(field.getName())) {
+					field.setAccessible(true);
+					Object menuPopupHelper = field.get(popup);
+					Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+					Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+					setForceIcons.invoke(menuPopupHelper, true);
+					break;
+				}
+			}
 		} catch (Exception e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 

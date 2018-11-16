@@ -37,7 +37,7 @@ import static net.bible.android.control.download.DocumentStatus.DocumentInstallS
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class DownloadControl {
 
@@ -68,14 +68,14 @@ public class DownloadControl {
 	public boolean checkDownloadOkay() {
 		boolean okay = true;
 		
-    	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-        	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	okay = false;
-    	} else if (!CommonUtils.isInternetAvailable()) {
-        	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
-        	okay = false;
-    	}
-    	
+		if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+			Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+			okay = false;
+		} else if (!CommonUtils.isInternetAvailable()) {
+			Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
+			okay = false;
+		}
+		
 		return okay;
 	}
 	
@@ -87,35 +87,35 @@ public class DownloadControl {
 			availableDocs = swordDocumentFacade.getDownloadableDocuments(refresh);
 			
 			// there are a number of books we need to filter out of the download list for various reasons
-        	for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
-        		Book doc = iter.next();
-        		if (doc.getLanguage()==null) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it has no language");
-        			iter.remove();
-        		} else if (doc.isQuestionable()) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is questionable");
-        			iter.remove();
-        		} else if (doc.getInitials().equalsIgnoreCase("westminster")) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because some sections are too large for a mobile phone e.g. Q91-150");
-        			iter.remove();
-        		} else if (doc.getInitials().equalsIgnoreCase("BDBGlosses_Strongs")) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because I still need to make it work");
-        			iter.remove();
-        		} else if (doc.getInitials().equalsIgnoreCase("passion")) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials());
-        			iter.remove();
-        		} else if (doc.getInitials().equals("WebstersDict")) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is too big and crashes dictionary code");
-        			iter.remove();
-        		}
-        	}
-        	
-        	// get fonts.properties at the same time as repo list, or if not yet downloaded
-       		// the download happens in another thread
-       		fontControl.checkFontPropertiesFile(refresh);
-       		
-       		Collections.sort(availableDocs);
-       		
+			for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
+				Book doc = iter.next();
+				if (doc.getLanguage()==null) {
+					Log.d(TAG, "Ignoring "+doc.getInitials()+" because it has no language");
+					iter.remove();
+				} else if (doc.isQuestionable()) {
+					Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is questionable");
+					iter.remove();
+				} else if (doc.getInitials().equalsIgnoreCase("westminster")) {
+					Log.d(TAG, "Ignoring "+doc.getInitials()+" because some sections are too large for a mobile phone e.g. Q91-150");
+					iter.remove();
+				} else if (doc.getInitials().equalsIgnoreCase("BDBGlosses_Strongs")) {
+					Log.d(TAG, "Ignoring "+doc.getInitials()+" because I still need to make it work");
+					iter.remove();
+				} else if (doc.getInitials().equalsIgnoreCase("passion")) {
+					Log.d(TAG, "Ignoring "+doc.getInitials());
+					iter.remove();
+				} else if (doc.getInitials().equals("WebstersDict")) {
+					Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is too big and crashes dictionary code");
+					iter.remove();
+				}
+			}
+			
+			// get fonts.properties at the same time as repo list, or if not yet downloaded
+	   		// the download happens in another thread
+	   		fontControl.checkFontPropertiesFile(refresh);
+	   		
+	   		Collections.sort(availableDocs);
+	   		
 		} catch (Exception e) {
 			Log.e(TAG, "Error downloading document list", e);
 			availableDocs = new ArrayList<>();
@@ -130,23 +130,23 @@ public class DownloadControl {
 			languageList.addAll(languages);
 
 			// sort languages alphabetically
-        	Collections.sort(languageList, new RelevantLanguageSorter(Books.installed().getBooks()));
+			Collections.sort(languageList, new RelevantLanguageSorter(Books.installed().getBooks()));
 		}
 		return languageList;
 
 	}
 	
 	public void downloadDocument(Book document) throws LucidException {
-    	Log.d(TAG, "Download requested");
-    	
-    	// ensure SBMD is fully, not just partially, loaded
-    	BookMetaData bmd = document.getBookMetaData();
-    	if (bmd!=null && bmd instanceof SwordBookMetaData) {
-    		// load full bmd but must retain repo key 
-    		String repoKey = bmd.getProperty(DownloadManager.REPOSITORY_KEY);
-    		((SwordBookMetaData)bmd).reload();
-    		bmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
-    	}
+		Log.d(TAG, "Download requested");
+		
+		// ensure SBMD is fully, not just partially, loaded
+		BookMetaData bmd = document.getBookMetaData();
+		if (bmd!=null && bmd instanceof SwordBookMetaData) {
+			// load full bmd but must retain repo key 
+			String repoKey = bmd.getProperty(DownloadManager.REPOSITORY_KEY);
+			((SwordBookMetaData)bmd).reload();
+			bmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
+		}
 
 		if (!downloadQueue.isInQueue(document)) {
 
@@ -177,11 +177,11 @@ public class DownloadControl {
 		if (installedBook!=null) {
 			// see if the new document is a later version
 			try {
-	    		Version newVersionObj = new Version(document.getBookMetaData().getProperty("Version"));
-	    		Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
-	    		if (newVersionObj.compareTo(installedVersionObj)>0) {
-	    			return new DocumentStatus(initials, UPGRADE_AVAILABLE, 100);
-	    		}
+				Version newVersionObj = new Version(document.getBookMetaData().getProperty("Version"));
+				Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
+				if (newVersionObj.compareTo(installedVersionObj)>0) {
+					return new DocumentStatus(initials, UPGRADE_AVAILABLE, 100);
+				}
 			} catch (Exception e) {
 				Log.e(TAG,  "Error comparing versions", e);
 				// probably not the same version if an error occurred comparing

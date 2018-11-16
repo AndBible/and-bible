@@ -22,7 +22,7 @@ import net.bible.service.device.ScreenSettings;
  * Show a User Note and allow view/edit
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteEditTextView extends AppCompatEditText implements DocumentView {
@@ -60,13 +60,13 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 		ABEventBus.getDefault().unregister(this);
 	}
 
-    /** allow current page to save any settings or data before being changed
-     */
-    public void onEvent(BeforeCurrentPageChangeEvent event) {
+	/** allow current page to save any settings or data before being changed
+	 */
+	public void onEvent(BeforeCurrentPageChangeEvent event) {
 		// force MyNote.save if in MyNote and suddenly change to another view 
 		save();
-    }
-    
+	}
+	
 	private void save() {
 		myNoteControl.saveMyNoteText(getText().toString());		
 	}

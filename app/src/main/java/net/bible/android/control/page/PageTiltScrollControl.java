@@ -22,7 +22,7 @@ import android.view.WindowManager;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 //Tilt-scroll is disabled on 2.1/ only enabled on 2.2+
 @TargetApi(Build.VERSION_CODES.FROYO)
@@ -258,17 +258,17 @@ public class PageTiltScrollControl {
 
 		sm.registerListener(myOrientationListener, oSensor, SensorManager.SENSOR_DELAY_UI);
 	}
-    private void disconnectListeners() {
-    	try {
+	private void disconnectListeners() {
+		try {
 			SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-	    	sm.unregisterListener(myOrientationListener);
-    	} catch (IllegalArgumentException e) {
-    		// Prevent occasional: IllegalArgumentException: Receiver not registered: android.hardware.SystemSensorManager
-    		// If not registered then there is no need to unregister
-    		Log.w(TAG, "Error disconnecting sensor listener", e);
-    		
-    	}
-    }
+			sm.unregisterListener(myOrientationListener);
+		} catch (IllegalArgumentException e) {
+			// Prevent occasional: IllegalArgumentException: Receiver not registered: android.hardware.SystemSensorManager
+			// If not registered then there is no need to unregister
+			Log.w(TAG, "Error disconnecting sensor listener", e);
+			
+		}
+	}
 
 	final SensorEventListener myOrientationListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent sensorEvent) {
@@ -289,21 +289,21 @@ public class PageTiltScrollControl {
 		return 	isOrientationSensor();
 	}
 	
-    /**
-     * Returns true if at least one Orientation sensor is available
-     */
-    public static boolean isOrientationSensor() {
-        if (mIsOrientationSensor == null) {
-       		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-            if (sm != null) {
-                List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ORIENTATION);
-                mIsOrientationSensor = Boolean.valueOf(sensors.size() > 0);
-            } else {
-                mIsOrientationSensor = Boolean.FALSE;
-            }
-        }
-        return mIsOrientationSensor;
-    }
+	/**
+	 * Returns true if at least one Orientation sensor is available
+	 */
+	public static boolean isOrientationSensor() {
+		if (mIsOrientationSensor == null) {
+	   		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+			if (sm != null) {
+				List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ORIENTATION);
+				mIsOrientationSensor = Boolean.valueOf(sensors.size() > 0);
+			} else {
+				mIsOrientationSensor = Boolean.FALSE;
+			}
+		}
+		return mIsOrientationSensor;
+	}
 
 	public boolean isTiltScrollEnabled() {
 		return mIsTiltScrollEnabled;

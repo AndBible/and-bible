@@ -50,7 +50,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 abstract public class DocumentSelectionBase extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
 
@@ -83,15 +83,15 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	private int layoutResource = R.layout.document_selection;
 
-    private static final String TAG = "DocumentSelectionBase";
+	private static final String TAG = "DocumentSelectionBase";
 
 	/** ask subclass for documents to be displayed
 	 */
-    abstract protected List<Book> getDocumentsFromSource(boolean refresh);
-    
-    abstract protected void handleDocumentSelection(Book selectedDocument);
-    
-    abstract protected List<Language> sortLanguages(Collection<Language> languages);
+	abstract protected List<Book> getDocumentsFromSource(boolean refresh);
+	
+	abstract protected void handleDocumentSelection(Book selectedDocument);
+	
+	abstract protected List<Language> sortLanguages(Collection<Language> languages);
 
 	public DocumentSelectionBase(int optionsMenuId, int actionModeMenuId) {
 		super(optionsMenuId);
@@ -99,13 +99,13 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	}
 
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(layoutResource);
-    }
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(layoutResource);
+	}
 
-    protected void initialiseView() {
+	protected void initialiseView() {
 		// prepare action mode
 		listActionModeHelper =  new ListActionModeHelper(getListView(), actionModeMenuId);
 		// trigger action mode on long press
@@ -116,19 +116,19 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			}
 		});
 
-    	languageList = new ArrayList<>();
-    	displayedDocuments = new ArrayList<>();
-    	
-    	//prepare the documentType spinner
-    	documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
-    	setInitialDocumentType();
-    	documentTypeSpinner.setSelection(selectedDocumentFilterNo);
-    	documentTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+		languageList = new ArrayList<>();
+		displayedDocuments = new ArrayList<>();
+		
+		//prepare the documentType spinner
+		documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
+		setInitialDocumentType();
+		documentTypeSpinner.setSelection(selectedDocumentFilterNo);
+		documentTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		    	selectedDocumentFilterNo = position;
-		    	DocumentSelectionBase.this.filterDocuments();
+				selectedDocumentFilterNo = position;
+				DocumentSelectionBase.this.filterDocuments();
 			}
 
 			@Override
@@ -136,211 +136,211 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			}
 		});
 
-    	//prepare the language spinner
-    	{
-	    	langSpinner = (Spinner)findViewById(R.id.languageSpinner);
-	    	langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+		//prepare the language spinner
+		{
+			langSpinner = (Spinner)findViewById(R.id.languageSpinner);
+			langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 	
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-			    	selectedLanguageNo = position;
-			    	lastSelectedLanguage = languageList.get(selectedLanguageNo);
-			    	DocumentSelectionBase.this.filterDocuments();
+					selectedLanguageNo = position;
+					lastSelectedLanguage = languageList.get(selectedLanguageNo);
+					DocumentSelectionBase.this.filterDocuments();
 				}
 	
 				@Override
 				public void onNothingSelected(AdapterView<?> arg0) {
 				}
 			});
-	    	langArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languageList);
-	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	    	langSpinner.setAdapter(langArrayAdapter);
-    	}
-    }
+			langArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languageList);
+			langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			langSpinner.setAdapter(langArrayAdapter);
+		}
+	}
 
 
 	private void setDefaultLanguage() {
-    	if (selectedLanguageNo==-1) {
-    		Language lang;
-    		// make selected language sticky
-    		if (lastSelectedLanguage!=null && languageList.contains(lastSelectedLanguage)) {
-    			lang = lastSelectedLanguage;
-    		} else {
-    			// set default lang to lang of mobile
-    	    	lang = getDefaultLanguage();
-    		}
+		if (selectedLanguageNo==-1) {
+			Language lang;
+			// make selected language sticky
+			if (lastSelectedLanguage!=null && languageList.contains(lastSelectedLanguage)) {
+				lang = lastSelectedLanguage;
+			} else {
+				// set default lang to lang of mobile
+				lang = getDefaultLanguage();
+			}
 
-	    	selectedLanguageNo = languageList.indexOf(lang);
-    	}
-    	
-    	// if last doc in last lang was just deleted then need to adjust index
-    	checkSpinnerIndexesValid();
-    	
+			selectedLanguageNo = languageList.indexOf(lang);
+		}
+		
+		// if last doc in last lang was just deleted then need to adjust index
+		checkSpinnerIndexesValid();
+		
 		langSpinner.setSelection(selectedLanguageNo);
-    }
-    
-    protected Language getDefaultLanguage() {
-    	// get the current language code
-    	String langCode = Locale.getDefault().getLanguage();
-    	if (!new Language(langCode).isValidLanguage()) {
-    		langCode = Locale.ENGLISH.getLanguage();
-    	}
+	}
+	
+	protected Language getDefaultLanguage() {
+		// get the current language code
+		String langCode = Locale.getDefault().getLanguage();
+		if (!new Language(langCode).isValidLanguage()) {
+			langCode = Locale.ENGLISH.getLanguage();
+		}
 
-    	// create the JSword Language for current lang
-    	Language localLanguage = new Language(langCode); 
-    	Log.d(TAG, "Local language is:"+localLanguage);
+		// create the JSword Language for current lang
+		Language localLanguage = new Language(langCode); 
+		Log.d(TAG, "Local language is:"+localLanguage);
 
-    	// check a bible exists in current lang otherwise use english
-    	boolean foundBibleInLocalLanguage = false;
-    	for (Book book : getAllDocuments()) {
-    		if (book.getBookCategory().equals(BookCategory.BIBLE) && localLanguage.equals(book.getLanguage())) {
-    			foundBibleInLocalLanguage = true;
-    			break;
-    		}
-    	}
-    	
-    	// if no bibles exist in current lang then fall back to default language (English) so the user will not see an initially empty list
-    	if (!foundBibleInLocalLanguage) {
-        	Log.d(TAG, "No bibles found in local language so falling back to default lang");
-    		localLanguage = Language.DEFAULT_LANG;
-    	}
-    	return localLanguage;
-    }
+		// check a bible exists in current lang otherwise use english
+		boolean foundBibleInLocalLanguage = false;
+		for (Book book : getAllDocuments()) {
+			if (book.getBookCategory().equals(BookCategory.BIBLE) && localLanguage.equals(book.getLanguage())) {
+				foundBibleInLocalLanguage = true;
+				break;
+			}
+		}
+		
+		// if no bibles exist in current lang then fall back to default language (English) so the user will not see an initially empty list
+		if (!foundBibleInLocalLanguage) {
+			Log.d(TAG, "No bibles found in local language so falling back to default lang");
+			localLanguage = Language.DEFAULT_LANG;
+		}
+		return localLanguage;
+	}
 
 
-    @Override
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		if (position>=0 && position<displayedDocuments.size()) {
-        		Book selectedBook = displayedDocuments.get(position);
-        		if (selectedBook!=null) {
-        			Log.d(TAG, "Selected "+selectedBook.getInitials());
-        			handleDocumentSelection(selectedBook);
-        		}
+		try {
+			if (position>=0 && position<displayedDocuments.size()) {
+				Book selectedBook = displayedDocuments.get(position);
+				if (selectedBook!=null) {
+					Log.d(TAG, "Selected "+selectedBook.getInitials());
+					handleDocumentSelection(selectedBook);
+				}
 
 				// prevent the item remaining highlighted.  Unfortunately the highlight is cleared before the selection is handled.
 				getListView().setItemChecked(position, false);
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "document selection error", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-    	}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "document selection error", e);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		}
 	}
 
-    protected void reloadDocuments() {
+	protected void reloadDocuments() {
 		populateMasterDocumentList(false);
 	}
-    
-    protected void showPreLoadMessage() {
-    	// default to no message
-    }
-    
-    protected void populateMasterDocumentList(final boolean refresh) {
+	
+	protected void showPreLoadMessage() {
+		// default to no message
+	}
+	
+	protected void populateMasterDocumentList(final boolean refresh) {
 		Log.d(TAG, "populate Master Document List");
 
-	    new AsyncTask<Void, Boolean, Void>() {
-	    	
-	        @Override
-	        protected void onPreExecute() {
-	        	showHourglass();
-	        	showPreLoadMessage();
-	        }
-	        
+		new AsyncTask<Void, Boolean, Void>() {
+			
 			@Override
-	        protected Void doInBackground(Void... noparam) {
+			protected void onPreExecute() {
+				showHourglass();
+				showPreLoadMessage();
+			}
+			
+			@Override
+			protected Void doInBackground(Void... noparam) {
 				try {
 					// Prevent occasional class loading errors on Samsung devices
 					Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
 					allDocuments = getDocumentsFromSource(refresh);
-    	        	Log.i(TAG, "Number of documents:"+allDocuments.size());
+					Log.i(TAG, "Number of documents:"+allDocuments.size());
 				} catch (Exception e) {
 					Log.e(TAG, "Error getting documents", e);
-		    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 				}
-	        	return null;
+				return null;
 			}
 			
-	        @Override
+			@Override
 			protected void onPostExecute(Void result) {
-	        	try {
-	        		if (allDocuments!=null) {
-    	        		populateLanguageList();
-    	        		
-    	        		// default language depends on doc availability so must do in onPostExecute
-    	    	    	setDefaultLanguage();
-    	        		filterDocuments();
-	        		}
-	        	} finally {
-	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-    	        	dismissHourglass();
-	        	}
-	        }
+				try {
+					if (allDocuments!=null) {
+						populateLanguageList();
+						
+						// default language depends on doc availability so must do in onPostExecute
+						setDefaultLanguage();
+						filterDocuments();
+					}
+				} finally {
+					//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
+					dismissHourglass();
+				}
+			}
 
-	    }.execute((Void[])null);
-    }
-    
-    
-    
-    /** a spinner has changed so refilter the doc list
-     */
-    private void filterDocuments() {
-    	try {
+		}.execute((Void[])null);
+	}
+	
+	
+	
+	/** a spinner has changed so refilter the doc list
+	 */
+	private void filterDocuments() {
+		try {
 			// documents list has changed so force action mode to exit, if displayed, because selections are invalidated
 			listActionModeHelper.exitActionMode();
 
 			// re-filter documents
 			if (allDocuments!=null && allDocuments.size()>0) {
-   	        	Log.d(TAG, "filtering documents");
-	        	displayedDocuments.clear();
-	        	Language lang = getSelectedLanguage();
-	        	for (Book doc : allDocuments) {
-	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
-	        		if (filter.test(doc) && doc.getLanguage().equals(lang)) {
-		        		displayedDocuments.add(doc);
-	        		}
-	        	}
-	        	
-	        	// sort by initials because that is field 1
-	        	Collections.sort(displayedDocuments, new Comparator<Book>() {
-	                public int compare(Book o1, Book o2) {
-	                    return o1.getAbbreviation().compareToIgnoreCase(o2.getAbbreviation());
-	                }
-                });	        		
-	        	
-        		notifyDataSetChanged();
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
-    	}
-    }
+   				Log.d(TAG, "filtering documents");
+				displayedDocuments.clear();
+				Language lang = getSelectedLanguage();
+				for (Book doc : allDocuments) {
+					BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
+					if (filter.test(doc) && doc.getLanguage().equals(lang)) {
+						displayedDocuments.add(doc);
+					}
+				}
+				
+				// sort by initials because that is field 1
+				Collections.sort(displayedDocuments, new Comparator<Book>() {
+					public int compare(Book o1, Book o2) {
+						return o1.getAbbreviation().compareToIgnoreCase(o2.getAbbreviation());
+					}
+				});					
+				
+				notifyDataSetChanged();
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error initialising view", e);
+			Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+	}
 
-    /** a spinner has changed so refilter the doc list
-     */
-    private void populateLanguageList() {
-    	try {
-    		// temporary Set to remove duplicate Languages
-    		Set<Language> langSet = new HashSet<>();
+	/** a spinner has changed so refilter the doc list
+	 */
+	private void populateLanguageList() {
+		try {
+			// temporary Set to remove duplicate Languages
+			Set<Language> langSet = new HashSet<>();
 
-    		if (allDocuments!=null && allDocuments.size()>0) {
-   	        	Log.d(TAG, "initialising language list");
-	        	for (Book doc : allDocuments) {
-	        		langSet.add(doc.getLanguage());
-	        	}
-	        	
-	        	List<Language> sortedLanguages = sortLanguages(langSet);
-	        	
-	        	languageList.clear();
-	        	languageList.addAll(sortedLanguages);
+			if (allDocuments!=null && allDocuments.size()>0) {
+   				Log.d(TAG, "initialising language list");
+				for (Book doc : allDocuments) {
+					langSet.add(doc.getLanguage());
+				}
+				
+				List<Language> sortedLanguages = sortLanguages(langSet);
+				
+				languageList.clear();
+				languageList.addAll(sortedLanguages);
 
-	        	langArrayAdapter.notifyDataSetChanged();
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
-    	}
-    }
+				langArrayAdapter.notifyDataSetChanged();
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error initialising view", e);
+			Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+	}
 
 	@Override
 	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
@@ -466,7 +466,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			copyrightMerged += distributionLicense+"\n";
 		}
 		if (StringUtils.isNotBlank(copyrightMerged)) {
-	        String copyrightMsg = BibleApplication.getApplication().getString(R.string.about_copyright, copyrightMerged);
+			String copyrightMsg = BibleApplication.getApplication().getString(R.string.about_copyright, copyrightMerged);
 			about += "\n\n"+copyrightMsg;
 		}
 		
@@ -474,25 +474,25 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 		final String version = document.getBookMetaData().getProperty("Version");
 		if (version!=null) {
 			Version versionObj = new Version(version);
-	        String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
+			String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
 			about += "\n\n"+versionMsg;
 		}
 
 		// add versification
 		if (document instanceof SwordBook) {
 			Versification versification = ((SwordBook)document).getVersification();
-	        String versificationMsg = BibleApplication.getApplication().getString(R.string.about_versification, versification.getName());
+			String versificationMsg = BibleApplication.getApplication().getString(R.string.about_versification, versification.getName());
 			about += "\n\n"+versificationMsg;
 		}
 
-    	new AlertDialog.Builder(this)
+		new AlertDialog.Builder(this)
 		   .setMessage(about)
-	       .setCancelable(false)
-	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-	           public void onClick(DialogInterface dialog, int buttonId) {
-	        	   //do nothing
-	           }
-	       }).create().show();
+		   .setCancelable(false)
+		   .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+			   public void onClick(DialogInterface dialog, int buttonId) {
+				   //do nothing
+			   }
+		   }).create().show();
 	}
 
 	/**
@@ -534,14 +534,14 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	/** map between book category and item no
 	 */
 	public void setSelectedBookCategory(BookCategory bookCategory) {
-    	switch (bookCategory) {
+		switch (bookCategory) {
 			case BIBLE:				selectedDocumentFilterNo = 0;  		break;
 			case COMMENTARY:		selectedDocumentFilterNo = 1;  		break;
 			case DICTIONARY:		selectedDocumentFilterNo = 2;  		break;
 			case GENERAL_BOOK:		selectedDocumentFilterNo = 3;  		break;
 			case MAPS:				selectedDocumentFilterNo = 4;  		break;
 			default:				selectedDocumentFilterNo = 0;  		break;
-    	}
+		}
 	}
 
 	public void setLayoutResource(int layoutResource) {

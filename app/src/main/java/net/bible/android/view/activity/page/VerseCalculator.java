@@ -10,7 +10,7 @@ import java.util.TreeMap;
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class VerseCalculator {
 
@@ -34,7 +34,7 @@ public class VerseCalculator {
 	
 	/** compare scrollOffset to the verseByOffset to find which verse is at the top of the screen
 	 * 
-	 * @param scrollOffset    distance from the top of the screen.
+	 * @param scrollOffset	distance from the top of the screen.
 	 * @return verse number
 	 */
 	public ChapterVerse calculateCurrentVerse(int scrollOffset) {

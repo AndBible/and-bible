@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ProgressActivityBase extends CustomTitlebarActivityBase {
 
@@ -50,39 +50,39 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 	}
 
 	/** Wait until subclass has setContentView before looking for controls. */
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.i(TAG, "Displaying "+TAG+" view");
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.i(TAG, "Displaying "+TAG+" view");
 
-        progressControlContainer = (LinearLayout)findViewById(R.id.progressControlContainer);
-        initialiseView();
-    }
+		progressControlContainer = (LinearLayout)findViewById(R.id.progressControlContainer);
+		initialiseView();
+	}
 
-    private void initialiseView() {
-    	// prepare to show no tasks msg
-    	noTasksMessageView = (TextView)findViewById(R.id.noTasksRunning);
-    	taskKillWarningView = (TextView)findViewById(R.id.progressStatusMessage);
+	private void initialiseView() {
+		// prepare to show no tasks msg
+		noTasksMessageView = (TextView)findViewById(R.id.noTasksRunning);
+		taskKillWarningView = (TextView)findViewById(R.id.progressStatusMessage);
 
-    	Iterator<Progress> jobsIterator = JobManager.iterator();
-    	while (jobsIterator.hasNext()) {
-    		Progress job = jobsIterator.next();
-    		findOrCreateUIControl(job);
-    	}
+		Iterator<Progress> jobsIterator = JobManager.iterator();
+		while (jobsIterator.hasNext()) {
+			Progress job = jobsIterator.next();
+			findOrCreateUIControl(job);
+		}
 
-        // allow call back and continuation in the ui thread after JSword has been initialised
-    	final Handler uiHandler = new Handler();
-    	final Runnable uiUpdaterRunnable = new Runnable() {
+		// allow call back and continuation in the ui thread after JSword has been initialised
+		final Handler uiHandler = new Handler();
+		final Runnable uiUpdaterRunnable = new Runnable() {
 			@Override
 			public void run() {
-    			Progress prog = progressNotificationQueue.poll();
-    			if (prog!=null) {
-    				updateProgress(prog);
-    			}
+				Progress prog = progressNotificationQueue.poll();
+				if (prog!=null) {
+					updateProgress(prog);
+				}
 			}
-        };
+		};
 
-        // listen for Progress changes and call the above Runnable to update the ui
+		// listen for Progress changes and call the above Runnable to update the ui
 		workListener = new WorkListener() {
 			@Override
 			public void workProgressed(WorkEvent ev) {
@@ -96,8 +96,8 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 			private void callUiThreadUpdateHandler(WorkEvent ev) {
 				Progress prog = ev.getJob();
 				progressNotificationQueue.offer(prog);
-    			// switch back to ui thread to continue
-    			uiHandler.post(uiUpdaterRunnable);
+				// switch back to ui thread to continue
+				uiHandler.post(uiUpdaterRunnable);
 			}
 		};
 		JobManager.addWorkListener(workListener);
@@ -112,14 +112,14 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 					}
 				}
 			}, 4000);
-    }
+	}
 
-    /** virtual method called on ui thread to update progress.  Can be overridden for subclass specific ui updates br make sure this method is called to update progres controls
-     */
-    protected void updateProgress(Progress prog) {
-    	// if this is called then ensure the no tasks msg is not also displayed
-    	showNoTaskMsg(false);
-    	
+	/** virtual method called on ui thread to update progress.  Can be overridden for subclass specific ui updates br make sure this method is called to update progres controls
+	 */
+	protected void updateProgress(Progress prog) {
+		// if this is called then ensure the no tasks msg is not also displayed
+		showNoTaskMsg(false);
+		
 		int done = prog.getWork();
 		String status = getStatusDesc(prog);
 
@@ -132,32 +132,32 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 			progressUIControl.isFinishNotified = true;
 			jobFinished(prog);
 		}
-    }
-    
-    protected void jobFinished(Progress job) {
-    	// do nothing by default
-    }
-    
-    /** helper method that returns true if alll jobs are finished
-     * 
-     * @return true if all jobs finished or no jobs
-     */
-    protected boolean isAllJobsFinished() {
-    	Iterator<Progress> jobsIterator = JobManager.iterator();
-    	while (jobsIterator.hasNext()) {
-    		Progress job = jobsIterator.next();
+	}
+	
+	protected void jobFinished(Progress job) {
+		// do nothing by default
+	}
+	
+	/** helper method that returns true if alll jobs are finished
+	 * 
+	 * @return true if all jobs finished or no jobs
+	 */
+	protected boolean isAllJobsFinished() {
+		Iterator<Progress> jobsIterator = JobManager.iterator();
+		while (jobsIterator.hasNext()) {
+			Progress job = jobsIterator.next();
 			if (!job.isFinished()) {
 				return false;
 			}
 		}
 		return true;
-    }
+	}
 
-    /** format a descriptive string from a Progress object
-     * 
-     * @param prog
-     * @return
-     */
+	/** format a descriptive string from a Progress object
+	 * 
+	 * @param prog
+	 * @return
+	 */
 	protected String getStatusDesc(Progress prog) {
 		// compose a descriptive string showing job name and current section if relevant
 		String status = prog.getJobName()+SharedConstants.LINE_SEPARATOR;
@@ -167,29 +167,29 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 		return status;
 	}
 
-    protected void hideButtons() {
-    	View buttonPanel = findViewById(R.id.button_panel);
-    	if (buttonPanel!=null) {
-    		buttonPanel.setVisibility(View.INVISIBLE);
-    	}
-    }
-    protected void setMainText(String text) {
-    	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
-    }
-    
-    private void showNoTaskMsg(boolean bShow) {
-		if (noTasksMessageView!=null && taskKillWarningView!=null) {
-	    	if (bShow) {
-	   			noTasksMessageView.setVisibility(View.VISIBLE);
-	        	// if the no-tasks msg is show then hide the warning relating to running tasks
-	    		taskKillWarningView.setVisibility(View.INVISIBLE);
-	    	} else {
-	    		noTasksMessageView.setVisibility(View.GONE);
-	    		taskKillWarningView.setVisibility(View.VISIBLE);
-	    	}
+	protected void hideButtons() {
+		View buttonPanel = findViewById(R.id.button_panel);
+		if (buttonPanel!=null) {
+			buttonPanel.setVisibility(View.INVISIBLE);
 		}
-    }
-    
+	}
+	protected void setMainText(String text) {
+		((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
+	}
+	
+	private void showNoTaskMsg(boolean bShow) {
+		if (noTasksMessageView!=null && taskKillWarningView!=null) {
+			if (bShow) {
+	   			noTasksMessageView.setVisibility(View.VISIBLE);
+				// if the no-tasks msg is show then hide the warning relating to running tasks
+				taskKillWarningView.setVisibility(View.INVISIBLE);
+			} else {
+				noTasksMessageView.setVisibility(View.GONE);
+				taskKillWarningView.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+	
 	/** get a UI control for the current prog from the previously created controls, or create one
 	 * 
 	 * @param prog
@@ -208,37 +208,37 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 		return uiControl;
 	}
 	
-    @Override
+	@Override
 	protected void onPause() {
 		super.onPause();
-    	JobManager.removeWorkListener(workListener);
+		JobManager.removeWorkListener(workListener);
 	}
 
 
-    /** contains a TextView desc and ProgressBar for a single Job
-     */
-    class ProgressUIControl {
-    	LinearLayout parent = new LinearLayout(ProgressActivityBase.this);
-    	TextView status = new TextView(ProgressActivityBase.this);
-    	ProgressBar progressBar = new ProgressBar(ProgressActivityBase.this, null, android.R.attr.progressBarStyleHorizontal);
-    	boolean isFinishNotified;
-    	
-    	public ProgressUIControl() {
-    		parent.setOrientation(LinearLayout.VERTICAL);
-    		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT); 
-    		parent.addView(status, lp);
-    		parent.addView(progressBar, lp);
-    		progressBar.setMax(100);
-    		showMsg("Starting...");
+	/** contains a TextView desc and ProgressBar for a single Job
+	 */
+	class ProgressUIControl {
+		LinearLayout parent = new LinearLayout(ProgressActivityBase.this);
+		TextView status = new TextView(ProgressActivityBase.this);
+		ProgressBar progressBar = new ProgressBar(ProgressActivityBase.this, null, android.R.attr.progressBarStyleHorizontal);
+		boolean isFinishNotified;
+		
+		public ProgressUIControl() {
+			parent.setOrientation(LinearLayout.VERTICAL);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT); 
+			parent.addView(status, lp);
+			parent.addView(progressBar, lp);
+			progressBar.setMax(100);
+			showMsg("Starting...");
 		}
 
-    	void showMsg(String msg) {
-        	status.setText(msg);
-        }
-    	
-    	void showPercent(int percent) {
+		void showMsg(String msg) {
+			status.setText(msg);
+		}
+		
+		void showPercent(int percent) {
    			progressBar.setIndeterminate(percent==0);
-        	progressBar.setProgress(percent);
-        }
-    }
+			progressBar.setProgress(percent);
+		}
+	}
 }

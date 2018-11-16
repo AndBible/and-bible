@@ -39,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SpeakControl {
@@ -358,8 +358,8 @@ public class SpeakControl {
 	public void onEvent(SpeakSettingsChangedEvent ev) {
 		textToSpeechServiceManager.get().updateSettings(ev);
 		if(!isPaused() && !isSpeaking()) {
-		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
-		    if(ev.getUpdateBookmark()) {
+			// if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
+			if(ev.getUpdateBookmark()) {
 				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
 			}
 		}
@@ -383,7 +383,7 @@ public class SpeakControl {
 	private void enableSleepTimer(int sleepTimerAmount) {
 		stopTimer();
 		if (sleepTimerAmount > 0) {
-		    Log.d(TAG, "Activating sleep timer");
+			Log.d(TAG, "Activating sleep timer");
 			BibleApplication app = BibleApplication.getApplication();
 			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
 			timerTask = new TimerTask() {

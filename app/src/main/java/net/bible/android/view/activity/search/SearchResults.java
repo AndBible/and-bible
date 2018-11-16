@@ -30,18 +30,18 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class SearchResults extends ListActivityBase {
 	private static final String TAG = "SearchResults";
 	
-    private SearchResultsDto mSearchResultsHolder;
-    
-    private List<Key> mCurrentlyDisplayedSearchResults = new ArrayList<>();
-    private ArrayAdapter<Key> mKeyArrayAdapter;
+	private SearchResultsDto mSearchResultsHolder;
+	
+	private List<Key> mCurrentlyDisplayedSearchResults = new ArrayList<>();
+	private ArrayAdapter<Key> mKeyArrayAdapter;
 
-    private boolean isScriptureResultsCurrentlyShown = true;
-    
+	private boolean isScriptureResultsCurrentlyShown = true;
+	
 	private SearchResultsActionBarManager searchResultsActionBarManager;
 	
 	private SearchControl searchControl;
@@ -50,44 +50,44 @@ public class SearchResults extends ListActivityBase {
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
-    public SearchResults() {
+	public SearchResults() {
 		super(R.menu.empty_menu);
 		
 	}
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, true);
-        Log.i(TAG, "Displaying Search results view");
-        setContentView(R.layout.list);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState, true);
+		Log.i(TAG, "Displaying Search results view");
+		setContentView(R.layout.list);
 
 		buildActivityComponent().inject(this);
 
 		searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 		setActionBarManager(searchResultsActionBarManager);
 
-        isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture();
+		isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture();
 
-        if (fetchSearchResults()) {
-            // initialise adapters before result population - easier when updating due to later Scripture toggle 
-        	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl);
-            setListAdapter(mKeyArrayAdapter);
+		if (fetchSearchResults()) {
+			// initialise adapters before result population - easier when updating due to later Scripture toggle 
+			mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl);
+			setListAdapter(mKeyArrayAdapter);
 
 			populateViewResultsAdapter();
-        }
-    }
+		}
+	}
 
-    /** do the search query and prepare results in lists ready for display
-     * 
-     */
-    private boolean fetchSearchResults() {
-    	Log.d(TAG, "Preparing search results");
-    	boolean isOk;
+	/** do the search query and prepare results in lists ready for display
+	 * 
+	 */
+	private boolean fetchSearchResults() {
+		Log.d(TAG, "Preparing search results");
+		boolean isOk;
 
-    	try {
-    		// get search string - passed in using extras so extras cannot be null
-            Bundle extras = getIntent().getExtras();
+		try {
+			// get search string - passed in using extras so extras cannot be null
+			Bundle extras = getIntent().getExtras();
 			String searchText = extras.getString(SearchControl.SEARCH_TEXT);
 			String searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT);
 			if (StringUtils.isEmpty(searchDocument)) {
@@ -104,22 +104,22 @@ public class SearchResults extends ListActivityBase {
 			}
 			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 			isOk = true;
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error processing search query", e);
-    		isOk = false;
-    		Dialogs.getInstance().showErrorMsg(R.string.error_executing_search, new Callback() {
-    			@Override
-    			public void okay() {
-    				onBackPressed();
-    			}
-    		});
-    	}
-    	return isOk;
-    }
+		} catch (Exception e) {
+			Log.e(TAG, "Error processing search query", e);
+			isOk = false;
+			Dialogs.getInstance().showErrorMsg(R.string.error_executing_search, new Callback() {
+				@Override
+				public void okay() {
+					onBackPressed();
+				}
+			});
+		}
+		return isOk;
+	}
 
-    /** 
-     * Move search results into view Adapter
-     */
+	/** 
+	 * Move search results into view Adapter
+	 */
 	private void populateViewResultsAdapter() {
 		if (isScriptureResultsCurrentlyShown) {
 			mCurrentlyDisplayedSearchResults = mSearchResultsHolder.getMainSearchResults();
@@ -134,23 +134,23 @@ public class SearchResults extends ListActivityBase {
 		}
 		
 	}
-    
-    @Override
+	
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
-    		
-	    	verseSelected(mCurrentlyDisplayedSearchResults.get(position));
+		try {
+			// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
+			
+			verseSelected(mCurrentlyDisplayedSearchResults.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
-    
-    private void verseSelected(Key key) {
-    	Log.i(TAG, "chose:"+key);
-    	if (key!=null) {
-    		// which doc do we show
+	
+	private void verseSelected(Key key) {
+		Log.i(TAG, "chose:"+key);
+		if (key!=null) {
+			// which doc do we show
 			String targetDocInitials = getIntent().getExtras().getString(SearchControl.TARGET_DOCUMENT);
 			if (StringUtils.isEmpty(targetDocInitials)) {
 				targetDocInitials = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getInitials();
@@ -158,16 +158,16 @@ public class SearchResults extends ListActivityBase {
 			Book targetBook = getSwordDocumentFacade().getDocumentByInitials(targetDocInitials);
 
 			activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocumentAndKey(targetBook, key);
-    		
-    		// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
-    		returnToPreviousScreen();
-    	}
-    }
+			
+			// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
+			returnToPreviousScreen();
+		}
+	}
 
-    /**
-     * Handle scripture/Appendix toggle
-     */
-    private OnClickListener scriptureToggleClickListener = new OnClickListener( ) {
+	/**
+	 * Handle scripture/Appendix toggle
+	 */
+	private OnClickListener scriptureToggleClickListener = new OnClickListener( ) {
 		
 		@Override
 		public void onClick(View view) {

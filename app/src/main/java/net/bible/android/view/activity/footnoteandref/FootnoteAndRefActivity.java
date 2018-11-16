@@ -32,20 +32,20 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGestureEventHandler {
 	private static final String TAG = "NotesActivity";
 	
 	private TextView mWarning;
 	
-    static final protected String LIST_ITEM_LINE1 = "line1";
-    static final protected String LIST_ITEM_LINE2 = "line2";
+	static final protected String LIST_ITEM_LINE1 = "line1";
+	static final protected String LIST_ITEM_LINE2 = "line2";
 
 	private VerseRange currentVerseRange;
 
 	private List<Note> mChapterNotesList;
-    private List<Note> mVerseNotesList;
+	private List<Note> mVerseNotesList;
 	private ArrayAdapter<Note> mNotesListAdapter;
 
 	private IntentHelper intentHelper = new IntentHelper();
@@ -60,119 +60,119 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying notes");
-        setContentView(R.layout.notes);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Displaying notes");
+		setContentView(R.layout.notes);
 
 		buildActivityComponent().inject(this);
 		//fetch verse from intent if set - so that goto via History works nicely
 		currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(getIntent());
 
-        mWarning =  (TextView)findViewById(R.id.warningText);
-        
-        mChapterNotesList = footnoteAndRefControl.getCurrentPageFootnotesAndReferences();
+		mWarning =  (TextView)findViewById(R.id.warningText);
+		
+		mChapterNotesList = footnoteAndRefControl.getCurrentPageFootnotesAndReferences();
 
-        initialiseView();
+		initialiseView();
 
-        // create gesture related objects
-        gestureDetector = new GestureDetector( new SwipeGestureListener(this) );
-    }
-
-    private void initialiseView() {
-    	mVerseNotesList = new ArrayList<>();
-    	
-    	showCurrentVerse();
-    	populateVerseNotesList();
-    	prepareWarningMsg();
-    	
-    	mNotesListAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList, noteDetailCreator);
-        setListAdapter(mNotesListAdapter);
-    }
-
-    @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	noteSelected(mVerseNotesList.get(position));
+		// create gesture related objects
+		gestureDetector = new GestureDetector( new SwipeGestureListener(this) );
 	}
 
-    /** swiped left
-     */
-    public void onNext() {
-    	Log.d(TAG, "Next");
-    	currentVerseRange = footnoteAndRefControl.next(currentVerseRange);
-    	onVerseChanged();
-    }
+	private void initialiseView() {
+		mVerseNotesList = new ArrayList<>();
+		
+		showCurrentVerse();
+		populateVerseNotesList();
+		prepareWarningMsg();
+		
+		mNotesListAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList, noteDetailCreator);
+		setListAdapter(mNotesListAdapter);
+	}
 
-    /** swiped right
-     */
-    public void onPrevious() {
-    	Log.d(TAG, "Previous");
-    	currentVerseRange = footnoteAndRefControl.previous(currentVerseRange);
-    	onVerseChanged();
-    }
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		noteSelected(mVerseNotesList.get(position));
+	}
 
-    private void onVerseChanged() {
-    	showCurrentVerse();
-    	populateVerseNotesList();
-    	notifyDataSetChanged();
-    	prepareWarningMsg();
-    }
-    
-    private void populateVerseNotesList() {
-    	mVerseNotesList.clear();
-    	int startVerseNo = currentVerseRange.getStart().getVerse();
+	/** swiped left
+	 */
+	public void onNext() {
+		Log.d(TAG, "Next");
+		currentVerseRange = footnoteAndRefControl.next(currentVerseRange);
+		onVerseChanged();
+	}
+
+	/** swiped right
+	 */
+	public void onPrevious() {
+		Log.d(TAG, "Previous");
+		currentVerseRange = footnoteAndRefControl.previous(currentVerseRange);
+		onVerseChanged();
+	}
+
+	private void onVerseChanged() {
+		showCurrentVerse();
+		populateVerseNotesList();
+		notifyDataSetChanged();
+		prepareWarningMsg();
+	}
+	
+	private void populateVerseNotesList() {
+		mVerseNotesList.clear();
+		int startVerseNo = currentVerseRange.getStart().getVerse();
 		int endVerseNo = currentVerseRange.getEnd().getVerse();
-    	if (mChapterNotesList!=null) {
+		if (mChapterNotesList!=null) {
 			for (Note note : mChapterNotesList) {
 				final int noteVerseNo = note.getVerseNo();
 				if (noteVerseNo >= startVerseNo && noteVerseNo <=endVerseNo) {
 					mVerseNotesList.add(note);
 				}
 			}
-    	}
-    }
-    
-    private void prepareWarningMsg() {
-    	String warning = "";
-    	if (mChapterNotesList==null || mChapterNotesList.size()==0) {
-    		warning = getString(R.string.no_chapter_notes);
-    	} else if (mChapterNotesList==null || mVerseNotesList.size()==0) {
-    		warning = getString(R.string.no_verse_notes);
-    	}
-    	
+		}
+	}
+	
+	private void prepareWarningMsg() {
+		String warning = "";
+		if (mChapterNotesList==null || mChapterNotesList.size()==0) {
+			warning = getString(R.string.no_chapter_notes);
+		} else if (mChapterNotesList==null || mVerseNotesList.size()==0) {
+			warning = getString(R.string.no_verse_notes);
+		}
+		
 		mWarning.setText(warning);
-    	if (StringUtils.isNotEmpty(warning)) {
-    		mWarning.setVisibility(View.VISIBLE);
-    		getListView().setVisibility(View.GONE);
-    	} else {
-    		mWarning.setVisibility(View.GONE);
-    		getListView().setVisibility(View.VISIBLE);
-    	}
-    }
+		if (StringUtils.isNotEmpty(warning)) {
+			mWarning.setVisibility(View.VISIBLE);
+			getListView().setVisibility(View.GONE);
+		} else {
+			mWarning.setVisibility(View.GONE);
+			getListView().setVisibility(View.VISIBLE);
+		}
+	}
 
-    private void showCurrentVerse() {
-    	setTitle(footnoteAndRefControl.getTitle(currentVerseRange));
-    }
-    
-    private void noteSelected(Note note) {
-    	Log.i(TAG, "chose:"+note);
-    	if (note.isNavigable()) {
+	private void showCurrentVerse() {
+		setTitle(footnoteAndRefControl.getTitle(currentVerseRange));
+	}
+	
+	private void noteSelected(Note note) {
+		Log.i(TAG, "chose:"+note);
+		if (note.isNavigable()) {
 			footnoteAndRefControl.navigateTo(note);
-    	}
-    	doFinish();
-    }
-    public void onFinish(View v) {
-    	Log.i(TAG, "CLICKED");
-    	doFinish();    
-    }
-    public void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+		}
+		doFinish();
+	}
+	public void onFinish(View v) {
+		Log.i(TAG, "CLICKED");
+		doFinish();	
+	}
+	public void doFinish() {
+		Intent resultIntent = new Intent();
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();	
+	}
 
-    // handle swipe left and right
+	// handle swipe left and right
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		this.gestureDetector.onTouchEvent(motionEvent);

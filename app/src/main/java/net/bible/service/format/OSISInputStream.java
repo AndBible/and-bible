@@ -18,7 +18,7 @@ import java.util.Iterator;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class OSISInputStream extends InputStream {
 	// requested passage
@@ -159,11 +159,11 @@ public class OSISInputStream extends InputStream {
 		}
 	}
 
-    /** put the text into the verse buffer ready to be fed into the stream
-     * 
-     * @param text
-     * @throws UnsupportedEncodingException
-     */
+	/** put the text into the verse buffer ready to be fed into the stream
+	 * 
+	 * @param text
+	 * @throws UnsupportedEncodingException
+	 */
 	private void putInVerseBuffer(String text) throws UnsupportedEncodingException {
 //		log.debug(text);
 		verseBuffer = text.getBytes("UTF-8");

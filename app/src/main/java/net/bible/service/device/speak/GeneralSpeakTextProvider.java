@@ -27,23 +27,23 @@ import java.util.regex.Pattern;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	private final SwordContentFacade swordContentFacade;
-    private List<String> mTextToSpeak = new ArrayList<String>();
-    private int nextTextToSpeak = 0;
-    // this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
-    private float fractionOfNextSentenceSpoken = 0;
-    private String currentText = "";
-    
-    // Before ICS Android would split up long text for you but since ICS this error occurs:
-	//    if (mText.length() >= MAX_SPEECH_ITEM_CHAR_LENGTH) {
-	//        Log.w(TAG, "Text too long: " + mText.length() + " chars");
-    private static final int MAX_SPEECH_ITEM_CHAR_LENGTH = 4000;
-    
-    // require DOTALL to allow . to match new lines which occur in books like JOChrist
+	private List<String> mTextToSpeak = new ArrayList<String>();
+	private int nextTextToSpeak = 0;
+	// this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
+	private float fractionOfNextSentenceSpoken = 0;
+	private String currentText = "";
+	
+	// Before ICS Android would split up long text for you but since ICS this error occurs:
+	//	if (mText.length() >= MAX_SPEECH_ITEM_CHAR_LENGTH) {
+	//		Log.w(TAG, "Text too long: " + mText.length() + " chars");
+	private static final int MAX_SPEECH_ITEM_CHAR_LENGTH = 4000;
+	
+	// require DOTALL to allow . to match new lines which occur in books like JOChrist
 	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
 	private Book book = null;
 	private List<Key> keyList = null;
@@ -102,7 +102,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		for (String text : textsToSpeak) {
 	   		this.mTextToSpeak.addAll(breakUpText(text));
 		}
-    	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
+		Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 
 	void setupReading(Book book, List<Key> keyList, boolean repeat) {
@@ -146,25 +146,25 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@NotNull
 	@Override
 	public SpeakCommand getNextSpeakCommand(@NotNull String utteranceId, boolean isCurrent) {
-        String text = getNextTextChunk();
-        
-        // if a pause occurred then skip the first part
-        if (fractionOfNextSentenceSpoken>0) {
-        	Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionOfNextSentenceSpoken);
+		String text = getNextTextChunk();
+		
+		// if a pause occurred then skip the first part
+		if (fractionOfNextSentenceSpoken>0) {
+			Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionOfNextSentenceSpoken);
 
-        	StartPos textFraction = getPrevTextStartPos(text, fractionOfNextSentenceSpoken);
-        	if (textFraction.found) {
-	        	fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
-	        	text = textFraction.text;
-        	} else {
-        		Log.e(TAG, "Eror finding next text. fraction:"+fractionOfNextSentenceSpoken);
-        		// try to prevent recurrence of error, but do not say anything
-        		fractionOfNextSentenceSpoken = 0;
-        		text = "";
-        	}
-        }
-        currentText = text;
-        return new TextCommand(text, TextCommand.TextType.NORMAL);
+			StartPos textFraction = getPrevTextStartPos(text, fractionOfNextSentenceSpoken);
+			if (textFraction.found) {
+				fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
+				text = textFraction.text;
+			} else {
+				Log.e(TAG, "Eror finding next text. fraction:"+fractionOfNextSentenceSpoken);
+				// try to prevent recurrence of error, but do not say anything
+				fractionOfNextSentenceSpoken = 0;
+				text = "";
+			}
+		}
+		currentText = text;
+		return new TextCommand(text, TextCommand.TextType.NORMAL);
 	}
 
 	@NotNull
@@ -177,14 +177,14 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	private String getNextTextChunk() {
 		String text = peekNextTextChunk();
 		nextTextToSpeak++;
-        return text;
+		return text;
 	}
 	private String peekNextTextChunk() {
 		if (!isMoreTextToSpeak()) {
 			Log.e(TAG, "Error: passed end of Speaktext.  nextText:"+nextTextToSpeak+" textToSpeak size:"+mTextToSpeak.size());
 			return "";
 		}
-        return mTextToSpeak.get(nextTextToSpeak);
+		return mTextToSpeak.get(nextTextToSpeak);
 	}
 	
 	/** fractionCompleted may be a fraction of a fraction of the current block if this is not the first pause in this block
@@ -194,14 +194,14 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	public void savePosition(float fractionCompleted) {
 		Log.d(TAG, "Pause CurrentSentence:"+nextTextToSpeak);
 
-        // accumulate these fractions until we reach the end of a chunk of text
-        // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
-        // also ensure the fraction is never greater than 1/all text
-        fractionOfNextSentenceSpoken += Math.min(1, 
-        								((1.0-fractionOfNextSentenceSpoken)*fractionCompleted));
-        Log.d(TAG, "Fraction of current sentence spoken:"+fractionOfNextSentenceSpoken);
+		// accumulate these fractions until we reach the end of a chunk of text
+		// if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
+		// also ensure the fraction is never greater than 1/all text
+		fractionOfNextSentenceSpoken += Math.min(1, 
+										((1.0-fractionOfNextSentenceSpoken)*fractionCompleted));
+		Log.d(TAG, "Fraction of current sentence spoken:"+fractionOfNextSentenceSpoken);
 
-        backOneChunk();
+		backOneChunk();
 	}
 
 	public void pause() {}
@@ -212,13 +212,13 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	public void rewind(SpeakSettings.RewindAmount amount) {
 		// go back to start of current sentence
-    	StartPos textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
+		StartPos textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
 
-    	// if could not find a previous sentence end
-    	if (!textFraction.found) {
-    		if (backOneChunk()) {
-    			textFraction = getPrevTextStartPos(peekNextTextChunk(), 1.0f);
-    		}
+		// if could not find a previous sentence end
+		if (!textFraction.found) {
+			if (backOneChunk()) {
+				textFraction = getPrevTextStartPos(peekNextTextChunk(), 1.0f);
+			}
 		} else {
 			// go back a little bit further in the current chunk
 			StartPos extraFraction = getPrevTextStartPos(peekNextTextChunk(), getStartPosFraction(textFraction.startPosition, peekNextTextChunk()));
@@ -226,34 +226,34 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 				textFraction = extraFraction;
 			}
 		}
-    	
-    	if (textFraction.found) {
-	    	fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
-    	} else {
-        	Log.e(TAG, "Could not rewind");
-    	}
+		
+		if (textFraction.found) {
+			fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
+		} else {
+			Log.e(TAG, "Could not rewind");
+		}
 
-    	Log.d(TAG, "Rewind chunk length start position:"+fractionOfNextSentenceSpoken);
+		Log.d(TAG, "Rewind chunk length start position:"+fractionOfNextSentenceSpoken);
 	}
 
 	public void forward(SpeakSettings.RewindAmount amount) {
 		Log.d(TAG, "Forward nextText:"+nextTextToSpeak);
 
 		// go back to start of current sentence
-    	StartPos textFraction = getForwardTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
+		StartPos textFraction = getForwardTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
 
-    	// if could not find the next sentence start
-    	if (!textFraction.found && forwardOneChunk()) {
-	    	textFraction = getForwardTextStartPos(peekNextTextChunk(), 0.0f);   		
+		// if could not find the next sentence start
+		if (!textFraction.found && forwardOneChunk()) {
+			textFraction = getForwardTextStartPos(peekNextTextChunk(), 0.0f);   		
 		}
-    	
-    	if (textFraction.found) {
-	    	fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
-    	} else {
-        	Log.e(TAG, "Could not forward");
-    	}
+		
+		if (textFraction.found) {
+			fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
+		} else {
+			Log.e(TAG, "Could not forward");
+		}
 
-    	Log.d(TAG, "Forward chunk length start position:"+fractionOfNextSentenceSpoken);
+		Log.d(TAG, "Forward chunk length start position:"+fractionOfNextSentenceSpoken);
 	}
 
 	public void finishedUtterance(String utteranceId) {
@@ -284,9 +284,9 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	public void reset() {
-    	if (mTextToSpeak!=null) {
-    		mTextToSpeak.clear();
-    	}
+		if (mTextToSpeak!=null) {
+			mTextToSpeak.clear();
+		}
 		nextTextToSpeak = 0;
 		fractionOfNextSentenceSpoken = 0;
 	}
@@ -331,59 +331,59 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	private StartPos getPrevTextStartPos(String text, float fraction) {
 		StartPos retVal = new StartPos();
 		
-    	int allTextLength = text.length();
-    	int nextTextOffset = (int)(Math.min(1,fraction)*allTextLength);
-    	
-    	BreakIterator breakIterator = BreakIterator.getSentenceInstance();
-    	breakIterator.setText(text);
-    	int startPos = 0;
-    	try {
-    		// this can rarely throw an Exception
-    		startPos = breakIterator.preceding(nextTextOffset);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error finding previous sentence start", e);
-    	}
-    	retVal.found = startPos>=0;
-    	
-    	if (retVal.found) {
-        	retVal.startPosition = startPos; 
-    		
-	    	// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  
-	    	retVal.actualFractionOfWhole = ((float)retVal.startPosition)/allTextLength;
-	    	
-	    	retVal.text = text.substring(retVal.startPosition);
-    	}
+		int allTextLength = text.length();
+		int nextTextOffset = (int)(Math.min(1,fraction)*allTextLength);
+		
+		BreakIterator breakIterator = BreakIterator.getSentenceInstance();
+		breakIterator.setText(text);
+		int startPos = 0;
+		try {
+			// this can rarely throw an Exception
+			startPos = breakIterator.preceding(nextTextOffset);
+		} catch (Exception e) {
+			Log.e(TAG, "Error finding previous sentence start", e);
+		}
+		retVal.found = startPos>=0;
+		
+		if (retVal.found) {
+			retVal.startPosition = startPos; 
+			
+			// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  
+			retVal.actualFractionOfWhole = ((float)retVal.startPosition)/allTextLength;
+			
+			retVal.text = text.substring(retVal.startPosition);
+		}
 
-    	return retVal;
+		return retVal;
 	}
 	
 	private StartPos getForwardTextStartPos(String text, float fraction) {
 		StartPos retVal = new StartPos();
 		
-    	int allTextLength = text.length();
-    	int nextTextOffset = (int)(Math.min(1,fraction)*allTextLength);
-    	
-    	BreakIterator breakIterator = BreakIterator.getSentenceInstance();
-    	breakIterator.setText(text);
-    	int startPos = 0; 
-    	try {
-    		// this can rarely throw an Exception
-    		startPos = breakIterator.following(nextTextOffset);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error finding next sentence start", e);
-    	}
-    	retVal.found = startPos>=0;
-    	
-    	if (retVal.found) {
-    		// nudge the startPos past the beginning of sentence so this sentence start is found when searching for previous block in getNextSentence
-        	retVal.startPosition = startPos<text.length()-1-1? startPos+1 : startPos;
-        	
-	    	// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  
-	    	retVal.actualFractionOfWhole = ((float)retVal.startPosition)/allTextLength;
-	    	
-	    	retVal.text = text.substring(retVal.startPosition);
-    	}
-    	return retVal;
+		int allTextLength = text.length();
+		int nextTextOffset = (int)(Math.min(1,fraction)*allTextLength);
+		
+		BreakIterator breakIterator = BreakIterator.getSentenceInstance();
+		breakIterator.setText(text);
+		int startPos = 0; 
+		try {
+			// this can rarely throw an Exception
+			startPos = breakIterator.following(nextTextOffset);
+		} catch (Exception e) {
+			Log.e(TAG, "Error finding next sentence start", e);
+		}
+		retVal.found = startPos>=0;
+		
+		if (retVal.found) {
+			// nudge the startPos past the beginning of sentence so this sentence start is found when searching for previous block in getNextSentence
+			retVal.startPosition = startPos<text.length()-1-1? startPos+1 : startPos;
+			
+			// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  
+			retVal.actualFractionOfWhole = ((float)retVal.startPosition)/allTextLength;
+			
+			retVal.text = text.substring(retVal.startPosition);
+		}
+		return retVal;
 	}
 
 	/** ICS rejects text longer than 4000 chars so break it up
@@ -433,13 +433,13 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 	
 	private List<String> splitEqually(String text, int size) {
-	    // Give the list the right capacity to start with. You could use an array instead if you wanted.
-	    List<String> ret = new ArrayList<>((text.length() + size - 1) / size);
+		// Give the list the right capacity to start with. You could use an array instead if you wanted.
+		List<String> ret = new ArrayList<>((text.length() + size - 1) / size);
 
-	    for (int start = 0; start < text.length(); start += size) {
-	        ret.add(text.substring(start, Math.min(text.length(), start + size)));
-	    }
-	    return ret;
+		for (int start = 0; start < text.length(); start += size) {
+			ret.add(text.substring(start, Math.min(text.length(), start + size)));
+		}
+		return ret;
 	}
 	
 	private float getStartPosFraction(int startPos, String text) {

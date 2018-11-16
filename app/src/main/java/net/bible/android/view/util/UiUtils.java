@@ -16,7 +16,7 @@ import net.bible.service.device.ScreenSettings;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class UiUtils {
 
@@ -30,14 +30,14 @@ public class UiUtils {
 	private static final int BIBLEVIEW_TEXT_NIGHT = CommonUtils.getResourceColor(R.color.bible_text_night);
 	private static final int BIBLEVIEW_TEXT_DAY = CommonUtils.getResourceColor(R.color.bible_text_day);
 
-    public static void applyTheme(Activity activity) {
-    	ScreenSettings.isNightModeChanged();
-        if (ScreenSettings.isNightMode()) {
-        	activity.setTheme(R.style.AppThemeNight);
-        } else {
-        	activity.setTheme(R.style.AppThemeDay);
-        }
-    }
+	public static void applyTheme(Activity activity) {
+		ScreenSettings.isNightModeChanged();
+		if (ScreenSettings.isNightMode()) {
+			activity.setTheme(R.style.AppThemeNight);
+		} else {
+			activity.setTheme(R.style.AppThemeDay);
+		}
+	}
 
 	/** Change actionBar colour according to day/night state
 	 */
@@ -50,7 +50,7 @@ public class UiUtils {
 				@Override
 				public void run() {
 					Drawable colorDrawable = new ColorDrawable(newColor);
-			        actionBar.setBackgroundDrawable(colorDrawable);
+					actionBar.setBackgroundDrawable(colorDrawable);
 				}
 			});
 		}

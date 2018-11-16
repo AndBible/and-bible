@@ -34,7 +34,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SwordDocumentFacade {
@@ -60,8 +60,8 @@ public class SwordDocumentFacade {
 		log.debug("Getting books of type "+bookCategory.getName());
 		List<Book> documents = Books.installed().getBooks(new BookFilter() {
 			@Override
-	        public boolean test(Book book) {
-	            return book.getBookCategory().equals(bookCategory) && !book.isLocked();
+			public boolean test(Book book) {
+				return book.getBookCategory().equals(bookCategory) && !book.isLocked();
 			}
 		});
 		log.debug("Got books, Num="+documents.size());
@@ -133,7 +133,7 @@ public class SwordDocumentFacade {
 			RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
 	
 			repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
-	        
+			
 			repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
 	
 			repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
@@ -143,10 +143,10 @@ public class SwordDocumentFacade {
 			// beta repo must never override live books especially if later version so use addIfNotExists
 			repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
 	
-	        List<Book> bookList = repoBookDeduplicator.getBooks();
+			List<Book> bookList = repoBookDeduplicator.getBooks();
 	
-	        // get them in the correct order
-	        Collections.sort(bookList);
+			// get them in the correct order
+			Collections.sort(bookList);
 	
 			return bookList;
 		} finally {
@@ -158,7 +158,7 @@ public class SwordDocumentFacade {
 		// not sure how to integrate reuse this in JSword index download
 		String version = document.getBookMetaData().getProperty("Version");
 
-        String versionSuffix = version!=null ? "-" + new Version(version).toString() : "";
+		String versionSuffix = version!=null ? "-" + new Version(version).toString() : "";
 
 		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
 		return CommonUtils.isHttpUrlAvailable(url);
@@ -175,16 +175,16 @@ public class SwordDocumentFacade {
 		
 		// delete index first if it exists but wrap in try to ensure an attempt is made to delete the document
 		try {
-	        IndexManager imanager = IndexManagerFactory.getIndexManager();
-	        if (imanager.isIndexed(realDocument)) {
-	            imanager.deleteIndex(realDocument);
-	        }
+			IndexManager imanager = IndexManagerFactory.getIndexManager();
+			if (imanager.isIndexed(realDocument)) {
+				imanager.deleteIndex(realDocument);
+			}
 		} catch (Exception e) {
 			// just log index delete error, deleting doc is the important thing
 			log.error("Error deleting document index", e);
 		}
 
-        document.getDriver().delete(realDocument);
+		document.getDriver().delete(realDocument);
 	}
 	
 	public void deleteDocumentIndex(Book document) throws BookException {
@@ -192,9 +192,9 @@ public class SwordDocumentFacade {
 		Book realDocument = getDocumentByInitials(document.getInitials());
 
 		IndexManager imanager = IndexManagerFactory.getIndexManager();
-        if (imanager.isIndexed(realDocument)) {
-            imanager.deleteIndex(realDocument);
-        }
+		if (imanager.isIndexed(realDocument)) {
+			imanager.deleteIndex(realDocument);
+		}
 	}
 	
 
@@ -202,13 +202,13 @@ public class SwordDocumentFacade {
 	 * If an index is in progress then nothing will happen
 	 */
 	public void ensureIndexCreation(Book book) throws BookException {
-    	log.debug("ensureIndexCreation");
+		log.debug("ensureIndexCreation");
 
-    	// ensure this isn't just the user re-clicking the Index button
+		// ensure this isn't just the user re-clicking the Index button
 		if (!book.getIndexStatus().equals(IndexStatus.CREATING) && !book.getIndexStatus().equals(IndexStatus.SCHEDULED)) {
 
 			IndexCreator ic = new IndexCreator();
-	        ic.scheduleIndexCreation(book);
+			ic.scheduleIndexCreation(book);
 		}
 	}
 	

@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class PageTiltScroller {
 
@@ -108,14 +108,14 @@ public class PageTiltScroller {
 
 					if (pageTiltScrollControl.isTiltScrollEnabled()) {
 						long delay = mIsScrolling ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
-					    Thread.sleep(delay);
+						Thread.sleep(delay);
 					} else {
 						isContinue = false;
 					}
-			     } catch (Exception e) {
-			    	 Log.v("Error", e.toString());
-			    	 isContinue = false;
-			     }
+				 } catch (Exception e) {
+					 Log.v("Error", e.toString());
+					 isContinue = false;
+				 }
 			}
 			Log.d(TAG, "Tilt-Scroll loop exiting");
 		}

@@ -17,7 +17,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
@@ -52,7 +52,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 	
 	@Override
 	protected int getIcon() {
-       	if (getSpeakControl().isSpeaking()) {
+	   	if (getSpeakControl().isSpeaking()) {
 			return android.R.drawable.ic_media_pause;
 		} else if (getSpeakControl().isPaused()) {
 			return android.R.drawable.ic_media_play;

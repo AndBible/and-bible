@@ -28,7 +28,7 @@ import java.io.IOException;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentPage {
 
@@ -50,7 +50,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 
 	@Override
 	public String getCurrentPageContent() {
-        return myNoteDAO.getMyNoteTextByKey(getKey());
+		return myNoteDAO.getMyNoteTextByKey(getKey());
 	}
 	
 	@Override

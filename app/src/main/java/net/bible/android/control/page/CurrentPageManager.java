@@ -27,7 +27,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
@@ -128,8 +128,8 @@ public class CurrentPageManager {
 			} else {
 				Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
 				// pop up a key selection screen
-		    	Intent intent = new Intent(context, nextPage.getKeyChooserActivity());
-		    	context.startActivity(intent);
+				Intent intent = new Intent(context, nextPage.getKeyChooserActivity());
+				context.startActivity(intent);
 			}
 		} else {
 			// should never get here because a doc should always be passed in but I have seen errors lie this once or twice

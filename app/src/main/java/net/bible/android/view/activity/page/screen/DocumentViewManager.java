@@ -21,7 +21,7 @@ import java.util.List;
  * Create Views for displaying documents
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope
@@ -50,13 +50,13 @@ public class DocumentViewManager {
 	}
 
 	public synchronized void buildView() {
-    	if (myNoteViewBuilder.isMyNoteViewType()) {
-    		documentWebViewBuilder.removeWebView(parent);
-    		myNoteViewBuilder.addMyNoteView(parent);
-    	} else {
-    		myNoteViewBuilder.removeMyNoteView(parent);
-    		documentWebViewBuilder.addWebView(parent);
-    	}
+		if (myNoteViewBuilder.isMyNoteViewType()) {
+			documentWebViewBuilder.removeWebView(parent);
+			myNoteViewBuilder.addMyNoteView(parent);
+		} else {
+			myNoteViewBuilder.removeMyNoteView(parent);
+			documentWebViewBuilder.addWebView(parent);
+		}
 		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
 		for(Window window: windows) {
 			mainBibleActivity.registerForContextMenu((View) getDocumentView(window));

@@ -31,7 +31,7 @@ import java.util.Locale;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BibleApplication extends MultiDexApplication {
 
@@ -64,10 +64,10 @@ public class BibleApplication extends MultiDexApplication {
 		Log.i(TAG, "Java home:"+System.getProperty("java.home"));
 		Log.i(TAG, "User dir:"+System.getProperty("user.dir")+" Timezone:"+System.getProperty("user.timezone"));
 	
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-        
+		// fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
+		// this affected jsword dynamic classloading
+		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		
 		// This must be done before accessing JSword to prevent default folders being used
 		SwordEnvironmentInitialisation.initialiseJSwordFolders();
 
@@ -151,11 +151,11 @@ public class BibleApplication extends MultiDexApplication {
 					if (CHINESE.equals(book.getLanguage())) {
 						try {
 							BookIndexer bookIndexer = new BookIndexer(book);
-			                // Delete the book, if present
-			                if (bookIndexer.isIndexed()) {
-			                    Log.d(TAG, "Deleting index for "+book.getInitials());
-			                    bookIndexer.deleteIndex();
-			                }
+							// Delete the book, if present
+							if (bookIndexer.isIndexed()) {
+								Log.d(TAG, "Deleting index for "+book.getInitials());
+								bookIndexer.deleteIndex();
+							}
 						} catch (Exception e) {
 							Log.e(TAG, "Error deleting index", e);
 						}
@@ -228,9 +228,9 @@ public class BibleApplication extends MultiDexApplication {
 		return errorDuringStartup;
 	}
 	
-    public SharedPreferences getAppStateSharedPreferences() {
-    	return getSharedPreferences(saveStateTag, 0);
-    }
+	public SharedPreferences getAppStateSharedPreferences() {
+		return getSharedPreferences(saveStateTag, 0);
+	}
 
 	public Resources getLocalizedResources(String language) {
 		BibleApplication app = getApplication();

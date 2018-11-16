@@ -8,14 +8,14 @@
  * See the GNU Lesser General Public License for more details.
  *
  * The License is available on the internet at:
- *       http://www.gnu.org/copyleft/lgpl.html
+ *	   http://www.gnu.org/copyleft/lgpl.html
  * or by writing to:
- *      Free Software Foundation, Inc.
- *      59 Temple Place - Suite 330
- *      Boston, MA 02111-1307, USA
+ *	  Free Software Foundation, Inc.
+ *	  59 Temple Place - Suite 330
+ *	  Boston, MA 02111-1307, USA
  *
  * Copyright: 2005
- *     The copyright to this program is held by it's authors.
+ *	 The copyright to this program is held by it's authors.
  *
  * ID: $Id: PdaLuceneIndexManager.java 1966 2009-10-30 01:15:14Z dmsmith $
  */
@@ -29,25 +29,25 @@ import org.crosswire.jsword.index.IndexManagerFactory;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class IndexCreator  {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.index.search.AbstractIndex#generateSearchIndex(org
-     * .crosswire.common.progress.Job)
-     */
-    public void scheduleIndexCreation(final Book book) {
-        Thread work = new Thread(new Runnable() {
-            public void run() {
-            	IndexManager indexManager = IndexManagerFactory.getIndexManager();
-            	indexManager.setIndexPolicy(new AndroidIndexPolicy());
-                indexManager.scheduleIndexCreation(book);
-            }
-        });
-        work.start();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.crosswire.jsword.index.search.AbstractIndex#generateSearchIndex(org
+	 * .crosswire.common.progress.Job)
+	 */
+	public void scheduleIndexCreation(final Book book) {
+		Thread work = new Thread(new Runnable() {
+			public void run() {
+				IndexManager indexManager = IndexManagerFactory.getIndexManager();
+				indexManager.setIndexPolicy(new AndroidIndexPolicy());
+				indexManager.scheduleIndexCreation(book);
+			}
+		});
+		work.start();
+	}
 }

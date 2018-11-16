@@ -8,7 +8,7 @@ import android.util.Log;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BookmarkDatabaseDefinition {
 	
@@ -58,16 +58,16 @@ public class BookmarkDatabaseDefinition {
 	private static BookmarkDatabaseDefinition sSingleton = null;
 	
 	
-    public static synchronized BookmarkDatabaseDefinition getInstance() {
-        if (sSingleton == null) {
-            sSingleton = new BookmarkDatabaseDefinition();
-        }
-        return sSingleton;
-    }
+	public static synchronized BookmarkDatabaseDefinition getInstance() {
+		if (sSingleton == null) {
+			sSingleton = new BookmarkDatabaseDefinition();
+		}
+		return sSingleton;
+	}
 
 	/** Called when no database exists in disk and the helper class needs
-     *  to create a new one. 
-     */
+	 *  to create a new one. 
+	 */
 	public void onCreate(SQLiteDatabase db) {
 		bootstrapDB(db);
 	}
@@ -91,35 +91,35 @@ public class BookmarkDatabaseDefinition {
 	private void bootstrapDB(SQLiteDatabase db) {
 		Log.i(TAG, "Bootstrapping And Bible database (Bookmarks)");
 		
-        db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
-                BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                BookmarkColumn.KEY + " TEXT NOT NULL," +
-                BookmarkColumn.VERSIFICATION + " TEXT," +
-                BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0," +
-                BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT NULL" +
-        ");");
+		db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
+				BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+				BookmarkColumn.KEY + " TEXT NOT NULL," +
+				BookmarkColumn.VERSIFICATION + " TEXT," +
+				BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0," +
+				BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT NULL" +
+		");");
 
-        // Intersection table
-        db.execSQL("CREATE TABLE " + Table.BOOKMARK_LABEL + " (" +
-                BookmarkLabelColumn.BOOKMARK_ID + " INTEGER NOT NULL," +
-                BookmarkLabelColumn.LABEL_ID + " INTEGER NOT NULL" +
-        ");");
+		// Intersection table
+		db.execSQL("CREATE TABLE " + Table.BOOKMARK_LABEL + " (" +
+				BookmarkLabelColumn.BOOKMARK_ID + " INTEGER NOT NULL," +
+				BookmarkLabelColumn.LABEL_ID + " INTEGER NOT NULL" +
+		");");
 
-        db.execSQL("CREATE TABLE " + Table.LABEL + " (" +
-                LabelColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                LabelColumn.NAME + " TEXT NOT NULL," +
+		db.execSQL("CREATE TABLE " + Table.LABEL + " (" +
+				LabelColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+				LabelColumn.NAME + " TEXT NOT NULL," +
 				LabelColumn.BOOKMARK_STYLE + " TEXT" +
-        ");");
+		");");
 		
-        // SQLite version in android 1.6 is 3.5.9 which doesn't support foreign keys so use a trigger
-	    // Trigger to remove join table rows when either side of the join is deleted
-        db.execSQL("CREATE TRIGGER bookmark_cleanup DELETE ON "+Table.BOOKMARK+" " +
-                "BEGIN " +
-                "DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.BOOKMARK_ID+" = old._id;" +
-                "END");
-        db.execSQL("CREATE TRIGGER label_cleanup DELETE ON "+Table.LABEL+" " +
-                "BEGIN " +
-                "DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.LABEL_ID+" = old._id;" +
-                "END");
+		// SQLite version in android 1.6 is 3.5.9 which doesn't support foreign keys so use a trigger
+		// Trigger to remove join table rows when either side of the join is deleted
+		db.execSQL("CREATE TRIGGER bookmark_cleanup DELETE ON "+Table.BOOKMARK+" " +
+				"BEGIN " +
+				"DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.BOOKMARK_ID+" = old._id;" +
+				"END");
+		db.execSQL("CREATE TRIGGER label_cleanup DELETE ON "+Table.LABEL+" " +
+				"BEGIN " +
+				"DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.LABEL_ID+" = old._id;" +
+				"END");
 	}
 }

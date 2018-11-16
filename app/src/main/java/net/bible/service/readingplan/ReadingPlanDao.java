@@ -28,7 +28,7 @@ import java.util.Properties;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class ReadingPlanDao {
 
@@ -189,29 +189,29 @@ public class ReadingPlanDao {
 			String filename = planCode+DOT_PROPERTIES;
 	
 			// Read from the /assets directory
-		    Properties properties = new Properties();
-		    InputStream inputStream = null;
+			Properties properties = new Properties();
+			InputStream inputStream = null;
 			try {
 				// check to see if a user has created his own reading plan with this name
 				File userReadingPlanFile = new File(USER_READING_PLAN_FOLDER, filename);
 				boolean isUserPlan = userReadingPlanFile.exists();
 	
-			    if (!isUserPlan) {
-			    	inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+filename);
-			    } else {
-			    	inputStream = new FileInputStream(userReadingPlanFile);
-			    }
-			    properties.load(inputStream);
-			    Log.d(TAG, "The properties are now loaded");
-			    Log.d(TAG, "properties: " + properties);
+				if (!isUserPlan) {
+					inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+filename);
+				} else {
+					inputStream = new FileInputStream(userReadingPlanFile);
+				}
+				properties.load(inputStream);
+				Log.d(TAG, "The properties are now loaded");
+				Log.d(TAG, "properties: " + properties);
 
-			    // cache it so we don't constantly reload the properties
-			    cachedPlanCode = planCode;
-			    cachedPlanProperties = properties;
-			    		
+				// cache it so we don't constantly reload the properties
+				cachedPlanCode = planCode;
+				cachedPlanProperties = properties;
+						
 			} catch (IOException e) {
-			    System.err.println("Failed to open reading plan property file");
-			    e.printStackTrace();
+				System.err.println("Failed to open reading plan property file");
+				e.printStackTrace();
 			} finally {
 				IOUtil.close(inputStream);
 			}

@@ -15,7 +15,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
  * There is a single And Bible database but creation and upgrade is implemented by the different db modules
  *  
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
@@ -25,24 +25,24 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 
 	private static CommonDatabaseHelper sSingleton = null;
 	
-    public static synchronized CommonDatabaseHelper getInstance() {
-        if (sSingleton == null) {
-            sSingleton = new CommonDatabaseHelper(BibleApplication.getApplication().getApplicationContext());
-        }
-        return sSingleton;
-    }
+	public static synchronized CommonDatabaseHelper getInstance() {
+		if (sSingleton == null) {
+			sSingleton = new CommonDatabaseHelper(BibleApplication.getApplication().getApplicationContext());
+		}
+		return sSingleton;
+	}
 
-    /**
-     * Private constructor, callers except unit tests should obtain an instance through
-     * {@link #getInstance()} instead.
-     */
-    CommonDatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
+	/**
+	 * Private constructor, callers except unit tests should obtain an instance through
+	 * {@link #getInstance()} instead.
+	 */
+	CommonDatabaseHelper(Context context) {
+		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	}
 	
 	/** Called when no database exists in disk and the helper class needs
-     *  to create a new one. 
-     */
+	 *  to create a new one. 
+	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		BookmarkDatabaseDefinition.getInstance().onCreate(db);

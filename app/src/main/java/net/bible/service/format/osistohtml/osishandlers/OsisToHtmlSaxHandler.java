@@ -78,7 +78,7 @@ import java.util.Set;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
@@ -244,11 +244,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	 * Current Element in the XML File.
 	 */
 	@Override
-    public void startElement(String namespaceURI,
-            String sName, // simple name
-            String qName, // qualified name
-            Attributes attrs)
-    {
+	public void startElement(String namespaceURI,
+			String sName, // simple name
+			String qName, // qualified name
+			Attributes attrs)
+	{
 		String name = getName(sName, qName); // element name
 
 		debug(name, attrs, true);

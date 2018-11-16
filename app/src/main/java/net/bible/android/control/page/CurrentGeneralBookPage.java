@@ -16,7 +16,7 @@ import org.crosswire.jsword.passage.Key;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage {
 	
@@ -52,7 +52,7 @@ public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage
 	@Override
 	public Key getKey() {
 		return key;
-    }
+	}
 
 	@Override
 	public void next() {

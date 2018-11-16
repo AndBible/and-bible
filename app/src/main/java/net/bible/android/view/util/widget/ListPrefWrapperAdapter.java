@@ -21,39 +21,39 @@ public class ListPrefWrapperAdapter implements WrapperListAdapter {
 
 	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
-    public ListPrefWrapperAdapter(ListAdapter origAdapter) {
+	public ListPrefWrapperAdapter(ListAdapter origAdapter) {
 		mOrigAdapter = origAdapter;
-    }
+	}
 
 	@Override
-    public ListAdapter getWrappedAdapter() {
-        return mOrigAdapter;
-    }
+	public ListAdapter getWrappedAdapter() {
+		return mOrigAdapter;
+	}
 
-    @Override
-    public boolean areAllItemsEnabled() {
-        return getWrappedAdapter().areAllItemsEnabled();
-    }
+	@Override
+	public boolean areAllItemsEnabled() {
+		return getWrappedAdapter().areAllItemsEnabled();
+	}
 
-    @Override
-    public boolean isEnabled(int position) {
-        return getWrappedAdapter().isEnabled(position);
-    }
+	@Override
+	public boolean isEnabled(int position) {
+		return getWrappedAdapter().isEnabled(position);
+	}
 
-    @Override
-    public void registerDataSetObserver(DataSetObserver observer) {
-        getWrappedAdapter().registerDataSetObserver(observer);
-    }
+	@Override
+	public void registerDataSetObserver(DataSetObserver observer) {
+		getWrappedAdapter().registerDataSetObserver(observer);
+	}
 
-    @Override
-    public void unregisterDataSetObserver(DataSetObserver observer) {
-        getWrappedAdapter().unregisterDataSetObserver(observer);
-    }
+	@Override
+	public void unregisterDataSetObserver(DataSetObserver observer) {
+		getWrappedAdapter().unregisterDataSetObserver(observer);
+	}
 
-    @Override
-    public int getCount() {
-        return getWrappedAdapter().getCount();
-    }
+	@Override
+	public int getCount() {
+		return getWrappedAdapter().getCount();
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -61,32 +61,32 @@ public class ListPrefWrapperAdapter implements WrapperListAdapter {
 	}
 
 	@Override
-    public Object getItem(int position) {
-        return getWrappedAdapter().getItem(position);
-    }
+	public Object getItem(int position) {
+		return getWrappedAdapter().getItem(position);
+	}
 
-    @Override
-    public long getItemId(int position) {
-        return getWrappedAdapter().getItemId(position);
-    }
+	@Override
+	public long getItemId(int position) {
+		return getWrappedAdapter().getItemId(position);
+	}
 
-    @Override
-    public boolean hasStableIds() {
-        return getWrappedAdapter().hasStableIds();
-    }
+	@Override
+	public boolean hasStableIds() {
+		return getWrappedAdapter().hasStableIds();
+	}
 
-    @Override
-    public int getItemViewType(int position) {
-        return getWrappedAdapter().getItemViewType(position);
-    }
+	@Override
+	public int getItemViewType(int position) {
+		return getWrappedAdapter().getItemViewType(position);
+	}
 
-    @Override
-    public int getViewTypeCount() {
-        return getWrappedAdapter().getViewTypeCount();
-    }
+	@Override
+	public int getViewTypeCount() {
+		return getWrappedAdapter().getViewTypeCount();
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return getWrappedAdapter().isEmpty();
-    }
+	@Override
+	public boolean isEmpty() {
+		return getWrappedAdapter().isEmpty();
+	}
 }

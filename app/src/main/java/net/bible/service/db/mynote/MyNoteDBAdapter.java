@@ -34,7 +34,7 @@ import java.util.List;
  * MyNote database update methods
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -74,8 +74,8 @@ public class MyNoteDBAdapter {
 		Log.d(TAG, "about to insertMyNote: " + mynote.getVerseRange());
 		VerseRange verseRange = mynote.getVerseRange();
 		String v11nName = getVersification(verseRange);
-        // Gets the current system time in milliseconds
-        Long now = Long.valueOf(System.currentTimeMillis());
+		// Gets the current system time in milliseconds
+		Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
 		newValues.put(MyNoteColumn.KEY, verseRange.getOsisRef());
@@ -107,8 +107,8 @@ public class MyNoteDBAdapter {
 		Log.d(TAG, "about to updateMyNote: " + mynote.getVerseRange());
 		VerseRange verserange = mynote.getVerseRange();
 		String v11nName = getVersification(verserange);
-        // Gets the current system time in milliseconds
-        Long now = Long.valueOf(System.currentTimeMillis());
+		// Gets the current system time in milliseconds
+		Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
 		newValues.put(MyNoteColumn.KEY, verserange.getOsisRef());
@@ -133,18 +133,18 @@ public class MyNoteDBAdapter {
 		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, null, null, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		        	MyNoteDto mynote = getMyNoteDto(c);
-		    		allMyNotes.add(mynote);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					MyNoteDto mynote = getMyNoteDto(c);
+					allMyNotes.add(mynote);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
+		
 		Log.d(TAG, "allMyNotes set to " + allMyNotes.size() + " item long list");
-        return allMyNotes;
+		return allMyNotes;
 	}
 	
 	public List<MyNoteDto> getMyNotesInBook(BibleBook book) {
@@ -153,18 +153,18 @@ public class MyNoteDBAdapter {
 		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(book.getOSIS()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		        	MyNoteDto mynote = getMyNoteDto(c);
-		    		notesList.add(mynote);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					MyNoteDto mynote = getMyNoteDto(c);
+					notesList.add(mynote);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
+		
 		Log.d(TAG, "myNotesInPassage set to " + notesList.size() + " item long list");
-        return notesList;
+		return notesList;
 	}
 
 	public MyNoteDto getMyNoteDto(long id) {
@@ -264,15 +264,15 @@ public class MyNoteDBAdapter {
 	}
 	
 	private interface MyNoteQuery {
-        String TABLE = Table.MYNOTE;
+		String TABLE = Table.MYNOTE;
 
 		String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, BookmarkColumn.VERSIFICATION, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
 
-        int ID = 0;
-        int KEY = 1;
-        int VERSIFICATION = 2;
-        int MYNOTE = 3;
-        int LAST_UPDATED_ON = 4;
-        int CREATED_ON = 5;
-    }	
+		int ID = 0;
+		int KEY = 1;
+		int VERSIFICATION = 2;
+		int MYNOTE = 3;
+		int LAST_UPDATED_ON = 4;
+		int CREATED_ON = 5;
+	}	
 }

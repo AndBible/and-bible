@@ -18,7 +18,7 @@ import org.crosswire.jsword.book.Book;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class DocumentDownloadListItem extends TwoLineListItem {
 
@@ -42,11 +42,11 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 		super(context, attrs, defStyle);
 	}
 
-    @Override
-    protected void onFinishInflate() {
+	@Override
+	protected void onFinishInflate() {
 		super.onFinishInflate();
 
-        mIcon = (ImageView) findViewById(R.id.icon);
+		mIcon = (ImageView) findViewById(R.id.icon);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 		ensureRegisteredForDownloadEvents();

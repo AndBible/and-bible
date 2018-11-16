@@ -62,14 +62,14 @@ public class RepoBookDeduplicator {
 		}
 		
 		// SBMD defaults t0 1.0.0 if version does not exist
-        Version previousVersion = new Version(previous.getBookMetaData().getProperty("Version"));
-        Version currentVersion = new Version(current.getBookMetaData().getProperty("Version"));
-        
-       	if (previousVersion.compareTo(currentVersion)<0) {
-       		return current;
-       	} else {
-       		return previous;
-       	}
+		Version previousVersion = new Version(previous.getBookMetaData().getProperty("Version"));
+		Version currentVersion = new Version(current.getBookMetaData().getProperty("Version"));
+		
+	   	if (previousVersion.compareTo(currentVersion)<0) {
+	   		return current;
+	   	} else {
+	   		return previous;
+	   	}
 	}
 	
 	private class BookKey {
@@ -80,20 +80,20 @@ public class RepoBookDeduplicator {
 			book.hashCode();
 		}
 		
-	    @Override
-	    public boolean equals(Object obj) {
-	        // The real bit ...
-	        Book thatBook = ((BookKey)obj).book;
+		@Override
+		public boolean equals(Object obj) {
+			// The real bit ...
+			Book thatBook = ((BookKey)obj).book;
 
-	        return book.getBookCategory().equals(thatBook.getBookCategory()) 
-	        		&& book.getAbbreviation().equals(thatBook.getAbbreviation()) 
-	        		&& book.getLanguage().equals(thatBook.getLanguage());
-	    }
+			return book.getBookCategory().equals(thatBook.getBookCategory()) 
+					&& book.getAbbreviation().equals(thatBook.getAbbreviation()) 
+					&& book.getLanguage().equals(thatBook.getLanguage());
+		}
 
 		
-	    @Override
-	    public int hashCode() {
-	        return book.getAbbreviation().hashCode();
-	    }
+		@Override
+		public int hashCode() {
+			return book.getAbbreviation().hashCode();
+		}
 	}
 }

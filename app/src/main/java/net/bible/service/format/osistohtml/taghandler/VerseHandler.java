@@ -15,13 +15,13 @@ import java.util.List;
 
 /**
  * Surround whole verse with
- *    <span class='verse' id='N'><span class='verseNo'>N</span>verse text here</span>
+ *	<span class='verse' id='N'><span class='verseNo'>N</span>verse text here</span>
  * Write the verse number at the beginning of a verse
  * Also handle verse per line
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author. 
+ *	  The copyright to this program is held by it's author. 
  */
 public class VerseHandler implements OsisTagHandler {
 

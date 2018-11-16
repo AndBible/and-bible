@@ -56,7 +56,7 @@ import javax.inject.Inject;
  * 			minimiseButton
  * 
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
+ *	  The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope
@@ -95,14 +95,14 @@ public class DocumentWebViewBuilder {
 		this.bibleViewFactory = bibleViewFactory;
 		this.windowMenuCommandHandler = windowMenuCommandHandler;
 
-        Resources res = BibleApplication.getApplication().getResources();
-        WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
-        WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width);
-        WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour);
-        WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour);
-        
-        BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size);
-        
+		Resources res = BibleApplication.getApplication().getResources();
+		WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
+		WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width);
+		WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour);
+		WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour);
+		
+		BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size);
+		
 		// Be notified of any changes to window config
 		ABEventBus.getDefault().register(this);
 	}
@@ -118,12 +118,12 @@ public class DocumentWebViewBuilder {
 	 * Enable switch from Bible WebView to MyNote view
 	 */
 	public void removeWebView(ViewGroup parent) {
-    	boolean isWebView = isWebViewShowing(parent);
-    	
-    	if (isWebView) {
-        	parent.setTag("");
-    		removeChildViews(parent);
-    	}
+		boolean isWebView = isWebViewShowing(parent);
+		
+		if (isWebView) {
+			parent.setTag("");
+			removeChildViews(parent);
+		}
 	}
 	
 	@SuppressLint("RtlHardcoded")
@@ -146,40 +146,40 @@ public class DocumentWebViewBuilder {
 				throw new RuntimeException("Illegal preference");
 		}
 
-    	boolean isWebView = isWebViewShowing(parent);
-    	parent.setTag(TAG);
+		boolean isWebView = isWebViewShowing(parent);
+		parent.setTag(TAG);
 
-    	if (!isWebView || 
-    			isWindowConfigurationChanged ||
-    			splitHorizontally!= isLaidOutWithHorizontalSplit) {
-    		Log.d(TAG, "Layout web view");
-    		
-    		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
-    		
-    		// ensure we have a known starting point - could be none, 1, or 2 webviews present
-    		removeChildViews(previousParent);
-    		
-    		parent.setOrientation(splitHorizontally? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-    		ViewGroup currentWindowFrameLayout = null;
-    		Separator previousSeparator = null;
-    		
-    		int windowNo = 0;
-    		
-    		for (Window window : windows) {
-    			Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
-    			
-    			currentWindowFrameLayout = new FrameLayout(this.mainBibleActivity);
-    			
-    			BibleView bibleView = getCleanView(window);
+		if (!isWebView || 
+				isWindowConfigurationChanged ||
+				splitHorizontally!= isLaidOutWithHorizontalSplit) {
+			Log.d(TAG, "Layout web view");
+			
+			List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
+			
+			// ensure we have a known starting point - could be none, 1, or 2 webviews present
+			removeChildViews(previousParent);
+			
+			parent.setOrientation(splitHorizontally? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+			ViewGroup currentWindowFrameLayout = null;
+			Separator previousSeparator = null;
+			
+			int windowNo = 0;
+			
+			for (Window window : windows) {
+				Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
+				
+				currentWindowFrameLayout = new FrameLayout(this.mainBibleActivity);
+				
+				BibleView bibleView = getCleanView(window);
 
-        		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
-        		bibleView.setVersePositionRecalcRequired(true);
+				// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
+				bibleView.setVersePositionRecalcRequired(true);
 
-    			float windowWeight = window.getWindowLayout().getWeight();
-    			LinearLayout.LayoutParams lp = splitHorizontally?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight) :
-    														new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight);
+				float windowWeight = window.getWindowLayout().getWeight();
+				LinearLayout.LayoutParams lp = splitHorizontally?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight) :
+															new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight);
 
-	    		parent.addView(currentWindowFrameLayout, lp);
+				parent.addView(currentWindowFrameLayout, lp);
 
 				// add bible to framelayout
 				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -211,39 +211,39 @@ public class DocumentWebViewBuilder {
 				if (windowNo!=0 || window.isMaximised()) {
 					// create default action button for top right of each window
 					View defaultWindowActionButton = createDefaultWindowActionButton(window);
-	    			currentWindowFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
+					currentWindowFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
 
-    			windowNo++;
-    		}
-    		
-    		// Display minimised screens
-    		ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainBibleActivity);
-    		currentWindowFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
-    		List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
-    		for (int i=0; i<minimisedScreens.size(); i++) {
-    			Log.d(TAG,  "Show restore button");
-    			Button restoreButton = createRestoreButton(minimisedScreens.get(i));
-    			minimisedWindowsFrameContainer.addView(restoreButton, new LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX));
-    		}    		
-    		
-    		previousParent = parent;
-    		isLaidOutWithHorizontalSplit = splitHorizontally;
-    		isWindowConfigurationChanged = false;
-    	}
+				windowNo++;
+			}
+			
+			// Display minimised screens
+			ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainBibleActivity);
+			currentWindowFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
+			List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
+			for (int i=0; i<minimisedScreens.size(); i++) {
+				Log.d(TAG,  "Show restore button");
+				Button restoreButton = createRestoreButton(minimisedScreens.get(i));
+				minimisedWindowsFrameContainer.addView(restoreButton, new LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX));
+			}			
+			
+			previousParent = parent;
+			isLaidOutWithHorizontalSplit = splitHorizontally;
+			isWindowConfigurationChanged = false;
+		}
 	}
 
 	private View createDefaultWindowActionButton(Window window) {
 		View defaultWindowActionButton;
 		if (window.getDefaultOperation().equals(WindowOperation.CLOSE)) {
-		    // close button for the links window
-		    defaultWindowActionButton = createCloseButton(window);
+			// close button for the links window
+			defaultWindowActionButton = createCloseButton(window);
 		} else if (window.getDefaultOperation().equals(WindowOperation.MAXIMISE)) {
-		    // normalise button for maximised window
-		    defaultWindowActionButton = createMaximiseToggleButton(window);
+			// normalise button for maximised window
+			defaultWindowActionButton = createMaximiseToggleButton(window);
 		} else {
-		    // minimise button for normal window
-		    defaultWindowActionButton = createMinimiseButton(window);
+			// minimise button for normal window
+			defaultWindowActionButton = createMinimiseButton(window);
 		}
 		return defaultWindowActionButton;
 	}
@@ -353,8 +353,8 @@ public class DocumentWebViewBuilder {
 	}
 
 	private Button createRestoreButton(final Window window) {
-        // restore button
-        return createTextButton(getDocumentInitial(window), new OnClickListener() {
+		// restore button
+		return createTextButton(getDocumentInitial(window), new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				windowControl.restoreWindow(window);				
@@ -378,25 +378,25 @@ public class DocumentWebViewBuilder {
 		Button button = new Button(this.mainBibleActivity);
 		button.setText(text);
 		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
-        button.setWidth(BUTTON_SIZE_PX);
-        button.setHeight(BUTTON_SIZE_PX);
-        button.setTextColor(WINDOW_BUTTON_TEXT_COLOUR);
-        button.setTypeface(null, Typeface.BOLD);
-        button.setSingleLine(true);
-        button.setOnClickListener(onClickListener);
-        button.setOnLongClickListener(onLongClickListener);
-        return button;
+		button.setWidth(BUTTON_SIZE_PX);
+		button.setHeight(BUTTON_SIZE_PX);
+		button.setTextColor(WINDOW_BUTTON_TEXT_COLOUR);
+		button.setTypeface(null, Typeface.BOLD);
+		button.setSingleLine(true);
+		button.setOnClickListener(onClickListener);
+		button.setOnLongClickListener(onLongClickListener);
+		return button;
 	}
 
 	private Button createImageButton(int drawableId, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
 		Button button = new Button(this.mainBibleActivity);
 		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
 		button.setBackgroundResource(drawableId);
-        button.setWidth(BUTTON_SIZE_PX);
-        button.setHeight(BUTTON_SIZE_PX);
-        button.setOnClickListener(onClickListener);
-        button.setOnLongClickListener(onLongClickListener);
-        return button;
+		button.setWidth(BUTTON_SIZE_PX);
+		button.setHeight(BUTTON_SIZE_PX);
+		button.setOnClickListener(onClickListener);
+		button.setOnLongClickListener(onLongClickListener);
+		return button;
 	}
 
 	private class WindowButtonLongClickListener implements OnLongClickListener {
@@ -419,15 +419,15 @@ public class DocumentWebViewBuilder {
 					return windowMenuCommandHandler.handleMenuRequest(menuItem);
 				}
 			});
-			    
+				
 			MenuInflater inflater = popup.getMenuInflater();
 			inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
-			    
+				
 			// enable/disable and set synchronised checkbox
 			windowControl.updateOptionsMenu(popup.getMenu());
-			    
+				
 			CommonUtils.forcePopupMenuToShowIcons(popup);
-			    
+				
 			popup.show();
 			return true;
 		}

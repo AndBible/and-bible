@@ -21,7 +21,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @MainBibleActivityScope
 public class BibleContentManager {
@@ -47,7 +47,7 @@ public class BibleContentManager {
 	/* package */ void updateText(Window window) {
 		updateText(false, window);
 	}
-    
+	
 	/* package */ void updateText(boolean forceUpdate, Window window) {
 		if(window == null) {
 			window = windowControl.getActiveWindow();
@@ -66,29 +66,29 @@ public class BibleContentManager {
 			previousVerse = key;
 		}
 		new UpdateMainTextTask().execute(window);
-    }
+	}
 
-    private class UpdateMainTextTask extends UpdateTextTask {
-    	@Override
-    	protected void onPreExecute() {
-    		super.onPreExecute();
-    		PassageChangeMediator.getInstance().contentChangeStarted();
-    	}
+	private class UpdateMainTextTask extends UpdateTextTask {
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			PassageChangeMediator.getInstance().contentChangeStarted();
+		}
 
-        protected void onPostExecute(String htmlFromDoInBackground) {
-        	super.onPostExecute(htmlFromDoInBackground);
-    		PassageChangeMediator.getInstance().contentChangeFinished();
-        }
+		protected void onPostExecute(String htmlFromDoInBackground) {
+			super.onPostExecute(htmlFromDoInBackground);
+			PassageChangeMediator.getInstance().contentChangeFinished();
+		}
 
-        /** callback from base class when result is ready */
-    	@Override
-    	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
-    		if (documentViewManager!=null) {
-    			DocumentView view = documentViewManager.getDocumentView(window);
-    			view.show(text, chapterVerse, yOffsetRatio);
-    		} else {
-    			Log.w(TAG, "Document view not yet registered");
-    		}
-        }
-    }
+		/** callback from base class when result is ready */
+		@Override
+		protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
+			if (documentViewManager!=null) {
+				DocumentView view = documentViewManager.getDocumentView(window);
+				view.show(text, chapterVerse, yOffsetRatio);
+			} else {
+				Log.w(TAG, "Document view not yet registered");
+			}
+		}
+	}
 }

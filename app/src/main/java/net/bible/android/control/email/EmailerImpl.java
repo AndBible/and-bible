@@ -35,16 +35,16 @@ public class EmailerImpl implements Emailer {
 	@Override
 	public void send(String emailDialogTitle, String recipient, String subject, String body) {
 
-        final Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
+		final Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
 		if (StringUtils.isNotBlank(recipient)) {
-	        emailIntent.setData(Uri.fromParts("mailto", recipient, null));
+			emailIntent.setData(Uri.fromParts("mailto", recipient, null));
 		}
 
-        emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+		emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+		emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
 
-        Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-        activity.startActivity(emailIntent);
+		Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		activity.startActivity(emailIntent);
 	}
 }

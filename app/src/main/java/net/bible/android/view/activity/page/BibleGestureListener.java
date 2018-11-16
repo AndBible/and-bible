@@ -12,7 +12,7 @@ import net.bible.service.common.CommonUtils;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BibleGestureListener extends SimpleOnGestureListener {
 
@@ -31,9 +31,9 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
 		scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
-    	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
-    	// make it easier to swipe
-    	minScaledVelocity = (int)(minScaledVelocity*0.66);
+		minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
+		// make it easier to swipe
+		minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import java.util.Properties;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class FileManager {
 
@@ -32,51 +32,51 @@ public class FileManager {
 		log.debug("Copying:"+filename);
 		boolean ok;
 
-        File fromFile = new File(fromDir, filename);
-        File targetFile = new File(toDir, filename);
+		File fromFile = new File(fromDir, filename);
+		File targetFile = new File(toDir, filename);
 
-        ok = copyFile(fromFile, targetFile);
+		ok = copyFile(fromFile, targetFile);
 
-        return ok;
+		return ok;
 	}
 
 	public static boolean copyFile(File fromFile, File toFile) {
 		boolean ok = false;
 		try {
-	        // don't worry if tofile exists, allow overwrite
-	        if (fromFile.exists()) {
-	        	//ensure the target dir exists or FileNotFoundException is thrown creating dst FileChannel
-	        	File toDir = toFile.getParentFile();
-	        	toDir.mkdir();
+			// don't worry if tofile exists, allow overwrite
+			if (fromFile.exists()) {
+				//ensure the target dir exists or FileNotFoundException is thrown creating dst FileChannel
+				File toDir = toFile.getParentFile();
+				toDir.mkdir();
 
-	        	long fromFileSize = fromFile.length();
-	        	log.debug("Source file length:"+fromFileSize);
-	        	if (fromFileSize > CommonUtils.getFreeSpace(toDir.getPath())) {
-	        		// not enough room on SDcard
+				long fromFileSize = fromFile.length();
+				log.debug("Source file length:"+fromFileSize);
+				if (fromFileSize > CommonUtils.getFreeSpace(toDir.getPath())) {
+					// not enough room on SDcard
 					log.error("Not enough room on SD card");
-	        		ok = false;
-	        	} else {
-	            	// move the file
-	        		FileInputStream src = new FileInputStream(fromFile);
-	                FileOutputStream dest = new FileOutputStream(toFile, false);
-	            	try {
+					ok = false;
+				} else {
+					// move the file
+					FileInputStream src = new FileInputStream(fromFile);
+					FileOutputStream dest = new FileOutputStream(toFile, false);
+					try {
 						// Transfer bytes from in to out
 						byte[] buf = new byte[1024];
 						int len;
 						while ((len = src.read(buf)) > 0) {
 							dest.write(buf, 0, len);
 						}
-		                ok = true;
-	            	} finally {
-		                src.close();
-		                dest.close();
-	            	}
-	        	}
-	        } else {
-	        	// fromfile does not exist
-	        	ok = false;
-	        }
-	    } catch (Exception e) {
+						ok = true;
+					} finally {
+						src.close();
+						dest.close();
+					}
+				}
+			} else {
+				// fromfile does not exist
+				ok = false;
+			}
+		} catch (Exception e) {
 			log.error("Error moving file", e);
 		}
 		return ok;
@@ -85,7 +85,7 @@ public class FileManager {
 	/* Open a properties file from the assets folder
 	 */
 	public static Properties readPropertiesFile(String folder, String filename) {
-	    Properties returnProperties = new Properties();
+		Properties returnProperties = new Properties();
 
 		Resources resources = BibleApplication.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
@@ -97,16 +97,16 @@ public class FileManager {
 		}
 
 		// Read from the /assets directory
-	    InputStream inputStream = null;
+		InputStream inputStream = null;
 		try {
 			// check to see if a user has created his own reading plan with this name
-	    	inputStream = assetManager.open(filename);
+			inputStream = assetManager.open(filename);
 
-	    	returnProperties.load(inputStream);
-		    log.debug("The properties are now loaded from: " + filename);
+			returnProperties.load(inputStream);
+			log.debug("The properties are now loaded from: " + filename);
 		} catch (IOException e) {
-		    System.err.println("Failed to open property file:"+filename);
-		    e.printStackTrace();
+			System.err.println("Failed to open property file:"+filename);
+			e.printStackTrace();
 		} finally {
 			IOUtil.close(inputStream);
 		}

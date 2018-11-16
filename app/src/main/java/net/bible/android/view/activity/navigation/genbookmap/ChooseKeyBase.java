@@ -24,7 +24,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public abstract class ChooseKeyBase extends ListActivityBase {
 
@@ -33,7 +33,7 @@ public abstract class ChooseKeyBase extends ListActivityBase {
 	private static final String TAG = "ChooseKeyBase";
 	
 	private List<Key> mKeyList;
-    private ArrayAdapter<Key> mKeyArrayAdapter;
+	private ArrayAdapter<Key> mKeyArrayAdapter;
 
 	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
@@ -41,81 +41,81 @@ public abstract class ChooseKeyBase extends ListActivityBase {
 
 	abstract Key getCurrentKey();
 	abstract List<Key> getKeyList();
-    abstract void itemSelected(Key key);
+	abstract void itemSelected(Key key);
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying Key chooser");
-        setContentView(R.layout.choose_general_book_key);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Displaying Key chooser");
+		setContentView(R.layout.choose_general_book_key);
 
 		buildActivityComponent().inject(this);
 
-        prepareList();
+		prepareList();
 
-        mKeyArrayAdapter = new KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList);
-        setListAdapter(mKeyArrayAdapter);
-        
-        // if an item was selected previously then try to scroll to it
-        Key currentKey = getCurrentKey();
-        if (currentKey!=null && mKeyList.contains(currentKey)) {
-        	setSelection(mKeyList.indexOf(currentKey));
-        }
-        
-        Log.d(TAG, "Finished displaying Search view");
-    }
+		mKeyArrayAdapter = new KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList);
+		setListAdapter(mKeyArrayAdapter);
+		
+		// if an item was selected previously then try to scroll to it
+		Key currentKey = getCurrentKey();
+		if (currentKey!=null && mKeyList.contains(currentKey)) {
+			setSelection(mKeyList.indexOf(currentKey));
+		}
+		
+		Log.d(TAG, "Finished displaying Search view");
+	}
 
-    /**
-     * Creates and returns a list adapter for the current list activity
-     * @return
-     */
-    protected void prepareList()
-    {
-    	Log.d(TAG, "Getting book keys");
-    	mKeyList = new ArrayList<Key>();
-    	try {
-	    	List<Key> keyList = getKeyList();
-	    	
-	    	for (Key key : keyList) {
-	        	mKeyList.add(key);
-	    	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting key");
-    	}
-    }
-    
-    @Override
+	/**
+	 * Creates and returns a list adapter for the current list activity
+	 * @return
+	 */
+	protected void prepareList()
+	{
+		Log.d(TAG, "Getting book keys");
+		mKeyList = new ArrayList<Key>();
+		try {
+			List<Key> keyList = getKeyList();
+			
+			for (Key key : keyList) {
+				mKeyList.add(key);
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting key");
+		}
+	}
+	
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		Key selected = mKeyList.get(position);
-    		Log.i(TAG, "Selected:"+selected);
-    		itemSelected(selected);
+		try {
+			Key selected = mKeyList.get(position);
+			Log.i(TAG, "Selected:"+selected);
+			itemSelected(selected);
 
-    		returnToMainScreen();
+			returnToMainScreen();
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
-    
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) { 
-    	Log.d(TAG, "Activity result:"+resultCode);
-    	super.onActivityResult(requestCode, resultCode, data);
-    	
-    	if (resultCode == FINISHED) {
-    		Log.i(TAG, "Leaf key selected so finish");
-    		returnToMainScreen();
-    	}
-    }
+	
+	@Override 
+	public void onActivityResult(int requestCode, int resultCode, Intent data) { 
+		Log.d(TAG, "Activity result:"+resultCode);
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (resultCode == FINISHED) {
+			Log.i(TAG, "Leaf key selected so finish");
+			returnToMainScreen();
+		}
+	}
 
-    private void returnToMainScreen() {
-    	// just pass control back to the main screen
-    	Intent resultIntent = new Intent(this, MainBibleActivity.class);
-    	setResult(FINISHED, resultIntent);
-    	finish();    
-    }
+	private void returnToMainScreen() {
+		// just pass control back to the main screen
+		Intent resultIntent = new Intent(this, MainBibleActivity.class);
+		setResult(FINISHED, resultIntent);
+		finish();	
+	}
 
 	protected ActiveWindowPageManagerProvider getActiveWindowPageManagerProvider() {
 		return activeWindowPageManagerProvider;

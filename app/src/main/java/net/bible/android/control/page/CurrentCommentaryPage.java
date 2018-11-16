@@ -22,7 +22,7 @@ import org.json.JSONObject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	
@@ -110,7 +110,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	@Override
 	public Key getKey() {
 		return getCurrentBibleVerse().getVerseSelected(getVersification());
-    }
+	}
 
 	public int getNumberOfVersesDisplayed() {
 		return 1;

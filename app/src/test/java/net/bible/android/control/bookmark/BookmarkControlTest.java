@@ -58,8 +58,8 @@ public class BookmarkControlTest {
 
 	private BookmarkFormatSupport bookmarkFormatSupport;
 
-    @Before
-    public void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), mock(WindowControl.class), mock(AndroidResourceProvider.class));
 		bookmarkFormatSupport = new BookmarkFormatSupport();
 	}

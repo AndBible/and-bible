@@ -36,7 +36,7 @@ import javax.inject.Inject;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class WindowControl implements ActiveWindowPageManagerProvider {
@@ -116,14 +116,14 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	 * Show link using whatever is the current Bible in the Links window
 	 */
 	public void showLinkUsingDefaultBible(Key key) {
-        LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
+		LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
 
 		CurrentBiblePage currentBiblePage = linksWindow.getPageManager().getCurrentBible();
 
-        Book defaultBible;
+		Book defaultBible;
 
 		// default either to links window bible or if closed then active window bible
-        if(currentBiblePage.isCurrentDocumentSet()) {
+		if(currentBiblePage.isCurrentDocumentSet()) {
 			defaultBible = currentBiblePage.getCurrentDocument();
 		}
 		else {
@@ -134,21 +134,21 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	}
 
 	public void showLink(Book document, Key key) {
-        LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
-        boolean linksWindowWasVisible = linksWindow.isVisible();
+		LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
+		boolean linksWindowWasVisible = linksWindow.isVisible();
 
-        linksWindow.initialisePageStateIfClosed(getActiveWindow());
-        
-        //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
-        windowRepository.setActiveWindow(linksWindow);
-        
-        linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
-        
+		linksWindow.initialisePageStateIfClosed(getActiveWindow());
+		
+		//TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
+		windowRepository.setActiveWindow(linksWindow);
+		
+		linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
+		
 		// redisplay the current page
-        if (!linksWindowWasVisible) {
-        	linksWindow.getWindowLayout().setState(WindowState.SPLIT);
-        	eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-        }
+		if (!linksWindowWasVisible) {
+			linksWindow.getWindowLayout().setState(WindowState.SPLIT);
+			eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+		}
 	}
 
 

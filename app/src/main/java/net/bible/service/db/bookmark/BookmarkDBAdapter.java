@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
+ *	  The copyright to this program is held by it's author.
  */
 public class BookmarkDBAdapter {
 
@@ -74,7 +74,7 @@ public class BookmarkDBAdapter {
 		String v11nName = key.getVersification().getName();
 
 		// Gets the current system time in milliseconds
-        Long now = System.currentTimeMillis();
+		Long now = System.currentTimeMillis();
 
 		newValues.put(BookmarkColumn.KEY, key.getOsisRef());
 		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
@@ -148,17 +148,17 @@ public class BookmarkDBAdapter {
 		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, null, null, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		    		BookmarkDto bookmark = getBookmarkDto(c);
-		    		allBookmarks.add(bookmark);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					BookmarkDto bookmark = getBookmarkDto(c);
+					allBookmarks.add(bookmark);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
-        return allBookmarks;
+		
+		return allBookmarks;
 	}
 
 	public List<BookmarkDto> getBookmarksInBook(BibleBook book) {
@@ -167,18 +167,18 @@ public class BookmarkDBAdapter {
 		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(book.getOSIS()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		        	BookmarkDto bookmark = getBookmarkDto(c);
-		    		bookmarkList.add(bookmark);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					BookmarkDto bookmark = getBookmarkDto(c);
+					bookmarkList.add(bookmark);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
+		
 		Log.d(TAG, "bookmarksInPassage set to " + bookmarkList.size() + " item long list");
-        return bookmarkList;
+		return bookmarkList;
 	}
 
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
@@ -193,17 +193,17 @@ public class BookmarkDBAdapter {
 		Cursor c = db.rawQuery(sql, args);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		    		BookmarkDto bookmark = getBookmarkDto(c);
-		    		allBookmarks.add(bookmark);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					BookmarkDto bookmark = getBookmarkDto(c);
+					allBookmarks.add(bookmark);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
-        return allBookmarks;
+		
+		return allBookmarks;
 	}
 
 	public List<BookmarkDto> getUnlabelledBookmarks() {
@@ -215,17 +215,17 @@ public class BookmarkDBAdapter {
 		Cursor c = db.rawQuery(sql, null);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		    		BookmarkDto bookmark = getBookmarkDto(c);
-		    		bookmarks.add(bookmark);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					BookmarkDto bookmark = getBookmarkDto(c);
+					bookmarks.add(bookmark);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
-        return bookmarks;
+		
+		return bookmarks;
 	}
 
 
@@ -234,17 +234,17 @@ public class BookmarkDBAdapter {
 		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, LabelColumn.NAME);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		    		LabelDto bookmark = getLabelDto(c);
-		    		allLabels.add(bookmark);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					LabelDto bookmark = getLabelDto(c);
+					allLabels.add(bookmark);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
-        return allLabels;
+		
+		return allLabels;
 	}
 
 	@NotNull
@@ -260,17 +260,17 @@ public class BookmarkDBAdapter {
 		Cursor c = db.rawQuery(sql, args);
 		try {
 			if (c.moveToFirst()) {
-		        while (!c.isAfterLast()) {
-		    		LabelDto label = getLabelDto(c);
-		    		labels.add(label);
-		       	    c.moveToNext();
-		        }
+				while (!c.isAfterLast()) {
+					LabelDto label = getLabelDto(c);
+					labels.add(label);
+			   		c.moveToNext();
+				}
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
-        
-        return labels;
+		
+		return labels;
 	}
 
 	public void insertBookmarkLabelJoin(BookmarkDto bookmark, LabelDto label) {
@@ -405,7 +405,7 @@ public class BookmarkDBAdapter {
 				label = getLabelDto(c);
 			}
 		} finally {
-	        c.close();
+			c.close();
 		}
 
 		if(label == null) {
@@ -418,22 +418,22 @@ public class BookmarkDBAdapter {
 	}
 
 	private interface BookmarkQuery {
-        String TABLE = Table.BOOKMARK;
-        String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};
+		String TABLE = Table.BOOKMARK;
+		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};
 
-        int ID = 0;
-        int KEY = 1;
-        int VERSIFICATION = 2;
-        int CREATED_ON = 3;
-        int PLAYBACK_SETTINGS = 4;
-    }
+		int ID = 0;
+		int KEY = 1;
+		int VERSIFICATION = 2;
+		int CREATED_ON = 3;
+		int PLAYBACK_SETTINGS = 4;
+	}
 	private interface LabelQuery {
-        String TABLE = Table.LABEL;
+		String TABLE = Table.LABEL;
 
 		String[] COLUMNS = new String[] {LabelColumn._ID, LabelColumn.NAME, LabelColumn.BOOKMARK_STYLE};
 
-        int ID = 0;
-        int NAME = 1;
+		int ID = 0;
+		int NAME = 1;
 		int BOOKMARK_STYLE = 2;
-    }
+	}
 }
