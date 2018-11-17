@@ -59,10 +59,6 @@ function scrollToVerse(toId) {
 	}
 }
 
-function doScrollToFast(element, to) {
-    element.scrollTop = to;
-}
-
 function doScrollToSlowly(element, elementPosition, to) {
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
