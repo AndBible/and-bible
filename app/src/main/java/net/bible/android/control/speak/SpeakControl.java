@@ -171,13 +171,22 @@ public class SpeakControl {
 	}
 
 	public boolean isSpeaking() {
-		return textToSpeechServiceManager.get().isSpeaking();
+		return isActiveWindowPageManagerReady() && textToSpeechServiceManager.get().isSpeaking();
 	}
 
 	public boolean isPaused() {
-		return textToSpeechServiceManager.get().isPaused();
+		return isActiveWindowPageManagerReady() && textToSpeechServiceManager.get().isPaused();
 	}
 
+	private boolean isActiveWindowPageManagerReady() {
+		// By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
+		// (such as headphone switching in the initial startup screen)
+		try {
+			return activeWindowPageManagerProvider.getActiveWindowPageManager() != null;
+		} catch (NullPointerException e) {
+			return false;
+		}
+	}
 	/** prepare to speak
 	 */
 	public void speakText() {
