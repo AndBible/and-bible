@@ -11,7 +11,7 @@
 		window.jsInterface.onLoad();
 		registerVersePositions();
 	}
-)
+);
 
 function jsonscroll() {
 	window.jsInterface.onScroll(window.pageYOffset);
@@ -46,7 +46,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 	var searchClassPlusSpace = " "+searchClass+" ";
 	for(i=0; i<tagMatches.length; i++) { 
 		var tagClassPlusSpace = " " + tagMatches[i].className + " ";
-		if (tagClassPlusSpace.indexOf(searchClassPlusSpace) != -1) 
+		if (tagClassPlusSpace.indexOf(searchClassPlusSpace) !== -1)
 			matches.push(tagMatches[i]);
 	} 
 	return matches;
@@ -67,7 +67,7 @@ function doScrollToSlowly(element, elementPosition, to) {
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
     var difference = to - elementPosition;
-    if (difference == 0) return;
+    if (difference === 0) return;
     var perTick = Math.max(Math.min(speed, difference),-speed); 
     
     setTimeout(function() {
@@ -112,7 +112,7 @@ tapholdHandler = function(event) {
 
 		selected($closestToPoint)
 	}
-}
+};
 
 /** Handle touch to extend verse selection */
 var touchHandler = function(event) {
@@ -127,7 +127,7 @@ var touchHandler = function(event) {
 
 	var chapterVerse = $target.attr('id');
 	window.jsInterface.verseTouch(chapterVerse);
-}
+};
 
 
 function selected($elem) {
@@ -141,7 +141,7 @@ function selected($elem) {
  * Called by VerseActionModelMediator to highlight a verse
  */
 function highlightVerse(chapterVerse) {
-	var $verseSpan = $('#'+escapeSelector(chapterVerse))
+	var $verseSpan = $('#'+escapeSelector(chapterVerse));
 	$verseSpan.addClass("selected")
 }
 
@@ -149,7 +149,7 @@ function highlightVerse(chapterVerse) {
  * Called by VerseActionModelMediator to unhighlight a verse
  */
 function unhighlightVerse(chapterVerse) {
-	var $verseSpan = $('#'+escapeSelector(chapterVerse))
+	var $verseSpan = $('#'+escapeSelector(chapterVerse));
 	$verseSpan.removeClass("selected")
 }
 
@@ -157,7 +157,7 @@ function unhighlightVerse(chapterVerse) {
  * Called by VerseActionModelMediator to unhighlight a verse
  */
 function clearVerseHighlight() {
-	var $verseSpan = $('.selected')
+	var $verseSpan = $('.selected');
 	$verseSpan.removeClass("selected")
 }
 
