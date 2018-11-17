@@ -55,8 +55,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 function scrollToVerse(toId) {
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
-		toPosition = toElement.offsetTop;
-		doScrollToFast(document.body, toPosition);
+		toElement.scrollIntoView();
 	}
 }
 
