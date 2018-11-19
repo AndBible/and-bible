@@ -11,3 +11,6 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
+
+before_script:
+  - ./gradlew testReleaseUnitTest --tests net.bible.service.download.CrosswireRepoIT
