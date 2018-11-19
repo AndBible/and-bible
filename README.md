@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AndBible/and-bible.svg?branch=master)](https://travis-ci.org/AndBible/and-bible)
+
 # and-bible
 Offline Bible on Android
 
