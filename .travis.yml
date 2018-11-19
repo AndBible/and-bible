@@ -16,3 +16,4 @@ before_script:
   - ./gradlew testReleaseUnitTest --tests net.bible.service.download.CrosswireRepoIT
 
 script: ./gradlew testReleaseUnitTest
+
