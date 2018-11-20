@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ *
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ *
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ *
+ */
+
 package net.bible.service.format.osistohtml.taghandler;
 
 
@@ -33,8 +51,6 @@ Example of notes cross references from ESV
 In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="crossReference"><reference osisRef="Job.38.4-Job.38.7">Job 38:4-7</reference>; <reference osisRef="Ps.33.6">Ps. 33:6</reference>; <reference osisRef="Ps.136.5">136:5</reference>; <reference osisRef="Isa.42.5">Isa. 42:5</reference>; <reference osisRef="Isa.45.18">45:18</reference>; <reference osisRef="John.1.1-John.1.3">John 1:1-3</reference>; <reference osisRef="Acts.14.15">Acts 14:15</reference>; <reference osisRef="Acts.17.24">17:24</reference>; <reference osisRef="Col.1.16-Col.1.17">Col. 1:16, 17</reference>; <reference osisRef="Heb.1.10">Heb. 1:10</reference>; <reference osisRef="Heb.11.3">11:3</reference>; <reference osisRef="Rev.4.11">Rev. 4:11</reference></note>beginning
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
  */
 public class ReferenceHandler implements OsisTagHandler {
 
