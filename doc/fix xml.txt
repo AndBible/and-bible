@@ -1,3 +1,0 @@
-TagSoup - parses broken html
-
-http://www.developer-x.com/experimentation/tag-soup-parser-fixer
