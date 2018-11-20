@@ -22,7 +22,6 @@ Package maintainer: [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/201
 
 #Licence
 
-
 And Bible is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
