@@ -33,7 +33,7 @@ android {
     lintOptions {
         disable 'MissingTranslation'
         disable 'ExtraTranslation'
-        abortOnError false // TODO: enable this later
+        warning 'InvalidPackage' 
     }
 
     compileOptions {
