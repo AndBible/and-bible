@@ -3,24 +3,24 @@
 # And Bible
 Offline Bible on Android
 
-# Users
+## Users
 Please see the [Home Page](http://andbible.github.io/and-bible/).
 
 For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the 
 [FAQ](https://github.com/andbible/and-bible/wiki/FAQ).
 
-# Developers
+## Developers
 
 Use Android Studio or IntelliJ IDEA to build And Bible.
 Pull requests are welcome!
 
-# Credits
+## Credits
 
 Original developer: [Martin Denham](http://github.com/mjdenham)
 
 Package maintainer: [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
 
-# Licence
+## Licence
 
 And Bible is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 
 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
