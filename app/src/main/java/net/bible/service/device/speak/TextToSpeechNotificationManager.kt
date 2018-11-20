@@ -39,7 +39,7 @@ class TextToSpeechNotificationManager {
 
         private const val NOTIFICATION_ID=1
 
-        private const val WAKELOCK_TAG = "speak-wakelock"
+        private const val WAKELOCK_TAG = "andbible:speak-wakelock"
         private const val TAG = "Speak/TTSService"
         private lateinit var wakeLock: PowerManager.WakeLock
 

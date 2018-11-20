@@ -86,7 +86,7 @@ public class FirstDownload extends Download {
 	}
 
 	public void onOkay(View v) {
-		Intent resultIntent = new Intent(this, DownloadStatus.class);
+		Intent resultIntent = new Intent(this, FirstDownload.class);
 		setResult(Download.DOWNLOAD_FINISH, resultIntent);
 		finish();
 	}

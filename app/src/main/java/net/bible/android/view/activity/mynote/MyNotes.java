@@ -3,6 +3,7 @@
  */
 package net.bible.android.view.activity.mynote;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,7 +49,8 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 	private static final String TAG = "UserNotes";
 
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
 		// integrateWithHistoryManager to ensure the previous document is loaded again when the user presses Back
         super.onCreate(savedInstanceState, true);

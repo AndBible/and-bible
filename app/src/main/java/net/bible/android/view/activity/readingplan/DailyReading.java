@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.readingplan;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -61,7 +62,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	}
 
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying one day reading plan");

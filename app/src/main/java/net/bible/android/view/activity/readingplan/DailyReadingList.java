@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.readingplan;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,7 +34,8 @@ public class DailyReadingList extends ListActivityBase {
     private ArrayAdapter<OneDaysReadingsDto> adapter;
 
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying General Book Key chooser");

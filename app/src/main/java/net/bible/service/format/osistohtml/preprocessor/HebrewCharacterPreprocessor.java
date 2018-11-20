@@ -30,7 +30,7 @@ public class HebrewCharacterPreprocessor implements TextPreprocessor {
 	 * Some characters are not handled well in Android 2.2 & 2.3 and need
 	 * special processing which for all except Sof Pasuq means removal
 	 * 
-	 * @param s
+	 * @param text
 	 * @return adjusted string
 	 */
 	@Override

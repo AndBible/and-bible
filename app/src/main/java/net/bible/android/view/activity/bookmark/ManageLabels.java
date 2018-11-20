@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.bookmark;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +39,8 @@ public class ManageLabels extends ListActivityBase {
 	private static final int LIST_ITEM_TYPE = R.layout.manage_labels_list_item;
 	
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.manage_labels);

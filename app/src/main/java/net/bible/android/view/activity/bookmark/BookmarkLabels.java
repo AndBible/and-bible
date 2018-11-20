@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.bookmark;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,18 +50,19 @@ public class BookmarkLabels extends ListActivityBase {
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
 	
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, false);
-        setContentView(R.layout.bookmark_labels);
+		super.onCreate(savedInstanceState, false);
+		setContentView(R.layout.bookmark_labels);
 
 		buildActivityComponent().inject(this);
 
-        long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
-        bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
+		long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
+		bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
 
-        initialiseView();
-    }
+		initialiseView();
+	}
 
     private void initialiseView() {
     	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);

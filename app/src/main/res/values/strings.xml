@@ -311,8 +311,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="speak_help_playback_settings_example">
         Usage example: Let us say that you want to listen to Genesis and Romans. You want to listen to
-        Genesis with speak speed 150%, and without interruptions between chapters, but when listening to
-        Romans you want to have 90% speak speed and hear audible earcon sound when chapter changes. You can have
+        Genesis with speak speed 150\%, and without interruptions between chapters, but when listening to
+        Romans you want to have 90\% speak speed and hear audible earcon sound when chapter changes. You can have
         independent playback settings for these books, when these settings are stored to bookmarks.
     </string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>

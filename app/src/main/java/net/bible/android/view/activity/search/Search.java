@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.search;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,7 +51,8 @@ public class Search extends CustomTitlebarActivityBase {
 	private static final String TAG = "Search";
 	
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search view");

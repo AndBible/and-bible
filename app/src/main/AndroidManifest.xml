@@ -148,10 +148,6 @@
                   android:label="@string/download"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
-        <activity android:name="net.bible.android.view.activity.download.DownloadStatus"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                  android:label="@string/progress_status">
-        </activity>
         <activity android:name="net.bible.android.view.activity.download.ProgressStatus"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale"
                   android:label="@string/progress_status">

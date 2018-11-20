@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.readingplan;
 
+ import android.annotation.SuppressLint;
  import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,7 +40,8 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Reading Plan List");

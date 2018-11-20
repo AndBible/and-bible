@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.search;
 
+ import android.annotation.SuppressLint;
  import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -56,7 +57,8 @@ public class SearchResults extends ListActivityBase {
 	}
 	
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search results view");
