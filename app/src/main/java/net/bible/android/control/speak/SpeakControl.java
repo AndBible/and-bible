@@ -485,7 +485,7 @@ public class SpeakControl {
 		SwordBook book = null;
 		PlaybackSettings playbackSettings = dto.getPlaybackSettings();
 		if(playbackSettings != null) {
-			book = (SwordBook) Books.installed().getBook(playbackSettings.getBookAbbreviation());
+			book = (SwordBook) Books.installed().getBook(playbackSettings.getBookId());
 		}
 		if (isSpeaking() || isPaused()) {
 			stop();

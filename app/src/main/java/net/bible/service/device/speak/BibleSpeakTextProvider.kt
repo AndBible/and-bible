@@ -313,7 +313,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 val playbackSettings = bookmarkDto.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
-                    playbackSettings.bookAbbreviation = null
+                    playbackSettings.BookId = null
                     settings.playbackSettings = playbackSettings
                     settings.save()
                     Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
@@ -352,7 +352,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
-            playbackSettings.bookAbbreviation = book.abbreviation
+            playbackSettings.BookId = book.abbreviation
 
             if(bookmarkDto == null) {
                 playbackSettings.bookmarkWasCreated = true

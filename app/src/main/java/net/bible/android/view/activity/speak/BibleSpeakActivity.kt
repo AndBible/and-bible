@@ -199,7 +199,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookAbbreviation?:"?"})")
+            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})")
             bookmarkDtos.add(b)
         }
 
