@@ -38,6 +38,7 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 import net.bible.service.device.speak.event.SpeakProgressEvent;
+import net.bible.service.sword.SwordDocumentFacade;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.Books;
@@ -62,6 +63,7 @@ public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+	private SwordDocumentFacade swordDocumentFacade;
 
 	private static final int NUM_LEFT_IDX = 3;
 	private static final NumPagesToSpeakDefinition[] BIBLE_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
@@ -93,9 +95,10 @@ public class SpeakControl {
 	private CurrentPageManager speakPageManager;
 
 	@Inject
-	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, SwordDocumentFacade swordDocumentFacade) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.swordDocumentFacade = swordDocumentFacade;
 		ABEventBus.getDefault().register(this);
 	}
 
@@ -187,13 +190,18 @@ public class SpeakControl {
 	}
 
 	public boolean isSpeaking() {
-		return textToSpeechServiceManager.get().isSpeaking();
+		return booksAvailable() && textToSpeechServiceManager.get().isSpeaking();
 	}
 
 	public boolean isPaused() {
-		return textToSpeechServiceManager.get().isPaused();
+		return booksAvailable() && textToSpeechServiceManager.get().isPaused();
 	}
 
+	private boolean booksAvailable() {
+		// By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
+		// (such as headphone switching in the initial startup screen)
+		return this.swordDocumentFacade.getBibles().size() > 0;
+	}
 	/** prepare to speak
 	 */
 	public void speakText() {
