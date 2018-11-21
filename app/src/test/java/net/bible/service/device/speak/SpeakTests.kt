@@ -960,6 +960,55 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
      }
 
     @Test
+    fun multiTranslationChapterAndMultipleVersifications() {
+        val book1 = Books.installed().getBook("FinSTLK2017") as SwordBook
+        val book2 = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(multiTranslation= true)
+        provider.setupReading(arrayListOf(book1, book2), getVerse("2Chr.13.23"))
+
+        val text1 = nextText()
+        val range1 = range()
+        val text2 = nextText()
+        val range2 = range()
+        val text3 = nextText()
+        val range3 = range()
+        val text4 = nextText()
+        val range4 = range()
+        val text5 = nextText()
+        val range5 = range()
+        val text6 = nextText()
+        val range6 = range()
+        val text7 = nextText()
+        val range7 = range()
+        val text8 = nextText()
+        val range8 = range()
+        assertThat(text1, startsWith("Aasa Juudan kuninkaana"))
+        assertThat(range1, equalTo("2Chr.13.23"))
+
+        assertThat(text2, startsWith("Abia meni lepoon"))
+        assertThat(range2, equalTo("2Chr.13.23"))
+
+        assertThat(text3, startsWith("Asa Reigns in Judah"))
+        assertThat(range3, equalTo("2Chr.13.23"))
+
+        assertThat(text4, startsWith("Abijah slept with his fathers"))
+        assertThat(range4, equalTo("2Chr.13.23"))
+
+        assertThat(text5, startsWith("Toinen Aikakirja Luku 14."))
+        assertThat(range5, equalTo("2Chr.14.1"))
+
+        assertThat(text6, startsWith("Aasa teki sitä"))
+        assertThat(range6, equalTo("2Chr.14.1"))
+
+        // Note: equalTo intentionally here. Fixed a bug that this was repeated.
+        assertThat(text7, equalTo("And Asa did what was good and right in the eyes of the Lord his God."))
+        assertThat(range7, equalTo("2Chr.14.1"))
+
+        assertThat(text8, startsWith("Hän poisti"))
+        assertThat(range8, equalTo("2Chr.14.2"))
+     }
+
+    @Test
     fun multiTranslation() {
         val book2 = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(multiTranslation= true)
