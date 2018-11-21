@@ -136,7 +136,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
 
     override fun resetView(settings: SpeakSettings) {
         sleepTimer.isChecked = settings.sleepTimer > 0
-        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
+        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         speakPauseButton.setImageResource(
                 if(speakControl.isSpeaking)
                     android.R.drawable.ic_media_pause

@@ -97,7 +97,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
-        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
+        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         speakPauseButton.setImageResource(
                 if(speakControl.isSpeaking)
                     android.R.drawable.ic_media_pause
@@ -172,7 +172,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onHelpButtonClick(button: View) {
         val htmlMessage = ("<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
                 + getString(R.string.speak_help_auto_bookmark)
-                + "<br><br><b>${getString(R.string.restore_settings_from_bookmarks)}</b><br><br>"
+                + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
                 + getString(R.string.speak_help_playback_settings)
                 + "<br><br>"
                 + getString(R.string.speak_help_playback_settings_example)

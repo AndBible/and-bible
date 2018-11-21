@@ -40,7 +40,7 @@
                             android:textColor="@color/speak_title_color"
                             android:padding="@dimen/speak_title_padding"
                             android:textStyle="bold"
-                            android:text="@string/conf_playback_settings"
+                            android:text="@string/playback_settings_title"
                             />
 
                     <TextView
@@ -49,7 +49,7 @@
                             android:textStyle="bold"
                             android:textColor="@color/speak_subtitle_color"
                             android:padding="@dimen/speak_subtitle_padding"
-                            android:text="@string/conf_speak"
+                            android:text="@string/speak_and_play_earcons_title"
                             />
 
                     <LinearLayout
@@ -145,7 +145,7 @@
                             android:padding="@dimen/speak_title_padding"
                             android:textStyle="bold"
                             android:textSize="@dimen/speak_titles_text_size"
-                            android:text="@string/conf_speak_settings"
+                            android:text="@string/speak_settings_title"
                             />
 
                     <CheckBox
@@ -159,7 +159,7 @@
                             android:layout_marginStart="@dimen/speak_row_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/conf_sleep_timer"
+                            android:text="@string/conf_speak_sleep_timer"
                             android:id="@+id/sleepTimer"
                             android:onClick="setSleepTime"
                             />
@@ -198,7 +198,7 @@
                             android:padding="@dimen/speak_title_padding"
                             android:layout_alignParentStart="true"
                             android:textStyle="bold"
-                            android:text="@string/conf_speak_bookmarking_settings"
+                            android:text="@string/speak_bookmarking_settings_title"
                             />
 
                     <ImageButton
@@ -228,7 +228,7 @@
                             android:onClick="onSettingsChange"/>
 
                     <CheckBox
-                            android:text="@string/restore_settings_from_bookmarks"
+                            android:text="@string/conf_save_playback_settings_to_bookmarks"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/restoreSettingsFromBookmarks"

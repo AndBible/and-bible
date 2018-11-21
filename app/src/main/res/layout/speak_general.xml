@@ -93,7 +93,7 @@
 			android:layout_below="@id/speakSpeed"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:text="@string/conf_sleep_timer"
+			android:text="@string/conf_speak_sleep_timer"
 			android:id="@+id/sleepTimer"
 			android:onClick="setSleepTime"
 			/>

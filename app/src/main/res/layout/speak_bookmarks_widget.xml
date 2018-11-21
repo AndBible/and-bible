@@ -14,7 +14,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:textStyle="bold"
-			android:text="@string/bookmarkwidget_helptext"
+			android:text="@string/widget_bookmark_helptext"
 			/>
 	<LinearLayout
 			android:id="@+id/layout"
