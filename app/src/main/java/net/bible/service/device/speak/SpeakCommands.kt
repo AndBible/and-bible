@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import net.bible.android.control.speak.SpeakSettings
+import java.util.*
 
 interface SpeakCommand {
     fun speak(tts: TextToSpeech, utteranceId: String)
@@ -60,6 +61,12 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
                 tts.playSilentUtterance(0, TextToSpeech.QUEUE_ADD, utteranceId)
             }
         }
+    }
+}
+
+class ChangeLanguageCommand(val language: Locale): SpeakCommand {
+    override fun speak(tts: TextToSpeech, utteranceId: String) {
+        tts.language = language
     }
 }
 

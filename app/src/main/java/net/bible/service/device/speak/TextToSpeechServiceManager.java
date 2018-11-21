@@ -125,11 +125,11 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speakBible(SwordBook book, Verse verse) {
+	public synchronized void speakBible(ArrayList<SwordBook> books, Verse verse) {
 		switchProvider(bibleSpeakTextProvider);
 		clearTtsQueue();
-		bibleSpeakTextProvider.setupReading(book, verse);
-		localePreferenceList = calculateLocalePreferenceList(book);
+		bibleSpeakTextProvider.setupReading(books, verse);
+		localePreferenceList = calculateLocalePreferenceList(books.get(0));
 		initializeTtsOrStartSpeaking();
 	}
 

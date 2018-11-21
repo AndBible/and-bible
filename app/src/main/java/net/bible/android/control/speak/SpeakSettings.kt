@@ -36,6 +36,7 @@ data class PlaybackSettings (
 
                          // Bookmark related metadata.
                          // Restoring bookmark from widget uses this.
+                         // TODO: rename this to bookId or something
                          @Optional var bookAbbreviation: String? = null,
                          @Optional var bookmarkWasCreated: Boolean? = null
 
