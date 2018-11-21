@@ -106,8 +106,9 @@ public class BookmarkDatabaseDefinition {
 
 	private void bootstrapDB(SQLiteDatabase db) {
 		Log.i(TAG, "Bootstrapping And Bible database (Bookmarks)");
-		
-        db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
+
+		//noinspection SyntaxError
+		db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
                 BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 BookmarkColumn.KEY + " TEXT NOT NULL," +
                 BookmarkColumn.VERSIFICATION + " TEXT," +

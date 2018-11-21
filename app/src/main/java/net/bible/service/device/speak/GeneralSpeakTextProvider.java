@@ -60,6 +60,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     private static final int MAX_SPEECH_ITEM_CHAR_LENGTH = 4000;
     
     // require DOTALL to allow . to match new lines which occur in books like JOChrist
+	@SuppressWarnings("Annotator")
 	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
 	private Book book = null;
 	private List<Key> keyList = null;

@@ -84,10 +84,11 @@ public class MyNoteDatabaseDefinition {
 	public void onCreate(SQLiteDatabase db) {
 		bootstrapDB(db);
 	}
-	
+
+	@SuppressWarnings("SyntaxError")
 	private void bootstrapDB(SQLiteDatabase db) {
 		Log.i(TAG, "Bootstrapping And Bible database (MyNotes)");
-		
+
 		db.execSQL("CREATE TABLE " + Table.MYNOTE + " (" +
         		MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
         		MyNoteColumn.KEY + " TEXT NOT NULL, " +
