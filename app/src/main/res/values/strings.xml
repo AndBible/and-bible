@@ -305,11 +305,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         and also other labels on bookmark, only Speak label will be removed and bookmark will stay.
     </string>
     <string name="speak_help_playback_settings">
-        There are three special playback settings:
-            Speak (chapter changes / titles),
-            Play earcon sounds for (chapter changes / titles) and
-            Speak speed.
-        If this option is enabled, those settings are saved to Speak bookmarks.
+        There are special playback settings (under \"Playback settings\" title in Speak screen)
+        that are saved to Speak bookmarks if this option is enabled.
         When you start speaking from such bookmark, these settings are read from the
         bookmark.
     </string>
