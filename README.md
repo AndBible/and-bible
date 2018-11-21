@@ -14,6 +14,11 @@ For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the
 Use Android Studio or IntelliJ IDEA to build And Bible.
 Pull requests are welcome!
 
+## Translators
+
+Everyone is welcome to help translating And Bible to different languages via
+easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
+
 ## Credits
 
 Original developer: [Martin Denham](http://github.com/mjdenham)
