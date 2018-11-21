@@ -35,8 +35,8 @@ import java.util.Stack
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
     val speakCommands = SpeakCommandArray()
 
-    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
-    private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
+    private enum class TagType {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
+    private data class StackEntry(val visible: Boolean, val tagType: TagType=TagType.NORMAL)
     private val elementStack = Stack<StackEntry>()
     private var divineNameOriginal: Array<String>
     private var divineNameReplace: Array<String>
@@ -73,7 +73,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             if((attrs?.getValue("type")?: "").equals("study") && speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PreFootnoteCommand(speakSettings))
-                elementStack.push(StackEntry(true, TAG_TYPE.FOOTNOTE))
+                elementStack.push(StackEntry(true, TagType.FOOTNOTE))
             }
             else {
                 elementStack.push(StackEntry(false))
@@ -81,10 +81,10 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             elementStack.push(StackEntry(false))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
-            elementStack.push(StackEntry(peekVisible, TAG_TYPE.DIVINE_NAME))
+            elementStack.push(StackEntry(peekVisible, TagType.DIVINE_NAME))
             divineNameLevel ++;
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
-            elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
+            elementStack.push(StackEntry(peekVisible, TagType.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
             titleLevel++;
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
@@ -93,7 +93,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
                 speakCommands.add(ParagraphChangeCommand())
-                elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRAPH))
+                elementStack.push(StackEntry(peekVisible, TagType.PARAGRAPH))
             }
             else {
                 elementStack.push(StackEntry(peekVisible))
@@ -104,7 +104,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             if(anyTextWritten) {
                 speakCommands.add(ParagraphChangeCommand())
             }
-            elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRAPH))
+            elementStack.push(StackEntry(peekVisible, TagType.PARAGRAPH))
         } else {
             elementStack.push(StackEntry(peekVisible))
         }
@@ -116,21 +116,21 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     ) {
         val state = elementStack.pop()
 
-        if(state.tagType == TAG_TYPE.PARAGRAPH) {
+        if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {
                 anyTextWritten = false;
             }
         }
-        else if(state.tagType == TAG_TYPE.TITLE) {
+        else if(state.tagType == TagType.TITLE) {
             if (speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
             titleLevel--;
         }
-        else if(state.tagType == TAG_TYPE.DIVINE_NAME) {
+        else if(state.tagType == TagType.DIVINE_NAME) {
             divineNameLevel--;
         }
-        else if(state.tagType == TAG_TYPE.FOOTNOTE) {
+        else if(state.tagType == TagType.FOOTNOTE) {
             if(speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PostFootnoteCommand(speakSettings))
             }
