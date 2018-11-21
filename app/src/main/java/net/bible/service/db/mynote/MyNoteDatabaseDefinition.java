@@ -73,7 +73,7 @@ public class MyNoteDatabaseDefinition {
 
     /**
      * Private constructor, callers except unit tests should obtain an instance through
-     * {@link #getInstance(android.content.Context)} instead.
+     * { link #getInstance(android.content.Context)} instead.
      */
     private MyNoteDatabaseDefinition() {
     }
