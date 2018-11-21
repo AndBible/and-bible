@@ -917,6 +917,84 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         val text1 = nextText()
         assertThat(text1, endsWith("Tulet tietämään, että minä olen Jahve."))
     }
+    @Test
+    fun multiTranslationChapterChange() {
+        val book2 = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(multiTranslation= true)
+        provider.setupReading(arrayListOf(book, book2), getVerse("Ezra.3.13"))
+
+        val text1 = nextText()
+        val range1 = range()
+        val text2 = nextText()
+        val range2 = range()
+        val text3 = nextText()
+        val range3 = range()
+        val text4 = nextText()
+        val range4 = range()
+        val text5 = nextText()
+        val range5 = range()
+        val text6 = nextText()
+        val range6 = range()
+        val text7 = nextText()
+        val range7 = range()
+        assertThat(text1, startsWith("Raikuvaa"))
+        assertThat(range1, equalTo("Ezra.3.13"))
+
+        assertThat(text2, startsWith("so that"))
+        assertThat(range2, equalTo("Ezra.3.13"))
+
+        assertThat(text3, startsWith("Esra Luku 4."))
+        assertThat(range3, equalTo("Ezra.4.1"))
+
+        assertThat(text4, startsWith("Vastustajat juonittelevat"))
+        assertThat(range4, equalTo("Ezra.4.1"))
+
+        assertThat(text5, startsWith("Kun Juudan ja Benjaminin"))
+        assertThat(range5, equalTo("Ezra.4.1"))
+
+        assertThat(text6, startsWith("Adversaries Oppose the Rebuilding"))
+        assertThat(range6, equalTo("Ezra.4.1"))
+
+        assertThat(text7, startsWith("Now when the adversaries of Judah"))
+        assertThat(range7, equalTo("Ezra.4.1"))
+     }
+
+    @Test
+    fun multiTranslation() {
+        val book2 = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(multiTranslation= true)
+        provider.setupReading(arrayListOf(book, book2), getVerse("Ezra.4.8"))
+
+        val text1 = nextText()
+        val range1 = range()
+        val text2 = nextText()
+        val range2 = range()
+        val text3 = nextText()
+        val range3 = range()
+        val text4 = nextText()
+        val range4 = range()
+        val text5 = nextText()
+        val range5 = range()
+        assertThat(text1, startsWith("Käskynhaltija"))
+        assertThat(text1, endsWith("joka alkoi näin:"))
+        assertThat(range1, equalTo("Ezra.4.8"))
+
+        assertThat(text2, startsWith("Rehum the commander and Shimshai"))
+        assertThat(text2, endsWith("as follows:"))
+        assertThat(range2, equalTo("Ezra.4.8"))
+
+        assertThat(text3, startsWith("Silloin ja silloin. "))
+        assertThat(text3, endsWith(", eelamilaiset"))
+        assertThat(range3, equalTo("Ezra.4.9"))
+
+        assertThat(text4, startsWith("Rehum the commander, Shimshai the scribe"))
+        assertThat(text4, endsWith("is, the Elamites,"))
+        assertThat(range4, equalTo("Ezra.4.9"))
+
+        assertThat(text5, startsWith("ja muut kansat, "))
+        assertThat(text5, endsWith("ja niin edelleen."))
+        assertThat(range5, equalTo("Ezra.4.10"))
+     }
 
 
     @Config(qualifiers="en")

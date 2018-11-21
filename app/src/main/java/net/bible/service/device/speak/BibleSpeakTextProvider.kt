@@ -231,11 +231,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             } else {
                 currentVerse = getNextVerse(verse)
             }
-            endVerse = verse
         }
         else {
             currentVerse = getNextVerse(verse)
         }
+        endVerse = verse
 
         return cmds;
     }
