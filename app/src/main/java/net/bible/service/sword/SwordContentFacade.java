@@ -26,6 +26,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.control.speak.SpeakSettings;
+import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
@@ -53,6 +54,7 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
@@ -260,14 +262,15 @@ public class SwordContentFacade {
 		}
 	}
 
-    public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
+    public SpeakCommandArray getSpeakCommands(SpeakSettings settings, SwordBook book, Verse verse) {
+    	VersificationConverter v11nConverter = new VersificationConverter();
+    	Verse verse_ = v11nConverter.convert(verse, book.getVersification());
 		SpeakCommandArray lst = new SpeakCommandArray();
-		if (verse.getVerse() == 1) {
+		if (verse_.getVerse() == 1) {
 			lst.addAll(getSpeakCommandsForVerse(settings, book,
-					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));
+					new Verse(book.getVersification(), verse_.getBook(), verse_.getChapter(), 0)));
 		}
-
-		lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
+		lst.addAll(getSpeakCommandsForVerse(settings, book, verse_));
 		return lst;
     }
 

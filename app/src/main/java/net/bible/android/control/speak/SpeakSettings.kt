@@ -36,7 +36,7 @@ data class PlaybackSettings (
 
                          // Bookmark related metadata.
                          // Restoring bookmark from widget uses this.
-                         @Optional var bookAbbreviation: String? = null,
+                         @Optional var BookId: String? = null,
                          @Optional var bookmarkWasCreated: Boolean? = null
 
 ) {
@@ -67,6 +67,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
                          @Optional var sleepTimer: Int = 0,
                          @Optional var lastSleepTimer: Int = 10,
+                         @Optional var multiTranslation: Boolean = false,
                          // General book speak settings
                          @Optional var queue: Boolean = true,
                          @Optional var repeat: Boolean = false,

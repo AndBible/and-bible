@@ -104,6 +104,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else
                 android.R.drawable.ic_media_play
         )
+        multiTranslation.isChecked = settings.multiTranslation
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
@@ -140,7 +141,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 replaceDivineName = replaceDivineName.isChecked,
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer,
-                lastSleepTimer = currentSettings.lastSleepTimer
+                lastSleepTimer = currentSettings.lastSleepTimer,
+                multiTranslation = multiTranslation.isChecked
         )
         settings.save(updateBookmark = true)
     }
@@ -197,7 +199,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookAbbreviation?:"?"})")
+            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})")
             bookmarkDtos.add(b)
         }
 

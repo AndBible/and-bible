@@ -31,6 +31,8 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowRepository;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
@@ -63,6 +65,7 @@ public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+	private final WindowRepository windowRepository;
 	private SwordDocumentFacade swordDocumentFacade;
 
 	private static final int NUM_LEFT_IDX = 3;
@@ -95,10 +98,15 @@ public class SpeakControl {
 	private CurrentPageManager speakPageManager;
 
 	@Inject
-	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, SwordDocumentFacade swordDocumentFacade) {
+	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager,
+						ActiveWindowPageManagerProvider activeWindowPageManagerProvider,
+						SwordDocumentFacade swordDocumentFacade,
+						WindowRepository windowRepository
+	) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 		this.swordDocumentFacade = swordDocumentFacade;
+		this.windowRepository = windowRepository;
 		ABEventBus.getDefault().register(this);
 	}
 
@@ -108,6 +116,15 @@ public class SpeakControl {
 		stopTimer();
 		sleepTimer.cancel();
 		sleepTimer = null;
+	}
+
+	public void onEventMainThread(SpeakProgressEvent event) {
+		if(event.getSynchronize()) {
+			if(speakPageManager == null) {
+				speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
+			}
+			speakPageManager.setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
+		}
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -239,6 +256,11 @@ public class SpeakControl {
 	}
 
 	public void speakBible(SwordBook book, Verse verse) {
+		getCurrentBooks(book);
+		speakBible(verse);
+	}
+
+	public void speakBible(ArrayList<SwordBook> books, Verse verse) {
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			stop();
@@ -247,7 +269,7 @@ public class SpeakControl {
 		prepareForSpeaking();
 
 		try {
-			textToSpeechServiceManager.get().speakBible(book, verse);
+			textToSpeechServiceManager.get().speakBible(books, verse);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
@@ -257,24 +279,38 @@ public class SpeakControl {
 	public void speakBible() {
 		speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		CurrentPage page = speakPageManager.getCurrentPage();
-		Book fromBook = page.getCurrentDocument();
-		speakBible((SwordBook) fromBook, (Verse) page.getSingleKey());
+		speakBible((Verse) page.getSingleKey());
 	}
 
-	public void onEventMainThread(SpeakProgressEvent event) {
-		if(event.getSynchronize()) {
-			if(speakPageManager == null) {
-				speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
-			}
-			speakPageManager.setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
+	private ArrayList<SwordBook> getCurrentBooks(Book firstBook) {
+		ArrayList<SwordBook> books = new ArrayList<>();
+
+		if(firstBook == null) {
+			firstBook = activeWindowPageManagerProvider
+					.getActiveWindowPageManager()
+					.getCurrentPage()
+					.getCurrentDocument();
 		}
+		books.add((SwordBook) firstBook);
+
+		for(Window w: windowRepository.getVisibleWindows()) {
+			CurrentPage p = w.getPageManager().getCurrentPage();
+			Book book = w.getPageManager().getCurrentPage().getCurrentDocument();
+			if(book != firstBook && p.getBookCategory() == BookCategory.BIBLE) {
+				books.add((SwordBook) book);
+			}
+		}
+		return books;
 	}
 
-	public void speakBible(Verse verse) {
-		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
-		Book fromBook = page.getCurrentDocument();
-		speakBible((SwordBook) fromBook, verse);
+	private ArrayList<SwordBook> getCurrentBooks() {
+		return getCurrentBooks(null);
 	}
+
+	private void speakBible(Verse verse) {
+		speakBible(getCurrentBooks(), verse);
+	}
+
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		prepareForSpeaking();
@@ -449,7 +485,7 @@ public class SpeakControl {
 		SwordBook book = null;
 		PlaybackSettings playbackSettings = dto.getPlaybackSettings();
 		if(playbackSettings != null) {
-			book = (SwordBook) Books.installed().getBook(playbackSettings.getBookAbbreviation());
+			book = (SwordBook) Books.installed().getBook(playbackSettings.getBookId());
 		}
 		if (isSpeaking() || isPaused()) {
 			stop();

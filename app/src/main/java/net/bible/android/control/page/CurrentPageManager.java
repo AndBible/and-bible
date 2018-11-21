@@ -74,6 +74,10 @@ public class CurrentPageManager {
 		currentDisplayedPage = currentBiblePage;
 	}
 
+	public Window getWindow() {
+		return window;
+	}
+
 	public void setWindow(Window window) {
 		this.window = window;
 	}

@@ -65,6 +65,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override val numItemsToTts = 100
     private var book = initialBook
+    private var otherBooks = ArrayList<SwordBook>()
     private var startVerse = initialVerse
     private var endVerse = initialVerse
     private var bookmarkDto : BookmarkDto? = null
@@ -133,9 +134,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(book: SwordBook, verse: Verse) {
+    fun setupReading(books: ArrayList<SwordBook>, verse: Verse) {
         reset()
-        setupBook(book)
+        otherBooks.clear()
+        otherBooks.addAll(books)
+        setupBook(otherBooks.removeAt(0))
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -169,6 +172,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
         }
         cmds.addAll(getSpeakCommandsForVerse(verse))
+        if(settings.multiTranslation) {
+            for(b in otherBooks) {
+                cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
+                cmds.addAll(getSpeakCommandsForVerse(verse, b))
+            }
+            cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
+        }
         return cmds
     }
 
@@ -203,25 +213,28 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         cmds.addAll(getCommandsForVerse(endVerse, verse))
 
-        // If verse does not end in period, add the part before period to the current reading
-        val rest = SpeakCommandArray()
+        if(!settings.multiTranslation) {
+            // If verse does not end in period, add the part before period to the current reading
+            val rest = SpeakCommandArray()
 
-        while(!cmds.endsSentence) {
-            val nextVerse = getNextVerse(verse)
-            val nextCommands = getCommandsForVerse(verse, nextVerse)
+            while (!cmds.endsSentence) {
+                val nextVerse = getNextVerse(verse)
+                val nextCommands = getCommandsForVerse(verse, nextVerse)
 
-            cmds.addUntilSentenceBreak(nextCommands, rest)
-            verse = nextVerse
-        }
+                cmds.addUntilSentenceBreak(nextCommands, rest)
+                verse = nextVerse
+            }
 
-        if(rest.isNotEmpty()) {
-            readList.addAll(rest)
-            currentVerse = verse
+            if (rest.isNotEmpty()) {
+                readList.addAll(rest)
+                currentVerse = verse
+            } else {
+                currentVerse = getNextVerse(verse)
+            }
         }
         else {
             currentVerse = getNextVerse(verse)
         }
-
         endVerse = verse
 
         return cmds;
@@ -247,11 +260,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
     }
 
-    private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommandArray {
-        var cmds = verseRenderLruCache.get(Pair(book, verse))
+    private fun getSpeakCommandsForVerse(verse: Verse, book: SwordBook? = null): SpeakCommandArray {
+        val book_ = book ?: this.book
+        var cmds = verseRenderLruCache.get(Pair(book_, verse))
         if(cmds == null) {
-            cmds = swordContentFacade.getSpeakCommands(settings, book, verse)
-            verseRenderLruCache.put(Pair(book, verse), cmds)
+            cmds = swordContentFacade.getSpeakCommands(settings, book_, verse)
+            verseRenderLruCache.put(Pair(book_, verse), cmds)
         }
         return cmds.copy()
     }
@@ -299,7 +313,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 val playbackSettings = bookmarkDto.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
-                    playbackSettings.bookAbbreviation = null
+                    playbackSettings.BookId = null
                     settings.playbackSettings = playbackSettings
                     settings.save()
                     Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
@@ -338,7 +352,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
-            playbackSettings.bookAbbreviation = book.abbreviation
+            playbackSettings.BookId = book.abbreviation
 
             if(bookmarkDto == null) {
                 playbackSettings.bookmarkWasCreated = true
@@ -475,6 +489,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         utteranceState.clear()
         currentUtteranceId = ""
         verseRenderLruCache.evictAll()
+        otherBooks.clear()
     }
 
     override fun persistState() {

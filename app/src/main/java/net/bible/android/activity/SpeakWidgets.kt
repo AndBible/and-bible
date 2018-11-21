@@ -198,7 +198,7 @@ class SpeakWidgetManager {
 
             for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                     Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
-                addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookAbbreviation?:"?"})", b.verseRange.start.osisRef)
+                addButton("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})", b.verseRange.start.osisRef)
                 Log.d(TAG, "Added button for $b")
             }
         }
