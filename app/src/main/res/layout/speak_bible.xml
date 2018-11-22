@@ -37,7 +37,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/speak_titles_text_size"
-                            android:textColor="@color/speak_title_color"
                             android:padding="@dimen/speak_title_padding"
                             android:textStyle="bold"
                             android:text="@string/playback_settings_title"
@@ -47,7 +46,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
-                            android:textColor="@color/speak_subtitle_color"
                             android:padding="@dimen/speak_subtitle_padding"
                             android:text="@string/speak_and_play_earcons_title"
                             />
@@ -95,7 +93,6 @@
                         <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/speak_subtitle_color"
                                 android:padding="@dimen/speak_subtitle_padding"
                                 android:textStyle="bold"
                                 android:text="@string/speak_speed_title"/>
@@ -103,7 +100,6 @@
                         <TextView
                                 android:text="SPEED"
                                 android:layout_width="match_parent"
-                                android:textColor="@color/speak_subtitle_color"
                                 android:layout_height="wrap_content"
                                 android:id="@+id/speedStatus"
                                 android:gravity="end"
@@ -141,7 +137,6 @@
                     <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/speak_title_color"
                             android:padding="@dimen/speak_title_padding"
                             android:textStyle="bold"
                             android:textSize="@dimen/speak_titles_text_size"
@@ -201,7 +196,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/speak_titles_text_size"
-                            android:textColor="@color/speak_title_color"
                             android:padding="@dimen/speak_title_padding"
                             android:layout_alignParentStart="true"
                             android:textStyle="bold"
@@ -262,9 +256,8 @@
                 android:paddingTop="5dip"
                 android:paddingBottom="5dip"
                 android:paddingStart="@dimen/speak_row_padding"
-                android:textColor="@color/speak_subtitle_color"
                 android:id="@+id/statusText"
-                android:background="@color/blue_grey_50"
+                android:background="@color/speak_status_background"
                 android:text="*Gen.1.1*"/>
 
         <!-- Button bar with OK button -->
