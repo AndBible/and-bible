@@ -393,10 +393,15 @@ public class SpeakControl {
 	}
 
 	public void onEvent(NumberOfWindowsChangedEvent ev) {
-		if (isSpeaking() && SpeakSettings.Companion.load().getMultiTranslation()) {
-			pause(true);
-			continueAfterPause(true);
-		}
+        Thread work = new Thread(new Runnable() {
+            public void run() {
+				if (isSpeaking() && SpeakSettings.Companion.load().getMultiTranslation()) {
+					pause(true);
+					continueAfterPause(true);
+				}
+			}
+        });
+        work.start();
 	}
 
 	public void onEvent(SpeakSettingsChangedEvent ev) {
