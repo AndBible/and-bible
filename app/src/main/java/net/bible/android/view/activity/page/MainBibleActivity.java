@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -45,6 +46,7 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
@@ -518,6 +520,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setBibleKeyHandler(BibleKeyHandler bibleKeyHandler) {
 		this.bibleKeyHandler = bibleKeyHandler;
+	}
+
+	void onEventMainThread(ToastEvent ev) {
+		int duration = ev.getDuration() == null ? Toast.LENGTH_SHORT : ev.getDuration();
+		Toast.makeText(this, ev.getMessage(), duration).show();
 	}
 }
 
