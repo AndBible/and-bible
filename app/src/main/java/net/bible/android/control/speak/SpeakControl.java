@@ -407,25 +407,25 @@ public class SpeakControl {
 	}
 
 	public void onEvent(final SpeakSettingsChangedEvent ev) {
-		Thread work = new Thread(new Runnable() {
-			public void run() {
-				textToSpeechServiceManager.get().updateSettings(ev);
-				if(!isPaused() && !isSpeaking()) {
-					// if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
-					if(ev.getUpdateBookmark()) {
-						bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
-					}
-				}
-				else if (isSpeaking()) {
+		textToSpeechServiceManager.get().updateSettings(ev);
+		if(!isPaused() && !isSpeaking()) {
+			// if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
+			if(ev.getUpdateBookmark()) {
+				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
+			}
+		}
+		else if (isSpeaking()) {
+			Thread work = new Thread(new Runnable() {
+				public void run() {
 					pause(true);
 					if(ev.getSleepTimerChanged()){
 						enableSleepTimer(ev.getSpeakSettings().getSleepTimer());
 					}
 					continueAfterPause(true);
 				}
-			}
-		});
-		work.start();
+			});
+			work.start();
+		}
 	}
 
 	public String getStatusText(int showFlag) {
