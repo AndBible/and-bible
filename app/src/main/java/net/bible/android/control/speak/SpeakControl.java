@@ -28,10 +28,10 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
-import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowRepository;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
@@ -256,11 +256,6 @@ public class SpeakControl {
 	}
 
 	public void speakBible(SwordBook book, Verse verse) {
-		getCurrentBooks(book);
-		speakBible(verse);
-	}
-
-	public void speakBible(ArrayList<SwordBook> books, Verse verse) {
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			stop();
@@ -269,7 +264,7 @@ public class SpeakControl {
 		prepareForSpeaking();
 
 		try {
-			textToSpeechServiceManager.get().speakBible(books, verse);
+			textToSpeechServiceManager.get().speakBible(book, verse);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
@@ -282,33 +277,15 @@ public class SpeakControl {
 		speakBible((Verse) page.getSingleKey());
 	}
 
-	private ArrayList<SwordBook> getCurrentBooks(Book firstBook) {
-		ArrayList<SwordBook> books = new ArrayList<>();
-
-		if(firstBook == null) {
-			firstBook = activeWindowPageManagerProvider
-					.getActiveWindowPageManager()
-					.getCurrentPage()
-					.getCurrentDocument();
-		}
-		books.add((SwordBook) firstBook);
-
-		for(Window w: windowRepository.getVisibleWindows()) {
-			CurrentPage p = w.getPageManager().getCurrentPage();
-			Book book = w.getPageManager().getCurrentPage().getCurrentDocument();
-			if(book != firstBook && p.getBookCategory() == BookCategory.BIBLE) {
-				books.add((SwordBook) book);
-			}
-		}
-		return books;
-	}
-
-	private ArrayList<SwordBook> getCurrentBooks() {
-		return getCurrentBooks(null);
+	private Book getCurrentBook() {
+        return activeWindowPageManagerProvider
+                .getActiveWindowPageManager()
+                .getCurrentPage()
+                .getCurrentDocument();
 	}
 
 	private void speakBible(Verse verse) {
-		speakBible(getCurrentBooks(), verse);
+		speakBible((SwordBook) getCurrentBook(), verse);
 	}
 
 
@@ -413,6 +390,13 @@ public class SpeakControl {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
 		enableSleepTimer(SpeakSettings.Companion.load().getSleepTimer());
+	}
+
+	public void onEvent(NumberOfWindowsChangedEvent ev) {
+		if (isSpeaking() && SpeakSettings.Companion.load().getMultiTranslation()) {
+			pause(true);
+			continueAfterPause(true);
+		}
 	}
 
 	public void onEvent(SpeakSettingsChangedEvent ev) {

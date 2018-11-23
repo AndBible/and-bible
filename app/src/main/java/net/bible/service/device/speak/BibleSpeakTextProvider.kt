@@ -33,9 +33,11 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
@@ -45,6 +47,7 @@ import kotlin.collections.HashMap
 class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
+                             private val windowRepository: WindowRepository,
                              initialBook: SwordBook,
                              initialVerse: Verse) : SpeakTextProvider {
 
@@ -65,7 +68,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override val numItemsToTts = 100
     private var book = initialBook
-    private var otherBooks = ArrayList<SwordBook>()
     private var startVerse = initialVerse
     private var endVerse = initialVerse
     private var bookmarkDto : BookmarkDto? = null
@@ -134,14 +136,29 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(books: ArrayList<SwordBook>, verse: Verse) {
+    fun setupReading(book: SwordBook, verse: Verse) {
         reset()
-        otherBooks.clear()
-        otherBooks.addAll(books)
-        setupBook(otherBooks.removeAt(0))
+        setupBook(book)
         currentVerse = verse
         startVerse = verse
         endVerse = verse
+    }
+
+    private fun getCurrentBooks(): ArrayList<SwordBook> {
+        val books = ArrayList<SwordBook>()
+        val firstBook = windowRepository.activeWindow.pageManager.currentPage.currentDocument
+
+        if(firstBook.bookCategory == BookCategory.BIBLE) {
+            books.add(firstBook as SwordBook)
+        }
+
+        for (w in windowRepository.visibleWindows) {
+            val book = w.pageManager.currentPage.currentDocument
+            if (book !== firstBook && book.bookCategory == BookCategory.BIBLE) {
+                books.add(book as SwordBook)
+            }
+        }
+        return books
     }
 
     private fun skipEmptyVerses(verse: Verse): Verse {
@@ -171,13 +188,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 cmds.add(SilenceCommand())
             }
         }
-        cmds.addAll(getSpeakCommandsForVerse(verse))
         if(settings.multiTranslation) {
-            for(b in otherBooks) {
+            for(b in getCurrentBooks()) {
                 cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
                 cmds.addAll(getSpeakCommandsForVerse(verse, b))
             }
             cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
+        } else {
+            cmds.addAll(getSpeakCommandsForVerse(verse))
         }
         return cmds
     }
@@ -489,7 +507,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         utteranceState.clear()
         currentUtteranceId = ""
         verseRenderLruCache.evictAll()
-        otherBooks.clear()
     }
 
     override fun persistState() {

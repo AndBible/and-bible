@@ -107,13 +107,17 @@ public class TextToSpeechServiceManager {
 
 	@Inject
 	public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
-									  WindowControl windowControl, BookmarkControl bookmarkControl) {
+									  WindowControl windowControl, BookmarkControl bookmarkControl
+	) {
 		Log.d(TAG, "Creating TextToSpeechServiceManager");
 		generalSpeakTextProvider = new GeneralSpeakTextProvider(swordContentFacade);
 		SwordBook book = (SwordBook) windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
 		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 
-		bibleSpeakTextProvider = new BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
+		bibleSpeakTextProvider = new BibleSpeakTextProvider(
+				swordContentFacade, bibleTraverser, bookmarkControl,
+				windowControl.getWindowRepository(), book, verse
+		);
 		mSpeakTextProvider = bibleSpeakTextProvider;
 
 		mSpeakTiming = new SpeakTiming();
@@ -125,11 +129,11 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speakBible(ArrayList<SwordBook> books, Verse verse) {
+	public synchronized void speakBible(SwordBook book, Verse verse) {
 		switchProvider(bibleSpeakTextProvider);
 		clearTtsQueue();
-		bibleSpeakTextProvider.setupReading(books, verse);
-		localePreferenceList = calculateLocalePreferenceList(books.get(0));
+		bibleSpeakTextProvider.setupReading(book, verse);
+		localePreferenceList = calculateLocalePreferenceList(book);
 		initializeTtsOrStartSpeaking();
 	}
 
