@@ -144,7 +144,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         endVerse = verse
     }
 
+    // For tests. In production this is always null.
+    var mockedBooks: ArrayList<SwordBook>? = null
+
     private fun getCurrentBooks(): ArrayList<SwordBook> {
+        if(mockedBooks != null) {
+            return mockedBooks as ArrayList<SwordBook>
+        }
         val books = ArrayList<SwordBook>()
         val firstBook = windowRepository.activeWindow.pageManager.currentPage.currentDocument
 

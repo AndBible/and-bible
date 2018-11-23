@@ -6,6 +6,7 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
@@ -242,6 +243,7 @@ open class AbstractSpeakTests {
         val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
         val documentBibleBooksFactory = DocumentBibleBooksFactory()
         val windowControl = mock(WindowControl::class.java)
+        val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(swordContentFacade, windowControl, mock(AndroidResourceProvider::class.java))
     }
@@ -415,8 +417,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, getVerse("Ps.14.1"))
-        provider.setupReading(arrayListOf(book), getVerse("Exod.31.8"))
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
         assertThat(cmd.text, endsWith("heitä tekemään.\""))
@@ -459,13 +461,13 @@ class TestPersistence : AbstractSpeakTests() {
     override fun setup() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-                book, getVerse("Ps.14.1"))
+                windowRepository, book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
     @Test
     fun storePersistence() {
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
         val sharedPreferences = CommonUtils.getSharedPreferences()
         provider.persistState()
         assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.1"))
@@ -477,7 +479,7 @@ class TestPersistence : AbstractSpeakTests() {
         val sharedPreferences = CommonUtils.getSharedPreferences()
         sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
         sharedPreferences.edit().putString("SpeakBibleVerse", "Ps.14.1").apply()
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
         sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
         sharedPreferences.edit().putString("SpeakBibleVerse", "Rom.5.1").apply()
         provider.restoreState()
@@ -495,7 +497,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     override fun setup() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-                book, getVerse("Ps.14.1"))
+                windowRepository, book, getVerse("Ps.14.1"))
         bookmarkControl.getOrCreateSpeakLabel()
         provider.settings = SpeakSettings(autoBookmark = true)
     }
@@ -509,7 +511,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Test
     fun autoBookmarkDisabled() {
         provider.settings = SpeakSettings(autoBookmark = false)
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
@@ -526,7 +528,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
 
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
         dto = bookmarkControl.getBookmarkByKey(verse)!!
@@ -552,7 +554,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         dto = bookmarkControl.addOrUpdateBookmark(dto)
 
         assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
         provider.pause();
@@ -589,7 +591,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
 
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
@@ -640,7 +642,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
 
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
 
@@ -684,7 +686,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val verse = getVerse("Ps.14.1")
         assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
 
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
         provider.pause();
@@ -730,7 +732,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
 
-        provider.setupReading(arrayListOf(book), verse)
+        provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
         dto = bookmarkControl.getBookmarkByKey(verse)!!
@@ -754,7 +756,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Test
     fun autoBookmarkOnPauseCreateNewSaveSettings() {
         provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
         val labelDto = bookmarkControl.getOrCreateSpeakLabel()
@@ -779,7 +781,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkOnPauseCreateNew() {
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
         val labelDto = bookmarkControl.getOrCreateSpeakLabel()
@@ -806,7 +808,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkOnStop() {
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.2"))
+        provider.setupReading(book, getVerse("Ps.14.2"))
         provider.prepareForStartSpeaking()
         text = nextText()
         provider.stop();
@@ -814,7 +816,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.2"))
+        provider.setupReading(book, getVerse("Ps.14.2"))
         provider.prepareForStartSpeaking()
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
@@ -827,7 +829,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     override fun setup() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-                book, getVerse("Ps.14.1"))
+                windowRepository, book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
@@ -841,7 +843,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun textProgression() {
-        provider.setupReading(arrayListOf(book), getVerse("Ps.14.1"))
+        provider.setupReading(book, getVerse("Ps.14.1"))
 
         text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
@@ -853,7 +855,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Herra katsoo"))
         assertThat(text, endsWith("etsii Jumalaa."))
 
-        provider.setupReading(arrayListOf(book), getVerse("Ps.13.6"))
+        provider.setupReading(book, getVerse("Ps.13.6"))
         text = nextText()
         assertThat(range(), equalTo("Ps.13.6"))
         assertThat(text, startsWith("Mutta minä"))
@@ -871,7 +873,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression2STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider.setupReading(arrayListOf(book), getVerse("Ezra.4.8"))
+        provider.setupReading(book, getVerse("Ezra.4.8"))
 
         val text1 = nextText()
         val range1 = range()
@@ -888,7 +890,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgression3STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.34.27"))
+        provider.setupReading(book, getVerse("Ezek.34.27"))
 
         val text1 = nextText()
         val range1 = range()
@@ -902,7 +904,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgression4STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.35.1"))
+        provider.setupReading(book, getVerse("Ezek.35.1"))
         nextText() // title
         val text1 = nextText()
         assertThat(text1, startsWith("Minulle tuli tämä Jahven sana, ja se kuului: \"Ihmislapsi, käännä"))
@@ -913,7 +915,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgression5STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.35.4"))
+        provider.setupReading(book, getVerse("Ezek.35.4"))
         val text1 = nextText()
         assertThat(text1, endsWith("Tulet tietämään, että minä olen Jahve."))
     }
@@ -921,7 +923,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun multiTranslationChapterChange() {
         val book2 = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(multiTranslation= true)
-        provider.setupReading(arrayListOf(book, book2), getVerse("Ezra.3.13"))
+        provider.mockedBooks = arrayListOf(book, book2)
+        provider.setupReading(book, getVerse("Ezra.3.13"))
 
         val text1 = nextText()
         val range1 = range()
@@ -964,7 +967,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         val book1 = Books.installed().getBook("FinSTLK2017") as SwordBook
         val book2 = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(multiTranslation= true)
-        provider.setupReading(arrayListOf(book1, book2), getVerse("2Chr.13.23"))
+        provider.mockedBooks = arrayListOf(book1, book2)
+        provider.setupReading(book1, getVerse("2Chr.13.23"))
 
         val text1 = nextText()
         val range1 = range()
@@ -1012,8 +1016,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun multiTranslation() {
         val book2 = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(multiTranslation= true)
-        provider.setupReading(arrayListOf(book, book2), getVerse("Ezra.4.8"))
-
+        provider.setupReading(book, getVerse("Ezra.4.8"))
+        provider.mockedBooks = arrayListOf(book, book2)
         val text1 = nextText()
         val range1 = range()
         val text2 = nextText()
@@ -1051,7 +1055,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgressionESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.34.27"))
+        provider.setupReading(book, getVerse("Ezek.34.27"))
 
         val text1 = nextText()
         val range1 = range()
@@ -1066,7 +1070,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgression2ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.36.2"))
+        provider.setupReading(book, getVerse("Ezek.36.2"))
 
         val text1 = nextText()
         assertThat(text1, startsWith("Thus says the Lord Yahweh: Because the enemy said of you, Aha! and, The ancient heights have become our possession,"))
@@ -1077,7 +1081,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgression3ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.36.16"))
+        provider.setupReading(book, getVerse("Ezek.36.16"))
 
         val text1 = nextText()// Title
         assertThat(text1, startsWith("The Yahweh's Concern for His Holy Name"))
@@ -1087,7 +1091,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true, playbackSettings = PlaybackSettings(speakChapterChanges = false))
-        provider.setupReading(arrayListOf(book), getVerse("Ezek.36.38"))
+        provider.setupReading(book, getVerse("Ezek.36.38"))
 
         val text1 = nextText()
         assertThat(text1, endsWith("että minä olen Herra.\""))
@@ -1098,7 +1102,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun testBookWithoutOldTestament() {
         val book = Books.installed().getBook("ISV") as SwordBook
 
-        provider.setupReading(arrayListOf(book), getVerse("Rev.22.21"))
+        provider.setupReading(book, getVerse("Rev.22.21"))
         assertThat(range(), equalTo("Rev.22.21"))
         text = nextText()
         assertThat(range(), equalTo("Rev.22.21"))
@@ -1113,7 +1117,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun chapterChangeMessage() {
-        provider.setupReading(arrayListOf(book), getVerse("Rom.1.1"))
+        provider.setupReading(book, getVerse("Rom.1.1"))
         text = nextText()
         assertThat(range(), equalTo("Rom.1.1-Rom.1.3"))
         assertThat(text, startsWith("Paavali, "))
@@ -1124,12 +1128,12 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Lihan puolesta"))
         assertThat(text, endsWith("Jumalan Pojaksi voimassa."))
 
-        provider.setupReading(arrayListOf(book), getVerse("Acts.28.31"))
+        provider.setupReading(book, getVerse("Acts.28.31"))
         text = nextText()
         assertThat(range(), equalTo("Acts.28.31"))
         text = nextText()
         checkRomansBeginning()
-        provider.setupReading(arrayListOf(book), getVerse("Acts.28.30"))
+        provider.setupReading(book, getVerse("Acts.28.30"))
         text = nextText()
         assertThat(range(), equalTo("Acts.28.30"))
         text = nextText()
@@ -1140,7 +1144,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun verseEndingWithSpecialCharacter() {
-        provider.setupReading(arrayListOf(book), getVerse("Acts.28.29"))
+        provider.setupReading(book, getVerse("Acts.28.29"))
         text = nextText()
         assertThat(range(), equalTo("Acts.28.29"))
         assertThat(text, containsString("]"))
@@ -1154,7 +1158,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun chapterChangeAfterJoinedSentences() {
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.20"))
+        provider.setupReading(book, getVerse("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         text = nextText()
@@ -1168,7 +1172,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun pauseRewindForwardOneVerse() {
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.20"))
+        provider.setupReading(book, getVerse("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         assertThat(text, startsWith("Laki kuitenkin"))
@@ -1204,7 +1208,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun pauseRewindForwardNormal() {
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.20"))
+        provider.setupReading(book, getVerse("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         assertThat(text, startsWith("Laki kuitenkin"))
@@ -1231,7 +1235,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun rewind() {
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.11"))
+        provider.setupReading(book, getVerse("Rom.5.11"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.11"))
         text = nextText()
@@ -1258,7 +1262,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun rewind2() {
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.11"))
+        provider.setupReading(book, getVerse("Rom.5.11"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.11"))
         text = nextText()
@@ -1291,7 +1295,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun forward() {
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
 
-        provider.setupReading(arrayListOf(book), getVerse("Rom.5.11"))
+        provider.setupReading(book, getVerse("Rom.5.11"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.11"))
         provider.forward(null)

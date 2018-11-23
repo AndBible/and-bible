@@ -125,7 +125,7 @@
                     android:dividerPadding="@dimen/row_divider_padding"
                     android:showDividers="middle"
                     >
-                               <Space
+                <Space
                     android:layout_width="match_parent"
                     android:layout_height="15dip"/>
                 <LinearLayout
