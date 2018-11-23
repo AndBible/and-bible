@@ -28,6 +28,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.EventManager;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -393,32 +395,37 @@ public class SpeakControl {
 	}
 
 	public void onEvent(NumberOfWindowsChangedEvent ev) {
-        Thread work = new Thread(new Runnable() {
-            public void run() {
-				if (isSpeaking() && SpeakSettings.Companion.load().getMultiTranslation()) {
+		if (isSpeaking() && SpeakSettings.Companion.load().getMultiTranslation()) {
+			Thread work = new Thread(new Runnable() {
+				public void run() {
 					pause(true);
 					continueAfterPause(true);
 				}
-			}
-        });
-        work.start();
+			});
+			work.start();
+		}
 	}
 
-	public void onEvent(SpeakSettingsChangedEvent ev) {
-		textToSpeechServiceManager.get().updateSettings(ev);
-		if(!isPaused() && !isSpeaking()) {
-		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
-		    if(ev.getUpdateBookmark()) {
-				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
+	public void onEvent(final SpeakSettingsChangedEvent ev) {
+		Thread work = new Thread(new Runnable() {
+			public void run() {
+				textToSpeechServiceManager.get().updateSettings(ev);
+				if(!isPaused() && !isSpeaking()) {
+					// if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
+					if(ev.getUpdateBookmark()) {
+						bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
+					}
+				}
+				else if (isSpeaking()) {
+					pause(true);
+					if(ev.getSleepTimerChanged()){
+						enableSleepTimer(ev.getSpeakSettings().getSleepTimer());
+					}
+					continueAfterPause(true);
+				}
 			}
-		}
-		else if (isSpeaking()) {
-			pause(true);
-			if(ev.getSleepTimerChanged()){
-				enableSleepTimer(ev.getSpeakSettings().getSleepTimer());
-			}
-			continueAfterPause(true);
-		}
+		});
+		work.start();
 	}
 
 	public String getStatusText(int showFlag) {
@@ -434,7 +441,7 @@ public class SpeakControl {
 		if (sleepTimerAmount > 0) {
 		    Log.d(TAG, "Activating sleep timer");
 			BibleApplication app = BibleApplication.getApplication();
-			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
+			ABEventBus.getDefault().post(new ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)));
 			timerTask = new TimerTask() {
 				@Override
 				public void run() {
@@ -446,7 +453,7 @@ public class SpeakControl {
 			};
 			sleepTimer.schedule(timerTask, sleepTimerAmount * 60000);
 		} else {
-			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+			ABEventBus.getDefault().post(new ToastEvent(BibleApplication.getApplication().getString(R.string.speak)));
 		}
 	}
 
