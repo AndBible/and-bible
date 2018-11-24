@@ -1,0 +1,258 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">And İncil\'i</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\'Tanrı, \"Işık olsun\" diye buyurdu ve ışık oldu.\'\nYaratılış 1:3</string>
+  <string name="help_text">İşlemler için MENÜ düğmesine basınız.\n\nÖnceki veya sonraki bölüme geçmek için ekranda parmağınızı kaydırın, iztopunu çevirin veya yön düğmelerine basın.</string>
+  <string name="help_text_long"><b>Gezinti Komutları</b>\nBölüm değiştirmek için ekranda parmağınızı kaydırın, iztopunu çevirin veya yön düğmelerine basın. Sonraki bölüm için sağa gidiniz. Önceki bölüm için sola gidiniz. \nÇift vuruş tam ekran modunu açıp kapatır. \n\n<b>Menü</b> \nİşlemler içın MENÜ düğmesine basın. \n\nKutsal Kitap çevirisi, yorum veya sözlük gibi ek belgeler indirmek için Menü/Belge İndir\'e basın \n\n<b>Sesli Okuma</b>\nSeçili belgenin sesli okumasını başlatmak ve durdurmak için Sesli Oku öğesini seçiniz. \n\n<b>Notlarım</b>\nAyet içerik menüsüde bulunan Notlarıma ekle öğesi aracılığıyla not ekleyebilirsiniz. Var olan notlara Menü\'den erişilebilirsiniz. \n\n<b>Yer İmleri</b>\nYer imilerini, ayet içerik menüsü kullanarak ekleyebilirsniz. Yer imi yöneticisine ana menüden erişilebilirsiniz. Yer imleri görüntülediğinizde sıralarını belirlediğiniz etiketlere göre değiştirmek için içerik menüsünü kullanabilirsiniz. \n\n<b>Arama</b>\nArama metninde *, ?, AND (ve), OR (veya), NOT (değil) gibi özel karakterler ve ifadeler kullanılabilir. (daha fazla bilgi için \"Apache Lucene - Query Parser Syntax\" başlıklı makaleyi okuyun) \n\n<b>İçerik Menüleri</b> \nKutsal Kitap okuma modunda seçili ayet üzerinde işlem yapmak için içerik menüsünü kullanabilirsiniz. Menüyü açmak için ayete uzun basınız. \nBelge seçme modunda belgeyi silmek veya belge hakkında bilgi görüntülemek için, belgeye uzun basınız. \nGeçmişteki hareketlerinizin listesini görütülemek için Geri düğmesine uzun basınız.</string>
+  <string name="version_text">Sürüm %s</string>
+  <string name="no_sdcard_error">Lütfen hafıza (SD) kartını takıp And Bible uygulamasını yeniden başlatın.</string>
+  <!--Main menu-->
+  <string name="chooseBook">Belge</string>
+  <string name="selectPassage">Kısım</string>
+  <string name="search">Ara</string>
+  <string name="settings">Ayarlar</string>
+  <string name="history">Geçmiş</string>
+  <string name="speak">Sesli Oku</string>
+  <string name="help">Yardım</string>
+  <string name="verse">Ayet</string>
+  <string name="administration">Yönetici</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Kitabı Seç</string>
+  <string name="choosePassageChapterName">Bölümü Seç</string>
+  <string name="choosePassageVerseName">Ayeti Seç</string>
+  <string name="bible">Kutsal Kitap</string>
+  <string name="deuterocanonical">Döterokanonik</string>
+  <!--Search-->
+  <string name="search_index">Arama Dizini</string>
+  <string name="index_creation_required">Arama yapabilmek için bu belgenin bir dizini olması şarttır.\n\nDizinleri internetten indirebilir veya cihazınızda oluşturabilirsiniz.\nİndirilmiş dizinin kurulumu çok daha hızlı olur. Ayrıca indirilmiş dizinlerde ek fonksyonlar bulunur.\nDizin indirmek için İnternet bağlantınız olması gerekir.\n</string>
+  <string name="indexing_wait_msg">Dizin yaratıldıktan sonra arama sayfası açılacaktır.</string>
+  <string name="index">Dizin</string>
+  <string name="index_download">İndir</string>
+  <string name="index_not_available_for_download">Bu dizin indirim için mevcut değildir.</string>
+  <string name="index_create">Oluştur</string>
+  <!--Tasks-->
+  <string name="progress_status">İlerleme</string>
+  <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
+  <string name="no_tasks_running">İşlem gören görev yok.</string>
+  <!--Search-->
+  <string name="search_results">Arama Sonuçları</string>
+  <string name="search_words_group_prompt">Ayet bul</string>
+  <string name="search_all_words">Kelimelerin hepsi</string>
+  <string name="search_any_word">Herhangi bir kelime</string>
+  <string name="search_phrase">İfade</string>
+  <string name="search_result_count">%d sonuç bulundu</string>
+  <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösteriliyor</string>
+  <string name="search_bible_section_group_prompt">Arama Alını</string>
+  <string name="search_all_bible">Kutsal Kitap\'ın Tümü</string>
+  <string name="search_new_testament">Yeni Antlaşma</string>
+  <string name="search_old_testament">Eski Antlaşma</string>
+  <string name="search_current_book">Seçili Kitapta</string>
+  <string name="error_executing_search">Arama metini geçersiz</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Ayet numaraları</string>
+  <string name="prefs_show_verseno_summary">Ayet numaraları gösterilir</string>
+  <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
+  <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
+  <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
+  <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
+  <string name="prefs_default_bookmark_style_title">Yer imleri için ön tanımlı biçim</string>
+  <string name="prefs_default_bookmark_style_summary">İşaretlemek için renk veya simge</string>
+  <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
+  <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
+  <string name="prefs_show_notes_title">Dipnotlar</string>
+  <string name="prefs_show_notes_summary">Dipnotlar ve iç göndermeler gösterilir</string>
+  <string name="prefs_show_strongs_title">Strong Numaraları</string>
+  <string name="prefs_show_strongs_summary">Grekçe ve İbranice kelimelerin tanımlarına bağlantılar gösterilir</string>
+  <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
+  <string name="prefs_show_morphology_summary">Robinson\'un Grekçe morfolojiğik kısaltmaları gösterilir</string>
+  <string name="prefs_section_title_title">Kısım Başlıkları</string>
+  <string name="prefs_section_title_summary">Asıl metinde bulunmayan başlıklar gösterilir</string>
+  <string name="prefs_red_letter_title">Kırmızı Harflar</string>
+  <string name="prefs_red_letter_summary">İsa Mesih\'in sözleri kırmızı renklendirilir</string>
+  <string name="prefs_tilt_to_scroll_title">Eğdirip kaydır</string>
+  <string name="prefs_tilt_to_scroll_summary">Cihazı eğerek sayfayı aşağa/yükarıya kaydırma</string>
+  <string name="prefs_night_mode_title">Gece Modu</string>
+  <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
+  <string name="prefs_night_mode_automatic">Otomatik</string>
+  <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
+  <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
+  <string name="prefs_open_links_in_special_window_title">Linkler özel pencerede açılsın</string>
+  <string name="prefs_open_links_in_special_window_summary">Strongs numaralar ve dipnotların daha hızlı gösterilmesi için</string>
+  <string name="prefs_text_size_title">Metin boyu</string>
+  <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
+  <string name="prefs_text_size_sample_text">Metin örneği</string>
+  <string name="x_minutes">%d dakika</string>
+  <string name="prefs_interface_locale_title">Arayüz dili</string>
+  <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
+  <string name="locale_change_warning">Arayüzü yeni dilde kullanabilmek için uygulama yeniden başlatılacaktır.</string>
+  <string name="prefs_speak_speed_title">Sesli okuma hızı</string>
+  <string name="prefs_speak_speed_summary">Daha yavaş veya hızlı oku</string>
+  <string name="speak_speed_slow">Yavaş</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Hızlı</string>
+  <!--Window-->
+  <string name="window">Pencere</string>
+  <string name="windowClose">Kapat</string>
+  <string name="windowMaximise">Büyüt</string>
+  <string name="windowMinimise">Küçült</string>
+  <string name="windowSynchronise">Senkronize et</string>
+  <string name="windowMoveFirst">Öne al</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
+  <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
+  <string name="previous">Önceki</string>
+  <string name="next">Sonraki</string>
+  <!--Strongs-->
+  <string name="strongs">Strong\'un Sözlüğü</string>
+  <string name="strongs_not_installed">Lütfen \iStrong\'s Grekçe ve İbranice sözlüklerini indiriniz</string>
+  <string name="all_greek_occurrences">Kelimenin tüm oluşlarını bul</string>
+  <string name="all_hebrew_occurrences">Kelimenin tüm oluşlarını bul</string>
+  <string name="no_indexed_bible_with_strongs_ref">Strong Numaraları içeren bir Kutsal Kitap çevirisini ve ona ait dizini indirmeniz gerekir. Dizinler Arama sayfasından indirilir.</string>
+  <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">Belge İndir</string>
+  <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
+  <string name="download_source_message">Belgeler http://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org\nsitelerden indiriliyor</string>
+  <string name="download_document_confirm_prefix">İndir</string>
+  <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
+  <string name="download_refresh_book_list_menu_item">Yenilen</string>
+  <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
+  <string name="no_internet_connection">İnternet bağlantısı yok</string>
+  <string name="storage_space_warning">Yerel depo yetersiz</string>
+  <string name="wait_for_bible">Lütfen bekleyiniz. Çeviri indiriliyor. İndirme bitince ana ekran açılacak.\n\nDaha belge indirmek için Menü tuşu/Belge indirme öğesine gidiniz.</string>
+  <string name="wait_for_bible_not_yet">Lütfen bekleyiniz. Çeviri cihazınıza yükleniyor.</string>
+  <string name="download_complete_no_bibles">Çeviri yüklenmedi. Lütfen Geri düğmesine basın ve tekrar deneyin.</string>
+  <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
+  <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
+  <!--Install zip file-->
+  <string name="install_zip">Zip\'ten Dökumanı Aç</string>
+  <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
+  <string name="extracting_zip_file">Zip dosyasından çekiliyor...</string>
+  <string name="checking_zip_file">Verilen dosya kötrol ediliyor...</string>
+  <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
+  <string name="module_already_installed">Dosya zaten yüklenmiş bir modül içeriyor</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Okuma Planı</string>
+  <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
+  <string name="rdg_plan_day">%s. Gün</string>
+  <string name="rdg_plan_set_start_jan1">1 Ocakta Başlat</string>
+  <string name="done">Bitti</string>
+  <string name="reset">Sıfırla</string>
+  <string name="rdg_plan_y1ntpspr">Bir senelik Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Bir senelik tarih sırasıyla tüm Kutsal Kitap</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Bir senelik tüm Kutsal Kitap - Eski ve Yeni Antlaşma birlikte</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir senelik tüm Kutsal Kitap - Önce Eski sonra Yeni Antlaşma</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Bir senelik tüm Kutsal Kitap (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 senelik plan - EA bir kere, YA ve Mezmurlar iki kere</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">Sil</string>
+  <string name="delete_index">Arama dizinini sil</string>
+  <string name="about">Belge hakkında</string>
+  <string name="delete_doc">%s silinsin mi?</string>
+  <string name="delete_search_index_doc">%s\'in dizini silinsin mi?</string>
+  <!--Verse context menu-->
+  <string name="notes">Dipnotlar ve iç göndermeler</string>
+  <string name="copy">Kopyala</string>
+  <string name="share_verse">Paylaş ...</string>
+  <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
+  <string name="compare_translations">Çevirileri karşılaştır</string>
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <string name="bookmarks">Yer İmleri</string>
+  <string name="add_bookmark">Yer İmlerine ekle</string>
+  <string name="delete_bookmark">Yer imi sil</string>
+  <string name="bookmark_added">Yer imi eklendi</string>
+  <string name="bookmark_exists">Yer imi zaten mevcut</string>
+  <string name="bookmark_deleted">Yer imi silindi</string>
+  <string name="bookmark_labels">Yer İmi Etiketleri</string>
+  <string name="manage_labels">Yer İmi Etiketleri Yönet</string>
+  <string name="assign_labels">Etiketle</string>
+  <string name="new_label">Yeni Etiket</string>
+  <string name="label_name_prompt">Etiket</string>
+  <string name="label_unlabelled">Etiketlenmemiş</string>
+  <string name="rename">Yeniden Adlandır</string>
+  <string name="style">Biçim</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Tarih Sırası</string>
+  <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
+  <string name="sort_by_alphabetical">Alfabetik sıralama</string>
+  <!--Dictionary-->
+  <string name="dictionary">Sözlük</string>
+  <string name="search_dictionary_hint">Sözlükte bul</string>
+  <string name="dictionary_contents">İçindekiler</string>
+  <!--General Book-->
+  <string name="general_book">Kitap</string>
+  <string name="general_book_contents">İçindekiler</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d bölüm</string>
+  <string name="some_chapters">%d bölüm</string>
+  <string name="rest_of_book">Kitabın sonuna kadar</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d ayet</string>
+  <string name="some_verses">%d ayet</string>
+  <string name="rest_of_chapter">Bölümün sonuna kadar</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d sayfa</string>
+  <string name="some_pages">%d sayfa</string>
+  <!--Speak - Common-->
+  <string name="stop">Durdur</string>
+  <string name="pause">Duraklat</string>
+  <string name="rewind">Geri al</string>
+  <string name="forward">İleri al</string>
+  <string name="tts_lang_not_available">Dil bulunmadı.</string>
+  <string name="speak_queue">Sıra</string>
+  <string name="speak_repeat">Tekrar</string>
+  <!--User Notes-->
+  <string name="mynotes">Notlarım</string>
+  <string name="mynote">Notum</string>
+  <string name="mynote_add">Notlarıma ekle</string>
+  <string name="mynote_view_edit">Notum</string>
+  <string name="mynote_saved">Notlarım kaydedildi</string>
+  <!--Backup and restore-->
+  <string name="backup">Yedekle</string>
+  <string name="backup_success">Not ve Yer İmileri hafiz kartına %s klasörüne kaydedildi.</string>
+  <string name="restore">Yedekten geri yükle</string>
+  <string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
+  <string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
+  <!--About-->
+  <string name="about_copyright">Telif Hakkı: %s</string>
+  <string name="about_version">Sürüm: %s</string>
+  <string name="about_versification">Ayetleme: %s</string>
+  <!--Document types-->
+  <string name="doc_type_bible">Kutsal Kitap</string>
+  <string name="doc_type_commentary">Yorum Kitabı</string>
+  <string name="doc_type_dictionary">Sözlük</string>
+  <string name="doc_type_book">Kitap</string>
+  <string name="doc_type_map">Harita</string>
+  <!--Languages-->
+  <string name="lang_default">Varsayılan</string>
+  <!--General-->
+  <string name="okay">Tamam</string>
+  <string name="cancel">İptal</string>
+  <string name="yes">Evet</string>
+  <string name="no">Hayır</string>
+  <string name="save">Kaydet</string>
+  <string name="error">Hata</string>
+  <string name="more">Daha Fazla</string>
+  <string name="more_dotted">Daha...</string>
+  <string name="retry">Tekrar Deneyin</string>
+  <string name="please_wait">Lütfen bekleyin...</string>
+  <string name="all">Hepsi</string>
+  <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Yeni</string>
+  <string name="close">Kapat</string>
+  <string name="edit">Düzelt</string>
+  <!--Errors-->
+  <string name="report_error">Bildiri Gönder</string>
+  <string name="error_occurred">Bir hata oldu</string>
+  <string name="error_no_content">Seçilen ayeti için içerik yok</string>
+  <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
+  <string name="error_key_not_in_document">Belgede bulunmadı</string>
+  <string name="empty_list">Öğe bulunmadı</string>
+</resources>

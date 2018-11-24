@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="ic_launcher_background">#373737</color>
+
+	<color name="bible_background_day">#ffffff</color>
+	<color name="bible_background_night">#000000</color>
+
+	<!-- not used much - this value is really in css -->
+	<color name="bible_text_day">#000000</color>
+	<color name="bible_text_night">#b0b0b0</color>
+
+	<color name="window_separator_colour">#FF6B6B6B</color>
+	<color name="window_separator_drag_colour">@color/yellow_500</color>
+
+	<color name="window_button_text_colour">#66FFFFFF</color>
+	<color name="window_button_background_colour">#666B6B6B</color>
+				    
+	<!-- matches background_holo_dark -->
+	<color name="actionbar_background_night">#ff000000</color>
+	<!-- matches DKGRAY -->
+	<color name="actionbar_background_day">#ff444444</color>
+	
+	<color name="actionbar_text">#ffffffff</color>
+
+	<color name="widget_background">#93ffffff</color>
+	<color name="accent_day">@color/blue_900</color>
+	<color name="accent_night">@color/blue_300</color>
+
+	<color name="buttongrid_button_feedback_text">@color/grey_1000b</color>
+
+	<color name="list_item_pressed">@color/blue_100</color>
+	<color name="list_item_activated">@color/blue_300_35pcntOpacity</color>
+
+	<color name="night_dialog_background">#303030</color>
+
+	<color name="snackbar_action_text">@color/blue_500</color>
+
+	<!-- see
+	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
+	numbers: https://gist.github.com/cypressious/90355ac3e92c65908441 -->
+	<color name="indigo_500">#3f51b5</color>
+	<color name="indigo_700">#303f9f</color>
+
+	<color name="grey_500">#9e9e9e</color>
+	<color name="grey_600">#757575</color>
+	<color name="grey_700">#616161</color>
+	<color name="grey_800">#424242</color>
+	<color name="grey_900">#212121</color>
+	<color name="grey_1000b">#000000</color>
+	<color name="grey_1000w">#ffffff</color>
+
+	<color name="blue_50">#e7e9fd</color>
+	<color name="blue_100">#59d0d9ff</color>
+	<color name="blue_200">#afbfff</color>
+	<color name="blue_300">#91a7ff</color>
+	<color name="blue_300_35pcntOpacity">#5991a7ff</color>
+	<color name="blue_400">#738ffe</color>
+	<color name="blue_500">#5677fc</color>
+	<color name="blue_600">#4e6cef</color>
+	<color name="blue_700">#455ede</color>
+	<color name="blue_800">#3b50ce</color>
+	<color name="blue_900">#2a36b1</color>
+	<color name="blue_A100">#a6baff</color>
+	<color name="blue_A200">#6889ff</color>
+	<color name="blue_A400">#4d73ff</color>
+	<color name="blue_A700">#4d69ff</color>
+
+	<color name="blue_grey_50">#eceff1</color>
+	<color name="blue_grey_100">#cfd8dc</color>
+	<color name="blue_grey_200">#b0bec5</color>
+	<color name="blue_grey_300">#90a4ae</color>
+	<color name="blue_grey_400">#78909c</color>
+	<color name="blue_grey_500">#607d8b</color>
+	<color name="blue_grey_600">#546e7a</color>
+	<color name="blue_grey_700">#455a64</color>
+	<color name="blue_grey_800">#37474f</color>
+	<color name="blue_grey_900">#263238</color>
+
+	<!-- #59 is 35% opacity
+	http://stackoverflow.com/questions/15852122/hex-transparency-in-colors -->
+	<color name="yellow_50">#59fffde7</color>
+	<color name="yellow_100">#59fff9c4</color>
+	<color name="yellow_200">#59fff59d</color>
+	<color name="yellow_300">#59fff176</color>
+	<color name="yellow_400">#59ffee58</color>
+	<color name="yellow_500">#ffeb3b</color>
+	<color name="yellow_600">#fdd835</color>
+	<color name="yellow_700">#fbc02d</color>
+	<color name="yellow_800">#f9a825</color>
+	<color name="yellow_900">#f57f17</color>
+	<color name="yellow_A100">#ffff8d</color>
+	<color name="yellow_A200">#ffff00</color>
+	<color name="yellow_A400">#ffea00</color>
+	<color name="yellow_A700">#ffd600</color>
+	<color name="speak_status_background">#7eeceff1</color>
+
+</resources>

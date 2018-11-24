@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lists of application values shown in some ui lists
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:ignore="MissingTranslation">
+	<string-array name="documentTypes">
+		<item>@string/doc_type_bible</item>
+		<item>@string/doc_type_commentary</item>
+		<item>@string/doc_type_dictionary</item>
+		<item>@string/doc_type_book</item>
+		<item>@string/doc_type_map</item>
+	</string-array>
+
+	<!-- Screen colors: automatic night mode, day, night -->
+	<string-array name="prefs_night_mode_descriptions">
+		<item>@string/no</item>
+		<item>@string/yes</item>
+		<item>@string/prefs_night_mode_automatic</item>
+	</string-array>
+	<string-array name="prefs_night_mode_values">
+		<item>false</item>
+		<item>true</item>
+		<item>automatic</item>
+	</string-array>
+
+	<!-- Split mode: vertical, horizontal, automatic -->
+	<string-array name="prefs_split_mode_descriptions">
+		<item>@string/prefs_split_mode_vertical</item>
+		<item>@string/prefs_split_mode_horizontal</item>
+		<item>@string/prefs_split_mode_automatic</item>
+	</string-array>
+	<string-array name="prefs_split_mode_values">
+		<item>vertical</item>
+		<item>horizontal</item>
+		<item>automatic</item>
+	</string-array>
+
+
+	<!-- These languages must be in the same order as the language codes below -->
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>@string/lang_default</item>
+		<item>@string/lang_afrikaans</item>
+		<item>@string/lang_arabic</item>
+		<item>@string/lang_azerbaijani</item>
+		<item>@string/lang_belarusian</item>
+		<item>@string/lang_bulgarian</item>
+		<item>@string/lang_czech</item>
+		<item>@string/lang_welsh</item>
+		<item>@string/lang_german</item>
+		<item>@string/lang_greek</item>
+		<item>@string/lang_english</item>
+		<item>@string/lang_esperanto</item>
+		<item>@string/lang_spanish</item>
+		<item>@string/lang_estonian</item>
+		<item>@string/lang_finnish</item>
+		<item>@string/lang_faroese</item>
+		<item>@string/lang_french</item>
+		<item>@string/lang_hebrew</item>
+		<item>@string/lang_hindi</item>
+		<item>@string/lang_croatian</item>
+		<item>@string/lang_hungarian</item>
+		<item>@string/lang_indonesian</item>
+		<item>@string/lang_italian</item>
+		<item>@string/lang_japanese</item>
+		<item>@string/lang_kazakh</item>
+		<item>@string/lang_korean</item>
+		<item>@string/lang_kyrgyz</item>
+		<item>@string/lang_lithuanian</item>
+		<item>@string/lang_latvian</item>
+		<item>@string/lang_malagasy</item>
+		<item>@string/lang_malayalam</item> <!-- Only displayed if JellyBean+ because that is when the ml font was added to Android -->
+		<item>@string/lang_norwegian_bokmal</item>
+		<item>@string/lang_dutch</item>
+		<item>@string/lang_norwegian_nynorsk</item>
+		<item>@string/lang_polish</item>
+		<item>@string/lang_portuguese</item>
+		<item>@string/lang_russian</item>
+		<item>@string/lang_slovak</item>
+		<item>@string/lang_slovenian</item>
+		<item>@string/lang_swedish</item>
+		<item>@string/lang_telugu</item>
+		<item>@string/lang_thai</item>
+		<item>@string/lang_turkish</item>
+		<item>@string/lang_ukrainian</item>
+		<item>@string/lang_uzbek</item>
+		<item>@string/lang_vietnamese</item>
+		<item>@string/lang_chinese</item>
+	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>af</item>
+		<item>ar</item>
+		<item>az</item>
+		<item>be</item>
+		<item>bg</item>
+		<item>cs</item>
+		<item>cy</item>
+		<item>de</item>
+		<item>el</item>
+		<item>en</item>
+		<item>eo</item>
+		<item>es</item>
+		<item>et</item>
+		<item>fi</item>
+		<item>fo</item>
+		<item>fr</item>
+		<item>he</item>
+		<item>hi</item>
+		<item>hr</item>
+		<item>hu</item>
+		<item>in</item>
+		<item>it</item>
+		<item>ja</item>
+		<item>kk</item>
+		<item>ko</item>
+		<item>ky</item>
+		<item>lt</item>
+		<item>lv</item>
+		<item>mg</item>
+		<item>ml</item>
+		<item>nb</item>
+		<item>nl</item>
+		<item>nn</item>
+		<item>pl</item>
+		<item>pt</item>
+		<item>ru</item>
+		<item>sk</item>
+		<item>sl</item>
+		<item>sv</item>
+		<item>te</item>
+		<item>th</item>
+		<item>tr</item>
+		<item>uk</item>
+		<item>uz</item>
+		<item>vi</item>
+		<item>zh</item>
+	</string-array>
+
+</resources>

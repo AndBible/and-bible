@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">Kinh Thánh</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"Đức Chúa Trời phán rằng: Phải có sự sáng; thì có sự sáng.\"\nSáng thế ký 1:3</string>
+  <string name="help_text">Nhấn phím MENU cho các lựa chọn\n\nTới chương kế tiếp hoặc trước đó bằng cách sử dụng track-ball, D-pad hoặc trượt ngang màn hình bằng ngón tay.</string>
+  <string name="help_text_long"><b>Navigation</b>\nTới chương tiếp theo và chương trước đó bằng cách sử dụng track-ball, D-pad hoặc vuốt ngang màn hình bằng tay.\nChạm 2 lần liên tiếp để mở hoặc tắt chế độ toàn màn hình.\n<b>Menu</b> \nBấm MENU để có nhiều lựa chọn\n\nĐể tải về nhiều Kinh Thánh chọn Menu/Download Documents \n\n<b>Đọc</b>\nNhấn Speak để truy cập vào hộp thoại để bắt đầu hoặc ngừng đọc.\n\n<b>Ghi chú</b>\nCác ghi chú có thể được thêm vào bằng cách chạm và giữ vài giây vào màn hình, sau đó chọn Ghi chú của tôi. Danh sách các ghi chú đang tồn tại có thể truy cập thông qua Menu chính.\n<b>Đánh dấu</b>\nĐánh dấu có thể được thêm vào bằng cách chạm và giữ lâu vào màn hình, sau đó chọn Thêm đánh dấu. Quản lý các đánh dấu có thể truy cập từ menu chính. \n\n<b>Tìm kiếm</b>\nViệc tìm kiếm có thể có các kí tự đặc biệt như *,?,AND,OR,NOT (xem chi tiết tại \"Apache Lucene - Query Parser Syntax\")\n\n<b>Context Menus</b> \nNhấm lâu vào màn hình Kinh Thánh để mở context Menu.\nNhấm lâu vào Kinh Thánh để xóa hoặc xem thông tin.\nNhấn lâu nút Back để truy cập vào Lịch sử.</string>
+  <string name="version_text">Phiên bản %s</string>
+  <string name="no_sdcard_error">Gắn thẻ nhớ vào sau đó khởi động lại chương trình.</string>
+  <!--Main menu-->
+  <string name="chooseBook">Tài liệu</string>
+  <string name="selectPassage">Sách</string>
+  <string name="search">Tìm kiếm</string>
+  <string name="settings">Tùy chỉnh</string>
+  <string name="history">Lịch sử</string>
+  <string name="speak">Đọc</string>
+  <string name="help">Giúp đỡ</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Chọn Sách</string>
+  <string name="choosePassageChapterName">Chọn Chương</string>
+  <string name="choosePassageVerseName">Chọn Câu</string>
+  <!--Search-->
+  <string name="search_index">Tìm Chỉ Mục</string>
+  <string name="index_creation_required">Một chỉ mục được yêu cầu để tìm kiếm.\n\nCác chỉ mục có thể được tải về từ internet hoặc được tạo trên máy của bạn.\n\nViệc tải về thì nhanh hơn nhiều và hỗ trợ nhiều tính năng tìm kiếm hơn.\n\nKết nối internet được yêu cầu để tải các chỉ mục.</string>
+  <string name="indexing_wait_msg">Sau khi việc lập chỉ mục hoàn thành, bạn sẽ được chuyển sang màn hình tìm kiếm.</string>
+  <string name="index">Chỉ Mục</string>
+  <string name="index_download">Tải Xuống</string>
+  <string name="index_not_available_for_download">Chỉ mục này không có sẵn.</string>
+  <string name="index_create">Tạo Mới</string>
+  <!--Tasks-->
+  <string name="progress_status">Tiến Trình</string>
+  <string name="task_kill_warning">Các công việc đang chạy có thể bị hủy nếu bạn chuyển sang ứng dụng khác trước khi chúng hoàn thành.</string>
+  <string name="no_tasks_running">Không có công việc nào được thực thi.</string>
+  <!--Search-->
+  <string name="search_results">Kết quả tìm kiếm:</string>
+  <string name="search_words_group_prompt">Tìm câu:</string>
+  <string name="search_all_words">Tất cả các từ</string>
+  <string name="search_any_word">Bất cứ từ nào</string>
+  <string name="search_phrase">Cụm từ</string>
+  <string name="search_result_count">%d kết quả được tìm thấy.</string>
+  <string name="search_showing_first">Quá nhiều kết quả được tìm thấy. Hiện kết quả đầu tiên %d</string>
+  <string name="search_bible_section_group_prompt">Tìm trong:</string>
+  <string name="search_all_bible">Toàn Kinh Thánh</string>
+  <string name="search_new_testament">Tân Ước</string>
+  <string name="search_old_testament">Cựu Ước</string>
+  <string name="search_current_book">Sách hiện tại</string>
+  <string name="error_executing_search">Câu tìm kiếm không phù hợp</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Hiện Câu</string>
+  <string name="prefs_show_verseno_summary">Hiển thị số câu</string>
+  <string name="prefs_verse_per_line_title">Một câu trên một dòng</string>
+  <string name="prefs_verse_per_line_summary">Hiển thị mỗi câu trên một dòng khác nhau</string>
+  <string name="prefs_show_mynotes_title">Hiện biểu tượng Ghi chú</string>
+  <string name="prefs_show_mynotes_summary">Hiện biểu tượng trong các câu với Ghi chú</string>
+  <string name="prefs_show_notes_title">Chú thích và tham khảo</string>
+  <string name="prefs_show_notes_summary">Hiện chú thích và tham khảo</string>
+  <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
+  <string name="prefs_show_strongs_summary">Liên kết đến các định nghĩa Hy Lạp &amp; Do Thái</string>
+  <string name="prefs_show_morphology_title">Morphological codes</string>
+  <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
+  <string name="prefs_section_title_title">Tiêu đề</string>
+  <string name="prefs_section_title_summary">Hiện các tiêu đề</string>
+  <string name="prefs_red_letter_title">Ký tự màu đỏ</string>
+  <string name="prefs_red_letter_summary">Hiện những lời của Chúa là màu đỏ.</string>
+  <string name="prefs_tilt_to_scroll_title">Nghiêng để di chuyển</string>
+  <string name="prefs_tilt_to_scroll_summary">Nghiêng thiết bị để cuộn xuống.</string>
+  <string name="prefs_night_mode_title">Chế độ ban đêm.</string>
+  <string name="prefs_night_mode_summary">Để dễ dàng đọc lúc trời tối.</string>
+  <string name="prefs_night_mode_automatic">Tự động</string>
+  <string name="prefs_navigate_to_verse_title">Điều hướng đến câu</string>
+  <string name="prefs_navigate_to_verse_summary">Chọn câu và chương để xem khi chọn một sách trong KT.</string>
+  <string name="prefs_text_size_title">Cỡ chữ</string>
+  <string name="prefs_text_size_summary">Xem nhiều hơn hoặc xem rõ hơn?</string>
+  <string name="prefs_text_size_sample_text">Ví dụ</string>
+  <string name="prefs_interface_locale_title">Ngôn ngữ</string>
+  <string name="prefs_interface_locale_summary">Chọn ngôn ngữ</string>
+  <string name="locale_change_warning">Chương trình sẽ được khởi động lại để chuyển sang ngôn ngữ mới.</string>
+  <!--Window-->
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Không có ghi chú nào ở chương này.</string>
+  <string name="no_verse_notes">Không có ghi chú nào trong câu này.</string>
+  <string name="previous">Chương trước</string>
+  <string name="next">Chương sau</string>
+  <!--Strongs-->
+  <string name="strongs">Strong\'s Dictionary</string>
+  <string name="strongs_not_installed">Xin vui lòng tải về từ điển Do Thái và Hy Lạp</string>
+  <string name="all_greek_occurrences">Tìm tất cả các lần xuất hiện</string>
+  <string name="all_hebrew_occurrences">Tìm tất cả các lần xuất hiện</string>
+  <string name="no_indexed_bible_with_strongs_ref">Bạn phải tải về một kinh thánh có chứa Strong\'s numbers và tải về chỉ số của nó thông qua Tìm kiếm</string>
+  <string name="morph_robinson_not_installed">Xin vui lòng tải về từ điển \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">Tải về các tài liệu</string>
+  <string name="download_confirmation">Tải Kinh Thánh từ internet?</string>
+  <string name="download_source_message">Kinh Thánh được tải về từ\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">Tải về</string>
+  <string name="download_refreshing_book_list">Làm mới danh sách các tài liệu có sẵn</string>
+  <string name="download_refresh_book_list_menu_item">Làm mới</string>
+  <string name="error_downloading">Có lỗi xảy ra khi đang tải. Hãy kiểm tra lại kết nối internet của ban.</string>
+  <string name="no_internet_connection">Không thể kết nối internet.</string>
+  <string name="storage_space_warning">Không đủ không gian lưu trữ.</string>
+  <string name="wait_for_bible">Xin vui lòng chờ tới khi việc tải Kinh Thánh được hoàn tất. Sau đó bạn sẽ được chuyển tới màn hình chính.</string>
+  <string name="wait_for_bible_not_yet">Xin chờ trong giây lát. Kinh Thánh chưa hoàn thành việc cài đặt.</string>
+  <string name="download_complete_no_bibles">Không có Kinh Thánh nào được cài đặt. Hãy nhấn nút Back và thử lại lần nữa.</string>
+  <string name="too_many_jobs">Có quá nhiều công việc đang thực thi. Xin vui lòng chờ một số việc hoàn thành và thử lại lần nữa.</string>
+  <string name="document_not_installed">Hãy tải về \'%s\'</string>
+  <!--Install zip file-->
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Kế hoạch đọc Kinh Thánh</string>
+  <string name="rdg_plan_selector_title">Hãy chọn một kế hoạch</string>
+  <string name="rdg_plan_day">Ngày %s</string>
+  <string name="rdg_plan_set_start_jan1">Bắt đầu ngày 1 tháng 1</string>
+  <string name="done">Hoàn thành</string>
+  <string name="reset">Thiết lập lại</string>
+  <string name="rdg_plan_y1ntpspr">Tân Ước, Thi Thiên và Châm Ngôn trong 1 năm</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Đọc xuyên suốt Kinh Thánh theo thứ tự thời gian trong 1 năm.</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Đọc xuyên suốt Kinh Thánh (Tân Ước &amp; Cựu Ước) trong 1 năm.</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Đọc xuyên suốt Kinh Thánh trong một năm - Cựu Ước trước, Tân Ước sau.</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Đọc hết Kinh Khánh trong một năm (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">Xóa</string>
+  <string name="delete_index">Xóa chỉ mục tìm kiếm</string>
+  <string name="about">Giới thiệu</string>
+  <string name="delete_doc">Xóa %s?</string>
+  <string name="delete_search_index_doc">Xóa chỉ mục của %s?</string>
+  <!--Verse context menu-->
+  <string name="notes">Chú thích và tham chiếu</string>
+  <string name="copy">Sao chép</string>
+  <string name="share_verse">Chia sẻ …</string>
+  <string name="share_verse_subject">Một câu Kinh Thánh đã được chia sẻ với bạn đang sử dụng And Bible</string>
+  <string name="compare_translations">So sánh các bản dịch</string>
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <string name="bookmarks">Đánh dấu</string>
+  <string name="add_bookmark">Thêm đánh dấu</string>
+  <string name="bookmark_added">Đánh dấu đã thêm</string>
+  <string name="bookmark_exists">Đánh dấu đã tồn tại</string>
+  <string name="bookmark_labels">Nhãn đánh dấu</string>
+  <string name="assign_labels">Gán nhãn</string>
+  <string name="new_label">Nhãn mới</string>
+  <string name="label_name_prompt">Tên</string>
+  <string name="label_unlabelled">Chưa được gán nhãn</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <!--Dictionary-->
+  <string name="dictionary">Từ điển</string>
+  <string name="search_dictionary_hint">Tìm từ điển</string>
+  <string name="dictionary_contents">Nội dung</string>
+  <!--General Book-->
+  <string name="general_book">Sách</string>
+  <string name="general_book_contents">Nội dung</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d chương</string>
+  <string name="some_chapters">%d chương</string>
+  <string name="rest_of_book">Hết</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d câu</string>
+  <string name="some_verses">%d câu</string>
+  <string name="rest_of_chapter">Hết chương</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d trang</string>
+  <string name="some_pages">%d trang</string>
+  <!--Speak - Common-->
+  <string name="stop">Ngừng</string>
+  <string name="pause">Tạm dừng</string>
+  <string name="rewind">Tua lại</string>
+  <string name="forward">Đi tới</string>
+  <string name="tts_lang_not_available">Ngôn ngữ không có sẵn.</string>
+  <string name="speak_queue">Hàng đợi</string>
+  <string name="speak_repeat">Đọc lại</string>
+  <!--User Notes-->
+  <string name="mynotes">Ghi chú của tôi</string>
+  <string name="mynote">Ghi chú của tôi</string>
+  <string name="mynote_add">Thêm Ghi chú</string>
+  <string name="mynote_view_edit">Ghi chú của tôi</string>
+  <string name="mynote_saved">Đã lưu</string>
+  <!--Backup and restore-->
+  <string name="backup">Sao lưu</string>
+  <string name="backup_success">Các ghi chú và đánh dấu đã được lưu vào %s trên thẻ nhớ.</string>
+  <string name="restore">Khôi phục</string>
+  <string name="restore_confirmation">Ghi đè lên Ghi chú và Đánh dấu?</string>
+  <string name="restore_success">Các ghi chú và đánh dấu đã được khôi phục từ %s trên thẻ nhớ</string>
+  <!--About-->
+  <!--Document types-->
+  <string name="doc_type_bible">Kinh Thánh</string>
+  <string name="doc_type_commentary">Lời dẫn giải</string>
+  <string name="doc_type_dictionary">Từ điển</string>
+  <string name="doc_type_book">Sách</string>
+  <string name="doc_type_map">Bản đồ</string>
+  <!--Languages-->
+  <string name="lang_default">Mặc định</string>
+  <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">Cancel</string>
+  <string name="yes">Yes</string>
+  <string name="no">No</string>
+  <string name="save">Lưu</string>
+  <string name="error">Lỗi</string>
+  <string name="more">Nhiều hơn</string>
+  <string name="retry">Thử lại lần nữa</string>
+  <string name="please_wait">Xin vui lòng chờ...</string>
+  <string name="all">Tất cả</string>
+  <!--Errors-->
+  <string name="error_occurred">Có lỗi xảy ra</string>
+  <string name="error_no_content">Không có nội dung cho các câu được lựa chọn</string>
+  <string name="error_page_too_large">Trang quá lớn để nạp</string>
+  <string name="error_key_not_in_document">Không tìm thấy trong tài liệu</string>
+  <string name="empty_list">Không có mục nào để hiển thị</string>
+</resources>
