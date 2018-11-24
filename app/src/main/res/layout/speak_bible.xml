@@ -116,6 +116,14 @@
                     <Space
                         android:layout_width="match_parent"
                         android:layout_height="15dip"/>
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/speak_titles_text_size"
+                            android:padding="@dimen/speak_title_padding"
+                            android:textStyle="bold"
+                            android:text="@string/speak_sleep_timer_title"
+                            />
                     <CheckBox
                         android:layout_marginStart="@dimen/speak_row_padding"
                         android:layout_width="match_parent"
