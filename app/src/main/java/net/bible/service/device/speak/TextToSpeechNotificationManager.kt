@@ -276,21 +276,18 @@ class TextToSpeechNotificationManager {
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
 
-    // Needed only to provide colorized notification. MediaSession is null only in tests (Robolectric bug).
-    // private var mediaSession = try { MediaSessionCompat(app, "tts-session")} catch (e: NullPointerException) { null }
-
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
                     action = ACTION_STOP
                 }, 0)
 
-        val contentIntent = Intent(app, MainBibleActivity::class.java)
-        contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        val contentIntent = Intent(app, MainBibleActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
         val style = MediaStyle()
             .setShowActionsInCompactView(2)
-            //.setMediaSession(mediaSession?.sessionToken)
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
