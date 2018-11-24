@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <!--Startup & Help-->
+  <!--Main menu-->
+  <!--Passage navigation-->
+  <!--Search-->
+  <!--Tasks-->
+  <!--Search-->
+  <!--Preferences-->
+  <!--Window-->
+  <!--Notes screen-->
+  <!--Strongs-->
+  <!--Module download-->
+  <!--Install zip file-->
+  <!--Daily Reading Plan-->
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <!--Verse context menu-->
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <!--Dictionary-->
+  <!--General Book-->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <!--Speak - Commentary-->
+  <!--Speak - Dictionary and other-->
+  <!--Speak - Common-->
+  <!--User Notes-->
+  <!--Backup and restore-->
+  <!--About-->
+  <!--Document types-->
+  <!--Languages-->
+  <!--General-->
+  <!--Errors-->
+</resources>

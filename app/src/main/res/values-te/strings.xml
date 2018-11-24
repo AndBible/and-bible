@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">ఆండ్ బైబిల్</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\nఅప్పుడు దేవుడు, “వెలుగు కలుగును గాక!” అన్నాడు. వెలుగు ప్రకాశించటం మొదలయింది.\nఆదికాండము 1:3</string>
+  <string name="help_text">విషయాల కొరకు మెన్యును నొక్కండి\n\nఅధ్యాయాలు మార్చడానికి వేలితో స్వైప్ చేయండి</string>
+  <string name="help_text_long"><b>నావిగేషన్</b>\n\nముందు లేదా వెనకటి అధ్యాయాల్లో వెళ్లడానికి మెనులోకి వెళ్లీ వేలితో కదపండి\n\nస్క్రీన్ ఆన్ లేదా ఆప్ చేయడానికి రెండు సార్లు నొక్కాలి\n\n\n<b>మెను</b>\n\nకార్యకలపాల కొరకు మెను బటన్‌ని నొక్కండి\n\n\nమరిన్ని డాక్యుమెంట్స్ డవున్ లోడ్ చేయడానికి మెనును నొక్కండి/ డాక్యుమెంట్స్ డవున్ లోడ్\n\n\n<b>సంభాషణ</b>\n\nడైలాగ్ వినడానికి లేదా ఆపుటకు సంభాషణ బటన్‌ని నొక్కండి\n\n\n<b>నా నోట్స్</b>\n\nనా నోట్స్ అనే మెను ద్వారా వచనాల సందర్భాసారంగా నోట్స్ చేర్చవచ్చు. అంతకుముందు నోట్స్ చూడడానికి మెయిన్ మెను ద్వారా చూడొచ్చు. \n\n\n<b>బుక్ మార్క్‌స్</b>\n వచనాల మెను ఆధారంగా బుక్ మార్క్‌స్ చేర్చవచ్చు. బుక్ మార్క్ చేయబడిన విషయాలను మెయిన్ మెను ద్వారా చూడవచ్చు. బుక్ మార్క్ మెనెజర్ సందర్భ మెను ద్వారా లేబెల్స్ చేయబడిన బుక్ మార్క్ గుంపుని చూడవచ్చు. \n\n<b>వెతకు</b>\n\nవెతకడం మెను కొరకు ఇలాంటి ప్రత్యేక చిహ్నాలు కలిగి వుంటవి అవి *, ?, AND, OR, NOT (మరిన్ని వివరాల కొరకు \"అపచె లూసిన్-క్వేరి పార్సర్ సింటక్స్\" ని చూడండి.) \n\n\n<b>సంధర్భ మెను</b>\n\nకనిపిస్తున్న బైబిల్లోని వచనం పైన సుధీర్ఘముగా నొక్కడం వల్ల వచన సంధర్భములోకి వెళ్లవచ్చు.\n\nడాక్యమెంటు పైన సుధీర్ఘముగా నొక్కినట్టయితే ఆ ఎంపిక చేసిన డాక్యుమెంటుని తొలగించాలా లేదా దాన్ని గూర్చిన సమాచారాన్ని చూడాలా. \n\nబ్యాక్ బటన్‌ని సుధీర్ఘముగా నొక్కిట్టయితే దానికి సంబంధించిన చరిత్రలోకి తీసుకువేళుతుంది.</string>
+  <string name="version_text">వర్షన్ %s</string>
+  <string name="no_sdcard_error">దయచేసి SD కార్డ్ లోపల పెట్టి మరొక సారి ఆండ్ బైబిల్ మొదలు పెట్టండి.</string>
+  <!--Main menu-->
+  <string name="chooseBook">డాక్యుమెంట్</string>
+  <string name="selectPassage">వాక్యభాగము</string>
+  <string name="search">వెతుకు</string>
+  <string name="settings">సెట్టింగ్స్</string>
+  <string name="history">చరిత్ర</string>
+  <string name="speak">మాట్లాడు</string>
+  <string name="help">సహాయం</string>
+  <string name="verse">వచనం</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">పుస్తకాన్ని ఎన్నుకోవడం</string>
+  <string name="choosePassageChapterName">అధ్యాయాన్ని ఎన్నుకోవడం</string>
+  <string name="choosePassageVerseName">వచనాన్ని ఎన్నుకోవడం</string>
+  <string name="bible">బైబిలు</string>
+  <string name="deuterocanonical">బైబిల్‌ గ్రంథమందలి ప్రక్షిప్త భాగములు</string>
+  <!--Search-->
+  <string name="search_index">విషయాన్ని వెతుకు</string>
+  <string name="index_creation_required">వెతకడానికి విషయ సూచిక అవసరం.\n\nవిషయ సూచిక ఇంటర్నెట్ నుండి డౌవ్న్‌లోడ్ చేసుకోవచ్చు లేదా ప్రాంతీయంగా తయారు చేసుకోవచ్చు.\n\nడౌవ్న్‌లోడ్ చేయడం చాలా త్వరగ అవుతుంది మరియు డౌవ్న్‌లోడ్ చేసుకొన్న విషయ సూచికలో చాలా పీచర్స్ ఇమిడి వుంటాయి.\n\nవిషయ సూచికను డౌవ్న్‌లోడ్ చేసుకోవడానికి ఇంటర్నెట్ అవసరం.\n</string>
+  <string name="indexing_wait_msg">విషయ సూచిక పూర్తి అయ్యాక మిమ్ములను సర్చ్ స్క్రీన్ వైపు తీసుకెళుతుంది.</string>
+  <string name="index">విషయ సూచిక</string>
+  <string name="index_download">డౌవ్న్‌లోడ్</string>
+  <string name="index_not_available_for_download">డౌవ్న్‌లోడ్ కొరకు విషయ సూచిక కనిపించడం లేదు</string>
+  <string name="index_create">తయారు చెయ్యి</string>
+  <!--Tasks-->
+  <string name="progress_status">ముందుకు సాగడం</string>
+  <string name="task_kill_warning">ఎక్కువ సమయం తీసుకొనే కార్యాలు మిమ్ములను మరొక అప్లికేషన్లోకి తీసుకెళ్లే అస్కారం వుంది.</string>
+  <string name="no_tasks_running">ప్రస్తుతం జరిగిన కార్యకలపాలు ఏవి లేవు. </string>
+  <!--Search-->
+  <string name="search_results">ఫలితాలను కనుక్కోవడం</string>
+  <string name="search_words_group_prompt">వచనాలు కనుక్కోవడం</string>
+  <string name="search_all_words">అన్ని పదాలు</string>
+  <string name="search_any_word">ఎదైన పదం</string>
+  <string name="search_phrase">సూక్ష్మవాక్యం</string>
+  <string name="search_result_count">%d కూడా సరిపోల్చబడలేదు</string>
+  <string name="search_showing_first">చాలా విషయాలు పోలిక కలిగివున్నవి. మొదట చూపబడినవి %d</string>
+  <string name="search_bible_section_group_prompt">ఎక్కడ వెతకాలి</string>
+  <string name="search_all_bible">బైబిలు మొత్తం</string>
+  <string name="search_new_testament">క్రొత్త నిబంధనలో</string>
+  <string name="search_old_testament">పాత నిబంధనలో</string>
+  <string name="search_current_book">ప్రస్తుత పుస్తకంలో</string>
+  <string name="error_executing_search">మీరు వెతుకుతున్నది సరికాదు</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">వచనాల సంఖ్య</string>
+  <string name="prefs_show_verseno_summary">వచనాల సంఖ్యను చూపాలి</string>
+  <string name="prefs_verse_per_line_title">ఒక లైనులో ఒక వచనం</string>
+  <string name="prefs_verse_per_line_summary">ప్రతి వచనం వేరు వేరు లైనులో చూపాలి</string>
+  <string name="prefs_show_bookmarks_title">గుర్తించిన ఐకాన్ చూపు</string>
+  <string name="prefs_show_bookmarks_summary">గుర్తించిన వచనాల ఐకాన్ చూపు</string>
+  <string name="prefs_show_mynotes_title">నేను గుర్తించిన ఐకాన్ చూపు</string>
+  <string name="prefs_show_mynotes_summary">నేను నోట్ చేసిన వచనాల ఐకాన్ చూపు</string>
+  <string name="prefs_show_notes_title">పుట్‌నోట్ మరియు క్రాస్ రెపెరెన్స్</string>
+  <string name="prefs_show_notes_summary">పుట్‌నోట్స్ మరియు క్రాస్ రెపెరెన్స్ చూపు</string>
+  <string name="prefs_show_strongs_title">స్ట్రాంగ్స్ సంఖ్యలను చూపు</string>
+  <string name="prefs_show_strongs_summary">గ్రీకు మరియు హెబ్రీ భాష నిర్వచనాలకు లింకు</string>
+  <string name="prefs_show_morphology_title">పదనిర్మాణ సంకేతాలు</string>
+  <string name="prefs_show_morphology_summary">రాబిన్ సన్ గారి గ్రీకు భాష పదనిర్మాణాలను చూపండి</string>
+  <string name="prefs_section_title_title">విభాగపు శీర్షికలు</string>
+  <string name="prefs_section_title_summary">క్రమరహితంగా ఉన్న విభాగపు శీర్షికలను చూపుము</string>
+  <string name="prefs_red_letter_title">ఎరుపు రంగు పదాలు</string>
+  <string name="prefs_red_letter_summary">యేసు అను పదాలు ఎరుపు రంగులో చూపుము</string>
+  <string name="prefs_tilt_to_scroll_title">కొద్ది పాటి కదలిక వల్ల ముందుకు వెళ్లడం</string>
+  <string name="prefs_tilt_to_scroll_summary">క్రింది పేజిలోకి కొద్ది పాటి కదలిక ద్వారా వెళ్లడం</string>
+  <string name="prefs_night_mode_title">నైట్ మోడ్</string>
+  <string name="prefs_night_mode_summary">చికటిలో సులభంగా చదవడానికి</string>
+  <string name="prefs_night_mode_automatic">అటోమెటిక్</string>
+  <string name="prefs_navigate_to_verse_title">వచనాల్లోకి తిరిగి వెళ్లడం</string>
+  <string name="prefs_navigate_to_verse_summary">వాక్యభాగము ఎంపిక చేసేటప్పుడు వచనాలను (మరియు అధ్యాయాలను) ఎన్నుకోవడం</string>
+  <string name="prefs_text_size_title">టెక్స్‌టు యొక్క సైజు</string>
+  <string name="prefs_text_size_summary">ఎక్కువ చూడడం లేదా స్పష్టంగా చూడడం</string>
+  <string name="prefs_text_size_sample_text">నమూనా టెక్స్‌టు</string>
+  <string name="x_minutes">%d నిమిషాలు</string>
+  <string name="prefs_interface_locale_title">అప్లికేషన్ భాష</string>
+  <string name="prefs_interface_locale_summary">వాడుకదారుడు ఎంపిక చేయడానికి సమన్వయ భాష</string>
+  <string name="locale_change_warning">ప్రోగ్రాము క్లోజ్ అయ్యి క్రోత్త భాషలో మొదలవుతుంది</string>
+  <!--Window-->
+  <!--Notes screen-->
+  <string name="no_chapter_notes">ఈ అధ్యాయంలో ఎలాంటి నోట్సు లేవు</string>
+  <string name="no_verse_notes">ఈ వచనంలో నోట్సు లేవు</string>
+  <string name="previous">వెనుకటి విషయానికి</string>
+  <string name="next">తరువాతి విషయానికి</string>
+  <!--Strongs-->
+  <string name="strongs">స్ట్రాంగ్స్ నిఘంటువు</string>
+  <string name="strongs_not_installed">దయచేసి స్ట్రాంగ్ గారి హెబ్రీ మరియు గ్రీకు నిఘంటువులను డౌవ్న్‌లోడ్ చేయండి</string>
+  <string name="all_greek_occurrences">అన్ని చోట్లలో కనుక్కోండి</string>
+  <string name="all_hebrew_occurrences">అన్ని చోట్లలో కనుక్కోండి</string>
+  <string name="no_indexed_bible_with_strongs_ref">సర్చ్ ద్వారా స్ట్రాంగ్ గారి బైబిల్లోని సంఖ్యలు గల విషయ సూచికను తప్పకుండా డవున్ లోడ్ చేసుకోవాలి</string>
+  <string name="morph_robinson_not_installed">దయచేసి రాబిన్ సన్ గారి పదనిర్మాణ విశ్లేషణ కోడ్స్ గల నిఘంటువును డవున్ లోడ్ చేసుకోండి</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">డాక్యుమెంట్స్ డవున్ లోడ్</string>
+  <string name="download_confirmation">ఇంటర్నెట్ నుండి బైబిలును డవున్ లోడ్ చేసుకోండి</string>
+  <string name="download_source_message">వీటి నుండి డాక్యుమెంట్స్ డవున్ లోడ్ చేయబడినవి\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">డవున్ లోడ్</string>
+  <string name="download_refreshing_book_list">డాక్యుమెంట్స్‌ని పట్టికలో రిప్రెష్ చేయడం</string>
+  <string name="download_refresh_book_list_menu_item">రిప్రేష్</string>
+  <string name="error_downloading">డవున్ లోడ్ చేయడంలో పొరపాటు జరిగింది. దయ చేసి మీ ఇంటర్నేట్ కనెక్షన్ సరిచూసుకోండి.</string>
+  <string name="no_internet_connection">ఇంటర్నెట్‌తో కనెక్ట్ కావడం లేదు</string>
+  <string name="storage_space_warning">స్థానిక నిల్వ సామర్థ్యము లేదు.</string>
+  <string name="wait_for_bible">దయచేసి బైబిలు డవున్ లోడ్ పూర్తి అయ్యేవరకు ఆగండి. అప్పుడు మిమ్ములను మెయిన్ స్క్రీన్ వైపు తీసుకువెళుతుంది.\n\nమెను బటన్ ద్వారా తర్వాత మరికొన్ని డాక్యుమెంట్స్ డవున్ లోడ్ చేయండి.</string>
+  <string name="wait_for_bible_not_yet">భైబిలు ఇంక ఇన్స్‌స్టాల్ చేయబడలేదు. దయ చేసి ఆగండి.</string>
+  <string name="download_complete_no_bibles">భైబిలు ఇన్స్‌స్టాల్ చేయబడలేదు. దయ చేసి వెనక్కి వెళ్లీ మరొసారి ట్రై చేయండి.</string>
+  <string name="too_many_jobs">ఎక్కువ కార్యాలు అమలు జరుగుతున్నవి. దయచేసి కొంత విరామం తీసుకొని మళ్లీ ట్రై చేయండి.</string>
+  <string name="document_not_installed">దయచేసి డవున్ లోడ్ చేసుకొండి \'%s\'</string>
+  <!--Install zip file-->
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">చదవడానికి ప్రణాళిక</string>
+  <string name="rdg_plan_selector_title">చదవడానికి ప్రణాళిక ఎంపిక చేసుకోవడం</string>
+  <string name="rdg_plan_day">రోజు %s</string>
+  <string name="rdg_plan_set_start_jan1">జనవరి 1వ తేది ప్రారంభం</string>
+  <string name="done">పూర్తి అయింది</string>
+  <string name="reset">మళ్లీ సెట్ చేయడం</string>
+  <string name="rdg_plan_y1ntpspr">ఒక సంవత్సరములో క్రొత్త నిబంధన, కీర్తనలు మరియు సామెతలు</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">ఒక సంవత్సరములో పూర్తి బైబిలు</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">ఒక సంవత్సరములో పూర్తి బైబిలు - పాత నిబంధన మరియు క్రొత్త నిబంధన</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">ఒక సంవత్సరములో పూర్తి బైబిలు - పాత నిబంధన అయిన తర్వాత క్రొత్త నిబంధన</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">ఒక సంవత్సరములో పూర్తి బైబిలు (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">తొలగించు</string>
+  <string name="delete_index">విషయ సూచికను తొలగించు</string>
+  <string name="about">గురించి</string>
+  <string name="delete_doc">%s? తొలగించు</string>
+  <string name="delete_search_index_doc">%s విషయ సూచికను తొలగించాలి?</string>
+  <!--Verse context menu-->
+  <string name="notes">పుట్ నోట్స్ మరియు రెపరెన్సులు</string>
+  <string name="copy">కాపి</string>
+  <string name="share_verse">పంచుకోవడం …</string>
+  <string name="share_verse_subject">ఆండ్ బైబిల్ ద్వారా మీతో ఈ బైబిల్ వచనం పంచుకొబడ్డది</string>
+  <string name="compare_translations">తర్జుమాలతో పోల్చి చూడండి</string>
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <string name="bookmarks">బుక్ మార్క్‌స్</string>
+  <string name="add_bookmark">బుక్ మార్క్‌స్ చేర్చండి</string>
+  <string name="bookmark_added">బుక్ మార్క్‌స్ చేర్చబడ్డవి</string>
+  <string name="bookmark_exists">బుక్ మార్క్‌స్ ముందునుండి ఉన్నవి</string>
+  <string name="bookmark_labels">బుక్ మార్క్ గుర్తులు</string>
+  <string name="assign_labels">గుర్తులను నిర్నయించుట</string>
+  <string name="new_label">క్రొత్త గుర్తు</string>
+  <string name="label_name_prompt">పేరు</string>
+  <string name="label_unlabelled">గుర్తించనిది</string>
+  <string name="rename">మరొక పేరు పెట్టడం</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">తేది క్రమం</string>
+  <string name="sort_by_bible_book">గ్రంథాల క్రమం</string>
+  <string name="sort_by_alphabetical">వర్ణమాల క్రమం</string>
+  <!--Dictionary-->
+  <string name="dictionary">నిఘంటువు</string>
+  <string name="search_dictionary_hint">నిఘంటువులో వెతకుట</string>
+  <string name="dictionary_contents">విషయసూచిక</string>
+  <!--General Book-->
+  <string name="general_book">పుస్తకము</string>
+  <string name="general_book_contents">విషయసూచిక</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d అధ్యాయము</string>
+  <string name="some_chapters">%d అధ్యాయాలు</string>
+  <string name="rest_of_book">పుస్తకం చివరికి</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse"> %d వచనం</string>
+  <string name="some_verses"> %d వచనాలు</string>
+  <string name="rest_of_chapter">అధ్యాయం చివరికి</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page"> %d పేజి</string>
+  <string name="some_pages"> %d పేజీలు</string>
+  <!--Speak - Common-->
+  <string name="stop">ఆగుము</string>
+  <string name="pause">విరామం</string>
+  <string name="rewind">రీవైండ్</string>
+  <string name="forward">ముందుకు</string>
+  <string name="tts_lang_not_available">భాష లభించడం లేదు.</string>
+  <string name="speak_queue">వరుస</string>
+  <string name="speak_repeat">మళ్లీచేయండి</string>
+  <!--User Notes-->
+  <string name="mynotes">నా నోట్స్</string>
+  <string name="mynote">నా నోట్</string>
+  <string name="mynote_add">నా నోట్ చేర్చు</string>
+  <string name="mynote_view_edit">నా నోట్</string>
+  <string name="mynote_saved">నా నోట్ సేవ్ చయబడింది</string>
+  <!--Backup and restore-->
+  <string name="backup">బ్యాకప్</string>
+  <string name="backup_success">నా నోట్స్ మరియు బుక్ మార్క్‌స్ SD కార్డులో %s సేవ చేయబడినవి</string>
+  <string name="restore">పునరుద్ధరించు</string>
+  <string name="restore_confirmation">నా నోట్స్ మరియు బుక్ మార్క్‌స్‌ని సరిదిద్ది రాయి?</string>
+  <string name="restore_success">నా నోట్స్ మరియు బుక్ మార్క్‌స్‌ని %s SD కార్డు ద్వారా పునరుధ్దరించు</string>
+  <!--About-->
+  <string name="about_version">వర్షన్: %s</string>
+  <string name="about_versification">పద్యములు చెప్పడము: %s</string>
+  <!--Document types-->
+  <string name="doc_type_bible">బైబిలు</string>
+  <string name="doc_type_commentary">వ్యాఖ్యానము</string>
+  <string name="doc_type_dictionary">నిఘంటువు</string>
+  <string name="doc_type_book">పుస్తకము</string>
+  <string name="doc_type_map">పటము</string>
+  <!--Languages-->
+  <string name="lang_default">లోపము</string>
+  <!--General-->
+  <string name="okay">ఒకె</string>
+  <string name="cancel">క్యాన్సిల్</string>
+  <string name="yes">అవును</string>
+  <string name="no">కాదు</string>
+  <string name="save">బధ్ర పరచు</string>
+  <string name="error">తప్పయింది</string>
+  <string name="more">మరిన్ని</string>
+  <string name="more_dotted">ఇంకా</string>
+  <string name="retry">మళ్లీ చేయండి</string>
+  <string name="please_wait">దయచేసి ఆగండి</string>
+  <string name="all">అన్ని</string>
+  <string name="default_value">@string/lang_default</string>
+  <!--Errors-->
+  <string name="error_occurred">ఒక తప్పు జరిగింది</string>
+  <string name="error_no_content">ఎంపిక చేసిన వచనానికి కాంటెంట్ లేదు</string>
+  <string name="error_page_too_large">లోడ్ చేయలేనంత పెద్ద పేజి</string>
+  <string name="error_key_not_in_document">డాక్యుమెంటులో లేదు</string>
+  <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
+</resources>

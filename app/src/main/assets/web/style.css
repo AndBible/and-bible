@@ -1,0 +1,174 @@
+/* colours:  http://www.w3schools.com/css/css_colornames.asp 
+*/
+
+body {
+	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
+	font-size: 1.1em;
+	margin: auto;
+	padding-left: 2vw;
+	padding-right: 2vw;
+	max-width: 17cm;
+}
+
+h1, .heading1 {
+	color: navy;
+	text-align: left;
+	font-size: 1.2em;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+}
+
+/* prevent gaps between titles which have a span adjacent to them see example in ESV Ps 69 where a title is immediately followed by another */  
+span[id="0"].verseNo + h1 {
+	display:inline;
+}
+/* but ensure a heading in verse 0 is followed by a new line e.g. GerNeUe Ps 69 
+   The "\A" escape sequence is a new line. */
+span[id="0"].verseNo + h1:after { 
+	content: "\A";
+	white-space: pre; 
+}
+
+div.breakline {
+    height: 0.5em;
+}
+
+img.sword {
+	max-width: 100%;
+}
+
+h1 a, .heading2, .heading3, .heading4 {
+	color: navy;
+	text-align: left;
+	font-size: 0.9em;
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+	text-decoration: none
+}
+
+.divineName {
+	font-variant: small-caps;
+}
+
+.chapterNo {
+	color: Gray;
+	font-size: 0.7em;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+	text-align: center;
+}
+.verseNo {
+	color: Gray;
+	vertical-align: top;
+	font-size: 0.7em;
+	line-height: 1.6em; /* need line-height repeated here because otherwise the verse no drops to the bottom */
+}
+.noteRef {
+	color: Green;
+	vertical-align: bottom;
+	font-size: 0.7em;
+}
+.strongs {
+	color: #669999;
+	font-size: 0.7em;
+	vertical-align: sub;
+	text-decoration: none
+}
+.redLetter {
+	color: #800;
+}
+.transChange {
+	font-style: italic;
+}
+.morphology {
+	color: #4B7E4B;
+	font-size: 0.7em;
+	vertical-align: sub;
+	text-decoration: none
+}
+
+.allStrongsRefsLink {
+	display: block;
+	float: right;
+}
+
+.myNoteImg {
+	padding-right: 0.2em;
+}
+
+/** styles for hi tag e.g. <hi type="italic">123</hi> */ 
+.hi_acrostic {
+	/* NOOP */
+}
+.hi_bold, .hi_emphasis, .hi_illuminated {
+	font-weight: bold;
+}
+.hi_italic {
+	font-style: italic;
+}
+.hi_line-through {
+	text-decoration: line-through;
+}
+.hi_normal {
+	text-decoration: none;
+	font-weight: normal;
+	font-style: normal;
+}
+.hi_small-caps {
+	font-variant: small-caps;
+}
+.hi_sub {
+	vertical-align: sub;
+}
+.hi_super {
+	vertical-align: super;
+}
+.hi_underline {
+	text-decoration: underline;
+}
+
+.rtl-notusedyet {
+	direction: rtl;
+  	unicode-bidi: embed;
+	display: block;
+/*	-webkit-rtl-ordering: logical; */
+}
+
+.YELLOW_HIGHLIGHT {
+	/* yellow */
+	background-color: rgba(255, 255, 0, 0.33);
+}
+.RED_HIGHLIGHT {
+	/* green */
+	background-color: rgba(213, 0, 0, 0.28);
+}
+.GREEN_HIGHLIGHT {
+	/* green */
+	background-color: rgba(0, 255, 0, 0.33);
+}
+.BLUE_HIGHLIGHT {
+	/* blue A100 */
+	background-color: rgba(128, 216, 255, 0.33);
+}
+
+.YELLOW_STAR>.bookmark1:after {
+   background-image:url(file:///android_asset/images/GoldStar16x16.png);
+   display: inline-block;
+   width: 1.0em;
+   height: 1.0em;
+   content: "";
+   background-size: 1.0em 1.0em;
+}
+
+.SPEAK>.bookmark2:after {
+   background-image:url(file:///android_asset/images/hearing.png);
+   display: inline-block;
+   width: 1.0em;
+   height: 1.0em;
+   content: "";
+   background-size: 1.0em 1.0em;
+}
+
+.selected {
+	background-color: #91A7FF;
+}

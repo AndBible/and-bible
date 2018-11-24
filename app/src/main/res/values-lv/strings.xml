@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">And Bible</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\"Un Dievs sacīja: \'Lai top gaisma\' un gaisma tapa.\" \nGenesis 1:03</string>
+  <string name="help_text">Lai piekļūtu darbībām nospiediet MENU taustiņu\n\nPārvietojieties no vienas nodaļas uz otru izmantojot track-ball, D-pad vai uzsitot uz ekrāna ar pirkstu</string>
+  <string name="help_text_long">Lietošana\nPārvietojieties no vienas nodaļas uz otru izmantojot track-ball, D-pad vai uzsitot uz ekrāna ar pirkstu\n\nLai piekļūtu darbībām nospiediet MENU taustiņu \n\nLai lejuplādētu vairāk dokumentus nospiediet Menu/Administrēšana/Lejuplādēt Dokumentus \n\nUzspiediet uz ekrāna un paturiet, Bībeles skatā, lai piekļūtu papildus darbībām ar aktīvo pantu. \nDokumentu sarakstā uzspiediet uz dokumenta un paturiet, lai dzēstu vai apskatītu papildinformāciju. \n\nBalss\nNospiediet Balss, lai piekļūtu izvēlnei un sāktu vai apturētu lasīšanu balsī.\n\nGrāmatzīmes\nGrāmatzīmes var pievienot izmantojot panta papildus darbības. Grāmatzīmju pārvaldniekam var piekļūt no pamatizvēlnes. Grāmatzīmju pārvaldnieka papildus darbības ļauj grupēt grāmatzīmes izmantojot atzīmes.</string>
+  <string name="version_text">Versija %s</string>
+  <string name="no_sdcard_error">Lūdzu, ievietojiet SD karti un startējiet And Bible vēlreiz.</string>
+  <!--Main menu-->
+  <string name="chooseBook">Dokuments</string>
+  <string name="selectPassage">Fragments</string>
+  <string name="search">Atrast</string>
+  <string name="settings">Iestatījumi</string>
+  <string name="history">Vēsture</string>
+  <string name="speak">Runā</string>
+  <string name="help">Palīdzība</string>
+  <string name="verse">Pants</string>
+  <string name="administration">Administrēšana</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Izvēlaties Grāmatu</string>
+  <string name="choosePassageChapterName">Izvēlaties Nodaļu</string>
+  <string name="choosePassageVerseName">Izvēlaties Pantu</string>
+  <string name="bible">Bībele</string>
+  <string name="deuterocanonical">Duetoroniskās</string>
+  <!--Search-->
+  <string name="search_index">Meklēt Saturā</string>
+  <string name="index_creation_required">Meklēšanai ir nepieciešams indekss.\n\nIndeksus var lejuplādēt no interneta, vai izveidot lokāli.\n\nLejuplādēšana ir ātrāka un lejuplādētie Indeksi satur vairāk meklēšanas iespēju.\n\nLai lejuplādētu indeksus, nepieciešams interneta pieslēgums.\n</string>
+  <string name="indexing_wait_msg">Kad indeksēšana būs pabeigta, Jūs tiksiet pārvietoti uz meklēšanas logu.</string>
+  <string name="index">Indekss</string>
+  <string name="index_download">Lejupielādēt</string>
+  <string name="index_not_available_for_download">Šis indekss nav pieejams lejupielādei</string>
+  <string name="index_create">Izveidot</string>
+  <!--Tasks-->
+  <string name="progress_status">Progress</string>
+  <string name="task_kill_warning">Ilglaicīgie uzdevumi var tik pārtraukti, ja pārslēgsieties uz citu programmu, pirms tie ir pabeigti.</string>
+  <string name="no_tasks_running">Neviens uzdevums šobrīd netiek pildīts.</string>
+  <!--Search-->
+  <string name="search_results">Meklēt rezultātus</string>
+  <string name="search_words_group_prompt">Atrast pantus</string>
+  <string name="search_all_words">Visi vārdi</string>
+  <string name="search_any_word">Jebkurš vārds</string>
+  <string name="search_phrase">Frāze</string>
+  <string name="search_result_count">atrasti %d rezultāti</string>
+  <string name="search_showing_first">Pārāk daudz rezultātu. Tiks rādīti pirmie %d</string>
+  <string name="search_bible_section_group_prompt">Kur meklēt</string>
+  <string name="search_all_bible">Visa Bībele</string>
+  <string name="search_new_testament">Jaunā Derība</string>
+  <string name="search_old_testament">Vecā Derība</string>
+  <string name="search_current_book">Pašreizējā grāmatā</string>
+  <string name="error_executing_search">Nederīgs meklēšanas vaicājums</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Panta numurs</string>
+  <string name="prefs_show_verseno_summary">Rādīt pantu numerāciju</string>
+  <string name="prefs_verse_per_line_title">Katrā rindā viens pants</string>
+  <string name="prefs_verse_per_line_summary">Rādīt katru pantu savā rindā</string>
+  <string name="prefs_show_mynotes_title">Rādīt Manu Piezīmju Ikonu</string>
+  <string name="prefs_show_mynotes_summary">Rādīt Ikonu Pantiem ar Manu Piezīmi</string>
+  <string name="prefs_show_notes_title">Piezīmes un x-saistītie</string>
+  <string name="prefs_show_notes_summary">Rādīt piezīmes un saistītās rakstu vietas</string>
+  <string name="prefs_show_strongs_title">Rādīt Stronga numerāciju</string>
+  <string name="prefs_show_strongs_summary">Saites uz Grieķu &amp; Ebreju definīcijām</string>
+  <string name="prefs_show_morphology_title">Morfoloģiskie kodi</string>
+  <string name="prefs_show_morphology_summary">Rādīt Robinsona Grieķu morfoloģiju</string>
+  <string name="prefs_section_title_title">Sekciju nosaukumi</string>
+  <string name="prefs_section_title_summary">Rādīt nekanonisko sekciju nosaukumus</string>
+  <string name="prefs_red_letter_title">Lasīt Vēstuli</string>
+  <string name="prefs_red_letter_summary">Rādīt Jēzus vārdus sarkanā krāsā</string>
+  <string name="prefs_tilt_to_scroll_title">Noliekt lai ritinātu</string>
+  <string name="prefs_tilt_to_scroll_summary">Noliekt ierīci lai ritinātu lapu uz leju</string>
+  <string name="prefs_night_mode_title">Nakts režīms</string>
+  <string name="prefs_night_mode_summary">Lai vieglāk lasīt tumsā</string>
+  <string name="prefs_night_mode_automatic">Automātiski</string>
+  <string name="prefs_navigate_to_verse_title">Doties uz pantu</string>
+  <string name="prefs_navigate_to_verse_summary">Izvēlēties pantu (un nodaļu) kad atzīmē rakstu vietu</string>
+  <string name="prefs_open_links_in_special_window_title">Atvērt saites speciālā logā</string>
+  <string name="prefs_open_links_in_special_window_summary">Ātrākai saistīto referenču un Stronga skaidrojumu atvēršanai</string>
+  <string name="prefs_text_size_title">Teksta izmērs</string>
+  <string name="prefs_text_size_summary">Redzēt vairāk vai redzēt skaidrāk</string>
+  <string name="prefs_text_size_sample_text">Parauga teksts</string>
+  <string name="x_minutes">%d minūtes</string>
+  <string name="prefs_interface_locale_title">Programmas valoda</string>
+  <string name="prefs_interface_locale_summary">Izvēlieties pielāgotu lietotāja interfeisa valodu</string>
+  <string name="locale_change_warning">Programma tiks pārstartēta, lai pārslēgtos uz jauno interfeisa valodu</string>
+  <!--Window-->
+  <string name="window">Logs</string>
+  <string name="windowClose">Aizvērt</string>
+  <string name="windowMaximise">Palielināt</string>
+  <string name="windowMinimise">Samazināt</string>
+  <string name="windowSynchronise">Sinhronizēt</string>
+  <string name="windowMoveFirst">Pārvietot vispirms </string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Šai nodaļai nav piezīmju</string>
+  <string name="no_verse_notes">Šim pantam nav piezīmju</string>
+  <string name="previous">Iepriekšējais</string>
+  <string name="next">Nākamais</string>
+  <!--Strongs-->
+  <string name="strongs">Stronga Vārdnīca</string>
+  <string name="strongs_not_installed">Lūdzu, lejuplādējiet Stronga Ebreju un Grieķu vārdnīcas</string>
+  <string name="all_greek_occurrences">Atrast visus sastopamos</string>
+  <string name="all_hebrew_occurrences">Atrast visus sastopamos</string>
+  <string name="no_indexed_bible_with_strongs_ref">Jums nepieciešams lejuplādēt Bībeli, kas satur Stronga numerāciju un lejuplādēt tās indeksu izmantojot Meklēšanu</string>
+  <string name="morph_robinson_not_installed">Lūdzu lejuplādējiet \'Robinsona Morfoloģiskās analīzes kodu vārdnīcu</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">Lejuplādēt Dokumentus</string>
+  <string name="download_confirmation">Lejuplādēt Bībeli no interneta?</string>
+  <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">Lejuplādēt</string>
+  <string name="download_refreshing_book_list">Pieejamajiem dokumentu atsvaidzināšanas saraksts?</string>
+  <string name="download_refresh_book_list_menu_item">Atjaunot</string>
+  <string name="error_downloading">Kļūda lejupielādējot. Lūdzu, pārbaudiet savu interneta pieslēgumu.</string>
+  <string name="no_internet_connection">Nevarēja izveidot savienojumu ar internetu</string>
+  <string name="storage_space_warning">Atmiņā nepietiekama vieta .</string>
+  <string name="wait_for_bible">Lūdzu uzgaidiet, kamēr Bībeles lejuplāde būs pabeigta. Pēc tam tiksiet pārslēgts uz galveno logu.\n\nLejuplādējiet vairāk dokumentus vēlāk, navigējot ar izvēlnes taustiņu Menu button/Administrēšana/Lejuplādēt dokumentus.</string>
+  <string name="wait_for_bible_not_yet">Lūdzu uzgaidiet. Bībeles uzstādīšana vēl nav pabeigta.</string>
+  <string name="download_complete_no_bibles">Neviena Bībele nav instalēta. Lūdzu nospiediet atpakaļ\nUn mēģiniet vēlreiz.</string>
+  <string name="too_many_jobs">Pārāk daudz aktīvu uzdevumu. Lūdzu uzgaidiet kamēr daži tiek izpildīti un mēģiniet vēlreiz.</string>
+  <string name="document_not_installed">Lūdzu lejuplādējiet \'%s\'.</string>
+  <!--Install zip file-->
+  <string name="install_zip">Ielādēt dokumentu no Zip faila</string>
+  <string name="install_zip_successfull">Modulis ir veiksmīgi uzinstalēts</string>
+  <string name="extracting_zip_file">Notiek Zip faila atvēršana</string>
+  <string name="checking_zip_file">Pārbauda doto failu</string>
+  <string name="invalid_module">Fails nesatur derīgu SWORD moduli</string>
+  <string name="module_already_installed">Fails satur moduli, kurš jau ir instalēts</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Lāsīšanas plāns</string>
+  <string name="rdg_plan_selector_title">Izvēlies lasīšanas plānu</string>
+  <string name="rdg_plan_day">%s\'. Diena</string>
+  <string name="rdg_plan_set_start_jan1">Sākt ar 1. janvāri</string>
+  <string name="done">Pabeigts</string>
+  <string name="reset">Salikt no jauna</string>
+  <string name="rdg_plan_y1ntpspr">Jaunā Derība, Psalmi un Salamana Pamācības gada laikā</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Bībele hronoloģiski gada laikā</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Bībele gada laikā - VD un JD</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Bībele gada laikā vispirms VD tad JD</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Bībele gada laikā (M Čeinijs)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 gadu plāns - VD vienreiz, JD un Psalmi divreiz</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">Dzēst</string>
+  <string name="delete_index">Dzēst meklēšanas indeksu</string>
+  <string name="about">Par</string>
+  <string name="delete_doc">Dzēst %s?</string>
+  <string name="delete_search_index_doc">Dzēst %s indeksu?</string>
+  <!--Verse context menu-->
+  <string name="notes">Zemsvītras piezīmes un atsauces</string>
+  <string name="copy">Kopēt</string>
+  <string name="share_verse">Dalīties …</string>
+  <string name="share_verse_subject">Šo Bībeles pants Jums nosūtīts izmantojot And Bible</string>
+  <string name="compare_translations">Salīdzināt tulkojumus</string>
+  <!--Link context menu-->
+  <!--Bookmarks-->
+  <string name="bookmarks">Grāmatzīmes</string>
+  <string name="add_bookmark">Pievienot grāmatzīmi</string>
+  <string name="bookmark_added">Grāmatzīme pievienota</string>
+  <string name="bookmark_exists">Grāmatzīme jau eksistē</string>
+  <string name="bookmark_labels">Grāmatzīmju atzīmes</string>
+  <string name="assign_labels">Pievienot atzīmes</string>
+  <string name="new_label">Jauna Atzīme</string>
+  <string name="label_name_prompt">Nosaukums</string>
+  <string name="label_unlabelled">Nenosaukts</string>
+  <string name="rename">Pārsaukt</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Secībā pēc datuma</string>
+  <string name="sort_by_bible_book">Bibliskā secībā</string>
+  <string name="sort_by_alphabetical">Alfabētiskā kārtībā</string>
+  <!--Dictionary-->
+  <string name="dictionary">Vārdnīca</string>
+  <string name="search_dictionary_hint">Meklēt vārdnīcā</string>
+  <string name="dictionary_contents">Saturs</string>
+  <!--General Book-->
+  <string name="general_book">Grāmata</string>
+  <string name="general_book_contents">Saturs</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d nodaļa</string>
+  <string name="some_chapters">%d nodaļas</string>
+  <string name="rest_of_book">Uz grāmatas beigām</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d pants</string>
+  <string name="some_verses">%d panti</string>
+  <string name="rest_of_chapter">Uz nodaļas beigām</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d lapa</string>
+  <string name="some_pages">%d lapas</string>
+  <!--Speak - Common-->
+  <string name="stop">Apturēt</string>
+  <string name="pause">Pauze</string>
+  <string name="rewind">Atpakaļ</string>
+  <string name="forward">Uz priekšu</string>
+  <string name="tts_lang_not_available">Valoda nav pieejama.</string>
+  <string name="speak_queue">Rinda</string>
+  <string name="speak_repeat">Atkārtot</string>
+  <!--User Notes-->
+  <string name="mynotes">Manas piezīmes</string>
+  <string name="mynote">Mana Piezīme</string>
+  <string name="mynote_add">Pievienot Manu Piezīmi</string>
+  <string name="mynote_view_edit">Mana Piezīme</string>
+  <string name="mynote_saved">Mana Piezīme saglabāta</string>
+  <!--Backup and restore-->
+  <string name="backup">Dublēt</string>
+  <string name="backup_success">Manas Piezīmes un grāmatzīmes saglabātas %s uz SD karters</string>
+  <string name="restore">Atjaunot</string>
+  <string name="restore_confirmation">Pārrakstīt Manas Piezīmes un Grāmatzīmes?</string>
+  <string name="restore_success">Manas Piezīmes un Grāmatzīmes atjaunotas no %s SD kartes</string>
+  <!--About-->
+  <string name="about_version">Versija: %s</string>
+  <string name="about_versification">Pantu atšķirības: %s</string>
+  <!--Document types-->
+  <string name="doc_type_bible">Bībele</string>
+  <string name="doc_type_commentary">Komentāri</string>
+  <string name="doc_type_dictionary">Vārdnīca</string>
+  <string name="doc_type_book">Grāmata</string>
+  <string name="doc_type_map">Karte</string>
+  <!--Languages-->
+  <string name="lang_default">Noklusēts</string>
+  <!--General-->
+  <string name="okay">Labi</string>
+  <string name="cancel">Atcelt</string>
+  <string name="yes">Jā</string>
+  <string name="no">Nē</string>
+  <string name="save">Saglabāt</string>
+  <string name="error">Kļūda</string>
+  <string name="more">Vairāk</string>
+  <string name="more_dotted">Vairāk...</string>
+  <string name="retry">Mēģināt vēlreiz</string>
+  <string name="please_wait">Lūdzu uzgaidiet ...</string>
+  <string name="all">Viss</string>
+  <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Jauns</string>
+  <string name="close">Aizvērt</string>
+  <!--Errors-->
+  <string name="error_occurred">Radusies kļūda</string>
+  <string name="error_no_content">Izvēlētajam pantam nav papildus satura</string>
+  <string name="error_page_too_large">Lapa ir par lielu lai to ielādētu</string>
+  <string name="error_key_not_in_document">Dokumentā nav atrasts</string>
+  <string name="empty_list">Nav parādāmu vienumu</string>
+</resources>

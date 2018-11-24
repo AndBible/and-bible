@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preference configuration
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+			android:key="bible_display_pref">
+
+    <!-- first night mode setting is for use with no light sensor, second is a list with automatic added -->			
+	<CheckBoxPreference android:key="night_mode_pref" 
+				android:title="@string/prefs_night_mode_title"
+				android:summary="@string/prefs_night_mode_summary"
+				android:defaultValue="false"/> 
+	<ListPreference android:key="night_mode_pref2" 
+				android:title="@string/prefs_night_mode_title"
+				android:summary="@string/prefs_night_mode_summary"
+				android:entries="@array/prefs_night_mode_descriptions"
+				android:entryValues="@array/prefs_night_mode_values"
+				android:defaultValue="false"/>
+
+	<CheckBoxPreference android:key="show_verseno_pref" 
+				android:title="@string/prefs_show_verseno_title"
+				android:summary="@string/prefs_show_verseno_summary"
+				android:defaultValue="true"/>
+    <CheckBoxPreference android:key="verse_per_line_pref" 
+				android:title="@string/prefs_verse_per_line_title" 
+				android:summary="@string/prefs_verse_per_line_summary" 
+				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="show_bookmarks_pref" 
+				android:title="@string/prefs_show_bookmarks_title"
+				android:summary="@string/prefs_show_bookmarks_summary"
+				android:defaultValue="true"/>
+	<net.bible.android.view.util.BookmarkColourPreference
+				android:key="default_bookmark_style_pref"
+				android:title="@string/prefs_default_bookmark_style_title"
+				android:summary="@string/prefs_default_bookmark_style_summary"/>
+   	<CheckBoxPreference android:key="show_mynotes_pref"
+				android:title="@string/prefs_show_mynotes_title"
+				android:summary="@string/prefs_show_mynotes_summary"
+				android:defaultValue="true"/>
+	<CheckBoxPreference android:key="show_notes_pref" 
+				android:title="@string/prefs_show_notes_title"
+				android:summary="@string/prefs_show_notes_summary"
+				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="show_strongs_pref" 
+				android:title="@string/prefs_show_strongs_title"
+				android:summary="@string/prefs_show_strongs_summary"
+				android:defaultValue="true"/> 
+	<CheckBoxPreference android:key="show_morphology_pref" 
+				android:title="@string/prefs_show_morphology_title"
+				android:summary="@string/prefs_show_morphology_summary"
+				android:defaultValue="false"/> 
+	<CheckBoxPreference android:key="section_title_pref"
+				android:title="@string/prefs_section_title_title"
+				android:summary="@string/prefs_section_title_summary"
+				android:defaultValue="true"/>
+	<CheckBoxPreference android:key="red_letter_pref"
+				android:title="@string/prefs_red_letter_title"
+				android:summary="@string/prefs_red_letter_summary"
+				android:defaultValue="false"/>
+	<net.bible.android.view.util.TextSizePreference android:key="text_size_pref" 
+				android:title="@string/prefs_text_size_title"
+				android:summary="@string/prefs_text_size_summary"
+				android:defaultValue="16"
+				android:max="60"/> 
+	<CheckBoxPreference android:key="tilt_to_scroll_pref"
+				android:title="@string/prefs_tilt_to_scroll_title"
+				android:summary="@string/prefs_tilt_to_scroll_summary"
+				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="navigate_to_verse_pref" 
+				android:title="@string/prefs_navigate_to_verse_title"
+				android:summary="@string/prefs_navigate_to_verse_summary"
+				android:defaultValue="false"/>
+    <!-- CheckBoxPreference android:key="verse_menu_button_pref"
+                        android:title="@string/prefs_verse_menu_button_title"
+                        android:summary="@string/prefs_verse_menu_button_summary"
+                        android:defaultValue="false"/ -->
+	<CheckBoxPreference android:key="open_links_in_special_window_pref" 
+				android:title="@string/prefs_open_links_in_special_window_title"
+				android:summary="@string/prefs_open_links_in_special_window_summary"
+				android:defaultValue="true"/>
+	<ListPreference android:key="split_mode_pref"
+				android:title="@string/prefs_split_mode_title"
+				android:summary="@string/prefs_split_mode_summary"
+				android:entries="@array/prefs_split_mode_descriptions"
+				android:entryValues="@array/prefs_split_mode_values"
+				android:defaultValue="automatic"/>
+	<CheckBoxPreference android:key="screen_keep_on_pref"
+				android:title="@string/prefs_screen_keep_on_title"
+				android:summary="@string/prefs_screen_keep_on_summary"
+				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="request_sdcard_permission_pref"
+				android:title="@string/prefs_request_sdcard_permission_title"
+				android:summary="@string/prefs_request_sdcard_permission_summary"
+				android:defaultValue="false"/>
+	<!--suppress AndroidDomInspection -->
+	<ListPreference android:key="locale_pref"
+				android:title="@string/prefs_interface_locale_title"
+				android:summary="@string/prefs_interface_locale_summary"
+				android:entries="@array/prefs_interface_locale_descriptions"
+				android:entryValues="@array/prefs_interface_locale_values"
+				android:defaultValue=""/>
+</PreferenceScreen>

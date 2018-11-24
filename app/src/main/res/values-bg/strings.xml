@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">And Bible</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">
+\n\"И Бог каза: \'Да бъде светлина.\' И стана светлина. \"\nБитие 1:3</string>
+  <string name="help_text">За достъпа до настройките и функциите отворете МЕНЮ.\n За да преминете към предишната или следващата глава, плъзнете с пръста надясно или наляво (или хардуерните копчета за курсора).</string>
+  <string name="help_text_long"><b>Навигация</b>\nПлъзнете с пръста надясно или наляво, за да преминете към предишната или следващата глава. \nДвойното почукване на екрана отваря/затваря изгледа на целия екран. \n\n<b>Меню</b> \nНатиснете МЕНЮ за повече функции. \n\nЗа да изтеглите книга, натиснете МЕНЮ/Изтегляне \n\n <b>Реч</b>\n Натиснете \"Реч\" за управление на автоматичното прочитане на текста. \n\n<b>Моите бележки</b>\nМожете да добавяте записки/бележки чрез \"Бележка\" в контекстното меню на даден стих. Списъкът с бележки можете да видите в основното меню. \n\n<b>Отметки</b>\nМожете да добавите отметка към стиха чрез контекстното меню на стиха. Списъкът с отметки се намира в основното меню. Там стиховете могат да бъдат групирани чрез етикети. \n\n<b>Търсене</b>\nВ полето за търсене можете да ползвате специални параметри като *, ?, AND, OR, NOT (повече детайли в \"Apache Lucene - Query Parser Syntax\") \n\n<b>Контекстните менюта</b> \nПродължителното натискане върху изгледа на Библията, отваря контекстното меню за даден стих. \nПродължителното натискане върху документа в списъка дава възможност да се види повече информация относно документа и да се изтрие, ако се налага. \nПродължителното натискане на копчето \"Назад\" отваря хронологията на отворените стихове.</string>
+  <string name="version_text">Версия %s</string>
+  <string name="no_sdcard_error">Вкарайте SD карта и отворете отново And Bible.</string>
+  <!--Main menu-->
+  <string name="chooseBook">Ресурси</string>
+  <string name="selectPassage">Пасаж</string>
+  <string name="search">Търсене</string>
+  <string name="settings">Настройки</string>
+  <string name="history">История</string>
+  <string name="speak">Реч</string>
+  <string name="help">Помощ</string>
+  <string name="verse">Стих</string>
+  <string name="administration">Управление...</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Избери книга</string>
+  <string name="choosePassageChapterName">Избери глава</string>
+  <string name="choosePassageVerseName">Избери стих</string>
+  <string name="bible">Библия</string>
+  <string name="deuterocanonical">Неканонични</string>
+  <!--Search-->
+  <string name="search_index">Индексация за търсене</string>
+  <string name="index_creation_required">Търсенето изисква индексация.\nИндексите мога да бъдат изтеглени от интернет или да бъдат създадени.\nИзтеглените индекси имат повече функции и отнемат по-малко време.\nЗа да изтеглите индекс, трябва да имате връзка с интернет.\n</string>
+  <string name="indexing_wait_msg">Екранът за търсене ще се покаже, след като индексирането приключи.</string>
+  <string name="index">Индекс</string>
+  <string name="index_download">Изтегли</string>
+  <string name="index_not_available_for_download">Този ресурс не е достъпен за изтегляне.</string>
+  <string name="index_create">Създай</string>
+  <!--Tasks-->
+  <string name="progress_status">Прогрес</string>
+  <string name="task_kill_warning">Тези дълги задачи могат да бъдат прекъснати, ако затворите And Bible преди те да са приключили.</string>
+  <string name="no_tasks_running">Няма други задачи.</string>
+  <!--Search-->
+  <string name="search_results">Покажи резултатите.</string>
+  <string name="search_words_group_prompt">Намери стиховете.</string>
+  <string name="search_all_words">Всички думи.</string>
+  <string name="search_any_word">Която и да е от думите.</string>
+  <string name="search_phrase">Фраза</string>
+  <string name="search_result_count">Намерени %d съвпадения.</string>
+  <string name="search_showing_first">Твърде много резултати. Показани първите %d</string>
+  <string name="search_bible_section_group_prompt">Търси в</string>
+  <string name="search_all_bible">Цялата Библия</string>
+  <string name="search_new_testament">Новият Завет</string>
+  <string name="search_old_testament">Старият Завет</string>
+  <string name="search_current_book">Текуща книга</string>
+  <string name="error_executing_search">Невалидно търсене</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Номерът на стиха</string>
+  <string name="prefs_show_verseno_summary">Покажи номерата на стиховете.</string>
+  <string name="prefs_verse_per_line_title">По един стих на ред</string>
+  <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
+  <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
+  <string name="prefs_show_bookmarks_summary">Скриване всички отметки</string>
+  <string name="prefs_default_bookmark_style_title">Стил на отметките (подразбиране)</string>
+  <string name="prefs_default_bookmark_style_summary">Подчертаване - цвят или иконка</string>
+  <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
+  <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
+  <string name="prefs_show_notes_title">Бележки и препратки</string>
+  <string name="prefs_show_notes_summary">Покажи бележки под линия и препратки</string>
+  <string name="prefs_show_strongs_title">Покажи числата на Стронг</string>
+  <string name="prefs_show_strongs_summary">Покажи обяснения към Гръцки и еврейски думи</string>
+  <string name="prefs_show_morphology_title">Морфологичните кодове</string>
+  <string name="prefs_show_morphology_summary">Покажи морфологията на гръцкия език според Робинсон</string>
+  <string name="prefs_section_title_title">Заглавия</string>
+  <string name="prefs_section_title_summary">Покажи заглавия на раздели в текста</string>
+  <string name="prefs_red_letter_title">Червен шрифт</string>
+  <string name="prefs_red_letter_summary">Покажи думите на Иисус в червено</string>
+  <string name="prefs_tilt_to_scroll_title">Превъртване чрез накланяне</string>
+  <string name="prefs_tilt_to_scroll_summary">Наклонете устройството за превъртване на страници</string>
+  <string name="prefs_night_mode_title">Нощен режим</string>
+  <string name="prefs_night_mode_summary">За по-лесно четене в тъмно</string>
+  <string name="prefs_night_mode_automatic">Автоматично</string>
+  <string name="prefs_navigate_to_verse_title">Отвори стих</string>
+  <string name="prefs_navigate_to_verse_summary">Избери стих (и глава) при отваряне на пасажа</string>
+  <string name="prefs_open_links_in_special_window_title">Препратки в отделен прозорец</string>
+  <string name="prefs_open_links_in_special_window_summary">За бързо показване на препратки и номерата на Стронг</string>
+  <string name="prefs_text_size_title">Размер шрифт</string>
+  <string name="prefs_text_size_summary">Повече текст или по-голям текст</string>
+  <string name="prefs_text_size_sample_text">Примерен текст</string>
+  <string name="x_minutes">%d минути</string>
+  <string name="prefs_interface_locale_title">Език</string>
+  <string name="prefs_interface_locale_summary">Избери езика на интерфейса</string>
+  <string name="locale_change_warning">Приложението ще се рестартира за смяна на езика</string>
+  <string name="prefs_speak_speed_title">Скорост на говора</string>
+  <string name="prefs_speak_speed_summary">Изговаряне по-бързо или по-бавно</string>
+  <string name="speak_speed_slow">Бавно</string>
+  <string name="speak_speed_normal">Нормално</string>
+  <string name="speak_speed_fast">Бързо</string>
+  <string name="prefs_split_mode_vertical">Вертикално</string>
+  <string name="prefs_split_mode_horizontal">Хоризонтално</string>
+  <string name="prefs_split_mode_automatic">Автоматично</string>
+  <string name="prefs_split_mode_summary">В коя посока да бъде разделен екрана?</string>
+  <string name="prefs_split_mode_title">Разделен екран</string>
+  <!--Window-->
+  <string name="window">Прозорец</string>
+  <string name="windowClose">Затвори</string>
+  <string name="windowMaximise">Уголеми</string>
+  <string name="windowMinimise">Смали</string>
+  <string name="windowSynchronise">Синхронизирай</string>
+  <string name="windowMoveFirst">Най-отгоре</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Няма коментари за тази глава</string>
+  <string name="no_verse_notes">Няма коментари за този стих</string>
+  <string name="previous">Назад</string>
+  <string name="next">Напред</string>
+  <!--Strongs-->
+  <string name="strongs">Речникът на Стронг</string>
+  <string name="strongs_not_installed">Моля изтеглете от интернет речници за Гръцки и Еврейски</string>
+  <string name="all_greek_occurrences">Всички места</string>
+  <string name="all_hebrew_occurrences">Всички места</string>
+  <string name="no_indexed_bible_with_strongs_ref">Трябва да изтеглите текст който съдържа числата на Стронг, както и сътветен индекс за текста.</string>
+  <string name="morph_robinson_not_installed">Моля изтеглете речникът \"Robinson\'s Morphological Analysis Codes\"</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">Изтеглете ресурси</string>
+  <string name="download_confirmation">Изтегляне на Библия от Интернет?</string>
+  <string name="download_source_message">Свързване с \nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">Изтегляне</string>
+  <string name="download_refreshing_book_list">Опресняване на списъка</string>
+  <string name="download_refresh_book_list_menu_item">Обнови</string>
+  <string name="error_downloading">Грешка. Моля проверете достъпа до интернет.</string>
+  <string name="no_internet_connection">Няма връзка с интернет.</string>
+  <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
+  <string name="wait_for_bible">Моля изчакайте Библията да се изтегли. Ще бъдете прехвърляни към главният екран.\n\nИзтеглете още документи по-късно през Меню/Управление/Изтегляне</string>
+  <string name="wait_for_bible_not_yet">Моля изчакайте. Една от библиите още не се е инсталирала</string>
+  <string name="download_complete_no_bibles">Неуспешно инсталиране. Моля натиснете \'назад\' и опитайте пак.</string>
+  <string name="too_many_jobs">Се изпълняват твърде много задачи. Моля изчакайте и опитайте пак.</string>
+  <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Зареди документ от ZIP архив</string>
+  <string name="install_zip_successfull">Успешна инсталация на модула</string>
+  <string name="extracting_zip_file">Разаривиране...</string>
+  <string name="checking_zip_file">Проверка на файла...</string>
+  <string name="invalid_module">Файлът не съдържа валиден SWORD модул</string>
+  <string name="module_already_installed">Файлът съдържа вече инсталиран модул</string>
+  <string name="install_zip_title">Моля изчакайте. Зареждане на Zip файла.</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">План за четене</string>
+  <string name="rdg_plan_selector_title">Избери план за четене</string>
+  <string name="rdg_plan_day">Ден %s</string>
+  <string name="rdg_plan_set_start_jan1">Започни с 1 януари</string>
+  <string name="done">Готово</string>
+  <string name="reset">Изчистване</string>
+  <string name="rdg_plan_y1ntpspr">Нов Завет, Псалми, и Притчи за 1 година</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Цялата Библия хронологически за 1 година</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Цялата Библия за 1 година - НЗ и СЗ</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Цялата Библия за 1 година - СЗ и след това НЗ</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Цялата Библия за 1 година (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">За 2 години - цял СЗ, два пъти НЗ и псалмите</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">Изтрий</string>
+  <string name="delete_index">Изтрий индекса за търсене</string>
+  <string name="about">Относно</string>
+  <string name="delete_doc">Изтрий %s?</string>
+  <string name="delete_search_index_doc">Изтриване на индекса  %s?</string>
+  <!--Verse context menu-->
+  <string name="notes">Бележки и препратки</string>
+  <string name="copy">Копирай</string>
+  <string name="share_verse">Сподели...</string>
+  <string name="share_verse_subject">Стих от Библия споделян чрез приложение \"AndBible\"</string>
+  <string name="compare_translations">Сравни преводи</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Отваряй препратките тук</string>
+  <string name="open_link_in_new_window">Отваряй препратките в нов прозорец</string>
+  <string name="open_link_in_main_window">Отваряй препратките в основният прозорец</string>
+  <string name="open_link_in_special_window">Отваряй препратките в специален прозорец</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">Отметките</string>
+  <string name="add_bookmark">Добави отметка</string>
+  <string name="delete_bookmark">Изтрий отметката</string>
+  <string name="bookmark_added">Отметката е добавена</string>
+  <string name="bookmark_date_updated">Обновена дата за отметката</string>
+  <string name="bookmark_exists">Вече има такава отметка</string>
+  <string name="bookmark_deleted">Отметката изтрита</string>
+  <string name="bookmark_labels">Етикетите на отметките</string>
+  <string name="manage_labels">Редактиране на етикети</string>
+  <string name="assign_labels">Задай етикет</string>
+  <string name="new_label">Нов етикет</string>
+  <string name="label_name_prompt">Име</string>
+  <string name="label_unlabelled">Етикетът е махнат</string>
+  <string name="rename">Преименуване</string>
+  <string name="style">Стил</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">По дата</string>
+  <string name="sort_by_bible_book">Подредба</string>
+  <string name="sort_by_alphabetical">По азбучен ред</string>
+  <!--Dictionary-->
+  <string name="dictionary">Речник</string>
+  <string name="search_dictionary_hint">Намери речник</string>
+  <string name="dictionary_contents">Съдържание</string>
+  <!--General Book-->
+  <string name="general_book">Книга</string>
+  <string name="general_book_contents">Съдържание</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d глава</string>
+  <string name="some_chapters">%d глави</string>
+  <string name="rest_of_book">до края на книгата</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d стиха</string>
+  <string name="some_verses">%d стиха</string>
+  <string name="rest_of_chapter">до края на главата</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d страница</string>
+  <string name="some_pages">%d страници</string>
+  <!--Speak - Common-->
+  <string name="stop">Спри</string>
+  <string name="pause">Пауза</string>
+  <string name="rewind">Назад</string>
+  <string name="forward">Напред</string>
+  <string name="tts_lang_not_available">Езикът не е инсталиран</string>
+  <string name="speak_queue">Опашка</string>
+  <string name="speak_repeat">Повтори</string>
+  <!--User Notes-->
+  <string name="mynotes">Мои бележки</string>
+  <string name="mynote">Моя бележка</string>
+  <string name="mynote_add">Добави бележка</string>
+  <string name="mynote_view_edit">Моя бележка</string>
+  <string name="mynote_saved">Съхранено</string>
+  <!--Backup and restore-->
+  <string name="backup">Резервно копие</string>
+  <string name="backup_success">Бележките и отметките са съхранени в %s на SD картата</string>
+  <string name="restore">Възстанови</string>
+  <string name="restore_confirmation">Презаписване на бележките и отметките?</string>
+  <string name="restore_success">Бележките и отметките са възстановени от %s на SD картата</string>
+  <!--About-->
+  <string name="about_copyright">Авторско право: %s</string>
+  <string name="about_version">Версия:  %s</string>
+  <string name="about_versification">Версификация: %s</string>
+  <!--Document types-->
+  <string name="doc_type_bible">Библия</string>
+  <string name="doc_type_commentary">Коментар</string>
+  <string name="doc_type_dictionary">Речник</string>
+  <string name="doc_type_book">Книга</string>
+  <string name="doc_type_map">Карта</string>
+  <!--Languages-->
+  <string name="lang_default">По подразбиране</string>
+  <!--General-->
+  <string name="okay">ОК</string>
+  <string name="cancel">Отмяна</string>
+  <string name="yes">Да</string>
+  <string name="no">Не</string>
+  <string name="save">Запази</string>
+  <string name="error">Грешка</string>
+  <string name="more">Още</string>
+  <string name="more_dotted">Още...</string>
+  <string name="retry">Опитайте пак</string>
+  <string name="please_wait">Моля изчакайте</string>
+  <string name="all">Всичко</string>
+  <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Ново</string>
+  <string name="close">Затвори</string>
+  <string name="edit">Редактирай</string>
+  <!--Errors-->
+  <string name="report_error">Изпрати отчет</string>
+  <string name="error_occurred">Грешка</string>
+  <string name="error_no_content">Избранният стих няма съдържание</string>
+  <string name="error_page_too_large">Страницата е твърде голяма за да бъде отворена</string>
+  <string name="error_key_not_in_document">Не се намира в зададения ресурс</string>
+  <string name="empty_list">Нищо за показване</string>
+</resources>
