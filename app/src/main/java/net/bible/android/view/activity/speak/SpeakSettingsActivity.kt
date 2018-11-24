@@ -1,6 +1,5 @@
 package net.bible.android.view.activity.speak
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -58,8 +57,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         else {
             restoreSettingsFromBookmarks.isEnabled = true;
         }
-        sleepTimer.isChecked = settings.sleepTimer > 0
-        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
         multiTranslation.isChecked = settings.multiTranslation
     }
 
