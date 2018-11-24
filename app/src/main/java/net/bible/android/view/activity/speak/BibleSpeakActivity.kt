@@ -26,7 +26,6 @@ import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
@@ -34,13 +33,9 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-
     companion object {
         const val TAG = "BibleSpeakActivity"
     }

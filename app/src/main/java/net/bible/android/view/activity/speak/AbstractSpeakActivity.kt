@@ -19,16 +19,25 @@
 package net.bible.android.view.activity.speak
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.NumberPicker
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.db.bookmark.BookmarkDto
+import javax.inject.Inject
 
 abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
+    @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
     protected lateinit var currentSettings: SpeakSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,5 +76,29 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
     }
 
     abstract fun resetView(settings: SpeakSettings)
+
+    fun onBookmarkButtonClick(button: View) {
+        val bookmarkTitles = ArrayList<String>()
+        val bookmarkDtos = ArrayList<BookmarkDto>()
+        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
+                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
+
+            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})")
+            bookmarkDtos.add(b)
+        }
+
+        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
+        AlertDialog.Builder(this)
+                .setTitle(R.string.speak_bookmarks_menu_title)
+                .setAdapter(adapter) { _, which ->
+                    speakControl.speakFromBookmark(bookmarkDtos[which])
+                    if(currentSettings.synchronize) {
+                        startActivity(Intent(this, MainBibleActivity::class.java))
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+    }
 }
 

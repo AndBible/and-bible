@@ -1,31 +1,22 @@
 package net.bible.android.view.activity.speak
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
-import android.widget.*
 import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import javax.inject.Inject
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-
     companion object {
         const val TAG = "SpeakSettingsActivity"
     }
@@ -99,31 +90,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
                 .setMessage(spanned)
                 .setPositiveButton(android.R.string.ok) { _, _ ->  }
                 .show()
-    }
-
-    fun onBookmarkButtonClick(button: View) {
-        val bookmarkTitles = ArrayList<String>()
-        val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
-
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})")
-            bookmarkDtos.add(b)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
-        AlertDialog.Builder(this)
-                .setTitle(R.string.speak_bookmarks_menu_title)
-                .setAdapter(adapter) { _, which ->
-                    speakControl.speakFromBookmark(bookmarkDtos[which])
-                    if(currentSettings.synchronize) {
-                        startActivity(Intent(this, MainBibleActivity::class.java))
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        Log.d(TAG, "Showing! $bookmarkTitles");
     }
 
     fun onButtonClick(button: View) {
