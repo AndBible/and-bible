@@ -60,10 +60,10 @@ data class PlaybackSettings (
 data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
 
 @Serializable
-data class SpeakSettings(@Optional val synchronize: Boolean = true,
-                         @Optional val replaceDivineName: Boolean = false,
-                         @Optional val autoBookmark: Boolean = false,
-                         @Optional val restoreSettingsFromBookmarks: Boolean = false,
+data class SpeakSettings(@Optional var synchronize: Boolean = true,
+                         @Optional var replaceDivineName: Boolean = false,
+                         @Optional var autoBookmark: Boolean = false,
+                         @Optional var restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
                          @Optional var sleepTimer: Int = 0,
                          @Optional var lastSleepTimer: Int = 10,

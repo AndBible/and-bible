@@ -9,7 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.widget.*
-import kotlinx.android.synthetic.main.speak_bible.*
+import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
@@ -19,7 +19,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
@@ -32,24 +31,11 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         const val TAG = "SpeakSettingsActivity"
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_settings)
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
-
-        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                speedStatus.text = "$progress %"
-                if(fromUser) {
-                    updateSettings()
-                }
-            }
-        })
-
         resetView(SpeakSettings.load())
     }
 
@@ -61,10 +47,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     override fun resetView(settings: SpeakSettings) {
         statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         synchronize.isChecked = settings.synchronize
-        speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
-        speakTitles.isChecked = settings.playbackSettings.speakTitles
-        speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
-
         replaceDivineName.isChecked = settings.replaceDivineName
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
@@ -76,81 +58,29 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         else {
             restoreSettingsFromBookmarks.isEnabled = true;
         }
-        speakSpeed.progress = settings.playbackSettings.speed
-        speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
-        speakPauseButton.setImageResource(
-                if(speakControl.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
         multiTranslation.isChecked = settings.multiTranslation
     }
-
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
-    }
-
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
         currentSettings = ev.speakSettings;
         resetView(ev.speakSettings)
     }
 
-    fun onEventMainThread(ev: SpeakEvent) {
-        speakPauseButton.setImageResource(
-                if(ev.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
-    }
-
     fun onSettingsChange(widget: View) = updateSettings()
 
     fun updateSettings() {
-        val settings = SpeakSettings(
-                synchronize = synchronize.isChecked,
-                playbackSettings = PlaybackSettings(
-                        speakChapterChanges = speakChapterChanges.isChecked,
-                        speakTitles = speakTitles.isChecked,
-                        speakFootnotes = speakFootnotes.isChecked,
-                        speed = speakSpeed.progress
-                        ),
-                autoBookmark = autoBookmark.isChecked,
-                replaceDivineName = replaceDivineName.isChecked,
-                restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
-                sleepTimer = currentSettings.sleepTimer,
-                lastSleepTimer = currentSettings.lastSleepTimer,
-                multiTranslation = multiTranslation.isChecked
-        )
-        settings.save(updateBookmark = true)
-    }
-
-    fun onButtonClick(button: View) {
-        try {
-            when (button) {
-                prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-                nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                rewindButton -> speakControl.rewind()
-                stopButton -> speakControl.stop()
-                speakPauseButton ->
-                    if (speakControl.isPaused) {
-                        speakControl.continueAfterPause()
-                    } else if (speakControl.isSpeaking) {
-                        speakControl.pause()
-                    } else {
-                        speakControl.speakBible()
-                    }
-                forwardButton -> speakControl.forward()
-            }
-        } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
-            Log.e(TAG, "Error: ", e)
+        val settings = SpeakSettings.load().apply {
+            sleepTimer = currentSettings.sleepTimer
+            lastSleepTimer = currentSettings.lastSleepTimer
         }
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+        settings.multiTranslation = multiTranslation.isChecked
+        settings.synchronize = synchronize.isChecked
+        settings.autoBookmark = autoBookmark.isChecked
+        settings.replaceDivineName = replaceDivineName.isChecked
+        settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+        settings.save(updateBookmark = true)
     }
 
     fun onHelpButtonClick(button: View) {
@@ -198,4 +128,33 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
                 .show()
         Log.d(TAG, "Showing! $bookmarkTitles");
     }
+
+    fun onButtonClick(button: View) {
+        try {
+            when (button) {
+                prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+                nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+                rewindButton -> speakControl.rewind()
+                stopButton -> speakControl.stop()
+                speakPauseButton ->
+                    if (speakControl.isPaused) {
+                        speakControl.continueAfterPause()
+                    } else if (speakControl.isSpeaking) {
+                        speakControl.pause()
+                    } else {
+                        speakControl.speakBible()
+                    }
+                forwardButton -> speakControl.forward()
+            }
+        } catch (e: Exception) {
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Log.e(TAG, "Error: ", e)
+        }
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+    }
+
+    fun onEventMainThread(ev: SpeakProgressEvent) {
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+    }
+
 }
