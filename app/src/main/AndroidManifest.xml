@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="net.bible.android.activity"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.bible.android.activity"
       android:installLocation="auto"
       android:versionName="2.12.254" android:versionCode="254">
 
@@ -22,7 +23,8 @@
 	/>
 	
 	<application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AppThemeDay" android:allowBackup="true" android:resizeableActivity="true"
-                 android:fullBackupContent="@xml/backup_descriptor">
+                 android:fullBackupContent="@xml/backup_descriptor"
+        tools:ignore="GoogleAppIndexingWarning">
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
         <!-- deprecated but necessary to prevent old shortcut breaking -->
@@ -138,6 +140,10 @@
         </activity>
         <activity android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
                   android:label="@string/speak"
+                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+        </activity>
+        <activity android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
+                  android:label="@string/speak_settings_activity_title"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
         <activity android:name="net.bible.android.view.activity.download.FirstDownload"

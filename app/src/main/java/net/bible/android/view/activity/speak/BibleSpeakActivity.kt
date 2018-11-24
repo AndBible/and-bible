@@ -20,32 +20,22 @@ package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
-import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-
     companion object {
         const val TAG = "BibleSpeakActivity"
     }
@@ -78,22 +68,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     override fun resetView(settings: SpeakSettings) {
         statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
-        synchronize.isChecked = settings.synchronize
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
         speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
-
-        replaceDivineName.isChecked = settings.replaceDivineName
-        restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
-
-        autoBookmark.isChecked = settings.autoBookmark
-        if(!autoBookmark.isChecked) {
-            restoreSettingsFromBookmarks.isChecked = false;
-            restoreSettingsFromBookmarks.isEnabled = false;
-        }
-        else {
-            restoreSettingsFromBookmarks.isEnabled = true;
-        }
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
@@ -104,7 +81,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else
                 android.R.drawable.ic_media_play
         )
-        multiTranslation.isChecked = settings.multiTranslation
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
@@ -129,22 +105,17 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onSettingsChange(widget: View) = updateSettings()
 
     fun updateSettings() {
-        val settings = SpeakSettings(
-                synchronize = synchronize.isChecked,
-                playbackSettings = PlaybackSettings(
-                        speakChapterChanges = speakChapterChanges.isChecked,
-                        speakTitles = speakTitles.isChecked,
-                        speakFootnotes = speakFootnotes.isChecked,
-                        speed = speakSpeed.progress
-                        ),
-                autoBookmark = autoBookmark.isChecked,
-                replaceDivineName = replaceDivineName.isChecked,
-                restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
-                sleepTimer = currentSettings.sleepTimer,
-                lastSleepTimer = currentSettings.lastSleepTimer,
-                multiTranslation = multiTranslation.isChecked
-        )
-        settings.save(updateBookmark = true)
+        SpeakSettings.load().apply {
+            playbackSettings = PlaybackSettings(
+                    speakChapterChanges = speakChapterChanges.isChecked,
+                    speakTitles = speakTitles.isChecked,
+                    speakFootnotes = speakFootnotes.isChecked,
+                    speed = speakSpeed.progress
+            )
+            sleepTimer = currentSettings.sleepTimer
+            lastSleepTimer = currentSettings.lastSleepTimer
+            save(updateBookmark = true)
+        }
     }
 
     fun onButtonClick(button: View) {
@@ -171,49 +142,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
     }
 
-    fun onHelpButtonClick(button: View) {
-        val htmlMessage = ("<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
-                + getString(R.string.speak_help_auto_bookmark)
-                + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
-                + getString(R.string.speak_help_playback_settings)
-                + "<br><br>"
-                + getString(R.string.speak_help_playback_settings_example)
-                )
-
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
-
-        AlertDialog.Builder(this)
-                .setMessage(spanned)
-                .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                .show()
-    }
-
-    fun onBookmarkButtonClick(button: View) {
-        val bookmarkTitles = ArrayList<String>()
-        val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
-
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})")
-            bookmarkDtos.add(b)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
-        AlertDialog.Builder(this)
-                .setTitle(R.string.speak_bookmarks_menu_title)
-                .setAdapter(adapter) { _, which ->
-                    speakControl.speakFromBookmark(bookmarkDtos[which])
-                    if(currentSettings.synchronize) {
-                        startActivity(Intent(this, MainBibleActivity::class.java))
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        Log.d(TAG, "Showing! $bookmarkTitles");
+    fun openMoreSettings(button: View) {
+        startActivity(Intent(this, SpeakSettingsActivity::class.java))
     }
 }

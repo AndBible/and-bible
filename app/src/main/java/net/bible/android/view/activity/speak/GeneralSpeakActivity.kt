@@ -27,11 +27,9 @@ import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
-import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.event.SpeakEvent
-import javax.inject.Inject
 
 /** Allow user to listen to text via TTS
 
@@ -42,7 +40,6 @@ import javax.inject.Inject
  */
 class GeneralSpeakActivity : AbstractSpeakActivity() {
     private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
-    private lateinit var speakControl: SpeakControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,11 +124,6 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         } catch (e: Exception) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
         }
-    }
-
-    @Inject
-    internal fun setSpeakControl(speakControl: SpeakControl) {
-        this.speakControl = speakControl
     }
 
     override fun resetView(settings: SpeakSettings) {

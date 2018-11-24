@@ -1,6 +1,7 @@
 package net.bible.service.device.speak
 
 import kotlinx.android.synthetic.main.speak_bible.*
+import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -13,6 +14,7 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
+import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
@@ -48,6 +50,7 @@ open class SpeakIntegrationTestBase {
     lateinit var windowControl: WindowControl
 
     lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
+    lateinit var bibleSpeakSettingsActivityController: ActivityController<SpeakSettingsActivity>
 
     @Before
     fun setUp() {
@@ -60,6 +63,7 @@ open class SpeakIntegrationTestBase {
         windowControl = appComponent.windowControl()
         book = Books.installed().getBook("FinRK") as SwordBook
         bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
+        bibleSpeakSettingsActivityController = Robolectric.buildActivity(SpeakSettingsActivity::class.java)
     }
 
     @After
@@ -74,7 +78,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
         s.save()
-        val settingsActivity = bibleSpeakActivityController.create().visible().get()
+        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
         assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
         s = SpeakSettings(synchronize = false)
         s.save()
@@ -85,7 +89,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     fun testSpeaActivityUpdatesSettings() {
         var s = SpeakSettings(synchronize = true)
         s.save()
-        val settingsActivity = bibleSpeakActivityController.create().visible().get()
+        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
         assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
         settingsActivity.synchronize.performClick()
 

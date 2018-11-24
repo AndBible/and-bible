@@ -275,6 +275,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_settings_title">General speak settings</string>
     <string name="speak_bookmarking_settings_title">Bookmarking settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
+    <string name="speak_more_settings">More settings</string>
+    <string name="speak_settings_activity_title">More speak settings</string>
 
     <string name="conf_speak_synchronize">Synchronize text with speech</string>
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
@@ -284,7 +286,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_change_title">Titles</string>
     <string name="conf_speak_footnotes">Footnotes</string>
     <string name="conf_speak_sleep_timer">Set sleep timer</string>
-    <string name="conf_speak_multitranslation">Speak from all windows verse by verse</string>
+    <string name="conf_speak_multitranslation">Compare translations by speaking from all visible windows</string>
 
     <string name="sleep_timer_title">Sleep time in minutes</string>
     <string name="sleep_timer_set">Set sleep timer. Timer set: %d minutes</string>
