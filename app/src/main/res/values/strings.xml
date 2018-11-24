@@ -271,12 +271,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>
     <string name="speak_and_play_earcons_title">Speak and play earcon sounds for</string>
-    <string name="playback_settings_title">Playback settings</string>
-    <string name="speak_settings_title">General speak settings</string>
-    <string name="speak_bookmarking_settings_title">Bookmarking settings</string>
+    <string name="playback_settings_title">Playback Settings</string>
+    <string name="speak_settings_title">General Speak Settings</string>
+    <string name="speak_bookmarking_settings_title">Bookmarking Settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
-    <string name="speak_more_settings">More settings</string>
-    <string name="speak_settings_activity_title">More speak settings</string>
+    <string name="speak_more_settings">More Settings</string>
+    <string name="speak_settings_activity_title">More Speak Settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
     <string name="conf_speak_synchronize">Synchronize text with speech</string>
@@ -303,25 +303,22 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
     <string name="speak_help_auto_bookmark">
-        Auto add bookmark when pausing and stopping. Automatically generated bookmarks are
-        labelled with special Speak label. If you start on Speak-labeled bookmark, bookmark will
-        be moved to the new verse location when you stop / pause next time. If there is Speak label
-        and also other labels on bookmark, only Speak label will be removed and bookmark will stay.
+        A Speak bookmark will be automatically added when Speak is paused or stopped.
+        Automatically generated bookmarks are labelled with the special Speak label.
+        If you start at a Speak bookmark the bookmark will be moved to the verse you stop or pause at next time.
+        Only Speak labels will be moved, any other labels will be left alone.
     </string>
     <string name="speak_help_playback_settings">
-        There are special playback settings (under \"Playback settings\" title in Speak screen)
-        that are saved to Speak bookmarks if this option is enabled.
-        When you start speaking from such bookmark, these settings are read from the
-        bookmark.
+        Special playback settings (under \"Playback Settings\" on the Speak screen)
+        are saved to Speak bookmarks when this setting is selected.
+        When you restart speaking from a Speak bookmark, the saved Speak settings are loaded from the bookmark.
     </string>
     <string name="speak_help_playback_settings_example">
-        Usage example: Let us say that you want to listen to Genesis and Romans.
-        You want to listen to Genesis with speak speed 150\%,
-        and without chapter change notifications,
-        but when listening to Romans you want to have 90\% speak speed and
-        hear audible earcon sound when chapter changes.
-        You can have different playback settings for these books,
-        when these settings are saved to corresponding bookmarks.
+        For example if you are listening to Genesis and Romans and
+        wish to listen to Genesis spoken quickly without chapter change notifications,
+        but to Romans more slowly with audible earcon sounds on chapter changes, then
+        you can have different playback settings for these books,
+        when these settings are saved to the corresponding bookmarks.
     </string>
 
     <string-array name="divinename_original">
@@ -339,7 +336,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         <item/>
     </string-array>
 
-    <string name="speak_book_changed">Book changed. </string>
+    <string name="speak_book_changed">Book changed.</string>
     <string name="speak_chapter_changed">Chapter</string>
     <string name="speak_first">First</string>
     <string name="speak_second">Second</string>
