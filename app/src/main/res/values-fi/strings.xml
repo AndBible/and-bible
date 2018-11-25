@@ -230,7 +230,7 @@
   <string name="speak_settings_title">Yleiset puheen asetukset</string>
   <string name="speak_bookmarking_settings_title">Kirjanmerkkien asetukset</string>
   <string name="speak_bookmarks_menu_title">Aloita puhe kirjanmerkistä</string>
-  <string name="speak_advanced_settings">Lisää asetuksia</string>
+  <string name="speak_advanced_settings">Lisäasetukset</string>
   <string name="speak_settings_activity_title">Lisää puheasetuksia</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
@@ -238,7 +238,7 @@
   <string name="conf_speak_auto_bookmark">Automaattiset kirjanmerkit</string>
   <string name="conf_save_playback_settings_to_bookmarks">Tallenna soiton asetukset kirjanmerkkeihin</string>
   <string name="conf_replace_divinename">Korvaa Jumalan nimi Jahvella</string>
-  <string name="conf_change_chapter">Kappaleen vaihdokset</string>
+  <string name="conf_change_chapter">Luvun vaihdokset</string>
   <string name="conf_change_title">Otsikot</string>
   <string name="conf_speak_footnotes">Alaviitteet</string>
   <string name="conf_speak_sleep_timer">Aseta uniajastin</string>
@@ -268,6 +268,12 @@ haluat kuunnella 1. Mooseksenkirjaa nopeasti ilman lukujen vaihtumisten ilmoituk
 mutta Roomalaiskirjettä hitaammin siten että kuulet äänimerkin lukujen vaihtuessa,
 sinulla voi olla eri soiton asetukset näille kirjoille 
 kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <string-array name="speak_divinename_original">
     <item>Herraan</item>
     <item>Herra</item>
@@ -275,6 +281,11 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
     <item></item>
     <item></item>
   </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <string-array name="speak_divinename_replace">
     <item>Jahveen</item>
     <item>Jahve</item>
