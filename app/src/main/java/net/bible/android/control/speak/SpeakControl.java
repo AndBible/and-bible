@@ -28,6 +28,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -55,6 +56,8 @@ import java.util.*;
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import de.greenrobot.event.EventBus;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -166,7 +169,6 @@ public class SpeakControl {
 	 */
 	public void toggleSpeak() {
 		Log.d(TAG, "Speak toggle current page");
-
 		// Continue
 		if (isPaused()) {
 			continueAfterPause();
@@ -176,6 +178,10 @@ public class SpeakControl {
 		// Start Speak
 		} else
 		{
+			if(!booksAvailable()) {
+				EventBus.getDefault().post(new ToastEvent("No books available to speak"));
+				return;
+			}
 			try {
 				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
