@@ -158,7 +158,7 @@
                         android:contentDescription="@string/bookmarks"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="@string/speak_more_settings"
+                        android:text="@string/speak_advanced_settings"
                         android:onClick="openMoreSettings"/>
                     <View
                         android:layout_width="0dip"

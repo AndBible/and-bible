@@ -230,7 +230,7 @@
   <string name="speak_settings_title">Yleiset puheen asetukset</string>
   <string name="speak_bookmarking_settings_title">Kirjanmerkkien asetukset</string>
   <string name="speak_bookmarks_menu_title">Aloita puhe kirjanmerkistä</string>
-  <string name="speak_more_settings">Lisää asetuksia</string>
+  <string name="speak_advanced_settings">Lisää asetuksia</string>
   <string name="speak_settings_activity_title">Lisää puheasetuksia</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
