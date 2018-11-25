@@ -307,13 +307,15 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_help_auto_bookmark">
         A Speak bookmark will be automatically added when Speak is paused or stopped.
         Automatically generated bookmarks are labelled with the special Speak label.
-        If you start at a Speak bookmark the bookmark will be moved to the verse you stop or pause at next time.
-        Only Speak labels will be moved, any other labels will be left alone.
+        If you start at a Speak bookmark the bookmark will be moved to the verse you
+        stop or pause at next time. Only Speak labels will be moved, any other labels
+        will be left alone.
     </string>
     <string name="speak_help_playback_settings">
         Special playback settings (under \"Playback Settings\" on the Speak screen)
         are saved to Speak bookmarks when this setting is selected.
-        When you restart speaking from a Speak bookmark, the saved Speak settings are loaded from the bookmark.
+        When you restart speaking from a Speak bookmark, the saved playback settings
+        are loaded from the bookmark.
     </string>
     <string name="speak_help_playback_settings_example">
         For example if you are listening to Genesis and Romans and
