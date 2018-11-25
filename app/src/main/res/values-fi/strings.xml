@@ -268,14 +268,14 @@ haluat kuunnella 1. Mooseksenkirjaa nopeasti ilman lukujen vaihtumisten ilmoituk
 mutta Roomalaiskirjettä hitaammin siten että kuulet äänimerkin lukujen vaihtuessa,
 sinulla voi olla eri soiton asetukset näille kirjoille 
 kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
-  <string-array name="divinename_original">
+  <string-array name="speak_divinename_original">
     <item>Herraan</item>
     <item>Herra</item>
     <item>Jumala</item>
     <item></item>
     <item></item>
   </string-array>
-  <string-array name="divinename_replace">
+  <string-array name="speak_divinename_replace">
     <item>Jahveen</item>
     <item>Jahve</item>
     <item>Jahve</item>

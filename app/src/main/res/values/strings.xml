@@ -331,7 +331,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
-    <string-array name="divinename_original">
+    <string-array name="speak_divinename_original">
         <item>Lord</item>
         <item>God</item>
         <item/>
@@ -343,7 +343,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
-    <string-array name="divinename_replace">
+    <string-array name="speak_divinename_replace">
         <item>Yahweh</item>
         <item>Yahweh</item>
         <item/>
