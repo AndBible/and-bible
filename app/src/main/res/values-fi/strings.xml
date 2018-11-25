@@ -275,6 +275,13 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
     <item></item>
     <item></item>
   </string-array>
+  <string-array name="divinename_replace">
+    <item>Jahveen</item>
+    <item>Jahve</item>
+    <item>Jahve</item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Kirja vaihtui.</string>
   <string name="speak_chapter_changed">Luku</string>
   <string name="speak_first">Ensimmäinen</string>
