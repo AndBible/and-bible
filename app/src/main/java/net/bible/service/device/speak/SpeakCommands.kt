@@ -21,8 +21,11 @@ package net.bible.service.device.speak
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import net.bible.android.control.speak.SpeakSettings
 import java.util.*
+
+val TAG = "SpeakCommands"
 
 interface SpeakCommand {
     fun speak(tts: TextToSpeech, utteranceId: String)
@@ -66,7 +69,10 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
 
 class ChangeLanguageCommand(val language: Locale): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
-        tts.language = language
+        val result = tts.setLanguage(language)
+        if(result != TextToSpeech.LANG_AVAILABLE) {
+            Log.e(TAG, "Language $language not available!")
+        }
     }
 }
 

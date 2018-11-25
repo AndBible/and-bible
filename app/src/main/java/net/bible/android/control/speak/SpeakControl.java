@@ -179,7 +179,9 @@ public class SpeakControl {
 		} else
 		{
 			if(!booksAvailable()) {
-				EventBus.getDefault().post(new ToastEvent("No books available to speak"));
+				EventBus.getDefault().post(new ToastEvent(
+						BibleApplication.getApplication().getString(R.string.speak_no_books_available))
+				);
 				return;
 			}
 			try {

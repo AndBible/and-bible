@@ -279,6 +279,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_settings_activity_title">More Speak Settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
+    <string name="speak_no_books_available">No books available to speak</string>
+
     <string name="conf_speak_synchronize">Synchronize text with speech</string>
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
     <string name="conf_save_playback_settings_to_bookmarks">Save playback settings to bookmarks</string>
