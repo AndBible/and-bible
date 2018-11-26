@@ -122,11 +122,16 @@ public class SpeakControl {
 	}
 
 	public void onEventMainThread(SpeakProgressEvent event) {
-		if(event.getSynchronize()) {
+		SpeakSettings settings = SpeakSettings.Companion.load();
+		if(settings.getSynchronize()) {
 			if(speakPageManager == null) {
 				speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 			}
-			speakPageManager.setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
+			Book book = event.getBook();
+			if(settings.getMultiTranslation()) {
+				book = speakPageManager.getCurrentPage().getCurrentDocument();
+			}
+			speakPageManager.setCurrentDocumentAndKey(book, event.getKey(), false);
 		}
 	}
 

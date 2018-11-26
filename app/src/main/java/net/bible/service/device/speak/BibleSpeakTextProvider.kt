@@ -448,14 +448,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         startVerse = currentVerse
         endVerse = currentVerse
 
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -480,7 +480,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles();
-        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -493,7 +493,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
+            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, state.command!!))
         }
     }
 

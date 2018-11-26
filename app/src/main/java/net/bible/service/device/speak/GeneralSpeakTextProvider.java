@@ -68,9 +68,9 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@Override
 	public void startUtterance(@NotNull String utteranceId) {
 		if (keyList != null && keyList.size() > 0) {
-			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0),
 					new TextCommand(currentText, TextCommand.TextType.NORMAL)));
-			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0),
 					new TextCommand(book.getName(), TextCommand.TextType.TITLE)));
 		}
 	}
