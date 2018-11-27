@@ -40,8 +40,6 @@ import org.crosswire.common.progress.WorkListener
  * see BibleDesktop JobsProgressBar for example use
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br></br>
- * The copyright to this program is held by it's author.
  */
 
 // only one instance initialised at startup to monitor for JSword Progress events and

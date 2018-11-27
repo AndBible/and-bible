@@ -28,8 +28,6 @@ import java.util.List;
  * Complex comparison of dtos ensuring the best v11n is used for each comparison.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 
 public class BookmarkDtoBibleOrderComparator implements Comparator<BookmarkDto> {

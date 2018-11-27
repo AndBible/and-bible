@@ -33,8 +33,6 @@ import org.crosswire.common.progress.WorkListener;
  * Only allow progress into the main app once a Bible has been downloaded
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 
 public class FirstDownload extends Download {

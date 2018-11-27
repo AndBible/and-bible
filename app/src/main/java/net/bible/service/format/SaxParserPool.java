@@ -32,8 +32,6 @@ import javax.xml.parsers.SAXParserFactory;
  * My tests on my tablet with 5 windows only actually required 2 parsers and normally 1 is enough.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class SaxParserPool {
 

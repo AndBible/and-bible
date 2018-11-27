@@ -40,8 +40,6 @@ import javax.inject.Inject;
  * Build a new BibleView WebView for a Window
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 @MainBibleActivityScope
 public class BibleViewFactory {

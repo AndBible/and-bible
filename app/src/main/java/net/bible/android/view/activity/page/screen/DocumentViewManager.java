@@ -38,8 +38,6 @@ import java.util.List;
 /**
  * Create Views for displaying documents
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope

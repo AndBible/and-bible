@@ -56,8 +56,6 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager;
  * Dagger Component to allow injection of dependencies into activities.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 @ActivityScope
 @Component(dependencies = {ApplicationComponent.class} )

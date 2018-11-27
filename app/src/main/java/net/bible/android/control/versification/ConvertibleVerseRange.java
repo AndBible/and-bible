@@ -25,8 +25,6 @@ import org.crosswire.jsword.versification.Versification;
  * Allow a VerseRange to be easily converted to any other.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class ConvertibleVerseRange {
 

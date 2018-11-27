@@ -34,8 +34,6 @@ import org.crosswire.jsword.versification.Versification;
  * Save and fetch a verse range from/to intent extras and othr intent fucntionality
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class IntentHelper {
 

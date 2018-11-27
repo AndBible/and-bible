@@ -38,8 +38,6 @@ import javax.inject.Inject;
  * Label dialogs - edit or create label.  Used in a couple of places so extracted.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class LabelDialogs {
 

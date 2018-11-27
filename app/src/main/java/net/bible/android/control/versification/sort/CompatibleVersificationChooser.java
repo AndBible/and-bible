@@ -30,8 +30,6 @@ import java.util.List;
  * Find the best compatible versification to use in which 2 verses exist
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 
 class CompatibleVersificationChooser {
