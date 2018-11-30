@@ -223,6 +223,80 @@
   <string name="tts_lang_not_available">Nėra kalbos.</string>
   <string name="speak_queue">Eilė</string>
   <string name="speak_repeat">Kartoti</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Kalbėjimo greitis</string>
+  <string name="speak_and_play_earcons_title">Groti garsinį ženklelį</string>
+  <string name="playback_settings_title">Grojimo nuostatos</string>
+  <string name="speak_settings_title">Bendros kalbos nuostatos</string>
+  <string name="speak_bookmarking_settings_title">Žymių nuostatos</string>
+  <string name="speak_bookmarks_menu_title">Kalbėti nuo žymės</string>
+  <string name="speak_advanced_settings">Papildomos nuostatos</string>
+  <string name="speak_settings_activity_title">Daugiau kalbos nuostatų</string>
+  <string name="speak_sleep_timer_title">Miego laikrodis</string>
+  <string name="speak_no_books_available">Nėra knygų, skirtų įgarsinimui</string>
+  <string name="conf_speak_synchronize">Sinchronizuoti tekstą su kalba</string>
+  <string name="conf_speak_auto_bookmark">Automatinis žymėjimas</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Išsaugoti grojimo nuostatas žymėse</string>
+  <string name="conf_replace_divinename">Pakeisti Dievo vardą į Jahvę</string>
+  <string name="conf_change_chapter">Keičiant skyrių</string>
+  <string name="conf_change_title">Antraštei</string>
+  <string name="conf_speak_footnotes">Išnašai</string>
+  <string name="conf_speak_sleep_timer">Nustatyti miego laikrodį</string>
+  <string name="conf_speak_multitranslation">Lyginti vertimus įgarsinant visus atvirus langus</string>
+  <string name="sleep_timer_title">Miegojimo laikas minutėmis</string>
+  <string name="sleep_timer_set">Nustatyti miego laikrodį. Laikrodis nustatytas: %d minučių</string>
+  <string name="sleep_timer_started">Miego laikas prasidėjo, %d minučių</string>
+  <string name="sleep_timer_active_at">Miego laikas: liko %s minučių</string>
+  <string name="speak_next">Kitas</string>
+  <string name="speak_previous">Anstesnis</string>
+  <string name="widget_toggle_sleep_timer">Perjungti miego laikrodį</string>
+  <string name="widget_bookmark_helptext">Čia atsiras kalbos žymių greito pasiekimo mygtukai</string>
+  <string name="speak_status_stopped">sustabdyta</string>
+  <string name="speak_bookmark_help">Kalbos žymių pagalba</string>
+  <string name="speak_help_auto_bookmark">
+Kalbos žymė bus automatiškai pridėta, kai kalbėjimas bus pristabdytas arba baigtas.
+Automatiškai sukurtos žymės yra išskirtos specialiu kalbos ženkleliu.
+Jei pradėsite nuo kalbos žymės, ji bus perkelta į eilutę, kurioje baigsite klausytis arba pristabdysite. Bus perkelti tik kalbos ženkleliai. Visi kiti ženkleliai liks nepakeisti.</string>
+  <string name="speak_help_playback_settings">
+Pasirinkus šį nustatymą, specialios grojimo nuostatos (kalbos ekrane) yra išsaugomos kalbos žymėse.
+Kai pratęsiate kalbėjimą nuo kalbos žymės, išsaugotos grojimo nuostatos yra įkeliamos iš žymės.</string>
+  <string name="speak_help_playback_settings_example">
+Pavyzdžiui, jei klausotės Pradžios knygą bei laišką Romiečiams bei norite Pradžios knygą klausytis greičiau atjungus pranešimus keičiantis skyriams,
+tačiau laišką Romiečiams norite klausytis lėčiau, įtraukiant ir garsinius pranešimus keičiantis skyriams, tuomet,
+kai šios nuostatos išsaugomos atitinkamose žymėse,
+galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Viešpats</item>
+    <item>Dievas</item>
+    <item>Karalius</item>
+    <item>Visagalis</item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahvė</item>
+    <item>Jahvė</item>
+    <item>Jahvė</item>
+    <item>Jahvė</item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Knyga pakeista</string>
+  <string name="speak_chapter_changed">Skyrius</string>
+  <string name="speak_first">Pirmas</string>
+  <string name="speak_second">Antras</string>
+  <string name="speak_third">Trečias</string>
+  <string name="speak_fourth">Ketvirtas</string>
+  <string name="speak_fifth">Penktas</string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
   <string name="mynote">Mano pastaba</string>
@@ -271,5 +345,9 @@
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
   <string name="empty_list">Nėra ko rodyti</string>
+  <string name="add_widget">Pridėti įtaisą</string>
+  <!--Notifications-->
+  <string name="download_documents">Parsiunčiami dokumentai</string>
+  <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Progreso būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
 </resources>

@@ -219,6 +219,18 @@
   <string name="tts_lang_not_available">Keel pole saadaval.</string>
   <string name="speak_queue">Järjekord</string>
   <string name="speak_repeat">Korda</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Minu märkmed</string>
   <string name="mynote">Minu nimi</string>
@@ -266,4 +278,5 @@
   <string name="error_page_too_large">Lehekülg on laadimiseks liiga suur</string>
   <string name="error_key_not_in_document">Dokumendist ei leitud</string>
   <string name="empty_list">Pole ühtegi kirjet, mida näidata</string>
+  <!--Notifications-->
 </resources>

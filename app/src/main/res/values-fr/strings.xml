@@ -223,6 +223,27 @@
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
   <string name="speak_queue">File d\'attente</string>
   <string name="speak_repeat">Répéter</string>
+  <!--Speak - Bible-->
+  <string name="speak_advanced_settings">Paramètres avancés</string>
+  <string name="conf_change_title">Titres</string>
+  <string name="conf_speak_footnotes">Notes de bas de page</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string name="speak_chapter_changed">Chapitre</string>
+  <string name="speak_first">Premier</string>
+  <string name="speak_second">Second</string>
+  <string name="speak_third">Troisième</string>
+  <string name="speak_fourth">Quatrième</string>
+  <string name="speak_fifth">Cinquième</string>
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
   <string name="mynote">Ma note</string>
@@ -271,5 +292,6 @@
   <string name="error_page_too_large">La page est trop lourde pour être chargée</string>
   <string name="error_key_not_in_document">Aucune correspondance dans le document</string>
   <string name="empty_list">Aucun élément à afficher</string>
+  <!--Notifications-->
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
 </resources>
