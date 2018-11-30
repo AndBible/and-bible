@@ -13,7 +13,7 @@
   <string name="search">Найти</string>
   <string name="settings">Настройки</string>
   <string name="history">История</string>
-  <string name="speak">Прослушать вслух</string>
+  <string name="speak">Прослушать</string>
   <string name="help">Помощь</string>
   <string name="verse">Стих</string>
   <string name="administration">Управление</string>
@@ -223,6 +223,87 @@
   <string name="tts_lang_not_available">Язык не установлен</string>
   <string name="speak_queue">По порядку</string>
   <string name="speak_repeat">Повторить</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Скорость речи</string>
+  <string name="speak_and_play_earcons_title">Прослушивать и воспроизводить краткие звуки для</string>
+  <string name="playback_settings_title">Настройки воспроизведения</string>
+  <string name="speak_settings_title">Основные настройки речи</string>
+  <string name="speak_bookmarking_settings_title">Настройки создания закладок</string>
+  <string name="speak_bookmarks_menu_title">Прослушать из закладки</string>
+  <string name="speak_advanced_settings">Расширенные настройки</string>
+  <string name="speak_settings_activity_title">Больше настроек речи</string>
+  <string name="speak_sleep_timer_title">Таймер сна</string>
+  <string name="speak_no_books_available">Нет доступных книг для прослушивания</string>
+  <string name="conf_speak_synchronize">Синхронизация текста с речью</string>
+  <string name="conf_speak_auto_bookmark">Автоматическое создание закладок</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Сохранять настройки воспроизведения в закладки</string>
+  <string name="conf_replace_divinename">Заменять божественное имя на Яхве</string>
+  <string name="conf_change_chapter">Смены глав</string>
+  <string name="conf_change_title">Подзаголовок</string>
+  <string name="conf_speak_footnotes">Примечаний</string>
+  <string name="conf_speak_sleep_timer">Установить таймер сна</string>
+  <string name="conf_speak_multitranslation">Сравнить переводы, прослушивая из всех видимых окон</string>
+  <string name="sleep_timer_title">Время сна в минутах</string>
+  <string name="sleep_timer_set">Установить таймер сна. Таймер установлен: %dминут</string>
+  <string name="sleep_timer_started">Таймер сна запущен, %d минут</string>
+  <string name="sleep_timer_active_at">Таймер сна: осталось %s минут.</string>
+  <string name="speak_next">Следуюущее</string>
+  <string name="speak_previous">Предыдущее</string>
+  <string name="widget_toggle_sleep_timer">Переключить таймер сна</string>
+  <string name="widget_bookmark_helptext">Здесь будут появляться кнопки быстрого вызова закладок прослушивания.</string>
+  <string name="speak_status_stopped">остановлено</string>
+  <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
+  <string name="speak_help_auto_bookmark">
+Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
+Автоматически сгенерированные закладки помечаются специальной меткой Прослушать.
+Если вы начинаете из закладки, то закладка переместится на стих, на котором вы
+(при-)остановитесь в следующий раз. Только метки Прослушать перемещаются, любые другие метки
+будут оставлены.
+</string>
+  <string name="speak_help_playback_settings">
+Специальные настройки воспроизведения (в разделе \"Настройки воспроизведения\" на экране \"Прослушать\")
+сохраняются в закладках «Прослушать» при выборе этого параметра.
+Когда вы перезапускаете прослушивание из закладки, из закладок загружаются
+сохраненные настройки воспроизведения.
+    </string>
+  <string name="speak_help_playback_settings_example">
+Например, если вы слушаете Бытие и к Римлянам и
+хотите слушать Бытие с быстрым произношением без уведомлений о смене глав,
+а к Римлянам медленнее с краткими звуками при смене глав, то
+Вы можете иметь различные настройки воспроизведения для этих книг,
+при сохранении этих настроек в соответствующие закладки.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Lord</item>
+    <item>God</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Книга изменилась.</string>
+  <string name="speak_chapter_changed">Глава</string>
+  <string name="speak_first">Первая</string>
+  <string name="speak_second">Вторая</string>
+  <string name="speak_third">Третья</string>
+  <string name="speak_fourth">Четвертая</string>
+  <string name="speak_fifth">Пятая</string>
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
   <string name="mynote">Мои заметки</string>
@@ -271,5 +352,9 @@
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
   <string name="empty_list">Для отображения ничего нет</string>
+  <string name="add_widget">Добавить виджет</string>
+  <!--Notifications-->
+  <string name="download_documents">Загрузка модулей</string>
+  <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
 </resources>

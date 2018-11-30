@@ -233,6 +233,74 @@
   <string name="tts_lang_not_available">Lingvo ne estas disponebla.</string>
   <string name="speak_queue">Vico</string>
   <string name="speak_repeat">Ripeti</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Parol-rapido</string>
+  <string name="speak_and_play_earcons_title">Paroli kaj ludi pepajn sonojn por</string>
+  <string name="playback_settings_title">Agordoj de ludado</string>
+  <string name="speak_settings_title">Ĝeneralaj agordoj de parolo</string>
+  <string name="speak_bookmarking_settings_title">Agordoj de legosignoj</string>
+  <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
+  <string name="speak_advanced_settings">Spertaj agordoj</string>
+  <string name="speak_settings_activity_title">Pliaj agordoj de parolo</string>
+  <string name="speak_sleep_timer_title">Dormo</string>
+  <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
+  <string name="conf_speak_synchronize">Samtempigi tekston kun parolo</string>
+  <string name="conf_speak_auto_bookmark">Aŭtomate krei legosignojn</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Konservi agordojn de ludado al legosignoj</string>
+  <string name="conf_replace_divinename">Anstataŭigi nomon de Dio per Javeo</string>
+  <string name="conf_change_chapter">Novaj ĉapitroj</string>
+  <string name="conf_change_title">Titoloj</string>
+  <string name="conf_speak_footnotes">Piednotoj</string>
+  <string name="conf_speak_sleep_timer">Agordi aŭtomatan fermon</string>
+  <string name="conf_speak_multitranslation">Kompari tradukojn per paroli el ĉiuj videblaj fenestroj</string>
+  <string name="sleep_timer_title">Dormi post (en minutoj)</string>
+  <string name="sleep_timer_set">Agordis aŭtomatan fermon al %d minutoj</string>
+  <string name="sleep_timer_started">Agordis aŭtomatan fermon al %d minutoj</string>
+  <string name="sleep_timer_active_at">Aŭtomata fermo: post %s minutoj.</string>
+  <string name="speak_next">Sekva</string>
+  <string name="speak_previous">Antaŭa</string>
+  <string name="widget_toggle_sleep_timer">(Mal)ŝalti aŭtomatan dormon</string>
+  <string name="widget_bookmark_helptext">Butonoj de parolaj legosignoj aperos tie ĉi.</string>
+  <string name="speak_status_stopped">haltigita</string>
+  <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
+  <string name="speak_help_auto_bookmark">
+Parola legosigno estos aŭtomate kreita kiam vi paŭzigos/haltigos parolon. Aŭtomate kreitaj legosignoj estas markitaj per speciala etikedo. Kiam vi pluigos parolan legosignon, ĝi aŭtomate moviĝos al la verso kie vi paŭzigos/haltigos la venonta foje. Nur parolaj legosignoj moviĝos, ĉiuj aliaj legosignoj ne estos movitaj.</string>
+  <string name="speak_help_playback_settings">
+Specialaj agordoj de ludado (ĉe “agordoj de ludado” sur parola ekrano) estos konservitaj al parolaj legosignoj kiam tiu ĉi agordo estos aktivigita. Kiam vi pluigos parolon per parola legosigno, konservitaj agordoj de ludado estos ŝargitaj el la legosigno.</string>
+  <string name="speak_help_playback_settings_example">
+Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapide sen sciigoj pri novaj ĉapitroj, sed volas aŭskulti Romanoj pli malrapide kun pepaj sonoj je novaj ĉapitroj, do vi povas havi malsamajn agordojn por tiuj libroj kaj tiuj agordoj estos konservataj en aparataj legosignoj.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Dio</item>
+    <item>Eternulo</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Javeo</item>
+    <item>Javeo</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Nova libro.</string>
+  <string name="speak_chapter_changed">Ĉapitro</string>
+  <string name="speak_first">Unua</string>
+  <string name="speak_second">Dua</string>
+  <string name="speak_third">Tria</string>
+  <string name="speak_fourth">Kvara</string>
+  <string name="speak_fifth">Kvina</string>
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <string name="mynote">Mia noto</string>
@@ -281,5 +349,9 @@
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
   <string name="empty_list">Neniuj elementoj por montri</string>
+  <string name="add_widget">Aldoni fenestraĵon</string>
+  <!--Notifications-->
+  <string name="download_documents">Elŝutado de dokumentoj</string>
+  <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
 </resources>

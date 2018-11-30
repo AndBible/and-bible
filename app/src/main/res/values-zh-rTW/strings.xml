@@ -181,6 +181,18 @@
   <string name="tts_lang_not_available">不支持漢語朗讀功能</string>
   <string name="speak_queue">隊列</string>
   <string name="speak_repeat">重復</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <string name="mynote">我的筆記</string>
@@ -223,4 +235,5 @@
   <string name="error_page_too_large">本頁太大，無法加載</string>
   <string name="error_key_not_in_document">文檔內沒有發現</string>
   <string name="empty_list">無可顯示單元</string>
+  <!--Notifications-->
 </resources>

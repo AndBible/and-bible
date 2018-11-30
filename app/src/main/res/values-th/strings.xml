@@ -171,6 +171,18 @@
   <string name="tts_lang_not_available">ภาษาที่ต้องการยังไม่มีให้</string>
   <string name="speak_queue">จัดเรียง</string>
   <string name="speak_repeat">ซ้ำ</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">บันทึกส่วนตัว</string>
   <string name="mynote">บันทึกส่วนตัว</string>
@@ -209,4 +221,5 @@
   <string name="error_page_too_large">หน้านี้มีขนาดใหญ่เกินไป ที่จะสามารถโหลดได้</string>
   <string name="error_key_not_in_document">ไม่พบในเอกสาร</string>
   <string name="empty_list">ไม่มีรายการที่จะแสดง</string>
+  <!--Notifications-->
 </resources>
