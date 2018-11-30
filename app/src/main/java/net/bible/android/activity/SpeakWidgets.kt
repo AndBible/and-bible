@@ -177,22 +177,25 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-
         fun addButton(name: String, osisRef: String) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
-
-            val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
-                action = SpeakBookmarkWidget.ACTION_BOOKMARK
-                data = Uri.parse("bible://$osisRef")
+            if(osisRef.length > 0) {
+                val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
+                    action = SpeakBookmarkWidget.ACTION_BOOKMARK
+                    data = Uri.parse("bible://$osisRef")
+                }
+                val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
+                button.setOnClickPendingIntent(R.id.button, bc)
             }
-            val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
-            button.setOnClickPendingIntent(R.id.button, bc)
             views.addView(R.id.layout, button)
             bookmarksAdded = true
         }
 
         val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        if(!SpeakSettings.load().autoBookmark) {
+            addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
+        }
 
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
@@ -206,6 +209,7 @@ class SpeakWidgetManager {
 
         val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
+
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 

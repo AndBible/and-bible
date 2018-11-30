@@ -299,6 +299,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
     <string name="widget_bookmark_helptext">Speak bookmarks shortcut buttons will appear here.</string>
     <string name="speak_status_stopped">stopped</string>
+    <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
 
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
