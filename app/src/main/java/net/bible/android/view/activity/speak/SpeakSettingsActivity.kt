@@ -67,6 +67,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             restoreSettingsFromBookmarks.isEnabled = true;
         }
         multiTranslation.isChecked = settings.multiTranslation
+        bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
     }
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
