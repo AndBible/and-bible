@@ -1,6 +1,7 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
+import net.bible.service.common.ParseException
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
@@ -10,6 +11,8 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.Verse
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -70,12 +73,61 @@ class SwordContentFacadeTest {
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
+    protected fun getVerse(book: Book, verseStr: String): Verse {
+        val verse = book.getKey(verseStr) as RangedPassage
+        return verse.getVerseAt(0)
+    }
+
+    @Test
+    fun testReadEsvIssue141a() {
+        val esv = getBook("ESV2011")
+        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
+
+        val html = try {
+            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false)
+        } catch (e: ParseException) {
+            "broken"
+        }
+        assertThat(html, not(equalTo("broken")))
+    }
+
+    @Test
+    fun testReadEsvIssue141b_18_11() {
+        val esv = getBook("ESV2011")
+
+        val verse = getVerse(esv, "Matt.18.11")
+
+        val html = try {
+            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false)
+        } catch (e: ParseException) {
+            "broken"
+        }
+        assertThat(html, not(equalTo("broken")))
+    }
+
+    @Test
+    fun testReadEsvIssue141b() {
+        val esv = getBook("ESV2011")
+
+        for(i in 1..35) {
+            val verse = getVerse(esv, "Matt.18.$i")
+
+            val html = try {
+                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false)
+            } catch (e: ParseException) {
+                "broken"
+            }
+            assertThat(html, not(equalTo("broken")))
+        }
+    }
+
+
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
         return swordContentFacade.readHtmlText(book, key, asFragment)
     }
 
-    private fun getBook(initials: String): Book? {
+    private fun getBook(initials: String): Book {
         println("Looking for $initials")
         return Books.installed().getBook(initials)
     }
