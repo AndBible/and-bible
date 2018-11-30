@@ -81,6 +81,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else
                 android.R.drawable.ic_media_play
         )
+        bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
