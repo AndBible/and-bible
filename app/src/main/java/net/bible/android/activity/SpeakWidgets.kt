@@ -254,7 +254,7 @@ class SpeakWidgetManager {
             Log.d(TAG, "setuWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
-            views.setTextViewText(R.id.statusText, app.getString(R.string.speak_status_stopped))
+            views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
 
             fun setupButton(action: String, button: Int, visible: Int) {
                 val intent = Intent(context, javaClass)
