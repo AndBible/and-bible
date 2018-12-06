@@ -304,10 +304,12 @@ public class SpeakControl {
 		speakBible((SwordBook) getCurrentBook(), verse);
 	}
 
-	public void speakBible(String osisRef) {
+	public void speakBible(String bookRef, String osisRef) {
+		SwordBook book = (SwordBook) Books.installed().getBook(bookRef);
+
 		try {
-			Verse verse = ((RangedPassage) getCurrentBook().getKey(osisRef)).getVerseAt(0);
-			speakBible((SwordBook) getCurrentBook(), verse);
+			Verse verse = ((RangedPassage) book.getKey(osisRef)).getVerseAt(0);
+			speakBible(book, verse);
 		} catch (NoSuchKeyException e) {
 			Log.e(TAG, "Key not found " + osisRef + " in " + getCurrentBook());
 		}
@@ -509,9 +511,13 @@ public class SpeakControl {
 			speakBible(dto.getVerseRange().getStart());
 		}
 	}
+	@Nullable
+	public Book getCurrentlyPlayingBook() {
+		return textToSpeechServiceManager.get().getCurrentlyPlayingBook();
+	}
 
 	@Nullable
-	public Verse getCurrentVerse() {
+	public Verse getCurrentlyPlayingVerse() {
 		return textToSpeechServiceManager.get().getCurrentlyPlayingVerse();
 	}
 }

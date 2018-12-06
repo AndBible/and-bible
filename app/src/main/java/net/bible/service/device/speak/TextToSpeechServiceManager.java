@@ -622,4 +622,9 @@ public class TextToSpeechServiceManager {
 	public Verse getCurrentlyPlayingVerse() {
 		return mSpeakTextProvider.getCurrentlyPlayingVerse();
 	}
+
+	@Nullable
+    public Book getCurrentlyPlayingBook() {
+		return mSpeakTextProvider.getCurrentlyPlayingBook();
+    }
 }

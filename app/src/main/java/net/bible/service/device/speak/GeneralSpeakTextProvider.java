@@ -104,6 +104,12 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return null;
 	}
 
+	@Nullable
+	@Override
+	public Book getCurrentlyPlayingBook() {
+		return null;
+	}
+
 	private static class StartPos {
 		boolean found = false;
 		private int startPosition = 0;

@@ -40,6 +40,8 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
@@ -147,11 +149,14 @@ class TextToSpeechNotificationManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             Log.d(TAG, "NotificationReceiver onnReceive $intent $action")
-            val osisRef = intent?.data?.host
+            val bookRef = intent?.data?.host
+            val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
                 ACTION_SPEAK_OR_PAUSE -> {
-                    if(!speakControl.isPaused && osisRef!=null) {
-                        speakControl.speakBible(osisRef)
+                    if(!speakControl.isPaused && bookRef != null && osisRef!=null) {
+                        // if application has been stopped and intent has bible reference,
+                        // start playback from the correct position
+                        speakControl.speakBible(bookRef, osisRef)
                     }
                     else {
                         speakControl.toggleSpeak()
@@ -281,12 +286,12 @@ class TextToSpeechNotificationManager {
     private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
     private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
     private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private fun getPlayAction(verse: Verse?): NotificationCompat.Action {
+    private fun getPlayAction(book: Book?, verse: Verse?): NotificationCompat.Action {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = ACTION_SPEAK_OR_PAUSE
          }
-        if(verse != null) {
-            intent.data = Uri.parse("bible://${verse.osisRef}")
+        if(book != null && verse != null) {
+            intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
         }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
         return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
@@ -320,7 +325,8 @@ class TextToSpeechNotificationManager {
                 .setStyle(style)
                 .addAction(rewindAction)
                 .addAction(prevAction)
-                .addAction(if(isSpeaking) pauseAction else getPlayAction(speakControl.getCurrentVerse()))
+                .addAction(if(isSpeaking) pauseAction else getPlayAction(
+                        speakControl.currentlyPlayingBook, speakControl.currentlyPlayingVerse))
                 .addAction(nextAction)
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)
