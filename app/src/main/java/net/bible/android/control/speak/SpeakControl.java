@@ -48,6 +48,8 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
+import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.RangedPassage;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
@@ -59,6 +61,7 @@ import dagger.Lazy;
 import de.greenrobot.event.EventBus;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -297,10 +300,20 @@ public class SpeakControl {
                 .getCurrentDocument();
 	}
 
-	private void speakBible(Verse verse) {
+	public void speakBible(Verse verse) {
 		speakBible((SwordBook) getCurrentBook(), verse);
 	}
 
+	public void speakBible(String bookRef, String osisRef) {
+		SwordBook book = (SwordBook) Books.installed().getBook(bookRef);
+
+		try {
+			Verse verse = ((RangedPassage) book.getKey(osisRef)).getVerseAt(0);
+			speakBible(book, verse);
+		} catch (NoSuchKeyException e) {
+			Log.e(TAG, "Key not found " + osisRef + " in " + getCurrentBook());
+		}
+	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		prepareForSpeaking();
@@ -497,5 +510,16 @@ public class SpeakControl {
 		} else {
 			speakBible(dto.getVerseRange().getStart());
 		}
+	}
+	@Nullable
+	public Book getCurrentlyPlayingBook() {
+		if(!booksAvailable()) return null;
+		return textToSpeechServiceManager.get().getCurrentlyPlayingBook();
+	}
+
+	@Nullable
+	public Verse getCurrentlyPlayingVerse() {
+		if(!booksAvailable()) return null;
+		return textToSpeechServiceManager.get().getCurrentlyPlayingVerse();
 	}
 }

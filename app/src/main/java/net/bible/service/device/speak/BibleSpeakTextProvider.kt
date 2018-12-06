@@ -376,7 +376,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
-            playbackSettings.BookId = book.abbreviation
+            playbackSettings.BookId = book.initials
 
             if(bookmarkDto == null) {
                 playbackSettings.bookmarkWasCreated = true
@@ -513,6 +513,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         utteranceState.clear()
         currentUtteranceId = ""
         verseRenderLruCache.evictAll()
+    }
+
+    override fun getCurrentlyPlayingVerse(): Verse? {
+        return currentVerse
+    }
+
+    override fun getCurrentlyPlayingBook(): SwordBook {
+        return book
     }
 
     override fun persistState() {

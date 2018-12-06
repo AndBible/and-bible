@@ -51,6 +51,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+
 
 /**
  * <p>text-to-speech (TTS). Please note the following steps:</p>
@@ -615,4 +617,14 @@ public class TextToSpeechServiceManager {
 		setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 
 	}
+
+	@Nullable
+	public Verse getCurrentlyPlayingVerse() {
+		return mSpeakTextProvider.getCurrentlyPlayingVerse();
+	}
+
+	@Nullable
+    public Book getCurrentlyPlayingBook() {
+		return mSpeakTextProvider.getCurrentlyPlayingBook();
+    }
 }
