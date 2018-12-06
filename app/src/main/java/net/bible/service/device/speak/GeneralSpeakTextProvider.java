@@ -32,7 +32,9 @@ import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -94,6 +96,12 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@Override
 	public void updateSettings(@NotNull SpeakSettingsChangedEvent speakSettingsChangedEvent) {
 
+	}
+
+	@Nullable
+	@Override
+	public Verse getCurrentlyPlayingVerse() {
+		return null;
 	}
 
 	private static class StartPos {

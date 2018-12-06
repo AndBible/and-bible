@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -39,6 +40,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
 
@@ -145,8 +147,16 @@ class TextToSpeechNotificationManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             Log.d(TAG, "NotificationReceiver onnReceive $intent $action")
+            val osisRef = intent?.data?.host
             when (action) {
-                ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak()
+                ACTION_SPEAK_OR_PAUSE -> {
+                    if(!speakControl.isPaused && osisRef!=null) {
+                        speakControl.speakBible(osisRef)
+                    }
+                    else {
+                        speakControl.toggleSpeak()
+                    }
+                }
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
@@ -271,7 +281,16 @@ class TextToSpeechNotificationManager {
     private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
     private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
     private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private val playAction = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_SPEAK_OR_PAUSE)
+    private fun getPlayAction(verse: Verse?): NotificationCompat.Action {
+        val intent = Intent(app, NotificationReceiver::class.java).apply {
+            action = ACTION_SPEAK_OR_PAUSE
+         }
+        if(verse != null) {
+            intent.data = Uri.parse("bible://${verse.osisRef}")
+        }
+        val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
+        return NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
+    }
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
@@ -301,7 +320,7 @@ class TextToSpeechNotificationManager {
                 .setStyle(style)
                 .addAction(rewindAction)
                 .addAction(prevAction)
-                .addAction(if(isSpeaking) pauseAction else playAction)
+                .addAction(if(isSpeaking) pauseAction else getPlayAction(speakControl.getCurrentVerse()))
                 .addAction(nextAction)
                 .addAction(forwardAction)
                 .setOnlyAlertOnce(true)

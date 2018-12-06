@@ -20,6 +20,7 @@ package net.bible.service.device.speak
 
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import org.crosswire.jsword.passage.Verse
 
 interface SpeakTextProvider {
     val numItemsToTts: Int
@@ -42,4 +43,5 @@ interface SpeakTextProvider {
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Float)
     fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
+    fun getCurrentlyPlayingVerse(): Verse? = null
 }

@@ -515,6 +515,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         verseRenderLruCache.evictAll()
     }
 
+    override fun getCurrentlyPlayingVerse(): Verse? {
+        return currentVerse
+    }
+
     override fun persistState() {
         with (CommonUtils.getSharedPreferences().edit() ) {
             putString(PERSIST_BOOK, book.abbreviation)
