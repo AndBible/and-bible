@@ -236,7 +236,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	try {
 			getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
 			if(bookmarkControl.isSpeakBookmark(bookmark)) {
-				speakControl.speakBible(bookmark.getVerseRange().getStart());
+				speakControl.speakFromBookmark(bookmark);
 			}
 
 			doFinish();
