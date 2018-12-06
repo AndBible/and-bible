@@ -45,7 +45,6 @@ import java.util.List;
  */
 public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
-	private final LabelDto speakLabel;
 	private int resource;
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 	private BookmarkControl bookmarkControl;
@@ -59,7 +58,6 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		resource = _resource;
 		this.bookmarkControl = bookmarkControl;
 		this.actionModeActivity = actionModeActivity;
-		speakLabel = bookmarkControl.getOrCreateSpeakLabel();
 	}
 
 	@Override
@@ -77,7 +75,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			view = (TwoLine2TitleListItem) convertView;
 		}
 
-		if(labels.contains(speakLabel)){
+		if(bookmarkControl.isSpeakBookmark(item)){
 			view.getImage().setVisibility(View.VISIBLE);
 		}
 		else {

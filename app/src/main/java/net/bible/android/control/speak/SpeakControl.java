@@ -297,7 +297,7 @@ public class SpeakControl {
                 .getCurrentDocument();
 	}
 
-	private void speakBible(Verse verse) {
+	public void speakBible(Verse verse) {
 		speakBible((SwordBook) getCurrentBook(), verse);
 	}
 
