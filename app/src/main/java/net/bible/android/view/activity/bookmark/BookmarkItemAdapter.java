@@ -34,6 +34,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.TwoLine2TitleListItem;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
+import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ import java.util.List;
  */
 public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
+	private final LabelDto speakLabel;
 	private int resource;
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 	private BookmarkControl bookmarkControl;
@@ -57,12 +59,14 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		resource = _resource;
 		this.bookmarkControl = bookmarkControl;
 		this.actionModeActivity = actionModeActivity;
+		speakLabel = bookmarkControl.getOrCreateSpeakLabel();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
 		BookmarkDto item = getItem(position);
+		List<LabelDto> labels = bookmarkControl.getBookmarkLabels(item);
 
 		// Pick up the TwoLineListItem defined in the xml file
 		TwoLine2TitleListItem view;
@@ -71,6 +75,13 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			view = (TwoLine2TitleListItem) inflater.inflate(resource, parent, false);
 		} else {
 			view = (TwoLine2TitleListItem) convertView;
+		}
+
+		if(labels.contains(speakLabel)){
+			view.getImage().setVisibility(View.VISIBLE);
+		}
+		else {
+			view.getImage().setVisibility(View.GONE);
 		}
 
 		// Set value for the first text field

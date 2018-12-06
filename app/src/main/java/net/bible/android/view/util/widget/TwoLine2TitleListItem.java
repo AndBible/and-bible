@@ -18,6 +18,7 @@ package net.bible.android.view.util.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ public class TwoLine2TitleListItem extends RelativeLayout {
     private TextView mText1;
     private TextView mText2;
     private TextView mText3;
+    private ImageView image;
 
     public TwoLine2TitleListItem(Context context) {
         this(context, null, 0);
@@ -67,6 +69,7 @@ public class TwoLine2TitleListItem extends RelativeLayout {
         mText1 = (TextView) findViewById(R.id.text1);
         mText2 = (TextView) findViewById(R.id.text2);
         mText3 = (TextView) findViewById(R.id.text3);
+        image = (ImageView) findViewById(R.id.image);
     }
     
     /**
@@ -91,5 +94,9 @@ public class TwoLine2TitleListItem extends RelativeLayout {
     @Override
     public CharSequence getAccessibilityClassName() {
         return TwoLine2TitleListItem.class.getName();
+    }
+
+    public ImageView getImage() {
+        return image;
     }
 }
