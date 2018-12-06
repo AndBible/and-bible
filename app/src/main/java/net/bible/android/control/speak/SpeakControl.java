@@ -513,11 +513,13 @@ public class SpeakControl {
 	}
 	@Nullable
 	public Book getCurrentlyPlayingBook() {
+		if(!booksAvailable()) return null;
 		return textToSpeechServiceManager.get().getCurrentlyPlayingBook();
 	}
 
 	@Nullable
 	public Verse getCurrentlyPlayingVerse() {
+		if(!booksAvailable()) return null;
 		return textToSpeechServiceManager.get().getCurrentlyPlayingVerse();
 	}
 }
