@@ -78,7 +78,7 @@ public class BookmarkFormatSupport {
 						if(bookmarkLabels.isEmpty()) {
 							bookmarkLabels.add(new LabelDto(null, null, defaultBookmarkStyle));
 						}
-						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
+						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle);
 
 						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
 							Set<BookmarkStyle> stylesSet = bookmarkStylesByVerseNoInPassage.get(verse.getVerse());
@@ -104,13 +104,16 @@ public class BookmarkFormatSupport {
 	/**
 	 * Get distinct styles in enum order
 	 */
-	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
+	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels, BookmarkStyle defaultStyle) {
 		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
 		for (LabelDto label : bookmarkLabels) {
 			BookmarkStyle style = label.getBookmarkStyle();
 
 			if (style!=null) {
 				bookmarkStyles.add(style);
+			}
+			else {
+				bookmarkStyles.add(defaultStyle);
 			}
 		}
 		return new ArrayList<>(bookmarkStyles);
