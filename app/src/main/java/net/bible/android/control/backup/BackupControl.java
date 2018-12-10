@@ -26,6 +26,8 @@ import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.FileManager;
@@ -84,6 +86,7 @@ public class BackupControl {
 
 					if (ok) {
 						CommonDatabaseHelper.reset();
+						ABEventBus.getDefault().post(new SynchronizeWindowsEvent(true));
 						Log.d(TAG, "Copied database from SD card successfully");
 						Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
 					} else {
