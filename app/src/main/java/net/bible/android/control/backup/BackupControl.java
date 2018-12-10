@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
@@ -78,6 +79,7 @@ public class BackupControl {
 			Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
 				@Override
 				public void okay() {
+					BibleApplication.getApplication().deleteDatabase(CommonDatabaseHelper.DATABASE_NAME);
 					boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
 
 					if (ok) {
