@@ -16,7 +16,6 @@
  *
  */
 
-package net.bible.android.control.event.passage;
+package net.bible.android.control.event.passage
 
-public class PassageChangedEvent {
-}
+class PassageChangedEvent
