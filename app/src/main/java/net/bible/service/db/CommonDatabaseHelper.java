@@ -48,6 +48,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
         return sSingleton;
     }
 
+    public static void reset() {
+    	sSingleton = null;
+	}
+
     /**
      * Private constructor, callers except unit tests should obtain an instance through
      * {@link #getInstance()} instead.

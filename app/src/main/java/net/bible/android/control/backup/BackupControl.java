@@ -81,6 +81,7 @@ public class BackupControl {
 					boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
 
 					if (ok) {
+						CommonDatabaseHelper.reset();
 						Log.d(TAG, "Copied database from SD card successfully");
 						Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
 					} else {
