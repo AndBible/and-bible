@@ -312,7 +312,7 @@ class SpeakWidgetManager {
             val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
                 ACTION_SPEAK -> {
-                    if(!speakControl.isPaused && bookRef != null && osisRef!=null) {
+                    if(!speakControl.isPaused && !speakControl.isSpeaking && bookRef != null && osisRef!=null) {
                         // if application has been stopped and intent has bible reference,
                         // start playback from the correct position
                         speakControl.speakBible(bookRef, osisRef)
