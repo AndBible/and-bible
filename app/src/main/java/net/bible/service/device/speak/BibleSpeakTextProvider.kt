@@ -113,6 +113,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(speakSettingsChangedEvent.updateBookmark && bookmarkDto != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
+
+            // Let's retain bookId
+            val bookId = bookmarkDto.playbackSettings?.bookId
+            if (bookId != null) {
+                speakSettingsChangedEvent.speakSettings.playbackSettings.bookId = bookId
+            }
             bookmarkDto.playbackSettings = speakSettingsChangedEvent.speakSettings.playbackSettings
             this.bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
         }
@@ -337,7 +343,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 val playbackSettings = bookmarkDto.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     playbackSettings.bookmarkWasCreated = null
-                    playbackSettings.BookId = null
+                    playbackSettings.bookId = null
                     settings.playbackSettings = playbackSettings
                     settings.save()
                     Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
@@ -376,7 +382,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
-            playbackSettings.BookId = book.initials
+            playbackSettings.bookId = book.initials
 
             if(bookmarkDto == null) {
                 playbackSettings.bookmarkWasCreated = true
