@@ -169,7 +169,7 @@ public class CommonUtils {
 	}
 	
     public static boolean isInternetAvailable() {
-    	String testUrl = "https://www.crosswire.org/ftpmirror/pub/sword/packages/";
+    	String testUrl = "http://www.crosswire.org/ftpmirror/pub/sword/packages/";
     	return CommonUtils.isHttpUrlAvailable(testUrl);
     }
 

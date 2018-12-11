@@ -199,7 +199,7 @@ class SpeakWidgetManager {
 
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
-            addButton("${b.verseRange.start.name} (${b.playbackSettings?.BookId?:"?"})", b.verseRange.start.osisRef)
+            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})", b.verseRange.start.osisRef)
             Log.d(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
@@ -316,7 +316,7 @@ class SpeakWidgetManager {
             val osisRef = intent?.data?.path?.removePrefix("/")
             when (action) {
                 ACTION_SPEAK -> {
-                    if(!speakControl.isPaused && bookRef != null && osisRef!=null) {
+                    if(!speakControl.isPaused && !speakControl.isSpeaking && bookRef != null && osisRef!=null) {
                         // if application has been stopped and intent has bible reference,
                         // start playback from the correct position
                         speakControl.speakBible(bookRef, osisRef)
