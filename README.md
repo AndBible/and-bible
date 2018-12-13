@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/AndBible/and-bible.svg?branch=master)](https://travis-ci.org/AndBible/and-bible)
-
+[![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
+   
 # And Bible
 Offline Bible on Android
 
