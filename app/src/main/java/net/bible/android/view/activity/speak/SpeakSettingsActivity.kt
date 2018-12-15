@@ -21,9 +21,11 @@ package net.bible.android.view.activity.speak
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -91,7 +93,10 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     }
 
     fun onHelpButtonClick(button: View) {
-        val htmlMessage = ("<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+        val htmlMessage = (
+                "<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+                + "<b><a href=\"https://www.youtube.com/watch?v=1HFXLeTERcs\">"
+                + "${getString(R.string.watch_tutorial_video)}</a></b><br><br>"
                 + getString(R.string.speak_help_auto_bookmark)
                 + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
                 + getString(R.string.speak_help_playback_settings)
@@ -105,10 +110,13 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             Html.fromHtml(htmlMessage)
         }
 
-        AlertDialog.Builder(this)
+        val d = AlertDialog.Builder(this)
                 .setMessage(spanned)
                 .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                .show()
+                .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun onButtonClick(button: View) {

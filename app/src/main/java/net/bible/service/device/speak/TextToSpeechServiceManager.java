@@ -184,6 +184,11 @@ public class TextToSpeechServiceManager {
 			localePreferenceList.add( new Locale(bookLanguageCode, countryCode));
 		}
 
+		// Speak ancient greek with modern greece.
+		if(bookLanguageCode.equals("grc")) {
+			bookLanguageCode = "el";
+		}
+
 		// finally just add the language of the book
 		localePreferenceList.add( new Locale(bookLanguageCode));
 		return localePreferenceList;
