@@ -19,8 +19,12 @@
 package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -101,6 +105,28 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else
                 android.R.drawable.ic_media_play
         )
+    }
+
+    fun onHelpButtonClick(widget: View) {
+        val htmlMessage = (
+                "<b>${getString(R.string.speak)}</b><br><br>"
+                + "<b><a href=\"https://youtu.be/_wWnS-pjv2A\">"
+                + "${getString(R.string.watch_tutorial_video)}</a></b>"
+                )
+
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(htmlMessage)
+        }
+
+        val d = AlertDialog.Builder(this)
+                .setMessage(spanned)
+                .setPositiveButton(android.R.string.ok) { _, _ ->  }
+                .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun onSettingsChange(widget: View) = updateSettings()

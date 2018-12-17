@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
-  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utilisez le track-ball, le D-pad ou balayez l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPour accéder aux options, pressez la touche MENU.\n\nPour télécharger plus de documents, sélectionnez Menu/Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionnez le Menu/Écoute du texte pour écouter le chapitre en cours.\nSélectionnez encore Menu/Écoute du texte pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes s\'obtient par Menu/Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible par Menu/Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre le menu contextuel des actions relatives à un verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
+  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utilisez le track-ball, le D-pad ou balayez l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPour accéder aux options, pressez la touche MENU.\n\nPour télécharger plus de documents, sélectionnez Menu/Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionnez le Menu/Lecture audio pour écouter le chapitre en cours.\nSélectionnez encore Menu/Lecture audio pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes s\'obtient par Menu/Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible par Menu/Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre le menu contextuel des actions relatives à un verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
@@ -13,7 +13,7 @@
   <string name="search">Rechercher</string>
   <string name="settings">Paramètres</string>
   <string name="history">Historique</string>
-  <string name="speak">Écoute du texte</string>
+  <string name="speak">Lecture audio</string>
   <string name="help">Aide</string>
   <string name="verse">Verset</string>
   <string name="administration">Gérer</string>
@@ -82,14 +82,14 @@
   <string name="prefs_text_size_title">Taille du texte</string>
   <string name="prefs_text_size_summary">Sélectionne la taille du texte</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
-  <string name="prefs_screen_keep_on_title">Bloquer la mise en veille automatique</string>
-  <string name="prefs_screen_keep_on_summary">Maintient l\'écran allumé</string>
+  <string name="prefs_screen_keep_on_title">Maintenir activé</string>
+  <string name="prefs_screen_keep_on_summary">Bloque la mise en veille automatique</string>
   <string name="x_minutes">%d minutes</string>
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface utilisateur personnalisée </string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
-  <string name="prefs_speak_speed_title">Vitesse d\'écoute</string>
-  <string name="prefs_speak_speed_summary">Sélectionne la vitesse d\'écoute</string>
+  <string name="prefs_speak_speed_title">Vitesse de lecture</string>
+  <string name="prefs_speak_speed_summary">Sélectionne la vitesse de lecture</string>
   <string name="speak_speed_slow">Ralenti</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Rapide</string>
@@ -226,17 +226,17 @@
   <!--Speak - Bible-->
   <string name="speak_speed_title">Vitesse de lecture</string>
   <string name="speak_and_play_earcons_title">Lire et jouer des effets sonores pour </string>
-  <string name="playback_settings_title">Paramètres de l\'écoute</string>
+  <string name="playback_settings_title">Paramètres audio</string>
   <string name="speak_settings_title">Paramètres généraux de la voix</string>
   <string name="speak_bookmarking_settings_title">Paramètres des signets</string>
-  <string name="speak_bookmarks_menu_title">Lancer l\'écouter à partir du signet</string>
+  <string name="speak_bookmarks_menu_title">Écouter à partir du signet</string>
   <string name="speak_advanced_settings">Paramètres avancés</string>
-  <string name="speak_settings_activity_title">Paramètres avancés de l\'écoute du texte</string>
+  <string name="speak_settings_activity_title">Paramètres avancés de lecture audio</string>
   <string name="speak_sleep_timer_title">Mise en sommeil</string>
   <string name="speak_no_books_available">Pas de livre disponible à écouter</string>
   <string name="conf_speak_synchronize">Synchroniser le texte avec la voix</string>
   <string name="conf_speak_auto_bookmark">Mise en signet automatique</string>
-  <string name="conf_save_playback_settings_to_bookmarks">Enregistrer les paramètres d\'écoute dans les signets</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Enregistrer les paramètres audio dans les signets</string>
   <string name="conf_replace_divinename">Remplacer le nom divin par Yahvé</string>
   <string name="conf_change_chapter">Changements de chapitre</string>
   <string name="conf_change_title">Titres</string>
@@ -250,16 +250,16 @@
   <string name="speak_next">Suivant</string>
   <string name="speak_previous">Précédent</string>
   <string name="widget_toggle_sleep_timer">Inverser la mise en sommeil</string>
-  <string name="widget_bookmark_helptext">Les boutons de signets d\'écoute du texte seront affichés ici</string>
+  <string name="widget_bookmark_helptext">Les signets audio s\'afficheront ici</string>
   <string name="speak_status_stopped">arrêt</string>
-  <string name="speak_bookmark_help">Aide des signets d\'écoute</string>
+  <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
-Un Signet d\'écoute est automatiquement inséré lorsque l\'écoute est mise sur pause ou arrêt. Les signets ainsi générés ont pour label Écoute du texte. Si vous avez redémarré l\'écoute à partir d\'un signet, il est avancé au verset sur lequel l\'écoute est mise en pause ou arrêt. Seuls un signets de type Écoute du texte peut être déplacé, les autres signets restent inchangés.</string>
+Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrêt. Ces signets ont pour label Lecture audio. Si vous avez redémarré l\'écoute à partir d\'un tel signet, celui-ci sera déplacé au verset où la Lecture audio sera mise en pause ou arrêt. Seuls les signets de type Lecture audio sont transposables, les autres signets restent inchangés.</string>
   <string name="speak_help_playback_settings">
-Les paramètres de l\'écoute (section Paramètres de l\'écoute dans la page Écoute du texte) sont enregistrés avec le signet d\'écoute, si ce paramètre est activé.
-Lorsque vous redémarrez la lecture à partir d\'un signet d\'écoute, les paramètres de l\'écoute sont rechargés depuis le signet.</string>
+Vos paramètres audio (section Paramètres de lecture dans la page Lecture audio) sont enregistrés dans les signets audio, à condition que cette option soit activée.
+Lorsque vous redémarrez la lecture à partir d\'un signet audio, les paramètres de lecture sont alors rechargés avec le signet.</string>
   <string name="speak_help_playback_settings_example">
-Par exemple si vous écoutez Genèse et Romains, et désirez écouter Genèse à bonne vitesse sans les notifications de changement de chapitre, mais Romains lentement avec un effet sonore en tête de chapitre, vous pouvez garder des paramètres différents pour écouter ces livres si l\'enregistrement des paramètres dans les signets correspondants est activé.</string>
+Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à bonne vitesse sans notifications de changement de chapitre mais Romains plutôt lentement avec un effet sonore en tête de chapitre, vous pouvez conserver ces paramètres différents pour l\'écoute si l\'enregistrement des paramètres audio dans les signets est activé.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 

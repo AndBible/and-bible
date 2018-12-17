@@ -31,9 +31,15 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                    android:orientation="vertical"
+                    >
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         >
-                    <TextView
+
+                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/speak_titles_text_size"
@@ -42,13 +48,25 @@
                             android:text="@string/playback_settings_title"
                             />
 
-                    <TextView
-                            android:layout_width="match_parent"
+                        <ImageButton
+                            android:id="@+id/bookmarkHelpButton"
+                            android:src="@android:drawable/ic_menu_help"
+                            android:contentDescription="@string/speak_bookmark_help"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:padding="@dimen/speak_subtitle_padding"
-                            android:text="@string/speak_and_play_earcons_title"
-                            />
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:onClick="onHelpButtonClick"
+                            style="@style/Widget.Design.FloatingActionButton"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:padding="@dimen/speak_subtitle_padding"
+                        android:text="@string/speak_and_play_earcons_title"
+                        />
 
                     <LinearLayout
                             android:layout_width="match_parent"
