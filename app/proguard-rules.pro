@@ -72,6 +72,6 @@
 -keep class * extends org.tartarus.snowball.SnowballProgram
 
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
--keepattributes *Annotation*
--keep class kotlin.** { *; }
--keep class org.jetbrains.** { *; }
+#-keepattributes *Annotation*
+#-keep class kotlin.** { *; }
+#-keep class org.jetbrains.** { *; }
