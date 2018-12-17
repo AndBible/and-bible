@@ -174,7 +174,7 @@
   <string name="open_link_in_this_window">Avaa linkki täältä.</string>
   <string name="open_link_in_new_window">Avaa linkki uuteen ikkunaan</string>
   <string name="open_link_in_main_window">Avaa linkki pääikkunaan</string>
-  <string name="open_link_in_special_window">Avaa linkki tiettyyn ikkunaan</string>
+  <string name="open_link_in_special_window">Avaa linkki omaan ikkunaansa</string>
   <!--Bookmarks-->
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="add_bookmark">Lisää kirjanmerkit</string>
