@@ -341,6 +341,7 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="new_item">Uusi</string>
   <string name="close">Sulje</string>
   <string name="edit">Muokkaa</string>
+  <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
   <!--Errors-->
   <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>
