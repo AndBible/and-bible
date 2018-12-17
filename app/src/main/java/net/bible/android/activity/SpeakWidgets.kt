@@ -55,13 +55,6 @@ class SpeakWidgetManager {
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
-
-        private val widgetClasses = listOf(
-                SmallSpeakControlWidget::class,
-                MiddleSpeakControlWidget::class,
-                LargeSpeakControlWidget::class,
-                SpeakTextControlWidget::class
-        )
     }
 
     @Inject lateinit var speakControl: SpeakControl
@@ -133,8 +126,7 @@ class SpeakWidgetManager {
         views.setTextViewText(R.id.titleText, currentTitle)
 
         val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for(cls in widgetClasses) {
-            val wOptions = cls.annotations.find { it is WidgetOptions } as WidgetOptions
+        for((cls, wOptions) in widgetOptions) {
             var statusText = speakControl.getStatusText(wOptions.statusFlags)
             if(wOptions.showText) {
                 statusText += ": $currentText"
@@ -156,7 +148,7 @@ class SpeakWidgetManager {
 
     private fun partialUpdateWidgets(views: RemoteViews) {
         val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for(cls in widgetClasses) {
+        for(cls in widgetOptions.keys) {
             for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
                 manager.partiallyUpdateAppWidget(id, views)
             }
@@ -286,7 +278,7 @@ class SpeakWidgetManager {
                     setupButton(b, buttonId, if (buttons.contains(b)) View.VISIBLE else View.GONE)
                 }
             }
-            val wOptions = this::class.annotations.find {it is WidgetOptions} as WidgetOptions
+            val wOptions = instance.widgetOptions[this::class] as WidgetOptions
             if(!wOptions.showTitle) {
                 views.setViewVisibility(R.id.titleText, View.GONE)
             }
@@ -366,25 +358,27 @@ class SpeakWidgetManager {
         }
     }
 
-    @Target(AnnotationTarget.CLASS)
-    annotation class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
+    class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
 
-    @WidgetOptions(0, false)
+    val widgetOptions = hashMapOf(
+            SmallSpeakControlWidget::class to WidgetOptions(0, false),
+            MiddleSpeakControlWidget::class to WidgetOptions(FLAG_SHOW_PERCENT, true),
+            LargeSpeakControlWidget::class to WidgetOptions(FLAG_SHOW_ALL, true),
+            SpeakTextControlWidget::class to WidgetOptions(0, true, true)
+    )
+
     class SmallSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
     }
 
-    @WidgetOptions(FLAG_SHOW_PERCENT, true)
     class MiddleSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
     }
 
-    @WidgetOptions(FLAG_SHOW_ALL, true)
     class LargeSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
     }
 
-    @WidgetOptions(0, true, true)
     class SpeakTextControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_PREV, ACTION_NEXT, ACTION_SPEAK, ACTION_STOP)
     }
