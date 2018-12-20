@@ -21,6 +21,8 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
+import android.text.Html
 import android.text.method.LinkMovementMethod
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -118,23 +120,33 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
                 R.id.helpButton -> {
-                    /*
-                    val versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName())
-                    val msg = callingActivity.getString(R.string.help_text_long) //.replace("\n", "<br>")
+                    val app = BibleApplication.getApplication()
+                    val versionMsg = app.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
 
-                    val htmlMessage = (
-                            "${msg}<br><br>${versionMsg}</b>"
-                            )
+                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_menu_title, R.string.help_speech_title,
+                            R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
+                            R.string.help_contextmenus_title)
+                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_menu_text, R.string.help_speech_text,
+                            R.string.help_mynote_text, R.string.help_bookmarks_text, R.string.help_search_text,
+                            R.string.help_contextmenus_text)
+
+                    var htmlMessage = ""
+
+                    for(idx in 0 until helpTitles.size) {
+                        val helpText = app.getString(helpTexts[idx]).replace("\n", "<br>")
+                        htmlMessage += "<b>${app.getString(helpTitles[idx])}</b><br>$helpText<br><br>"
+                    }
+                    htmlMessage += "<i>${versionMsg}</i>"
 
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
                     } else {
                         Html.fromHtml(htmlMessage)
                     }
-                    */
 
                     val d = AlertDialog.Builder(callingActivity)
-                            .setMessage(R.string.help_text_long)
+                            .setTitle(R.string.help)
+                            .setMessage(spanned)
                             .setPositiveButton(android.R.string.ok) { _, _ ->  }
                             .create()
 
