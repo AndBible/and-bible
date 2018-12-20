@@ -360,14 +360,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	 */
 	public void onEventMainThread(PassageChangeStartedEvent event) {
 		documentViewManager.buildView();
-		setProgressBar(true);
 	}
 
 	/**
 	 * called by PassageChangeMediator after a new passage has been changed and displayed
 	 */
 	public void onEventMainThread(PassageChangedEvent event) {
-		setProgressBar(false);
 		updateActionBarButtons();
 	}
 
