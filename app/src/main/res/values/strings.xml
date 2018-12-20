@@ -39,8 +39,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="help_contextmenus_title">Context Menus</string>
     <string name="help_contextmenus_text">
         Long press on the Bible view to open the context menu for actions affecting the current verse.
-        \nLong press on a document in the document selector to delete it or view information.
-        \nLong press the Back button to access the History list
+        Long press on a document in the document selector to delete it or view information.
+        Long press the Back button to access the History list.
     </string>
 
     <string name="version_text">Version %s</string>
