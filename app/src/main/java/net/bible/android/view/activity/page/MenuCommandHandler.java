@@ -53,7 +53,6 @@ import net.bible.service.common.CommonUtils;
 import org.crosswire.jsword.book.BookCategory;
 
 import javax.inject.Inject;
-import java.util.Objects;
 
 import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST;
 import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST;
@@ -188,10 +187,14 @@ public class MenuCommandHandler {
         return isHandled;
     }
 
+	static boolean equals(Object a, Object b) {
+		return (a == b) || (a != null && a.equals(b));
+    }
+
 	public boolean restartIfRequiredOnReturn(int requestCode) {
     	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
-    		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
+    		if (!equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
 				// must restart to change locale
     			CommonUtils.restartApp(callingActivity);
     		}

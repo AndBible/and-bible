@@ -101,7 +101,11 @@ open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
 class ParagraphChangeCommand : SilenceCommand(true)
 
 class SpeakCommandArray: ArrayList<SpeakCommand>() {
-    private val maxLength = TextToSpeech.getMaxSpeechInputLength()
+    private val maxLength = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        TextToSpeech.getMaxSpeechInputLength()
+    } else {
+        4000
+    }
     private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
     private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
     private val startsWithDelimeter = Regex("([,.?!\"':;()]+|'s)( .*|)")
