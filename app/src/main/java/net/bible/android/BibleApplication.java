@@ -23,9 +23,11 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.multidex.MultiDexApplication;
 import de.greenrobot.event.EventBus;
 
@@ -253,6 +255,7 @@ public class BibleApplication extends MultiDexApplication {
     	return getSharedPreferences(saveStateTag, 0);
     }
 
+	@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public Resources getLocalizedResources(String language) {
 		BibleApplication app = getApplication();
 		Configuration oldConf = app.getResources().getConfiguration();

@@ -50,7 +50,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/synchronize"
-                            android:onClick="onSettingsChange"/>
+                            android:onClick="onSettingsChange"
+                        android:layout_marginLeft="@dimen/speak_row_padding" />
                 </LinearLayout>
                 <CheckBox
                         android:text="@string/conf_replace_divinename"
@@ -58,14 +59,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/speak_row_padding"
                         android:id="@+id/replaceDivineName"
-                        android:onClick="onSettingsChange"/>
+                        android:onClick="onSettingsChange"
+                    android:layout_marginLeft="@dimen/speak_row_padding" />
                 <CheckBox
                     android:text="@string/conf_speak_multitranslation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/speak_row_padding"
                     android:id="@+id/multiTranslation"
-                    android:onClick="onSettingsChange"/>
+                    android:onClick="onSettingsChange"
+                    android:layout_marginLeft="@dimen/speak_row_padding" />
                 <Space
                         android:layout_width="match_parent"
                         android:layout_height="15dip"/>
@@ -93,7 +96,7 @@
                             android:layout_alignParentStart="true"
                             android:textStyle="bold"
                             android:text="@string/speak_bookmarking_settings_title"
-                            />
+                        android:layout_alignParentLeft="true" />
 
                     <ImageButton
                             android:id="@+id/bookmarkHelpButton"
@@ -104,7 +107,8 @@
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentBottom="true"
                             android:onClick="onHelpButtonClick"
-                            style="@style/Widget.Design.FloatingActionButton"/>
+                            style="@style/Widget.Design.FloatingActionButton"
+                        android:layout_alignParentRight="true" />
                 </RelativeLayout>
 
                 <LinearLayout
@@ -112,7 +116,7 @@
                         android:layout_marginStart="@dimen/speak_row_padding"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        >
+                    android:layout_marginLeft="@dimen/speak_row_padding">
 
                     <CheckBox
                             android:text="@string/conf_speak_auto_bookmark"
@@ -150,7 +154,8 @@
                 android:paddingStart="@dimen/speak_row_padding"
                 android:id="@+id/statusText"
                 android:background="@color/speak_status_background"
-                android:text="*Gen.1.1*"/>
+                android:text="*Gen.1.1*"
+            android:paddingLeft="@dimen/speak_row_padding" />
 
         <!-- Button bar with OK button -->
         <LinearLayout

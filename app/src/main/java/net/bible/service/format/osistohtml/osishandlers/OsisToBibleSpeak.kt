@@ -45,7 +45,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     private var anyTextWritten = false
 
     init {
-        val res = BibleApplication.getApplication().getLocalizedResources(language)
+        val res = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            BibleApplication.getApplication().getLocalizedResources(language)
+        } else {
+            BibleApplication.getApplication().resources
+        }
         divineNameOriginal = res.getStringArray(R.array.speak_divinename_original)
         divineNameReplace = res.getStringArray(R.array.speak_divinename_replace)
     }

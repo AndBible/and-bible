@@ -19,6 +19,7 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
+import android.os.Build
 import android.util.Log
 import android.util.LruCache
 import net.bible.android.control.speak.SpeakSettings
@@ -131,7 +132,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     fun setupBook(book: SwordBook) {
         this.book = book
-        localizedResources = BibleApplication.getApplication().getLocalizedResources(book.language.code)
+        localizedResources =  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            BibleApplication.getApplication().getLocalizedResources(book.language.code)
+        } else {
+            BibleApplication.getApplication().resources
+        }
 
         val locale = Locale(book.language.code)
         bibleBooks.clear()
