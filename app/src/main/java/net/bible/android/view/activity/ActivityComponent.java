@@ -28,7 +28,6 @@ import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.download.ProgressStatus;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
-import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 import net.bible.android.view.activity.navigation.ChooseDocument;
@@ -93,7 +92,6 @@ public interface ActivityComponent {
 	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
 	void inject(MyNotes myNotes);
 	void inject(History history);
-	void inject(Help help);
 
 	// Services
 	void inject(TextToSpeechNotificationManager m);

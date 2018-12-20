@@ -66,10 +66,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.media:media:1.0.0'
     
-    implementation 'com.google.android.material:material:1.1.0-alpha01'
+    implementation 'com.google.android.material:material:1.1.0-alpha02'
     
     // To support Android 4.4
-    implementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     
     // We are using our custom-built jsword.jar (see jsword-tweaks folder)
     implementation files('libs/jsword.jar')
@@ -100,7 +100,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.1'
 
     testImplementation "org.robolectric:shadows-multidex:4.0.2"
     testImplementation 'org.apache.httpcomponents:httpclient:4.3.2'

@@ -43,8 +43,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	private PageControl pageControl;
 
-//TODO hourglass	private ProgressBar mProgressBarIndeterminate;
-
 	private static final String TAG = "CustomTitlebrActvtyBase";
 
 	public CustomTitlebarActivityBase() {
@@ -61,8 +59,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     @Override
 	public void setContentView(int layoutResID) {
 		super.setContentView(layoutResID);
-
-//TODO hourglass        mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
     }
     
     /** 
@@ -74,10 +70,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	    	// Inflate the menu
 	        getMenuInflater().inflate(optionsMenuId, menu);
     	}
-        
-        boolean showMenu = super.onCreateOptionsMenu(menu);
-        
-        return showMenu;
+
+		return super.onCreateOptionsMenu(menu);
     }
 
     /**
@@ -129,10 +123,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     public void updateActionBarButtons() {
         actionBarManager.updateButtons();
     }
-
-	public void setProgressBar(boolean on) {
-//TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
-	}
 
 	protected void setActionBarManager(ActionBarManager actionBarManager) {
 		this.actionBarManager = actionBarManager;
