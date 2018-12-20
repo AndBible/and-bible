@@ -171,13 +171,26 @@
                         android:layout_width="0dip"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"/>
-                    <Button
-                        android:id="@+id/speakSettings"
-                        android:contentDescription="@string/bookmarks"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/speak_advanced_settings"
-                        android:onClick="openMoreSettings"/>
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            android:id="@+id/speakSettings"
+                            android:contentDescription="@string/bookmarks"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/speak_advanced_settings"
+                            android:onClick="openMoreSettings"/>
+                        <Button
+                            android:id="@+id/systemSpeakSettings"
+                            android:contentDescription="@string/bookmarks"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/system_speak_settings"
+                            android:onClick="openSystemSettings"/>
+                    </LinearLayout>
+
                     <View
                         android:layout_width="0dip"
                         android:layout_height="fill_parent"

@@ -172,4 +172,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun openMoreSettings(button: View) {
         startActivity(Intent(this, SpeakSettingsActivity::class.java))
     }
+    fun openSystemSettings(button: View) {
+        startActivity(Intent("com.android.settings.TTS_SETTINGS"))
+    }
 }
