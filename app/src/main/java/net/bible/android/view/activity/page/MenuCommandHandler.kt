@@ -21,8 +21,6 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -67,15 +65,15 @@ import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUES
  */
 @MainBibleActivityScope
 class MenuCommandHandler @Inject
-constructor(private val callingActivity: MainBibleActivity, private val readingPlanControl: ReadingPlanControl,
-            private val searchControl: SearchControl, private val windowMenuCommandHandler: WindowMenuCommandHandler,
+constructor(private val callingActivity: MainBibleActivity,
+            private val readingPlanControl: ReadingPlanControl,
+            private val searchControl: SearchControl,
+            private val windowMenuCommandHandler: WindowMenuCommandHandler,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-            private val windowControl: WindowControl
+            private val windowControl: WindowControl,
+            private val downloadControl: DownloadControl,
+            private val backupControl: BackupControl
 ) {
-
-    private var downloadControl: DownloadControl? = null
-
-    private var backupControl: BackupControl? = null
 
     /**
      * on Click handlers
@@ -114,7 +112,7 @@ constructor(private val callingActivity: MainBibleActivity, private val readingP
                     } else {
                         handlerIntent = Intent(callingActivity, ReadingPlanSelectorList::class.java)
                     }
-                R.id.downloadButton -> if (downloadControl!!.checkDownloadOkay()) {
+                R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
                     handlerIntent = Intent(callingActivity, Download::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
@@ -147,7 +145,7 @@ constructor(private val callingActivity: MainBibleActivity, private val readingP
                     if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
                     } else {
-                        backupControl!!.backupDatabase()
+                        backupControl.backupDatabase()
                     }
                     isHandled = true
                 }
@@ -155,7 +153,7 @@ constructor(private val callingActivity: MainBibleActivity, private val readingP
                     if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
                     } else {
-                        backupControl!!.restoreDatabase()
+                        backupControl.restoreDatabase()
                     }
                     isHandled = true
                 }
@@ -193,22 +191,12 @@ constructor(private val callingActivity: MainBibleActivity, private val readingP
         return requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
     }
 
-    @Inject
-    internal fun setBackupControl(backupControl: BackupControl) {
-        this.backupControl = backupControl
-    }
-
-    @Inject
-    internal fun setDownloadControl(downloadControl: DownloadControl) {
-        this.downloadControl = downloadControl
-    }
-
     companion object {
 
         private val TAG = "MainMenuCommandHandler"
 
         internal fun equals(a: Any?, b: Any): Boolean {
-            return a === b || a != null && a == b
+            return a === b || (a != null && a == b)
         }
     }
 }
