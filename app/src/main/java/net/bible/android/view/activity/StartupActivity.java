@@ -59,7 +59,6 @@ public class StartupActivity extends CustomTitlebarActivityBase {
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-		setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 

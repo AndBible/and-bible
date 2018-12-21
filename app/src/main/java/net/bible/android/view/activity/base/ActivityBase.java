@@ -81,12 +81,12 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
-    	if (allowThemeChange) {
+		super.onCreate(savedInstanceState);
+
+		if (allowThemeChange) {
     		UiUtils.applyTheme(this);
     	}
 
-		super.onCreate(savedInstanceState);
-    	
         Log.i(getLocalClassName(), "onCreate:"+this);
 
 		this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager;
