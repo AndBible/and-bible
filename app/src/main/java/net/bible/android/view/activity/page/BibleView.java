@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Handler;
 import androidx.annotation.NonNull;
@@ -35,6 +36,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.ABEventBus;
@@ -108,8 +110,16 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
 	 */
-	public BibleView(Context context, Window window, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
+	public BibleView(Context context, Window window, WindowControl windowControl,
+					 BibleKeyHandler bibleKeyHandler, PageControl pageControl,
+					 PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			if (0 != (BibleApplication.getApplication().getApplicationInfo().flags
+					& ApplicationInfo.FLAG_DEBUGGABLE)) {
+				setWebContentsDebuggingEnabled(true);
+			}
+		}
 		this.window = window;
 		this.windowControl = windowControl;
 		this.bibleKeyHandler = bibleKeyHandler;
