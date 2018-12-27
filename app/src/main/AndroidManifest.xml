@@ -169,19 +169,6 @@
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data
-                    android:scheme="http"
-                    android:host="*"
-                    android:pathPattern=".*\\.zip"/>
-                <data
-                    android:scheme="https"
-                    android:host="*"
-                    android:pathPattern=".*\\.zip"/>
-            </intent-filter>
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
