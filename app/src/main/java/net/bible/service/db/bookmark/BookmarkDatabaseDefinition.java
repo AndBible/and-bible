@@ -115,11 +115,11 @@ public class BookmarkDatabaseDefinition {
 
 		//noinspection SyntaxError
 		db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
-                BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 BookmarkColumn.KEY + " TEXT NOT NULL," +
                 BookmarkColumn.VERSIFICATION + " TEXT," +
                 BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0," +
-                BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT NULL" +
+                BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT NULL, " +
 				BookmarkColumn.BOOK_USED + " TEXT" +
 		");");
 
