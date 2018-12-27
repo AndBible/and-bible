@@ -56,7 +56,7 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	}
 	
 	public String getDayDesc() {
-		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, Integer.toString(mDay));
+		return BibleApplication.Companion.getApplication().getString(R.string.rdg_plan_day, Integer.toString(mDay));
 	}
 
 	/** get a string representing the date this reading is planned for

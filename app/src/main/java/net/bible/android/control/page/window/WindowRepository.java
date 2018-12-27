@@ -272,7 +272,7 @@ public class WindowRepository {
     /** save current page and document state */
 	protected void saveState() {
     	logger.info("Save instance state for screens");
-    	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
+    	SharedPreferences settings = BibleApplication.Companion.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
 
@@ -280,7 +280,7 @@ public class WindowRepository {
     private void restoreState() {
     	try {
         	logger.info("Restore instance state for screens");
-        	BibleApplication application = BibleApplication.getApplication();
+        	BibleApplication application = BibleApplication.Companion.getApplication();
 			SharedPreferences settings = application.getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {

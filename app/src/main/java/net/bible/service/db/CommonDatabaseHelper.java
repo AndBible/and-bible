@@ -43,7 +43,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	
     public static synchronized CommonDatabaseHelper getInstance() {
         if (sSingleton == null) {
-            sSingleton = new CommonDatabaseHelper(BibleApplication.getApplication().getApplicationContext());
+            sSingleton = new CommonDatabaseHelper(BibleApplication.Companion.getApplication().getApplicationContext());
         }
         return sSingleton;
     }

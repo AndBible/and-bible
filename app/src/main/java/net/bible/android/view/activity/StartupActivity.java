@@ -68,11 +68,11 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         getSupportActionBar().hide();
         
         TextView versionTextView = (TextView)findViewById(R.id.versionText);
-        String versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
+        String versionMsg = BibleApplication.Companion.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
         versionTextView.setText(versionMsg);
         
         //See if any errors occurred during app warmUp, especially upgrade tasks
-        int abortErrorMsgId = BibleApplication.getApplication().getErrorDuringStartup();
+        int abortErrorMsgId = 0; // = BibleApplication.Companion.getApplication().getErrorDuringStartup();
         
         // check for SD card 
         // it would be great to check in the Application but how to show dialog from Application?

@@ -111,7 +111,7 @@ public class DocumentWebViewBuilder {
 		this.bibleViewFactory = bibleViewFactory;
 		this.windowMenuCommandHandler = windowMenuCommandHandler;
 
-        Resources res = BibleApplication.getApplication().getResources();
+        Resources res = BibleApplication.Companion.getApplication().getResources();
         WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
         WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width);
         WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour);

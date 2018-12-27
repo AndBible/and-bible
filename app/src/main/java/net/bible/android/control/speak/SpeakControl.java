@@ -188,7 +188,7 @@ public class SpeakControl {
 		{
 			if(!booksAvailable()) {
 				EventBus.getDefault().post(new ToastEvent(
-						BibleApplication.getApplication().getString(R.string.speak_no_books_available))
+						BibleApplication.Companion.getApplication().getString(R.string.speak_no_books_available))
 				);
 				return;
 			}
@@ -331,7 +331,7 @@ public class SpeakControl {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Rewind TTS speaking");
 			textToSpeechServiceManager.get().rewind(amount);
-			Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.Companion.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -343,7 +343,7 @@ public class SpeakControl {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Forward TTS speaking");
 			textToSpeechServiceManager.get().forward(amount);
-			Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.Companion.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -379,7 +379,7 @@ public class SpeakControl {
 			}
 
 			if(!willContinueAfterThis && toast) {
-				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
+				Toast.makeText(BibleApplication.Companion.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -404,7 +404,7 @@ public class SpeakControl {
 		Log.d(TAG, "Stop TTS speaking");
 		textToSpeechServiceManager.get().shutdown();
 		stopTimer();
-		Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+		Toast.makeText(BibleApplication.Companion.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 
 	private void prepareForSpeaking() {
@@ -449,7 +449,7 @@ public class SpeakControl {
 
 	public String getStatusText(int showFlag) {
 		if(!isSpeaking() && !isPaused()) {
-			return "- " + BibleApplication.getApplication().getString(R.string.speak_status_stopped) + " -";
+			return "- " + BibleApplication.Companion.getApplication().getString(R.string.speak_status_stopped) + " -";
 		} else {
 			return textToSpeechServiceManager.get().getStatusText(showFlag);
 		}
@@ -459,7 +459,7 @@ public class SpeakControl {
 		stopTimer();
 		if (sleepTimerAmount > 0) {
 		    Log.d(TAG, "Activating sleep timer");
-			BibleApplication app = BibleApplication.getApplication();
+			BibleApplication app = BibleApplication.Companion.getApplication();
 			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
 			timerTask = new TimerTask() {
 				@Override
@@ -472,7 +472,7 @@ public class SpeakControl {
 			};
 			sleepTimer.schedule(timerTask, sleepTimerAmount * 60000);
 		} else {
-			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.Companion.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 		}
 	}
 

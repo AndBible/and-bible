@@ -109,7 +109,7 @@ public class SwordContentFacade {
 			retVal = "";
 		} else if (Books.installed().getBook(book.getInitials())==null) {
 			Log.w(TAG, "Book may have been uninstalled:"+book);
-			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
+			String errorMsg = BibleApplication.Companion.getApplication().getString(R.string.document_not_installed, book.getInitials());
 			retVal = HtmlMessageFormatter.format(errorMsg);
 		} else if (!bookContainsAnyOf(book, key)) {
 			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
@@ -239,7 +239,7 @@ public class SwordContentFacade {
 			return osisHandler.toString();
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    		return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
     	}
     }
 
@@ -295,7 +295,7 @@ public class SwordContentFacade {
 			return osisHandler.toString();
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    		return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
     	}
     }
 
@@ -415,14 +415,14 @@ public class SwordContentFacade {
 				if (BookCategory.DICTIONARY.equals(bookCategory)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link
-						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
+						String prompt = BibleApplication.Companion.getApplication().getString(R.string.all_hebrew_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 
 						//convert text refs to links
 						osisToHtmlParameters.setConvertStrongsRefsToLinks(true);
 					} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
 						//add allGreek refs link
-						String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
+						String prompt = BibleApplication.Companion.getApplication().getString(R.string.all_greek_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 
 						//convert text refs to links

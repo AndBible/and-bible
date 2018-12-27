@@ -77,7 +77,7 @@ public class Separator extends View {
 		super(context);
 		this.windowControl = windowControl;
 
-		Resources res = BibleApplication.getApplication().getResources();
+		Resources res = BibleApplication.Companion.getApplication().getResources();
 		SEPARATOR_COLOUR = res.getColor(R.color.window_separator_colour);
 		SEPARATOR_DRAG_COLOUR = res.getColor(R.color.window_separator_drag_colour);
         setBackgroundColor(SEPARATOR_COLOUR);

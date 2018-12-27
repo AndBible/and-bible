@@ -56,7 +56,7 @@ public class LightSensor {
 	private synchronized void ensureMonitoringLightLevel() {
 		if (!mMonitoring) {
 			if (isLightSensor()) {
-				SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+				SensorManager sm = (SensorManager) BibleApplication.Companion.getApplication().getSystemService(Context.SENSOR_SERVICE);
 				Sensor oSensor = sm.getDefaultSensor(Sensor.TYPE_LIGHT);
 	
 				sm.registerListener(myLightListener, oSensor, SensorManager.SENSOR_DELAY_UI);
@@ -90,7 +90,7 @@ public class LightSensor {
 		Log.d(TAG, "check for a light sensor");
 
     	boolean isLightSensor = false;
-   		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+   		SensorManager sm = (SensorManager) BibleApplication.Companion.getApplication().getSystemService(Context.SENSOR_SERVICE);
         if (sm != null) {
             List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_LIGHT);
             isLightSensor = (sensors.size() > 0);

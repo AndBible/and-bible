@@ -57,37 +57,37 @@ public class Dialogs {
 	
 	private Dialogs() {
 		super();
-		errorReportControl = BibleApplication.getApplication().getApplicationComponent().errorReportControl();
+		errorReportControl = BibleApplication.Companion.getApplication().getApplicationComponent().errorReportControl();
 	}
 
     public void showMsg(int msgId, String param) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId, param));
     }
     public void showMsg(int msgId, boolean isCancelable, final Callback okayCallback) {
-    	showMsg(BibleApplication.getApplication().getString(msgId), isCancelable, okayCallback, null);
+    	showMsg(BibleApplication.Companion.getApplication().getString(msgId), isCancelable, okayCallback, null);
     }
     public void showMsg(int msgId) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId));
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId));
     }
     public void showErrorMsg(int msgId) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId));
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId));
     }
     public void showErrorMsg(int msgId, String param) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId, param));
     }
     public void showErrorMsg(String msg) {
 		showErrorMsg(msg, doNothingCallback);
     }
 
     public void showErrorMsg(int msgId, final Callback okayCallback) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId), okayCallback);
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId), okayCallback);
     }
 
     /**
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     public void showErrorMsg(int msgId, final Exception e) {
-    	showErrorMsg(BibleApplication.getApplication().getString(msgId), e);
+    	showErrorMsg(BibleApplication.Companion.getApplication().getString(msgId), e);
     }
     
     /**
@@ -148,7 +148,7 @@ public class Dialogs {
 					}
 				});
 			} else {
-				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+				Toast.makeText(BibleApplication.Companion.getApplication().getApplicationContext(), msg, Toast.LENGTH_LONG).show();
 			}
     	} catch (Exception e) {
     		Log.e(TAG, "Error showing error message.  Original error msg:"+msg, e);

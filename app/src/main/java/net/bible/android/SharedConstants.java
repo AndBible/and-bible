@@ -71,7 +71,7 @@ public class SharedConstants {
      * @return
      */
     static private File getModuleDir() {
-		return BibleApplication.getApplication().getExternalFilesDir(null);
+		return BibleApplication.Companion.getApplication().getExternalFilesDir(null);
     }
     
     static private File getManualInstallDir() {

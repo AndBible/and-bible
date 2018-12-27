@@ -177,7 +177,7 @@ class TextToSpeechNotificationManager {
     }
 
 
-    private var app = BibleApplication.getApplication()
+    private var app = BibleApplication.application
     private var currentTitle = getString(R.string.app_name)
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
@@ -193,7 +193,7 @@ class TextToSpeechNotificationManager {
     private var currentText = ""
 
     private fun getString(id: Int): String {
-        return BibleApplication.getApplication().getString(id)
+        return BibleApplication.application.getString(id)
     }
 
     init {
@@ -205,10 +205,10 @@ class TextToSpeechNotificationManager {
 
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
+                .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
 
-        val powerManager = BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE) as PowerManager
+        val powerManager = BibleApplication.application.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
