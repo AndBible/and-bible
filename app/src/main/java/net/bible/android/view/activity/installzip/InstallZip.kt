@@ -222,26 +222,40 @@ class InstallZip : Activity() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Install from Zip starting")
         setContentView(R.layout.activity_install_zip)
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "application/zip"
-        startActivityForResult(intent, PICK_FILE)
+        when(intent?.action) {
+            Intent.ACTION_VIEW -> installZip(intent!!.data!!)
+            Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM))
+            Intent.ACTION_SEND_MULTIPLE -> {
+                for (uri in intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)) {
+                    installZip(uri)
+                }
+            }
+            else -> {
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "application/zip"
+                startActivityForResult(intent, PICK_FILE)
+            }
+        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             PICK_FILE -> if (resultCode == Activity.RESULT_OK) {
-                val uri = data.data as Uri //TODO check for null
-                installZipLabel.text = getString(R.string.checking_zip_file)
-
-                val zh = ZipHandler(
-                        {contentResolver.openInputStream(uri)},
-                        {percent -> updateProgress(percent)},
-                        {finishResult -> setResult(finishResult); finish() }
-                )
-                zh.execute()
+                installZip(data!!.data!!)
             } else if (resultCode == Activity.RESULT_CANCELED)
                 finish()
         }
+    }
+
+    private fun installZip(uri: Uri) {
+        installZipLabel.text = getString(R.string.checking_zip_file)
+
+        val zh = ZipHandler(
+                {contentResolver.openInputStream(uri)},
+                {percent -> updateProgress(percent)},
+                {finishResult -> setResult(finishResult); finish() }
+        )
+        zh.execute()
     }
 
     override fun onBackPressed() {}
