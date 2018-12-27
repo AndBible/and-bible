@@ -77,7 +77,7 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
             supportActionBar!!.hide()
         }
 
-        contentView.requestLayout()
+        getContentView().requestLayout()
     }
 
     /**
