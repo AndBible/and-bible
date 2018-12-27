@@ -41,8 +41,10 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_install_zip.*
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
+import java.io.InputStream
 
 /**
  * Install SWORD module from a zip file
@@ -64,7 +66,11 @@ internal class InvalidModule : Exception() {
 
 internal val TAG = "InstallZip"
 
-internal class ZipHandler(private val uri: Uri, private val parent: InstallZip) : AsyncTask<Void, Int, Int>() {
+internal class ZipHandler(
+        private val newInputStream: () -> InputStream?,
+        private val updateProgress: (progress: Int) -> Unit,
+        private val finish: (finishResult: Int) -> Unit
+) : AsyncTask<Void, Int, Int>() {
     private var totalEntries = 0
 
     @Throws(IOException::class, ModuleExists::class, InvalidModule::class)
@@ -74,8 +80,7 @@ internal class ZipHandler(private val uri: Uri, private val parent: InstallZip) 
         var entry: ZipEntry?
 
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
-
-        val zin = ZipInputStream(parent.contentResolver.openInputStream(uri))
+        val zin = ZipInputStream(newInputStream())
 
         entry = zin.nextEntry
 
@@ -111,7 +116,7 @@ internal class ZipHandler(private val uri: Uri, private val parent: InstallZip) 
 
     @Throws(IOException::class, BookException::class)
     private fun installZipFile() {
-        val zin = ZipInputStream(parent.contentResolver.openInputStream(uri))
+        val zin = ZipInputStream(newInputStream())
 
         val confFiles = ArrayList<File>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
@@ -133,8 +138,10 @@ internal class ZipHandler(private val uri: Uri, private val parent: InstallZip) 
                 if (!dir.isDirectory && !(dir.mkdirs() || dir.isDirectory))
                     throw IOException()
 
-                if (ze.isDirectory)
+                if (ze.isDirectory) {
+                    ze = zin.nextEntry
                     continue
+                }
                 val fout = FileOutputStream(file)
                 try {
                     count = zin.read(buffer)
@@ -182,22 +189,24 @@ internal class ZipHandler(private val uri: Uri, private val parent: InstallZip) 
 
     override fun onPostExecute(result: Int?) {
         var finishResult = Download.RESULT_CANCELED
+        val bus = ABEventBus.getDefault()
         when (result) {
-            R_ERROR -> Toast.makeText(this.parent, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-            R_INVALID_MODULE -> Toast.makeText(this.parent, R.string.invalid_module, Toast.LENGTH_SHORT).show()
-            R_MODULE_EXISTS -> Toast.makeText(this.parent, R.string.module_already_installed, Toast.LENGTH_SHORT).show()
+            R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
+            R_INVALID_MODULE -> bus.post(ToastEvent(R.string.invalid_module))
+            R_MODULE_EXISTS -> bus.post(ToastEvent(R.string.module_already_installed))
             R_OK -> {
-                Toast.makeText(this.parent, R.string.install_zip_successfull, Toast.LENGTH_SHORT).show()
+                bus.post(ToastEvent(R.string.install_zip_successfull))
                 finishResult = Download.RESULT_OK
             }
         }
-
-        parent.setResult(finishResult)
-        parent.finish()
+        finish(finishResult)
     }
 
-    protected fun onProgressUpdate(vararg values: Int) {
-        parent.updateProgress(values, totalEntries)
+    override fun onProgressUpdate(vararg values: Int?) {
+        val firstValue = values[0] as Int
+        val progressNow = Math
+                .round(firstValue.toFloat() / totalEntries.toFloat() * 100)
+        updateProgress(progressNow/totalEntries)
     }
 
     companion object {
@@ -221,9 +230,14 @@ class InstallZip : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         when (requestCode) {
             PICK_FILE -> if (resultCode == Activity.RESULT_OK) {
-                val uri = data.data
+                val uri = data.data as Uri //TODO check for null
                 installZipLabel.text = getString(R.string.checking_zip_file)
-                val zh = ZipHandler(uri, this)
+
+                val zh = ZipHandler(
+                        {contentResolver.openInputStream(uri)},
+                        {percent -> updateProgress(percent)},
+                        {finishResult -> setResult(finishResult); finish() }
+                )
                 zh.execute()
             } else if (resultCode == Activity.RESULT_CANCELED)
                 finish()
@@ -232,13 +246,11 @@ class InstallZip : Activity() {
 
     override fun onBackPressed() {}
 
-    fun updateProgress(values: IntArray, totalEntries: Int) {
-        if (values[0] == 1)
+    private fun updateProgress(percentValue: Int) {
+        if (percentValue == 1)
             installZipLabel.text = getString(R.string.extracting_zip_file)
 
-        val progressNow = Math
-                .round(values[0].toFloat() / totalEntries.toFloat() * progressBar.max)
-        progressBar.progress = progressNow
+        progressBar.progress = percentValue
     }
 
     companion object {
