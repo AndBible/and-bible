@@ -55,7 +55,7 @@ public class DocumentViewManager {
 		this.mainBibleActivity = mainBibleActivity;
 		this.documentWebViewBuilder = documentWebViewBuilder;
 		this.myNoteViewBuilder = myNoteViewBuilder;
-		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
+		this.parent = mainBibleActivity.findViewById(R.id.mainBibleView);
 		this.windowControl = windowControl;
 
 		ABEventBus.getDefault().register(this);

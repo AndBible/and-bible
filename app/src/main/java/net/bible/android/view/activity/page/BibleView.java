@@ -262,7 +262,6 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	/**
 	 * Enable or disable zoom controls depending on whether map is currently shown
 	 */
-	@SuppressLint("NewApi")
 	protected void enableZoomForMap(boolean isMap) {
 		getSettings().setBuiltInZoomControls(true);
 		getSettings().setSupportZoom(isMap);

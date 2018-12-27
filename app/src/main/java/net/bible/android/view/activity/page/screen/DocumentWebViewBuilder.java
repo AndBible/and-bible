@@ -133,7 +133,7 @@ public class DocumentWebViewBuilder {
 	/**
 	 * Enable switch from Bible WebView to MyNote view
 	 */
-	public void removeWebView(ViewGroup parent) {
+	void removeWebView(ViewGroup parent) {
     	boolean isWebView = isWebViewShowing(parent);
     	
     	if (isWebView) {
@@ -143,7 +143,7 @@ public class DocumentWebViewBuilder {
 	}
 	
 	@SuppressLint("RtlHardcoded")
-	public void addWebView(LinearLayout parent) {
+	void addWebView(LinearLayout parent) {
 
 		String pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC);
 
@@ -203,7 +203,7 @@ public class DocumentWebViewBuilder {
 
 				if (windowNo>0) {
 					Separator separator = previousSeparator;
-					
+
 					// extend touch area of separator
 					addTopOrLeftSeparatorExtension(splitHorizontally, currentWindowFrameLayout, lp, separator);
 				}

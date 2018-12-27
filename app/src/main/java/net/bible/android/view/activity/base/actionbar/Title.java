@@ -66,13 +66,13 @@ public abstract class Title {
 
 		actionBar.setCustomView(R.layout.title);
 
-	    documentTitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentTitle);
-	    documentSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentSubtitle);
-	    pageTitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageTitle);
-	    pageSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageSubtitle);
+	    documentTitle = actionBar.getCustomView().findViewById(R.id.documentTitle);
+	    documentSubtitle = actionBar.getCustomView().findViewById(R.id.documentSubtitle);
+	    pageTitle = actionBar.getCustomView().findViewById(R.id.pageTitle);
+	    pageSubtitle = actionBar.getCustomView().findViewById(R.id.pageSubtitle);
 
 	    // clicking document title shows document selector
-	    ViewGroup documentTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.documentTitleContainer);
+	    ViewGroup documentTitleContainer = actionBar.getCustomView().findViewById(R.id.documentTitleContainer);
 	    documentTitleContainer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -81,7 +81,7 @@ public abstract class Title {
 	    });
 
 	    // clicking page title shows appropriate key selector
-	    ViewGroup pageTitleContainer = (ViewGroup) actionBar.getCustomView().findViewById(R.id.pageTitleContainer);
+	    ViewGroup pageTitleContainer = actionBar.getCustomView().findViewById(R.id.pageTitleContainer);
 	    pageTitleContainer.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -98,7 +98,7 @@ public abstract class Title {
 
 		// remove a small amount of extra padding at the left of the actionbar see: http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
 		ViewParent toolbar = actionBar.getCustomView().getParent();
-		if (toolbar!=null && toolbar instanceof Toolbar) {
+		if (toolbar instanceof Toolbar) {
 			((Toolbar) toolbar).setContentInsetsAbsolute(0, 0);
 		}
 	}

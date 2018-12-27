@@ -60,7 +60,7 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	public void addToMenu(Menu menu) {
 		if (menuItem==null || (menu.findItem(thisItemId) == null)) {
 			menuItem = menu.add(Menu.NONE, thisItemId, Menu.NONE, "");
-			MenuItemCompat.setShowAsAction(menuItem, showAsActionFlags);
+			menuItem.setShowAsAction(showAsActionFlags);
 			menuItem.setOnMenuItemClickListener(this);
 			update(menuItem);
 		}

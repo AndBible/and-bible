@@ -51,7 +51,7 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	private final SpeakStopActionBarButton stopActionBarButton;
 
 	@Inject
-	public BibleActionBarManager(HomeTitle homeTitle, BibleActionBarButton bibleActionBarButton, CommentaryActionBarButton commentaryActionBarButton, DictionaryActionBarButton dictionaryActionBarButton, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, StrongsActionBarButton strongsActionBarButton, DocumentControl documentControl) {
+	BibleActionBarManager(HomeTitle homeTitle, BibleActionBarButton bibleActionBarButton, CommentaryActionBarButton commentaryActionBarButton, DictionaryActionBarButton dictionaryActionBarButton, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, StrongsActionBarButton strongsActionBarButton, DocumentControl documentControl) {
 		this.homeTitle = homeTitle;
 		this.bibleActionBarButton = bibleActionBarButton;
 		this.speakActionBarButton = speakActionBarButton;

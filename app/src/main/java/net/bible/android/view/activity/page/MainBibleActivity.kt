@@ -74,6 +74,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
     private lateinit var gestureDetector: GestureDetectorCompat
     private var mWholeAppWasInBackground = false
 
+    // We need to have this here in order to initialize BibleContentManager early enough.
     @Inject lateinit var bibleContentManager: BibleContentManager
     @Inject lateinit var documentViewManager: DocumentViewManager
     @Inject lateinit var windowControl: WindowControl
@@ -111,9 +112,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         super.setActionBarManager(bibleActionBarManager)
 
         // create related objects
-        val gestureListener = BibleGestureListener(this@MainBibleActivity)
-        gestureDetector = GestureDetectorCompat(this, gestureListener)
-
+        gestureDetector = GestureDetectorCompat(this, BibleGestureListener(this))
         documentViewManager.buildView()
 
         // register for passage change and appToBackground events

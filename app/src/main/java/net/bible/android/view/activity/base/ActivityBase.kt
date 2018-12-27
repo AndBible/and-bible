@@ -153,7 +153,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         isFullScreen = sharedActivityState.isFullScreen
     }
 
-    @SuppressLint("NewApi")
     private fun setLightsOutMode(isLightsOut: Boolean) {
         if (::_contentView.isInitialized) {
             if (isLightsOut) {
