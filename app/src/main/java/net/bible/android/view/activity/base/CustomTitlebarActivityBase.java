@@ -43,7 +43,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	private PageControl pageControl;
 
-	private static final String TAG = "CustomTitlebrActvtyBase";
+	private static final String TAG = "CTActivityBase";
 
 	public CustomTitlebarActivityBase() {
 		this(NO_OPTIONS_MENU);

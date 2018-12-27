@@ -47,6 +47,8 @@ import net.bible.android.view.activity.download.Download
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -57,9 +59,6 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
-
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST
 
 /** Handle requests from the main menu
  *
