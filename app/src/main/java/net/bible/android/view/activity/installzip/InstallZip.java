@@ -226,10 +226,10 @@ public class InstallZip extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "Install from Zip starting");
 		setContentView(R.layout.activity_install_zip);
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
-		title = (TextView) findViewById(R.id.installZipLabel);
+		progressBar = findViewById(R.id.progressBar);
+		title = findViewById(R.id.installZipLabel);
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("*/*");
+		intent.setType("application/zip");
 		startActivityForResult(intent, PICK_FILE);
 	}
 
