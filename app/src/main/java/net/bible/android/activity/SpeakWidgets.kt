@@ -60,7 +60,7 @@ class SpeakWidgetManager {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
 
-    private val app = BibleApplication.getApplication()
+    private val app = BibleApplication.application
     private val resetTitle = app.getString(R.string.app_name)
     private var currentTitle = resetTitle
     private var currentText = ""
@@ -71,7 +71,7 @@ class SpeakWidgetManager {
         }
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.getApplication().applicationComponent)
+                .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
         ABEventBus.getDefault().register(this)
     }

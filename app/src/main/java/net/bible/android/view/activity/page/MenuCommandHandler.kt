@@ -47,6 +47,8 @@ import net.bible.android.view.activity.download.Download
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -57,9 +59,6 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
-
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST
 
 /** Handle requests from the main menu
  *
@@ -120,7 +119,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
                 R.id.helpButton -> {
-                    val app = BibleApplication.getApplication()
+                    val app = BibleApplication.application
                     val versionMsg = app.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
 
                     val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_menu_title, R.string.help_speech_title,
@@ -187,7 +186,7 @@ constructor(private val callingActivity: MainBibleActivity,
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {
         if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
             Log.i(TAG, "Refresh on finish")
-            if (!equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().localeOverrideAtStartUp)) {
+            if (!equals(CommonUtils.getLocalePref(), BibleApplication.application.localeOverrideAtStartUp)) {
                 // must restart to change locale
                 CommonUtils.restartApp(callingActivity)
             }
@@ -207,7 +206,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
         private val TAG = "MainMenuCommandHandler"
 
-        internal fun equals(a: Any?, b: Any): Boolean {
+        internal fun equals(a: String?, b: String?): Boolean {
             return a === b || (a != null && a == b)
         }
     }

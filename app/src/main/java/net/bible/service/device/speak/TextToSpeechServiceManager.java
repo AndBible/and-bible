@@ -231,7 +231,7 @@ public class TextToSpeechServiceManager {
 	    	try {
 		        // Initialize text-to-speech. This is an asynchronous operation.
 		        // The OnInitListener (second argument) (this class) is called after initialization completes.
-		        mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this.onInitListener);
+		        mTts = new TextToSpeech(BibleApplication.Companion.getApplication().getApplicationContext(), this.onInitListener);
 	    	} catch (Exception e) {
 	    		Log.e(TAG,  "Error initialising Tts", e);
 	    		showError(R.string.error_occurred, e);
@@ -518,11 +518,11 @@ public class TextToSpeechServiceManager {
 				Log.d(TAG, "Tts initialisation succeeded");
 
 				// Add earcons
-				mTts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling); // TODO: change
-				mTts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling_reverse);
-				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.pageflip);
-				mTts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.medium_pling);
-				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
+				mTts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.Companion.getApplication().getPackageName(), R.raw.short_pling); // TODO: change
+				mTts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.Companion.getApplication().getPackageName(), R.raw.short_pling_reverse);
+				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.Companion.getApplication().getPackageName(), R.raw.pageflip);
+				mTts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.Companion.getApplication().getPackageName(), R.raw.medium_pling);
+				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.Companion.getApplication().getPackageName(), R.raw.long_pling);
 
 				// set speech rate
 				setRate(SpeakSettings.Companion.load().getPlaybackSettings().getSpeed());

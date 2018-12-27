@@ -47,7 +47,7 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(int msgId, boolean simpleHtmlOnly) {
-		String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
+		String errorMsg = BibleApplication.Companion.getApplication().getResources().getString(msgId);
 		if (simpleHtmlOnly) {
 			return errorMsg;
 		} else {

@@ -87,7 +87,7 @@ public class PageControl {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
 			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
-			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
+			ClipboardManager clipboard = (ClipboardManager)BibleApplication.Companion.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
 			Log.e(TAG, "Error pasting to clipboard", e);
@@ -108,7 +108,7 @@ public class PageControl {
 
 			sendIntent.putExtra(Intent.EXTRA_TEXT, text);
 			// subject is used when user chooses to send verse via e-mail
-			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.getApplication().getText(R.string.share_verse_subject));
+			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.Companion.getApplication().getText(R.string.share_verse_subject));
 
 			Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
 			activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse))); 

@@ -72,7 +72,7 @@ public class ScreenSettings {
 	}
 	
 	public static boolean isScreenOn() {
-		PowerManager pm = (PowerManager) BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE);
+		PowerManager pm = (PowerManager) BibleApplication.Companion.getApplication().getSystemService(Context.POWER_SERVICE);
 		return pm.isScreenOn();
 	}
 	
@@ -113,7 +113,7 @@ public class ScreenSettings {
 			heightPx = contentViewHeightPx;
 		} else {
 			// return an appropriate default if the actual content height has not been set yet
-			heightPx = BibleApplication.getApplication().getResources().getDisplayMetrics().heightPixels;
+			heightPx = BibleApplication.Companion.getApplication().getResources().getDisplayMetrics().heightPixels;
 		}
 		
 		int heightDips = CommonUtils.convertPxToDips(heightPx);

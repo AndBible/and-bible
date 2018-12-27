@@ -54,8 +54,8 @@ class ProgressNotificationManager {
 
     fun initialise() {
         Log.i(TAG, "Initializing")
-        notificationManager = BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
-        val app = BibleApplication.getApplication()
+        notificationManager = BibleApplication.application.getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+        val app = BibleApplication.application
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
@@ -128,7 +128,7 @@ class ProgressNotificationManager {
 
     private fun buildNotification(prog: Progress) {
         Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
-        val app = BibleApplication.getApplication()
+        val app = BibleApplication.application
         val intent = Intent(app, ProgressStatus::class.java)
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
         val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)

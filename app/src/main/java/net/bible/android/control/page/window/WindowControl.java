@@ -91,7 +91,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 			// check the Window sub-menu has been added
 			Menu subMenuToPopulate = windowSubmenuItemPosition.getSubMenu();
 			if (subMenuToPopulate.findItem(R.id.windowNew)==null) {
-				new MenuInflater(BibleApplication.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
+				new MenuInflater(BibleApplication.Companion.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
 			}
 		}
 		

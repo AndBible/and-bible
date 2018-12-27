@@ -81,7 +81,7 @@ public class BackupControl {
 			Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
 				@Override
 				public void okay() {
-					BibleApplication.getApplication().deleteDatabase(CommonDatabaseHelper.DATABASE_NAME);
+					BibleApplication.Companion.getApplication().deleteDatabase(CommonDatabaseHelper.DATABASE_NAME);
 					boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
 
 					if (ok) {

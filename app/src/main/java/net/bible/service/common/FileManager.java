@@ -103,7 +103,7 @@ public class FileManager {
 	public static Properties readPropertiesFile(String folder, String filename) {
 	    Properties returnProperties = new Properties();
 
-		Resources resources = BibleApplication.getApplication().getResources();
+		Resources resources = BibleApplication.Companion.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
 		if (!filename.endsWith(DOT_PROPERTIES)) {
 			filename = filename+DOT_PROPERTIES;

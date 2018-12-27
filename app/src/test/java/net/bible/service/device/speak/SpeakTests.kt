@@ -2,6 +2,7 @@ package net.bible.service.device.speak
 
 import kotlinx.android.synthetic.main.speak_bible.*
 import kotlinx.android.synthetic.main.speak_settings.*
+import net.bible.android.BibleApplication
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
@@ -55,7 +56,7 @@ open class SpeakIntegrationTestBase {
     @Before
     fun setUp() {
         ShadowLog.stream = System.out
-        app = TestBibleApplication.getApplication() as TestBibleApplication
+        app = BibleApplication.application as TestBibleApplication
         val appComponent = app.applicationComponent
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()

@@ -89,8 +89,8 @@ public class CommonUtils {
 		String versionName;
 		try
         {
-            PackageManager manager = BibleApplication.getApplication().getPackageManager();
-            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+            PackageManager manager = BibleApplication.Companion.getApplication().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(BibleApplication.Companion.getApplication().getPackageName(), 0);
             versionName = info.versionName;
         }
         catch ( final NameNotFoundException e )
@@ -104,8 +104,8 @@ public class CommonUtils {
 		int versionNumber;
 		try
         {
-            PackageManager manager = BibleApplication.getApplication().getPackageManager();
-            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+            PackageManager manager = BibleApplication.Companion.getApplication().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(BibleApplication.Companion.getApplication().getPackageName(), 0);
             versionNumber = info.versionCode;
         }
         catch ( final NameNotFoundException e )
@@ -278,7 +278,7 @@ public class CommonUtils {
     }
     
     public static boolean isPortrait() {
-    	return BibleApplication.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    	return BibleApplication.Companion.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     public static String getLocalePref() {
@@ -290,7 +290,7 @@ public class CommonUtils {
 	 * @return
 	 */
 	public static SharedPreferences getSharedPreferences() {
-		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
+		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.Companion.getApplication().getApplicationContext());
 	}
 
 	public static String getSharedPreference(String key, String defaultValue) {
@@ -304,26 +304,26 @@ public class CommonUtils {
 	}
 	
 	public static String getResourceString(int resourceId, Object... formatArgs) {
-		return BibleApplication.getApplication().getResources().getString(resourceId, formatArgs);
+		return BibleApplication.Companion.getApplication().getResources().getString(resourceId, formatArgs);
 	}
 
 	public static int getResourceInteger(int resourceId) {
-		return BibleApplication.getApplication().getResources().getInteger(resourceId);
+		return BibleApplication.Companion.getApplication().getResources().getInteger(resourceId);
 	}
 	
 	public static boolean getResourceBoolean(int resourceId) {
-		return BibleApplication.getApplication().getResources().getBoolean(resourceId);
+		return BibleApplication.Companion.getApplication().getResources().getBoolean(resourceId);
 	}
 
 	public static int getResourceColor(int resourceId) {
-		return BibleApplication.getApplication().getResources().getColor(resourceId);
+		return BibleApplication.Companion.getApplication().getResources().getColor(resourceId);
 	}
 	/**
 	 * convert dip measurements to pixels
 	 */
 	public static int convertDipsToPx(int dips) {
 		// Converts 14 dip into its equivalent px
-		float scale = BibleApplication.getApplication().getResources().getDisplayMetrics().density;
+		float scale = BibleApplication.Companion.getApplication().getResources().getDisplayMetrics().density;
 		return (int) ( dips * scale + 0.5f );
 	}
 	
@@ -331,7 +331,7 @@ public class CommonUtils {
 	 * convert dip measurements to pixels
 	 */
 	public static int convertPxToDips(int px) {
-		float scale = BibleApplication.getApplication().getResources().getDisplayMetrics().density;
+		float scale = BibleApplication.Companion.getApplication().getResources().getDisplayMetrics().density;
 		return Math.round(px/scale);
 	}
 

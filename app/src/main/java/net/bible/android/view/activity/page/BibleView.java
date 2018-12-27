@@ -115,7 +115,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 					 PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			if (0 != (BibleApplication.getApplication().getApplicationInfo().flags
+			if (0 != (BibleApplication.Companion.getApplication().getApplicationInfo().flags
 					& ApplicationInfo.FLAG_DEBUGGABLE)) {
 				setWebContentsDebuggingEnabled(true);
 			}

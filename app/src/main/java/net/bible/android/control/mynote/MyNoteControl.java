@@ -147,7 +147,7 @@ public class MyNoteControl {
 			}
 		}
 		if (isSaved) {
-			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.Companion.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
 		}
 		return isSaved;
 	}

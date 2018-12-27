@@ -32,7 +32,7 @@ public class AndroidResourceProvider implements ResourceProvider {
 
 	@Override
 	public String getString(int resourceId) {
-		return BibleApplication.getApplication().getString(resourceId);
+		return BibleApplication.Companion.getApplication().getString(resourceId);
 	}
 
 }

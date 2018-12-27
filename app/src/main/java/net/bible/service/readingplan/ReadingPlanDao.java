@@ -151,10 +151,10 @@ public class ReadingPlanDao {
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
 		Log.d(TAG, "Get reading plan info:"+planCode);
 		ReadingPlanInfoDto info = new ReadingPlanInfoDto(planCode);
-		int id = BibleApplication.getApplication().getResources().getIdentifier("rdg_plan_"+planCode, "string", "net.bible.android.activity");
+		int id = BibleApplication.Companion.getApplication().getResources().getIdentifier("rdg_plan_"+planCode, "string", "net.bible.android.activity");
 		String desc = "";
 		if (id != 0) {
-			desc = BibleApplication.getApplication().getResources().getString(id);
+			desc = BibleApplication.Companion.getApplication().getResources().getString(id);
 		}
 		info.setTitle(desc);
 		
@@ -168,7 +168,7 @@ public class ReadingPlanDao {
 	 */
 	private List<String> getAllReadingPlanCodes() throws IOException {
 		
-		Resources resources = BibleApplication.getApplication().getResources();
+		Resources resources = BibleApplication.Companion.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
 
 		List<String> allCodes = new ArrayList<>();
@@ -200,7 +200,7 @@ public class ReadingPlanDao {
 	 */
 	private synchronized Properties getPlanProperties(String planCode) {
 		if (!planCode.equals(cachedPlanCode)) {
-			Resources resources = BibleApplication.getApplication().getResources();
+			Resources resources = BibleApplication.Companion.getApplication().getResources();
 			AssetManager assetManager = resources.getAssets();
 			String filename = planCode+DOT_PROPERTIES;
 	

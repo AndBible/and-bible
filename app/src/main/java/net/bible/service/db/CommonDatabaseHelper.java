@@ -40,13 +40,13 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
 	private static CommonDatabaseHelper sSingleton = null;
-
-	public static synchronized CommonDatabaseHelper getInstance() {
-		if (sSingleton == null) {
-			sSingleton = new CommonDatabaseHelper(BibleApplication.getApplication().getApplicationContext());
-		}
-		return sSingleton;
-	}
+	
+    public static synchronized CommonDatabaseHelper getInstance() {
+        if (sSingleton == null) {
+            sSingleton = new CommonDatabaseHelper(BibleApplication.Companion.getApplication().getApplicationContext());
+        }
+        return sSingleton;
+    }
 
 	public static void reset() {
 		sSingleton = null;
