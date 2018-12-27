@@ -3,13 +3,15 @@ root = true
 
 # Unix-style newlines with a newline ending every file
 [*]
-end_of_line = lf
-insert_final_newline = true
-charset = utf-8
+end_of_line=lf
+insert_final_newline=true
+charset=utf-8
 
 [*.{java}]
-indent_style = tab
+indent_style=tab
+max_line_length=120
 
 [*.{kt}]
-indent_style = space
-indent_size = 4
+indent_style=space
+indent_size=4
+max_line_length=120
