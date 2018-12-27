@@ -73,8 +73,6 @@ import javax.inject.Inject;
  * 			separatorExtension (touch delegate for previous separator)
  * 			minimiseButton
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope

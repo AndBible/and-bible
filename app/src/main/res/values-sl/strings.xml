@@ -224,6 +224,31 @@
   <string name="tts_lang_not_available">Jezik ni na voljo.</string>
   <string name="speak_queue">Čakalna vrsta</string>
   <string name="speak_repeat">Ponovi</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Hitrost govora</string>
+  <string name="speak_and_play_earcons_title">Govori in zaigraj zvočni signal za</string>
+  <string name="playback_settings_title">Nastavitve posnetka</string>
+  <string name="speak_settings_title">Splošne nastavitve govora</string>
+  <string name="speak_bookmarking_settings_title">Nastavitve zaznamkov</string>
+  <string name="speak_bookmarks_menu_title">Govori iz zaznamkov</string>
+  <string name="speak_advanced_settings">Napredne nastavitve</string>
+  <string name="speak_settings_activity_title">Več nastavitev govora</string>
+  <string name="speak_no_books_available">Nobena knjiga ni na voljo za govor</string>
+  <string name="conf_speak_synchronize">Besedilo sinhroniziraj z govorom</string>
+  <string name="conf_speak_auto_bookmark">Samodejni zaznamki</string>
+  <string name="speak_next">Naslednji</string>
+  <string name="speak_previous">Prejšnji</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
   <string name="mynote">Moja opomba</string>
@@ -272,5 +297,6 @@
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
+  <!--Notifications-->
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
 </resources>

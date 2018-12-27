@@ -28,7 +28,6 @@ import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.download.ProgressStatus;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
-import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 import net.bible.android.view.activity.navigation.ChooseDocument;
@@ -56,8 +55,6 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager;
  * Dagger Component to allow injection of dependencies into activities.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 @ActivityScope
 @Component(dependencies = {ApplicationComponent.class} )
@@ -95,7 +92,6 @@ public interface ActivityComponent {
 	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
 	void inject(MyNotes myNotes);
 	void inject(History history);
-	void inject(Help help);
 
 	// Services
 	void inject(TextToSpeechNotificationManager m);

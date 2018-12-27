@@ -169,6 +169,18 @@
   <string name="tts_lang_not_available">La lingua non e\' disponibile</string>
   <string name="speak_queue">Fila</string>
   <string name="speak_repeat">Ripeti</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">I miei appunti</string>
   <string name="mynote">Il mio appunto</string>
@@ -207,4 +219,5 @@
   <string name="error_page_too_large">La pagina e\' troppo grande per essere caricata</string>
   <string name="error_key_not_in_document">Non si trova nel documento</string>
   <string name="empty_list">Niente da mostrare</string>
+  <!--Notifications-->
 </resources>

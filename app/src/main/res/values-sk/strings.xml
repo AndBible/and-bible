@@ -223,6 +223,85 @@
   <string name="tts_lang_not_available">Zvolený jazyk nie je podporovaný</string>
   <string name="speak_queue">Zaradiť</string>
   <string name="speak_repeat">Zopakovať</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Rýchlosť čítania</string>
+  <string name="speak_and_play_earcons_title">Používať notifikačné zvuky pre</string>
+  <string name="playback_settings_title">Parametre prehrávania</string>
+  <string name="speak_settings_title">Parametre čítania</string>
+  <string name="speak_bookmarking_settings_title">Parametre záložiek čítania</string>
+  <string name="speak_bookmarks_menu_title">Čítaj zo záložky čítania</string>
+  <string name="speak_advanced_settings">Pokročilé parametre</string>
+  <string name="speak_settings_activity_title">Ďalšie paremetre reči</string>
+  <string name="speak_sleep_timer_title">Čas do uspania</string>
+  <string name="speak_no_books_available">Nie sú k dispozícii žiadne knihy na čítanie</string>
+  <string name="conf_speak_synchronize">Zosúlaď text s rečou</string>
+  <string name="conf_speak_auto_bookmark">Automatické záložkovanie</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Ulož paremetre prehrávania do záložiek</string>
+  <string name="conf_replace_divinename">Nahraď Božie meno menom Jahve</string>
+  <string name="conf_change_chapter">Zmeny v kapitole</string>
+  <string name="conf_change_title">Nadpisy</string>
+  <string name="conf_speak_footnotes">Poznámky pod čiarou</string>
+  <string name="conf_speak_sleep_timer">Nastav čas do uspania</string>
+  <string name="conf_speak_multitranslation">Porovnaj preklady čítaním zo všetkých viditeľných okien</string>
+  <string name="sleep_timer_title">Počet minút do uspania</string>
+  <string name="sleep_timer_set">Nastav spánok. Počet minút: %d</string>
+  <string name="sleep_timer_started">Režim spánku spustený. Počet minút: %d</string>
+  <string name="sleep_timer_active_at">Režim spánku. Počet zvyšných minút: %s </string>
+  <string name="speak_next">Ďalší</string>
+  <string name="speak_previous">Predošlý</string>
+  <string name="widget_toggle_sleep_timer">Prepni režim uspania</string>
+  <string name="widget_bookmark_helptext">Tlačidlá pre záložky čítania sa zobrazia tu</string>
+  <string name="speak_status_stopped">zastavené</string>
+  <string name="speak_bookmark_help">Pomoc pri záložkách čitania</string>
+  <string name="speak_help_auto_bookmark">
+Záložka čitania sa automaticky vytvorí akonáhle je čítanie prerušené alebo zastavené.
+Automaticky vytvorené záložky sú označené špeciálnym symbolom
+Pri pokračovaní zo záložky sa táto zmení na nasledujúce miesto pauzy alebo zastavenia.
+Menia sa len značky čítania, ostatné značky
+ostávajú tak ako boli.</string>
+  <string name="speak_help_playback_settings">
+Špeciálne parametre čítania (v \'Parametre čítania\')
+sú uložené do záložiek čítania, keď je zvolená táto voľba.
+Keď obnovíte čítanie zo záložky, parametre čítania
+sa zoberú z danej záložky.</string>
+  <string name="speak_help_playback_settings_example">
+Napríklad, keď počúvate knihu Genezis a list Rimanom
+a chcete počúvat Geneziz rýchlejšie bez notifikácie pri zmene kapitoly,
+no počúvať list Rimanom pomalšie s výraznými pípnutiami pri zmene kapitoly, potom
+môžete mať rôzne nastavenia čítania pre tieto knihy,
+keďže ich parametre sú uložené do zodpovedajúcich záložiek.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Pán</item>
+    <item>Boh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahve</item>
+    <item>Jahve</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Kniha bola zmenená</string>
+  <string name="speak_chapter_changed">Kapitola</string>
+  <string name="speak_first">Prvá</string>
+  <string name="speak_second">Druhá</string>
+  <string name="speak_third">Tretia</string>
+  <string name="speak_fourth">Štvrtá</string>
+  <string name="speak_fifth">Piata</string>
   <!--User Notes-->
   <string name="mynotes">Moje poznámky</string>
   <string name="mynote">Moja poznámka</string>
@@ -271,5 +350,9 @@
   <string name="error_page_too_large">Stránka je príliš veľká</string>
   <string name="error_key_not_in_document">V dokumente sa také čosi nenašlo :)</string>
   <string name="empty_list">Niet čo ukázať</string>
+  <string name="add_widget">Pridaj widget</string>
+  <!--Notifications-->
+  <string name="download_documents">Sťahujem dokumenty</string>
+  <string name="notification_channel_tts_status">Prevod textu na reč</string>
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
 </resources>

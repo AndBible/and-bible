@@ -49,8 +49,6 @@ import android.widget.Toast;
 /**
  * Install SWORD module from a zip file
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Tuomas Airaksinen [tuomas.airaksinen at gmail dot com]
  */
 

@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/AndBible/and-bible.svg?branch=master)](https://travis-ci.org/AndBible/and-bible)
-
+[![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
+   
 # And Bible
 Offline Bible on Android
 
@@ -12,7 +13,8 @@ For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the
 ## Developers
 
 Use Android Studio or IntelliJ IDEA to build And Bible.
-Pull requests are welcome!
+Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Code-contributions)
+in wiki.
 
 ## Translators
 

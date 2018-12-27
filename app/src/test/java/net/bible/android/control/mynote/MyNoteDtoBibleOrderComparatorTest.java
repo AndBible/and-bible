@@ -21,8 +21,6 @@ import static org.hamcrest.Matchers.contains;
  * This is almost identical to the similar BookmarkDtoBibleOrderComparatorTest
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class MyNoteDtoBibleOrderComparatorTest {
 	private final Versification kjv = Versifications.instance().getVersification("KJV");

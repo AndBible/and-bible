@@ -1,11 +1,31 @@
+/*
+ * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ *
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ *
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ *
+ */
+
 package net.bible.android.view.activity.speak
 
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
+import android.text.method.LinkMovementMethod
 import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -49,6 +69,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             restoreSettingsFromBookmarks.isEnabled = true;
         }
         multiTranslation.isChecked = settings.multiTranslation
+        bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
     }
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
@@ -72,7 +93,10 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     }
 
     fun onHelpButtonClick(button: View) {
-        val htmlMessage = ("<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+        val htmlMessage = (
+                "<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+                + "<b><a href=\"https://www.youtube.com/watch?v=1HFXLeTERcs\">"
+                + "${getString(R.string.watch_tutorial_video)}</a></b><br><br>"
                 + getString(R.string.speak_help_auto_bookmark)
                 + "<br><br><b>${getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
                 + getString(R.string.speak_help_playback_settings)
@@ -86,10 +110,13 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             Html.fromHtml(htmlMessage)
         }
 
-        AlertDialog.Builder(this)
+        val d = AlertDialog.Builder(this)
                 .setMessage(spanned)
                 .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                .show()
+                .create()
+
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     fun onButtonClick(button: View) {

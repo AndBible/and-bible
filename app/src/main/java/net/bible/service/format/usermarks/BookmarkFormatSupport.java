@@ -45,8 +45,6 @@ import javax.inject.Inject;
  * Support display of bookmarked verses.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 @ApplicationScope
 public class BookmarkFormatSupport {
@@ -80,7 +78,7 @@ public class BookmarkFormatSupport {
 						if(bookmarkLabels.isEmpty()) {
 							bookmarkLabels.add(new LabelDto(null, null, defaultBookmarkStyle));
 						}
-						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
+						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle);
 
 						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
 							Set<BookmarkStyle> stylesSet = bookmarkStylesByVerseNoInPassage.get(verse.getVerse());
@@ -106,13 +104,16 @@ public class BookmarkFormatSupport {
 	/**
 	 * Get distinct styles in enum order
 	 */
-	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
+	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels, BookmarkStyle defaultStyle) {
 		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
 		for (LabelDto label : bookmarkLabels) {
 			BookmarkStyle style = label.getBookmarkStyle();
 
 			if (style!=null) {
 				bookmarkStyles.add(style);
+			}
+			else {
+				bookmarkStyles.add(defaultStyle);
 			}
 		}
 		return new ArrayList<>(bookmarkStyles);

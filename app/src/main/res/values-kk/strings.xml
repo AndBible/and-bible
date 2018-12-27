@@ -225,6 +225,18 @@
   <string name="tts_lang_not_available">Тіл қол жеткілікті емес.</string>
   <string name="speak_queue">Кезек</string>
   <string name="speak_repeat">Қайталау</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Ескертпелер</string>
   <string name="mynote">Менің Жазбам</string>
@@ -273,5 +285,6 @@
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
   <string name="error_key_not_in_document">Құжатта табылмаған</string>
   <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
+  <!--Notifications-->
   <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты үшін хабарлама растауды дамыту</string>
 </resources>

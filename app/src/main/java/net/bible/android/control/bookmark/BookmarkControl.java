@@ -512,4 +512,8 @@ public class BookmarkControl {
 
 		return label;
 	}
+
+	public boolean isSpeakBookmark(BookmarkDto bookmark) {
+		return getBookmarkLabels(bookmark).contains(getOrCreateSpeakLabel());
+	}
 }

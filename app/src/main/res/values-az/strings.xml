@@ -237,6 +237,18 @@ səhifələrdən yüklənilir</string>
   <string name="tts_lang_not_available">Dil tapılmadı</string>
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Təkrar</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Qeydlərim</string>
   <string name="mynote">Qeydim</string>
@@ -285,5 +297,6 @@ səhifələrdən yüklənilir</string>
   <string name="error_page_too_large">Səhifə yükləmək üçün çox böyükdür</string>
   <string name="error_key_not_in_document">Sənətdə tapılmadı</string>
   <string name="empty_list">Elemenet tapılmadı</string>
+  <!--Notifications-->
   <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
 </resources>

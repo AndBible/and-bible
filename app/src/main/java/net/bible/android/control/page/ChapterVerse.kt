@@ -26,8 +26,6 @@ import org.crosswire.jsword.passage.Verse
  * Represent a chapter and verse
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br></br>
- * The copyright to this program is held by it's author.
  */
 data class ChapterVerse(val chapter: Int, val verse: Int) {
 

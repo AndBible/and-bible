@@ -39,8 +39,6 @@ import java.util.List;
 /**
  * Display a single Note in a list row
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */

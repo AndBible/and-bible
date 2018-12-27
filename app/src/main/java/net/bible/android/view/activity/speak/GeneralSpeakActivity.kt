@@ -35,8 +35,6 @@ import net.bible.service.device.speak.event.SpeakEvent
 
  * @author Martin Denham [mjdenham at gmail dot com]
  * *
- * @see gnu.lgpl.License for license details.<br></br>
- * The copyright to this program is held by it's author.
  */
 class GeneralSpeakActivity : AbstractSpeakActivity() {
     private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>

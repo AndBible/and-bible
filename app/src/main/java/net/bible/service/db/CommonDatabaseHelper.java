@@ -32,8 +32,6 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
  * Oversee database creation and upgrade based on version
  * There is a single And Bible database but creation and upgrade is implemented by the different db modules
  *  
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
@@ -49,6 +47,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
         }
         return sSingleton;
     }
+
+    public static void reset() {
+    	sSingleton = null;
+	}
 
     /**
      * Private constructor, callers except unit tests should obtain an instance through

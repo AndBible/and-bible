@@ -47,8 +47,6 @@ import javax.inject.Inject;
  * Application managed History List.
  * The HistoryManager keeps a different history list for each window.
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope

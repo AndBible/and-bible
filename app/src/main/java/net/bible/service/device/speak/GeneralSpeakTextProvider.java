@@ -32,7 +32,9 @@ import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -68,9 +70,9 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@Override
 	public void startUtterance(@NotNull String utteranceId) {
 		if (keyList != null && keyList.size() > 0) {
-			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0),
 					new TextCommand(currentText, TextCommand.TextType.NORMAL)));
-			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0),
 					new TextCommand(book.getName(), TextCommand.TextType.TITLE)));
 		}
 	}
@@ -94,6 +96,18 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@Override
 	public void updateSettings(@NotNull SpeakSettingsChangedEvent speakSettingsChangedEvent) {
 
+	}
+
+	@Nullable
+	@Override
+	public Verse getCurrentlyPlayingVerse() {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Book getCurrentlyPlayingBook() {
+		return null;
 	}
 
 	private static class StartPos {

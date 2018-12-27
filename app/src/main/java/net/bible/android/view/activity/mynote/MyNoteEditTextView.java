@@ -39,8 +39,6 @@ import net.bible.service.device.ScreenSettings;
 /**
  * Show a User Note and allow view/edit
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteEditTextView extends AppCompatEditText implements DocumentView {

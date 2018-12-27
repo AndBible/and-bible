@@ -220,6 +220,18 @@
   <string name="tts_lang_not_available">Nid yw\'r iaith ar gael.</string>
   <string name="speak_queue">Ciw</string>
   <string name="speak_repeat">Ailadrodd</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Fy Nodiadau</string>
   <string name="mynote">Fy Nodyn</string>
@@ -267,4 +279,5 @@
   <string name="error_page_too_large">Tudalen yn rhy fawr i\'w llwytho</string>
   <string name="error_key_not_in_document">Ddim i\'w gael yn y ddogfen</string>
   <string name="empty_list">Dim eitemau i\'w dangos</string>
+  <!--Notifications-->
 </resources>

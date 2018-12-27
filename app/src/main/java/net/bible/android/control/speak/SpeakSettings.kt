@@ -29,16 +29,15 @@ const val TAG = "SpeakSettings"
 
 @Serializable
 data class PlaybackSettings (
-                         @Optional val speakChapterChanges: Boolean = true,
-                         @Optional val speakTitles: Boolean = true,
-                         @Optional val speakFootnotes: Boolean = false,
-                         @Optional var speed: Int = 100,
+        @Optional val speakChapterChanges: Boolean = true,
+        @Optional val speakTitles: Boolean = true,
+        @Optional val speakFootnotes: Boolean = false,
+        @Optional var speed: Int = 100,
 
-                         // Bookmark related metadata.
-                         // Restoring bookmark from widget uses this.
-                         @Optional var BookId: String? = null,
-                         @Optional var bookmarkWasCreated: Boolean? = null
-
+        // Bookmark related metadata.
+        // Restoring bookmark from widget uses this.
+        @Optional var bookId: String? = null,
+        @Optional var bookmarkWasCreated: Boolean? = null
 ) {
     companion object {
         fun fromJson(jsonString: String): PlaybackSettings {

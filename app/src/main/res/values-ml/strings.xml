@@ -196,6 +196,18 @@
   <string name="tts_lang_not_available">ഈ ഭാഷ ലഭ്യമല്ല</string>
   <string name="speak_queue">നിര </string>
   <string name="speak_repeat">ആവർത്തിക്കുക</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">എന്റെ കുറിപ്പുകൾ</string>
   <string name="mynote">എന്റെ കുറിപ്പ്</string>
@@ -242,4 +254,5 @@
   <string name="error_page_too_large">ഉൾക്കൊള്ളിക്കാൻ കഴിയുന്നതിലും വളരെ വലിയതാണ്‌</string>
   <string name="error_key_not_in_document">ഡോക്കുമെന്റിൽ കാണുന്നില്ല</string>
   <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
+  <!--Notifications-->
 </resources>

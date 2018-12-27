@@ -31,8 +31,6 @@ import net.bible.service.common.CommonUtils;
  * Allow selection of default Bookmark colour preference.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class ListPrefWrapperAdapter implements WrapperListAdapter {
 	private ListAdapter mOrigAdapter;

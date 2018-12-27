@@ -33,8 +33,6 @@ import java.util.List;
  * Ensures the same v11n is chosen when comparing v1, v2 and v2, v1 so that the order is consistent.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 
 public class ConvertibleVerseRangeComparator implements Comparator<ConvertibleVerseRangeUser> {
