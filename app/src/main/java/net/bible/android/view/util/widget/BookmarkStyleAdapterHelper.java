@@ -36,8 +36,6 @@ import org.apache.commons.lang3.StringUtils;
  * Set each list view item to represent background colour of icon of the relevant bookmark style.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 public class BookmarkStyleAdapterHelper {
 

@@ -16,7 +16,10 @@
  *
  */
 
-package net.bible.android.control.event.passage;
+package net.bible.android.control.event
 
-public class PassageChangedEvent {
+class ToastEvent(val message: String, val duration: Int? = null) {
+    constructor(message: String) : this(message, null) {
+
+    }
 }

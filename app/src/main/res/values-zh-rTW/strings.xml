@@ -16,6 +16,7 @@
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
   <string name="verse">經文</string>
+  <string name="administration">管理</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">選擇書卷</string>
   <string name="choosePassageChapterName">選擇章節</string>
@@ -55,6 +56,8 @@
   <string name="prefs_verse_per_line_summary">每行一小節聖經</string>
   <string name="prefs_show_bookmarks_title">顯示書簽圖標</string>
   <string name="prefs_show_bookmarks_summary">為已保存書簽的經文顯示書簽圖標</string>
+  <string name="prefs_default_bookmark_style_title">默認書籤樣式</string>
+  <string name="prefs_default_bookmark_style_summary">書籤突出顯示顏色或圖標</string>
   <string name="prefs_show_mynotes_title">顯示圖標</string>
   <string name="prefs_show_mynotes_summary">在經文中顯示筆記圖標</string>
   <string name="prefs_show_notes_title">顯示備注</string>
@@ -74,24 +77,46 @@
   <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
   <string name="prefs_navigate_to_verse_title">導航到經文小節標題</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
+  <string name="prefs_open_links_in_special_window_title">在特殊視窗打開鏈接</string>
+  <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉引用和Strong\'s原文編號</string>
   <string name="prefs_text_size_title">字體大小</string>
   <string name="prefs_text_size_summary">調整字體</string>
   <string name="prefs_text_size_sample_text">示例文本</string>
+  <string name="prefs_screen_keep_on_title">保持屏幕點亮</string>
+  <string name="prefs_screen_keep_on_summary">使用此應用程序時防止屏幕睡眠</string>
   <string name="x_minutes">%d 分鐘</string>
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
   <string name="prefs_interface_locale_summary">選擇用戶界面語言</string>
   <string name="locale_change_warning">應用程序將重新啟動切換到新的界面語言</string>
+  <string name="prefs_speak_speed_title">語速</string>
+  <string name="prefs_speak_speed_summary">語速加快或減慢</string>
+  <string name="speak_speed_slow">語速減慢</string>
+  <string name="speak_speed_normal">語速正常</string>
+  <string name="speak_speed_fast">語速加快</string>
+  <string name="prefs_split_mode_vertical">垂直</string>
+  <string name="prefs_split_mode_horizontal">水平</string>
+  <string name="prefs_split_mode_automatic">自動</string>
+  <string name="prefs_split_mode_summary">如何拆分多視窗？</string>
+  <string name="prefs_split_mode_title">拆分視窗</string>
+  <string name="prefs_request_sdcard_permission_title">手動安裝文檔存在</string>
+  <string name="prefs_request_sdcard_permission_summary">允許文檔手動安裝使用SD存儲卡上jsword文件夾</string>
   <!--Window-->
+  <string name="window">示窗</string>
+  <string name="windowClose">關閉</string>
+  <string name="windowMaximise">最大化</string>
+  <string name="windowMinimise">最小化</string>
+  <string name="windowSynchronise">同步</string>
+  <string name="windowMoveFirst">首先移動</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">本章沒有備注</string>
   <string name="no_verse_notes">本節沒有備注</string>
   <string name="previous">上一頁</string>
   <string name="next">下一頁</string>
   <!--Strongs-->
-  <string name="strongs">原文字典</string>
-  <string name="strongs_not_installed">請下載希伯來語和希臘語的原文字典</string>
+  <string name="strongs">Strong\'s 原文字典</string>
+  <string name="strongs_not_installed">請下載Strong\'s希伯來語和希臘語的原文字典</string>
   <string name="all_greek_occurrences">查找所有希臘語字符</string>
-  <string name="all_hebrew_occurrences">查找所有希伯來文</string>
+  <string name="all_hebrew_occurrences">查找所有希伯來語字符</string>
   <string name="no_indexed_bible_with_strongs_ref">需要下載包含原文編號的聖經，並通過查詢下載相應的索引</string>
   <string name="morph_robinson_not_installed">請下載羅氏詞形分析碼的字典</string>
   <string name="strongs_toggle_button_on">已打開</string>
@@ -112,6 +137,13 @@
   <string name="too_many_jobs">太多的任務同時執行中， 請等一些任務完成后再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
   <!--Install zip file-->
+  <string name="install_zip">從Zip加載文檔</string>
+  <string name="install_zip_successfull">模塊已成功安裝</string>
+  <string name="extracting_zip_file">提取Zip文件中...
+</string>
+  <string name="checking_zip_file">校驗給定文件中...</string>
+  <string name="invalid_module">文件不包含兼容的SWORD模塊</string>
+  <string name="module_already_installed">文件包含已安裝的模塊</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">閱讀計劃</string>
   <string name="rdg_plan_selector_title">請選擇閱讀計劃</string>
@@ -181,6 +213,18 @@
   <string name="tts_lang_not_available">不支持漢語朗讀功能</string>
   <string name="speak_queue">隊列</string>
   <string name="speak_repeat">重復</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <string name="mynote">我的筆記</string>
@@ -217,10 +261,18 @@
   <string name="please_wait">請等待</string>
   <string name="all">全部</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">新項目</string>
+  <string name="close">關閉</string>
+  <string name="edit">編輯</string>
   <!--Errors-->
+  <string name="report_error">發送錯誤報告</string>
   <string name="error_occurred">出錯了!</string>
   <string name="error_no_content">選定小節沒有對應內容</string>
   <string name="error_page_too_large">本頁太大，無法加載</string>
   <string name="error_key_not_in_document">文檔內沒有發現</string>
   <string name="empty_list">無可顯示單元</string>
+  <string name="add_widget">添加小部件</string>
+  <!--Notifications-->
+  <string name="download_documents">下載文件中</string>
+  <string name="notification_channel_tts_status">文字轉語音</string>
 </resources>

@@ -223,6 +223,71 @@
   <string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
   <string name="speak_queue">An Wiedergabe anhängen</string>
   <string name="speak_repeat">Wiedergabe wiederholen</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Sprachgeschwindigkeit</string>
+  <string name="speak_and_play_earcons_title">Text und Audiobenachrichtigungen abspielen für</string>
+  <string name="playback_settings_title">Wiedergabeeinstellungen</string>
+  <string name="speak_settings_title">Allgemeine Spracheinstellungen</string>
+  <string name="speak_bookmarking_settings_title">Einstellungen für Lesezeichen</string>
+  <string name="speak_bookmarks_menu_title">Aus den Lesezeichen vorlesen</string>
+  <string name="speak_advanced_settings">Erweitert</string>
+  <string name="speak_settings_activity_title">Weitere Einstellungen</string>
+  <string name="speak_sleep_timer_title">Zeitgeber</string>
+  <string name="speak_no_books_available">Keine Bücher zum Vorlesen verfügbar</string>
+  <string name="conf_speak_synchronize">Text mit Vorlesen synchronisieren</string>
+  <string name="conf_speak_auto_bookmark">Automatische Lesezeichen</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Spracheinstellungen mit Lesezeichen speichern</string>
+  <string name="conf_replace_divinename">den Gottesnamen mit Jahwe wiedergeben</string>
+  <string name="conf_change_chapter">Kapitelwechsel</string>
+  <string name="conf_change_title">Überschriften</string>
+  <string name="conf_speak_footnotes">Fußnoten</string>
+  <string name="conf_speak_sleep_timer">Zeit bis zum automatischen Ausschalten</string>
+  <string name="conf_speak_multitranslation">Übersetzungen durch Vorlesen aller offenen Fenster vergleichen</string>
+  <string name="sleep_timer_title">Ausschalten in Minuten</string>
+  <string name="sleep_timer_set">Schaltuhr einstellen. Eingestellt auf%d Minuten</string>
+  <string name="sleep_timer_started">Schaltuhr gestartet, noch%d Minuten</string>
+  <string name="sleep_timer_active_at">Schaltuhr: noch%s Minuten</string>
+  <string name="speak_next">Nächstes</string>
+  <string name="speak_previous">Voriges</string>
+  <string name="widget_toggle_sleep_timer">Schaltuhr ein-/ausschalten</string>
+  <string name="widget_bookmark_helptext">Sprachlesezeichen scheinen hier auf</string>
+  <string name="speak_status_stopped">angehalten</string>
+  <string name="speak_bookmark_help">Sprachhilfe</string>
+  <string name="speak_help_auto_bookmark">Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten den Spezialmarker. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
+  <string name="speak_help_playback_settings">Spezielle Einstellungen für die Wiedergaben (unter \"Wiedergabeeinstellungen\" im Sprachwiedergabefenster) werden mit den Lesezeichen gespeichert, wenn die Einstellung aktiviert ist. Wird die Wiedergabe von einem Lesezeichen gestartet, werden die speziellen Einstellungen mit dem Lesezeichen geladen.</string>
+  <string name="speak_help_playback_settings_example">Sind sowohl Genesis als auch Römer als Sprachlesezeichen gespeichert, aber Genesis soll schneller und ohne Benachrichtigungen für Kapitelwechsel gelesen werden, während Römer langsamer mit Benachrichtigungen für Kapitelwechsel gelesen werden soll, kann man die verschiedenen Einstellungen dafür mit den Lesezeichen speichern.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Herr</item>
+    <item>Gott</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahwe</item>
+    <item>Jahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Buch wurde gewechselt</string>
+  <string name="speak_chapter_changed">Kapitel</string>
+  <string name="speak_first">Erstes</string>
+  <string name="speak_second">Zweites</string>
+  <string name="speak_third">Drittes</string>
+  <string name="speak_fourth">Viertes</string>
+  <string name="speak_fifth">Fünftes</string>
   <!--User Notes-->
   <string name="mynotes">Eigene Notizen</string>
   <string name="mynote">Eigene Notiz</string>
@@ -271,5 +336,9 @@
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
   <string name="empty_list">Nichts anzuzeigen</string>
+  <string name="add_widget">Widget hinzufügen</string>
+  <!--Notifications-->
+  <string name="download_documents">Dokumente herunterladen</string>
+  <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
 </resources>

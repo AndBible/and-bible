@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
@@ -59,7 +60,8 @@ import javax.inject.Inject;
  */
 public class Bookmarks extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
 	private BookmarkControl bookmarkControl;
-	
+	private SpeakControl speakControl;
+
 	// language spinner
 	private Spinner labelSpinner;
 	private List<LabelDto> labelList = new ArrayList<>();
@@ -71,7 +73,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 	private ListActionModeHelper listActionModeHelper;
 
-	private static final int LIST_ITEM_TYPE = R.layout.list_item_3_highlighted;
+	private static final int LIST_ITEM_TYPE = R.layout.bookmark_list_item;
 	private static final String TAG = "Bookmarks";
 
     /** Called when the activity is first created. */
@@ -348,5 +350,10 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 	@Inject
 	void setBookmarkControl(BookmarkControl bookmarkControl) {
 		this.bookmarkControl = bookmarkControl;
+	}
+
+	@Inject
+	void setSpeakControl(SpeakControl speakControl) {
+		this.speakControl = speakControl;
 	}
 }

@@ -147,7 +147,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
         	String s = new String(buf, offset, len);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				if(s.charAt(0) == ' ') {
+				if(s.length() > 0 && s.charAt(0) == ' ') {
 					// fromHtml strips leading whitespaces, which is not desirable
 					write(" ");
 				}

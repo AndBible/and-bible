@@ -223,6 +223,75 @@
   <string name="tts_lang_not_available">Taal is nie beskikbaar nie.</string>
   <string name="speak_queue">Lys</string>
   <string name="speak_repeat">Herhaal</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">Praat spoed</string>
+  <string name="speak_and_play_earcons_title">Praat en speel earcon klanke vir</string>
+  <string name="playback_settings_title">Speel instellings</string>
+  <string name="speak_settings_title">Algemene Spreek Instellings</string>
+  <string name="speak_bookmarking_settings_title">Boekmerk Instellings</string>
+  <string name="speak_bookmarks_menu_title">Praat uit boekmerk instellings</string>
+  <string name="speak_advanced_settings">Gevorderde Instellings</string>
+  <string name="speak_settings_activity_title">Meer Praat Instellings</string>
+  <string name="speak_sleep_timer_title">Slaap tydhouer</string>
+  <string name="speak_no_books_available">Geen boeke beskibaar om te praat</string>
+  <string name="conf_speak_synchronize">Sinkroniseer teks met spraak</string>
+  <string name="conf_speak_auto_bookmark">Outomatiese boekmerke</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Stoor speel instellings na boekmerke</string>
+  <string name="conf_replace_divinename">Vervang goddelike naam met Yahweh</string>
+  <string name="conf_change_chapter">Hoofstuk veranderings-</string>
+  <string name="conf_change_title">Titels</string>
+  <string name="conf_speak_footnotes">Voet Notas</string>
+  <string name="conf_speak_sleep_timer">Stel slaap tydhouer</string>
+  <string name="conf_speak_multitranslation">Vergelyk vertalings deur te praat van alle sigbare vensters</string>
+  <string name="sleep_timer_title">Slaap tydhouer in minute</string>
+  <string name="sleep_timer_set">Stel slaap tydhouer.  Stel Tydhouer: %d minute </string>
+  <string name="sleep_timer_started">Slaap tydhouer begin oor, %d minute</string>
+  <string name="sleep_timer_active_at">Slaap tydhouer %s minute oor</string>
+  <string name="speak_next">Volgende</string>
+  <string name="speak_previous">Vorige</string>
+  <string name="widget_toggle_sleep_timer">Verander slaap tydhour</string>
+  <string name="widget_bookmark_helptext">Praat boekmerke kortpad knoppies sal hier verskyn.</string>
+  <string name="speak_status_stopped">Gestop.</string>
+  <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
+  <string name="speak_help_auto_bookmark">
+\'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
+Outomaties gegenereerde boekmerke is gemerk met die spesial Praat-etiket.
+As u by \'n Spreek-boekmerk begin, sal die boekmerk na die vers verskuif word wat u die volgende keer stop of breek.
+Slegs Spraak-etikette sal verskuif word, enige ander etikette sal alleen gelaat word.</string>
+  <string name="speak_help_playback_settings">Spesiale afspeel instellings (onder \"Playback Settings\" op die Praat skerm)
+word gestoor om boekmerke te praat wanneer hierdie instelling gekies is.
+As jy weer begin praat van \'n Praat-boekmerk, sal die gestoorde afspeelinstellings
+van die boekmerk af gelaai word.</string>
+  <string name="speak_help_playback_settings_example">Byvoorbeeld, as jy na Genesis en Romeine luister en
+ Wil graag na Genesis gesproke luister sonder om hoofstukverandering kennisgewings te hoor,
+ maar aan Romeine stadiger met hoorbare oorklanke op hoofstukveranderinge, dan
+ jy kan verskillende afspeelinstellings vir hierdie boeke hê,
+ wanneer hierdie instellings in die ooreenstemmende boekmerke gestoor word.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Boek het verander</string>
+  <string name="speak_chapter_changed">Hoofstuk</string>
+  <string name="speak_first">Eerste</string>
+  <string name="speak_second">Tweede</string>
+  <string name="speak_third">Derde</string>
+  <string name="speak_fourth">Vierde</string>
+  <string name="speak_fifth">Vyfde</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <string name="mynote">My Nota</string>
@@ -271,5 +340,9 @@
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
   <string name="empty_list">Geen items om te wys</string>
+  <string name="add_widget">Voeg byvoeging by</string>
+  <!--Notifications-->
+  <string name="download_documents">Laai Dokumente af</string>
+  <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
 </resources>

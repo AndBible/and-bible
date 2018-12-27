@@ -195,6 +195,18 @@
   <string name="tts_lang_not_available">Bu til mavjud emas</string>
   <string name="speak_queue">Navbat</string>
   <string name="speak_repeat">Takrorla</string>
+  <!--Speak - Bible-->
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Mening Eslatmalarim</string>
   <string name="mynote">Mening Eslatmam</string>
@@ -239,4 +251,5 @@
   <string name="error_page_too_large">Bu sahifani kattaligi uchun yulab bo\'lmadi</string>
   <string name="error_key_not_in_document">Hech qanday fayl topilmadi</string>
   <string name="empty_list">Ko\'rsatadigan hech narsa yo\'q</string>
+  <!--Notifications-->
 </resources>

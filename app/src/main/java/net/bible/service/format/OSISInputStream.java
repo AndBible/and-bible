@@ -35,8 +35,6 @@ import java.util.Iterator;
  * This is more efficient than using JDom to create a DOM and then streaming the DOM into a SAX parser  
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.
- *      The copyright to this program is held by it's author.
  */
 public class OSISInputStream extends InputStream {
 	// requested passage
@@ -144,8 +142,19 @@ public class OSISInputStream extends InputStream {
 			boolean isNextVerseLoaded = false;
 			while (keyIterator.hasNext() && !isNextVerseLoaded) {
 				Key currentVerse = keyIterator.next();
-				//get the actual verse text and tidy it up, 
-				String rawText = book.getRawText(currentVerse);
+				//get the actual verse text and tidy it up,
+				String rawText;
+
+				try {
+					rawText = book.getRawText(currentVerse);
+				} catch (BookException e) {
+					if(e.getMessage().startsWith("Unable to obtain raw content")) {
+						rawText = "";
+					}
+					else {
+						throw e;
+					}
+				}
 				
 				// do not output empty verses (commonly verse 0 is empty)
 				if (!StringUtils.isWhitespace(rawText)) {

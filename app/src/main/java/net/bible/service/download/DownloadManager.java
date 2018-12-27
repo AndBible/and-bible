@@ -43,8 +43,6 @@ import java.util.Map;
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author DM Smith [dmsmith555 at yahoo dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */

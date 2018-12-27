@@ -29,8 +29,6 @@ import org.crosswire.jsword.passage.Key;
 /**
  * A normal item in the history list that relates to a document being shown in the main activity view 
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class KeyHistoryItem extends HistoryItemBase {

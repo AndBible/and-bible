@@ -48,8 +48,6 @@ import javax.inject.Inject;
 /**
  * Show a list of existing User Notes and allow view/edit/delete
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */

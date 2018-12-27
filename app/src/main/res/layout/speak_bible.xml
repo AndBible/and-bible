@@ -31,9 +31,15 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                    android:orientation="vertical"
+                    >
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         >
-                    <TextView
+
+                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/speak_titles_text_size"
@@ -42,13 +48,26 @@
                             android:text="@string/playback_settings_title"
                             />
 
-                    <TextView
-                            android:layout_width="match_parent"
+                        <ImageButton
+                            android:id="@+id/bookmarkHelpButton"
+                            android:src="@android:drawable/ic_menu_help"
+                            android:contentDescription="@string/speak_bookmark_help"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:padding="@dimen/speak_subtitle_padding"
-                            android:text="@string/speak_and_play_earcons_title"
-                            />
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:onClick="onHelpButtonClick"
+                            style="@style/Widget.Design.FloatingActionButton"
+                            android:layout_alignParentRight="true" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:padding="@dimen/speak_subtitle_padding"
+                        android:text="@string/speak_and_play_earcons_title"
+                        />
 
                     <LinearLayout
                             android:layout_width="match_parent"
@@ -140,7 +159,7 @@
                     android:text="@string/conf_speak_sleep_timer"
                     android:id="@+id/sleepTimer"
                     android:onClick="setSleepTime"
-                    />
+                    android:layout_marginLeft="@dimen/speak_row_padding" />
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="30dip"/>
@@ -153,13 +172,26 @@
                         android:layout_width="0dip"
                         android:layout_height="fill_parent"
                         android:layout_weight="1"/>
-                    <Button
-                        android:id="@+id/speakSettings"
-                        android:contentDescription="@string/bookmarks"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="@string/speak_more_settings"
-                        android:onClick="openMoreSettings"/>
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            android:id="@+id/speakSettings"
+                            android:contentDescription="@string/bookmarks"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/speak_advanced_settings"
+                            android:onClick="openMoreSettings"/>
+                        <Button
+                            android:id="@+id/systemSpeakSettings"
+                            android:contentDescription="@string/bookmarks"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/system_speak_settings"
+                            android:onClick="openSystemSettings"/>
+                    </LinearLayout>
+
                     <View
                         android:layout_width="0dip"
                         android:layout_height="fill_parent"
@@ -186,7 +218,8 @@
                 android:paddingStart="@dimen/speak_row_padding"
                 android:id="@+id/statusText"
                 android:background="@color/speak_status_background"
-                android:text="*Gen.1.1*"/>
+                android:text="*Gen.1.1*"
+                android:paddingLeft="@dimen/speak_row_padding" />
 
         <!-- Button bar with OK button -->
         <LinearLayout

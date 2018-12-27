@@ -28,6 +28,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -47,6 +48,8 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
+import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.RangedPassage;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
@@ -55,7 +58,10 @@ import java.util.*;
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import de.greenrobot.event.EventBus;
+
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -119,11 +125,16 @@ public class SpeakControl {
 	}
 
 	public void onEventMainThread(SpeakProgressEvent event) {
-		if(event.getSynchronize()) {
+		SpeakSettings settings = SpeakSettings.Companion.load();
+		if(settings.getSynchronize()) {
 			if(speakPageManager == null) {
 				speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 			}
-			speakPageManager.setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
+			Book book = event.getBook();
+			if(settings.getMultiTranslation()) {
+				book = speakPageManager.getCurrentPage().getCurrentDocument();
+			}
+			speakPageManager.setCurrentDocumentAndKey(book, event.getKey(), false);
 		}
 	}
 
@@ -166,7 +177,6 @@ public class SpeakControl {
 	 */
 	public void toggleSpeak() {
 		Log.d(TAG, "Speak toggle current page");
-
 		// Continue
 		if (isPaused()) {
 			continueAfterPause();
@@ -176,6 +186,12 @@ public class SpeakControl {
 		// Start Speak
 		} else
 		{
+			if(!booksAvailable()) {
+				EventBus.getDefault().post(new ToastEvent(
+						BibleApplication.getApplication().getString(R.string.speak_no_books_available))
+				);
+				return;
+			}
 			try {
 				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
@@ -284,10 +300,20 @@ public class SpeakControl {
                 .getCurrentDocument();
 	}
 
-	private void speakBible(Verse verse) {
+	public void speakBible(Verse verse) {
 		speakBible((SwordBook) getCurrentBook(), verse);
 	}
 
+	public void speakBible(String bookRef, String osisRef) {
+		SwordBook book = (SwordBook) Books.installed().getBook(bookRef);
+
+		try {
+			Verse verse = ((RangedPassage) book.getKey(osisRef)).getVerseAt(0);
+			speakBible(book, verse);
+		} catch (NoSuchKeyException e) {
+			Log.e(TAG, "Key not found " + osisRef + " in " + getCurrentBook());
+		}
+	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		prepareForSpeaking();
@@ -484,5 +510,16 @@ public class SpeakControl {
 		} else {
 			speakBible(dto.getVerseRange().getStart());
 		}
+	}
+	@Nullable
+	public Book getCurrentlyPlayingBook() {
+		if(!booksAvailable()) return null;
+		return textToSpeechServiceManager.get().getCurrentlyPlayingBook();
+	}
+
+	@Nullable
+	public Verse getCurrentlyPlayingVerse() {
+		if(!booksAvailable()) return null;
+		return textToSpeechServiceManager.get().getCurrentlyPlayingVerse();
 	}
 }

@@ -1,0 +1,10 @@
+Read or listen to the bible, commentaries, dictionaries and Christian books off-line wherever you are.
+
+* Over 40 English bibles including ESV, KJV and NET
+* Over 50 languages - Chinese, Russian, German, French, Hungarian, Czech ...
+* 27 Commentaries
+* Strong's support
+* Flexible search
+* Bookmarks
+* Free and open source
+* Uses the powerful JSword engine from CrossWire

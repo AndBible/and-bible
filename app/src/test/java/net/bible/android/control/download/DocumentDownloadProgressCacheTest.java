@@ -27,8 +27,6 @@ import static org.hamcrest.Matchers.is;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- * The copyright to this program is held by it's author.
  */
 @RunWith(MyRobolectricTestRunner.class)
 public class DocumentDownloadProgressCacheTest {

@@ -31,8 +31,6 @@ import org.jetbrains.anko.doAsync
  * Get next or previous page for insertion at the top or bottom of the current webview.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br></br>
- * The copyright to this program is held by it's author.
  */
 class BibleInfiniteScrollPopulator(private val bibleViewtextInserter: BibleViewTextInserter, private val currentPageManager: CurrentPageManager) : AnkoLogger {
 

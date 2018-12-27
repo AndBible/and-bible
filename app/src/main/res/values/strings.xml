@@ -4,28 +4,45 @@
 TODO: error and download_document_confirm_prefix need to be parameterized rather than used for concatenation 
  
  @author Martin Denham [mjdenham at gmail dot com]
- @see gnu.lgpl.License for license details.<br>
-      The copyright to this program is held by it's author.
 -->
 <resources>
     <string name="app_name">And Bible</string>
     <!-- Startup & Help -->
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Press the MENU button for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
-    <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
-    \nDouble-tap toggles Fullscreen on/off.
-    \n\n<b>Menu</b>
-    \nPress the MENU button for actions
-    \n\nTo download more documents press Menu/Administration/Download Documents
-    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading
-    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.
-    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.
-    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see "Apache Lucene - Query Parser Syntax" for more details)
-    \n\n<b>Context Menus</b>
-    \nLong press on the Bible view to open the context menu for actions affecting the current verse.
-    \nLong press on a document in the document selector to delete it or view information.
-    \nLong press the Back button to access the History list
+
+    <string name="help_nav_title">Navigation</string>
+    <string name="help_nav_text">Go to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger.
+        Double-tap toggles Fullscreen on/off.
     </string>
+
+    <string name="help_menu_title">Menu</string>
+    <string name="help_menu_text">Press the MENU button for actions.
+        To download more documents press Menu/Administration/Download Documents
+    </string>
+    <string name="help_speech_title">Speech</string>
+    <string name="help_speech_text">Press Speak to access a dialog to start or stop reading</string>
+
+    <string name="help_mynote_title">My Note</string>
+    <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
+        The list of existing notes can be accessed via the main menu.</string>
+
+    <string name="help_bookmarks_title">Bookmarks</string>
+    <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
+        The Bookmark Manager is accessed via the main menu.
+        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
+    </string>
+    <string name="help_search_title">Search</string>
+    <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
+        (see "Apache Lucene - Query Parser Syntax" for more details)
+    </string>
+    <string name="help_contextmenus_title">Context Menus</string>
+    <string name="help_contextmenus_text">
+        Long press on the Bible view to open the context menu for actions affecting the current verse.
+        Long press on a document in the document selector to delete it or view information.
+        Long press the Back button to access the History list.
+    </string>
+
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
 
@@ -274,13 +291,15 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>
     <string name="speak_and_play_earcons_title">Speak and play earcon sounds for</string>
-    <string name="playback_settings_title">Playback settings</string>
-    <string name="speak_settings_title">General speak settings</string>
-    <string name="speak_bookmarking_settings_title">Bookmarking settings</string>
+    <string name="playback_settings_title">Playback Settings</string>
+    <string name="speak_settings_title">General Speak Settings</string>
+    <string name="speak_bookmarking_settings_title">Bookmarking Settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
-    <string name="speak_more_settings">More settings</string>
-    <string name="speak_settings_activity_title">More speak settings</string>
+    <string name="speak_advanced_settings">Advanced Settings</string>
+    <string name="speak_settings_activity_title">More Speak Settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
+
+    <string name="speak_no_books_available">No books available to speak</string>
 
     <string name="conf_speak_synchronize">Synchronize text with speech</string>
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
@@ -302,39 +321,51 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
     <string name="widget_bookmark_helptext">Speak bookmarks shortcut buttons will appear here.</string>
     <string name="speak_status_stopped">stopped</string>
+    <string name="speak_autobookmarking_disabled">Autobookmarking disabled!</string>
+    <string name="system_speak_settings">Open system TTS settings</string>
 
     <string name="speak_bookmark_help">Speak bookmark help</string>
 
     <string name="speak_help_auto_bookmark">
-        Auto add bookmark when pausing and stopping. Automatically generated bookmarks are
-        labelled with special Speak label. If you start on Speak-labeled bookmark, bookmark will
-        be moved to the new verse location when you stop / pause next time. If there is Speak label
-        and also other labels on bookmark, only Speak label will be removed and bookmark will stay.
+        A Speak bookmark will be automatically added when Speak is paused or stopped.
+        Automatically generated bookmarks are labelled with the special Speak label.
+        If you start at a Speak bookmark the bookmark will be moved to the verse you
+        stop or pause at next time. Only Speak labels will be moved, any other labels
+        will be left alone.
     </string>
     <string name="speak_help_playback_settings">
-        There are special playback settings (under \"Playback settings\" title in Speak screen)
-        that are saved to Speak bookmarks if this option is enabled.
-        When you start speaking from such bookmark, these settings are read from the
-        bookmark.
+        Special playback settings (under \"Playback Settings\" on the Speak screen)
+        are saved to Speak bookmarks when this setting is selected.
+        When you restart speaking from a Speak bookmark, the saved playback settings
+        are loaded from the bookmark.
     </string>
     <string name="speak_help_playback_settings_example">
-        Usage example: Let us say that you want to listen to Genesis and Romans.
-        You want to listen to Genesis with speak speed 150\%,
-        and without chapter change notifications,
-        but when listening to Romans you want to have 90\% speak speed and
-        hear audible earcon sound when chapter changes.
-        You can have different playback settings for these books,
-        when these settings are saved to corresponding bookmarks.
+        For example if you are listening to Genesis and Romans and
+        wish to listen to Genesis spoken quickly without chapter change notifications,
+        but to Romans more slowly with audible earcon sounds on chapter changes, then
+        you can have different playback settings for these books,
+        when these settings are saved to the corresponding bookmarks.
     </string>
 
-    <string-array name="divinename_original">
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <string-array name="speak_divinename_original">
         <item>Lord</item>
         <item>God</item>
         <item/>
         <item/>
         <item/>
     </string-array>
-    <string-array name="divinename_replace">
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <string-array name="speak_divinename_replace">
         <item>Yahweh</item>
         <item>Yahweh</item>
         <item/>
@@ -342,7 +373,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         <item/>
     </string-array>
 
-    <string name="speak_book_changed">Book changed. </string>
+    <string name="speak_book_changed">Book changed.</string>
     <string name="speak_chapter_changed">Chapter</string>
     <string name="speak_first">First</string>
     <string name="speak_second">Second</string>
@@ -396,6 +427,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_item">New</string>
     <string name="close">Close</string>
     <string name="edit">Edit</string>
+    <string name="watch_tutorial_video">Watch tutorial video (English)</string>
+
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>

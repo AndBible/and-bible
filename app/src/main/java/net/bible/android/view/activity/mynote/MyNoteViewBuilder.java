@@ -32,8 +32,6 @@ import javax.inject.Inject;
 /**
  * Build a MyNote TextView for viewing or editing notes
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope

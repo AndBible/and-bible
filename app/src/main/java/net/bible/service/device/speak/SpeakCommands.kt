@@ -21,8 +21,11 @@ package net.bible.service.device.speak
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import net.bible.android.control.speak.SpeakSettings
 import java.util.*
+
+val TAG = "SpeakCommands"
 
 interface SpeakCommand {
     fun speak(tts: TextToSpeech, utteranceId: String)
@@ -66,7 +69,10 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
 
 class ChangeLanguageCommand(val language: Locale): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
-        tts.language = language
+        val result = tts.setLanguage(language)
+        if(result != TextToSpeech.LANG_AVAILABLE) {
+            Log.e(TAG, "Language $language not available!")
+        }
     }
 }
 
@@ -95,7 +101,11 @@ open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
 class ParagraphChangeCommand : SilenceCommand(true)
 
 class SpeakCommandArray: ArrayList<SpeakCommand>() {
-    private val maxLength = TextToSpeech.getMaxSpeechInputLength()
+    private val maxLength = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        TextToSpeech.getMaxSpeechInputLength()
+    } else {
+        4000
+    }
     private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
     private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
     private val startsWithDelimeter = Regex("([,.?!\"':;()]+|'s)( .*|)")

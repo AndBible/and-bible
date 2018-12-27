@@ -23,13 +23,19 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.multidex.MultiDexApplication;
+import de.greenrobot.event.EventBus;
+
 import net.bible.android.activity.SpeakWidgetManager;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.control.DaggerApplicationComponent;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -71,6 +77,7 @@ public class BibleApplication extends MultiDexApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		ABEventBus.getDefault().register(this);
 
 		// save to a singleton to allow easy access from anywhere
 		singleton = this;
@@ -248,11 +255,16 @@ public class BibleApplication extends MultiDexApplication {
     	return getSharedPreferences(saveStateTag, 0);
     }
 
+	@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 	public Resources getLocalizedResources(String language) {
 		BibleApplication app = getApplication();
 		Configuration oldConf = app.getResources().getConfiguration();
 		Configuration newConf = new Configuration(oldConf);
 		newConf.setLocale(new Locale(language));
 		return app.createConfigurationContext(newConf).getResources();
+	}
+	public void onEventMainThread(ToastEvent ev) {
+		int duration = ev.getDuration() == null ? Toast.LENGTH_SHORT : ev.getDuration();
+		Toast.makeText(this, ev.getMessage(), duration).show();
 	}
 }
