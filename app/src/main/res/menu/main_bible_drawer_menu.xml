@@ -23,7 +23,7 @@
         <menu>
             <item android:id="@+id/chooceDocumentButton"
                 android:title="@string/chooce_document"
-                android:icon="@drawable/ic_book_white_24dp"
+                android:icon="@drawable/ic_library_books_white_24dp"
                 />
 
             <item android:id="@+id/bookmarksButton"
