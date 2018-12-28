@@ -2,43 +2,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
-      android:installLocation="auto"
-      android:versionName="2.13.264" android:versionCode="264">
+    android:installLocation="auto"
+    android:versionCode="264"
+    android:versionName="2.13.264">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:maxSdkVersion="22" android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-	<!-- allow use on Google TV -->
-	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <!-- allow use on Google TV -->
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
-	<supports-screens
-		android:smallScreens="true"
-		android:normalScreens="true"
-		android:largeScreens="true"
-		android:anyDensity="true"
-	/>
-	
-	<application android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:label="@string/app_name"
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+
+    <application
         android:name="net.bible.android.BibleApplication"
-        android:theme="@style/AppThemeDay"
         android:allowBackup="true"
-        android:resizeableActivity="true"
         android:fullBackupContent="@xml/backup_descriptor"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:resizeableActivity="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppThemeDay"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning"
-        >
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        tools:ignore="GoogleAppIndexingWarning">
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <!-- deprecated but necessary to prevent old shortcut breaking -->
-        <activity android:name=".StartupActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+        <activity
+            android:name=".StartupActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,255 +53,243 @@
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="net.bible.android.view.activity.page.MainBibleActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.ChooseDocument"
-                  android:label="@string/chooseBook"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                  android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.GridChoosePassageBook"
-                  android:label="@string/choosePassageBookName"
-				  android:theme="@style/GridChoosePassageTheme"
-                  android:configChanges="keyboardHidden|locale"
-                android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
-                  android:label="@string/choosePassageChapterName"
-				  android:theme="@style/GridChoosePassageTheme"
-                  android:configChanges="keyboardHidden|locale"
+        <activity
+            android:name="net.bible.android.view.activity.page.MainBibleActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/app_name" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.ChooseDocument"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/chooseBook"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.GridChoosePassageBook"
+            android:configChanges="keyboardHidden|locale"
+            android:label="@string/choosePassageBookName"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:theme="@style/GridChoosePassageTheme" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
+            android:configChanges="keyboardHidden|locale"
+            android:label="@string/choosePassageChapterName"
             android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageBook"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
-                  android:label="@string/choosePassageVerseName"
-				  android:theme="@style/GridChoosePassageTheme"
-                  android:configChanges="keyboardHidden|locale"
+            android:theme="@style/GridChoosePassageTheme" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
+            android:configChanges="keyboardHidden|locale"
+            android:label="@string/choosePassageVerseName"
             android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.search.Search"
-                  android:label="@string/search"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                  android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/GridChoosePassageTheme" />
+        <activity
+            android:name="net.bible.android.view.activity.search.Search"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.search.SearchResults"
-                  android:label="@string/search"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.search.Search"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.search.SearchIndex"
-                  android:label="@string/search_index"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
-                  android:label="@string/search_index"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
-                  android:label="@string/notes"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
-        </activity>
-        <activity android:name="net.bible.android.view.activity.bookmark.Bookmarks"
-                  android:label="@string/bookmarks"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-		<activity android:name="net.bible.android.view.activity.bookmark.ManageLabels"
-				  android:label="@string/manage_labels"
-				  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-           android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
-            >
-		</activity>
-        <activity android:name="net.bible.android.view.activity.bookmark.BookmarkLabels"
-                  android:label="@string/bookmark_labels"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.comparetranslations.CompareTranslations"
-                  android:label="@string/compare_translations"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.mynote.MyNotes"
-                  android:label="@string/mynotes"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
-                  android:label="@string/dictionary"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey"
-                  android:label="@string/general_book"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey"
-                  android:label="@string/doc_type_map"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorList"
-                  android:label="@string/rdg_plan_selector_title"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-           android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.readingplan.DailyReadingList"
-                  android:label="@string/rdg_plan_title"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                    android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.readingplan.DailyReading"
-                  android:label="@string/rdg_plan_title"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.settings.SettingsActivity"
-                  android:label="@string/settings"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.History"
-                  android:label="@string/history"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.speak.GeneralSpeakActivity"
-                  android:label="@string/speak"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-           android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
-                  android:label="@string/speak"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
-                  android:label="@string/speak_advanced_settings"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                  android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.download.FirstDownload"
-				  android:label="@string/download"
-				  android:configChanges="keyboardHidden|orientation|screenSize|locale">
-		</activity>
-        <activity android:name="net.bible.android.view.activity.download.Download"
-                  android:label="@string/download"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
-        <activity android:name="net.bible.android.view.activity.download.ProgressStatus"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
-                  android:label="@string/progress_status"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            >
-        </activity>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name="net.bible.android.view.activity.search.SearchResults"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
+            android:parentActivityName="net.bible.android.view.activity.search.Search" />
+        <activity
+            android:name="net.bible.android.view.activity.search.SearchIndex"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search_index"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search_index"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/notes" />
+        <activity
+            android:name="net.bible.android.view.activity.bookmark.Bookmarks"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/bookmarks"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.bookmark.ManageLabels"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/manage_labels"
+            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
+        <activity
+            android:name="net.bible.android.view.activity.bookmark.BookmarkLabels"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/bookmark_labels"
+            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
+        <activity
+            android:name="net.bible.android.view.activity.comparetranslations.CompareTranslations"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/compare_translations"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.mynote.MyNotes"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/mynotes"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/dictionary"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/general_book"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/doc_type_map"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorList"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/rdg_plan_selector_title"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading" />
+        <activity
+            android:name="net.bible.android.view.activity.readingplan.DailyReadingList"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/rdg_plan_title"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading" />
+        <activity
+            android:name="net.bible.android.view.activity.readingplan.DailyReading"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/rdg_plan_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.settings.SettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/settings"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.History"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/history"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.speak.GeneralSpeakActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/speak"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/speak"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/speak_advanced_settings"
+            android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.download.FirstDownload"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/download" />
+        <activity
+            android:name="net.bible.android.view.activity.download.Download"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/download"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.download.ProgressStatus"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/progress_status"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"
-            android:label="@string/install_zip_module" >
+            android:label="@string/install_zip_module">
             <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data
-                    android:mimeType="application/zip"
-                    />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <action android:name="android.intent.action.SEND_MULTIPLE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="application/zip"/>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
 
-        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"/>
+        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService" />
 
-        <receiver android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver" android:exported="false"/>
+        <receiver
+            android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
+            android:exported="false" />
 
         <receiver android:name=".SpeakWidgetManager$SmallSpeakControlWidget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/small_speak_control_widget_info"/>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/small_speak_control_widget_info" />
         </receiver>
 
         <receiver android:name=".SpeakWidgetManager$MiddleSpeakControlWidget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/middle_speak_control_widget_info"/>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/middle_speak_control_widget_info" />
         </receiver>
 
         <receiver android:name=".SpeakWidgetManager$LargeSpeakControlWidget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/large_speak_control_widget_info"/>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/large_speak_control_widget_info" />
         </receiver>
         <receiver android:name=".SpeakWidgetManager$SpeakTextControlWidget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_text_control_widget_info"/>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/speak_text_control_widget_info" />
         </receiver>
 
         <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
-                    android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_bookmark_widget_info"/>
+                android:name="android.appwidget.provider"
+                android:resource="@xml/speak_bookmark_widget_info" />
         </receiver>
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
-		<uses-library android:required="false" android:name="com.sec.android.app.multiwindow" />
-		<meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
-		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632.0dip" />
-		<meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:value="598.0dip" />
-		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="632.0dip" />
-		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="598.0dip" />
-	</application>
+        <uses-library
+            android:name="com.sec.android.app.multiwindow"
+            android:required="false" />
+
+        <meta-data
+            android:name="com.sec.android.support.multiwindow"
+            android:value="true" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W"
+            android:value="632.0dip" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"
+            android:value="598.0dip" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"
+            android:value="632.0dip" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
+            android:value="598.0dip" />
+    </application>
 </manifest> 
