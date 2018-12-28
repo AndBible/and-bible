@@ -44,7 +44,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_settings)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)

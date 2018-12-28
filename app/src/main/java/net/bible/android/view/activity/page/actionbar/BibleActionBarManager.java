@@ -87,10 +87,6 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		super.prepareOptionsMenu(activity, menu, actionBar);
 
-		//actionBar.setDisplayShowHomeEnabled(true);
-		//actionBar.setDisplayHomeAsUpEnabled(true);
-		//actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-
 		mainBibleTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right
