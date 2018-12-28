@@ -37,7 +37,7 @@
 
             <item android:id="@+id/dailyReadingPlanButton"
                 android:title="@string/rdg_plan_title"
-                android:icon="@android:drawable/ic_menu_month"/>
+                android:icon="@drawable/ic_format_list_numbered_white_24dp"/>
 
             <item android:id="@+id/speakButton"
                 android:title="@string/speak"
@@ -45,19 +45,7 @@
 
             <item 	android:id="@+id/historyButton"
                 android:title="@string/history"
-                android:icon="@android:drawable/ic_menu_recent_history"/>
-        </menu>
-    </item>
-    <item
-        android:title="@string/help">
-        <menu>
-            <item android:id="@+id/rateButton"
-                android:title="@string/rate_application"
-                android:icon="@drawable/ic_rate_review_white_24dp"/>
-
-            <item android:id="@+id/helpButton"
-                android:title="@string/help"
-                android:icon="@android:drawable/ic_menu_help"/>
+                android:icon="@drawable/ic_history_white_24dp"/>
         </menu>
     </item>
     <item
@@ -69,7 +57,7 @@
 
             <item android:id="@+id/installZipButton"
                 android:title="@string/install_zip"
-                android:icon="@drawable/ic_menu_archive"/>
+                android:icon="@drawable/ic_unarchive_white_24dp"/>
 
 
             <item android:id="@+id/manageLabels"
@@ -78,12 +66,24 @@
 
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"
-                android:icon="@android:drawable/ic_menu_preferences"/>
+                android:icon="@drawable/ic_settings_white_24dp"/>
 
 			<item android:id="@+id/backupMainMenu"
 				  android:title="@string/backup_and_restore"
-				  android:icon="@android:drawable/ic_menu_save"/>
+				  android:icon="@drawable/ic_save_white_24dp"/>
 
+        </menu>
+    </item>
+    <item
+        android:title="@string/help">
+        <menu>
+            <item android:id="@+id/rateButton"
+                android:title="@string/rate_application"
+                android:icon="@drawable/ic_rate_review_white_24dp"/>
+
+            <item android:id="@+id/helpButton"
+                android:title="@string/help"
+                android:icon="@drawable/ic_help_white_24dp"/>
         </menu>
     </item>
 </menu>
