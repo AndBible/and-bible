@@ -441,6 +441,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
     <string name="menu">Menu</string>
-    <string name="rate_application">Rate in Play Store</string>
+    <string name="rate_application">Rate &amp; Review in Google Play</string>
     <string name="chooce_document">Chooce Document</string>
 </resources>
