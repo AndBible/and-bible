@@ -71,7 +71,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionModeMediator.ActionModeMenuDisplay {
+class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_menu), VerseActionModeMediator.ActionModeMenuDisplay {
     // detect swipe left/right
     private lateinit var gestureDetector: GestureDetectorCompat
     private var mWholeAppWasInBackground = false

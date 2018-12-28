@@ -20,14 +20,14 @@
 		android:orientation="vertical"
 		/>
 
-		<com.google.android.material.navigation.NavigationView
-			android:id="@+id/navigationView"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:layout_gravity="start"
-			android:fitsSystemWindows="true"
-			app:menu="@menu/drawer_view"
-			/>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/main_bible_drawer_menu"
+        />
 
 		<!-- removed explicit view reference because this page could contain a MyNote view
 		 net.bible.android.view.activity.page.BibleView  
