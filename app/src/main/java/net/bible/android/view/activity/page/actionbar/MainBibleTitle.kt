@@ -93,6 +93,9 @@ class MainBibleTitle @Inject constructor(
     }
 
     protected fun update(everything: Boolean) {
+        if(!::documentTitle.isInitialized)
+            return
+
         CurrentActivityHolder.getInstance().runOnUiThread {
                 // always update verse number
             pageTitle.text = pageTitleText
