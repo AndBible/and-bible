@@ -19,8 +19,10 @@
 package net.bible.android.view.activity.page
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -28,8 +30,15 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -46,6 +55,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.Download
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
+import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
@@ -88,6 +98,38 @@ constructor(private val callingActivity: MainBibleActivity,
             var requestCode = ActivityBase.STD_REQUEST_CODE
             // Handle item selection
             when (menuItem.itemId) {
+                R.id.chooceDocumentButton -> {
+                    val intent = Intent(callingActivity, ChooseDocument::class.java)
+                    callingActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                }
+                R.id.rateButton -> {
+                    val uri = Uri.parse("market://details?id=" + callingActivity.getPackageName())
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply{
+                        // To count with Play market backstack, After pressing back button,
+                        // to taken back to our application, we need to add following flags to intent.
+                        addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                        }
+                    }
+                    try {
+                        callingActivity.startActivity(intent);
+                    } catch (e: ActivityNotFoundException) {
+                        val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.getPackageName())
+                        callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
+                    }
+                }
+                R.id.backupMainMenu -> {
+                    val view: View = callingActivity.findViewById(R.id.homeButton)
+                    val menu = PopupMenu(callingActivity, view).apply {
+                        menuInflater.inflate(R.menu.backup_submenu, menu)
+                        setOnMenuItemClickListener {handleMenuRequest(it)}
+                    }
+
+                    val menuHelper = MenuPopupHelper(callingActivity, menu.menu as MenuBuilder, view)
+                    menuHelper.setForceShowIcon(true)
+                    menuHelper.show()
+                }
                 R.id.searchButton -> handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument)
                 R.id.settingsButton -> {
                     handlerIntent = Intent(callingActivity, SettingsActivity::class.java)
