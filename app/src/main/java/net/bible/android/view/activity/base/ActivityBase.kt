@@ -73,11 +73,13 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             Log.d(TAG, "NOT Fullscreen")
             window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
             window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             setLightsOutMode(false)
         } else {
             Log.d(TAG, "Fullscreen")
             window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE
             setLightsOutMode(true)
         }
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The main menu accessed via Menu key
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
+
+
+    <item android:id="@+id/searchButton"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_24dp"
+		appcompat:showAsAction="ifRoom"
+        />
+
+	<item android:id="@+id/windowSubMenu"
+		  android:title="@string/window"
+		  android:icon="@drawable/ic_view_stream_white_24dp"
+		  appcompat:showAsAction="ifRoom"
+		>
+		<menu>
+		    <!-- window_popup_menu.xml is programatically included here -->
+		</menu>
+	</item>
+</menu>

@@ -386,6 +386,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="mynote_saved">My Note saved</string>
     
     <!-- Backup and restore -->
+    <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup">Backup</string>
     <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
     <string name="restore">Restore</string>
@@ -439,4 +440,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="download_documents">Downloading documents</string>
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
+    <string name="menu">Menu</string>
+    <string name="rate_application">Rate in Play Store</string>
+    <string name="chooce_document">Chooce Document</string>
 </resources>

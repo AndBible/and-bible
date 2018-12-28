@@ -4,20 +4,18 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="horizontal"
     android:layout_width="wrap_content"
     android:layout_height="fill_parent">
-	<LinearLayout android:id="@+id/documentTitleContainer"
-              android:layout_width="wrap_content"
-              android:layout_height="fill_parent"
-              android:layout_gravity="center"
-              android:orientation="vertical">
-	    <TextView android:id="@+id/documentTitle"
-	        	  style="@style/ActionBarTitle1"/>
-	    <TextView android:id="@+id/documentSubtitle"
-	        	  style="@style/ActionBarTitle2"/>
-	</LinearLayout>
-	
+
+	<ImageButton
+		android:id="@+id/homeButton"
+		style="@style/Widget.AppCompat.ActionButton"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:contentDescription="@string/menu"
+		app:srcCompat="@drawable/ic_menu" />
 	<LinearLayout android:id="@+id/pageTitleContainer"
               android:layout_width="wrap_content"
               android:layout_height="fill_parent"
@@ -25,9 +23,8 @@
               android:orientation="vertical"
               android:layout_marginLeft="5dip">
 	    <TextView android:id="@+id/pageTitle"
-	        	  style="@style/ActionBarTitle1"/>
-	    <TextView android:id="@+id/pageSubtitle"
-	        	  style="@style/ActionBarTitle2"/>
+			style="@style/BibleTitle1"/>
+		<TextView android:id="@+id/documentTitle"
+			style="@style/BibleTitle2"/>
 	</LinearLayout>
-	
 </LinearLayout>

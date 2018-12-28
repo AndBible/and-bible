@@ -20,11 +20,12 @@ package net.bible.android.view.activity.page;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Handler;
 import androidx.annotation.NonNull;
+import androidx.core.view.GestureDetectorCompat;
+
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -104,16 +105,18 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	// remember current background colour so we know when it changes
 	private Boolean wasNightMode;
 
+	GestureDetectorCompat gestureDetector;
+
 	private static final String TAG = "BibleView";
 
 	/**
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
 	 */
-	public BibleView(Context context, Window window, WindowControl windowControl,
+	public BibleView(final MainBibleActivity mainBibleActivity, Window window, WindowControl windowControl,
 					 BibleKeyHandler bibleKeyHandler, PageControl pageControl,
 					 PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
-		super(context);
+		super(mainBibleActivity);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			if (0 != (BibleApplication.Companion.getApplication().getApplicationInfo().flags
 					& ApplicationInfo.FLAG_DEBUGGABLE)) {
@@ -126,6 +129,17 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		this.pageControl = pageControl;
 		this.pageTiltScrollControl = pageTiltScrollControl;
 		this.linkControl = linkControl;
+
+		gestureDetector = new GestureDetectorCompat(getContext(), new BibleGestureListener(mainBibleActivity));
+		setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(gestureDetector.onTouchEvent(event)) {
+					return true;
+				}
+				return v.performClick();
+			}
+		});
 	}
 
 	/**

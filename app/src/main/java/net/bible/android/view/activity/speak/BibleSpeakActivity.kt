@@ -91,7 +91,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.speak_options, menu)
+        menuInflater.inflate(R.menu.speak_bible_actionbar_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

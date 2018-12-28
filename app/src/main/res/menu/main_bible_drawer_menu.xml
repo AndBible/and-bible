@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="@string/bible">
+        <menu>
+            <item android:id="@+id/chooceDocumentButton"
+                android:title="@string/chooce_document"
+                android:icon="@drawable/ic_book_white_24dp"
+                />
+
+            <item android:id="@+id/bookmarksButton"
+                android:title="@string/bookmarks"
+                android:icon="@drawable/ic_collections_bookmark_24dp"
+                />
+
+            <item android:id="@+id/mynotesButton"
+                android:title="@string/mynotes"
+                android:icon="@drawable/ic_pen_24dp"/>
+
+            <item android:id="@+id/dailyReadingPlanButton"
+                android:title="@string/rdg_plan_title"
+                android:icon="@drawable/ic_format_list_numbered_white_24dp"/>
+
+            <item android:id="@+id/speakButton"
+                android:title="@string/speak"
+                android:icon="@drawable/ic_hearing_24dp"/>
+
+            <item 	android:id="@+id/historyButton"
+                android:title="@string/history"
+                android:icon="@drawable/ic_history_white_24dp"/>
+        </menu>
+    </item>
+    <item
+        android:title="@string/administration">
+        <menu>
+            <item android:id="@+id/downloadButton"
+                android:title="@string/download"
+                android:icon="@drawable/ic_file_download_24dp"/>
+
+            <item android:id="@+id/installZipButton"
+                android:title="@string/install_zip"
+                android:icon="@drawable/ic_unarchive_white_24dp"/>
+
+
+            <item android:id="@+id/manageLabels"
+                android:title="@string/manage_labels"
+                android:icon="@drawable/ic_label_multiple_24dp"/>
+
+            <item android:id="@+id/settingsButton"
+                android:title="@string/settings"
+                android:icon="@drawable/ic_settings_white_24dp"/>
+
+			<item android:id="@+id/backupMainMenu"
+				  android:title="@string/backup_and_restore"
+				  android:icon="@drawable/ic_save_white_24dp"/>
+
+        </menu>
+    </item>
+    <item
+        android:title="@string/help">
+        <menu>
+            <item android:id="@+id/rateButton"
+                android:title="@string/rate_application"
+                android:icon="@drawable/ic_rate_review_white_24dp"/>
+
+            <item android:id="@+id/helpButton"
+                android:title="@string/help"
+                android:icon="@drawable/ic_help_white_24dp"/>
+        </menu>
+    </item>
+</menu>

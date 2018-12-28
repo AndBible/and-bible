@@ -25,16 +25,16 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import androidx.core.view.GestureDetectorCompat
 import androidx.appcompat.view.ActionMode
 import android.util.Log
 import android.view.ContextMenu
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import androidx.core.view.GravityCompat
+import kotlinx.android.synthetic.main.main_bible_view.*
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -69,9 +69,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionModeMediator.ActionModeMenuDisplay {
-    // detect swipe left/right
-    private lateinit var gestureDetector: GestureDetectorCompat
+class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_menu), VerseActionModeMediator.ActionModeMenuDisplay {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
@@ -102,6 +100,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         super.onCreate(savedInstanceState, true)
 
         setContentView(R.layout.main_bible_view)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            drawerLayout.closeDrawers()
+            mainMenuCommandHandler.handleMenuRequest(menuItem)
+        }
 
         DaggerMainBibleActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
@@ -112,7 +114,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         super.setActionBarManager(bibleActionBarManager)
 
         // create related objects
-        gestureDetector = GestureDetectorCompat(this, BibleGestureListener(this))
         documentViewManager.buildView()
 
         // register for passage change and appToBackground events
@@ -122,6 +123,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         PassageChangeMediator.getInstance().forcePageUpdate()
         refreshScreenKeepOn()
         requestSdcardPermission()
+    }
+
+    fun onHomeButtonClick() {
+        if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawers();
+        }
+        else {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
     }
 
     private fun refreshScreenKeepOn() {
@@ -386,20 +396,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
     fun previous() {
         if (documentViewManager.documentView.isPagePreviousOkay) {
             windowControl.activeWindowPageManager.currentPage.previous()
-        }
-    }
-
-    // handle swipe left and right
-    // http://android-journey.blogspot.com/2010_01_01_archive.html
-    //http://android-journey.blogspot.com/2010/01/android-gestures.html
-    // above dropped in favour of simpler method below
-    //http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
-    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
-        // should only call super if below returns false
-        return if (this.gestureDetector.onTouchEvent(motionEvent)) {
-            true
-        } else {
-            super.dispatchTouchEvent(motionEvent)
         }
     }
 
