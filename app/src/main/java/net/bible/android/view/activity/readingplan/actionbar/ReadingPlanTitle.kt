@@ -111,9 +111,6 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
         update(true)
 
-        // do not display the app icon in the actionbar
-        //actionBar.setDisplayShowHomeEnabled(false)
-
         // remove a small amount of extra padding at the left of the actionbar see: http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
         val toolbar = actionBar.customView.parent
         if (toolbar is Toolbar) {
