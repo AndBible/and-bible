@@ -61,7 +61,7 @@ class MainBibleTitle @Inject constructor(
         this.actionBar = actionBar
         this.activity = activity
 
-        actionBar.setCustomView(R.layout.maine_bible_title)
+        actionBar.setCustomView(R.layout.main_bible_title)
         homeButton = actionBar.customView.findViewById(R.id.homeButton)
         documentTitle = actionBar.customView.findViewById(R.id.documentTitle)
         pageTitle = actionBar.customView.findViewById(R.id.pageTitle)
