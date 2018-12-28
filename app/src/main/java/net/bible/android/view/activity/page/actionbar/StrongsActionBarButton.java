@@ -71,7 +71,12 @@ public class StrongsActionBarButton extends QuickActionButton {
 		return CommonUtils.getResourceString(isStrongsVisible() ? R.string.strongs_toggle_button_on : R.string.strongs_toggle_button_off);
 	}
 
-	/** 
+	@Override
+	protected int getIcon() {
+		return R.drawable.ic_code_white_24dp;
+	}
+
+	/**
 	 * return true if Strongs are relevant to this doc & screen
 	 * Don't show with speak button on narrow screen to prevent over-crowding 
 	 */
