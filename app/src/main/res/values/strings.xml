@@ -294,7 +294,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_bookmarking_settings_title">Bookmarking Settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
     <string name="speak_advanced_settings">Advanced Settings</string>
-    <string name="speak_settings_activity_title">More Speak Settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
     <string name="speak_no_books_available">No books available to speak</string>

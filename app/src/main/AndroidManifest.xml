@@ -151,8 +151,10 @@
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
         <activity android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
-                  android:label="@string/speak_settings_activity_title"
-                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+                  android:label="@string/speak_advanced_settings"
+                  android:configChanges="keyboardHidden|orientation|screenSize|locale"
+                  android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity"
+            >
         </activity>
         <activity android:name="net.bible.android.view.activity.download.FirstDownload"
 				  android:label="@string/download"

@@ -26,6 +26,8 @@ import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
@@ -86,6 +88,25 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 android.R.drawable.ic_media_play
         )
         bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.speak_options, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.advancedSettings -> {
+                startActivity(Intent(this, SpeakSettingsActivity::class.java))
+                return true
+            }
+            R.id.systemSettings -> {
+                startActivity(Intent("com.android.settings.TTS_SETTINGS"))
+                return true
+            }
+        }
+        return false
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
@@ -167,12 +188,5 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             Log.e(TAG, "Error: ", e)
         }
         statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
-    }
-
-    fun openMoreSettings(button: View) {
-        startActivity(Intent(this, SpeakSettingsActivity::class.java))
-    }
-    fun openSystemSettings(button: View) {
-        startActivity(Intent("com.android.settings.TTS_SETTINGS"))
     }
 }
