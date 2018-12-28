@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.page
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -89,6 +90,7 @@ constructor(private val callingActivity: MainBibleActivity,
     /**
      * on Click handlers
      */
+    @SuppressLint("RestrictedApi")
     fun handleMenuRequest(menuItem: MenuItem): Boolean {
         var isHandled = false
 
