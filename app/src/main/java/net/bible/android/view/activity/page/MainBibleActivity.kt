@@ -35,6 +35,8 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import androidx.core.view.GravityCompat
+import kotlinx.android.synthetic.main.main_bible_view.*
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -102,6 +104,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         super.onCreate(savedInstanceState, true)
 
         setContentView(R.layout.main_bible_view)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            drawerLayout.closeDrawers()
+            mainMenuCommandHandler.handleMenuRequest(menuItem)
+        }
 
         DaggerMainBibleActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
@@ -122,6 +128,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main), VerseActionMo
         PassageChangeMediator.getInstance().forcePageUpdate()
         refreshScreenKeepOn()
         requestSdcardPermission()
+    }
+
+    fun onHomeButtonClick() {
+        if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawers();
+        }
+        else {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
     }
 
     private fun refreshScreenKeepOn() {

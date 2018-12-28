@@ -22,12 +22,14 @@ import android.app.Activity;
 import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
@@ -40,7 +42,7 @@ import javax.inject.Inject;
 @MainBibleActivityScope
 public class BibleActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
-	private final HomeTitle homeTitle;
+	private final MainBibleTitle mainBibleTitle;
 
 	private final BibleActionBarButton bibleActionBarButton;
 	private final CommentaryActionBarButton commentaryActionBarButton;
@@ -51,8 +53,19 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	private final SpeakStopActionBarButton stopActionBarButton;
 
 	@Inject
-	BibleActionBarManager(HomeTitle homeTitle, BibleActionBarButton bibleActionBarButton, CommentaryActionBarButton commentaryActionBarButton, DictionaryActionBarButton dictionaryActionBarButton, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, StrongsActionBarButton strongsActionBarButton, DocumentControl documentControl) {
-		this.homeTitle = homeTitle;
+	BibleActionBarManager(MainBibleTitle mainBibleTitle,
+						  BibleActionBarButton bibleActionBarButton,
+						  CommentaryActionBarButton commentaryActionBarButton,
+						  DictionaryActionBarButton dictionaryActionBarButton,
+						  SpeakActionBarButton speakActionBarButton,
+						  SpeakStopActionBarButton stopActionBarButton,
+						  StrongsActionBarButton strongsActionBarButton,
+						  DocumentControl documentControl,
+						  MainBibleActivity mainBibleActivity
+
+
+	) {
+		this.mainBibleTitle = mainBibleTitle;
 		this.bibleActionBarButton = bibleActionBarButton;
 		this.speakActionBarButton = speakActionBarButton;
 		this.stopActionBarButton = stopActionBarButton;
@@ -73,8 +86,12 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	@Override
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		super.prepareOptionsMenu(activity, menu, actionBar);
-		
-		homeTitle.addToBar(actionBar, activity);
+
+		//actionBar.setDisplayShowHomeEnabled(true);
+		//actionBar.setDisplayHomeAsUpEnabled(true);
+		//actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+		mainBibleTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right
 		stopActionBarButton.addToMenu(menu);
@@ -97,7 +114,7 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				homeTitle.update();
+				mainBibleTitle.update();
 				
 				bibleActionBarButton.update();
 				commentaryActionBarButton.update();
