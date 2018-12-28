@@ -1,10 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigointi</b>\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella.\nNapauta näytön alareunaa vierittääksesi tekstiä alas.\nKaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.\n\n<b>Valikko</b>\nSiirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Ylläpito / Lataa teoksia\n\n<b>Puhe</b>\nPaina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.\n\n<b>Oma kommentti</b>\nVoit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.\n\n<b>Kirjanmerkit</b>\nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.\n\n<b>Etsi</b>\nTekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)\n\n<b>Pikavalikot</b>\nPitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen.\nPitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja. \nPitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
   <string name="help_text">Siirry VALIKKO painikkeella toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai \'pyyhkäisemällä\' näyttöä sormella</string>
-  <string name="help_text_long"><b>Navigointi</b>\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella.\nNapauta näytön alareunaa vierittääksesi tekstiä alas.\nKaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.\n\n<b>Valikko</b>\nSiirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Ylläpito / Lataa teoksia\n\n<b>Puhe</b>\nPaina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.\n\n<b>Oma kommentti</b>\nVoit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.\n\n<b>Kirjanmerkit</b>\nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.\n\n<b>Etsi</b>\nTekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)\n\n<b>Pikavalikot</b>\nPitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen.\nPitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja. \nPitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta</string>
+  <string name="help_nav_title">Navigointi</string>
+  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella. Napauta näytön alareunaa vierittääksesi tekstiä alas. Kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.</string>
+  <string name="help_menu_title">Valikko</string>
+  <string name="help_menu_text">Siirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Ylläpito / Lataa teoksia</string>
+  <string name="help_speech_title">Puhe</string>
+  <string name="help_speech_text">Paina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.</string>
+  <string name="help_mynote_title">Omat kommentit</string>
+  <string name="help_mynote_text">Voit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.</string>
+  <string name="help_bookmarks_title">Kirjanmerkit</string>
+  <string name="help_bookmarks_text">Kirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.</string>
+  <string name="help_search_title">Etsi</string>
+  <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
+  <string name="help_contextmenus_title">Pikavalikot</string>
+  <string name="help_contextmenus_text">
+Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen. Pitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja.  Pitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta.</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
   <!--Main menu-->
@@ -138,6 +154,7 @@
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Lataa teos Zip-tiedostosta</string>
+  <string name="install_zip_module">Asenna raamattumoduuli</string>
   <string name="install_zip_successfull">Moduuli asennettiin onnistuneesti</string>
   <string name="extracting_zip_file">Puretaan Zip tiedostoa...</string>
   <string name="checking_zip_file">Tarkastetaan tiedostoa...</string>
@@ -231,10 +248,9 @@
   <string name="speak_bookmarking_settings_title">Kirjanmerkkien asetukset</string>
   <string name="speak_bookmarks_menu_title">Aloita puhe kirjanmerkistä</string>
   <string name="speak_advanced_settings">Lisäasetukset</string>
-  <string name="speak_settings_activity_title">Lisää puheasetuksia</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
-  <string name="conf_speak_synchronize">Synkronoi teksti puheen kanssa</string>
+  <string name="conf_speak_synchronize">Teksti seuraa puhetta</string>
   <string name="conf_speak_auto_bookmark">Automaattiset kirjanmerkit</string>
   <string name="conf_save_playback_settings_to_bookmarks">Tallenna soiton asetukset kirjanmerkkeihin</string>
   <string name="conf_replace_divinename">Korvaa Jumalan nimi Jahvella</string>
@@ -242,7 +258,7 @@
   <string name="conf_change_title">Otsikot</string>
   <string name="conf_speak_footnotes">Alaviitteet</string>
   <string name="conf_speak_sleep_timer">Aseta uniajastin</string>
-  <string name="conf_speak_multitranslation">Vertaa käännöksiä puhumalla kaikista näkyvillä olevista ikkunoista</string>
+  <string name="conf_speak_multitranslation">Puhu kaikista näkyvissä olevista ikkunoista</string>
   <string name="sleep_timer_title">Uniajastimen ajastus minuuteissa</string>
   <string name="sleep_timer_set">Aseta uniajastin. Ajastin asetettu: %d minuuttia</string>
   <string name="sleep_timer_started">Uniajastus aloitettu, %d minuuttia</string>
@@ -252,6 +268,8 @@
   <string name="widget_toggle_sleep_timer">Kytke uniajastin päälle</string>
   <string name="widget_bookmark_helptext">Puheen kirjanmerkkien pikapainikkeet tulevat tähän.</string>
   <string name="speak_status_stopped">pysäytetty</string>
+  <string name="speak_autobookmarking_disabled">Automaattiset kirjanmerkit poissa päältä!</string>
+  <string name="system_speak_settings">Avaa järjestelmän puheasetukset</string>
   <string name="speak_bookmark_help">Puheen kirjanmerkkien ohje</string>
   <string name="speak_help_auto_bookmark">
 Puheen kirjanmerkki lisätään automaattisesti kun puhe on keskeytetty tai lopetettu. 
@@ -307,6 +325,7 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="mynote_view_edit">Oma kommentti</string>
   <string name="mynote_saved">Oma kommentti tallennettiin</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
   <string name="backup">Varmuuskopioi</string>
   <string name="backup_success">Muistiinpanot ja kirjanmerkit on tallennettu kansioon %s muistikortilla.</string>
   <string name="restore">Palauta</string>
@@ -354,4 +373,7 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="download_documents">Dokumenttien lataaminen</string>
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
+  <string name="menu">Valikko</string>
+  <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
+  <string name="chooce_document">Valitse teos</string>
 </resources>
