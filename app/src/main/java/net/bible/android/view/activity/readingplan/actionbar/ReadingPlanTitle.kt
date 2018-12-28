@@ -16,18 +16,29 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar
+package net.bible.android.view.activity.readingplan.actionbar;
 
 import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.TextView
 
+import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.view.activity.base.actionbar.Title
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.TitleSplitter
 
+import org.apache.commons.lang3.ArrayUtils
+import org.apache.commons.lang3.StringUtils
 import javax.inject.Inject
 
 /**
@@ -35,42 +46,162 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
+
 @ApplicationScope
 class ReadingPlanTitle @Inject
-constructor(private val readingPlanControl: ReadingPlanControl) : Title() {
+constructor(private val readingPlanControl: ReadingPlanControl) {
 
-    override val documentTitleParts: Array<String>
+
+    private lateinit var actionBar: ActionBar
+    protected lateinit var activity: Activity
+        private set
+
+    private lateinit var documentTitle: TextView
+    private lateinit var documentSubtitle: TextView
+    private lateinit var pageTitle: TextView
+    private lateinit var pageSubtitle: TextView
+
+    private val twoPageTitleParts: Array<String>
+        get() {
+            try {
+                return unsplitIfLandscape(pageTitleParts)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting reading plan title", e)
+                return arrayOf("", "")
+            }
+
+        }
+
+    private val twoDocumentTitleParts: Array<String>
+        get() {
+            try {
+                return unsplitIfLandscape(documentTitleParts)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting reading plan title", e)
+                return arrayOf("", "")
+            }
+
+        }
+
+    fun addToBar(actionBar: ActionBar, activity: Activity) {
+        this.actionBar = actionBar
+        this.activity = activity
+
+        actionBar.setCustomView(R.layout.reading_plan_title)
+        val homeButton: ImageButton = actionBar.customView.findViewById(R.id.homeButton)
+        homeButton.visibility = View.GONE
+        
+        documentTitle = actionBar.customView.findViewById(R.id.documentTitle)
+        documentSubtitle = actionBar.customView.findViewById(R.id.documentSubtitle)
+        pageTitle = actionBar.customView.findViewById(R.id.pageTitle)
+        pageSubtitle = actionBar.customView.findViewById(R.id.pageSubtitle)
+
+
+        // clicking document title shows document selector
+        val documentTitleContainer = actionBar.customView.findViewById<ViewGroup>(R.id.documentTitleContainer)
+        documentTitleContainer.setOnClickListener { onDocumentTitleClick() }
+
+        // clicking page title shows appropriate key selector
+        val pageTitleContainer = actionBar.customView.findViewById<ViewGroup>(R.id.pageTitleContainer)
+        pageTitleContainer.setOnClickListener { onPageTitleClick() }
+
+        actionBar.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM or ActionBar.DISPLAY_SHOW_HOME
+
+        update(true)
+
+        // do not display the app icon in the actionbar
+        //actionBar.setDisplayShowHomeEnabled(false)
+
+        // remove a small amount of extra padding at the left of the actionbar see: http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
+        val toolbar = actionBar.customView.parent
+        if (toolbar is Toolbar) {
+            toolbar.setContentInsetsAbsolute(0, 0)
+        }
+    }
+
+
+    fun update() {
+        // update everything if called externally
+        update(true)
+    }
+
+    protected fun update(everything: Boolean) {
+        CurrentActivityHolder.getInstance().runOnUiThread {
+            // always update verse number
+            val pageParts = twoPageTitleParts
+            if (pageParts.size > 0) pageTitle.text = pageParts[0]
+            if (pageParts.size > 1) pageSubtitle.text = pageParts[1]
+            pageSubtitle.visibility = if (pageParts.size > 1) View.VISIBLE else View.GONE
+
+            // don't always need to redisplay document name
+            if (everything) {
+                val documentParts = twoDocumentTitleParts
+                if (documentParts.size > 0) documentTitle.text = documentParts[0]
+                if (documentParts.size > 1) documentSubtitle.text = documentParts[1]
+                documentSubtitle.visibility = if (documentParts.size > 1) View.VISIBLE else View.GONE
+            }
+        }
+    }
+
+    protected fun getTwoTitleParts(title: String, lastAreMoreSignificant: Boolean): Array<String> {
+        var parts: Array<String>? = titleSplitter.split(title)
+        parts = reduceTo2Parts(parts, lastAreMoreSignificant)
+        return parts
+    }
+
+    private fun reduceTo2Parts(parts: Array<String>?, lastAreMoreSignificant: Boolean): Array<String> {
+        var parts = parts
+        // return the last 2 parts as only show 2 and last are normally most significant
+        if (lastAreMoreSignificant) {
+            parts = ArrayUtils.subarray(parts, parts!!.size - 2, parts.size)
+        } else {
+            parts = ArrayUtils.subarray(parts, 0, 2)
+        }
+        return parts
+    }
+
+    private fun unsplitIfLandscape(parts: Array<String>): Array<String> {
+        var parts = parts
+        // un-split if in landscape because landscape actionBar has more width but less height
+        if (!CommonUtils.isPortrait()) {
+            parts = arrayOf(StringUtils.join(parts, " "))
+        }
+        return parts
+    }
+
+    private val documentTitleParts: Array<String>
         get() {
             val title = readingPlanControl.shortTitle
             return getTwoTitleParts(title, false)
         }
 
-    override val pageTitleParts: Array<String>
+    private val pageTitleParts: Array<String>
         get() {
             val planDayDesc = readingPlanControl.currentDayDescription
             return getTwoTitleParts(planDayDesc, true)
         }
 
-    override fun addToBar(actionBar: ActionBar, activity: Activity) {
-        super.addToBar(actionBar, activity)
-
-    }
-
-    override fun onDocumentTitleClick() {
+    private fun onDocumentTitleClick() {
         val readingPlanActivity = activity
         val docHandlerIntent = Intent(readingPlanActivity, ReadingPlanSelectorList::class.java)
         readingPlanActivity.startActivityForResult(docHandlerIntent, 1)
         readingPlanActivity.finish()
     }
 
-    override fun onPageTitleClick() {
+    private fun onPageTitleClick() {
         val currentActivity = activity
         val pageHandlerIntent = Intent(currentActivity, DailyReadingList::class.java)
         currentActivity.startActivityForResult(pageHandlerIntent, 1)
         currentActivity.finish()
     }
 
-    override fun onHomeButtonClick() {
+    companion object {
 
+        private val titleSplitter = TitleSplitter()
+
+        private val TAG = "Title"
     }
+
 }

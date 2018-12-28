@@ -31,6 +31,16 @@
 	</style>
 
 	<!-- Custom left title text -->
+	<style name="BibleTitle1" parent="ActionBarTitle">
+		<item name="android:textSize">16sp</item>
+		<item name="android:gravity">center</item>
+	</style>
+	<style name="BibleTitle2" parent="ActionBarTitle">
+		<item name="android:gravity">center|top</item>
+		<item name="android:textSize">12sp</item>
+	</style>
+
+	<!-- Custom left title text -->
 	<style name="ActionBarTitle1" parent="ActionBarTitle">
 		<item name="android:gravity">center</item>
 	</style>
