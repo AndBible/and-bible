@@ -8,24 +8,24 @@
 
 	<item android:id="@+id/windowNew"
 		  android:title="@string/new_item"
-		  android:icon="@android:drawable/ic_menu_add"/>
+		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
 	<item android:id="@+id/windowMaximise"
 		  android:title="@string/windowMaximise"
 		  android:checkable="true"
 		  android:checked="false"
-		  android:icon="@drawable/ic_menu_maximise"/>
+		  android:icon="@drawable/ic_zoom_out_map_white_24dp"/>
 	<item android:id="@+id/windowMinimise"
 		  android:title="@string/windowMinimise"
-		  android:icon="@drawable/ic_menu_minimise"/>
+		  android:icon="@drawable/ic_photo_size_select_small_white_24dp"/>
 	<item android:id="@+id/windowClose"
 		  android:title="@string/windowClose"
-		  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+		  android:icon="@drawable/ic_close_white_24dp"/>
 	<item android:id="@+id/windowSynchronise"
 		  android:title="@string/windowSynchronise"
-		  android:icon="@android:drawable/ic_media_pause"
+		  android:icon="@drawable/ic_sync_white_24dp"
 		  android:checkable="true"
 		  android:checked="true"/>
 	<item android:id="@+id/windowMoveFirst"
 		  android:title="@string/windowMoveFirst"
-		  android:icon="@android:drawable/arrow_up_float"/>
+		  android:icon="@drawable/ic_arrow_drop_up_white_24dp"/>
 </menu>

@@ -15,7 +15,7 @@
 
 	<item android:id="@+id/windowSubMenu"
 		  android:title="@string/window"
-		  android:icon="@drawable/ic_view_stream_white_24dp"
+		  android:icon="@drawable/ic_border_horizontal_white_24dp"
 		  appcompat:showAsAction="ifRoom"
 		>
 		<menu>
