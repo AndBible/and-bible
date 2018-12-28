@@ -21,6 +21,9 @@ package net.bible.android.view.activity.page.screen;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.PopupMenu.OnMenuItemClickListener;
 import android.util.Log;
@@ -422,6 +425,7 @@ public class DocumentWebViewBuilder {
 			this.window = window;
 		}
 
+		@SuppressLint("RestrictedApi")
 		@Override
 		public boolean onLongClick(View v) {
 			// ensure actions affect the right window
@@ -441,10 +445,11 @@ public class DocumentWebViewBuilder {
 			    
 			// enable/disable and set synchronised checkbox
 			windowControl.updateOptionsMenu(popup.getMenu());
-			    
-			CommonUtils.forcePopupMenuToShowIcons(popup);
-			    
-			popup.show();
+
+			MenuPopupHelper menuHelper = new MenuPopupHelper(mainBibleActivity, (MenuBuilder) popup.getMenu(), v);
+			menuHelper.setForceShowIcon(true);
+			menuHelper.show();
+
 			return true;
 		}
 	}
