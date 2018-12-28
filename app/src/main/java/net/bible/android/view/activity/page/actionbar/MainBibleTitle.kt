@@ -34,6 +34,7 @@ import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
+import org.crosswire.jsword.passage.Verse
 
 import javax.inject.Inject
 
@@ -115,7 +116,13 @@ class MainBibleTitle @Inject constructor(
         get() = pageControl.currentPageManager.currentPassageDocument.name
 
     private val pageTitleText: String
-        get() = pageControl.currentBibleVerse.name
+        get() {
+            var ver = pageControl.currentBibleVerse
+            if(ver.verse == 0){
+                ver = Verse(ver.versification, ver.book, ver.chapter, 1)
+            }
+            return ver.name
+        }
 
 
     /**
