@@ -25,14 +25,12 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import androidx.core.view.GestureDetectorCompat
 import androidx.appcompat.view.ActionMode
 import android.util.Log
 import android.view.ContextMenu
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import androidx.core.view.GravityCompat
@@ -72,8 +70,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_menu), VerseActionModeMediator.ActionModeMenuDisplay {
-    // detect swipe left/right
-    private lateinit var gestureDetector: GestureDetectorCompat
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
@@ -118,7 +114,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
         super.setActionBarManager(bibleActionBarManager)
 
         // create related objects
-        gestureDetector = GestureDetectorCompat(this, BibleGestureListener(this))
         documentViewManager.buildView()
 
         // register for passage change and appToBackground events
@@ -401,20 +396,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
     fun previous() {
         if (documentViewManager.documentView.isPagePreviousOkay) {
             windowControl.activeWindowPageManager.currentPage.previous()
-        }
-    }
-
-    // handle swipe left and right
-    // http://android-journey.blogspot.com/2010_01_01_archive.html
-    //http://android-journey.blogspot.com/2010/01/android-gestures.html
-    // above dropped in favour of simpler method below
-    //http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
-    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
-        // should only call super if below returns false
-        return if (this.gestureDetector.onTouchEvent(motionEvent)) {
-            true
-        } else {
-            super.dispatchTouchEvent(motionEvent)
         }
     }
 
