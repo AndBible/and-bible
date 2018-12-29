@@ -203,13 +203,10 @@ class DocumentWebViewBuilder @Inject constructor(
                     previousSeparator = separator
                 }
 
-                // leave main window clear of distracting minimise button, but simplify unmaximise
-                if (windowNo != 0 || window.isMaximised) {
-                    // create default action button for top right of each window
-                    val defaultWindowActionButton = createDefaultWindowActionButton(window)
-                    currentWindowFrameLayout.addView(defaultWindowActionButton,
-                            FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
-                }
+                // create default action button for top right of each window
+                val defaultWindowActionButton = createDefaultWindowActionButton(window)
+                currentWindowFrameLayout.addView(defaultWindowActionButton,
+                        FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
 
                 windowNo++
             }
