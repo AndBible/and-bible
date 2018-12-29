@@ -5,18 +5,10 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-
-
-    <item android:id="@+id/searchButton"
-        android:title="@string/search"
-        android:icon="@drawable/ic_search_24dp"
-		appcompat:showAsAction="ifRoom"
-        />
-
 	<item android:id="@+id/windowSubMenu"
 		  android:title="@string/window"
 		  android:icon="@drawable/ic_border_horizontal_white_24dp"
-		  appcompat:showAsAction="ifRoom"
+		  appcompat:showAsAction="always"
 		>
 		<menu>
 		    <!-- window_popup_menu.xml is programatically included here -->
