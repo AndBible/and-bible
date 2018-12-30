@@ -1,240 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
->
+    android:orientation="vertical">
 
-	<androidx.appcompat.widget.Toolbar
-		android:id="@+id/toolbar"
-		android:layout_width="match_parent"
-		android:layout_height="?attr/actionBarSize"
-		android:elevation="4dp"
-		/>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp" />
 
-<RelativeLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-        >
-    <ScrollView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_above="@id/buttonsLayout"
-            >
-        <LinearLayout
+            android:layout_alignParentTop="true">
+
+            <LinearLayout
                 android:id="@+id/panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:divider="@drawable/divider"
                 android:dividerPadding="@dimen/row_divider_padding"
+                android:orientation="vertical"
                 android:padding="5dip"
-                android:showDividers="middle"
-                >
-           <LinearLayout
+                android:showDividers="middle">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:dividerPadding="@dimen/row_divider_padding"
-                    android:showDividers="middle"
-                    >
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="15dip"/>
-                <LinearLayout
+                    android:orientation="vertical"
+                    android:showDividers="middle">
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dip" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-                    <TextView
+                        android:orientation="vertical">
+
+                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:padding="@dimen/speak_title_padding"
-                            android:textStyle="bold"
-                            android:textSize="@dimen/speak_titles_text_size"
                             android:text="@string/speak_settings_title"
-                            />
-                    <CheckBox
-                            android:text="@string/conf_speak_synchronize"
-                            android:layout_marginStart="@dimen/speak_row_padding"
+                            android:textSize="@dimen/speak_titles_text_size"
+                            android:textStyle="bold" />
+
+                        <CheckBox
+                            android:id="@+id/synchronize"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:id="@+id/synchronize"
+                            android:layout_marginStart="@dimen/speak_row_padding"
+                            android:layout_marginLeft="@dimen/speak_row_padding"
                             android:onClick="onSettingsChange"
-                        android:layout_marginLeft="@dimen/speak_row_padding" />
-                </LinearLayout>
-                <CheckBox
-                        android:text="@string/conf_replace_divinename"
+                            android:text="@string/conf_speak_synchronize" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/replaceDivineName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/speak_row_padding"
-                        android:id="@+id/replaceDivineName"
+                        android:layout_marginLeft="@dimen/speak_row_padding"
                         android:onClick="onSettingsChange"
-                    android:layout_marginLeft="@dimen/speak_row_padding" />
-                <CheckBox
-                    android:text="@string/conf_speak_multitranslation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/speak_row_padding"
-                    android:id="@+id/multiTranslation"
-                    android:onClick="onSettingsChange"
-                    android:layout_marginLeft="@dimen/speak_row_padding" />
-                <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="15dip"/>
-            </LinearLayout>
+                        android:text="@string/conf_replace_divinename" />
 
-            <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-                <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="15dip"/>
-                <RelativeLayout
+                    <CheckBox
+                        android:id="@+id/multiTranslation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        >
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:layout_marginLeft="@dimen/speak_row_padding"
+                        android:onClick="onSettingsChange"
+                        android:text="@string/conf_speak_multitranslation" />
 
-                    <TextView
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dip" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/speak_titles_text_size"
-                            android:padding="@dimen/speak_title_padding"
                             android:layout_alignParentStart="true"
-                            android:textStyle="bold"
+                            android:layout_alignParentLeft="true"
+                            android:padding="@dimen/speak_title_padding"
                             android:text="@string/speak_bookmarking_settings_title"
-                        android:layout_alignParentLeft="true" />
+                            android:textSize="@dimen/speak_titles_text_size"
+                            android:textStyle="bold" />
 
-                    <ImageButton
+                        <ImageButton
                             android:id="@+id/bookmarkHelpButton"
-                            android:src="@android:drawable/ic_menu_help"
-                            android:contentDescription="@string/speak_bookmark_help"
+                            style="@style/Widget.Design.FloatingActionButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
                             android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/speak_bookmark_help"
                             android:onClick="onHelpButtonClick"
-                            style="@style/Widget.Design.FloatingActionButton"
-                        android:layout_alignParentRight="true" />
-                </RelativeLayout>
+                            android:src="@android:drawable/ic_menu_help" />
+                    </RelativeLayout>
 
-                <LinearLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_marginStart="@dimen/speak_row_padding"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                    android:layout_marginLeft="@dimen/speak_row_padding">
+                        android:layout_marginStart="@dimen/speak_row_padding"
+                        android:layout_marginLeft="@dimen/speak_row_padding"
+                        android:orientation="vertical">
 
-                    <CheckBox
-                            android:text="@string/conf_speak_auto_bookmark"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                        <CheckBox
                             android:id="@+id/autoBookmark"
-                            android:onClick="onSettingsChange"/>
-
-                    <CheckBox
-                            android:text="@string/conf_save_playback_settings_to_bookmarks"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:onClick="onSettingsChange"
+                            android:text="@string/conf_speak_auto_bookmark" />
+
+                        <CheckBox
                             android:id="@+id/restoreSettingsFromBookmarks"
-                            android:onClick="onSettingsChange"/>
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:onClick="onSettingsChange"
+                            android:text="@string/conf_save_playback_settings_to_bookmarks" />
 
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
-     <LinearLayout
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
             android:id="@+id/buttonsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentBottom="true"
-            >
+            android:orientation="vertical">
 
 
-        <TextView
+            <TextView
+                android:id="@+id/statusText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/speak_status_background"
+                android:paddingStart="@dimen/speak_row_padding"
+                android:paddingLeft="@dimen/speak_row_padding"
                 android:paddingTop="5dip"
                 android:paddingBottom="5dip"
-                android:paddingStart="@dimen/speak_row_padding"
-                android:id="@+id/statusText"
-                android:background="@color/speak_status_background"
-                android:text="*Gen.1.1*"
-            android:paddingLeft="@dimen/speak_row_padding" />
+                android:text="*Gen.1.1*" />
 
-        <!-- Button bar with OK button -->
-        <LinearLayout
+            <!-- Button bar with OK button -->
+            <LinearLayout
                 android:id="@+id/button_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-            <ImageButton
+                android:orientation="horizontal">
+
+                <ImageButton
                     android:id="@+id/bookmarkButton"
-                    app:srcCompat="@drawable/ic_bookmark_24dp"
-                    android:contentDescription="@string/bookmarks"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:onClick="onBookmarkButtonClick"/>
-            <ImageButton
+                    android:contentDescription="@string/bookmarks"
+                    android:onClick="onBookmarkButtonClick"
+                    app:srcCompat="@drawable/ic_bookmark_24dp" />
+
+                <ImageButton
                     android:id="@+id/rewindButton"
-                    android:src="@android:drawable/ic_media_rew"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:contentDescription="@string/rewind"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
+                    android:onClick="onButtonClick"
+                    android:src="@android:drawable/ic_media_rew" />
+
+                <ImageButton
                     android:id="@+id/prevButton"
-                    android:src="@android:drawable/ic_media_previous"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:onClick="onButtonClick"
                     android:contentDescription="@string/speak_previous"
-                    />
-            <ImageButton
-                    android:id="@+id/stopButton"
-                    android:src="@drawable/ic_media_stop"
-                    android:contentDescription="@string/stop"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
-                    android:id="@+id/speakPauseButton"
-                    android:src="@android:drawable/ic_media_play"
-                    android:contentDescription="@string/speak"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
-                    android:id="@+id/nextButton"
-                    android:src="@android:drawable/ic_media_next"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:onClick="onButtonClick"
-                    android:contentDescription="@string/speak_next"/>
-            <ImageButton
-                    android:id="@+id/forwardButton"
-                    android:src="@android:drawable/ic_media_ff"
-                    android:contentDescription="@string/forward"
+                    android:src="@android:drawable/ic_media_previous" />
+
+                <ImageButton
+                    android:id="@+id/stopButton"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
+                    android:contentDescription="@string/stop"
+                    android:onClick="onButtonClick"
+                    android:src="@drawable/ic_media_stop" />
+
+                <ImageButton
+                    android:id="@+id/speakPauseButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/speak"
+                    android:onClick="onButtonClick"
+                    android:src="@android:drawable/ic_media_play" />
+
+                <ImageButton
+                    android:id="@+id/nextButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/speak_next"
+                    android:onClick="onButtonClick"
+                    android:src="@android:drawable/ic_media_next" />
+
+                <ImageButton
+                    android:id="@+id/forwardButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/forward"
+                    android:onClick="onButtonClick"
+                    android:src="@android:drawable/ic_media_ff" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</RelativeLayout>
+    </RelativeLayout>
 </LinearLayout>
