@@ -59,6 +59,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 
@@ -85,6 +86,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
 
+    override var nightTheme = R.style.MainBibleViewNightTheme
+    override var dayTheme = R.style.MainBibleViewTheme
+
     /**
      * return percentage scrolled down page
      */
@@ -100,6 +104,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
         super.onCreate(savedInstanceState, true)
 
         setContentView(R.layout.main_bible_view)
+        setSupportActionBar(toolbar)
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)

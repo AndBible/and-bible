@@ -30,6 +30,7 @@ import android.view.View
 import android.view.WindowManager
 
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.util.locale.LocaleHelper
@@ -63,6 +64,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
+    protected open var nightTheme = R.style.AppThemeNight
+    protected open var dayTheme = R.style.AppThemeDay
+
     /**
      * Are all activities currently in full screen mode
      */
@@ -89,13 +93,22 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         this.onCreate(savedInstanceState, false)
     }
 
+    fun applyTheme() {
+        ScreenSettings.isNightModeChanged()
+        if (ScreenSettings.isNightMode()) {
+            setTheme(nightTheme)
+        } else {
+            setTheme(dayTheme)
+        }
+    }
+
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?, integrateWithHistoryManager: Boolean) {
-        super.onCreate(savedInstanceState)
-
         if (allowThemeChange) {
-            UiUtils.applyTheme(this)
+            applyTheme()
         }
+
+        super.onCreate(savedInstanceState)
 
         Log.i(localClassName, "onCreate:" + this)
 

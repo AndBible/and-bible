@@ -93,5 +93,6 @@
 	<color name="yellow_A400">#ffea00</color>
 	<color name="yellow_A700">#ffd600</color>
 	<color name="speak_status_background">#7eeceff1</color>
+	<color name="white">#ffffff</color>
 
 </resources>

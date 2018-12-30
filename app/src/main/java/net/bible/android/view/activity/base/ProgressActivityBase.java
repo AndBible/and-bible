@@ -62,7 +62,7 @@ public class ProgressActivityBase extends CustomTitlebarActivityBase {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		UiUtils.applyTheme(this);
+		applyTheme();
 	}
 
 	/** Wait until subclass has setContentView before looking for controls. */

@@ -30,6 +30,21 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="MainBibleActionBar" parent="MainBibleViewTheme">
+		<item name="android:textColorPrimary">@color/white</item>
+		<item name="android:textColorSecondary">@color/white</item>
+		<item name="android:itemBackground">@color/grey_700</item>
+	</style>
+
+	<style name="MainBibleViewTheme" parent="AppThemeDay">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+	<style name="MainBibleViewNightTheme" parent="AppThemeNight">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
 	<!-- Custom left title text -->
 	<style name="BibleTitle1" parent="ActionBarTitle">
 		<item name="android:textSize">15sp</item>
@@ -65,5 +80,4 @@
 	<!--Make sure the passage chooser grids have a dark background -->
 	<style name="GridChoosePassageTheme" parent="AppThemeNight">
 	</style>
-
 </resources>
