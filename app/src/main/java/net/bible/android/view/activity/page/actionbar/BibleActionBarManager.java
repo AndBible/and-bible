@@ -36,42 +36,30 @@ import net.bible.service.device.speak.event.SpeakEvent;
 
 import javax.inject.Inject;
 
+
+// REMOVE
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @MainBibleActivityScope
 public class BibleActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
-	private final MainBibleTitle mainBibleTitle;
 
-	private final BibleActionBarButton bibleActionBarButton;
-	private final CommentaryActionBarButton commentaryActionBarButton;
-	private final DictionaryActionBarButton dictionaryActionBarButton;
-	private final StrongsActionBarButton strongsActionBarButton;
-	
 	private final SpeakActionBarButton speakActionBarButton;
 	private final SpeakStopActionBarButton stopActionBarButton;
 
 	@Inject
-	BibleActionBarManager(MainBibleTitle mainBibleTitle,
-						  BibleActionBarButton bibleActionBarButton,
-						  CommentaryActionBarButton commentaryActionBarButton,
-						  DictionaryActionBarButton dictionaryActionBarButton,
+	BibleActionBarManager(
 						  SpeakActionBarButton speakActionBarButton,
 						  SpeakStopActionBarButton stopActionBarButton,
-						  StrongsActionBarButton strongsActionBarButton,
 						  DocumentControl documentControl,
 						  MainBibleActivity mainBibleActivity
 
 
 	) {
-		this.mainBibleTitle = mainBibleTitle;
-		this.bibleActionBarButton = bibleActionBarButton;
 		this.speakActionBarButton = speakActionBarButton;
 		this.stopActionBarButton = stopActionBarButton;
-		this.commentaryActionBarButton = commentaryActionBarButton;
-		this.dictionaryActionBarButton = dictionaryActionBarButton;
-		this.strongsActionBarButton = strongsActionBarButton;
 
 		ABEventBus.getDefault().register(this);
 	}
@@ -87,16 +75,11 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		super.prepareOptionsMenu(activity, menu, actionBar);
 
-		mainBibleTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right
 		stopActionBarButton.addToMenu(menu);
 		speakActionBarButton.addToMenu(menu);
 
-		strongsActionBarButton.addToMenu(menu);
-		dictionaryActionBarButton.addToMenu(menu);
-		commentaryActionBarButton.addToMenu(menu);
-		bibleActionBarButton.addToMenu(menu);
 	}
 	
 	/* (non-Javadoc)
@@ -110,13 +93,8 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mainBibleTitle.update();
-				
-				bibleActionBarButton.update();
-				commentaryActionBarButton.update();
-				dictionaryActionBarButton.update();
-				strongsActionBarButton.update();
-				
+
+
 				speakActionBarButton.update();
 				stopActionBarButton.update();
 		    }

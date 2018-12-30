@@ -33,6 +33,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.PopupMenu
 import androidx.core.view.GravityCompat
 import kotlinx.android.synthetic.main.main_bible_view.*
 
@@ -44,10 +45,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.control.event.passage.PassageChangeStartedEvent
-import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
+import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
@@ -56,12 +54,14 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.Verse
 
 import javax.inject.Inject
 
@@ -70,7 +70,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_menu), VerseActionModeMediator.ActionModeMenuDisplay {
+class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.ActionModeMenuDisplay {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
@@ -80,7 +80,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject lateinit var bibleActionBarManager: BibleActionBarManager
     @Inject lateinit var bibleKeyHandler: BibleKeyHandler
     @Inject lateinit var backupControl: BackupControl
     @Inject lateinit var searchControl: SearchControl
@@ -88,6 +87,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
+
+    private val ACTION_BUTTON_MAX_CHARS = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
 
     /**
      * return percentage scrolled down page
@@ -105,6 +106,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
 
         setContentView(R.layout.main_bible_view)
         setSupportActionBar(toolbar)
+        toolbar.setContentInsetsAbsolute(0, 0)
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
@@ -117,7 +119,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
                 .build()
                 .inject(this)
 
-        super.setActionBarManager(bibleActionBarManager)
+        //super.setActionBarManager(bibleActionBarManager)
 
         // create related objects
         documentViewManager.buildView()
@@ -129,15 +131,100 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
         PassageChangeMediator.getInstance().forcePageUpdate()
         refreshScreenKeepOn()
         requestSdcardPermission()
+        updateTitle()
+        updateActionBarButtons()
     }
 
-    fun onHomeButtonClick() {
+    private val documentTitleText: String
+        get() = pageControl.currentPageManager.currentPassageDocument.name
+
+    private val pageTitleText: String
+        get() {
+            var ver = pageControl.currentBibleVerse
+            if(ver.verse == 0){
+                ver = Verse(ver.versification, ver.book, ver.chapter, 1)
+            }
+            return ver.name
+        }
+
+    private fun updateTitle() {
+        pageTitle.text = pageTitleText
+        documentTitle.text = documentTitleText
+    }
+
+    private val titleSplitter = TitleSplitter()
+
+    override fun updateActionBarButtons() {
+        val suggestedBible = documentControl.suggestedBible
+        val suggestedCommentary = documentControl.suggestedCommentary
+        val suggestedDictionary = documentControl.suggestedDictionary
+
+        bibleButton.visibility = if(suggestedBible != null) {
+            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+            View.VISIBLE
+        } else View.GONE
+        commentaryButton.visibility = if(suggestedCommentary != null) {
+            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+            View.VISIBLE
+        } else View.GONE
+        dictionaryButton.visibility = if(suggestedDictionary != null) {
+            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            View.VISIBLE
+        } else View.GONE
+
+        strongsButton.visibility = if(documentControl.isStrongsInBook) View.VISIBLE else View.GONE
+    }
+
+    fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
+        updateTitle()
+    }
+
+    fun menuForDocs(v: View, documents: List<Book>): Boolean {
+        val menu = PopupMenu(this, v)
+        documents.forEachIndexed { i, book ->
+            if(windowControl.activeWindow.pageManager.currentPage.currentDocument != book) {
+                menu.menu.add(Menu.NONE, i, Menu.NONE, "${book.abbreviation} (${book.language.code})")
+            }
+        }
+
+        menu.setOnMenuItemClickListener { item ->
+            windowControl.activeWindow.pageManager.setCurrentDocument(documents[item.itemId])
+        true
+        }
+        menu.show()
+        return true
+    }
+
+    private fun setCurrentDocument(book: Book?) = windowControl.activeWindow.pageManager.setCurrentDocument(book)
+
+    fun onBibleButtonClick(v: View) = setCurrentDocument(documentControl.suggestedBible)
+
+    fun onCommentaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedCommentary)
+
+    fun onDictionaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedDictionary)
+
+    fun onStrongsButtonClick(v: View) {
+        // update the show-strongs pref setting according to the ToggleButton
+        CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", !pageControl.isStrongsShown).apply()
+        // redisplay the current page; this will also trigger update of all menu items
+        PassageChangeMediator.getInstance().forcePageUpdate()
+    }
+
+
+    fun onHomeButtonClick(v: View) {
         if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawers();
         }
         else {
             drawerLayout.openDrawer(GravityCompat.START)
         }
+    }
+
+    fun onPageTitleClick(v: View) {
+        val intent = Intent(this, pageControl.currentPageManager.currentPage.keyChooserActivity)
+        startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
     }
 
     private fun refreshScreenKeepOn() {
@@ -191,8 +278,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(R.menu.main_bible_options_m
     fun onEvent(event: AppToBackgroundEvent) {
         if (event.isMovedToBackground) {
             mWholeAppWasInBackground = true
-        } else {
-            bibleActionBarManager.updateButtons()
+        }
+        else {
+            updateActionBarButtons()
         }
     }
 

@@ -94,7 +94,7 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
 
     /** update the quick links in the title bar
      */
-    fun updateActionBarButtons() {
+    open fun updateActionBarButtons() {
         actionBarManager.updateButtons()
     }
 
