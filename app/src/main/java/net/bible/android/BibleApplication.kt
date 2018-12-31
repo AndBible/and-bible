@@ -29,7 +29,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.multidex.MultiDexApplication
 
-import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
@@ -57,7 +56,6 @@ open class BibleApplication : MultiDexApplication() {
     var localeOverrideAtStartUp: String? = null
         private set
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
-    private var ttsWidgetManager: SpeakWidgetManager? = null
 
     val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, 0)
@@ -99,7 +97,6 @@ open class BibleApplication : MultiDexApplication() {
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
 
         ttsNotificationManager = TextToSpeechNotificationManager()
-        ttsWidgetManager = SpeakWidgetManager()
     }
 
     /**
@@ -201,7 +198,6 @@ open class BibleApplication : MultiDexApplication() {
     override fun onTerminate() {
         Log.i(TAG, "onTerminate")
         ttsNotificationManager!!.destroy()
-        ttsWidgetManager!!.destroy()
         super.onTerminate()
         ABEventBus.getDefault().unregisterAll()
     }
