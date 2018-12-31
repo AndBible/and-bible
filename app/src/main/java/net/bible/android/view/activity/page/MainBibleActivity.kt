@@ -230,8 +230,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
-
-
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {

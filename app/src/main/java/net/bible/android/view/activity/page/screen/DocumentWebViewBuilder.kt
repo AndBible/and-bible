@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.graphics.Typeface
+import android.os.Build
 
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -204,7 +205,11 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top right of each window
-                val defaultWindowActionButton = createDefaultWindowActionButton(window)
+                val defaultWindowActionButton = if(windowNo == 0 && !window.isMaximised) {
+                    createMainWindowButton(window)
+                } else {
+                    createDefaultWindowActionButton(window)
+                }
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
 
@@ -343,6 +348,12 @@ class DocumentWebViewBuilder @Inject constructor(
                 WindowButtonLongClickListener(window))
     }
 
+    private fun createMainWindowButton(window: Window): Button {
+        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "M"
+        return createTextButton(text, OnClickListener { showPopupWindow(window, it) },
+                WindowButtonLongClickListener(window))
+    }
+
     private fun createRestoreButton(window: Window): Button {
         // restore button
         return createTextButton(getDocumentInitial(window),
@@ -362,50 +373,55 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createTextButton(text: String, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener?): Button {
-        val button = Button(this.mainBibleActivity)
-        button.text = text
-        button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
-        button.width = BUTTON_SIZE_PX
-        button.height = BUTTON_SIZE_PX
-        button.setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-        button.setTypeface(null, Typeface.BOLD)
-        button.setSingleLine(true)
-        button.setOnClickListener(onClickListener)
-        button.setOnLongClickListener(onLongClickListener)
+        val button = Button(this.mainBibleActivity).apply {
+            this.text = text
+            setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
+            width = BUTTON_SIZE_PX
+            height = BUTTON_SIZE_PX
+            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
+            setTypeface(null, Typeface.BOLD)
+            setSingleLine(true)
+            setOnClickListener(onClickListener)
+            setOnLongClickListener(onLongClickListener)
+        }
         return button
     }
 
     private fun createImageButton(drawableId: Int, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener): Button {
-        val button = Button(this.mainBibleActivity)
-        button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
-        button.setBackgroundResource(drawableId)
-        button.width = BUTTON_SIZE_PX
-        button.height = BUTTON_SIZE_PX
-        button.setOnClickListener(onClickListener)
-        button.setOnLongClickListener(onLongClickListener)
+        val button = Button(this.mainBibleActivity).apply {
+            setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
+            setBackgroundResource(drawableId)
+            width = BUTTON_SIZE_PX
+            height = BUTTON_SIZE_PX
+            setOnClickListener(onClickListener)
+            setOnLongClickListener(onLongClickListener)
+        }
         return button
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun showPopupWindow(window: Window, view: View) {
+        // ensure actions affect the right window
+        windowControl.activeWindow = window
+
+        val popup = PopupMenu(mainBibleActivity, view)
+        popup.setOnMenuItemClickListener { menuItem -> windowMenuCommandHandler.handleMenuRequest(menuItem) }
+
+        val inflater = popup.menuInflater
+        inflater.inflate(R.menu.window_popup_menu, popup.menu)
+
+        // enable/disable and set synchronised checkbox
+        windowControl.updateOptionsMenu(popup.menu)
+
+        val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
+        menuHelper.setForceShowIcon(true)
+        menuHelper.show()
     }
 
     private inner class WindowButtonLongClickListener(private val window: Window) : OnLongClickListener {
 
-        @SuppressLint("RestrictedApi")
         override fun onLongClick(v: View): Boolean {
-            // ensure actions affect the right window
-            windowControl.activeWindow = window
-
-            val popup = PopupMenu(mainBibleActivity, v)
-            popup.setOnMenuItemClickListener { menuItem -> windowMenuCommandHandler.handleMenuRequest(menuItem) }
-
-            val inflater = popup.menuInflater
-            inflater.inflate(R.menu.window_popup_menu, popup.menu)
-
-            // enable/disable and set synchronised checkbox
-            windowControl.updateOptionsMenu(popup.menu)
-
-            val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, v)
-            menuHelper.setForceShowIcon(true)
-            menuHelper.show()
-
+            showPopupWindow(window, v)
             return true
         }
     }
