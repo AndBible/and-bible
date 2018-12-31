@@ -137,7 +137,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         refreshScreenKeepOn()
         requestSdcardPermission()
-        updateTitle()
         updateActionBarButtons()
         updateSpeakTransportVisibility()
     }
@@ -234,6 +233,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
+        updateTitle()
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
