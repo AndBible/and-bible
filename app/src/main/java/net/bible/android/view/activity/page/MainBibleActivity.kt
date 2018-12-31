@@ -162,22 +162,37 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedCommentary = documentControl.suggestedCommentary
         val suggestedDictionary = documentControl.suggestedDictionary
 
-        bibleButton.visibility = if(suggestedBible != null) {
-            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
-            bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
-            View.VISIBLE
-        } else View.GONE
-        commentaryButton.visibility = if(suggestedCommentary != null) {
-            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
-            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
-            View.VISIBLE
-        } else View.GONE
-        dictionaryButton.visibility = if(suggestedDictionary != null) {
-            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
+        var visibleButtonCount = 0
+
+        speakButton.visibility = if(speakControl.isStopped) {
+            visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        strongsButton.visibility = if(documentControl.isStrongsInBook) View.VISIBLE else View.GONE
+        strongsButton.visibility = if(documentControl.isStrongsInBook) {
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+        bibleButton.visibility = if(suggestedBible != null) {
+            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
+            bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < 4) {
+            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
+            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+        dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < 4) {
+            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
@@ -215,6 +230,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun updateSpeakTransportVisibility() {
         speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
+        updateActionBarButtons()
     }
 
     fun onBibleButtonClick(v: View) = setCurrentDocument(documentControl.suggestedBible)
@@ -222,6 +238,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     fun onCommentaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedCommentary)
 
     fun onDictionaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedDictionary)
+
+    fun onSpeakButtonClick(v: View) = speakControl.toggleSpeak()
 
     fun onStrongsButtonClick(v: View) {
         // update the show-strongs pref setting according to the ToggleButton
