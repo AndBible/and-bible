@@ -22,7 +22,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -101,7 +100,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     override fun buttonPressed(buttonInfo: ButtonInfo) {
         val verse = Verse(navigationControl.versification, mBibleBook, mBibleChapterNo, buttonInfo.id)
         Log.d(TAG, "Verse selected:$verse")
-        val resultIntent = Intent()
+        val resultIntent = Intent(this, GridChoosePassageBook::class.java)
         resultIntent.putExtra("verse", verse.osisID)
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
