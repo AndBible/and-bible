@@ -45,10 +45,6 @@
 		<item name="windowNoTitle">true</item>
 	</style>
 
-	<style name="MainBibleViewTransport">
-		<item name="android:colorBackground">#80b46464</item>
-	</style>
-
 	<!-- Custom left title text -->
 	<style name="BibleTitle1" parent="ActionBarTitle">
 		<item name="android:textSize">15sp</item>
