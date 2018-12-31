@@ -144,7 +144,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         val s = SpeakSettings.load()
         if(s.playbackSettings.verseRange != null) {
             s.playbackSettings.verseRange = null
-            s.save()
+            s.save(updateBookmark = true)
         }
         else {
             val intent = Intent(this, GridChoosePassageBook::class.java)
@@ -178,7 +178,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                     val verseRange = VerseRange(v11n, startVerse, endVerse)
                     val settings = SpeakSettings.load()
                     settings.playbackSettings.verseRange = verseRange
-                    settings.save()
+                    settings.save(updateBookmark = true)
                 }
                 else {
                     startVerse = null
