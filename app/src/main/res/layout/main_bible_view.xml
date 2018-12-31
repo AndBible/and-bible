@@ -25,13 +25,13 @@
             android:theme="@style/MainBibleActionBar">
 
             <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 >
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_alignParentStart="true">
 
                     <ImageButton
@@ -53,10 +53,12 @@
 
                         <TextView
                             android:id="@+id/pageTitle"
+                            android:maxWidth="150sp"
                             style="@style/BibleTitle1" />
 
                         <TextView
                             android:id="@+id/documentTitle"
+                            android:maxWidth="150sp"
                             style="@style/BibleTitle2" />
                     </LinearLayout>
                 </LinearLayout>
@@ -74,14 +76,17 @@
                         android:contentDescription="@string/strongs"
                         android:onClick="onSpeakButtonClick"
                         app:srcCompat="@drawable/ic_hearing_24dp" />
-                    <ImageButton
+
+                    <Button
                         android:id="@+id/strongsButton"
                         style="@style/Widget.AppCompat.ActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/strongs"
                         android:onClick="onStrongsButtonClick"
-                        app:srcCompat="@drawable/ic_code_white_24dp" />
+                        android:textSize="12sp"
+                        android:textStyle="italic"
+                        android:text="nnnn" />
 
                     <Button
                         android:id="@+id/bibleButton"
