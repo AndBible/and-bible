@@ -86,15 +86,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	 */
 	public void updateOptionsMenu(Menu menu) {
 		// when updating main menu rather than Window options menu
-		MenuItem windowSubmenuItemPosition = menu.findItem(R.id.windowSubMenu);
-		if (windowSubmenuItemPosition!=null) {
-			// check the Window sub-menu has been added
-			Menu subMenuToPopulate = windowSubmenuItemPosition.getSubMenu();
-			if (subMenuToPopulate.findItem(R.id.windowNew)==null) {
-				new MenuInflater(BibleApplication.Companion.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
-			}
-		}
-		
+
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);

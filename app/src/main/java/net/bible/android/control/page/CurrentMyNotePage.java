@@ -145,14 +145,4 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	public boolean isSingleKey() {
 		return currentNoteVerseRange==null || currentNoteVerseRange.getVerseRange().getCardinality()==1;
 	}
-
-	@Override
-	public void updateOptionsMenu(Menu menu) {
-		super.updateOptionsMenu(menu);
-
-		MenuItem menuItem = menu.findItem(R.id.windowSubMenu);
-		if (menuItem!=null) {
-			menuItem.setEnabled(false);
-		}
-	}
 }

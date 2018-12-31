@@ -63,6 +63,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
+import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
 
@@ -137,6 +138,47 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateSpeakTransportVisibility()
     }
 
+    private fun getPreferenceName(itemId: Int) =  when(itemId) {
+        R.id.showBookmarksOption -> Pair("show_bookmarks_pref", true)
+        R.id.redLettersOption -> Pair("red_letter_pref", false)
+        R.id.sectionTitlesOption -> Pair("section_title_pref", true)
+        R.id.showStrongsOption -> Pair("show_strongs_pref", false)
+        R.id.verseNumbersOption -> Pair("show_verseno_pref", true)
+        R.id.versePerLineOption -> Pair("verse_per_line_pref", false)
+        R.id.footnoteOption -> Pair("show_notes_pref", false)
+        R.id.myNotesOption -> Pair("show_mynotes_pref", true)
+        R.id.morphologyOption -> Pair("show_morphology_pref", false)
+        else -> null
+    }
+
+    private val preferences = CommonUtils.getSharedPreferences()
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_bible_options_menu, menu)
+        for(item in menu.itemsSequence()) {
+            val prefNamePair = getPreferenceName(item.itemId)
+            if(prefNamePair != null)
+                item.isChecked = preferences.getBoolean(prefNamePair.first, prefNamePair.second)
+        }
+        return true
+    }
+
+    private fun handlePrefItem(name: String, item: MenuItem, default: Boolean) {
+        val oldValue = preferences.getBoolean(name, default)
+        preferences.edit().putBoolean(name, !oldValue).apply()
+        PassageChangeMediator.getInstance().forcePageUpdate()
+        item.isChecked = !oldValue
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val prefNamePair = getPreferenceName(item.itemId)
+        if(prefNamePair != null) {
+            handlePrefItem(prefNamePair.first, item, prefNamePair.second)
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPassageDocument.name
 
@@ -163,30 +205,27 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
+        val maxButtons = 3
 
-        speakButton.visibility = if(speakControl.isStopped) {
+        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        strongsButton.visibility = if(documentControl.isStrongsInBook) {
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
-
-        bibleButton.visibility = if(suggestedBible != null) {
+        bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
-        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < 4) {
+        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
             commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
             commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
-        dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < 4) {
+
+        dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < maxButtons) {
             dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
             visibleButtonCount += 1
             View.VISIBLE
@@ -241,14 +280,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onSpeakButtonClick(v: View) = speakControl.toggleSpeak()
 
-    fun onStrongsButtonClick(v: View) {
-        // update the show-strongs pref setting according to the ToggleButton
-        CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", !pageControl.isStrongsShown).apply()
-        // redisplay the current page; this will also trigger update of all menu items
-        PassageChangeMediator.getInstance().forcePageUpdate()
-    }
-
-
     fun onHomeButtonClick(v: View) {
         if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawers();
@@ -264,7 +295,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun refreshScreenKeepOn() {
-        val keepOn = CommonUtils.getSharedPreferences().getBoolean(SCREEN_KEEP_ON_PREF, false)
+        val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
         if (keepOn) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
@@ -377,13 +408,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return super.onKeyUp(keyCode, event)
     }
 
-    /**
-     * on Click handlers.  Go through each handler until one returns true
-     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return mainMenuCommandHandler.handleMenuRequest(item) || super.onOptionsItemSelected(item)
-    }
-
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
         super.onActivityResult(requestCode, resultCode, data)
@@ -429,7 +453,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun requestSdcardPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val requestSdCardPermission = CommonUtils.getSharedPreferences().getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false)
+            val requestSdCardPermission = preferences.getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false)
             if (requestSdCardPermission && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), SDCARD_READ_REQUEST)
             }
@@ -485,9 +509,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // if there is no backup file then disable the restore menu item
         backupControl.updateOptionsMenu(menu)
-
-        // set Synchronised checkbox correctly
-        windowControl.updateOptionsMenu(menu)
 
         // must return true for menu to be displayed
         return true

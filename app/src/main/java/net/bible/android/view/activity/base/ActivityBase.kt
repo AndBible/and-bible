@@ -29,14 +29,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 
-import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.view.activity.ActivityComponent
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal

@@ -30,10 +30,16 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="OptionsButtonsStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
+		<item name="android:tint">@color/white</item>
+	</style>
 	<style name="MainBibleActionBar" parent="MainBibleViewTheme">
-		<item name="android:textColorPrimary">@color/white</item>
+		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
+
+	</style>
+	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
 		<item name="android:textColorSecondary">@color/white</item>
-		<item name="android:itemBackground">@color/grey_700</item>
+		<item name="android:textColorPrimary">@color/white</item>
 	</style>
 
 	<style name="MainBibleViewTheme" parent="AppThemeDay">
