@@ -2,7 +2,6 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -145,93 +144,8 @@
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/buttonsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <net.bible.android.view.util.widget.SpeakTransportWidget
         android:layout_alignParentBottom="true"
-        android:orientation="vertical">
-
-
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/speak_status_background"
-            android:paddingStart="@dimen/speak_row_padding"
-            android:paddingLeft="@dimen/speak_row_padding"
-            android:paddingTop="5dip"
-            android:paddingBottom="5dip"
-            android:text="*Gen.1.1*" />
-
-        <!-- Button bar with OK button -->
-        <LinearLayout
-            android:id="@+id/button_panel"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/bookmarkButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/bookmarks"
-                android:onClick="onBookmarkButtonClick"
-                app:srcCompat="@drawable/ic_bookmark_24dp" />
-
-            <ImageButton
-                android:id="@+id/rewindButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/rewind"
-                android:onClick="onButtonClick"
-                android:src="@android:drawable/ic_media_rew" />
-
-            <ImageButton
-                android:id="@+id/prevButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/speak_previous"
-                android:onClick="onButtonClick"
-                android:src="@android:drawable/ic_media_previous" />
-
-            <ImageButton
-                android:id="@+id/stopButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/stop"
-                android:onClick="onButtonClick"
-                android:src="@drawable/ic_media_stop" />
-
-            <ImageButton
-                android:id="@+id/speakPauseButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/speak"
-                android:onClick="onButtonClick"
-                android:src="@android:drawable/ic_media_play" />
-
-            <ImageButton
-                android:id="@+id/nextButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/speak_next"
-                android:onClick="onButtonClick"
-                android:src="@android:drawable/ic_media_next" />
-
-            <ImageButton
-                android:id="@+id/forwardButton"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:contentDescription="@string/forward"
-                android:onClick="onButtonClick"
-                android:src="@android:drawable/ic_media_ff" />
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </RelativeLayout>

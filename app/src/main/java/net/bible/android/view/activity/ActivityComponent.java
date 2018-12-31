@@ -49,6 +49,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity;
 import dagger.Component;
 
 import net.bible.android.view.activity.speak.SpeakSettingsActivity;
+import net.bible.android.view.util.widget.SpeakTransportWidget;
 import net.bible.service.device.speak.TextToSpeechNotificationManager;
 
 /**
@@ -86,6 +87,7 @@ public interface ActivityComponent {
 	void inject(DailyReadingList dailyReadingList);
 	void inject(ReadingPlanSelectorList readingPlanSelectorList);
 	void inject(SearchIndex searchIndex);
+	void inject(SpeakTransportWidget w);
 	void inject(Search search);
 	void inject(SearchResults searchResults);
 	void inject(CompareTranslations compareTranslations);

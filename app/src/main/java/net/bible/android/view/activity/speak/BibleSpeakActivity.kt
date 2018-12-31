@@ -73,7 +73,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     override fun resetView(settings: SpeakSettings) {
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
         speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
@@ -81,13 +80,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
-        speakPauseButton.setImageResource(
-                if(speakControl.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
-        bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -109,23 +101,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         return false
     }
 
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
-    }
-
-
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
         currentSettings = ev.speakSettings;
         resetView(ev.speakSettings)
-    }
-
-    fun onEventMainThread(ev: SpeakEvent) {
-        speakPauseButton.setImageResource(
-                if(ev.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
     }
 
     fun onHelpButtonClick(widget: View) {
@@ -164,29 +142,5 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             lastSleepTimer = currentSettings.lastSleepTimer
             save(updateBookmark = true)
         }
-    }
-
-    fun onButtonClick(button: View) {
-        try {
-            when (button) {
-                prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-                nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                rewindButton -> speakControl.rewind()
-                stopButton -> speakControl.stop()
-                speakPauseButton ->
-                    if (speakControl.isPaused) {
-                        speakControl.continueAfterPause()
-                    } else if (speakControl.isSpeaking) {
-                        speakControl.pause()
-                    } else {
-                        speakControl.speakBible()
-                    }
-                forwardButton -> speakControl.forward()
-            }
-        } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
-            Log.e(TAG, "Error: ", e)
-        }
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
     }
 }

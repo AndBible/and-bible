@@ -77,28 +77,6 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
 
     abstract fun resetView(settings: SpeakSettings)
 
-    fun onBookmarkButtonClick(button: View) {
-        val bookmarkTitles = ArrayList<String>()
-        val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
-            bookmarkDtos.add(b)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
-        AlertDialog.Builder(this)
-                .setTitle(R.string.speak_bookmarks_menu_title)
-                .setAdapter(adapter) { _, which ->
-                    speakControl.speakFromBookmark(bookmarkDtos[which])
-                    if(currentSettings.synchronize) {
-                        startActivity(Intent(this, MainBibleActivity::class.java))
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-    }
 }
 

@@ -49,6 +49,7 @@ import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -59,6 +60,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
+import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
@@ -77,6 +79,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @Inject lateinit var bibleContentManager: BibleContentManager
     @Inject lateinit var documentViewManager: DocumentViewManager
     @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
@@ -133,6 +136,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         requestSdcardPermission()
         updateTitle()
         updateActionBarButtons()
+        updateSpeakTransportVisibility()
     }
 
     private val documentTitleText: String
@@ -181,6 +185,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateTitle()
     }
 
+    fun onEventMainThread(speakEvent: SpeakEvent) {
+        updateSpeakTransportVisibility()
+    }
+
     fun menuForDocs(v: View, documents: List<Book>): Boolean {
         val menu = PopupMenu(this, v)
         documents.forEachIndexed { i, book ->
@@ -197,7 +205,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return true
     }
 
-    private fun setCurrentDocument(book: Book?) = windowControl.activeWindow.pageManager.setCurrentDocument(book)
+    private fun setCurrentDocument(book: Book?) {
+        windowControl.activeWindow.pageManager.setCurrentDocument(book)
+    }
+
+    override fun toggleFullScreen() {
+        super.toggleFullScreen()
+        updateSpeakTransportVisibility()
+    }
+
+    private fun updateSpeakTransportVisibility() {
+        speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
+    }
 
     fun onBibleButtonClick(v: View) = setCurrentDocument(documentControl.suggestedBible)
 

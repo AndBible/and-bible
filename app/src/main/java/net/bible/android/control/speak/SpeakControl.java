@@ -103,7 +103,7 @@ public class SpeakControl {
 	private TimerTask timerTask;
 	private CurrentPageManager speakPageManager;
 
-	@Inject
+    @Inject
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager,
 						ActiveWindowPageManagerProvider activeWindowPageManagerProvider,
 						SwordDocumentFacade swordDocumentFacade,
@@ -228,6 +228,10 @@ public class SpeakControl {
 
 	public boolean isPaused() {
 		return booksAvailable() && textToSpeechServiceManager.get().isPaused();
+	}
+
+	public boolean isStopped() {
+		return !isSpeaking() && !isPaused();
 	}
 
 	private boolean booksAvailable() {

@@ -32,11 +32,15 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
 
+import net.bible.android.view.activity.ActivityComponent;
+import net.bible.android.view.activity.DaggerActivityComponent;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -46,6 +50,7 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,6 +88,13 @@ public class CommonUtils {
 
 	public static boolean isAndroid() {
 		return isAndroid;
+	}
+
+	@NotNull
+    public static ActivityComponent buildActivityComponent() {
+            return DaggerActivityComponent.builder()
+                    .applicationComponent(BibleApplication.Companion.getApplication().getApplicationComponent())
+                    .build();
 	}
 
 	public static String getApplicationVersionName() {

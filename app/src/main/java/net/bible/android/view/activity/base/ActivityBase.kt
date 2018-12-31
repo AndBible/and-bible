@@ -37,6 +37,7 @@ import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.UiUtils
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
@@ -127,11 +128,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         LocaleHelper.translateTitle(this)
     }
 
-    protected fun buildActivityComponent(): ActivityComponent {
-        return DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .build()
-    }
+    protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()
 
     override fun startActivity(intent: Intent) {
         historyTraversal.beforeStartActivity()
