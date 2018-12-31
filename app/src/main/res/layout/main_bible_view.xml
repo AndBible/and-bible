@@ -40,7 +40,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/menu"
-                        android:onClick="onHomeButtonClick"
                         app:srcCompat="@drawable/ic_menu" />
 
                     <LinearLayout
@@ -48,7 +47,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start|center_vertical"
-                        android:onClick="onPageTitleClick"
                         android:orientation="vertical">
 
                         <TextView
@@ -75,8 +73,7 @@
                         style="@style/Widget.AppCompat.ActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/strongs"
-                        android:onClick="onSpeakButtonClick"
+                        android:contentDescription="@string/speak"
                         app:srcCompat="@drawable/ic_hearing_24dp" />
 
                     <Button
@@ -85,7 +82,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_bible"
-                        android:onClick="onBibleButtonClick" />
+                        />
 
                     <Button
                         android:id="@+id/commentaryButton"
@@ -93,7 +90,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_commentary"
-                        android:onClick="onCommentaryButtonClick" />
+                        />
 
                     <Button
                         android:id="@+id/dictionaryButton"
@@ -101,7 +98,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_dictionary"
-                        android:onClick="onDictionaryButtonClick" />
+                        />
                 </LinearLayout>
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>

@@ -139,6 +139,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         requestSdcardPermission()
         updateActionBarButtons()
         updateSpeakTransportVisibility()
+
+        homeButton.setOnClickListener { onHomeButtonClick(it) }
+        pageTitleContainer.setOnClickListener { onPageTitleClick(it) }
+        speakButton.setOnClickListener { onSpeakButtonClick(it) }
+        bibleButton.setOnClickListener { onBibleButtonClick(it) }
+        commentaryButton.setOnClickListener { onCommentaryButtonClick(it) }
+        dictionaryButton.setOnClickListener { onDictionaryButtonClick(it) }
     }
 
     private fun getPreferenceName(itemId: Int) =  when(itemId) {
@@ -285,7 +292,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onHomeButtonClick(v: View) {
         if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            drawerLayout.closeDrawers();
+            drawerLayout.closeDrawers()
         }
         else {
             drawerLayout.openDrawer(GravityCompat.START)
