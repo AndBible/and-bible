@@ -63,7 +63,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         private const val PERSIST_VERSE = "SpeakBibleVerse"
         const val FLAG_SHOW_PERCENT: Int = 0b1
         const val FLAG_SHOW_BOOK: Int = 0b10
-        const val FLAG_SHOW_ALL = FLAG_SHOW_BOOK or FLAG_SHOW_PERCENT
+        const val FLAG_SHOW_RANGE: Int = 0b001
+        const val FLAG_SHOW_ALL = FLAG_SHOW_BOOK or FLAG_SHOW_PERCENT or FLAG_SHOW_RANGE
         private const val TAG = "Speak"
     }
 
@@ -283,11 +284,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun getStatusText(showFlag: Int): String {
         val percent = bibleTraverser.getPercentOfBook(currentState.startVerse)
         var result = getVerseRange().name
+        val verseRange = settings.playbackSettings.verseRange
         if(showFlag and FLAG_SHOW_PERCENT != 0) {
             result += " - $percent%"
         }
         if(showFlag and FLAG_SHOW_BOOK != 0) {
             result += " - ${currentState.book.abbreviation}"
+        }
+        if(showFlag and FLAG_SHOW_RANGE != 0 && verseRange != null) {
+            result += " \t\uD83D\uDD01"
         }
         return result
     }
