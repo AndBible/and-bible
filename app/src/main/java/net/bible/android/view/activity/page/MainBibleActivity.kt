@@ -62,7 +62,6 @@ import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 
 import javax.inject.Inject
@@ -91,7 +90,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
-    private val ACTION_BUTTON_MAX_CHARS = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
 
     /**
      * return percentage scrolled down page
@@ -157,6 +155,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private val titleSplitter = TitleSplitter()
+    private val actionButtonMaxChars = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
 
     override fun updateActionBarButtons() {
         val suggestedBible = documentControl.suggestedBible
@@ -164,17 +163,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedDictionary = documentControl.suggestedDictionary
 
         bibleButton.visibility = if(suggestedBible != null) {
-            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
             View.VISIBLE
         } else View.GONE
         commentaryButton.visibility = if(suggestedCommentary != null) {
-            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
             commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             View.VISIBLE
         } else View.GONE
         dictionaryButton.visibility = if(suggestedDictionary != null) {
-            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, ACTION_BUTTON_MAX_CHARS)
+            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
             View.VISIBLE
         } else View.GONE
 

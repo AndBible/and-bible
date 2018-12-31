@@ -277,6 +277,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         isScreenOn = true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(localClassName, "onDestroy:" + this)
+    }
+
     override fun onRestart() {
         super.onRestart()
         Log.i(localClassName, "onRestart:" + this)
