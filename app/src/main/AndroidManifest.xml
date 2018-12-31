@@ -67,7 +67,6 @@
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageBook"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageBookName"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"

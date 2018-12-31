@@ -152,6 +152,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
             startVerse = null
             endVerse = null
+            repeatPassageCheckbox.isChecked = false // not yet!
             startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
         }
     }
@@ -174,9 +175,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             }
             else {
                 endVerse = verse
+                val settings = SpeakSettings.load()
                 if(endVerse!!.ordinal > startVerse!!.ordinal){
                     val verseRange = VerseRange(v11n, startVerse, endVerse)
-                    val settings = SpeakSettings.load()
                     settings.playbackSettings.verseRange = verseRange
                     settings.save(updateBookmark = true)
                 }
@@ -184,6 +185,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                     startVerse = null
                     endVerse = null
                     ABEventBus.getDefault().post(ToastEvent(R.string.speak_ending_verse_must_be_later))
+                    resetView(settings)
                 }
             }
         }
