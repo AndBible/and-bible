@@ -240,16 +240,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateSpeakTransportVisibility()
     }
 
-    fun menuForDocs(v: View, documents: List<Book>): Boolean {
+    private fun menuForDocs(v: View, documents: List<Book>): Boolean {
         val menu = PopupMenu(this, v)
-        documents.forEachIndexed { i, book ->
+        val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
+        docs.forEachIndexed { i, book ->
             if(windowControl.activeWindow.pageManager.currentPage.currentDocument != book) {
                 menu.menu.add(Menu.NONE, i, Menu.NONE, "${book.abbreviation} (${book.language.code})")
             }
         }
 
         menu.setOnMenuItemClickListener { item ->
-            windowControl.activeWindow.pageManager.setCurrentDocument(documents[item.itemId])
+            windowControl.activeWindow.pageManager.setCurrentDocument(docs[item.itemId])
         true
         }
         menu.show()
