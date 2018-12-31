@@ -152,9 +152,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(book: SwordBook, verse: Verse) {
+    fun setupReading(book: SwordBook, verse_: Verse) {
         reset()
         setupBook(book)
+        val verse = limitToRange(verse_)
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -416,7 +417,17 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
+    private fun limitToRange(verse: Verse): Verse {
+        val range = settings.playbackSettings.verseRange
+        if(range != null && (verse.ordinal > range.end.ordinal || verse.ordinal < range.start.ordinal)) {
+            return range.start
+        }
+        return verse
+    }
+
+    private fun getNextVerse(verse: Verse): Verse {
+        return limitToRange(bibleTraverser.getNextVerse(book, verse))
+    }
 
     override fun rewind(amount: SpeakSettings.RewindAmount?) {
         rewind(amount, false)

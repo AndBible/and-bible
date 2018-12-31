@@ -131,6 +131,22 @@
                         android:progress="100" />
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/speak_subtitle_padding"
+                    android:text="@string/repeat_passage"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:id="@+id/repeatPassageCheckbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/speak_row_padding"
+                    android:layout_marginLeft="@dimen/speak_row_padding"
+                    android:onClick="setRepeatPassage"
+                    android:text="@string/set_repeat_passage_range" />
+
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="15dip" />

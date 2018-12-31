@@ -33,12 +33,17 @@ import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
+import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
@@ -46,11 +51,14 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         const val TAG = "BibleSpeakActivity"
     }
 
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var navigationControl: NavigationControl
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_bible)
-        super.buildActivityComponent().inject(this)
+        buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -80,6 +88,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
+        repeatPassageCheckbox.text = settings.playbackSettings.verseRange?.name?: getString(R.string.speak_verse_range_to_repeat)
+        repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -129,6 +139,58 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     fun onSettingsChange(widget: View) = updateSettings()
+
+    fun setRepeatPassage(v: View) {
+        val s = SpeakSettings.load()
+        if(s.playbackSettings.verseRange != null) {
+            s.playbackSettings.verseRange = null
+            s.save()
+        }
+        else {
+            val intent = Intent(this, GridChoosePassageBook::class.java)
+            intent.putExtra("navigateToVerse", true)
+            intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
+            startVerse = null
+            endVerse = null
+            startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+        }
+    }
+
+    private var startVerse: Verse? = null
+    private var endVerse: Verse? = null
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG, "Activity result:$resultCode")
+        val verseStr = data?.extras?.getString("verse")
+        val v11n = navigationControl.versification
+        if(verseStr != null) {
+            val verse = VerseFactory.fromString(v11n, verseStr)
+            if(startVerse == null) {
+                startVerse = verse
+                val intent = Intent(this, GridChoosePassageBook::class.java)
+                intent.putExtra("navigateToVerse", true)
+                intent.putExtra("title", getString(R.string.speak_ending_of_passage))
+                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+            }
+            else {
+                endVerse = verse
+                if(endVerse!!.ordinal > startVerse!!.ordinal){
+                    val verseRange = VerseRange(v11n, startVerse, endVerse)
+                    val settings = SpeakSettings.load()
+                    settings.playbackSettings.verseRange = verseRange
+                    settings.save()
+                }
+                else {
+                    startVerse = null
+                    endVerse = null
+                    ABEventBus.getDefault().post(ToastEvent(R.string.speak_ending_verse_must_be_later))
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
 
     fun updateSettings() {
         SpeakSettings.load().apply {

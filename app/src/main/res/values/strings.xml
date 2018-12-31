@@ -460,4 +460,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="menu">Menu</string>
     <string name="rate_application">Rate &amp; Review in Google Play</string>
     <string name="chooce_document">Chooce Document</string>
+    <string name="repeat_passage">Repeat passage</string>
+    <string name="set_repeat_passage_range">Set repeat passage range</string>
+    <string name="speak_beginning_of_passage">Choose beginning of passage</string>
+    <string name="speak_ending_of_passage">Chooce ending of passage</string>
+    <string name="speak_verse_range_to_repeat">Choose verse range to repeat</string>
+    <string name="speak_ending_verse_must_be_later">Ending verse must be later than starting verse</string>
 </resources>

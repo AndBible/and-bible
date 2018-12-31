@@ -22,10 +22,33 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.system.Versifications
 import java.lang.IllegalArgumentException
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 const val TAG = "SpeakSettings"
+
+@Serializer(forClass = VerseRange::class)
+object VerseRangeSerializer: KSerializer<VerseRange?> {
+    override fun serialize(output: Encoder, obj: VerseRange?) {
+        if(obj != null) {
+            output.encodeString("${obj.versification.name}::${obj.osisRef}")
+        }
+        else {
+            output.encodeNull()
+        }
+    }
+
+    override fun deserialize(input: Decoder): VerseRange? {
+        val str = input.decodeString()
+        val splitted = str.split("::")
+        val v11n = Versifications.instance().getVersification(splitted[0])
+        return VerseRangeFactory.fromString(v11n, splitted[1])
+    }
+}
 
 @Serializable
 data class PlaybackSettings (
@@ -37,7 +60,8 @@ data class PlaybackSettings (
         // Bookmark related metadata.
         // Restoring bookmark from widget uses this.
         @Optional var bookId: String? = null,
-        @Optional var bookmarkWasCreated: Boolean? = null
+        @Optional var bookmarkWasCreated: Boolean? = null,
+        @Optional @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
 ) {
     companion object {
         fun fromJson(jsonString: String): PlaybackSettings {
