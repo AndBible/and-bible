@@ -152,10 +152,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(book: SwordBook, verse_: Verse) {
+    fun setupReading(book: SwordBook, verse: Verse) {
         reset()
         setupBook(book)
-        val verse = limitToRange(verse_)
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -240,7 +239,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getMoreSpeakCommands(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
 
-        var verse = currentVerse
+        var verse = limitToRange(currentVerse)
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.

@@ -22,7 +22,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
-import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
