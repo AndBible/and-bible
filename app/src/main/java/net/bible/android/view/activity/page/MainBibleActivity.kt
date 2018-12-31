@@ -47,6 +47,7 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -55,6 +56,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.CommonUtils
@@ -63,6 +65,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
 import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
@@ -87,6 +90,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @Inject lateinit var backupControl: BackupControl
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
+    @Inject lateinit var navigationControl: NavigationControl
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
@@ -409,6 +413,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
+        if(GridChoosePassageBook::class.java.name.equals(data?.component?.className)) {
+            val verseStr = data?.extras!!.getString("verse")
+            val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
+            windowControl.activeWindowPageManager.currentPage.key = verse
+            return
+        }
         super.onActivityResult(requestCode, resultCode, data)
         if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
             // restart done in above

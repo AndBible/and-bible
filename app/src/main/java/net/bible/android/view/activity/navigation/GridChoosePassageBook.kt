@@ -170,7 +170,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                 if (!navigateToVerse) {
                     val verse = Verse(v11n, book, 1, 1)
 
-                    val resultIntent = Intent()
+                    val resultIntent = Intent(this, GridChoosePassageBook::class.java)
                     resultIntent.putExtra("verse", verse.osisID)
                     setResult(Activity.RESULT_OK, resultIntent)
                     finish()
