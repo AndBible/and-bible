@@ -129,11 +129,11 @@ class DocumentWebViewBuilder @Inject constructor(
 
         val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
 
-        val splitHorizontally: Boolean
+        val isSplitHorizontally: Boolean
         when (pref) {
-            SPLIT_MODE_AUTOMATIC -> splitHorizontally = CommonUtils.isPortrait()
-            SPLIT_MODE_VERTICAL -> splitHorizontally = false
-            SPLIT_MODE_HORIZONTAL -> splitHorizontally = true
+            SPLIT_MODE_AUTOMATIC -> isSplitHorizontally = CommonUtils.isPortrait()
+            SPLIT_MODE_VERTICAL -> isSplitHorizontally = false
+            SPLIT_MODE_HORIZONTAL -> isSplitHorizontally = true
             else -> throw RuntimeException("Illegal preference")
         }
 
@@ -142,7 +142,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
         if (!isWebView ||
                 isWindowConfigurationChanged ||
-                splitHorizontally != isLaidOutWithHorizontalSplit) {
+                isSplitHorizontally != isLaidOutWithHorizontalSplit) {
             Log.d(TAG, "Layout web view")
 
             val windows = windowControl.windowRepository.visibleWindows
@@ -150,7 +150,7 @@ class DocumentWebViewBuilder @Inject constructor(
             // ensure we have a known starting point - could be none, 1, or 2 webviews present
             removeChildViews(previousParent)
 
-            parent.orientation = if (splitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            parent.orientation = if (isSplitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
 
@@ -167,7 +167,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 bibleView.setVersePositionRecalcRequired(true)
 
                 val windowWeight = window.windowLayout.weight
-                val lp = if (splitHorizontally)
+                val lp = if (isSplitHorizontally)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
                 else
                     LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
@@ -183,19 +183,19 @@ class DocumentWebViewBuilder @Inject constructor(
                     val separator = previousSeparator
 
                     // extend touch area of separator
-                    addTopOrLeftSeparatorExtension(splitHorizontally, currentWindowFrameLayout, lp, separator!!)
+                    addTopOrLeftSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
                 }
 
                 // Add screen separator
                 if (windowNo < windows.size - 1) {
                     val nextWindow = windows[windowNo + 1]
-                    val separator = createSeparator(parent, window, nextWindow, splitHorizontally, windows.size)
+                    val separator = createSeparator(parent, window, nextWindow, isSplitHorizontally, windows.size)
 
                     // extend touch area of separator
-                    addBottomOrRightSeparatorExtension(splitHorizontally, currentWindowFrameLayout, lp, separator)
+                    addBottomOrRightSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator)
 
                     // Add actual separator line dividing two windows
-                    parent.addView(separator, if (splitHorizontally)
+                    parent.addView(separator, if (isSplitHorizontally)
                         LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0f)
                     else
                         LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0f))
@@ -225,7 +225,7 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
             previousParent = parent
-            isLaidOutWithHorizontalSplit = splitHorizontally
+            isLaidOutWithHorizontalSplit = isSplitHorizontally
             isWindowConfigurationChanged = false
         }
     }
