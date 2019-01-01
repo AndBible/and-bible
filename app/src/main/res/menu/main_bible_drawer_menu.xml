@@ -21,7 +21,7 @@
     <item
         android:title="@string/bible">
         <menu>
-            <item android:id="@+id/chooceDocumentButton"
+            <item android:id="@+id/chooseDocumentButton"
                 android:title="@string/chooce_document"
                 android:icon="@drawable/ic_library_books_white_24dp"
                 />

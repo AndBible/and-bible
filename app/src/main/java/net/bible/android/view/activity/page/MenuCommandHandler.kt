@@ -97,7 +97,7 @@ constructor(private val callingActivity: MainBibleActivity,
             var requestCode = ActivityBase.STD_REQUEST_CODE
             // Handle item selection
             when (menuItem.itemId) {
-                R.id.chooceDocumentButton -> {
+                R.id.chooseDocumentButton -> {
                     val intent = Intent(callingActivity, ChooseDocument::class.java)
                     callingActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
                 }
