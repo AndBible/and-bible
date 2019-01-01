@@ -64,6 +64,7 @@ import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.jetbrains.anko.itemsSequence
@@ -146,6 +147,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         bibleButton.setOnClickListener { onBibleButtonClick(it) }
         commentaryButton.setOnClickListener { onCommentaryButtonClick(it) }
         dictionaryButton.setOnClickListener { onDictionaryButtonClick(it) }
+        dictionaryButton.setOnLongClickListener { menuForDocs(it, swordDocumentFacade.getBooks(BookCategory.DICTIONARY)) }
     }
 
     private fun getPreferenceName(itemId: Int) =  when(itemId) {
