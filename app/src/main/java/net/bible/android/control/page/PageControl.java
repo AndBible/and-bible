@@ -33,18 +33,13 @@ import net.bible.android.control.page.window.Window;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.service.common.ABStringUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.TitleSplitter;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
