@@ -36,7 +36,6 @@
                 android:title="@string/bookmarks"
                 android:icon="@drawable/ic_collections_bookmark_24dp"
                 />
-
             <item android:id="@+id/mynotesButton"
                 android:title="@string/mynotes"
                 android:icon="@drawable/ic_pen_24dp"/>

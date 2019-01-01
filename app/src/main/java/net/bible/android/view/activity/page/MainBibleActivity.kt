@@ -56,6 +56,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -146,8 +147,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         speakButton.setOnClickListener { onSpeakButtonClick(it) }
         bibleButton.setOnClickListener { onBibleButtonClick(it) }
         commentaryButton.setOnClickListener { onCommentaryButtonClick(it) }
+        bookmarkButton.setOnClickListener { startActivity( Intent(this, Bookmarks::class.java))  }
         dictionaryButton.setOnClickListener { onDictionaryButtonClick(it) }
-        dictionaryButton.setOnLongClickListener { menuForDocs(it, swordDocumentFacade.getBooks(BookCategory.DICTIONARY)) }
     }
 
     private fun getPreferenceName(itemId: Int) =  when(itemId) {
@@ -230,6 +231,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
+
         commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
             commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
             commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
@@ -237,8 +239,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             View.VISIBLE
         } else View.GONE
 
+        bookmarkButton.visibility = if(visibleButtonCount< maxButtons) {
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
         dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < maxButtons) {
             dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
+            dictionaryButton.setOnLongClickListener { menuForDocs(it, swordDocumentFacade.getBooks(BookCategory.DICTIONARY)) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE

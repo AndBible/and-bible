@@ -92,6 +92,12 @@ class DocumentControl @Inject constructor(
     val commentariesForVerse: List<Book>
         get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { it -> commentaryFilter.test(it) }
 
+    val isBibleBook: Boolean
+        get () = currentDocument.bookCategory.equals(BookCategory.BIBLE)
+
+    val currentDocument: Book
+        get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
+
     val suggestedBible: Book?
         get() {
             val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
