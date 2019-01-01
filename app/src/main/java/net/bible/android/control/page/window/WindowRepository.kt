@@ -40,7 +40,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @ApplicationScope
-class WindowRepository @Inject constructor(
+open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
         private val currentPageManagerProvider: Provider<CurrentPageManager>)

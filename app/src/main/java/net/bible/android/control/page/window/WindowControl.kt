@@ -46,7 +46,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class WindowControl @Inject constructor(
+open class WindowControl @Inject constructor(
         val windowRepository: WindowRepository,
         private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
