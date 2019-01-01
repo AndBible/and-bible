@@ -7,7 +7,7 @@
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
 
 	<item android:id="@+id/windowNew"
-		  android:title="@string/new_item"
+		  android:title="@string/new_window"
 		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
 	<item android:id="@+id/windowMaximise"
 		  android:title="@string/windowMaximise"
