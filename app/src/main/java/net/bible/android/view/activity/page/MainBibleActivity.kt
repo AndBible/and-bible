@@ -25,14 +25,8 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.view.ActionMode
 import android.util.Log
-import android.view.ContextMenu
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.PopupMenu
 import androidx.core.view.GravityCompat
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -557,7 +551,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         Log.d(TAG, "showVerseActionModeMenu")
 
         runOnUiThread {
-            val actionMode = startSupportActionMode(actionModeCallbackHandler)
+            val actionMode = toolbar.startActionMode(actionModeCallbackHandler)
 
             // Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
             actionMode?.invalidate()

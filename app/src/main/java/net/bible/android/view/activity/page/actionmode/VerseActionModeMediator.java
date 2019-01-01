@@ -19,8 +19,8 @@
 package net.bible.android.view.activity.page.actionmode;
 
 import android.content.Intent;
-import androidx.appcompat.view.ActionMode;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 

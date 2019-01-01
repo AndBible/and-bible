@@ -45,10 +45,12 @@
 	<style name="MainBibleViewTheme" parent="AppThemeDay">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
+		<item name="windowActionModeOverlay">true</item>
 	</style>
 	<style name="MainBibleViewNightTheme" parent="AppThemeNight">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
+		<item name="windowActionModeOverlay">true</item>
 	</style>
 
 	<!-- Custom left title text -->
