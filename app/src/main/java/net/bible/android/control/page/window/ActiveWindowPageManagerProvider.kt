@@ -16,13 +16,13 @@
  *
  */
 
-package net.bible.android.control.page.window;
+package net.bible.android.control.page.window
 
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManager
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface ActiveWindowPageManagerProvider {
-	CurrentPageManager getActiveWindowPageManager();
+interface ActiveWindowPageManagerProvider {
+    val activeWindowPageManager: CurrentPageManager
 }
