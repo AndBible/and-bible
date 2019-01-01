@@ -44,6 +44,8 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -209,6 +211,11 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
+                bibleView.windowButton = defaultWindowActionButton
+                defaultWindowActionButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
+                    true -> View.GONE
+                    false -> View.VISIBLE
+                }
 
             }
 
@@ -218,9 +225,15 @@ class DocumentWebViewBuilder @Inject constructor(
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
             val minimisedScreens = windowControl.windowRepository.minimisedScreens
+            restoreButtons.clear()
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minimisedScreens[i])
+                restoreButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
+                    true -> View.GONE
+                    false -> View.VISIBLE
+                }
+                restoreButtons.add(restoreButton)
                 minimisedWindowsFrameContainer.addView(restoreButton,
                         LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
             }
@@ -228,6 +241,17 @@ class DocumentWebViewBuilder @Inject constructor(
             previousParent = parent
             isLaidOutWithHorizontalSplit = isSplitHorizontally
             isWindowConfigurationChanged = false
+        }
+    }
+
+    val restoreButtons: MutableList<Button> = ArrayList()
+
+    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
+        for (b in restoreButtons) {
+            b.visibility = when (event.isFullScreen) {
+                true -> View.GONE
+                false -> View.VISIBLE
+            }
         }
     }
 

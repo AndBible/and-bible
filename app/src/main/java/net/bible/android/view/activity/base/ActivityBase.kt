@@ -30,6 +30,7 @@ import android.view.View
 import android.view.WindowManager
 
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -153,12 +154,15 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    class FullScreenEvent(val isFullScreen: Boolean)
+
     /**
      * Change fullscreen state for this and all future activities
      */
     open fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
+        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
     }
 
     private fun setLightsOutMode(isLightsOut: Boolean) {

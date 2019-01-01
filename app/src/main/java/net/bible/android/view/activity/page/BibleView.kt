@@ -44,6 +44,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.PageTiltScroller
@@ -106,6 +107,8 @@ class BibleView(mainBibleActivity: MainBibleActivity,
 
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
+
+    var windowButton: View? = null
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -466,6 +469,14 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (windowNo == event.window && handler != null) {
             scrollOrJumpToVerseOnUIThread(event.chapterVerse)
+        }
+    }
+
+    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
+        val button = windowButton ?: return
+        button.visibility = when(event.isFullScreen) {
+            true -> View.GONE
+            false -> View.VISIBLE
         }
     }
 
