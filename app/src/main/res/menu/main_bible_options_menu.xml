@@ -6,40 +6,39 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
 	<item android:id="@+id/showStrongsOption"
-		  android:title="@string/prefs_show_strongs_title"
-		android:checkable="true"
-	/>
-	<item android:id="@+id/verseNumbersOption"
-		  android:title="@string/prefs_show_verseno_title"
-		android:checkable="true"
-	/>
-	<item android:id="@+id/versePerLineOption"
-		android:title="@string/prefs_verse_per_line_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/footnoteOption"
-		android:title="@string/prefs_show_notes_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/myNotesOption"
-		android:title="@string/prefs_show_mynotes_title"
+		android:title="@string/prefs_show_strongs_title"
 		android:checkable="true"
 		/>
 	<item android:id="@+id/morphologyOption"
 		android:title="@string/prefs_show_morphology_title"
 		android:checkable="true"
 		/>
-
+	<item android:id="@+id/footnoteOption"
+		android:title="@string/prefs_show_notes_title"
+		android:checkable="true"
+		/>
 	<item android:id="@+id/redLettersOption"
-		  android:title="@string/prefs_red_letter_title"
-	      android:checkable="true"
-	/>
+		android:title="@string/prefs_red_letter_title"
+		android:checkable="true"
+		/>
 	<item android:id="@+id/sectionTitlesOption"
-		  android:title="@string/prefs_section_title_title"
+		android:title="@string/prefs_section_title_title"
 		android:checkable="true"
-	/>
+		/>
+	<item android:id="@+id/verseNumbersOption"
+		android:title="@string/prefs_show_verseno_title"
+		android:checkable="true"
+		/>
+	<item android:id="@+id/versePerLineOption"
+		android:title="@string/prefs_verse_per_line_title"
+		android:checkable="true"
+		/>
 	<item android:id="@+id/showBookmarksOption"
-		  android:title="@string/prefs_show_bookmarks_title"
+		android:title="@string/prefs_show_bookmarks_title"
 		android:checkable="true"
-	/>
+		/>
+	<item android:id="@+id/myNotesOption"
+		android:title="@string/prefs_show_mynotes_title"
+		android:checkable="true"
+		/>
 </menu>

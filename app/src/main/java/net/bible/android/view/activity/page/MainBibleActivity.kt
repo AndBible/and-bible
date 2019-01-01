@@ -151,16 +151,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         dictionaryButton.setOnClickListener { onDictionaryButtonClick(it) }
     }
 
+    data class ItemOptions (val name: String, val default: Boolean = true, val onlyBibles: Boolean = false)
+
     private fun getPreferenceName(itemId: Int) =  when(itemId) {
-        R.id.showBookmarksOption -> Pair("show_bookmarks_pref", true)
-        R.id.redLettersOption -> Pair("red_letter_pref", false)
-        R.id.sectionTitlesOption -> Pair("section_title_pref", true)
-        R.id.showStrongsOption -> Pair("show_strongs_pref", false)
-        R.id.verseNumbersOption -> Pair("show_verseno_pref", true)
-        R.id.versePerLineOption -> Pair("verse_per_line_pref", false)
-        R.id.footnoteOption -> Pair("show_notes_pref", false)
-        R.id.myNotesOption -> Pair("show_mynotes_pref", true)
-        R.id.morphologyOption -> Pair("show_morphology_pref", false)
+        R.id.showBookmarksOption -> ItemOptions("show_bookmarks_pref", true, true)
+        R.id.redLettersOption -> ItemOptions("red_letter_pref", false, true)
+        R.id.sectionTitlesOption -> ItemOptions("section_title_pref", true, true)
+        R.id.showStrongsOption -> ItemOptions("show_strongs_pref", false, true)
+        R.id.verseNumbersOption -> ItemOptions("show_verseno_pref", true, true)
+        R.id.versePerLineOption -> ItemOptions("verse_per_line_pref", false, true)
+        R.id.footnoteOption -> ItemOptions("show_notes_pref", false, true)
+        R.id.myNotesOption -> ItemOptions("show_mynotes_pref", true)
+        R.id.morphologyOption -> ItemOptions("show_morphology_pref", false, true)
         else -> null
     }
 
@@ -169,9 +171,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
         for(item in menu.itemsSequence()) {
-            val prefNamePair = getPreferenceName(item.itemId)
-            if(prefNamePair != null)
-                item.isChecked = preferences.getBoolean(prefNamePair.first, prefNamePair.second)
+            val itmOptions = getPreferenceName(item.itemId)
+            if(itmOptions != null) {
+                item.isChecked = preferences.getBoolean(itmOptions.name, itmOptions.default)
+                if(itmOptions.onlyBibles) {
+                    item.isVisible = documentControl.isBibleBook
+                }
+                else {
+                    item.isVisible = true
+                }
+            }
         }
         return true
     }
@@ -186,7 +195,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val prefNamePair = getPreferenceName(item.itemId)
         if(prefNamePair != null) {
-            handlePrefItem(prefNamePair.first, item, prefNamePair.second)
+            handlePrefItem(prefNamePair.name, item, prefNamePair.default)
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -251,6 +260,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             View.VISIBLE
         } else View.GONE
         updateTitle()
+        invalidateOptionsMenu()
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
