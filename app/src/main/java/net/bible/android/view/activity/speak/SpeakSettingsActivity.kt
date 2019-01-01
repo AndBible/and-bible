@@ -58,17 +58,17 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
 
         autoBookmark.isChecked = settings.autoBookmark
         if(!autoBookmark.isChecked) {
-            restoreSettingsFromBookmarks.isChecked = false;
-            restoreSettingsFromBookmarks.isEnabled = false;
+            restoreSettingsFromBookmarks.isChecked = false
+            restoreSettingsFromBookmarks.isEnabled = false
         }
         else {
-            restoreSettingsFromBookmarks.isEnabled = true;
+            restoreSettingsFromBookmarks.isEnabled = true
         }
         multiTranslation.isChecked = settings.multiTranslation
     }
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        currentSettings = ev.speakSettings;
+        currentSettings = ev.speakSettings
         resetView(ev.speakSettings)
     }
 

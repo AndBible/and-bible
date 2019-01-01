@@ -277,7 +277,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         endVerse = verse
 
-        return cmds;
+        return cmds
     }
 
     override fun getStatusText(showFlag: Int): String {
@@ -507,7 +507,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         startVerse = currentVerse
         endVerse = currentVerse
-        clearNotificationAndWidgetTitles();
+        clearNotificationAndWidgetTitles()
         ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, null))
     }
 

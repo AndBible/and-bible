@@ -112,7 +112,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         }
                     }
                     try {
-                        callingActivity.startActivity(intent);
+                        callingActivity.startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
                         val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.packageName)
                         callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
@@ -176,7 +176,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         val helpText = app.getString(helpTexts[idx]).replace("\n", "<br>")
                         htmlMessage += "<b>${app.getString(helpTitles[idx])}</b><br>$helpText<br><br>"
                     }
-                    htmlMessage += "<i>${versionMsg}</i>"
+                    htmlMessage += "<i>$versionMsg</i>"
 
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)

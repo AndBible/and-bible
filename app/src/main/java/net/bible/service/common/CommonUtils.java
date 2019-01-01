@@ -33,8 +33,6 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
@@ -55,8 +53,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;

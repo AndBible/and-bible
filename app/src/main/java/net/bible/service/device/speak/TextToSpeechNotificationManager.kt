@@ -20,15 +20,18 @@ package net.bible.service.device.speak
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
-import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -41,7 +44,6 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
@@ -137,7 +139,7 @@ class TextToSpeechNotificationManager {
         }
 
         override fun onBind(intent: Intent?): IBinder? {
-            return null;
+            return null
         }
     }
 
@@ -269,7 +271,7 @@ class TextToSpeechNotificationManager {
                 }
             }
             else {
-                currentText = ev.speakCommand.text;
+                currentText = ev.speakCommand.text
             }
         }
         buildNotification(speakControl.isSpeaking)

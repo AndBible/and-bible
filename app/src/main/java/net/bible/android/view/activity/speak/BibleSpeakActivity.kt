@@ -112,7 +112,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        currentSettings = ev.speakSettings;
+        currentSettings = ev.speakSettings
         resetView(ev.speakSettings)
     }
 

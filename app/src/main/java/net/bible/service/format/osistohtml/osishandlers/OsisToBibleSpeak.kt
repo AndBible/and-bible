@@ -86,11 +86,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             elementStack.push(StackEntry(false))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.push(StackEntry(peekVisible, TagType.DIVINE_NAME))
-            divineNameLevel ++;
+            divineNameLevel ++
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TagType.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
-            titleLevel++;
+            titleLevel++
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs?.getValue("type") ?: ""
             val isVerseBeginning = attrs?.getValue("sID") != null
@@ -122,17 +122,17 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
         if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {
-                anyTextWritten = false;
+                anyTextWritten = false
             }
         }
         else if(state.tagType == TagType.TITLE) {
             if (speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
-            titleLevel--;
+            titleLevel--
         }
         else if(state.tagType == TagType.DIVINE_NAME) {
-            divineNameLevel--;
+            divineNameLevel--
         }
         else if(state.tagType == TagType.FOOTNOTE) {
             if(speakSettings.playbackSettings.speakFootnotes) {

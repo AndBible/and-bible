@@ -19,7 +19,6 @@
 package net.bible.service.db.bookmark;
 
 import net.bible.android.control.speak.PlaybackSettings;
-import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser;
 

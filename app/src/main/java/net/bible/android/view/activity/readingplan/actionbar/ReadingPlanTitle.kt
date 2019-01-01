@@ -16,7 +16,7 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
 import android.app.Activity
 import android.content.Intent

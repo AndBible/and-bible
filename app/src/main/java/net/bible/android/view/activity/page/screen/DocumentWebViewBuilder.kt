@@ -364,32 +364,28 @@ class DocumentWebViewBuilder @Inject constructor(
 
     }
 
-    private fun createTextButton(text: String, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener?): Button {
-        val button = Button(this.mainBibleActivity).apply {
-            this.text = text
-            setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
-            width = BUTTON_SIZE_PX
-            height = BUTTON_SIZE_PX
-            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-            setTypeface(null, Typeface.BOLD)
-            setSingleLine(true)
-            setOnClickListener(onClickListener)
-            setOnLongClickListener(onLongClickListener)
-        }
-        return button
-    }
+    private fun createTextButton(text: String, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener?) =
+            Button(mainBibleActivity).apply {
+                this.text = text
+                setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
+                width = BUTTON_SIZE_PX
+                height = BUTTON_SIZE_PX
+                setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
+                setTypeface(null, Typeface.BOLD)
+                setSingleLine(true)
+                setOnClickListener(onClickListener)
+                setOnLongClickListener(onLongClickListener)
+            }
 
-    private fun createImageButton(drawableId: Int, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener): Button {
-        val button = Button(this.mainBibleActivity).apply {
-            setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
-            setBackgroundResource(drawableId)
-            width = BUTTON_SIZE_PX
-            height = BUTTON_SIZE_PX
-            setOnClickListener(onClickListener)
-            setOnLongClickListener(onLongClickListener)
-        }
-        return button
-    }
+    private fun createImageButton(drawableId: Int, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener) =
+            Button(this.mainBibleActivity).apply {
+                setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
+                setBackgroundResource(drawableId)
+                width = BUTTON_SIZE_PX
+                height = BUTTON_SIZE_PX
+                setOnClickListener(onClickListener)
+                setOnLongClickListener(onLongClickListener)
+            }
 
     @SuppressLint("RestrictedApi")
     private fun showPopupWindow(window: Window, view: View) {

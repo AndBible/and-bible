@@ -28,7 +28,6 @@ import android.widget.TextView;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.view.util.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.progress.JobManager;

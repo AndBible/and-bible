@@ -20,7 +20,6 @@ package net.bible.android.view.activity.settings;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
@@ -31,10 +30,7 @@ import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 /** show settings
  * 

@@ -24,7 +24,6 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.service.common.CommonUtils;
 
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;

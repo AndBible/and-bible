@@ -19,14 +19,10 @@
 package net.bible.android.control.page;
 
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.mynote.MyNoteDAO;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.control.versification.ConvertibleVerseRange;
-import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;

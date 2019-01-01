@@ -22,7 +22,6 @@ import android.app.Activity;
 import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.activity.MainBibleActivityScope;

@@ -328,13 +328,13 @@ class SpeakWidgetManager {
         }
 
         private fun toggleSleepTimer() {
-            val settings = SpeakSettings.load();
+            val settings = SpeakSettings.load()
             if (settings.sleepTimer > 0) {
                 settings.sleepTimer = 0
             } else {
                 settings.sleepTimer = settings.lastSleepTimer
             }
-            settings.save();
+            settings.save()
         }
     }
 
@@ -350,7 +350,7 @@ class SpeakWidgetManager {
                 val osisRef = intent.data.host
                 Log.d(TAG, "onReceive osisRef $osisRef")
                 val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
-                speakControl.speakFromBookmark(dto);
+                speakControl.speakFromBookmark(dto)
             }
         }
 

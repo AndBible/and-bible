@@ -113,6 +113,6 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
         if (javaClass != obj.javaClass)
             return false
         val other = obj as Window?
-        return if (screenNo != other!!.screenNo) false else true
+        return screenNo == other!!.screenNo
     }
 }

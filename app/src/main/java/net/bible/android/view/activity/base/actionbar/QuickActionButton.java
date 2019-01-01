@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.base.actionbar;
 
-import androidx.core.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;

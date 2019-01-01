@@ -21,8 +21,6 @@ package net.bible.android.control.page.window
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 
-import org.crosswire.jsword.book.Book
-
 /**
  * Window used when user selects a link
  */

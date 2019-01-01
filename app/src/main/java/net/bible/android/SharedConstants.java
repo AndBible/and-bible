@@ -20,7 +20,6 @@ package net.bible.android;
 
 import java.io.File;
 
-import android.content.Context;
 import android.os.Environment;
 
 /** Not used much yet but need to move the some of the more generic constants here

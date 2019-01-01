@@ -22,7 +22,6 @@ import android.util.Log;
 
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;

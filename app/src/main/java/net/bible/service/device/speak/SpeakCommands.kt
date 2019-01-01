@@ -42,12 +42,12 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
         else {
             val params = HashMap<String, String>()
             params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
-            tts.speak(text, TextToSpeech.QUEUE_ADD, params);
+            tts.speak(text, TextToSpeech.QUEUE_ADD, params)
         }
     }
 
     override fun toString(): String {
-        return "${super.toString()} $text";
+        return "${super.toString()} $text"
     }
 }
 
