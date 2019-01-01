@@ -110,12 +110,10 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
                 rewindButton -> speakControl.rewind()
                 stopButton -> speakControl.stop()
                 speakPauseButton ->
-                    if (speakControl.isPaused) {
-                        speakControl.continueAfterPause()
-                    } else if (speakControl.isSpeaking) {
-                        speakControl.pause()
-                    } else {
-                        speakControl.speakText()
+                    when {
+                        speakControl.isPaused -> speakControl.continueAfterPause()
+                        speakControl.isSpeaking -> speakControl.pause()
+                        else -> speakControl.speakText()
                     }
                 forwardButton -> speakControl.forward()
             }

@@ -121,11 +121,11 @@ open class BibleApplication : MultiDexApplication() {
                 var textSize: String? = "16"
                 if (prefs.contains(TEXT_SIZE_PREF)) {
                     Log.d(TAG, "text size pref exists")
-                    try {
-                        textSize = prefs.getString(TEXT_SIZE_PREF, "16")
+                    textSize = try {
+                        prefs.getString(TEXT_SIZE_PREF, "16")
                     } catch (e: Exception) {
                         // maybe the conversion has already taken place e.g. in debug environment
-                        textSize = Integer.toString(prefs.getInt(TEXT_SIZE_PREF, 16))
+                        Integer.toString(prefs.getInt(TEXT_SIZE_PREF, 16))
                     }
 
                     Log.d(TAG, "existing value:" + textSize!!)
@@ -141,11 +141,11 @@ open class BibleApplication : MultiDexApplication() {
             // there was a problematic Chinese index architecture before ver 24 so delete any old indexes
             if (prevInstalledVersion < 24) {
                 Log.d(TAG, "Deleting old Chinese indexes")
-                val CHINESE = Language("zh")
+                val chineseLanguage = Language("zh")
 
                 val books = applicationComponent.swordDocumentFacade().documents
                 for (book in books) {
-                    if (CHINESE == book.language) {
+                    if (chineseLanguage == book.language) {
                         try {
                             val bookIndexer = BookIndexer(book)
                             // Delete the book, if present
@@ -223,14 +223,14 @@ open class BibleApplication : MultiDexApplication() {
 
     companion object {
 
-        private val TEXT_SIZE_PREF = "text_size_pref"
+        private const val TEXT_SIZE_PREF = "text_size_pref"
 
         // this was moved from the MainBibleActivity and has always been called this
-        private val saveStateTag = "MainBibleActivity"
+        private const val saveStateTag = "MainBibleActivity"
 
         lateinit var application: BibleApplication
             private set
 
-        private val TAG = "BibleApplication"
+        private const val TAG = "BibleApplication"
     }
 }

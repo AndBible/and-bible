@@ -77,12 +77,10 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 rewindButton -> speakControl.rewind()
                 stopButton -> speakControl.stop()
                 speakPauseButton ->
-                    if (speakControl.isPaused) {
-                        speakControl.continueAfterPause()
-                    } else if (speakControl.isSpeaking) {
-                        speakControl.pause()
-                    } else {
-                        speakControl.speakBible()
+                    when {
+                        speakControl.isPaused -> speakControl.continueAfterPause()
+                        speakControl.isSpeaking -> speakControl.pause()
+                        else -> speakControl.speakBible()
                     }
                 forwardButton -> speakControl.forward()
             }
@@ -95,7 +93,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
         val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        val labelDto = bookmarkControl.orCreateSpeakLabel
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 

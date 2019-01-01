@@ -130,11 +130,10 @@ class DocumentWebViewBuilder @Inject constructor(
 
         val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
 
-        val isSplitHorizontally: Boolean
-        when (pref) {
-            SPLIT_MODE_AUTOMATIC -> isSplitHorizontally = CommonUtils.isPortrait()
-            SPLIT_MODE_VERTICAL -> isSplitHorizontally = false
-            SPLIT_MODE_HORIZONTAL -> isSplitHorizontally = true
+        val isSplitHorizontally: Boolean = when (pref) {
+            SPLIT_MODE_AUTOMATIC -> CommonUtils.isPortrait()
+            SPLIT_MODE_VERTICAL -> false
+            SPLIT_MODE_HORIZONTAL -> true
             else -> throw RuntimeException("Illegal preference")
         }
 
@@ -155,9 +154,7 @@ class DocumentWebViewBuilder @Inject constructor(
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
 
-            var windowNo = 0
-
-            for (window in windows) {
+            for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
 
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
@@ -213,7 +210,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
 
-                windowNo++
             }
 
             // Display minimised screens
@@ -236,18 +232,14 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createDefaultWindowActionButton(window: Window): View {
-        val defaultWindowActionButton: View
-        if (window.defaultOperation == WindowOperation.CLOSE) {
-            // close button for the links window
-            defaultWindowActionButton = createCloseButton(window)
-        } else if (window.defaultOperation == WindowOperation.MAXIMISE) {
-            // normalise button for maximised window
-            defaultWindowActionButton = createMaximiseToggleButton(window)
-        } else {
-            // minimise button for normal window
-            defaultWindowActionButton = createMinimiseButton(window)
+        return when {
+            window.defaultOperation == WindowOperation.CLOSE -> // close button for the links window
+                createCloseButton(window)
+            window.defaultOperation == WindowOperation.MAXIMISE -> // normalise button for maximised window
+                createMaximiseToggleButton(window)
+            else -> // minimise button for normal window
+                createMinimiseButton(window)
         }
-        return defaultWindowActionButton
     }
 
     /**
@@ -287,7 +279,7 @@ class DocumentWebViewBuilder @Inject constructor(
         separator.setView2LayoutParams(lp)
     }
 
-    protected fun createSeparator(
+    private fun createSeparator(
             parent: LinearLayout,
             window: Window,
             nextScreen: Window,
@@ -363,11 +355,11 @@ class DocumentWebViewBuilder @Inject constructor(
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    protected fun getDocumentInitial(window: Window): String {
-        try {
-            return window.pageManager.currentPage.currentDocument.abbreviation.substring(0, 1)
+    private fun getDocumentInitial(window: Window): String {
+        return try {
+            window.pageManager.currentPage.currentDocument.abbreviation.substring(0, 1)
         } catch (e: Exception) {
-            return " "
+            " "
         }
 
     }
@@ -433,11 +425,11 @@ class DocumentWebViewBuilder @Inject constructor(
 
     companion object {
 
-        private val SPLIT_MODE_PREF = "split_mode_pref"
-        private val SPLIT_MODE_AUTOMATIC = "automatic"
-        private val SPLIT_MODE_VERTICAL = "vertical"
-        private val SPLIT_MODE_HORIZONTAL = "horizontal"
+        private const val SPLIT_MODE_PREF = "split_mode_pref"
+        private const val SPLIT_MODE_AUTOMATIC = "automatic"
+        private const val SPLIT_MODE_VERTICAL = "vertical"
+        private const val SPLIT_MODE_HORIZONTAL = "horizontal"
 
-        private val TAG = "DocumentWebViewBuilder"
+        private const val TAG = "DocumentWebViewBuilder"
     }
 }

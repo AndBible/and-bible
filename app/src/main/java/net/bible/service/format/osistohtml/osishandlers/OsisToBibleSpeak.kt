@@ -75,7 +75,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             anyTextWritten = false
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            if((attrs?.getValue("type")?: "").equals("study") && speakSettings.playbackSettings.speakFootnotes) {
+            if((attrs?.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PreFootnoteCommand(speakSettings))
                 elementStack.push(StackEntry(true, TagType.FOOTNOTE))
             }
@@ -156,11 +156,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            s = Html.fromHtml(s, 0).toString()
+        s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(s, 0).toString()
         }
         else {
-            s = s.replace("&quot;", "\"")
+            s.replace("&quot;", "\"")
         }
 
         if(currentState.visible) {

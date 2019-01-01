@@ -55,12 +55,12 @@ class DocumentControl @Inject constructor(
     // very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
     val isStrongsInBook: Boolean
         get() {
-            try {
+            return try {
                 val currentBook = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-                return currentBook.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
+                currentBook.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking for strongs Numbers in book", e)
-                return false
+                false
             }
 
         }
@@ -93,9 +93,9 @@ class DocumentControl @Inject constructor(
         get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { it -> commentaryFilter.test(it) }
 
     val isBibleBook: Boolean
-        get () = currentDocument.bookCategory.equals(BookCategory.BIBLE)
+        get () = currentDocument.bookCategory == BookCategory.BIBLE
 
-    val currentDocument: Book
+    private val currentDocument: Book
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
 
     val suggestedBible: Book?
@@ -222,6 +222,6 @@ class DocumentControl @Inject constructor(
 
     companion object {
 
-        private val TAG = "DocumentControl"
+        private const val TAG = "DocumentControl"
     }
 }

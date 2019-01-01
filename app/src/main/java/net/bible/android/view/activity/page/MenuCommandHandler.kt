@@ -102,7 +102,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     callingActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {
-                    val uri = Uri.parse("market://details?id=" + callingActivity.getPackageName())
+                    val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
                     val intent = Intent(Intent.ACTION_VIEW, uri).apply{
                         // To count with Play market backstack, After pressing back button,
                         // to taken back to our application, we need to add following flags to intent.
@@ -114,7 +114,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     try {
                         callingActivity.startActivity(intent);
                     } catch (e: ActivityNotFoundException) {
-                        val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.getPackageName())
+                        val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.packageName)
                         callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
                     }
                 }
@@ -149,10 +149,10 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.dailyReadingPlanButton ->
                     // show todays plan or allow plan selection
-                    if (readingPlanControl.isReadingPlanSelected) {
-                        handlerIntent = Intent(callingActivity, DailyReading::class.java)
+                    handlerIntent = if (readingPlanControl.isReadingPlanSelected) {
+                        Intent(callingActivity, DailyReading::class.java)
                     } else {
-                        handlerIntent = Intent(callingActivity, ReadingPlanSelectorList::class.java)
+                        Intent(callingActivity, ReadingPlanSelectorList::class.java)
                     }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
                     handlerIntent = Intent(callingActivity, Download::class.java)
@@ -245,7 +245,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
     companion object {
 
-        private val TAG = "MainMenuCommandHandler"
+        private const val TAG = "MainMenuCommandHandler"
 
         internal fun equals(a: String?, b: String?): Boolean {
             return a === b || (a != null && a == b)

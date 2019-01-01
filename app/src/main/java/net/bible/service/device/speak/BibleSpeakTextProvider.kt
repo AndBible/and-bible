@@ -78,11 +78,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         get() = _currentVerse
         set(newValue) {
             // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
-            if(newValue.verse == 0) {
-                _currentVerse = getNextVerse(newValue)
-            }
-            else {
-                _currentVerse = newValue
+            _currentVerse = if(newValue.verse == 0) {
+                getNextVerse(newValue)
+            } else {
+                newValue
             }
         }
 
@@ -104,7 +103,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private val currentState: State
         get() {
-            return utteranceState.get(currentUtteranceId) ?: State(book, startVerse, endVerse, currentVerse)
+            return utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
         }
 
 
@@ -131,7 +130,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupBook(book: SwordBook) {
+    private fun setupBook(book: SwordBook) {
         this.book = book
         localizedResources =  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             BibleApplication.application.getLocalizedResources(book.language.code)
@@ -233,7 +232,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             utteranceState.clear()
             Log.d(TAG, "Marked current utteranceID $utteranceId")
         }
-        utteranceState.set(utteranceId, State(book, startVerse, endVerse, currentVerse, cmd))
+        utteranceState[utteranceId] = State(book, startVerse, endVerse, currentVerse, cmd)
         return cmd
     }
 
@@ -266,11 +265,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 verse = nextVerse
             }
 
-            if (rest.isNotEmpty()) {
+            currentVerse = if (rest.isNotEmpty()) {
                 readList.addAll(rest)
-                currentVerse = verse
+                verse
             } else {
-                currentVerse = getNextVerse(verse)
+                getNextVerse(verse)
             }
         }
         else {
@@ -351,7 +350,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
             val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)?: return
             val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
-            val speakLabel = bookmarkControl.getOrCreateSpeakLabel()
+            val speakLabel = bookmarkControl.orCreateSpeakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
@@ -369,11 +368,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun removeBookmark() {
-        var bookmarkDto = this.bookmarkDto
-        if(bookmarkDto == null) return
+        var bookmarkDto: BookmarkDto = this.bookmarkDto ?: return
 
         val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
-        val speakLabel = bookmarkControl.getOrCreateSpeakLabel()
+        val speakLabel = bookmarkControl.orCreateSpeakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 
         if(ttsLabel != null) {
@@ -413,7 +411,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
 
-            labelList.add(bookmarkControl.getOrCreateSpeakLabel())
+            labelList.add(bookmarkControl.orCreateSpeakLabel)
 
             bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmarkDto, ${settings.playbackSettings.speed}")
@@ -445,14 +443,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
-             if(lastTitle != null && !lastTitle.equals(startVerse)) {
-                 currentVerse = lastTitle
-             }
-             else {
+             currentVerse = if(lastTitle != null && lastTitle != startVerse) {
+                 lastTitle
+             } else {
                  if (startVerse.verse <= 1) {
-                     currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
+                     bibleTraverser.getPrevChapter(book, startVerse)
                  } else {
-                     currentVerse = Verse(startVerse.versification, startVerse.book, startVerse.chapter, 1)
+                     Verse(startVerse.versification, startVerse.book, startVerse.chapter, 1)
                  }
              }
          }
@@ -517,7 +514,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun finishedUtterance(utteranceId: String) {}
 
     override fun startUtterance(utteranceId: String) {
-        val state = utteranceState.get(utteranceId)
+        val state = utteranceState[utteranceId]
         currentUtteranceId = utteranceId
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
@@ -529,7 +526,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun reset() {
-        val state = utteranceState.get(currentUtteranceId)
+        val state = utteranceState[currentUtteranceId]
         Log.d(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {
             startVerse = state.startVerse

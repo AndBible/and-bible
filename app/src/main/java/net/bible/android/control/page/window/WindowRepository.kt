@@ -81,13 +81,13 @@ class WindowRepository @Inject constructor(
     val visibleWindows: MutableList<Window>
         get() {
             val maximisedWindows = getWindows(WindowState.MAXIMISED)
-            if (!maximisedWindows.isEmpty()) {
+            return if (!maximisedWindows.isEmpty()) {
                 if (!maximisedWindows.contains(dedicatedLinksWindow as Window)) {
                     addLinksWindowIfVisible(maximisedWindows)
                 }
-                return maximisedWindows
+                maximisedWindows
             } else {
-                return getWindows(WindowState.SPLIT)
+                getWindows(WindowState.SPLIT)
             }
         }
 
@@ -103,7 +103,7 @@ class WindowRepository @Inject constructor(
             getWindows(WindowState.MINIMISED)
         }
 
-    protected val isMaximisedState: Boolean
+    private val isMaximisedState: Boolean
         get() {
             for (window in windows) {
                 if (window.windowLayout.state === WindowState.MAXIMISED) {
@@ -248,7 +248,7 @@ class WindowRepository @Inject constructor(
     }
 
     /** save current page and document state  */
-    protected fun saveState() {
+    private fun saveState() {
         logger.info("Save instance state for screens")
         val settings = BibleApplication.application.appStateSharedPreferences
         saveState(settings)

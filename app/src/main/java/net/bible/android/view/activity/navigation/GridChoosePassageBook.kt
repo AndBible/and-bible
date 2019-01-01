@@ -87,11 +87,11 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     private// should never get here
     val isShortBookNames: Boolean
         get() {
-            try {
-                return versification.getShortName(BibleBook.GEN) != versification.getLongName(BibleBook.GEN)
+            return try {
+                versification.getShortName(BibleBook.GEN) != versification.getLongName(BibleBook.GEN)
             } catch (nsve: Exception) {
                 Log.e(TAG, "No such bible book no: 1", nsve)
-                return false
+                false
             }
 
         }
@@ -229,38 +229,28 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
     private fun getBookTextColor(bookNo: Int): Int {
         // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
-        return if (bookNo <= BibleBook.DEUT.ordinal) {
-            // Pentateuch - books of Moses
-            PENTATEUCH_COLOR
-        } else if (bookNo <= BibleBook.ESTH.ordinal) {
-            // History
-            HISTORY_COLOR
-        } else if (bookNo <= BibleBook.SONG.ordinal) {
-            // Wisdom
-            WISDOM_COLOR
-        } else if (bookNo <= BibleBook.DAN.ordinal) {
-            // Major prophets
-            MAJOR_PROPHETS_COLOR
-        } else if (bookNo <= BibleBook.MAL.ordinal) {
-            // Minor prophets
-            MINOR_PROPHETS_COLOR
-        } else if (bookNo <= BibleBook.JOHN.ordinal) {
-            // Gospels
-            GOSPEL_COLOR
-        } else if (bookNo <= BibleBook.ACTS.ordinal) {
-            // Acts
-            ACTS_COLOR
-        } else if (bookNo <= BibleBook.PHLM.ordinal) {
-            // Pauline epistles
-            PAULINE_COLOR
-        } else if (bookNo <= BibleBook.JUDE.ordinal) {
-            // General epistles
-            GENERAL_EPISTLES_COLOR
-        } else if (bookNo <= BibleBook.JUDE.ordinal) {
-            // Revelation
-            REVELATION_COLOR
-        } else {
-            OTHER_COLOR
+        return when {
+            bookNo <= BibleBook.DEUT.ordinal -> // Pentateuch - books of Moses
+                PENTATEUCH_COLOR
+            bookNo <= BibleBook.ESTH.ordinal -> // History
+                HISTORY_COLOR
+            bookNo <= BibleBook.SONG.ordinal -> // Wisdom
+                WISDOM_COLOR
+            bookNo <= BibleBook.DAN.ordinal -> // Major prophets
+                MAJOR_PROPHETS_COLOR
+            bookNo <= BibleBook.MAL.ordinal -> // Minor prophets
+                MINOR_PROPHETS_COLOR
+            bookNo <= BibleBook.JOHN.ordinal -> // Gospels
+                GOSPEL_COLOR
+            bookNo <= BibleBook.ACTS.ordinal -> // Acts
+                ACTS_COLOR
+            bookNo <= BibleBook.PHLM.ordinal -> // Pauline epistles
+                PAULINE_COLOR
+            bookNo <= BibleBook.JUDE.ordinal -> // General epistles
+                GENERAL_EPISTLES_COLOR
+            bookNo <= BibleBook.JUDE.ordinal -> // Revelation
+                REVELATION_COLOR
+            else -> OTHER_COLOR
         }
     }
 
@@ -282,6 +272,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         private val REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF)
         private val OTHER_COLOR = ACTS_COLOR
 
-        private val TAG = "GridChoosePassageBook"
+        private const val TAG = "GridChoosePassageBook"
     }
 }

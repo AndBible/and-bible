@@ -53,7 +53,7 @@ class WindowControl @Inject constructor(
 
     private var isSeparatorMoving = false
     private var stoppedMovingTime: Long = 0
-    private val windowSync: WindowSync
+    private val windowSync: WindowSync = WindowSync(windowRepository)
 
     private val logger = Logger(this.javaClass.name)
 
@@ -89,7 +89,6 @@ class WindowControl @Inject constructor(
 
     init {
 
-        windowSync = WindowSync(windowRepository)
         eventManager.register(this)
     }
 
@@ -145,10 +144,10 @@ class WindowControl @Inject constructor(
         val defaultBible: Book
 
         // default either to links window bible or if closed then active window bible
-        if (currentBiblePage.isCurrentDocumentSet) {
-            defaultBible = currentBiblePage.currentDocument
+        defaultBible = if (currentBiblePage.isCurrentDocumentSet) {
+            currentBiblePage.currentDocument
         } else {
-            defaultBible = windowRepository.firstWindow.pageManager.currentBible.currentDocument
+            windowRepository.firstWindow.pageManager.currentBible.currentDocument
         }
 
         showLink(defaultBible, key)
@@ -270,11 +269,11 @@ class WindowControl @Inject constructor(
         }
     }
 
-    fun isWindowMinimisable(window: Window): Boolean {
+    private fun isWindowMinimisable(window: Window): Boolean {
         return isWindowRemovable(window) && !window.isLinksWindow
     }
 
-    fun isWindowRemovable(window: Window): Boolean {
+    private fun isWindowRemovable(window: Window): Boolean {
         var normalWindows = windowRepository.visibleWindows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
             normalWindows--

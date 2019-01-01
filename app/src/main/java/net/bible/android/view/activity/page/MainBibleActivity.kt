@@ -96,7 +96,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     /**
      * return percentage scrolled down page
      */
-    val currentPosition: Float
+    private val currentPosition: Float
         get() = documentViewManager.documentView.currentPosition
 
     /**
@@ -432,27 +432,29 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
-        if(GridChoosePassageBook::class.java.name.equals(data?.component?.className)) {
+        if(GridChoosePassageBook::class.java.name == data?.component?.className) {
             val verseStr = data?.extras!!.getString("verse")
             val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
             windowControl.activeWindowPageManager.currentPage.key = verse
             return
         }
         super.onActivityResult(requestCode, resultCode, data)
-        if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
-            // restart done in above
-        } else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
-            preferenceSettingsChanged()
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        } else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
-            updateActionBarButtons()
+        when {
+            mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode) -> {
+                // restart done in above
+            }
+            mainMenuCommandHandler.isDisplayRefreshRequired(requestCode) -> {
+                preferenceSettingsChanged()
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+            }
+            mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActionBarButtons()
         }
 
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            BACKUP_SAVE_REQUEST -> if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            BACKUP_SAVE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 backupControl.backupDatabase()
             } else {
                 Dialogs.getInstance().showMsg(R.string.error_occurred)
@@ -462,7 +464,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             } else {
                 Dialogs.getInstance().showMsg(R.string.error_occurred)
             }
-            SDCARD_READ_REQUEST -> if (grantResults.size > 0) {
+            SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     documentControl.enableManualInstallFolder()
                 } else {

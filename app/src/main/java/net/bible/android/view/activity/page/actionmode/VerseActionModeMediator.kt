@@ -58,25 +58,25 @@ class VerseActionModeMediator(
 
     private val startVerse: Verse?
         get() {
-            if (chapterVerseRange == null) {
-                return null
+            return if (chapterVerseRange == null) {
+                null
             } else {
                 val mainVerse = pageControl.currentBibleVerse
                 val start = chapterVerseRange!!.start
-                return Verse(mainVerse.versification, mainVerse.book, start.chapter, start.verse)
+                Verse(mainVerse.versification, mainVerse.book, start.chapter, start.verse)
             }
         }
 
     private val verseRange: VerseRange?
         get() {
             val startVerse = startVerse
-            if (startVerse == null) {
-                return null
+            return if (startVerse == null) {
+                null
             } else {
                 val v11n = startVerse.versification
                 val end = chapterVerseRange!!.end
                 val endVerse = Verse(v11n, startVerse.book, end.chapter, end.verse)
-                return VerseRange(v11n, startVerse, endVerse)
+                VerseRange(v11n, startVerse, endVerse)
             }
         }
 
@@ -222,6 +222,6 @@ class VerseActionModeMediator(
 
     companion object {
 
-        private val TAG = "VerseActionModeMediator"
+        private const val TAG = "VerseActionModeMediator"
     }
 }

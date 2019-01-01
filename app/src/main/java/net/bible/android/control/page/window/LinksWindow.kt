@@ -52,6 +52,6 @@ class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManag
     companion object {
 
         // must be -ve so as not to interfere with incrementing window number sequence
-        protected val DEDICATED_LINK_WINDOW_SCREEN_NO = -999
+        private const val DEDICATED_LINK_WINDOW_SCREEN_NO = -999
     }
 }

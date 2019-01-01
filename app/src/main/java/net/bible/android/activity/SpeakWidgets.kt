@@ -172,7 +172,7 @@ class SpeakWidgetManager {
         fun addButton(name: String, osisRef: String) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
-            if(osisRef.length > 0) {
+            if(osisRef.isNotEmpty()) {
                 val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
                     data = Uri.parse("bible://$osisRef")
@@ -184,7 +184,7 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        val labelDto = bookmarkControl.orCreateSpeakLabel
         if(!SpeakSettings.load().autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
         }

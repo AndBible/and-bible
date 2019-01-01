@@ -54,17 +54,17 @@ import java.io.InputStream
 
 internal class ModuleExists : Exception() {
     companion object {
-        private val serialVersionUID = 1L
+        private const val serialVersionUID = 1L
     }
 }
 
 internal class InvalidModule : Exception() {
     companion object {
-        private val serialVersionUID = 1L
+        private const val serialVersionUID = 1L
     }
 }
 
-internal val TAG = "InstallZip"
+internal const val TAG = "InstallZip"
 
 internal class ZipHandler(
         private val newInputStream: () -> InputStream?,
@@ -120,7 +120,7 @@ internal class ZipHandler(
 
         val confFiles = ArrayList<File>()
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
-        try {
+        zin.use { zin ->
             var ze: ZipEntry?
             var count: Int
             var entryNum = 0
@@ -143,20 +143,16 @@ internal class ZipHandler(
                     continue
                 }
                 val fout = FileOutputStream(file)
-                try {
+                fout.use { fout ->
                     count = zin.read(buffer)
                     while (count != -1) {
                         fout.write(buffer, 0, count)
                         count = zin.read(buffer)
                     }
-                } finally {
-                    fout.close()
                 }
                 publishProgress(++entryNum)
                 ze = zin.nextEntry
             }
-        } finally {
-            zin.close()
         }
         // Load configuration files & register books
         val bookDriver = SwordBookDriver.instance()
@@ -210,10 +206,10 @@ internal class ZipHandler(
     }
 
     companion object {
-        private val R_ERROR = 1
-        private val R_INVALID_MODULE = 2
-        private val R_MODULE_EXISTS = 3
-        private val R_OK = 4
+        private const val R_ERROR = 1
+        private const val R_INVALID_MODULE = 2
+        private const val R_MODULE_EXISTS = 3
+        private const val R_OK = 4
     }
 }
 
@@ -268,6 +264,6 @@ class InstallZip : Activity() {
     }
 
     companion object {
-        private val PICK_FILE = 1
+        private const val PICK_FILE = 1
     }
 }

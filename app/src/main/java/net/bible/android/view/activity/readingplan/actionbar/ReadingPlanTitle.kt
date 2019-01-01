@@ -55,7 +55,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
 
     private lateinit var actionBar: ActionBar
-    protected lateinit var activity: Activity
+    private lateinit var activity: Activity
         private set
 
     private lateinit var documentTitle: TextView
@@ -65,22 +65,22 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
     private val twoPageTitleParts: Array<String>
         get() {
-            try {
-                return unsplitIfLandscape(pageTitleParts)
+            return try {
+                unsplitIfLandscape(pageTitleParts)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting reading plan title", e)
-                return arrayOf("", "")
+                arrayOf("", "")
             }
 
         }
 
     private val twoDocumentTitleParts: Array<String>
         get() {
-            try {
-                return unsplitIfLandscape(documentTitleParts)
+            return try {
+                unsplitIfLandscape(documentTitleParts)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting reading plan title", e)
-                return arrayOf("", "")
+                arrayOf("", "")
             }
 
         }
@@ -124,39 +124,37 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
         update(true)
     }
 
-    protected fun update(everything: Boolean) {
+    private fun update(everything: Boolean) {
         CurrentActivityHolder.getInstance().runOnUiThread {
             // always update verse number
             val pageParts = twoPageTitleParts
-            if (pageParts.size > 0) pageTitle.text = pageParts[0]
+            if (pageParts.isNotEmpty()) pageTitle.text = pageParts[0]
             if (pageParts.size > 1) pageSubtitle.text = pageParts[1]
             pageSubtitle.visibility = if (pageParts.size > 1) View.VISIBLE else View.GONE
 
             // don't always need to redisplay document name
             if (everything) {
                 val documentParts = twoDocumentTitleParts
-                if (documentParts.size > 0) documentTitle.text = documentParts[0]
+                if (documentParts.isNotEmpty()) documentTitle.text = documentParts[0]
                 if (documentParts.size > 1) documentSubtitle.text = documentParts[1]
                 documentSubtitle.visibility = if (documentParts.size > 1) View.VISIBLE else View.GONE
             }
         }
     }
 
-    protected fun getTwoTitleParts(title: String, lastAreMoreSignificant: Boolean): Array<String> {
+    private fun getTwoTitleParts(title: String, lastAreMoreSignificant: Boolean): Array<String> {
         var parts: Array<String>? = titleSplitter.split(title)
         parts = reduceTo2Parts(parts, lastAreMoreSignificant)
         return parts
     }
 
     private fun reduceTo2Parts(parts: Array<String>?, lastAreMoreSignificant: Boolean): Array<String> {
-        var parts = parts
         // return the last 2 parts as only show 2 and last are normally most significant
-        if (lastAreMoreSignificant) {
-            parts = ArrayUtils.subarray(parts, parts!!.size - 2, parts.size)
+        return if (lastAreMoreSignificant) {
+            ArrayUtils.subarray(parts, parts!!.size - 2, parts.size)
         } else {
-            parts = ArrayUtils.subarray(parts, 0, 2)
+            ArrayUtils.subarray(parts, 0, 2)
         }
-        return parts
     }
 
     private fun unsplitIfLandscape(parts: Array<String>): Array<String> {
@@ -198,7 +196,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
         private val titleSplitter = TitleSplitter()
 
-        private val TAG = "Title"
+        private const val TAG = "Title"
     }
 
 }

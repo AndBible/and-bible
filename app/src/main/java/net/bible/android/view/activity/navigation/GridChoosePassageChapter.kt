@@ -87,16 +87,14 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     }
 
     private fun getBibleChaptersButtonInfo(book: BibleBook): List<ButtonInfo> {
-        var chapters: Int
+        val chapters: Int = try {
+            navigationControl.versification.getLastChapter(book)
+        } catch (nsve: Exception) {
+            -1
+        }
         val currentVerse = KeyUtil.getVerse(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.key)
         val currentBibleBook = currentVerse.book
         val currentBibleChapter = currentVerse.chapter
-
-        try {
-            chapters = navigationControl.versification.getLastChapter(book)
-        } catch (nsve: Exception) {
-            chapters = -1
-        }
 
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..chapters) {
@@ -140,7 +138,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
 
     }
 
-    fun onSave(v: View?) {
+    private fun onSave(v: View?) {
         Log.i(TAG, "CLICKED")
         val resultIntent = Intent(this, GridChoosePassageBook::class.java)
         setResult(Activity.RESULT_OK, resultIntent)
@@ -156,6 +154,6 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
 
     companion object {
 
-        private val TAG = "GridChoosePassageChaptr"
+        private const val TAG = "GridChoosePassageChaptr"
     }
 }

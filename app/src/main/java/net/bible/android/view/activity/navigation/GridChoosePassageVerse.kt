@@ -78,12 +78,11 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     }
 
     private fun getBibleVersesButtonInfo(book: BibleBook, chapterNo: Int): List<ButtonInfo> {
-        var verses: Int
-        try {
-            verses = navigationControl.versification.getLastVerse(book, chapterNo)
+        val verses = try {
+            navigationControl.versification.getLastVerse(book, chapterNo)
         } catch (nsve: Exception) {
             Log.e(TAG, "Error getting number of verses", nsve)
-            verses = -1
+            -1
         }
 
         val keys = ArrayList<ButtonInfo>()
@@ -108,6 +107,6 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
 
     companion object {
 
-        private val TAG = "GridChoosePassageChaptr"
+        private const val TAG = "GridChoosePassageChaptr"
     }
 }

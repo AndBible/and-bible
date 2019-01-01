@@ -50,7 +50,7 @@ class ProgressNotificationManager {
     private var workListener: WorkListener? = null
 
     // add it to the NotificationManager
-    lateinit private var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
 
     fun initialise() {
         Log.i(TAG, "Initializing")
@@ -157,7 +157,7 @@ class ProgressNotificationManager {
     }
 
     companion object {
-        private val TAG = "ProgressNotificatnMngr"
+        private const val TAG = "ProgressNotificatnMngr"
 
         const val PROGRESS_NOTIFICATION_CHANNEL="proggress-notifications"
 

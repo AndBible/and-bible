@@ -71,7 +71,7 @@ import org.apache.commons.lang3.StringUtils
  */
 
 class BibleView(mainBibleActivity: MainBibleActivity,
-                val windowNo: Window,
+                private val windowNo: Window,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -103,7 +103,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     // remember current background colour so we know when it changes
     private var wasNightMode: Boolean? = null
 
-    internal var gestureDetector: GestureDetectorCompat
+    private var gestureDetector: GestureDetectorCompat
 
     /** Used to prevent scroll off bottom using auto-scroll
      * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
@@ -256,7 +256,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     /**
      * Enable or disable zoom controls depending on whether map is currently shown
      */
-    protected fun enableZoomForMap(isMap: Boolean) {
+    private fun enableZoomForMap(isMap: Boolean) {
         settings.builtInZoomControls = true
         settings.setSupportZoom(isMap)
         settings.displayZoomControls = false
@@ -531,7 +531,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         this.mIsVersePositionRecalcRequired = mIsVersePositionRecalcRequired
     }
 
-    fun setJumpToVerse(chapterVerse: ChapterVerse) {
+    private fun setJumpToVerse(chapterVerse: ChapterVerse) {
         this.mJumpToChapterVerse = chapterVerse
     }
 
@@ -554,16 +554,16 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         }
     }
 
-    internal inner class BibleViewLongClickListener(var defaultValue: Boolean) : View.OnLongClickListener {
+    internal inner class BibleViewLongClickListener(private var defaultValue: Boolean) : View.OnLongClickListener {
 
         override fun onLongClick(v: View): Boolean {
             val result = hitTestResult
-            if (result.type == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
+            return if (result.type == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
                 setContextMenuInfo(result.extra!!)
-                return v.showContextMenu()
+                v.showContextMenu()
             } else {
                 contextMenuInfo = null
-                return defaultValue
+                defaultValue
             }
         }
     }
@@ -608,12 +608,8 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         return contextMenuInfo
     }
 
-    internal inner class BibleViewContextMenuInfo(targetView: View, var targetLink: String) : ContextMenu.ContextMenuInfo {
-        var targetView: BibleView
-
-        init {
-            this.targetView = targetView as BibleView
-        }
+    internal inner class BibleViewContextMenuInfo(targetView: View, private var targetLink: String) : ContextMenu.ContextMenuInfo {
+        private var targetView: BibleView = targetView as BibleView
 
         fun activate(itemId: Int) {
             when (itemId) {
@@ -678,8 +674,8 @@ class BibleView(mainBibleActivity: MainBibleActivity,
 
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
         // no scrollOrJumpToVerse will occur
-        private val TOP_OF_SCREEN = 1
+        private const val TOP_OF_SCREEN = 1
 
-        private val TAG = "BibleView"
+        private const val TAG = "BibleView"
     }
 }
