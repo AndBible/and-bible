@@ -51,12 +51,12 @@
 
                         <TextView
                             android:id="@+id/pageTitle"
-                            android:maxWidth="150sp"
+                            android:maxWidth="200sp"
                             style="@style/BibleTitle1" />
 
                         <TextView
                             android:id="@+id/documentTitle"
-                            android:maxWidth="150sp"
+                            android:maxWidth="200sp"
                             style="@style/BibleTitle2" />
                     </LinearLayout>
                 </LinearLayout>

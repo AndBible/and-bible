@@ -147,7 +147,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun setupToolbarButtons() {
         updateActionBarButtons()
         updateSpeakTransportVisibility()
-        
+
         homeButton.setOnClickListener {
             if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 drawerLayout.closeDrawers()
