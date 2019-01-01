@@ -137,6 +137,7 @@ class VerseActionModeMediator(
      */
     fun verseTouch(verse: ChapterVerse) {
         Log.d(TAG, "Verse touched event:$verse")
+
         val origRange = chapterVerseRange
         chapterVerseRange = chapterVerseRange!!.toggleVerse(verse)
 
@@ -164,6 +165,10 @@ class VerseActionModeMediator(
     }
 
     private fun startVerseActionMode(startChapterVerse: ChapterVerse) {
+        Log.d(TAG, "startVerseActionMode")
+        if(!mainBibleActivity.isVerseActionModeAllowed()) {
+            return
+        }
         if (actionMode != null) {
             Log.i(TAG, "Action mode already started so ignoring restart.")
             return
@@ -173,7 +178,8 @@ class VerseActionModeMediator(
         bibleView.highlightVerse(startChapterVerse)
 
         val currentVerse = pageControl.currentBibleVerse
-        this.chapterVerseRange = ChapterVerseRange(currentVerse.versification, currentVerse.book, startChapterVerse, startChapterVerse)
+        chapterVerseRange = ChapterVerseRange(currentVerse.versification, currentVerse.book,
+                startChapterVerse, startChapterVerse)
 
         mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler)
         bibleView.enableVerseTouchSelection()
@@ -182,9 +188,12 @@ class VerseActionModeMediator(
     /**
      * Ensure all state is left tidy
      */
+
     private fun endVerseActionMode() {
+        Log.d(TAG, "endVerseActionMode")
         // prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
         if (actionMode != null) {
+            Log.d(TAG, "endVerseActionMode 2")
             val finishingActionMode = actionMode as ActionMode
             actionMode = null
 
@@ -199,7 +208,7 @@ class VerseActionModeMediator(
     interface ActionModeMenuDisplay {
         fun showVerseActionModeMenu(actionModeCallbackHandler: ActionMode.Callback)
         fun clearVerseActionMode(actionMode: ActionMode)
-
+        fun isVerseActionModeAllowed(): Boolean
         fun startActivityForResult(intent: Intent, requestCode: Int)
     }
 

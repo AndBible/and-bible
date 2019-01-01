@@ -72,6 +72,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
 class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.ActionModeMenuDisplay {
     private var mWholeAppWasInBackground = false
 
@@ -91,7 +92,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
-
 
     /**
      * return percentage scrolled down page
@@ -121,8 +121,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 .mainBibleActivityModule(MainBibleActivityModule(this))
                 .build()
                 .inject(this)
-
-        //super.setActionBarManager(bibleActionBarManager)
 
         // create related objects
         documentViewManager.buildView()
@@ -544,9 +542,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return true
     }
 
-    /**
-     * Event raised by javascript as a result of longtap
-     */
+    override fun isVerseActionModeAllowed(): Boolean {
+        return !drawerLayout.isDrawerVisible(navigationView)
+    }
+
     override fun showVerseActionModeMenu(actionModeCallbackHandler: ActionMode.Callback) {
         Log.d(TAG, "showVerseActionModeMenu")
 
