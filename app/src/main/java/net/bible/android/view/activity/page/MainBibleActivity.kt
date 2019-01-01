@@ -57,6 +57,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -142,13 +143,29 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateActionBarButtons()
         updateSpeakTransportVisibility()
 
-        homeButton.setOnClickListener { onHomeButtonClick(it) }
-        pageTitleContainer.setOnClickListener { onPageTitleClick(it) }
-        speakButton.setOnClickListener { onSpeakButtonClick(it) }
-        bibleButton.setOnClickListener { onBibleButtonClick(it) }
-        commentaryButton.setOnClickListener { onCommentaryButtonClick(it) }
+        homeButton.setOnClickListener {
+            if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                drawerLayout.closeDrawers()
+            }
+            else {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+        }
+
+        pageTitleContainer.setOnClickListener {
+            val intent = Intent(this, pageControl.currentPageManager.currentPage.keyChooserActivity)
+            startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+        }
+        pageTitleContainer.setOnLongClickListener {
+            startActivityForResult(Intent(this, ChooseDocument::class.java), ActivityBase.STD_REQUEST_CODE)
+            true
+        }
+        
+        speakButton.setOnClickListener {  speakControl.toggleSpeak() }
+        bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
+        commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
         bookmarkButton.setOnClickListener { startActivity( Intent(this, Bookmarks::class.java))  }
-        dictionaryButton.setOnClickListener { onDictionaryButtonClick(it) }
+        dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
     data class ItemOptions (val name: String, val default: Boolean = true, val onlyBibles: Boolean = false)
@@ -300,28 +317,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun updateSpeakTransportVisibility() {
         speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
         updateActionBarButtons()
-    }
-
-    fun onBibleButtonClick(v: View) = setCurrentDocument(documentControl.suggestedBible)
-
-    fun onCommentaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedCommentary)
-
-    fun onDictionaryButtonClick(v: View) = setCurrentDocument(documentControl.suggestedDictionary)
-
-    fun onSpeakButtonClick(v: View) = speakControl.toggleSpeak()
-
-    fun onHomeButtonClick(v: View) {
-        if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            drawerLayout.closeDrawers()
-        }
-        else {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
-    }
-
-    fun onPageTitleClick(v: View) {
-        val intent = Intent(this, pageControl.currentPageManager.currentPage.keyChooserActivity)
-        startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
     }
 
     private fun refreshScreenKeepOn() {
