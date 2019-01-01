@@ -140,9 +140,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         refreshScreenKeepOn()
         requestSdcardPermission()
+        setupToolbarButtons()
+
+    }
+
+    private fun setupToolbarButtons() {
         updateActionBarButtons()
         updateSpeakTransportVisibility()
-
+        
         homeButton.setOnClickListener {
             if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 drawerLayout.closeDrawers()
@@ -160,7 +165,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             startActivityForResult(Intent(this, ChooseDocument::class.java), ActivityBase.STD_REQUEST_CODE)
             true
         }
-        
+
         speakButton.setOnClickListener {  speakControl.toggleSpeak() }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
         commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
