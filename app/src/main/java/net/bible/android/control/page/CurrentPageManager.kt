@@ -45,7 +45,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class CurrentPageManager @Inject constructor(
+open class CurrentPageManager @Inject constructor(
         swordContentFacade: SwordContentFacade,
         swordDocumentFacade: SwordDocumentFacade,
         bibleTraverser: BibleTraverser,
