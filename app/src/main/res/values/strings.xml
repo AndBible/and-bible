@@ -29,9 +29,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="help_text">Press the MENU button for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
 
     <string name="help_nav_title">Navigation</string>
-    <string name="help_nav_text">Go to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger.
-        Double-tap toggles Fullscreen on/off.
-    </string>
+    <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger. </string>
 
     <string name="help_menu_title">Menu</string>
     <string name="help_menu_text">Press the MENU button for actions.
