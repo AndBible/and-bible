@@ -57,7 +57,8 @@ open class WindowControl @Inject constructor(
 
     private val logger = Logger(this.javaClass.name)
 
-    override val activeWindowPageManager: CurrentPageManager = activeWindow.pageManager
+    override val activeWindowPageManager: CurrentPageManager
+        get() = activeWindow.pageManager
 
     val isMultiWindow: Boolean
         get() = windowRepository.isMultiWindow
@@ -79,7 +80,7 @@ open class WindowControl @Inject constructor(
             val windowVerseMap = HashMap<Window, ChapterVerse>()
             for (window in windowRepository.windows) {
                 val currentPage = window.pageManager.currentPage
-                if (currentPage != null && BookCategory.BIBLE == currentPage.currentDocument.bookCategory) {
+                if (BookCategory.BIBLE == currentPage.currentDocument.bookCategory) {
                     val chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.singleKey))
                     windowVerseMap[window] = chapterVerse
                 }

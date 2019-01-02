@@ -97,22 +97,4 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     override fun toString(): String {
         return "Window [screenNo=$screenNo]"
     }
-
-    override fun hashCode(): Int {
-        val prime = 31
-        var result = 1
-        result = prime * result + screenNo
-        return result
-    }
-
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj)
-            return true
-        if (obj == null)
-            return false
-        if (javaClass != obj.javaClass)
-            return false
-        val other = obj as Window?
-        return screenNo == other!!.screenNo
-    }
 }

@@ -264,7 +264,7 @@ open class WindowRepository @Inject constructor(
         } catch (e: Exception) {
             logger.error("Restore error", e)
         }
-
+        activeWindow = getDefaultActiveWindow()
     }
 
     /** called during app close down to save state
