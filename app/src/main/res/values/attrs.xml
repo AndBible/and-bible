@@ -20,5 +20,6 @@
 <resources>
     <declare-styleable name="SpeakTransportWidget">
         <attr name="hideStatus" format="boolean" />
+        <attr name="showConfig" format="boolean" />
     </declare-styleable>
 </resources>

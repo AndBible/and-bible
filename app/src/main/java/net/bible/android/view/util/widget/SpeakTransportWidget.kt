@@ -31,21 +31,26 @@ import kotlinx.android.synthetic.main.speak_transport_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.speak.BibleSpeakActivity
+import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import org.crosswire.jsword.book.BookCategory
 import javax.inject.Inject
 
 class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet) {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
+    @Inject lateinit var windowControl: WindowControl
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.speak_transport_widget, this, true)
@@ -58,6 +63,11 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         prevButton.setOnClickListener { onButtonClick(it) }
         nextButton.setOnClickListener { onButtonClick(it) }
         stopButton.setOnClickListener { onButtonClick(it) }
+        configButton.setOnClickListener {
+            val isBible = windowControl.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE
+            val intent = Intent(context, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+            context.startActivity(intent)
+        }
         forwardButton.setOnClickListener { onButtonClick(it) }
         bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
         bookmarkButton.visibility = if(SpeakSettings.load().autoBookmark) View.VISIBLE else View.GONE
@@ -65,6 +75,11 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                         .getBoolean(R.styleable.SpeakTransportWidget_hideStatus, false)) {
             statusText.visibility = View.GONE
         }
+        if(!context.theme.obtainStyledAttributes(attributeSet, R.styleable.SpeakTransportWidget, 0, 0)
+                        .getBoolean(R.styleable.SpeakTransportWidget_showConfig, false)) {
+            configButton.visibility = View.GONE
+        }
+
         resetView(SpeakSettings.load())
     }
 
@@ -80,7 +95,12 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     when {
                         speakControl.isPaused -> speakControl.continueAfterPause()
                         speakControl.isSpeaking -> speakControl.pause()
-                        else -> speakControl.speakBible()
+                        else -> {
+                            speakControl.speakBible()
+                            if(SpeakSettings.load().synchronize) {
+                                context.startActivity(Intent(context, MainBibleActivity::class.java))
+                            }
+                        }
                     }
                 forwardButton -> speakControl.forward()
             }

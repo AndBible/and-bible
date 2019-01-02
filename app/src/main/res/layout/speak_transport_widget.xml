@@ -96,5 +96,13 @@
                     android:layout_weight="1"
                     android:contentDescription="@string/forward"
                     android:src="@android:drawable/ic_media_ff" />
+
+                <ImageButton
+                    android:id="@+id/configButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/forward"
+                    android:src="@android:drawable/ic_menu_preferences" />
         </LinearLayout>
 </LinearLayout>
