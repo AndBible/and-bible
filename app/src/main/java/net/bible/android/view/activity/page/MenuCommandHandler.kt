@@ -163,10 +163,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     val app = BibleApplication.application
                     val versionMsg = app.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
 
-                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_menu_title, R.string.help_speech_title,
+                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_speech_title,
                             R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
                             R.string.help_contextmenus_title)
-                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_menu_text, R.string.help_speech_text,
+                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_speech_text,
                             R.string.help_mynote_text, R.string.help_bookmarks_text, R.string.help_search_text,
                             R.string.help_contextmenus_text)
 
