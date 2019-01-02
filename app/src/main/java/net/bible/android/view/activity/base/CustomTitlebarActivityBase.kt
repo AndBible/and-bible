@@ -27,6 +27,9 @@ import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
 
 import javax.inject.Inject
+import android.view.animation.DecelerateInterpolator
+import kotlinx.android.synthetic.main.main_bible_view.*
+
 
 /**
  * Base class for activities with a custom title bar
@@ -71,10 +74,13 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
 
         if (!isFullScreen) {
             Log.d(TAG, "Fullscreen off")
-            supportActionBar!!.show()
+            toolbar.translationY = -toolbar.bottom.toFloat()
+            supportActionBar?.show()
+            toolbar.animate().translationY(0.0F).setInterpolator(DecelerateInterpolator()).start()
+
         } else {
             Log.d(TAG, "Fullscreen on")
-            supportActionBar!!.hide()
+            supportActionBar?.hide()
         }
 
         getContentView().requestLayout()
