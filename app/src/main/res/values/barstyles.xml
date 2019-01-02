@@ -53,6 +53,10 @@
 		<item name="windowActionModeOverlay">true</item>
 	</style>
 
+	<style name="NavigationViewTextStyle">
+		<item name="android:ellipsize">end</item>
+	</style>
+
 	<!-- Custom left title text -->
 	<style name="BibleTitle1" parent="ActionBarTitle">
 		<item name="android:textSize">15sp</item>

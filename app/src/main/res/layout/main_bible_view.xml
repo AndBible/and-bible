@@ -158,5 +158,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        app:theme="@style/NavigationViewTextStyle"
         app:menu="@menu/main_bible_drawer_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>
