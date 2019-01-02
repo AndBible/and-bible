@@ -260,11 +260,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         val maxButtons: Int = maxWidth / approximateSize
 
-        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
-
         bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
@@ -272,14 +267,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             View.VISIBLE
         } else View.GONE
 
-        searchButton.visibility = if(visibleButtonCount< maxButtons) {
+        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
+            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
+            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
-            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
-            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+        searchButton.visibility = if(visibleButtonCount< maxButtons) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
