@@ -58,8 +58,6 @@ public class PageControl {
 	
 	private static final String TAG = "PageControl";
 	
-	private static final TitleSplitter titleSplitter = new TitleSplitter();
-
 	private final  SwordDocumentFacade swordDocumentFacade;
 	private final SwordContentFacade swordContentFacade;
 
