@@ -23,6 +23,8 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
 
@@ -40,6 +42,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
+	private boolean windowChanged = false;
 	
 	private static final String TAG = "BibleGestureListener";
 	
@@ -50,6 +53,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
     	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
+		ABEventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -85,11 +89,19 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		return false;
 	}
 
+	public void onEvent(CurrentWindowChangedEvent event) {
+		windowChanged = true;
+	}
+
 	@Override
-	public boolean onDoubleTap(MotionEvent e) {
-		Log.d(TAG, "onDoubleTap");
-		
-		mainBibleActivity.toggleFullScreen();
-		return true;
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		if(!windowChanged) {
+			mainBibleActivity.toggleFullScreen();
+			return true;
+		}
+		else {
+			windowChanged = false;
+			return false;
+		}
 	}
 }
