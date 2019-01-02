@@ -108,6 +108,8 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
+    private val gestureListener  = BibleGestureListener(mainBibleActivity)
+
     var windowButton: View? = null
 
     init {
@@ -116,8 +118,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
                 WebView.setWebContentsDebuggingEnabled(true)
             }
         }
-
-        gestureDetector = GestureDetectorCompat(context, BibleGestureListener(mainBibleActivity))
+        gestureDetector = GestureDetectorCompat(context, gestureListener)
         setOnTouchListener { v, event ->
             if (gestureDetector.onTouchEvent(event)) {
                 true
@@ -628,11 +629,13 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     }
 
     override fun enableVerseTouchSelection() {
+        gestureListener.setVerseSelectionMode(true)
         executeJavascriptOnUiThread("enableVerseTouchSelection()")
     }
 
     override fun disableVerseTouchSelection() {
         executeJavascriptOnUiThread("disableVerseTouchSelection()")
+        gestureListener.setVerseSelectionMode(false)
     }
 
     override fun highlightVerse(chapterVerse: ChapterVerse) {

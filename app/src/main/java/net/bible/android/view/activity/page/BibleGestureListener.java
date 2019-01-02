@@ -42,7 +42,16 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
-	private boolean windowChanged = false;
+	private boolean disableSingleTapOnce = false;
+
+	public void setVerseSelectionMode(boolean verseSelectionMode) {
+		this.verseSelectionMode = verseSelectionMode;
+		if(!verseSelectionMode){
+			disableSingleTapOnce = true;
+		}
+	}
+
+	private boolean verseSelectionMode = false;
 	
 	private static final String TAG = "BibleGestureListener";
 	
@@ -90,7 +99,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	}
 
 	public void onEvent(CurrentWindowChangedEvent event) {
-		windowChanged = true;
+		disableSingleTapOnce = true;
 	}
 
 	@Override
@@ -101,13 +110,17 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
-		if(!windowChanged) {
-			mainBibleActivity.toggleFullScreen();
-			return true;
+		if (verseSelectionMode) {
+			return false;
+
+		}
+		if(disableSingleTapOnce) {
+			disableSingleTapOnce = false;
+			return false;
 		}
 		else {
-			windowChanged = false;
-			return false;
+			mainBibleActivity.toggleFullScreen();
+			return true;
 		}
 	}
 }

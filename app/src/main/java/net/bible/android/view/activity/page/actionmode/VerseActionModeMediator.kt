@@ -190,18 +190,16 @@ class VerseActionModeMediator(
      */
 
     private fun endVerseActionMode() {
-        Log.d(TAG, "endVerseActionMode")
         // prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
+        val actionMode = this.actionMode
         if (actionMode != null) {
-            Log.d(TAG, "endVerseActionMode 2")
-            val finishingActionMode = actionMode as ActionMode
-            actionMode = null
+            mainBibleActivity.clearVerseActionMode(actionMode)
+            this.actionMode = null
 
             bibleView.clearVerseHighlight()
             bibleView.disableVerseTouchSelection()
             chapterVerseRange = null
 
-            mainBibleActivity.clearVerseActionMode(finishingActionMode)
         }
     }
 
