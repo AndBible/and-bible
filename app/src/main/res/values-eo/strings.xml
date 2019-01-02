@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Biblio</string>
-  <!--Startup & Help-->
-  <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
-  <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
+  <!--Old long help text. This will be removed later.-->
   <string name="help_text_long"><b>Navigado</b>\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon
 \nDuobla tuŝeto eniras/eliras plenekranon.
 \n\n<b>Menuo</b>
@@ -17,6 +15,32 @@
 \nPremtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
 \nPremtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
 \nPremtenu sur reen-butonon por aliri liston de historio</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
+  <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
+  <string name="help_nav_title">Navigi</string>
+  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
+ Duobla frapeto eniras/eliras plenekranon.</string>
+  <string name="help_menu_title">Menuo</string>
+  <string name="help_menu_text">Premu la MENU-butonon por montri agojn.
+ Por elŝuti pli da dokumentoj, iru al menuo/administri/elŝuti dokumentojn.</string>
+  <string name="help_speech_title">Parolo</string>
+  <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
+  <string name="help_mynote_title">Miaj notoj</string>
+  <string name="help_mynote_text">Oni povas aldoni notojn per la funkcio “miaj notoj” en la kunteksta menuo de verso.
+ La listo de ekzistaj notoj estas disponebla per la ĉefmenuo.</string>
+  <string name="help_bookmarks_title">Legosignoj</string>
+  <string name="help_bookmarks_text">Oni povas aldoni legosignojn per la kunteksta menuo de verso.
+ Legosigna mastrumilo estas disponebla per la ĉefmenuo.
+ Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.</string>
+  <string name="help_search_title">Serĉi</string>
+  <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
+ (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
+  <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
+  <string name="help_contextmenus_text">
+ Premtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
+ Premtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
+ Premtenu sur reen-butonon por aliri liston de historio.</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj relanĉi And Biblion.</string>
   <!--Main menu-->
@@ -148,6 +172,7 @@
   <string name="document_not_installed">Bonvolu elŝuti ‘%s’</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
+  <string name="install_zip_module">Instali modulon de Biblio</string>
   <string name="install_zip_successfull">Modulo instalita sukcese</string>
   <string name="extracting_zip_file">Eltirado de zip-dosiero…</string>
   <string name="checking_zip_file">Kontrolado de dosiero…</string>
@@ -241,7 +266,6 @@
   <string name="speak_bookmarking_settings_title">Agordoj de legosignoj</string>
   <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
   <string name="speak_advanced_settings">Spertaj agordoj</string>
-  <string name="speak_settings_activity_title">Pliaj agordoj de parolo</string>
   <string name="speak_sleep_timer_title">Dormo</string>
   <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
   <string name="conf_speak_synchronize">Samtempigi tekston kun parolo</string>
@@ -252,7 +276,7 @@
   <string name="conf_change_title">Titoloj</string>
   <string name="conf_speak_footnotes">Piednotoj</string>
   <string name="conf_speak_sleep_timer">Agordi aŭtomatan fermon</string>
-  <string name="conf_speak_multitranslation">Kompari tradukojn per paroli el ĉiuj videblaj fenestroj</string>
+  <string name="conf_speak_multitranslation">Paroli el ĉiuj videblaj fenestroj</string>
   <string name="sleep_timer_title">Dormi post (en minutoj)</string>
   <string name="sleep_timer_set">Agordis aŭtomatan fermon al %d minutoj</string>
   <string name="sleep_timer_started">Agordis aŭtomatan fermon al %d minutoj</string>
@@ -262,6 +286,8 @@
   <string name="widget_toggle_sleep_timer">(Mal)ŝalti aŭtomatan dormon</string>
   <string name="widget_bookmark_helptext">Butonoj de parolaj legosignoj aperos tie ĉi.</string>
   <string name="speak_status_stopped">haltigita</string>
+  <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
+  <string name="system_speak_settings">Malfermi agordojn de parolsintezo</string>
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
   <string name="speak_help_auto_bookmark">
 Parola legosigno estos aŭtomate kreita kiam vi paŭzigos/haltigos parolon. Aŭtomate kreitaj legosignoj estas markitaj per speciala etikedo. Kiam vi pluigos parolan legosignon, ĝi aŭtomate moviĝos al la verso kie vi paŭzigos/haltigos la venonta foje. Nur parolaj legosignoj moviĝos, ĉiuj aliaj legosignoj ne estos movitaj.</string>
@@ -308,6 +334,7 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="mynote_view_edit">Mia noto</string>
   <string name="mynote_saved">Mia noto konservita</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sekurkopio</string>
   <string name="backup">Fari sekurkopion</string>
   <string name="backup_success">Miaj notoj kaj legosignoj konservitaj en %s en SD-karto</string>
   <string name="restore">Restarigi</string>
@@ -342,6 +369,7 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="new_item">Nova</string>
   <string name="close">Fermi</string>
   <string name="edit">Redakti</string>
+  <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
   <!--Errors-->
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
@@ -354,4 +382,14 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="download_documents">Elŝutado de dokumentoj</string>
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
+  <string name="menu">Menuo</string>
+  <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
+  <string name="chooce_document">Elektu dokumenton</string>
+  <string name="repeat_passage">Ripeti alineon</string>
+  <string name="set_repeat_passage_range">Elekti amplekson de alineo por ripeti</string>
+  <string name="speak_beginning_of_passage">Elektu komencon de alineo</string>
+  <string name="speak_ending_of_passage">Elektu finon de alineo</string>
+  <string name="speak_verse_range_to_repeat">Elektu amplekson de verso por ripeti</string>
+  <string name="speak_ending_verse_must_be_later">Fina verso estu post komenca verso</string>
+  <string name="new_window">Nova fenestro</string>
 </resources>

@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigering</b>\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen\nDobbeltrykk på skjermen å slå fullskjermmodus av/på.\n\n<b>Meny</b>\nTrykk menyknappen for å vise tilgjengelige valg\n\nFor å laste ned flere moduler, trykk menyknappen-&gt;Administrasjon-&gt;Last ned bibler\n\n<b>Høytlesing</b>\nTrykk på høytlesing for å vise skjermbildet for å starte og stoppe høytlesing\n\n<b>Mine notater</b>\nNotater kan du legge til fra menyvalget Mine notater på menyen for bibelvers. En liste over eksisterende notater kan du vise fra hovedmenyen.\n\n<b>Bokmerker</b>\nDu kan legge til bokmerker fra menyen for bibelvers. Bokmerkehåndtereren åpner du fra hovedmenyen. Bokmerkehåndtereren lar deg gruppere bokmerker.\n\n<b>Søk</b>\nSøkefunksjonen lar deg bruke spesialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene – Query Parser Syntax\" for flere detaljer).\n\n<b>Kontekstmenyer</b>\nTrykk lenge på et bibelvers for å vise tilgjengelige valg for valgte bibelvers.\nTrykk lenge på en modul i modullisten for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å vise historikk.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Da sa Gud, \'Bli lys!\' Og det ble lys.\"\n1. Mosebok 1, 3</string>
   <string name="help_text">Trykk menyknappen for å vise tilgjengelige valg\n\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen</string>
-  <string name="help_text_long"><b>Navigering</b>\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen\nDobbeltrykk på skjermen å slå fullskjermmodus av/på.\n\n<b>Meny</b>\nTrykk menyknappen for å vise tilgjengelige valg\n\nFor å laste ned flere moduler, trykk menyknappen-&gt;Administrasjon-&gt;Last ned bibler\n\n<b>Høytlesing</b>\nTrykk på høytlesing for å vise skjermbildet for å starte og stoppe høytlesing\n\n<b>Mine notater</b>\nNotater kan du legge til fra menyvalget Mine notater på menyen for bibelvers. En liste over eksisterende notater kan du vise fra hovedmenyen.\n\n<b>Bokmerker</b>\nDu kan legge til bokmerker fra menyen for bibelvers. Bokmerkehåndtereren åpner du fra hovedmenyen. Bokmerkehåndtereren lar deg gruppere bokmerker.\n\n<b>Søk</b>\nSøkefunksjonen lar deg bruke spesialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene – Query Parser Syntax\" for flere detaljer).\n\n<b>Kontekstmenyer</b>\nTrykk lenge på et bibelvers for å vise tilgjengelige valg for valgte bibelvers.\nTrykk lenge på en modul i modullisten for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å vise historikk.</string>
   <string name="version_text">Versjon %s</string>
   <string name="no_sdcard_error">Sett inn ett minnekort og start And Bible på nytt.</string>
   <!--Main menu-->
@@ -91,6 +92,9 @@
   <string name="speak_speed_slow">Sakte</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Rask</string>
+  <string name="prefs_split_mode_vertical">Vertikalt</string>
+  <string name="prefs_split_mode_horizontal">Horisontalt</string>
+  <string name="prefs_split_mode_automatic">Automatisk</string>
   <!--Window-->
   <string name="window">Vindu</string>
   <string name="windowClose">Lukk</string>
@@ -209,6 +213,8 @@
   <string name="speak_queue">Legg i kø</string>
   <string name="speak_repeat">Repeter</string>
   <!--Speak - Bible-->
+  <string name="speak_help_playback_settings_example">
+</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 

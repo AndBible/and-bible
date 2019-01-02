@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And 성경</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>실행을 위한 메뉴 키 사용</b>\n\n1. 문서를 다운로드하려면 다음 또는 이전 챕터로 이동합니다.\n2. 성경보기를 열고 메뉴 / 관리 / 다운로드 문서를 누르십시오.\n3. 현재구절에 영향을 미치는 작업은 내용 메뉴. \n 문서 선택에서 문서를 삭제하거나 정보를 공유할 수 있읍니다.\n\n<b>말하기</b>\n\n말하기를 누르면 대화창을 시작하거나 중단 합니다. \n북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 꼬리표를 사용하여 그룹화 할 수 있습니다.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\"하나님이 빛이 있으라 하시매 빛이 있었고\" 창세기 1장 3절</string>
   <string name="help_text">실행을 위해 메뉴 키를 사용.\n손으로 D-패드를 움직이거나 손가락을 사용하여 \n이전 또는 다음 장으로 이동</string>
-  <string name="help_text_long"><b>실행을 위한 메뉴 키 사용</b>\n\n1. 문서를 다운로드하려면 다음 또는 이전 챕터로 이동합니다.\n2. 성경보기를 열고 메뉴 / 관리 / 다운로드 문서를 누르십시오.\n3. 현재구절에 영향을 미치는 작업은 내용 메뉴. \n 문서 선택에서 문서를 삭제하거나 정보를 공유할 수 있읍니다.\n\n<b>말하기</b>\n\n말하기를 누르면 대화창을 시작하거나 중단 합니다. \n북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 꼬리표를 사용하여 그룹화 할 수 있습니다.</string>
   <string name="version_text">버전의 %s</string>
   <string name="no_sdcard_error">SD 카드를 재삽입 한 뒤, 앱을 다시 시작합니다.</string>
   <!--Main menu-->

@@ -1,10 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Startup & Help-->
-  <string name="splash_top_text">
-\n\"En God zei: \'Er moet licht komen\' en er was licht.\"\nGenesis 1:3</string>
-  <string name="help_text">Druk op de Menutoets voor acties\n\n\Ga naar het volgende of vorige hoofdstuk met behulp van de trackbal, het D-pad of veeg op het scherm met je vinger</string>
+  <!--Old long help text. This will be removed later.-->
   <string name="help_text_long"><b>Navigatie</b>\nBlader door hoofdstukken met de trackbal, het D-pad of veeg met je vinger over het scherm.
 \nDubbeltikken schakelt volledig scherm in/uit.
 \n\n<b>Menu</b>
@@ -18,6 +15,17 @@
 \nHoudt een document in de documentselectie ingedrukt om het te verwijderen of om informatie te bekijken.
 \nHoudt de Terug-knop ingedrukt om de Geschiedenislijst te openen
 </string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">
+\n\"En God zei: \'Er moet licht komen\' en er was licht.\"\nGenesis 1:3</string>
+  <string name="help_text">Druk op de Menutoets voor acties\n\n\Ga naar het volgende of vorige hoofdstuk met behulp van de trackbal, het D-pad of veeg op het scherm met je vinger</string>
+  <string name="help_nav_title">Navigatie</string>
+  <string name="help_menu_title">Menu</string>
+  <string name="help_speech_title">Voorlezen</string>
+  <string name="help_mynote_title">Mijn notitie</string>
+  <string name="help_bookmarks_title">Bladwijzers</string>
+  <string name="help_search_title">Zoeken</string>
+  <string name="help_contextmenus_title">Actiemenu\'s</string>
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
   <!--Main menu-->
@@ -152,6 +160,7 @@
   <string name="document_not_installed">Download \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Document laden uit ZIP-bestand</string>
+  <string name="install_zip_module">Bijbelmodule installeren</string>
   <string name="install_zip_successfull">De module is geïnstalleerd</string>
   <string name="extracting_zip_file">Bezig met uitpakken van ZIP-bestand...</string>
   <string name="checking_zip_file">Bezig met controleren van opgegeven bestand...</string>
@@ -245,10 +254,9 @@
   <string name="speak_bookmarking_settings_title">Bladwijzerinstellingen</string>
   <string name="speak_bookmarks_menu_title">Bladwijzer voorlezen</string>
   <string name="speak_advanced_settings">Geavanceerde instellingen</string>
-  <string name="speak_settings_activity_title">Meer voorleesinstellingen</string>
   <string name="speak_sleep_timer_title">Slaaptimer</string>
   <string name="speak_no_books_available">Geen voor te lezen boeken</string>
-  <string name="conf_speak_synchronize">Tekst synchroniseren met spraak</string>
+  <string name="conf_speak_synchronize">Tekst loopt synchroon met spraak</string>
   <string name="conf_speak_auto_bookmark">Automatische bladwijzers</string>
   <string name="conf_save_playback_settings_to_bookmarks">Afspeelinstellingen opslaan naar bladwijzers</string>
   <string name="conf_replace_divinename">Heilige naam vervangen door Yahweh</string>
@@ -256,7 +264,7 @@
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voetnoten</string>
   <string name="conf_speak_sleep_timer">Slaaptimer instellen</string>
-  <string name="conf_speak_multitranslation">Vergelijk vertalingen door voor te lezen uit alle beschikbare vensters</string>
+  <string name="conf_speak_multitranslation">Voorlezen uit alle beschikbare vensters</string>
   <string name="sleep_timer_title">Slaaptijd, in minuten</string>
   <string name="sleep_timer_set">Slaaptimer instellen. Timer ingesteld op %d minuten</string>
   <string name="sleep_timer_started">Slaaptimer gestart; %d minuten</string>
@@ -266,6 +274,8 @@
   <string name="widget_toggle_sleep_timer">Slaaptimer in-/uitschakelen</string>
   <string name="widget_bookmark_helptext">Snelkoppelingen voor het voorlezen van bladwijzers verschijnen hier.</string>
   <string name="speak_status_stopped">gestopt</string>
+  <string name="speak_autobookmarking_disabled">Automatisch toevoegen aan bladwijzers uitgeschakeld!</string>
+  <string name="system_speak_settings">TTS-instellingen van systeem openen</string>
   <string name="speak_bookmark_help">Hulp bij voorleesbladwijzers</string>
   <string name="speak_help_auto_bookmark">
         Er wordt automatisch een bladwijzer voor voorlezen toegevoegd zodra het voorlezen wordt gepauzeerd of gestopt.
@@ -326,6 +336,7 @@
   <string name="mynote_view_edit">Mijn notities</string>
   <string name="mynote_saved">Mijn notitie is opgeslagen</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Back-up en herstel</string>
   <string name="backup">Back-up maken</string>
   <string name="backup_success">Mijn notities en Bladwijzers opslaan in %s op de SD-kaart</string>
   <string name="restore">Herstellen</string>
@@ -360,6 +371,7 @@
   <string name="new_item">Nieuw</string>
   <string name="close">Sluiten</string>
   <string name="edit">Bewerken</string>
+  <string name="watch_tutorial_video">Bekijk de rondleidingsvideo (Engels)</string>
   <!--Errors-->
   <string name="report_error">Rapportage versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
@@ -372,4 +384,8 @@
   <string name="download_documents">Bezig met downloaden van documenten...</string>
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
+  <string name="menu">Menu</string>
+  <string name="rate_application">Beoordelen in Google Play</string>
+  <string name="chooce_document">Document kiezen</string>
+  <string name="new_window">Nieuw venster</string>
 </resources>

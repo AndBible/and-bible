@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Και ο Θεός είπε,« Γενηθήτω φως, και υπήρχε φως. \"\nΓένεσις 1:03</string>
   <string name="help_text">Πιέστε το πλήκτρο ΜΕΝΟΥ για δράσεις\n\nΜετάβαση στο επόμενο ή στο προηγούμενο κεφάλαιο με τη χρήση της γραμμής-μπάλα, D-pad ή περνώντας την οθόνη με το δάχτυλό σας</string>
-  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n \nDouble-tap toggles Fullscreen on/off.\n \n\n<b>Menu</b>\n \nPress the MENU button for actions\n \n\nTo download more documents press Menu/Download Documents\n \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu. The list of existing notes can be accessed via the main menu.\n \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n \n\n<b>Context Menus</b>\n \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n \nLong press on a document in the document selector to delete it or view information.\n \nLong press the Back button to access the History list\n</string>
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Παρακαλώ εισάγετε μια κάρτα SD για να αρχίσει και πάλι το And Bible.</string>
   <!--Main menu-->

@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utilisez le track-ball, le D-pad ou balayez l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPour accéder aux options, pressez la touche MENU.\n\nPour télécharger plus de documents, sélectionnez Menu/Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionnez le Menu/Lecture audio pour écouter le chapitre en cours.\nSélectionnez encore Menu/Lecture audio pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes s\'obtient par Menu/Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible par Menu/Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre le menu contextuel des actions relatives à un verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
-  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utilisez le track-ball, le D-pad ou balayez l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPour accéder aux options, pressez la touche MENU.\n\nPour télécharger plus de documents, sélectionnez Menu/Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionnez le Menu/Lecture audio pour écouter le chapitre en cours.\nSélectionnez encore Menu/Lecture audio pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes s\'obtient par Menu/Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible par Menu/Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre le menu contextuel des actions relatives à un verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
@@ -231,10 +232,8 @@
   <string name="speak_bookmarking_settings_title">Paramètres des signets</string>
   <string name="speak_bookmarks_menu_title">Écouter à partir du signet</string>
   <string name="speak_advanced_settings">Paramètres avancés</string>
-  <string name="speak_settings_activity_title">Paramètres avancés de lecture audio</string>
   <string name="speak_sleep_timer_title">Mise en sommeil</string>
   <string name="speak_no_books_available">Pas de livre disponible à écouter</string>
-  <string name="conf_speak_synchronize">Synchroniser le texte avec la voix</string>
   <string name="conf_speak_auto_bookmark">Mise en signet automatique</string>
   <string name="conf_save_playback_settings_to_bookmarks">Enregistrer les paramètres audio dans les signets</string>
   <string name="conf_replace_divinename">Remplacer le nom divin par Yahvé</string>
@@ -242,7 +241,6 @@
   <string name="conf_change_title">Titres</string>
   <string name="conf_speak_footnotes">Notes de bas de page</string>
   <string name="conf_speak_sleep_timer">Programmer la mise en sommeil</string>
-  <string name="conf_speak_multitranslation">Comparer les traductions en lisant dans toutes les fenêtres visibles</string>
   <string name="sleep_timer_title">Minuterie d\'arrêt en minutes</string>
   <string name="sleep_timer_set">Mise en sommeil programmée : %d minutes</string>
   <string name="sleep_timer_started">Minuteur démarré, %d minutes</string>

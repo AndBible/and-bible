@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigace</b>\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava.\nDvojdotykem lze zapnout/vypnout režimm celé obrazovky.\n\n<b>Menu</b>\nAkce lze vyvolávat z klávesou MENU \n\nVíce dokumentů je možno stáhnou stisknutím Menu/Správa/Stáhnout dokumenty \n\n<b>Mluvení</b>\nStisknutím Mluvení se přistupuje k dialogu pro zapnutí nebo vypnutí čtení\n\n<b>Poznámky</b>\nPoznámky lze přidat z kontextového menu verše. Správce poznámek je přístupný z hlavního menu. Kontextové menu správce poznámek umožňuje třídění poznámek. Ke skupinán se přiřazují popisky.\n\n<b>Záložky</b>\nZáložky lze přidat z kontextového menu verše. Správce záložek je přístupný z hlavního menu. Kontextové menu správce záložek umožňuje třídění záložek do skupin. Ke skupinám se přiřazují popisky.\n\n<b>Hledání</b>\nText pro vyhledávání může zahrnovat speciální znaky jako *, ?, AND, OR, NOT (podrobnosti viz \\"Apache Lucene - Query Parser Syntax\\")\n\n<b>Kontextová menu</b>\nDlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš. \nDlouhým stiskem v okně pro výběr dokumentu lze dokument odstranit nebo o něm zobrazit informace.\nDlouhým stiskem tlačítka Zpět je možno přistupovat k seznamu s historií.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"I řekl Bůh: Budiž světlo! A bylo světlo.\"\nGenesis 1:3</string>
   <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu doleva nebo doprava</string>
-  <string name="help_text_long"><b>Navigace</b>\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava.\nDvojdotykem lze zapnout/vypnout režimm celé obrazovky.\n\n<b>Menu</b>\nAkce lze vyvolávat z klávesou MENU \n\nVíce dokumentů je možno stáhnou stisknutím Menu/Správa/Stáhnout dokumenty \n\n<b>Mluvení</b>\nStisknutím Mluvení se přistupuje k dialogu pro zapnutí nebo vypnutí čtení\n\n<b>Poznámky</b>\nPoznámky lze přidat z kontextového menu verše. Správce poznámek je přístupný z hlavního menu. Kontextové menu správce poznámek umožňuje třídění poznámek. Ke skupinán se přiřazují popisky.\n\n<b>Záložky</b>\nZáložky lze přidat z kontextového menu verše. Správce záložek je přístupný z hlavního menu. Kontextové menu správce záložek umožňuje třídění záložek do skupin. Ke skupinám se přiřazují popisky.\n\n<b>Hledání</b>\nText pro vyhledávání může zahrnovat speciální znaky jako *, ?, AND, OR, NOT (podrobnosti viz \\"Apache Lucene - Query Parser Syntax\\")\n\n<b>Kontextová menu</b>\nDlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš. \nDlouhým stiskem v okně pro výběr dokumentu lze dokument odstranit nebo o něm zobrazit informace.\nDlouhým stiskem tlačítka Zpět je možno přistupovat k seznamu s historií.</string>
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
   <!--Main menu-->
@@ -224,17 +225,79 @@
   <string name="speak_queue">Fronta</string>
   <string name="speak_repeat">Opakovat</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Rychlost mluvení</string>
+  <string name="speak_and_play_earcons_title">Mluvit a ppřehrát upozorňující zvuky pro</string>
+  <string name="playback_settings_title">Nastavení přehrávání</string>
+  <string name="speak_settings_title">Obecné nastavení mluvení</string>
+  <string name="speak_bookmarking_settings_title">Nastavení záložek</string>
+  <string name="speak_bookmarks_menu_title">Mluvení podle záložek</string>
+  <string name="speak_advanced_settings">Pokročilé nastavení</string>
+  <string name="speak_sleep_timer_title">Čas uspání</string>
+  <string name="speak_no_books_available">Žádné knihy dostupné k mluvení</string>
+  <string name="conf_speak_auto_bookmark">Automatické vytváření záložek</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Uložit nastavení přehrávání do záložek</string>
+  <string name="conf_replace_divinename">Nahradit božské jmíno slovem Jahve (Yahweh)</string>
+  <string name="conf_change_chapter">Změny kapitol</string>
+  <string name="conf_change_title">Nadpisy</string>
+  <string name="conf_speak_footnotes">Poznámky pod čarou</string>
+  <string name="conf_speak_sleep_timer">Nastavit čas uspání</string>
+  <string name="sleep_timer_title">Čas uspání v minutách</string>
+  <string name="sleep_timer_set">Nastavit čas uspání. Nastavený čas: %d minut</string>
+  <string name="sleep_timer_started">Časovač uspání spuštěn, %d minut</string>
+  <string name="sleep_timer_active_at">Čas do uspání: %s minut zbývá.</string>
+  <string name="speak_next">Další</string>
+  <string name="speak_previous">Předchozí</string>
+  <string name="widget_toggle_sleep_timer">Přepnout čas uspání</string>
+  <string name="widget_bookmark_helptext">Tlačítkové zkratky pro záložky mluvení se objeví zde.</string>
+  <string name="speak_status_stopped">pozastaveno</string>
+  <string name="speak_bookmark_help">Nápověda k záložkám mluvení</string>
+  <string name="speak_help_auto_bookmark">
+Záložka mluvení bude automaticky vytvořena když je mluvení zastaveno nebo pozastaveno. Automaticky generované záložky jsou označeny zvláštní  značkou mluvení. Když začnete opět záložkou mluvení, žáložka se přesune k verši,  u kterého zastavíte mluvení příště. Jen značky mluvení se posunují. Všechny ostatní značky zůstanou nezměněny.</string>
+  <string name="speak_help_playback_settings">
+        Speciální nastavení přehrávání (Pod \"Nastavení přehrávání\" na obrazovce Řeč)
+        jsou uloženy V záložkách mluvení, když je toto nastavení vybráno.
+        Když je restartováno mluvení ze záložky mluvení,  uložené nastavení přehrávání
+        je načteno z této záložky.
+    </string>
+  <string name="speak_help_playback_settings_example">
+        Například, když posloucháte 1. Mojžíšovu a Římanům a
+        chcete poslouchat 1. Mojžíšovu rychleji bez upozornění na změnu kapitoly,
+        ale Římanům pomaleji se zvukovým upozorněním při změně kapitoly, pak
+        můžete mít jiné nastavení přehrávání pro tyto knihy,
+        když jsou tyto nastavení uloženy v odpovídajících záložkách.
+    </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Pán</item>
+    <item>Bůh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahve</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Kniha změněna.</string>
+  <string name="speak_chapter_changed">Kapitola</string>
+  <string name="speak_first">První</string>
+  <string name="speak_second">Druhý</string>
+  <string name="speak_third">Třetí</string>
+  <string name="speak_fourth">Čtvrtý</string>
+  <string name="speak_fifth">Pátý</string>
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <string name="mynote">Poznámka</string>
@@ -276,6 +339,7 @@
   <string name="new_item">Nový</string>
   <string name="close">Zavřít</string>
   <string name="edit">Upravit</string>
+  <string name="watch_tutorial_video">Instruktážní video (Angličtina)</string>
   <!--Errors-->
   <string name="report_error">Zaslat hlášení</string>
   <string name="error_occurred">Vznikla chyba</string>
@@ -283,6 +347,9 @@
   <string name="error_page_too_large">Strana je pro načtení příliš velká</string>
   <string name="error_key_not_in_document">V dokumentu nenalezeno</string>
   <string name="empty_list">Žádné položky k zobrazení</string>
+  <string name="add_widget">Přidat widget</string>
   <!--Notifications-->
+  <string name="download_documents">Stahuji dokumenty</string>
+  <string name="notification_channel_tts_status">Převod textu na řeč</string>
   <string name="notification_channel_progress_status">Upozornění o průběh stavu pro stahování dokumentu atd.</string>
 </resources>

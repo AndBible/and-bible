@@ -1,10 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Allah berkata, \"Jadilah terang!\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
-  <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPergi ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
+  <!--Old long help text. This will be removed later.-->
   <string name="help_text_long"><b>Navigasi</b> \nKlik bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda\nKilk dua kali untuk matikan atau hidupkan Fullscreen. \n\n<b>Menu</b>\nTekan tombol MENU untuk tindakan\n\nUntuk men-download lebih banyak dokumen tekan Menu / Administrasi / Ambil Dokumen Pers\n\n<b>Pidato</b> \nTekan Berbicara untuk akses sebuah percakapan untuk mulai atau stop membaca\n\n<b>Catatan Saya</b> \nCatatan bisa ditambahkan melalui menu Catatan Saya pada menu konteks ayat. Daftar catatan yang ada dapat diakses melalui menu utama.\n\n <b>Bookmarks</b> \nBookmarks dapat ditambahkan melalui menu konteks ayat. Manajer Bookmark diakses melalui menu utama. Manajer Bookmark menu konteks memungkinkan bookmark untuk dikelompokkan menggunakan label. \n\n<b>Pencarian</b> \nTeks Pencarian dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelas lebih mendetail).\n \n<b>Menu Konteks</b> \nTekan lama pada tampilan Alkitab melihat untuk membuka menu konteks untuk tindakan yg mempengaruhi ayat yg sedang dibuka. \nTekan lama pada dokumen dalam pilihan dokumen untuk menghapus atau melihat informasi.\nTekan lama pada tombol Kembali untuk mengakses Daftar riwayat</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"Berfirmanlah Allah: \"Jadilah terang.\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
+  <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPindah ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
+  <string name="help_nav_title">Navigasi</string>
+  <string name="help_nav_text">Pindah ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda
+Double-klik untuk memilih layar penuh on/off</string>
+  <string name="help_menu_title">Menu</string>
+  <string name="help_menu_text">Tekan tombol MENU untuk tindakan
+Untuk mengunduh dokumen tekan Menu/Administrasi/Unduh Dokumen</string>
+  <string name="help_speech_title">Bicara</string>
+  <string name="help_mynote_title">Catatanku</string>
   <string name="version_text">Versi %s</string>
   <string name="no_sdcard_error">Silahkan masukkan kartu SD dan mulai And Alkitab lagi.</string>
   <!--Main menu-->

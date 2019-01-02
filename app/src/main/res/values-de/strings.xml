@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigation</b>\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich. \nAuf den unteren Bildschirmrand tippen, um eine Seite weiter zu blättern.\nDoppeltes Tippen schaltet den Vollbildmodus ein und aus.\n\n<b>Menüs</b>\nFür verschiedene Einstellungen \"Menü\" auswählen \nUm Module herunterzuladen, \"Menü-Verwaltung-Module herunterladen\" auswählen\n\n<b>Sprachausgabe</b>\nUm sich einen Text vorlesen zu lassen, \"Sprachausgabe\" auswählen.\n\n<b>Eigene Notizen</b>\nNotizen können über das Menü \"Eigene Notizen\" im Kontextmenü hinzugefügt werden. Die Liste der erstellten Notizen ist über das Hauptmenü abrufbar.\n\n\n<b>Lesezeichen</b>\nLesezeichen werden über das Vers-Kontextmenü hinzugefügt. Die angelegten Lesezeichen können über den Eintrag \"Lesezeichen\" im Hauptmenü verwaltet werden. Dort kann man über das Kontextmenü (langes Drücken) die Lesezeichen nach Gruppen ordnen.\n\n<b>Suche</b>\nDie Suche kann Platzhalter wie *, ?, AND, OR, NOT enthalten (weitere Informationen unter \"Apache Lucene - Query Parser Syntax\")\n\n<b>Kontextmenüs</b>\nFür Aktionen betreffend den aktuellen Vers lang auf den Bildschirm drücken. \nUm ein Modul zu löschen oder Informationen anzusehen, im Dokument-Auswahldialog lang auf das entsprechende Modul drücken. \nLang auf \"Zurück\" drücken, um den Verlauf anzusehen.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Und Gott sprach: \'\"Es werde Licht!\"\' Und es wurde Licht.\"\nGenesis 1:3</string>
   <string name="help_text">Menü-Knopf für Optionen\n\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich.</string>
-  <string name="help_text_long"><b>Navigation</b>\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich. \nAuf den unteren Bildschirmrand tippen, um eine Seite weiter zu blättern.\nDoppeltes Tippen schaltet den Vollbildmodus ein und aus.\n\n<b>Menüs</b>\nFür verschiedene Einstellungen \"Menü\" auswählen \nUm Module herunterzuladen, \"Menü-Verwaltung-Module herunterladen\" auswählen\n\n<b>Sprachausgabe</b>\nUm sich einen Text vorlesen zu lassen, \"Sprachausgabe\" auswählen.\n\n<b>Eigene Notizen</b>\nNotizen können über das Menü \"Eigene Notizen\" im Kontextmenü hinzugefügt werden. Die Liste der erstellten Notizen ist über das Hauptmenü abrufbar.\n\n\n<b>Lesezeichen</b>\nLesezeichen werden über das Vers-Kontextmenü hinzugefügt. Die angelegten Lesezeichen können über den Eintrag \"Lesezeichen\" im Hauptmenü verwaltet werden. Dort kann man über das Kontextmenü (langes Drücken) die Lesezeichen nach Gruppen ordnen.\n\n<b>Suche</b>\nDie Suche kann Platzhalter wie *, ?, AND, OR, NOT enthalten (weitere Informationen unter \"Apache Lucene - Query Parser Syntax\")\n\n<b>Kontextmenüs</b>\nFür Aktionen betreffend den aktuellen Vers lang auf den Bildschirm drücken. \nUm ein Modul zu löschen oder Informationen anzusehen, im Dokument-Auswahldialog lang auf das entsprechende Modul drücken. \nLang auf \"Zurück\" drücken, um den Verlauf anzusehen.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten Sie And Bible neu.</string>
   <!--Main menu-->
@@ -231,10 +232,8 @@
   <string name="speak_bookmarking_settings_title">Einstellungen für Lesezeichen</string>
   <string name="speak_bookmarks_menu_title">Aus den Lesezeichen vorlesen</string>
   <string name="speak_advanced_settings">Erweitert</string>
-  <string name="speak_settings_activity_title">Weitere Einstellungen</string>
   <string name="speak_sleep_timer_title">Zeitgeber</string>
   <string name="speak_no_books_available">Keine Bücher zum Vorlesen verfügbar</string>
-  <string name="conf_speak_synchronize">Text mit Vorlesen synchronisieren</string>
   <string name="conf_speak_auto_bookmark">Automatische Lesezeichen</string>
   <string name="conf_save_playback_settings_to_bookmarks">Spracheinstellungen mit Lesezeichen speichern</string>
   <string name="conf_replace_divinename">den Gottesnamen mit Jahwe wiedergeben</string>
@@ -242,7 +241,6 @@
   <string name="conf_change_title">Überschriften</string>
   <string name="conf_speak_footnotes">Fußnoten</string>
   <string name="conf_speak_sleep_timer">Zeit bis zum automatischen Ausschalten</string>
-  <string name="conf_speak_multitranslation">Übersetzungen durch Vorlesen aller offenen Fenster vergleichen</string>
   <string name="sleep_timer_title">Ausschalten in Minuten</string>
   <string name="sleep_timer_set">Schaltuhr einstellen. Eingestellt auf%d Minuten</string>
   <string name="sleep_timer_started">Schaltuhr gestartet, noch%d Minuten</string>

@@ -1,10 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigasie</b>\nGaan na die volgende of vorige hoofstuk met behulp van die spoor-bal, D-pad of beweeg oor die skerm met jou vinger\nDubbel druk verander Vol skerm aan/af.\n\n<b>Keurlys</b>\nDruk Menu sleutel vir meer aksies\n\nOm meer dokumente af te laai druk Menu/Administrasie/Laai Dokumente af.\n\n<b>Spraak</b>\nDruk op praat om \'n dialoog te begin of om op te hou lees.\n\n<b>My Notas</b>\nNotas kan bygevoeg word via My Note keurlys item op die vers konteks kieslys.\nDie lys van bestaande notas kan verkry word via die hoof keurlys\n\n\n<b>Boekmerke</b>\nBoekmerke kan toegevoeg word deur middel van die inhoud keurlys. Die Boekmerk Bestuurder kan deur middel van die hoof keurlys bereik word.\nDie Boekmerk Bestuurder inhoud keurlys laat boekmerke gegroepeer word deur om etikette te gebruik.\n\n<b>Soek</b>\nSoek teks kan spesiale karakters insluit soos *, ?, AND, OR, Not (sien \"Apache Lucene - Qury Parser Syntax\" vir meer inligting)\n\n<b>Inhoud Keurlys</b>\nDruk lank op die Bybel uitsig om die inhoud keurlys oop te maak vir aksies wat die huidige vers affekteer\nDruk lank op \'n dokument in die dokument kieser, om dit uit te wis of om sy informasie te sien\nDruk lank op die Terug knoppie om toegang tot die Geskiedenis lys te kry</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nGénesis 1:3\n\"En God het gesê: Laat daar lig wees, en daar was lig.\"\n \n</string>
   <string name="help_text">Druk die sleutel Menu vir optrede\n\nGaan na die volgende of vorige hoofstuk deur die spoor-bal, D-pad of om jou vinger oor die skerm te beweeg</string>
-  <string name="help_text_long"><b>Navigasie</b>\nGaan na die volgende of vorige hoofstuk met behulp van die spoor-bal, D-pad of beweeg oor die skerm met jou vinger\nDubbel druk verander Vol skerm aan/af.\n\n<b>Keurlys</b>\nDruk Menu sleutel vir meer aksies\n\nOm meer dokumente af te laai druk Menu/Administrasie/Laai Dokumente af.\n\n<b>Spraak</b>\nDruk op praat om \'n dialoog te begin of om op te hou lees.\n\n<b>My Notas</b>\nNotas kan bygevoeg word via My Note keurlys item op die vers konteks kieslys.\nDie lys van bestaande notas kan verkry word via die hoof keurlys\n\n\n<b>Boekmerke</b>\nBoekmerke kan toegevoeg word deur middel van die inhoud keurlys. Die Boekmerk Bestuurder kan deur middel van die hoof keurlys bereik word.\nDie Boekmerk Bestuurder inhoud keurlys laat boekmerke gegroepeer word deur om etikette te gebruik.\n\n<b>Soek</b>\nSoek teks kan spesiale karakters insluit soos *, ?, AND, OR, Not (sien \"Apache Lucene - Qury Parser Syntax\" vir meer inligting)\n\n<b>Inhoud Keurlys</b>\nDruk lank op die Bybel uitsig om die inhoud keurlys oop te maak vir aksies wat die huidige vers affekteer\nDruk lank op \'n dokument in die dokument kieser, om dit uit te wis of om sy informasie te sien\nDruk lank op die Terug knoppie om toegang tot die Geskiedenis lys te kry</string>
+  <string name="help_nav_title">Navigasie</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
   <!--Main menu-->
@@ -231,10 +233,8 @@
   <string name="speak_bookmarking_settings_title">Boekmerk Instellings</string>
   <string name="speak_bookmarks_menu_title">Praat uit boekmerk instellings</string>
   <string name="speak_advanced_settings">Gevorderde Instellings</string>
-  <string name="speak_settings_activity_title">Meer Praat Instellings</string>
   <string name="speak_sleep_timer_title">Slaap tydhouer</string>
   <string name="speak_no_books_available">Geen boeke beskibaar om te praat</string>
-  <string name="conf_speak_synchronize">Sinkroniseer teks met spraak</string>
   <string name="conf_speak_auto_bookmark">Outomatiese boekmerke</string>
   <string name="conf_save_playback_settings_to_bookmarks">Stoor speel instellings na boekmerke</string>
   <string name="conf_replace_divinename">Vervang goddelike naam met Yahweh</string>
@@ -242,7 +242,6 @@
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voet Notas</string>
   <string name="conf_speak_sleep_timer">Stel slaap tydhouer</string>
-  <string name="conf_speak_multitranslation">Vergelyk vertalings deur te praat van alle sigbare vensters</string>
   <string name="sleep_timer_title">Slaap tydhouer in minute</string>
   <string name="sleep_timer_set">Stel slaap tydhouer.  Stel Tydhouer: %d minute </string>
   <string name="sleep_timer_started">Slaap tydhouer begin oor, %d minute</string>

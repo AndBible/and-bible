@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
+  <!--Old long help text. This will be removed later.-->
+  <string name="help_text_long"><b>Navigácia</b>Ťahom zľava doprava alebo naopak môžeš prejsť na ďalšiu alebo predošlú kapitolu. Túto akciu možno vykonávať aj pomocou track-ballu alebo D-padu. Dvojdotykom sa prepneš do režimu celej obrazovky a späť. Pre viacero možností stlač klávesu<b>Menu</b>. Z internetu je možné stiahnuť ďalšie preklady a dokumenty - položka Stiahni dokumenty. Tlačidlom <b>Hovoriť</b> môžeš nastaviť čítanie daného textu androidom. Ku každému veršu môžeš pridávať poznámky alebo záložky, ktoré si potom môžeš triediť do skupín. Ich pridanie urobíš cez kontextové menu - dlhšie podržanie palca na zvolenom texte. Správca poznámok je v hlavnej ponuke. Takisto aj správca záložiek. Zatriedené skupiny môžu mať vlastné názvy. <b>Hľadanie</b> Text vyhľadávania môže obsahovať špeciálne znaky ako *, ?, AND, OR, NOT (Podrobné vysvetlenie: "Apache Lucene - Query Parser Syntax) <b>Kontektové menu</b> Dlhším podržaním prsta na zvolenom verši vyvolá kontextovú ponuku ovplyvňujúcu daný verš. Dlhším podržaním prsta pri výbere dokumentov je možné dokument priamo zmazať alebo zobraziť jeho podrobnejšie informácie. Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nTu povedal Boh: \"Buď svetlo!\" a bolo svetlo.</string>
   <string name="help_text">Stlač kláves MENU pre viaceré možnosti. Ťahom po obrazovke vľavo alebo vpravo sa rýchlo prepneš medzi kapitolami. (alebo track-ballom(</string>
-  <string name="help_text_long"><b>Navigácia</b>Ťahom zľava doprava alebo naopak môžeš prejsť na ďalšiu alebo predošlú kapitolu. Túto akciu možno vykonávať aj pomocou track-ballu alebo D-padu. Dvojdotykom sa prepneš do režimu celej obrazovky a späť. Pre viacero možností stlač klávesu<b>Menu</b>. Z internetu je možné stiahnuť ďalšie preklady a dokumenty - položka Stiahni dokumenty. Tlačidlom <b>Hovoriť</b> môžeš nastaviť čítanie daného textu androidom. Ku každému veršu môžeš pridávať poznámky alebo záložky, ktoré si potom môžeš triediť do skupín. Ich pridanie urobíš cez kontextové menu - dlhšie podržanie palca na zvolenom texte. Správca poznámok je v hlavnej ponuke. Takisto aj správca záložiek. Zatriedené skupiny môžu mať vlastné názvy. <b>Hľadanie</b> Text vyhľadávania môže obsahovať špeciálne znaky ako *, ?, AND, OR, NOT (Podrobné vysvetlenie: "Apache Lucene - Query Parser Syntax) <b>Kontektové menu</b> Dlhším podržaním prsta na zvolenom verši vyvolá kontextovú ponuku ovplyvňujúcu daný verš. Dlhším podržaním prsta pri výbere dokumentov je možné dokument priamo zmazať alebo zobraziť jeho podrobnejšie informácie. Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <string name="version_text">Verzia %s</string>
   <string name="no_sdcard_error">Prosím, vložte SD kartu a spustite And Bible ešte raz.</string>
   <!--Main menu-->
@@ -231,10 +232,8 @@
   <string name="speak_bookmarking_settings_title">Parametre záložiek čítania</string>
   <string name="speak_bookmarks_menu_title">Čítaj zo záložky čítania</string>
   <string name="speak_advanced_settings">Pokročilé parametre</string>
-  <string name="speak_settings_activity_title">Ďalšie paremetre reči</string>
   <string name="speak_sleep_timer_title">Čas do uspania</string>
   <string name="speak_no_books_available">Nie sú k dispozícii žiadne knihy na čítanie</string>
-  <string name="conf_speak_synchronize">Zosúlaď text s rečou</string>
   <string name="conf_speak_auto_bookmark">Automatické záložkovanie</string>
   <string name="conf_save_playback_settings_to_bookmarks">Ulož paremetre prehrávania do záložiek</string>
   <string name="conf_replace_divinename">Nahraď Božie meno menom Jahve</string>
@@ -242,7 +241,6 @@
   <string name="conf_change_title">Nadpisy</string>
   <string name="conf_speak_footnotes">Poznámky pod čiarou</string>
   <string name="conf_speak_sleep_timer">Nastav čas do uspania</string>
-  <string name="conf_speak_multitranslation">Porovnaj preklady čítaním zo všetkých viditeľných okien</string>
   <string name="sleep_timer_title">Počet minút do uspania</string>
   <string name="sleep_timer_set">Nastav spánok. Počet minút: %d</string>
   <string name="sleep_timer_started">Režim spánku spustený. Počet minút: %d</string>
