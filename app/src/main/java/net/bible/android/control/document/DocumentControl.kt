@@ -95,7 +95,7 @@ class DocumentControl @Inject constructor(
     val isBibleBook: Boolean
         get () = currentDocument.bookCategory == BookCategory.BIBLE
 
-    private val currentDocument: Book
+    val currentDocument: Book
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
 
     val suggestedBible: Book?

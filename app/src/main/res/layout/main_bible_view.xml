@@ -67,7 +67,13 @@
                     android:layout_alignParentEnd="true"
                     android:theme="@style/MainBibleActionBarButtons"
                     >
-
+                    <ImageButton
+                        android:id="@+id/searchButton"
+                        style="@style/Widget.AppCompat.ActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/search"
+                        app:srcCompat="@drawable/ic_search_24dp" />
                     <ImageButton
                         android:id="@+id/speakButton"
                         style="@style/Widget.AppCompat.ActionButton"

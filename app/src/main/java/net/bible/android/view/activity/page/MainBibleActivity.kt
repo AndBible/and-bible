@@ -159,6 +159,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         speakButton.setOnClickListener {  speakControl.toggleSpeak() }
+        searchButton.setOnClickListener { startActivityForResult( searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE)   }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
         commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
         bookmarkButton.setOnClickListener { startActivity( Intent(this, Bookmarks::class.java))  }
@@ -251,6 +252,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+        searchButton.visibility = if(visibleButtonCount< maxButtons) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
