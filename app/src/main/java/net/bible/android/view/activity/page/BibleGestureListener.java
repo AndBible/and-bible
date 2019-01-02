@@ -94,6 +94,12 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	}
 
 	@Override
+	public boolean onDoubleTap(MotionEvent e) {
+		mainBibleActivity.toggleFullScreen();
+		return true;
+	}
+
+	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
 		if(!windowChanged) {
 			mainBibleActivity.toggleFullScreen();
