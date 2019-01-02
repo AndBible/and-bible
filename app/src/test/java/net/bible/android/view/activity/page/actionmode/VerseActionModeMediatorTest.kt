@@ -1,7 +1,7 @@
 package net.bible.android.view.activity.page.actionmode
 
-import android.view.ActionMode
 import android.view.MenuItem
+import androidx.appcompat.view.ActionMode
 import com.nhaarman.mockitokotlin2.*
 
 import net.bible.android.activity.R

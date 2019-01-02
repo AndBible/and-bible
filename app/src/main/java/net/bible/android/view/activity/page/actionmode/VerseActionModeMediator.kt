@@ -20,9 +20,9 @@ package net.bible.android.view.activity.page.actionmode
 
 import android.content.Intent
 import android.util.Log
-import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.view.ActionMode
 
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
