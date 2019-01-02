@@ -137,7 +137,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun setupToolbarButtons() {
-        updateActionBarButtons()
         updateSpeakTransportVisibility()
 
         homeButton.setOnClickListener {
@@ -237,12 +236,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val actionButtonMaxChars = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
 
     override fun updateActionBarButtons() {
+        updateTitle()
+
         val suggestedBible = documentControl.suggestedBible
         val suggestedCommentary = documentControl.suggestedCommentary
         val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
-        val maxButtons = 3
+        val maxWidth = toolbarLayout.width / 2
+        val approximateSize = homeButton.width
+
+        val maxButtons: Int = maxWidth / approximateSize
 
         speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
             visibleButtonCount += 1
@@ -279,7 +283,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
-        updateTitle()
         invalidateOptionsMenu()
     }
 
@@ -289,6 +292,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onEventMainThread(speakEvent: SpeakEvent) {
         updateSpeakTransportVisibility()
+        updateActionBarButtons()
     }
 
     private fun menuForDocs(v: View, documents: List<Book>): Boolean {
@@ -319,7 +323,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun updateSpeakTransportVisibility() {
         speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
-        updateActionBarButtons()
     }
 
     private fun refreshScreenKeepOn() {
