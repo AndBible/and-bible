@@ -18,6 +18,7 @@
 
 # we use mmseg4j instead of jsword's default SmartChineseAnalyzer
 -dontwarn org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer
+-dontwarn java.lang.management.ManagementFactory
 
 # do not use JDOM2 jaxen xpath facility
 -dontwarn org.jaxen.**
@@ -27,6 +28,8 @@
 
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
+
+-dontwarn javax.swing.text.**
 
 # slf4j has a lot of potential dependencies, not all of which are required
 -dontwarn org.slf4j.**
