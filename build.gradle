@@ -5,10 +5,8 @@ buildscript {
     ext.anko_version = '0.10.5'
 
     repositories {
-
         jcenter()
         google()
-        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'

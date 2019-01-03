@@ -90,8 +90,7 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.5'
 
-
-    // We are using our custom-built jsword.jar (see jsword-tweaks repository)
+    // We are using our custom-built jsword.jar (see https://github.com/AndBible/jsword-tweaks)
     implementation files('libs/jsword.jar')
 
     // JSword related
@@ -115,6 +114,4 @@ dependencies {
 repositories {
 	mavenCentral()
     maven { url "https://kotlin.bintray.com/kotlinx" }
-    //maven { url "http://central.maven.org/maven2/" }
-    //maven { url "https://oss.sonatype.org/content/repositories/releases"}
 }
