@@ -258,7 +258,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxWidth = toolbarLayout.width / 2
         val approximateSize = homeButton.width
 
-        val maxButtons: Int = maxWidth / approximateSize
+        val maxButtons: Int = if(approximateSize > 0) maxWidth / approximateSize else 127
 
         bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
