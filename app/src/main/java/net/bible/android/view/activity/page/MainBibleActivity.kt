@@ -69,6 +69,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
@@ -235,15 +236,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private val documentTitleText: String
-        get() = pageControl.currentPageManager.currentPassageDocument.name
+        get() = pageControl.currentPageManager.currentPage.currentDocument.name
 
     private val pageTitleText: String
         get() {
-            var ver = pageControl.currentBibleVerse
-            if(ver.verse == 0){
-                ver = Verse(ver.versification, ver.book, ver.chapter, 1)
+            val doc = pageControl.currentPageManager.currentPage.currentDocument
+            var key = pageControl.currentPageManager.currentPage.key
+            if(doc.bookCategory == BookCategory.BIBLE) {
+                key = pageControl.currentBibleVerse
+                if(key.verse == 0) {
+                    key = Verse(key.versification, key.book, key.chapter, 1)
+                }
             }
-            return ver.name
+            return key.name
         }
 
     private fun updateTitle() {
