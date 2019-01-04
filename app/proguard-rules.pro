@@ -41,6 +41,11 @@
    public *;
 }
 
+-keepclassmembers class org.apache.lucene.index.IndexReader {
+   public *;
+}
+
+
 # Keep all the GreenRobot event handling onEvent functions
 -keepclassmembers class ** {
     public void onEvent*(**);
