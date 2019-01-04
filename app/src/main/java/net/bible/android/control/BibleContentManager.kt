@@ -28,6 +28,7 @@ import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -44,7 +45,7 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
 
     // previous document and verse (currently displayed on the screen)
     private var previousDocument: Book? = null
-    private var previousVerse: VerseRange? = null
+    private var previousVerse: Key? = null
 
     init {
 
@@ -56,6 +57,7 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
     }
 
     fun updateText(forceUpdate: Boolean, window_: Window?) {
+        val prevVerse = previousVerse
         var window = window_
         if (window == null) {
             window = windowControl.activeWindow
@@ -67,10 +69,10 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
 
         // check for duplicate screen update requests
-
-        if(!forceUpdate && previousDocument == document &&
-                previousVerse?.start?.book == book &&
-                previousVerse?.start?.chapter == verse.chapter) {
+        if(!forceUpdate && previousDocument == document && document.bookCategory == BookCategory.BIBLE &&
+                prevVerse is VerseRange &&
+                prevVerse.start?.book == book &&
+                prevVerse.start?.chapter == verse.chapter) {
             window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
@@ -79,7 +81,7 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
         }
 
         previousDocument = document
-        previousVerse = key as VerseRange
+        previousVerse = key
     }
 
     private inner class UpdateMainTextTask : UpdateTextTask() {
