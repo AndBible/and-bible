@@ -81,6 +81,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!--  Search -->
     <string name="search_index">Search Index</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
+    <string name="search_index_unavailable">Unfortunately index creation is not anymore available on KitKat due to incompability.</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
     <string name="index_download">Download</string>
