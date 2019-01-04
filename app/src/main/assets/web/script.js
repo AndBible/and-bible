@@ -12,7 +12,6 @@
 );
 
 function jsonscroll() {
-    console.debug("jsonscroll!", window.pageYOffset)
 	window.jsInterface.onScroll(window.pageYOffset);
 }
 
