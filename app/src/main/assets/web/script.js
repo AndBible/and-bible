@@ -82,11 +82,11 @@ function doScrolling(elementY, duration) {
   })
 }
 
-function scrollToVerse(toId, now=false) {
+function scrollToVerse(toId, now) {
     console.debug("scrollToVerse", toId)
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
-	    if(now) {
+	    if(now===true) {
 		    toElement.scrollIntoView();
 		}
 		else {
