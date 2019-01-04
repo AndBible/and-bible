@@ -12,6 +12,7 @@
 );
 
 function jsonscroll() {
+    console.debug("jsonscroll!", window.pageYOffset)
 	window.jsInterface.onScroll(window.pageYOffset);
 }
 
@@ -50,14 +51,52 @@ function getElementsByClass( searchClass, domNode, tagName) {
 	return matches;
 }
 
-function scrollToVerse(toId) {
+var currentAnimation = null;
+
+function doScrolling(elementY, duration) {
+  var startingY = window.pageYOffset;
+  var diff = elementY - startingY;
+  var start;
+  console.debug("doScrolling", startingY, elementY, diff)
+  if(currentAnimation) {
+      window.cancelAnimationFrame(currentAnimation);
+  }
+
+  // Bootstrap our animation - it will get called right before next frame shall be rendered.
+  currentAnimation = window.requestAnimationFrame(function step(timestamp) {
+    if (!start) start = timestamp;
+    // Elapsed milliseconds since start of scrolling.
+    var time = timestamp - start;
+    // Get percent of completion in range [0, 1].
+    var percent = Math.min(time / duration, 1);
+
+    window.scrollTo(0, startingY + diff * percent);
+
+    // Proceed with animation as long as we wanted it to.
+    if (time < duration) {
+      currentAnimation = window.requestAnimationFrame(step);
+    }
+    else {
+      currentAnimation = null;
+    }
+  })
+}
+
+function scrollToVerse(toId, now=false) {
+    console.debug("scrollToVerse", toId)
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
-		toElement.scrollIntoView();
+	    if(now) {
+		    toElement.scrollIntoView();
+		}
+		else {
+    		doScrolling(toElement.offsetTop, 1000);
+    	}
 	}
 }
 
 function doScrollToSlowly(element, elementPosition, to) {
+    console.debug("doScrollToSlowly", element)
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
     var difference = to - elementPosition;

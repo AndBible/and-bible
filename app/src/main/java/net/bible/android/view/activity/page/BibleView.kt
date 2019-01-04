@@ -232,7 +232,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         applyFontSize()
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "');})</script></body>")
+        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "', true);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -542,7 +542,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     /** move the view so the selected verse is at the top or at least visible
      * @param verse
      */
-    private fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
+    fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
 
         runOnUiThread(Runnable { scrollOrJumpToVerse(verse) })
     }

@@ -29,6 +29,8 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
 
@@ -42,14 +44,14 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
 
     // previous document and verse (currently displayed on the screen)
     private var previousDocument: Book? = null
-    private var previousVerse: Key? = null
+    private var previousVerse: VerseRange? = null
 
     init {
 
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
 
-    fun updateText(window: Window) {
+    fun updateText(window: Window?) {
         updateText(false, window)
     }
 
@@ -61,19 +63,23 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
         val key = currentPage.key
+        val verse = window.pageManager.currentVersePage.currentBibleVerse.chapterVerse
+        val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
 
         // check for duplicate screen update requests
-        if (!forceUpdate &&
-                document != null && document == previousDocument &&
-                key != null && key == previousVerse) {
-            Log.w(TAG, "Duplicated screen update. Doc:" + document.initials + " Key:" + key.osisID)
-        } else {
 
-            previousDocument = document
-            previousVerse = key
-
+        if(!forceUpdate && previousDocument == document &&
+                previousVerse?.start?.book == book &&
+                previousVerse?.start?.chapter == verse.chapter) {
+            window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
+            PassageChangeMediator.getInstance().contentChangeFinished()
+        }
+        else {
             UpdateMainTextTask().execute(window)
         }
+
+        previousDocument = document
+        previousVerse = key as VerseRange
     }
 
     private inner class UpdateMainTextTask : UpdateTextTask() {

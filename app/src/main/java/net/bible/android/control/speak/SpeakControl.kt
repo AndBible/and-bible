@@ -123,11 +123,11 @@ class SpeakControl @Inject constructor(
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
-        val (synchronize, _, _, _, _, _, _, multiTranslation) = SpeakSettings.load()
-        if (synchronize) {
+        val settings = SpeakSettings.load()
+        if (settings.synchronize) {
             speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
             var book = event.book
-            if (multiTranslation) {
+            if (settings.multiTranslation) {
                 book = speakPageManager.currentPage.currentDocument
             }
             speakPageManager.setCurrentDocumentAndKey(book, event.key, false)

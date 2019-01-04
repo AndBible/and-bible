@@ -216,6 +216,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     true -> View.GONE
                     false -> View.VISIBLE
                 }
+                window.bibleView = bibleView
 
             }
 

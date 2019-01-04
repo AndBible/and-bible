@@ -20,6 +20,7 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.Logger
 
 import org.json.JSONException
@@ -76,6 +77,8 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
 
     open val isLinksWindow: Boolean
         get() = false
+
+    var bibleView: BibleView? = null
 
     enum class WindowOperation {
         MAXIMISE, MINIMISE, RESTORE, CLOSE

@@ -65,7 +65,7 @@ public abstract class VersePage extends CurrentPageBase {
 		return (AbstractPassageBook)getCurrentDocument();
 	}
 	
-	protected CurrentBibleVerse getCurrentBibleVerse() {
+	public CurrentBibleVerse getCurrentBibleVerse() {
 		return currentBibleVerse;
 	}
 	
