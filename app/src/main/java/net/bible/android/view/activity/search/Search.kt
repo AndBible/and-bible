@@ -26,15 +26,13 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnKeyListener
-import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.RadioGroup.OnCheckedChangeListener
+import kotlinx.android.synthetic.main.search.*
 
 import net.bible.android.activity.R
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
-import net.bible.android.view.activity.base.Callback
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 
@@ -49,15 +47,12 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Search : CustomTitlebarActivityBase() {
-
-    private var mSearchTextInput: EditText? = null
-
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
 
-    private var currentBookName: String? = null
+    private lateinit var currentBookName: String
 
-    private var searchControl: SearchControl? = null
+    @Inject lateinit var searchControl: SearchControl
 
     private val documentToSearch: Book
         get() = pageControl.currentPageManager.currentPage.currentDocument
@@ -66,13 +61,13 @@ class Search : CustomTitlebarActivityBase() {
      */
     private val searchType: SearchType
         get() {
-            when (wordsRadioSelection) {
-                R.id.allWords -> return SearchType.ALL_WORDS
-                R.id.anyWord -> return SearchType.ANY_WORDS
-                R.id.phrase -> return SearchType.PHRASE
+            return when (wordsRadioSelection) {
+                R.id.allWords -> SearchType.ALL_WORDS
+                R.id.anyWord -> SearchType.ANY_WORDS
+                R.id.phrase -> SearchType.PHRASE
                 else -> {
                     Log.e(TAG, "Unexpected radio selection")
-                    return SearchType.ANY_WORDS
+                    SearchType.ANY_WORDS
                 }
             }
         }
@@ -83,14 +78,14 @@ class Search : CustomTitlebarActivityBase() {
      */
     private val bibleSection: SearchBibleSection
         get() {
-            when (sectionRadioSelection) {
-                R.id.searchAllBible -> return SearchBibleSection.ALL
-                R.id.searchOldTestament -> return SearchBibleSection.OT
-                R.id.searchNewTestament -> return SearchBibleSection.NT
-                R.id.searchCurrentBook -> return SearchBibleSection.CURRENT_BOOK
+            return when (sectionRadioSelection) {
+                R.id.searchAllBible -> SearchBibleSection.ALL
+                R.id.searchOldTestament -> SearchBibleSection.OT
+                R.id.searchNewTestament -> SearchBibleSection.NT
+                R.id.searchCurrentBook -> SearchBibleSection.CURRENT_BOOK
                 else -> {
                     Log.e(TAG, "Unexpected radio selection")
-                    return SearchBibleSection.ALL
+                    SearchBibleSection.ALL
                 }
             }
         }
@@ -104,12 +99,11 @@ class Search : CustomTitlebarActivityBase() {
 
         buildActivityComponent().inject(this)
 
-        if (!searchControl!!.validateIndex(documentToSearch)) {
+        if (!searchControl.validateIndex(documentToSearch)) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred) { finish() }
         }
 
-        mSearchTextInput = findViewById<View>(R.id.searchText) as EditText
-        mSearchTextInput!!.setOnKeyListener(OnKeyListener { v, keyCode, event ->
+        searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
             // If the event is a key-down event on the "enter" button
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 // Perform action on key press
@@ -122,9 +116,9 @@ class Search : CustomTitlebarActivityBase() {
         // pre-load search string if passed in
         val extras = intent.extras
         if (extras != null) {
-            val searchText = extras.getString(SEARCH_TEXT_SAVE)
-            if (StringUtils.isNotEmpty(searchText)) {
-                mSearchTextInput!!.setText(searchText)
+            val text = extras.getString(SEARCH_TEXT_SAVE)
+            if (StringUtils.isNotEmpty(text)) {
+                searchText.setText(text)
             }
         }
 
@@ -150,7 +144,7 @@ class Search : CustomTitlebarActivityBase() {
         val currentBookRadioButton = findViewById<View>(R.id.searchCurrentBook) as RadioButton
 
         // set current book to default and allow override if saved - implies returning via Back button
-        currentBookName = searchControl!!.currentBookName
+        currentBookName = searchControl.currentBookName
         if (extras != null) {
             val currentBibleBookSaved = extras.getString(CURRENT_BIBLE_BOOK_SAVE)
             if (currentBibleBookSaved != null) {
@@ -164,23 +158,23 @@ class Search : CustomTitlebarActivityBase() {
 
     fun onSearch(v: View?) {
         Log.i(TAG, "CLICKED")
-        var searchText = mSearchTextInput!!.text.toString()
-        if (!StringUtils.isEmpty(searchText)) {
+        var text = searchText.text.toString()
+        if (!StringUtils.isEmpty(text)) {
 
             // update current intent so search is restored if we return here via history/back
             // the current intent is saved by HistoryManager
-            intent.putExtra(SEARCH_TEXT_SAVE, searchText)
+            intent.putExtra(SEARCH_TEXT_SAVE, text)
             intent.putExtra(WORDS_SELECTION_SAVE, wordsRadioSelection)
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            searchText = decorateSearchString(searchText)
-            Log.d(TAG, "Search text:$searchText")
+            text = decorateSearchString(text)
+            Log.d(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
-            intent.putExtra(SearchControl.SEARCH_TEXT, searchText)
+            intent.putExtra(SearchControl.SEARCH_TEXT, text)
             val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
@@ -192,7 +186,7 @@ class Search : CustomTitlebarActivityBase() {
     }
 
     private fun decorateSearchString(searchString: String): String {
-        return searchControl!!.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
+        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
     }
 
     /** I don't think this is used because of hte finish() in onSearch()
@@ -204,18 +198,13 @@ class Search : CustomTitlebarActivityBase() {
         }
     }
 
-    @Inject
-    internal fun setSearchControl(searchControl: SearchControl) {
-        this.searchControl = searchControl
-    }
-
     companion object {
 
-        private val SEARCH_TEXT_SAVE = "Search"
-        private val WORDS_SELECTION_SAVE = "Words"
-        private val SECTION_SELECTION_SAVE = "Selection"
-        private val CURRENT_BIBLE_BOOK_SAVE = "BibleBook"
+        private const val SEARCH_TEXT_SAVE = "Search"
+        private const val WORDS_SELECTION_SAVE = "Words"
+        private const val SECTION_SELECTION_SAVE = "Selection"
+        private const val CURRENT_BIBLE_BOOK_SAVE = "BibleBook"
 
-        private val TAG = "Search"
+        private const val TAG = "Search"
     }
 }
