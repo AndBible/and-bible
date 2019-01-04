@@ -61,8 +61,6 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
@@ -171,6 +169,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             true
         }
 
+        strongsButton.setOnClickListener {
+            val prefOptions = gerPreferenceOptions(R.id.showStrongsOption)!!
+            val oldValue = preferences.getBoolean(prefOptions.name, prefOptions.default)
+            preferences.edit().putBoolean(prefOptions.name, !oldValue).apply()
+            PassageChangeMediator.getInstance().forcePageUpdate()
+        }
+
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
         searchButton.setOnClickListener { startActivityForResult( searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE)   }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
@@ -181,7 +186,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     data class ItemOptions (val name: String, val default: Boolean = true, val onlyBibles: Boolean = false)
 
-    private fun getPreferenceName(itemId: Int) =  when(itemId) {
+    private fun gerPreferenceOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> ItemOptions("show_bookmarks_pref", true, true)
         R.id.redLettersOption -> ItemOptions("red_letter_pref", false, true)
         R.id.sectionTitlesOption -> ItemOptions("section_title_pref", true, true)
@@ -199,7 +204,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
         for(item in menu.itemsSequence()) {
-            val itmOptions = getPreferenceName(item.itemId)
+            val itmOptions = gerPreferenceOptions(item.itemId)
             if(itmOptions != null) {
                 item.isChecked = preferences.getBoolean(itmOptions.name, itmOptions.default)
                 if(itmOptions.onlyBibles) {
@@ -221,7 +226,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val prefNamePair = getPreferenceName(item.itemId)
+        val prefNamePair = gerPreferenceOptions(item.itemId)
         if(prefNamePair != null) {
             handlePrefItem(prefNamePair.name, item, prefNamePair.default)
             return true
@@ -272,6 +277,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
             commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
             commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+        strongsButton.visibility = if(visibleButtonCount< maxButtons && documentControl.isStrongsInBook) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE

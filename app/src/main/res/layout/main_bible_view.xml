@@ -100,7 +100,6 @@
                         android:layout_height="match_parent"
                         android:contentDescription="@string/speak"
                         app:srcCompat="@drawable/ic_hearing_24dp" />
-
                     <ImageButton
                         android:id="@+id/bookmarkButton"
                         style="@style/Widget.AppCompat.ActionButton"
@@ -108,7 +107,14 @@
                         android:layout_height="match_parent"
                         android:contentDescription="@string/bookmarks"
                         app:srcCompat="@drawable/ic_collections_bookmark_24dp" />
-
+                    <Button
+                        android:id="@+id/strongsButton"
+                        style="@style/Widget.AppCompat.ActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/doc_type_bible"
+                        android:text="nnn"
+                        />
                     <Button
                         android:id="@+id/bibleButton"
                         style="@style/Widget.AppCompat.ActionButton"
