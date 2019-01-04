@@ -61,6 +61,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
 
     <!-- Main menu -->
+    <string name="menu">Menu</string>
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
@@ -70,7 +71,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="help">Help</string>
     <string name="verse">Verse</string>
     <string name="administration">Administration</string>
-    
+
+    <string name="rate_application">Rate &amp; Review in Google Play</string>
+    <string name="chooce_document">Choose Document</string>
+
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
@@ -87,6 +91,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="index_download">Download</string>
     <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
+    <string name="rebuild_index">Rebuild index</string>
 
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -164,6 +169,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
 
     <!-- Window -->
+    <string name="new_window">New window</string>
     <string name="window">Window</string>
     <string name="windowClose">Close</string>
     <string name="windowMaximise">Maximise</string>
@@ -313,6 +319,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="speak_no_books_available">No books available to speak</string>
 
+    <string name="repeat_passage">Repeat passage</string>
+    <string name="set_repeat_passage_range">Set repeat passage range</string>
+    <string name="speak_beginning_of_passage">Choose beginning of passage</string>
+    <string name="speak_ending_of_passage">Choose ending of passage</string>
+    <string name="speak_verse_range_to_repeat">Choose verse range to repeat</string>
+    <string name="speak_ending_verse_must_be_later">Ending verse must be later than starting verse</string>
+
     <string name="conf_speak_synchronize">Text follows speech</string>
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
     <string name="conf_save_playback_settings_to_bookmarks">Save playback settings to bookmarks</string>
@@ -455,17 +468,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="download_documents">Downloading documents</string>
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
-
-
-    <string name="menu">Menu</string>
-    <string name="rate_application">Rate &amp; Review in Google Play</string>
-    <string name="chooce_document">Choose Document</string>
-    <string name="repeat_passage">Repeat passage</string>
-    <string name="set_repeat_passage_range">Set repeat passage range</string>
-    <string name="speak_beginning_of_passage">Choose beginning of passage</string>
-    <string name="speak_ending_of_passage">Choose ending of passage</string>
-    <string name="speak_verse_range_to_repeat">Choose verse range to repeat</string>
-    <string name="speak_ending_verse_must_be_later">Ending verse must be later than starting verse</string>
-    <string name="new_window">New window</string>
-    <string name="rebuild_index">Rebuild index</string>
 </resources>
