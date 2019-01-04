@@ -75,7 +75,9 @@ public class SearchIndex extends CustomTitlebarActivityBase {
     	Log.i(TAG, "CLICKED");
     	try {
     		// start background thread to create index
-        	boolean bOk = searchControl.createIndex(getDocumentToIndex());
+			Book doc = getDocumentToIndex();
+			swordDocumentFacade.deleteDocumentIndex(doc);
+        	boolean bOk = searchControl.createIndex(doc);
 
         	if (bOk) {
 	        	monitorProgress();

@@ -466,4 +466,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_verse_range_to_repeat">Choose verse range to repeat</string>
     <string name="speak_ending_verse_must_be_later">Ending verse must be later than starting verse</string>
     <string name="new_window">New window</string>
+    <string name="rebuild_index">Rebuild index</string>
 </resources>

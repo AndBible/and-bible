@@ -24,6 +24,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.View.OnKeyListener
 import android.widget.RadioButton
@@ -35,6 +37,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -46,7 +49,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class Search : CustomTitlebarActivityBase() {
+class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
 
@@ -154,6 +157,16 @@ class Search : CustomTitlebarActivityBase() {
         currentBookRadioButton.text = currentBookName
 
         Log.d(TAG, "Finished displaying Search view")
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.rebuildIndex -> {
+                startActivity(Intent(this, SearchIndex::class.java))
+                return true
+            }
+        }
+        return false
     }
 
     fun onSearch(v: View?) {
