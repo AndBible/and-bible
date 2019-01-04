@@ -174,7 +174,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             val prefOptions = gerPreferenceOptions(R.id.showStrongsOption)!!
             val oldValue = preferences.getBoolean(prefOptions.name, prefOptions.default)
             preferences.edit().putBoolean(prefOptions.name, !oldValue).apply()
-            PassageChangeMediator.getInstance().forcePageUpdate()
+            windowControl.windowSync.synchronizeAllScreens()
         }
 
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
@@ -222,7 +222,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun handlePrefItem(name: String, item: MenuItem, default: Boolean) {
         val oldValue = preferences.getBoolean(name, default)
         preferences.edit().putBoolean(name, !oldValue).apply()
-        PassageChangeMediator.getInstance().forcePageUpdate()
+        windowControl.windowSync.synchronizeAllScreens()
         item.isChecked = !oldValue
     }
 

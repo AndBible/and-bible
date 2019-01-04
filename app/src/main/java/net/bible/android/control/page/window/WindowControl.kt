@@ -53,7 +53,7 @@ open class WindowControl @Inject constructor(
 
     private var isSeparatorMoving = false
     private var stoppedMovingTime: Long = 0
-    private val windowSync: WindowSync = WindowSync(windowRepository)
+    val windowSync: WindowSync = WindowSync(windowRepository)
 
     private val logger = Logger(this.javaClass.name)
 
