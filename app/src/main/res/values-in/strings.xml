@@ -7,11 +7,6 @@
   <string name="splash_top_text">\n\"Berfirmanlah Allah: \"Jadilah terang.\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
   <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPindah ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
   <string name="help_nav_title">Navigasi</string>
-  <string name="help_nav_text">Pindah ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda
-Double-klik untuk memilih layar penuh on/off</string>
-  <string name="help_menu_title">Menu</string>
-  <string name="help_menu_text">Tekan tombol MENU untuk tindakan
-Untuk mengunduh dokumen tekan Menu/Administrasi/Unduh Dokumen</string>
   <string name="help_speech_title">Bicara</string>
   <string name="help_mynote_title">Catatanku</string>
   <string name="version_text">Versi %s</string>

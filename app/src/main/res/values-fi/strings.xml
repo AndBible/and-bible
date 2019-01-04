@@ -7,9 +7,7 @@
   <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
   <string name="help_text">Siirry VALIKKO painikkeella toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai \'pyyhkäisemällä\' näyttöä sormella</string>
   <string name="help_nav_title">Navigointi</string>
-  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella. Napauta näytön alareunaa vierittääksesi tekstiä alas. Kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.</string>
-  <string name="help_menu_title">Valikko</string>
-  <string name="help_menu_text">Siirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Ylläpito / Lataa teoksia</string>
+  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän napautus vaihtaa kokonäyttötilaan tai pois siitä. Raamattuikkunoissa on valikko-painike oikeassa yläkulmassa ja voit käyttää ikkunavalikkoa pitkällä painalluksella valikko-painikkeisiin.</string>
   <string name="help_speech_title">Puhe</string>
   <string name="help_speech_text">Paina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.</string>
   <string name="help_mynote_title">Omat kommentit</string>
@@ -42,6 +40,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <!--Search-->
   <string name="search_index">Hakuindeksi</string>
   <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
+  <string name="search_index_unavailable">Valitettavasti hakuindeksin luominen on mahdollista vain Andoir 5.0:lla (Lollipop) ja uudemmilla versioilla.</string>
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy välittömästi etsi-toimintoon.</string>
   <string name="index">Indeksoi</string>
   <string name="index_download">Lataa</string>
@@ -376,4 +375,12 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="menu">Valikko</string>
   <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
   <string name="chooce_document">Valitse teos</string>
+  <string name="repeat_passage">Toista raamatunpaikkaa</string>
+  <string name="set_repeat_passage_range">Aseta toiston laajuus</string>
+  <string name="speak_beginning_of_passage">Valitse toistettavan alueen alkukohta</string>
+  <string name="speak_ending_of_passage">Valitse toistettavan alueen loppukohta</string>
+  <string name="speak_verse_range_to_repeat">Valitse jaejakso jota toistetaan</string>
+  <string name="speak_ending_verse_must_be_later">Lopetusjakeen pitää olla myöhemmin kuin aloitusjakeen</string>
+  <string name="new_window">Uusi ikkuna</string>
+  <string name="rebuild_index">Tee hakuindeksi uudelleen</string>
 </resources>

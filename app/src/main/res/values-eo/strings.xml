@@ -19,11 +19,6 @@
   <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
   <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
   <string name="help_nav_title">Navigi</string>
-  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
- Duobla frapeto eniras/eliras plenekranon.</string>
-  <string name="help_menu_title">Menuo</string>
-  <string name="help_menu_text">Premu la MENU-butonon por montri agojn.
- Por elŝuti pli da dokumentoj, iru al menuo/administri/elŝuti dokumentojn.</string>
   <string name="help_speech_title">Parolo</string>
   <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
   <string name="help_mynote_title">Miaj notoj</string>
