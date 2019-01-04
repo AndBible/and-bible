@@ -144,6 +144,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     }
 
+    override fun onPause() {
+        if(isFullScreen)
+            toggleFullScreen()
+        super.onPause()
+    }
+
     private fun setupToolbarButtons() {
         updateSpeakTransportVisibility()
 
