@@ -63,7 +63,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
         setContentView(R.layout.search_index)
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            createButton.visibility = View.GONE
+            createButton.isEnabled = false
             indexCreationRequired.text = getString(R.string.index_creation_required) +
                 "\n" + getString(R.string.search_index_unavailable)
         }
