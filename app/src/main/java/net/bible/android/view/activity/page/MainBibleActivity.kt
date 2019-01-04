@@ -165,11 +165,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             true
         }
 
-        speakButton.setOnClickListener {
-            val isBible = windowControl.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE
-            val intent = Intent(this, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
-            startActivity(intent)
-        }
+        speakButton.setOnClickListener { speakControl.toggleSpeak() }
         searchButton.setOnClickListener { startActivityForResult( searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE)   }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
         commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
