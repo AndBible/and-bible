@@ -205,7 +205,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.showBookmarksOption -> ItemOptions("show_bookmarks_pref", true, true)
         R.id.redLettersOption -> ItemOptions("red_letter_pref", false, true)
         R.id.sectionTitlesOption -> ItemOptions("section_title_pref", true, true)
-        R.id.showStrongsOption -> ItemOptions("show_strongs_pref", false, true)
+        R.id.showStrongsOption -> ItemOptions("show_strongs_pref", true, true)
         R.id.verseNumbersOption -> ItemOptions("show_verseno_pref", true, true)
         R.id.versePerLineOption -> ItemOptions("verse_per_line_pref", false, true)
         R.id.footnoteOption -> ItemOptions("show_notes_pref", false, true)
