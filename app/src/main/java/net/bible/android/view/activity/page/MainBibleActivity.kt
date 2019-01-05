@@ -57,6 +57,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
@@ -177,6 +178,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             val oldValue = preferences.getBoolean(prefOptions.name, prefOptions.default)
             preferences.edit().putBoolean(prefOptions.name, !oldValue).apply()
             windowControl.windowSync.synchronizeAllScreens()
+        }
+
+        strongsButton.setOnLongClickListener {
+            startActivityForResult(Intent(this, ChooseDictionaryWord::class.java), ActivityBase.STD_REQUEST_CODE)
+            true
         }
 
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
