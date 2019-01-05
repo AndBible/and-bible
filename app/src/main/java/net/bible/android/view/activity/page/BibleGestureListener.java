@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page;
 
+import android.os.Build;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -115,6 +116,9 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
+		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+			return false;
+		}
 		if (verseSelectionMode) {
 			return false;
 
