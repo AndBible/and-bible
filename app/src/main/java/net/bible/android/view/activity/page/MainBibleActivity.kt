@@ -32,6 +32,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
@@ -56,6 +58,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -72,7 +75,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.passage.VerseRange
 import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
@@ -103,6 +105,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
+    var statusBarHeight = 0.0F
+        private set
+    var navigationBarHeight = 0.0F
+        private set
+
     /**
      * return percentage scrolled down page
      */
@@ -117,8 +124,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         Log.i(TAG, "Creating MainBibleActivity")
         super.onCreate(savedInstanceState, true)
 
+        val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (statusBarId > 0) {
+            statusBarHeight = resources.getDimensionPixelSize(statusBarId).toFloat()
+        }
+
+        val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        if (navBarId > 0) {
+            navigationBarHeight = resources.getDimensionPixelSize(navBarId).toFloat()
+        }
+
         setContentView(R.layout.main_bible_view)
         setSupportActionBar(toolbar)
+        showSystemUI()
+        toolbar.translationY = statusBarHeight
+
         toolbar.setContentInsetsAbsolute(0, 0)
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -153,8 +173,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun setupToolbarButtons() {
-        updateSpeakTransportVisibility()
-
         homeButton.setOnClickListener {
             if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 drawerLayout.closeDrawers()
@@ -359,13 +377,76 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.activeWindow.pageManager.setCurrentDocument(book)
     }
 
-    override fun toggleFullScreen() {
-        super.toggleFullScreen()
+    class FullScreenEvent(val isFullScreen: Boolean, val bottomMargin: Float, topMargin: Float)
+    private var isFullScreen = false
+
+    fun toggleFullScreen() {
+        sharedActivityState.toggleFullScreen()
+        isFullScreen = sharedActivityState.isFullScreen
+        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen, navigationBarHeight, statusBarHeight))
+
+        if (!isFullScreen) {
+            showSystemUI()
+            Log.d(TAG, "Fullscreen off")
+            toolbar.translationY = -toolbar.height.toFloat()
+            supportActionBar?.show()
+            toolbar.animate().translationY(statusBarHeight)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+        } else {
+            Log.d(TAG, "Fullscreen on")
+            hideSystemUI()
+            toolbar.animate().translationY(-toolbar.height.toFloat())
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { supportActionBar?.hide() }
+                    .start()
+        }
         updateSpeakTransportVisibility()
     }
+    private val sharedActivityState = SharedActivityState.getInstance()
+
+
+    private fun hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+    }
+
+    //private fun updateSpeakTransportVisibility() {
+    //    speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
+    //}
+
 
     private fun updateSpeakTransportVisibility() {
-        speakTransport.visibility = if(isFullScreen || speakControl.isStopped) View.GONE else View.VISIBLE
+        if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
+            speakTransport.animate().translationY(speakTransport.height.toFloat())
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { speakTransport.visibility = View.GONE }
+                    .start()
+        } else if (speakTransport.visibility == View.GONE){
+            speakTransport.translationY = speakTransport.height.toFloat()
+            speakTransport.visibility = View.VISIBLE
+            speakTransport.animate().translationY(-navigationBarHeight)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+        }
     }
 
     private fun refreshScreenKeepOn() {
@@ -374,7 +455,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         }
     }
 

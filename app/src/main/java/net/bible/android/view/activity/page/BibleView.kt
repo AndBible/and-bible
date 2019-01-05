@@ -44,7 +44,6 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.PageTiltScroller
@@ -482,7 +481,7 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
+    fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         val button = windowButton ?: return
         button.visibility = when(event.isFullScreen) {
             true -> View.GONE

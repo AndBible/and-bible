@@ -44,7 +44,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -247,7 +246,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     val restoreButtons: MutableList<Button> = ArrayList()
 
-    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
+    fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         for (b in restoreButtons) {
             b.visibility = when (event.isFullScreen) {
                 true -> View.GONE

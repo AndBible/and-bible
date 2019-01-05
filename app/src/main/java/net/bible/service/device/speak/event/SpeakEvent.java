@@ -42,4 +42,7 @@ public class SpeakEvent {
 	public boolean isPaused() {
 		return speakState == SpeakState.PAUSED;
 	}
+	public boolean isStopped() {
+		return speakState == SpeakState.SILENT;
+	}
 }
