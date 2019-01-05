@@ -177,6 +177,8 @@ public class ChooseDictionaryWord extends ListActivityBase {
     		if (selectedKey!=null) {
 		    	Log.i(TAG, "chose:"+selectedKey);
 		    	activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().setKey(selectedKey);
+				activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocument(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCurrentDocument());
+
 		    	doFinish();
     		}
     	} catch (Exception e) {
