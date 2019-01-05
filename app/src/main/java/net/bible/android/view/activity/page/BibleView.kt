@@ -141,7 +141,16 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 // load Strongs refs when a user clicks on a link
-                return linkControl.loadApplicationUrl(url) || super.shouldOverrideUrlLoading(view, url)
+                val loaded = linkControl.loadApplicationUrl(url)
+
+                if(loaded) {
+                    gestureListener.setDisableSingleTapOnce(true)
+                    super.shouldOverrideUrlLoading(view, url)
+                    return true
+                }
+                else {
+                    return super.shouldOverrideUrlLoading(view, url)
+                }
             }
 
             override fun onLoadResource(view: WebView, url: String) {

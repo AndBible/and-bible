@@ -42,6 +42,11 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
+
+	public void setDisableSingleTapOnce(boolean disableSingleTapOnce) {
+		this.disableSingleTapOnce = disableSingleTapOnce;
+	}
+
 	private boolean disableSingleTapOnce = false;
 
 	public void setVerseSelectionMode(boolean verseSelectionMode) {
