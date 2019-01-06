@@ -68,7 +68,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         private const val TAG = "Speak"
     }
 
-    override val numItemsToTts = 100
+    override val numItemsToTts = 20
     private var book = initialBook
     private var startVerse = initialVerse
     private var endVerse = initialVerse
