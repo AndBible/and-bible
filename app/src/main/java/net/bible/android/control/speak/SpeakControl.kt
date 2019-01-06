@@ -449,8 +449,8 @@ class SpeakControl @Inject constructor(
     fun speakFromBookmark(dto: BookmarkDto) {
         var book: SwordBook? = null
         val playbackSettings = dto.playbackSettings
-        if (playbackSettings != null) {
-            book = Books.installed().getBook(playbackSettings.bookId) as SwordBook
+        if (playbackSettings?.bookId != null) {
+            book = Books.installed().getBook(playbackSettings.bookId) as SwordBook?
         }
         if (isSpeaking || isPaused) {
             stop()
