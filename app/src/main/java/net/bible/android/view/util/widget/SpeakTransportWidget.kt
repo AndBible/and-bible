@@ -137,9 +137,9 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     private fun resetView(speakSettings: SpeakSettings? = null) {
         speakPauseButton.setImageResource(
                 if(speakControl.isSpeaking)
-                    android.R.drawable.ic_media_pause
+                    R.drawable.ic_pause_black_24dp
                 else
-                    android.R.drawable.ic_media_play
+                    R.drawable.ic_play_arrow_black_24dp
         )
         if(speakSettings != null) {
             bookmarkButton.visibility = if (speakSettings.autoBookmark) View.VISIBLE else View.GONE

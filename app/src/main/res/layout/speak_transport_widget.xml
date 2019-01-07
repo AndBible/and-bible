@@ -47,6 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/bookmarks"
+                    android:theme="@style/TransportButtonTheme"
                     app:srcCompat="@drawable/ic_bookmark_24dp" />
 
                 <ImageButton
@@ -55,7 +56,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/rewind"
-                    android:src="@android:drawable/ic_media_rew" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_fast_rewind_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/prevButton"
@@ -63,7 +65,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/speak_previous"
-                    android:src="@android:drawable/ic_media_previous" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/stopButton"
@@ -71,7 +74,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/stop"
-                    android:src="@drawable/ic_media_stop" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_stop_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/speakPauseButton"
@@ -79,7 +83,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/speak"
-                    android:src="@android:drawable/ic_media_play" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/nextButton"
@@ -87,7 +92,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/speak_next"
-                    android:src="@android:drawable/ic_media_next" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/forwardButton"
@@ -95,7 +101,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/forward"
-                    android:src="@android:drawable/ic_media_ff" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_fast_forward_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/configButton"
@@ -103,6 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:contentDescription="@string/forward"
-                    android:src="@android:drawable/ic_menu_preferences" />
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_settings_black_24dp" />
         </LinearLayout>
 </LinearLayout>

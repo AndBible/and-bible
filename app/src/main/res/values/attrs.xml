@@ -22,4 +22,7 @@
         <attr name="hideStatus" format="boolean" />
         <attr name="showConfig" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="transportButtonTheme">
+        <attr name="transportButtonColor" format="color"/>
+    </declare-styleable>
 </resources>
