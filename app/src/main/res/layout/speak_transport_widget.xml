@@ -23,6 +23,7 @@
     android:id="@+id/buttonsLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/speakTransportBackground"
     android:orientation="vertical">
 
         <TextView

@@ -24,6 +24,7 @@
     </declare-styleable>
     <declare-styleable name="transportButtonTheme">
         <attr name="transportButtonColor" format="color"/>
+        <attr name="speakTransportBackground" format="color" />
     </declare-styleable>
     <declare-styleable name="windowButtonTheme">
         <attr name="windowButtonStrokeColor" format="color"/>
