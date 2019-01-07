@@ -43,6 +43,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
@@ -78,6 +79,7 @@ class DocumentWebViewBuilder @Inject constructor(
         private val windowControl: WindowControl,
         private val mainBibleActivity: MainBibleActivity,
         private val bibleViewFactory: BibleViewFactory,
+        private val speakControl: SpeakControl,
         private val windowMenuCommandHandler: WindowMenuCommandHandler
 ) {
 
@@ -225,7 +227,7 @@ class DocumentWebViewBuilder @Inject constructor(
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
-            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.navigationBarHeight - mainBibleActivity.transportBarHeight
+            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.navigationBarHeight - minButtonTranslationY
             val minimisedScreens = windowControl.windowRepository.minimisedScreens
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
@@ -248,6 +250,8 @@ class DocumentWebViewBuilder @Inject constructor(
     val windowButtons: MutableList<Button> = ArrayList()
     val restoreButtons: MutableList<Button> = ArrayList()
     lateinit var minimisedWindowsFrameContainer: LinearLayout
+    val minButtonTranslationY
+            get() = if(speakControl.isStopped) 0 else mainBibleActivity.transportBarHeight
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         for (b in windowButtons) {
@@ -263,13 +267,21 @@ class DocumentWebViewBuilder @Inject constructor(
                         .start()
             }
         }
-        if(!event.isFullScreen) {
+        updateMinimizedButtons(event.isFullScreen)
+    }
+
+    fun onEventMainThread(event: MainBibleActivity.TransportBarVisibilityChanged) {
+        updateMinimizedButtons(SharedActivityState.getInstance().isFullScreen)
+    }
+
+    fun updateMinimizedButtons(isFullScreen: Boolean) {
+        if(!isFullScreen) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
-            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.navigationBarHeight - mainBibleActivity.transportBarHeight)
+            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.navigationBarHeight - minButtonTranslationY)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
         }  else {
-            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.navigationBarHeight + mainBibleActivity.transportBarHeight + minimisedWindowsFrameContainer.height)
+            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.navigationBarHeight + minButtonTranslationY + minimisedWindowsFrameContainer.height)
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
                     .start()
