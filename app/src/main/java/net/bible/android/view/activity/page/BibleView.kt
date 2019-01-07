@@ -109,8 +109,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
-    var windowButton: View? = null
-
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
@@ -478,14 +476,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (windowNo == event.window && handler != null) {
             scrollOrJumpToVerseOnUIThread(event.chapterVerse)
-        }
-    }
-
-    fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
-        val button = windowButton ?: return
-        button.visibility = when(event.isFullScreen) {
-            true -> View.GONE
-            false -> View.VISIBLE
         }
     }
 

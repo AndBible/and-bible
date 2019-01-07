@@ -109,6 +109,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         private set
     var navigationBarHeight = 0.0F
         private set
+    var actionBarSize = 0
+        private set
+    var transportBarHeight = 0
+        private set
 
     /**
      * return percentage scrolled down page
@@ -137,8 +141,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         setContentView(R.layout.main_bible_view)
         setSupportActionBar(toolbar)
         showSystemUI()
+
         toolbar.translationY = statusBarHeight
 
+        speakTransport.visibility = View.GONE
+        speakTransport.translationY = -navigationBarHeight
+
+        val styleValues = theme.obtainStyledAttributes(R.style.AppThemeDay, intArrayOf(R.attr.actionBarSize))
+        this.actionBarSize = styleValues.getDimensionPixelSize(0, 0)
         toolbar.setContentInsetsAbsolute(0, 0)
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -377,13 +387,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.activeWindow.pageManager.setCurrentDocument(book)
     }
 
-    class FullScreenEvent(val isFullScreen: Boolean, val bottomMargin: Float, topMargin: Float)
+    class FullScreenEvent(val isFullScreen: Boolean)
     private var isFullScreen = false
 
     fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
-        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen, navigationBarHeight, statusBarHeight))
+        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
 
         if (!isFullScreen) {
             showSystemUI()
@@ -438,13 +448,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
             speakTransport.animate().translationY(speakTransport.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { speakTransport.visibility = View.GONE }
+                    .withEndAction { speakTransport.visibility = View.GONE; transportBarHeight = 0 }
                     .start()
         } else if (speakTransport.visibility == View.GONE){
             speakTransport.translationY = speakTransport.height.toFloat()
             speakTransport.visibility = View.VISIBLE
             speakTransport.animate().translationY(-navigationBarHeight)
                     .setInterpolator(DecelerateInterpolator())
+                    .withEndAction { transportBarHeight = speakTransport.height }
                     .start()
         }
     }

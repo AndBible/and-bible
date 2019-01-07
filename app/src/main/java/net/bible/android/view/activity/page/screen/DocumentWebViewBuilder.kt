@@ -28,10 +28,10 @@ import androidx.appcompat.widget.PopupMenu
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.View.OnClickListener
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -154,7 +154,7 @@ class DocumentWebViewBuilder @Inject constructor(
             parent.orientation = if (isSplitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
-
+            windowButtons.clear()
             for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
 
@@ -208,9 +208,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 } else {
                     createDefaultWindowActionButton(window)
                 }
+                windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
-                bibleView.windowButton = defaultWindowActionButton
                 defaultWindowActionButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
                     true -> View.GONE
                     false -> View.VISIBLE
@@ -220,12 +220,13 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
             // Display minimised screens
-            val minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
+            restoreButtons.clear()
+            minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
+            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.navigationBarHeight - mainBibleActivity.transportBarHeight
             val minimisedScreens = windowControl.windowRepository.minimisedScreens
-            restoreButtons.clear()
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minimisedScreens[i])
@@ -244,18 +245,38 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
+    val windowButtons: MutableList<Button> = ArrayList()
     val restoreButtons: MutableList<Button> = ArrayList()
+    lateinit var minimisedWindowsFrameContainer: LinearLayout
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
-        for (b in restoreButtons) {
-            b.visibility = when (event.isFullScreen) {
-                true -> View.GONE
-                false -> View.VISIBLE
+        for (b in windowButtons) {
+            if(!event.isFullScreen) {
+                b.visibility = View.VISIBLE
+                b.animate().translationX(0.0F)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+            }  else {
+                b.animate().translationX(b.width.toFloat())
+                        .setInterpolator(AccelerateInterpolator())
+                        .withEndAction { b.visibility = View.GONE }
+                        .start()
             }
+        }
+        if(!event.isFullScreen) {
+            minimisedWindowsFrameContainer.visibility = View.VISIBLE
+            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.navigationBarHeight - mainBibleActivity.transportBarHeight)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+        }  else {
+            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.navigationBarHeight + mainBibleActivity.transportBarHeight + minimisedWindowsFrameContainer.height)
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
+                    .start()
         }
     }
 
-    private fun createDefaultWindowActionButton(window: Window): View {
+    private fun createDefaultWindowActionButton(window: Window): Button {
         return when {
             window.defaultOperation == WindowOperation.CLOSE -> // close button for the links window
                 createCloseButton(window)
@@ -371,14 +392,15 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createMainWindowButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "M"
-        return createTextButton(text,
+        val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
             { v -> showPopupWindow(window, v) ; true }
         )
+        b.translationY = mainBibleActivity.statusBarHeight + mainBibleActivity.actionBarSize
+        return b
     }
 
     private fun createRestoreButton(window: Window): Button {
-        // restore button
         return createTextButton(getDocumentInitial(window), { windowControl.restoreWindow(window) })
     }
 
