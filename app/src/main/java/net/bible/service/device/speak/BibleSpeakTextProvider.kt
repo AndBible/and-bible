@@ -281,9 +281,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getStatusText(showFlag: Int): String {
-        val percent = bibleTraverser.getPercentOfBook(currentState.startVerse)
-        var result = getVerseRange().name
         val verseRange = settings.playbackSettings.verseRange
+        val percent = if(verseRange == null) {
+            bibleTraverser.getPercentOfBook(currentState.startVerse)
+        } else  {
+            ((currentState.startVerse.ordinal - verseRange.start.ordinal).toFloat()
+                    / (verseRange.end.ordinal-verseRange.start.ordinal) * 100).toInt()
+        }
+        var result = getVerseRange().name
 
         if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(verseRange != null) {
