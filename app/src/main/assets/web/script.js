@@ -8,6 +8,9 @@
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
+	    $(document).bind("touchstart", function() {
+	        stopAnimation = true;
+	    } );
 	}
 );
 
@@ -51,8 +54,10 @@ function getElementsByClass( searchClass, domNode, tagName) {
 }
 
 var currentAnimation = null;
+var stopAnimation = false
 
 function doScrolling(elementY, duration) {
+  stopAnimation = false;
   var startingY = window.pageYOffset;
   var diff = elementY - startingY;
   var start;
@@ -72,7 +77,7 @@ function doScrolling(elementY, duration) {
     window.scrollTo(0, startingY + diff * percent);
 
     // Proceed with animation as long as we wanted it to.
-    if (time < duration) {
+    if (time < duration && stopAnimation === false) {
       currentAnimation = window.requestAnimationFrame(step);
     }
     else {
@@ -83,6 +88,7 @@ function doScrolling(elementY, duration) {
 
 function scrollToVerse(toId, now) {
     console.debug("scrollToVerse", toId)
+    stopAnimation = true;
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
 	    if(now===true) {
