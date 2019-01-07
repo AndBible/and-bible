@@ -281,7 +281,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
-        val maxWidth = toolbarLayout.width / 2
+        val maxWidth = (toolbarLayout.width * 0.5).toInt()
         val approximateSize = homeButton.width
 
         val maxButtons: Int = if(approximateSize > 0) maxWidth / approximateSize else 127
@@ -305,12 +305,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             View.VISIBLE
         } else View.GONE
 
-        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
+        searchButton.visibility = if(visibleButtonCount< maxButtons) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        searchButton.visibility = if(visibleButtonCount< maxButtons) {
+        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
