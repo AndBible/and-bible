@@ -350,31 +350,37 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createCloseButton(window: Window): Button {
-        return createTextButton("X", OnClickListener { windowControl.closeWindow(window) },
-                WindowButtonLongClickListener(window))
+        return createTextButton("X",
+                { v -> showPopupWindow(window, v) },
+                { v -> windowControl.closeWindow(window); true}
+        )
     }
 
     private fun createMaximiseToggleButton(window: Window): Button {
         return createImageButton(R.drawable.ic_menu_unmaximise,
-                OnClickListener { windowControl.unmaximiseWindow(window) },
-                WindowButtonLongClickListener(window))
+                { v -> showPopupWindow(window, v) },
+                { v -> windowControl.unmaximiseWindow(window); true}
+        )
     }
 
     private fun createMinimiseButton(window: Window): Button {
-        return createTextButton("━━", OnClickListener { windowControl.minimiseWindow(window) },
-                WindowButtonLongClickListener(window))
+        return createTextButton("━━",
+                { v -> showPopupWindow(window, v) },
+                { v -> windowControl.minimiseWindow(window); true}
+        )
     }
 
     private fun createMainWindowButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "M"
-        return createTextButton(text, OnClickListener { showPopupWindow(window, it) },
-                WindowButtonLongClickListener(window))
+        return createTextButton(text,
+            { v -> showPopupWindow(window, v) },
+            { v -> showPopupWindow(window, v) ; true }
+        )
     }
 
     private fun createRestoreButton(window: Window): Button {
         // restore button
-        return createTextButton(getDocumentInitial(window),
-                OnClickListener { windowControl.restoreWindow(window) }, null)
+        return createTextButton(getDocumentInitial(window), { windowControl.restoreWindow(window) })
     }
 
     /**
@@ -389,7 +395,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     }
 
-    private fun createTextButton(text: String, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener?) =
+    private fun createTextButton(text: String, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
             Button(mainBibleActivity).apply {
                 this.text = text
                 width = BUTTON_SIZE_PX
@@ -402,7 +408,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 setOnLongClickListener(onLongClickListener)
             }
 
-    private fun createImageButton(drawableId: Int, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener) =
+    private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
             Button(this.mainBibleActivity).apply {
                 setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
                 setBackgroundResource(drawableId)
@@ -429,14 +435,6 @@ class DocumentWebViewBuilder @Inject constructor(
         val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
         menuHelper.setForceShowIcon(true)
         menuHelper.show()
-    }
-
-    private inner class WindowButtonLongClickListener(private val window: Window) : OnLongClickListener {
-
-        override fun onLongClick(v: View): Boolean {
-            showPopupWindow(window, v)
-            return true
-        }
     }
 
     private fun isWebViewShowing(parent: ViewGroup): Boolean {
