@@ -392,12 +392,12 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createTextButton(text: String, onClickListener: OnClickListener, onLongClickListener: OnLongClickListener?) =
             Button(mainBibleActivity).apply {
                 this.text = text
-                setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
                 width = BUTTON_SIZE_PX
                 height = BUTTON_SIZE_PX
                 setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
                 setTypeface(null, Typeface.BOLD)
                 setSingleLine(true)
+                setBackgroundResource(R.drawable.window_button)
                 setOnClickListener(onClickListener)
                 setOnLongClickListener(onLongClickListener)
             }

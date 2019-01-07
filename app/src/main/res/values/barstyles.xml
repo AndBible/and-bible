@@ -16,6 +16,8 @@
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 		<item name="transportButtonColor">#ffffff</item>
+		<item name="windowButtonStrokeColor">#80FFFFFF</item>
+		<item name="windowButtonBackgroundColor">#886e6e6e</item>
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
@@ -24,6 +26,8 @@
 		<item name="colorPrimary">@color/actionbar_background_night</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<item name="transportButtonColor">#000000</item>
+		<item name="windowButtonStrokeColor">#80000000</item>
+		<item name="windowButtonBackgroundColor">#4d6e6e6e</item>
 	</style>
 
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
