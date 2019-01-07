@@ -92,7 +92,7 @@ function scrollToVerse(toId, now) {
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
 	    if(now===true) {
-		    toElement.scrollIntoView();
+            window.scrollTo(0, toElement.offsetTop);
 		}
 		else {
     		doScrolling(toElement.offsetTop, 1000);
