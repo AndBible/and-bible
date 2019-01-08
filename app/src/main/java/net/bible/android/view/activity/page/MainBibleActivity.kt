@@ -39,6 +39,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 
 import net.bible.android.BibleApplication
@@ -161,10 +162,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         toolbar.setContentInsetsAbsolute(0, 0)
 
+        navigationView.setPadding(0, 0, 0, navigationBarHeight.toInt())
         navigationView.setNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
+        drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+
+            override fun onDrawerOpened(drawerView: View) {
+                if(isFullScreen) {
+                    showSystemUI()
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                if(isFullScreen) {
+                    hideSystemUI()
+                }
+            }
+
+        })
 
         DaggerMainBibleActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
@@ -174,7 +193,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // create related objects
         documentViewManager.buildView()
-
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
 
