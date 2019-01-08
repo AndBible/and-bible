@@ -8,6 +8,7 @@
   <string name="version_text">വേർഷൻ %s</string>
   <string name="no_sdcard_error">SD കാർഡ്‌ ഉള്ളിൽ ഇട്ടശേഷം And Bible വീണ്ടും തുടങ്ങുക.</string>
   <!--Main menu-->
+  <string name="menu">മെനു</string>
   <string name="chooseBook">ഡോക്കുമെന്റ്</string>
   <string name="selectPassage">ഭാഗം</string>
   <string name="search">കണ്ടുപിടിക്കുക</string>
@@ -17,6 +18,7 @@
   <string name="help">സഹായം</string>
   <string name="verse">വാക്യം</string>
   <string name="administration">കാര്യനിര്‍വഹണം</string>
+  <string name="chooce_document">ഡോക്കുമെന്റ് തിരഞ്ഞെടുക്കുക</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">പുസ്തകം തിരഞ്ഞെടുക്കുക</string>
   <string name="choosePassageChapterName">അദ്ധ്യായം തിരഞ്ഞെടുക്കുക</string>
@@ -31,6 +33,7 @@
   <string name="index_download">ഡൗൺലോഡ്</string>
   <string name="index_not_available_for_download">ഈ കണ്ണി ഡൗൺലോഡു ചെയ്യാൻ ലഭ്യമല്ല</string>
   <string name="index_create">ഉണ്ടാക്കുക</string>
+  <string name="rebuild_index">സൂചിക വീണ്ടും ഉണ്ടാക്കുക</string>
   <!--Tasks-->
   <string name="progress_status">പുരോഗതി</string>
   <string name="task_kill_warning">ഈ പ്രവർത്തനം തീരുന്നതിനു മുമ്പായി മറ്റൊരു പ്രവർത്തനം തുടങ്ങിയാൽ ദീർഘസമയം വേണ്ടിവരുന്ന ഇതു നിലച്ചുപോകാൻ സാധ്യത ഉണ്ട്</string>
@@ -83,6 +86,7 @@
   <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
   <string name="locale_change_warning"> തിരഞ്ഞെടുത്ത ഭാഷയിലേക്ക് ആപ്ലിക്കേഷൻ പുനഃരാരംഭിക്കും</string>
   <!--Window-->
+  <string name="new_window">പുതിയ ജാലകം</string>
   <string name="window">വിന്‍ഡോ</string>
   <string name="windowClose">അടക്കുക</string>
   <string name="windowMaximise">വലുതാക്കുക</string>
@@ -198,6 +202,24 @@
   <string name="speak_queue">നിര </string>
   <string name="speak_repeat">ആവർത്തിക്കുക</string>
   <!--Speak - Bible-->
+  <string name="repeat_passage">ഖണ്ഡിക ആവർത്തിക്കുക</string>
+  <string name="set_repeat_passage_range">ആവർത്തിക്കേണ്ട ഖണ്ഡിക പരിധി നിശ്ചയിക്കുക</string>
+  <string name="speak_beginning_of_passage">ഖണ്ഡികയുടെ തുടക്കം തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_ending_of_passage">ഖണ്ഡികയുടെ അവസാനം തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_verse_range_to_repeat">ആവർത്തിക്കേണ്ട വാക്യ പരിധി തിരഞ്ഞെടുക്കുക</string>
+  <string name="speak_ending_verse_must_be_later">അവസാന വാക്യം ആദ്യ വാക്യത്തിന് ശേഷമായിരിക്കണം</string>
+  <string name="conf_change_title">തലക്കെട്ടുകൾ</string>
+  <string name="conf_speak_footnotes">അടിക്കുറിപ്പുകൾ</string>
+  <string name="conf_speak_sleep_timer">മയക്ക സമയം നിശ്ചയിക്കുക</string>
+  <string name="conf_speak_multitranslation">എല്ലാ വിൻഡോകളിലും സംസാരിക്കുക</string>
+  <string name="sleep_timer_title">മയക്കത്തിന്റെ സമയം</string>
+  <string name="speak_next">അടുത്തത്</string>
+  <string name="speak_previous">പുറകോട്ട്</string>
+  <string name="widget_toggle_sleep_timer">മയക്ക സമയം മാറ്റുക</string>
+  <string name="speak_status_stopped">നിന്നു</string>
+  <string name="speak_autobookmarking_disabled">തനിയേയുള്ള അടയാളങ്ങൾ നിർത്തിവെച്ചിരിക്കുന്നു</string>
+  <string name="system_speak_settings">ഓപ്പൺ സിസ്റ്റം TTS സെറ്റിങ്ങ്സ്</string>
+  <string name="speak_bookmark_help">സംസാരിക്കുക അടയാളങ്ങൾ സഹായം</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -209,6 +231,13 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string name="speak_book_changed">പുസ്തകം മാറി</string>
+  <string name="speak_chapter_changed">അദ്ധ്യായം</string>
+  <string name="speak_first">ആദ്യത്തേത്</string>
+  <string name="speak_second">രണ്ടാമത്തേത്</string>
+  <string name="speak_third">മൂന്നാമത്തേത്</string>
+  <string name="speak_fourth">നാലമത്തേത്</string>
+  <string name="speak_fifth">അഞ്ചാമത്തേത്</string>
   <!--User Notes-->
   <string name="mynotes">എന്റെ കുറിപ്പുകൾ</string>
   <string name="mynote">എന്റെ കുറിപ്പ്</string>
@@ -216,11 +245,13 @@
   <string name="mynote_view_edit">എന്റെ കുറിപ്പ്</string>
   <string name="mynote_saved">എന്റെ കുറിപ്പ് </string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">ബാക്കപ്പ് &amp; പൂര്‍വ്വസ്ഥിതിയിലാക്കുക</string>
   <string name="backup">സംരക്ഷിക്കൂ</string>
   <string name="backup_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ സൂക്ഷിച്ചിരിക്കുന്നു</string>
   <string name="restore">പുനഃരുദ്ധരിക്കുക</string>
   <string name="restore_confirmation"> എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും വീണ്ടും ഒന്നുകൂടി എഴുതുണമോ?</string>
   <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ നിന്നും പുനഃരുദ്ധരിച്ചു</string>
+  <string name="error_no_backup_file">ബാക്കപ്പ് ഫയൽ കാണുന്നില്ല</string>
   <!--About-->
   <string name="about_copyright">പകർപ്പവകാശ %s</string>
   <string name="about_version">പതിപ്പ്: %s</string>
@@ -248,6 +279,8 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">പുതിയ</string>
   <string name="close">അടക്കുക</string>
+  <string name="edit">തിരുത്തുക</string>
+  <string name="watch_tutorial_video">ടൂട്ടോറിയൽ വീഡിയോ കാണുക (ഇംഗ്ലീഷ്)</string>
   <!--Errors-->
   <string name="report_error">റിപ്പോർട്ട് അയയ്ക്കുക</string>
   <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>
@@ -255,5 +288,8 @@
   <string name="error_page_too_large">ഉൾക്കൊള്ളിക്കാൻ കഴിയുന്നതിലും വളരെ വലിയതാണ്‌</string>
   <string name="error_key_not_in_document">ഡോക്കുമെന്റിൽ കാണുന്നില്ല</string>
   <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
+  <string name="add_widget">വിഡ്കറ്റ് ചേർക്കുക</string>
   <!--Notifications-->
+  <string name="download_documents">ഡോക്യുമെന്റ് ഡൗൺലോഡ് ചെയ്യുന്നു</string>
+  <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
 </resources>

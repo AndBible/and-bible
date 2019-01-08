@@ -8,6 +8,10 @@
 \n\"In Bog je rekel: \'Naj bo svetloba;\' in bila je svetloba.\"\nGeneza 1:3</string>
   <string name="help_text">Za aktiviranje pritisni tipko MENU\n\nNa naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, trackpada ali pomikom prsta preko ekrana</string>
   <string name="help_nav_title">Krmarjenje</string>
+  <string name="help_nav_text">Na naslednje ali prejšnje poglavje pojdi tako, da s prstom podrsaš po ekranu.
+        Dvojni pritisk na biblično besedilo preklopi v celozaslonski način. Okna biblij imajo meni v zgornjem desnem kotu ekrana
+        in do menija okna se dostopa z daljšim pritiskom nanj.
+    </string>
   <string name="help_speech_title">Govor</string>
   <string name="help_speech_text">Pritisni Govor za dostop do okna za start ali konec branja</string>
   <string name="help_mynote_title">Moja opomba</string>
@@ -29,6 +33,7 @@
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Prosim vstavite SD kartico in ponovno poženite And Biblijo.</string>
   <!--Main menu-->
+  <string name="menu">Meni</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Knjiga</string>
   <string name="search">Išči</string>
@@ -38,6 +43,8 @@
   <string name="help">Pomoč</string>
   <string name="verse">Vrstica</string>
   <string name="administration">Upravljanje</string>
+  <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
+  <string name="chooce_document">Zapri dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
   <string name="choosePassageChapterName">Izberi poglavje</string>
@@ -47,11 +54,13 @@
   <!--Search-->
   <string name="search_index">Preišči indeks</string>
   <string name="index_creation_required">Za iskanje je potreben indeks.\n\nIndeksi se lahko prenesejo iz interneta ali pa se jih ustvari lokalno.\n\nPrenos iz interneta je mnogo hitrejši in preneseni indeksi imajo več iskalnih značilnosti.\n\nZa prenos indeksov je potrebna internetna povezava.\n</string>
+  <string name="search_index_unavailable">Na žalost je kreiranje kazala na voljo samo na Android 5.0 (Lollipop) in novejšem.</string>
   <string name="indexing_wait_msg">Ko se indeksiranje konča, se bo pojavilo okno za iskanje.</string>
   <string name="index">Indeks</string>
   <string name="index_download">Prenos</string>
   <string name="index_not_available_for_download">Ta indeks ni na voljo za prenos</string>
   <string name="index_create">Ustvari</string>
+  <string name="rebuild_index">Ponovno zgradi kazalo</string>
   <!--Tasks-->
   <string name="progress_status">Napredek</string>
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
@@ -122,6 +131,7 @@
   <string name="prefs_request_sdcard_permission_title">Obstajajo ročno nameščeni dokumenti</string>
   <string name="prefs_request_sdcard_permission_summary">Omogoči uporabo ročno nameščenih dokumentov iz jsword mape na SD kartici</string>
   <!--Window-->
+  <string name="new_window">Novo okno</string>
   <string name="window">Okno</string>
   <string name="windowClose">Zapri</string>
   <string name="windowMaximise">Maksimiraj</string>
@@ -255,6 +265,12 @@
   <string name="speak_advanced_settings">Napredne nastavitve</string>
   <string name="speak_sleep_timer_title">Časovnik za spanje</string>
   <string name="speak_no_books_available">Nobena knjiga ni na voljo za govor</string>
+  <string name="repeat_passage">Ponovi vrstico</string>
+  <string name="set_repeat_passage_range">Nastavi obseg ponovitve vrstice</string>
+  <string name="speak_beginning_of_passage">Izberi začetek vrstice</string>
+  <string name="speak_ending_of_passage">Izberi konec vrstice</string>
+  <string name="speak_verse_range_to_repeat">Izberi obseg vrstic, ki naj se ponove</string>
+  <string name="speak_ending_verse_must_be_later">Končna vrstica mora biti kasneje kakor začetna vrstica</string>
   <string name="conf_speak_synchronize">Besedilo sledi govoru</string>
   <string name="conf_speak_auto_bookmark">Samodejni zaznamki</string>
   <string name="conf_save_playback_settings_to_bookmarks">Shrani nastavitve ponovnega posnetka v zaznamke</string>
@@ -380,6 +396,4 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="download_documents">Prejemanje dokumentov</string>
   <string name="notification_channel_tts_status">Besedilo v govor</string>
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
-  <string name="menu">Meni</string>
-  <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
 </resources>

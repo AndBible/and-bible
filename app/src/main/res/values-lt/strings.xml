@@ -6,9 +6,31 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
   <string name="help_text">Veiksmams atlikti spauskite MENIU mygtuką\n\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami per ekraną pirštu.</string>
+  <string name="help_nav_title">Navigacija</string>
+  <string name="help_nav_text">Į tolesnį ar ankstesnį skyrius pateksite braukdami per ekraną pirštu.
+Vieną kartą patapšnoję Biblijos tekstą įjungsite arba išjungsite viso ekrano režimą. Biblijų langai viršutiniame dešiniajame kampe turi meniu mygtuką,
+kurį paspaudę ir palaikę, galėsite pasiekti lango meniu.</string>
+  <string name="help_speech_title">Kalba</string>
+  <string name="help_speech_text">Spauskite Klausytis, norėdami pasiekti skaitymo pradžios ir pabaigos dialogo langą</string>
+  <string name="help_mynote_title">Mano pastaba</string>
+  <string name="help_mynote_text">Pastabas galite pridėti per kontekstinio meniu elementą Mano pastaba, iškvietę jį atitinkamai eilutei.
+Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
+  <string name="help_bookmarks_title">Žymės</string>
+  <string name="help_bookmarks_text">Žymes pridėsite per eilutės kontekstinį meniu.
+Žymių tvarkyklę pasieksite per pagrindinį meniu.
+Žymes galima grupuoti priskiriant joms etiketes per Žymių tvarkyklės kontekstinį meniu.</string>
+  <string name="help_search_title">Paieška</string>
+  <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
+(Išsamios informacijos ieškokite \"Apache Lucene - Query Parser Syntax\")</string>
+  <string name="help_contextmenus_title">Kontekstiniai meniu</string>
+  <string name="help_contextmenus_text">Biblijos rodinyje ilgiau paspaudę ant tam tikros eilutės, pateiksite į jos kontekstinio meniu.
+Dokumentų rodinyje ilgai paspaudę ant dokumento, galėsite jį pašalinti arba gauti daugiau informacijos apie jį.
+Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
+</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
   <!--Main menu-->
+  <string name="menu">Meniu</string>
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Tekstas</string>
   <string name="search">Paieška</string>
@@ -18,6 +40,8 @@
   <string name="help">Pagalba</string>
   <string name="verse">Eilutė</string>
   <string name="administration">Valdymas</string>
+  <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
+  <string name="chooce_document">Pasirinkti dokumentą</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Rinkitės knygą</string>
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
@@ -27,11 +51,13 @@
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n</string>
+  <string name="search_index_unavailable">Deja, indekso kūrimas galimas tik Android 5.0 (Lollipop) arba naujesnėje sistemoje.</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index">Indeksas</string>
   <string name="index_download">Parsiųsti</string>
   <string name="index_not_available_for_download">Šio indekso negalima parsiųsti.</string>
   <string name="index_create">Sukurti</string>
+  <string name="rebuild_index">Perkurti indeksą</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
@@ -102,6 +128,7 @@
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leidžia naudoti SD kortelės jsword kataloge rankiniu būdu įdiegtus dokumentus</string>
   <!--Window-->
+  <string name="new_window">Naujas langas</string>
   <string name="window">Langas</string>
   <string name="windowClose">Užverti</string>
   <string name="windowMaximise">Išdidinti</string>
@@ -139,6 +166,7 @@
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Įkelti dokumentą iš zip</string>
+  <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
   <string name="extracting_zip_file">Išgaunami duomenys iš zip...</string>
   <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
@@ -234,6 +262,13 @@
   <string name="speak_advanced_settings">Papildomos nuostatos</string>
   <string name="speak_sleep_timer_title">Miego laikrodis</string>
   <string name="speak_no_books_available">Nėra knygų, skirtų įgarsinimui</string>
+  <string name="repeat_passage">Kartoti ištrauką</string>
+  <string name="set_repeat_passage_range">Nustatyti ištraukos kartojimo sritį</string>
+  <string name="speak_beginning_of_passage">Pasirinkite ištraukos pradžią</string>
+  <string name="speak_ending_of_passage">Pasirinkite ištraukos pabaigą</string>
+  <string name="speak_verse_range_to_repeat">Pasirinkite kartojamų eilučių sritį</string>
+  <string name="speak_ending_verse_must_be_later">Pabaigos eilutė turi būti už pradžios eilutės</string>
+  <string name="conf_speak_synchronize">Tekstas seka skaitymą</string>
   <string name="conf_speak_auto_bookmark">Automatinis žymėjimas</string>
   <string name="conf_save_playback_settings_to_bookmarks">Išsaugoti grojimo nuostatas žymėse</string>
   <string name="conf_replace_divinename">Pakeisti Dievo vardą į Jahvę</string>
@@ -241,6 +276,7 @@
   <string name="conf_change_title">Antraštei</string>
   <string name="conf_speak_footnotes">Išnašai</string>
   <string name="conf_speak_sleep_timer">Nustatyti miego laikrodį</string>
+  <string name="conf_speak_multitranslation">Kalbėjimas iš visų matomų langų</string>
   <string name="sleep_timer_title">Miegojimo laikas minutėmis</string>
   <string name="sleep_timer_set">Nustatyti miego laikrodį. Laikrodis nustatytas: %d minučių</string>
   <string name="sleep_timer_started">Miego laikas prasidėjo, %d minučių</string>
@@ -250,6 +286,8 @@
   <string name="widget_toggle_sleep_timer">Perjungti miego laikrodį</string>
   <string name="widget_bookmark_helptext">Čia atsiras kalbos žymių greito pasiekimo mygtukai</string>
   <string name="speak_status_stopped">sustabdyta</string>
+  <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
+  <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>
   <string name="speak_bookmark_help">Kalbos žymių pagalba</string>
   <string name="speak_help_auto_bookmark">
 Kalbos žymė bus automatiškai pridėta, kai kalbėjimas bus pristabdytas arba baigtas.
@@ -302,6 +340,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="mynote_view_edit">Mano pastaba</string>
   <string name="mynote_saved">Mano pastaba išsaugota</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup">Atsarginė kopija</string>
   <string name="backup_success">Mano pastabos ir žymės išsaugotos %s SD kortelėje</string>
   <string name="restore">Atstatyti</string>
@@ -336,6 +375,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="new_item">Naujas</string>
   <string name="close">Užverti</string>
   <string name="edit">Keisti</string>
+  <string name="watch_tutorial_video">Žiūrėti video aprašymą (Angliškai)</string>
   <!--Errors-->
   <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>

@@ -6,9 +6,31 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
+  <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Pour aller au chapitre suivant ou au précédent, balayez horizontalement l\'écran avec votre doigt.
+Un tapotement permet de basculer l\'affichage en mode plein écran et inversement. Les fenêtres ont un bouton d\'appel du menu en bas dans le coin droit,
+un appui prolongé sur ce bouton ouvre le menu.</string>
+  <string name="help_speech_title">Lecture audio</string>
+  <string name="help_speech_text">Activer Lecture audio ouvre la fenêtre permettant de démarrer ou arrêter la lecture à voix haute.</string>
+  <string name="help_mynote_title">Mes notes</string>
+  <string name="help_mynote_text">Des notes peuvent être ajoutées via l\'option Ma note du menu contextuel de verset.
+La liste des notes existantes est accessible par le Menu général.</string>
+  <string name="help_bookmarks_title">Signets</string>
+  <string name="help_bookmarks_text">Un signet peut être ajouté via le menu contextuel de verset.
+Le gestionnaire de signets est accessible par le Menu principal.
+Le gestionnaire des signets permet un classement des signets en utilisant des étiquettes.</string>
+  <string name="help_search_title">Rechercher</string>
+  <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
+ (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
+  <string name="help_contextmenus_title">Menus contectuels</string>
+  <string name="help_contextmenus_text">
+Faire un Appui prolongé sur un verset dans le texte biblique pour ouvrir le menu contextuel relatif à ce  verset.
+Dans le sélecteur de documents, un Appui prolongé sur un document affiche le menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.
+Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
+  <string name="menu">Menu</string>
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
   <string name="search">Rechercher</string>
@@ -18,6 +40,8 @@
   <string name="help">Aide</string>
   <string name="verse">Verset</string>
   <string name="administration">Gérer</string>
+  <string name="rate_application">Noter &amp; mettre un avis sur Google Play</string>
+  <string name="chooce_document">Choisir un document</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
@@ -27,11 +51,13 @@
   <!--Search-->
   <string name="search_index">Recherche dans l\'index</string>
   <string name="index_creation_required">Un index est requis pour exécuter cette recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour pouvoir télécharger les index.</string>
+  <string name="search_index_unavailable">Malheureusement, la création d\'index n\'est disponible que sur Android 5.0 (Lollipop) ou version ultérieure.</string>
   <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous serez redirigés sur la page de recherche</string>
   <string name="index">Index</string>
   <string name="index_download">Télécharger</string>
   <string name="index_not_available_for_download">Cet index n\'est pas disponible en téléchargement</string>
   <string name="index_create">Créer</string>
+  <string name="rebuild_index">Reconstruire l\'index</string>
   <!--Tasks-->
   <string name="progress_status">Progression</string>
   <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
@@ -102,6 +128,7 @@
   <string name="prefs_request_sdcard_permission_title">Documents à installer manuellement</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword sur la carte SD</string>
   <!--Window-->
+  <string name="new_window">Nouvelle fenêtre</string>
   <string name="window">Fenêtres</string>
   <string name="windowClose">Fermer</string>
   <string name="windowMaximise">Maximiser</string>
@@ -138,7 +165,7 @@
   <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
   <!--Install zip file-->
-  <string name="install_zip">Charger depuis un fichier Zip</string>
+  <string name="install_zip">Charger un document au format Zip</string>
   <string name="install_zip_successfull">Le module a été installé avec succès</string>
   <string name="extracting_zip_file">Extraction du fichier Zip...</string>
   <string name="checking_zip_file">Vérification du fichier...</string>
@@ -234,6 +261,12 @@
   <string name="speak_advanced_settings">Paramètres avancés</string>
   <string name="speak_sleep_timer_title">Mise en sommeil</string>
   <string name="speak_no_books_available">Pas de livre disponible à écouter</string>
+  <string name="repeat_passage">Répétition de passage</string>
+  <string name="speak_beginning_of_passage">Choisir le début du passage</string>
+  <string name="speak_ending_of_passage">Choisir la fin du passage</string>
+  <string name="speak_verse_range_to_repeat">Sélectionner la série de versets à répéter</string>
+  <string name="speak_ending_verse_must_be_later">Le verset de fin doit se trouver dans la suite du verset de début.</string>
+  <string name="conf_speak_synchronize">Le texte suit la voix</string>
   <string name="conf_speak_auto_bookmark">Mise en signet automatique</string>
   <string name="conf_save_playback_settings_to_bookmarks">Enregistrer les paramètres audio dans les signets</string>
   <string name="conf_replace_divinename">Remplacer le nom divin par Yahvé</string>
@@ -241,6 +274,7 @@
   <string name="conf_change_title">Titres</string>
   <string name="conf_speak_footnotes">Notes de bas de page</string>
   <string name="conf_speak_sleep_timer">Programmer la mise en sommeil</string>
+  <string name="conf_speak_multitranslation">Lire dans toutes les fenêtres visibles</string>
   <string name="sleep_timer_title">Minuterie d\'arrêt en minutes</string>
   <string name="sleep_timer_set">Mise en sommeil programmée : %d minutes</string>
   <string name="sleep_timer_started">Minuteur démarré, %d minutes</string>
@@ -250,6 +284,8 @@
   <string name="widget_toggle_sleep_timer">Inverser la mise en sommeil</string>
   <string name="widget_bookmark_helptext">Les signets audio s\'afficheront ici</string>
   <string name="speak_status_stopped">arrêt</string>
+  <string name="speak_autobookmarking_disabled">Mise automatique en signet désactivée! </string>
+  <string name="system_speak_settings">Ouvrir les Paramètres de la synthèse vocale</string>
   <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
 Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrêt. Ces signets ont pour label Lecture audio. Si vous avez redémarré l\'écoute à partir d\'un tel signet, celui-ci sera déplacé au verset où la Lecture audio sera mise en pause ou arrêt. Seuls les signets de type Lecture audio sont transposables, les autres signets restent inchangés.</string>
@@ -297,6 +333,7 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
   <string name="mynote_view_edit">Ma note</string>
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
   <string name="backup">Sauvegarder</string>
   <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
   <string name="restore">Restaurer</string>
@@ -331,6 +368,7 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
   <string name="new_item">Nouvelle fenêtre</string>
   <string name="close">Fermer</string>
   <string name="edit">Éditer</string>
+  <string name="watch_tutorial_video">Voir le tutoriel vidéo (en anglais)</string>
   <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>

@@ -6,9 +6,30 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
   <string name="help_text">Для доступа к настройкам и функциям зайдите в Меню.\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.</string>
+  <string name="help_nav_title">Навигация</string>
+  <string name="help_nav_text">Для перехода к следующей или предыдущей главе проведите пальцем по экрану.
+Одиночный тап на библейском тексте для перехода в полноэкранный режим. Окна Библии имеют кнопку меню в правом верхнем углу,
+и вы можете получить доступ к меню окна через долгое нажатие на них.</string>
+  <string name="help_speech_title">Речь</string>
+  <string name="help_speech_text">Нажмите Речь, чтобы открыть диалоговое окно для запуска или остановки чтения</string>
+  <string name="help_mynote_title">Моя заметка</string>
+  <string name="help_mynote_text">Заметки могут быть добавлены через пункт меню Моя заметка в контекстном меню стиха.
+К списку существующих заметок можно получить доступ через главное меню.</string>
+  <string name="help_bookmarks_title">Закладки</string>
+  <string name="help_bookmarks_text">Закладки могут быть добавлены через контекстное меню стиха.
+К менеджеру закладок доступ через главное меню.
+Контекстное меню менеджера закладок позволяет группировать закладки по меткам.</string>
+  <string name="help_search_title">Поиск</string>
+  <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
+(см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
+  <string name="help_contextmenus_title">Контекстные меню</string>
+  <string name="help_contextmenus_text">Длительное нажатие в окне с Библией откроет контекстное меню для выбора действий, касающихся текущего стиха.
+Длительное нажатие на модуле в селекторе модулей для возможности его удаления или просмотра информации.
+Длительное нажатие на кнопке Назад предоставит доступ а к списку истории.</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова.</string>
   <!--Main menu-->
+  <string name="menu">Меню</string>
   <string name="chooseBook">Ресурсы</string>
   <string name="selectPassage">Отрывок</string>
   <string name="search">Найти</string>
@@ -18,6 +39,8 @@
   <string name="help">Помощь</string>
   <string name="verse">Стих</string>
   <string name="administration">Управление</string>
+  <string name="rate_application">Оценить &amp; amp; Просмотреть в Google Play</string>
+  <string name="chooce_document">Выбрать модуль</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выбрать книгу</string>
   <string name="choosePassageChapterName">Выбрать главу</string>
@@ -27,11 +50,13 @@
   <!--Search-->
   <string name="search_index">Поисковой индекс</string>
   <string name="index_creation_required">Для поиска требуется индекс.\nИндексы можно скачать с Интернета или создать.\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\nДля того, чтобы скачать индексы, подключитесь к Интернету.\n</string>
+  <string name="search_index_unavailable">К сожалению, создание индекса доступно только на Android 5,0 (Lollipop) и новее.</string>
   <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
   <string name="index">Индекс</string>
   <string name="index_download">Скачать</string>
   <string name="index_not_available_for_download">Этот индекс недоступен для скачивания.</string>
   <string name="index_create">Создать</string>
+  <string name="rebuild_index">Перестроить индекс</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
@@ -102,6 +127,7 @@
   <string name="prefs_request_sdcard_permission_title">Модули, установленные вручную, существуют</string>
   <string name="prefs_request_sdcard_permission_summary">Разрешить использование модулей, установленных вручную, из папки jsword на SD-карте</string>
   <!--Window-->
+  <string name="new_window">Новое окно</string>
   <string name="window">Окно</string>
   <string name="windowClose">Закрыть</string>
   <string name="windowMaximise">Развернуть</string>
@@ -139,6 +165,7 @@
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Установить из zip-архива</string>
+  <string name="install_zip_module">Установить библейский модуль</string>
   <string name="install_zip_successfull">Модуль установлен успешно</string>
   <string name="extracting_zip_file">Совершается извлечение файлов...</string>
   <string name="checking_zip_file">Проверка данного файл...</string>
@@ -234,6 +261,13 @@
   <string name="speak_advanced_settings">Расширенные настройки</string>
   <string name="speak_sleep_timer_title">Таймер сна</string>
   <string name="speak_no_books_available">Нет доступных книг для прослушивания</string>
+  <string name="repeat_passage">Повторить отрывок</string>
+  <string name="set_repeat_passage_range">Определить отрывок для повтора</string>
+  <string name="speak_beginning_of_passage">Выбрать начало отрывка</string>
+  <string name="speak_ending_of_passage">Выбрать конец отрывка</string>
+  <string name="speak_verse_range_to_repeat">Выбрать диапазон стихов для повтора</string>
+  <string name="speak_ending_verse_must_be_later">Конечный стиха должно быть позже, чем стартовый стих</string>
+  <string name="conf_speak_synchronize">Текст следует за речью</string>
   <string name="conf_speak_auto_bookmark">Автоматическое создание закладок</string>
   <string name="conf_save_playback_settings_to_bookmarks">Сохранять настройки воспроизведения в закладки</string>
   <string name="conf_replace_divinename">Заменять божественное имя на Яхве</string>
@@ -241,6 +275,7 @@
   <string name="conf_change_title">Подзаголовок</string>
   <string name="conf_speak_footnotes">Примечаний</string>
   <string name="conf_speak_sleep_timer">Установить таймер сна</string>
+  <string name="conf_speak_multitranslation">Произнести из всех видимых окон</string>
   <string name="sleep_timer_title">Время сна в минутах</string>
   <string name="sleep_timer_set">Установить таймер сна. Таймер установлен: %dминут</string>
   <string name="sleep_timer_started">Таймер сна запущен, %d минут</string>
@@ -250,6 +285,8 @@
   <string name="widget_toggle_sleep_timer">Переключить таймер сна</string>
   <string name="widget_bookmark_helptext">Здесь будут появляться кнопки быстрого вызова закладок прослушивания.</string>
   <string name="speak_status_stopped">остановлено</string>
+  <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
+  <string name="system_speak_settings">Открыть системные настройки TTS</string>
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
   <string name="speak_help_auto_bookmark">
 Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
@@ -304,11 +341,12 @@
   <string name="speak_fifth">Пятая</string>
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
-  <string name="mynote">Мои заметки</string>
+  <string name="mynote">Моя заметка</string>
   <string name="mynote_add">Добавить заметку</string>
   <string name="mynote_view_edit">Моя заметка</string>
   <string name="mynote_saved">Сохранено</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup">Бэкап</string>
   <string name="backup_success">Заметки и закладки сохранены в %s на SD карте</string>
   <string name="restore">Восстановить</string>
@@ -343,6 +381,7 @@
   <string name="new_item">Новое</string>
   <string name="close">Закрыть</string>
   <string name="edit">Правка</string>
+  <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <!--Errors-->
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>

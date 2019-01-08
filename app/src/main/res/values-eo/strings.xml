@@ -19,6 +19,9 @@
   <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
   <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
   <string name="help_nav_title">Navigi</string>
+  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
+ Duobla frapeto eniras/eliras plenekranon.
+ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ povas montri ĝin per frapetadi fenestron.</string>
   <string name="help_speech_title">Parolo</string>
   <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
   <string name="help_mynote_title">Miaj notoj</string>
@@ -39,6 +42,7 @@
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj relanĉi And Biblion.</string>
   <!--Main menu-->
+  <string name="menu">Menuo</string>
   <string name="chooseBook">Dokumento</string>
   <string name="selectPassage">Alineo</string>
   <string name="search">Serĉi</string>
@@ -48,6 +52,8 @@
   <string name="help">Helpo</string>
   <string name="verse">Verso</string>
   <string name="administration">Administri</string>
+  <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
+  <string name="chooce_document">Elektu dokumenton</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
   <string name="choosePassageChapterName">Elekti ĉapitron</string>
@@ -57,11 +63,13 @@
   <!--Search-->
   <string name="search_index">Serĉ-indekso</string>
   <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
+  <string name="search_index_unavailable">Bedaŭrinde kreado de indeksoj estas nur disponebla ĉe Android 5.0 (Lollipop) aŭ pli nova.</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
   <string name="index">Indekso</string>
   <string name="index_download">Elŝuti</string>
   <string name="index_not_available_for_download">Tiu ĉi indekso ne estas disponebla por elŝuti</string>
   <string name="index_create">Krei</string>
+  <string name="rebuild_index">Rekrei indekson</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
@@ -132,6 +140,7 @@
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
   <!--Window-->
+  <string name="new_window">Nova fenestro</string>
   <string name="window">Fenestro</string>
   <string name="windowClose">Fermi</string>
   <string name="windowMaximise">Maksimumigi</string>
@@ -263,6 +272,12 @@
   <string name="speak_advanced_settings">Spertaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
   <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
+  <string name="repeat_passage">Ripeti alineon</string>
+  <string name="set_repeat_passage_range">Elekti amplekson de alineo por ripeti</string>
+  <string name="speak_beginning_of_passage">Elektu komencon de alineo</string>
+  <string name="speak_ending_of_passage">Elektu finon de alineo</string>
+  <string name="speak_verse_range_to_repeat">Elektu amplekson de verso por ripeti</string>
+  <string name="speak_ending_verse_must_be_later">Fina verso estu post komenca verso</string>
   <string name="conf_speak_synchronize">Samtempigi tekston kun parolo</string>
   <string name="conf_speak_auto_bookmark">Aŭtomate krei legosignojn</string>
   <string name="conf_save_playback_settings_to_bookmarks">Konservi agordojn de ludado al legosignoj</string>
@@ -377,14 +392,4 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="download_documents">Elŝutado de dokumentoj</string>
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
-  <string name="menu">Menuo</string>
-  <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
-  <string name="chooce_document">Elektu dokumenton</string>
-  <string name="repeat_passage">Ripeti alineon</string>
-  <string name="set_repeat_passage_range">Elekti amplekson de alineo por ripeti</string>
-  <string name="speak_beginning_of_passage">Elektu komencon de alineo</string>
-  <string name="speak_ending_of_passage">Elektu finon de alineo</string>
-  <string name="speak_verse_range_to_repeat">Elektu amplekson de verso por ripeti</string>
-  <string name="speak_ending_verse_must_be_later">Fina verso estu post komenca verso</string>
-  <string name="new_window">Nova fenestro</string>
 </resources>
