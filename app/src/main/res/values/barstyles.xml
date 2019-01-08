@@ -27,7 +27,7 @@
 		<item name="colorAccent">@color/accent_night</item>
 		<item name="colorPrimary">@color/actionbar_background_night</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
-		<item name="transportButtonColor">#000000</item>
+		<item name="transportButtonColor">#d4d4d4</item>
 		<item name="windowButtonStrokeColor">#80000000</item>
 		<item name="windowButtonBackgroundColor">#9b6e6e6e</item>
 		<item name="speakTransportBackground">#000000</item>
