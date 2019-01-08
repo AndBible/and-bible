@@ -436,11 +436,11 @@ public class TextToSpeechServiceManager {
 
     private void fireStateChangeEvent() {
     	if (isPaused) {
+			temporary = false;
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.PAUSED));
-			temporary = false;
     	} else if (isSpeaking) {
-			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SPEAKING));
 			temporary = false;
+			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SPEAKING));
     	} else {
 			ABEventBus.getDefault().post(new SpeakEvent(temporary ? SpeakState.TEMPORARY_STOP : SpeakState.SILENT));
     	}
