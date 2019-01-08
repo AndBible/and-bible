@@ -18,11 +18,21 @@
         android:orientation="vertical"
         android:id="@+id/mainLayout">
 
+        <LinearLayout
+            android:id="@+id/mainBibleView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:elevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
             android:theme="@style/MainBibleActionBar">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -139,16 +149,6 @@
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>
-
-        <LinearLayout
-            android:id="@+id/mainBibleView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
-            app:layout_constraintBottom_toTopOf="@+id/speakTransport"
-            />
 
         <net.bible.android.view.util.widget.SpeakTransportWidget
             android:id="@+id/speakTransport"

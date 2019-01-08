@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.base
 
 import android.content.res.Configuration
-import android.util.Log
 import android.view.Menu
 
 import net.bible.android.control.page.PageControl
@@ -27,8 +26,6 @@ import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
 
 import javax.inject.Inject
-import android.view.animation.DecelerateInterpolator
-import kotlinx.android.synthetic.main.main_bible_view.*
 
 
 /**
@@ -64,26 +61,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
 
         // must return true for menu to be displayed
         return true
-    }
-
-    /**
-     * Hide/show the actionbar and call base class to hide/show everything else
-     */
-    override fun toggleFullScreen() {
-        super.toggleFullScreen()
-
-        if (!isFullScreen) {
-            Log.d(TAG, "Fullscreen off")
-            toolbar.translationY = -toolbar.bottom.toFloat()
-            supportActionBar?.show()
-            toolbar.animate().translationY(0.0F).setInterpolator(DecelerateInterpolator()).start()
-
-        } else {
-            Log.d(TAG, "Fullscreen on")
-            supportActionBar?.hide()
-        }
-
-        getContentView().requestLayout()
     }
 
     /**

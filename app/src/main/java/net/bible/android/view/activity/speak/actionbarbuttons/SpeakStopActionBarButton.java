@@ -42,7 +42,7 @@ public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
-		getSpeakControl().stop();
+		getSpeakControl().stop(false);
 
 		return true;
 	}

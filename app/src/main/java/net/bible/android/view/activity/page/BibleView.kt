@@ -44,8 +44,8 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentView
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.util.UiUtils
@@ -63,8 +63,8 @@ import org.apache.commons.lang3.StringUtils
  * the object manually (not from a layout XML file).
  */
 
-class BibleView(mainBibleActivity: MainBibleActivity,
-                private val windowNo: Window,
+class BibleView(val mainBibleActivity: MainBibleActivity,
+                val windowNo: Window,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -109,8 +109,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
-
-    var windowButton: View? = null
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -240,8 +238,13 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         // call this from here because some documents may require an adjusted font size e.g. those using Greek font
         applyFontSize()
 
+        var delta = 0.0F
+        if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
+            delta = mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight
+        }
+
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "', true);})</script></body>")
+        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $delta);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -482,14 +485,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
-        val button = windowButton ?: return
-        button.visibility = when(event.isFullScreen) {
-            true -> View.GONE
-            false -> View.VISIBLE
-        }
-    }
-
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
         val isScreenVerse = event.isVerseNoSet(windowNo)
@@ -552,7 +547,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
      * @param verse
      */
     fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
-
         runOnUiThread(Runnable { scrollOrJumpToVerse(verse) })
     }
 
@@ -563,7 +557,12 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         if (ChapterVerse.isSet(chapterVerse)) {
             // jump to correct verse
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-            executeJavascript("scrollToVerse('" + getIdToJumpTo(chapterVerse) + "')")
+            if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
+                val delta = mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', false, ${delta})")
+            } else {
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}')")
+            }
         }
     }
 

@@ -8,7 +8,7 @@
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
-	    $(document).bind("touchstart", function() {
+	    $(document).bind("touchstart", function(event) {
 	        stopAnimation = true;
 	    } );
 	}
@@ -61,7 +61,6 @@ function doScrolling(elementY, duration) {
   var startingY = window.pageYOffset;
   var diff = elementY - startingY;
   var start;
-  console.debug("doScrolling", startingY, elementY, diff)
   if(currentAnimation) {
       window.cancelAnimationFrame(currentAnimation);
   }
@@ -86,22 +85,24 @@ function doScrolling(elementY, duration) {
   })
 }
 
-function scrollToVerse(toId, now) {
-    console.debug("scrollToVerse", toId)
+function scrollToVerse(toId, now, deltaParam) {
     stopAnimation = true;
+    var delta = 0;
+    if(deltaParam !== undefined) {
+        delta = deltaParam/window.devicePixelRatio;
+    }
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
 	    if(now===true) {
-		    toElement.scrollIntoView();
+            window.scrollTo(0, toElement.offsetTop - delta);
 		}
 		else {
-    		doScrolling(toElement.offsetTop, 1000);
+    		doScrolling(toElement.offsetTop - delta, 1000);
     	}
 	}
 }
 
 function doScrollToSlowly(element, elementPosition, to) {
-    console.debug("doScrollToSlowly", element)
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
     var difference = to - elementPosition;

@@ -28,10 +28,10 @@ import androidx.appcompat.widget.PopupMenu
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.View.OnClickListener
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -43,8 +43,8 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -79,6 +79,7 @@ class DocumentWebViewBuilder @Inject constructor(
         private val windowControl: WindowControl,
         private val mainBibleActivity: MainBibleActivity,
         private val bibleViewFactory: BibleViewFactory,
+        private val speakControl: SpeakControl,
         private val windowMenuCommandHandler: WindowMenuCommandHandler
 ) {
 
@@ -155,7 +156,7 @@ class DocumentWebViewBuilder @Inject constructor(
             parent.orientation = if (isSplitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
-
+            windowButtons.clear()
             for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
 
@@ -209,9 +210,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 } else {
                     createDefaultWindowActionButton(window)
                 }
+                windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
-                bibleView.windowButton = defaultWindowActionButton
                 defaultWindowActionButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
                     true -> View.GONE
                     false -> View.VISIBLE
@@ -221,12 +222,13 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
             // Display minimised screens
-            val minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
+            restoreButtons.clear()
+            minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
+            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.navigationBarHeight - minButtonTranslationY
             val minimisedScreens = windowControl.windowRepository.minimisedScreens
-            restoreButtons.clear()
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minimisedScreens[i])
@@ -245,18 +247,48 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
+    val windowButtons: MutableList<Button> = ArrayList()
     val restoreButtons: MutableList<Button> = ArrayList()
+    lateinit var minimisedWindowsFrameContainer: LinearLayout
+    val minButtonTranslationY
+            get() = if(speakControl.isStopped) 0 else mainBibleActivity.transportBarHeight
 
-    fun onEventMainThread(event: ActivityBase.FullScreenEvent) {
-        for (b in restoreButtons) {
-            b.visibility = when (event.isFullScreen) {
-                true -> View.GONE
-                false -> View.VISIBLE
+    fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
+        for (b in windowButtons) {
+            if(!event.isFullScreen) {
+                b.visibility = View.VISIBLE
+                b.animate().translationX(0.0F)
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+            }  else {
+                b.animate().translationX(b.width.toFloat())
+                        .setInterpolator(AccelerateInterpolator())
+                        .withEndAction { b.visibility = View.GONE }
+                        .start()
             }
+        }
+        updateMinimizedButtons(event.isFullScreen)
+    }
+
+    fun onEventMainThread(event: MainBibleActivity.TransportBarVisibilityChanged) {
+        updateMinimizedButtons(SharedActivityState.getInstance().isFullScreen)
+    }
+
+    fun updateMinimizedButtons(isFullScreen: Boolean) {
+        if(!isFullScreen) {
+            minimisedWindowsFrameContainer.visibility = View.VISIBLE
+            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.navigationBarHeight - minButtonTranslationY)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+        }  else {
+            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.navigationBarHeight + minButtonTranslationY + minimisedWindowsFrameContainer.height)
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
+                    .start()
         }
     }
 
-    private fun createDefaultWindowActionButton(window: Window): View {
+    private fun createDefaultWindowActionButton(window: Window): Button {
         return when {
             window.defaultOperation == WindowOperation.CLOSE -> // close button for the links window
                 createCloseButton(window)
@@ -372,15 +404,19 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createMainWindowButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "M"
-        return createTextButton(text,
+        val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
             { v -> showPopupWindow(window, v) ; true }
         )
+        b.translationY = mainBibleActivity.statusBarHeight + mainBibleActivity.actionBarSize
+        return b
     }
 
     private fun createRestoreButton(window: Window): Button {
-        // restore button
-        return createTextButton(getDocumentInitial(window), { windowControl.restoreWindow(window) })
+        return createTextButton(getDocumentInitial(window),
+                { windowControl.restoreWindow(window) },
+                { windowControl.restoreWindow(window); true }
+        )
     }
 
     /**
@@ -395,21 +431,26 @@ class DocumentWebViewBuilder @Inject constructor(
 
     }
 
-    private fun createTextButton(text: String, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
-            Button(mainBibleActivity).apply {
-                this.text = text
-                width = BUTTON_SIZE_PX
-                height = BUTTON_SIZE_PX
-                setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-                setTypeface(null, Typeface.BOLD)
-                setSingleLine(true)
+    private fun createTextButton(text: String, onClickListener: (View) -> Unit,
+                                 onLongClickListener: ((View) -> Boolean)? = null): Button {
+        val b = Button(mainBibleActivity).apply {
+            this.text = text
+            width = BUTTON_SIZE_PX
+            height = BUTTON_SIZE_PX
+            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
+            setTypeface(null, Typeface.BOLD)
+            setSingleLine(true)
+            setOnClickListener(onClickListener)
+            setOnLongClickListener(onLongClickListener)
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                 setBackgroundResource(R.drawable.window_button)
-                setOnClickListener(onClickListener)
-                setOnLongClickListener(onLongClickListener)
             }
+        }
+        return b
+    }
 
     private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
-            Button(this.mainBibleActivity).apply {
+            Button(mainBibleActivity).apply {
                 setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
                 setBackgroundResource(drawableId)
                 width = BUTTON_SIZE_PX

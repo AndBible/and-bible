@@ -105,6 +105,7 @@ public class TextToSpeechServiceManager {
     private boolean isSpeaking = false;
     
     private boolean isPaused = false;
+    private boolean temporary = false;
     private boolean mockedTts = false;
 
 	@Inject
@@ -395,12 +396,17 @@ public class TextToSpeechServiceManager {
     private void showError(int msgId, Exception e) {
     	Dialogs.getInstance().showErrorMsg(msgId);
     }
-	
-    public void shutdown() {
+
+	public void shutdown() {
+		shutdown(false);
+	}
+
+	public void shutdown(boolean willContinueAfter) {
     	Log.d(TAG, "Shutdown TTS");
 
     	isSpeaking = false;
         isPaused = false;
+        temporary = willContinueAfter;
         
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
     	shutdownTtsEngine();
@@ -430,11 +436,13 @@ public class TextToSpeechServiceManager {
 
     private void fireStateChangeEvent() {
     	if (isPaused) {
+			temporary = false;
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.PAUSED));
     	} else if (isSpeaking) {
+			temporary = false;
 			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SPEAKING));
     	} else {
-			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SILENT));
+			ABEventBus.getDefault().post(new SpeakEvent(temporary ? SpeakState.TEMPORARY_STOP : SpeakState.SILENT));
     	}
 
     }

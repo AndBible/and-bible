@@ -47,9 +47,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
-
-    private val sharedActivityState = SharedActivityState.getInstance()
-
     private var isScreenOn = true
 
     // some screens are highly customised and the theme looks odd if it changes
@@ -65,25 +62,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     protected open var nightTheme = R.style.AppThemeNight
     protected open var dayTheme = R.style.AppThemeDay
 
-    /**
-     * Are all activities currently in full screen mode
-     */
-    // http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
-    var isFullScreen: Boolean
-        get() = sharedActivityState.isFullScreen
-        private set(isFullScreen) = if (!isFullScreen) {
-            Log.d(TAG, "NOT Fullscreen")
-            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            setLightsOutMode(false)
-        } else {
-            Log.d(TAG, "Fullscreen")
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE
-            setLightsOutMode(true)
-        }
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -119,8 +97,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         // this affected jsword dynamic classloading
         Thread.currentThread().contextClassLoader = javaClass.classLoader
 
-        isFullScreen = isFullScreen
-
         // if locale is overridden then have to force title to be translated here
         LocaleHelper.translateTitle(this)
     }
@@ -152,17 +128,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         if (!historyTraversal.goBack()) {
             super.onBackPressed()
         }
-    }
-
-    class FullScreenEvent(val isFullScreen: Boolean)
-
-    /**
-     * Change fullscreen state for this and all future activities
-     */
-    open fun toggleFullScreen() {
-        sharedActivityState.toggleFullScreen()
-        isFullScreen = sharedActivityState.isFullScreen
-        ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
     }
 
     private fun setLightsOutMode(isLightsOut: Boolean) {

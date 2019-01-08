@@ -18,6 +18,8 @@
 		<item name="transportButtonColor">#ffffff</item>
 		<item name="windowButtonStrokeColor">#80FFFFFF</item>
 		<item name="windowButtonBackgroundColor">#886e6e6e</item>
+		<item name="speakTransportBackground">#FFFFFF</item>
+		<item name="transportBarHeight">75dp</item>
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
@@ -28,6 +30,7 @@
 		<item name="transportButtonColor">#000000</item>
 		<item name="windowButtonStrokeColor">#80000000</item>
 		<item name="windowButtonBackgroundColor">#4d6e6e6e</item>
+		<item name="speakTransportBackground">#000000</item>
 	</style>
 
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">

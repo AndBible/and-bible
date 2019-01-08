@@ -359,13 +359,13 @@ class SpeakControl @Inject constructor(
         textToSpeechServiceManager.get().continueAfterPause()
     }
 
-    fun stop() {
+    fun stop(willContinueAfter: Boolean=false) {
         if (!isSpeaking && !isPaused) {
             return
         }
 
         Log.d(TAG, "Stop TTS speaking")
-        textToSpeechServiceManager.get().shutdown()
+        textToSpeechServiceManager.get().shutdown(willContinueAfter)
         stopTimer()
         Toast.makeText(BibleApplication.application, R.string.stop, Toast.LENGTH_SHORT).show()
     }
@@ -453,7 +453,7 @@ class SpeakControl @Inject constructor(
             book = Books.installed().getBook(playbackSettings.bookId) as SwordBook?
         }
         if (isSpeaking || isPaused) {
-            stop()
+            stop(true)
         }
         if (book != null) {
             speakBible(book, dto.verseRange.start)
