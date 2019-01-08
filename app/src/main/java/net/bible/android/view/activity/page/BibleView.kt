@@ -45,6 +45,7 @@ import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.DocumentView
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.util.UiUtils
@@ -62,7 +63,7 @@ import org.apache.commons.lang3.StringUtils
  * the object manually (not from a layout XML file).
  */
 
-class BibleView(mainBibleActivity: MainBibleActivity,
+class BibleView(private val mainBibleActivity: MainBibleActivity,
                 private val windowNo: Window,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
@@ -541,7 +542,6 @@ class BibleView(mainBibleActivity: MainBibleActivity,
      * @param verse
      */
     fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
-
         runOnUiThread(Runnable { scrollOrJumpToVerse(verse) })
     }
 
@@ -552,7 +552,13 @@ class BibleView(mainBibleActivity: MainBibleActivity,
         if (ChapterVerse.isSet(chapterVerse)) {
             // jump to correct verse
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-            executeJavascript("scrollToVerse('" + getIdToJumpTo(chapterVerse) + "')")
+            if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
+                val delta = mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight
+                // For some reason, this does not work. delta is 210, but delta = 170 works. Pixel density is 2.65.
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', false, ${delta})")
+            } else {
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}')")
+            }
         }
     }
 

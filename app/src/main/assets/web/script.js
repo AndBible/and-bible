@@ -86,16 +86,20 @@ function doScrolling(elementY, duration) {
   })
 }
 
-function scrollToVerse(toId, now) {
-    console.debug("scrollToVerse", toId)
+function scrollToVerse(toId, now, deltaParam) {
     stopAnimation = true;
+    var delta = 0;
+    if(deltaParam !== undefined) {
+        delta = deltaParam;
+    }
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
+        console.debug("scrollToVerse", toElement, toId, now, toElement.offsetTop, delta)
 	    if(now===true) {
-            window.scrollTo(0, toElement.offsetTop);
+            window.scrollTo(0, toElement.offsetTop - delta/2);
 		}
 		else {
-    		doScrolling(toElement.offsetTop, 1000);
+    		doScrolling(toElement.offsetTop - delta/2, 1000);
     	}
 	}
 }
