@@ -23,10 +23,10 @@ package net.bible.service.device.speak.event;
  */
 public class SpeakEvent {
 
-	public enum SpeakState {SPEAKING, PAUSED, SILENT};
+	public enum SpeakState {SPEAKING, PAUSED, SILENT, TEMPORARY_STOP};
 	
 	private SpeakState speakState;
-	
+
 	public SpeakEvent(SpeakState newSpeakState) {
 		this.speakState = newSpeakState;
 	}
@@ -44,5 +44,8 @@ public class SpeakEvent {
 	}
 	public boolean isStopped() {
 		return speakState == SpeakState.SILENT;
+	}
+	public boolean isTemporarilyStopped() {
+		return speakState == SpeakState.TEMPORARY_STOP;
 	}
 }

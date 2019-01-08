@@ -372,7 +372,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     fun onEventMainThread(speakEvent: SpeakEvent) {
-        updateSpeakTransportVisibility()
+        if(!speakEvent.isTemporarilyStopped) {
+            updateSpeakTransportVisibility()
+        }
         updateActionBarButtons()
     }
 
