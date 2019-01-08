@@ -202,7 +202,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
 					+ "</head>"
-					+ "<body lang='" + parameters.getLanguageCode() + "' onscroll='jsonscroll()' ><br><br><br>");
+					+ "<body lang='" + parameters.getLanguageCode() + "' onscroll='jsonscroll()' >");
 		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but
