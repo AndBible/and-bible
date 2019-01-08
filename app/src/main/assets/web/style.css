@@ -8,6 +8,7 @@ body {
 	padding-left: 2vw;
 	padding-right: 2vw;
 	max-width: 17cm;
+	hyphens: auto;
 }
 
 h1, .heading1 {
