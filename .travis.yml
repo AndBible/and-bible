@@ -13,6 +13,7 @@ cache:
     - $HOME/.android/build-cache
 
 before_script:
+  - yes | sdkmanager --licenses
   - ./gradlew testReleaseUnitTest --tests net.bible.service.download.CrosswireRepoIT
 
 script: ./gradlew --console plain build
