@@ -413,7 +413,10 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createRestoreButton(window: Window): Button {
-        return createTextButton(getDocumentInitial(window), { windowControl.restoreWindow(window) })
+        return createTextButton(getDocumentInitial(window),
+                { windowControl.restoreWindow(window) },
+                { windowControl.restoreWindow(window); true }
+        )
     }
 
     /**
@@ -442,7 +445,7 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
     private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
-            Button(this.mainBibleActivity).apply {
+            Button(mainBibleActivity).apply {
                 setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
                 setBackgroundResource(drawableId)
                 width = BUTTON_SIZE_PX
