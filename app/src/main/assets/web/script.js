@@ -9,7 +9,6 @@
 		window.jsInterface.onLoad();
 		registerVersePositions();
 	    $(document).bind("touchstart", function(event) {
-	        console.log(event);
 	        stopAnimation = true;
 	    } );
 	}
@@ -62,7 +61,6 @@ function doScrolling(elementY, duration) {
   var startingY = window.pageYOffset;
   var diff = elementY - startingY;
   var start;
-  console.debug("doScrolling", startingY, elementY, diff)
   if(currentAnimation) {
       window.cancelAnimationFrame(currentAnimation);
   }
@@ -95,7 +93,6 @@ function scrollToVerse(toId, now, deltaParam) {
     }
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
-        console.debug("scrollToVerse", toElement, toId, now, toElement.offsetTop, delta)
 	    if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
 		}
@@ -106,7 +103,6 @@ function scrollToVerse(toId, now, deltaParam) {
 }
 
 function doScrollToSlowly(element, elementPosition, to) {
-    console.debug("doScrollToSlowly", element)
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
     var difference = to - elementPosition;
