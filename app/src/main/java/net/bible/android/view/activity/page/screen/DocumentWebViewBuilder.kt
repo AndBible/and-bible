@@ -431,18 +431,23 @@ class DocumentWebViewBuilder @Inject constructor(
 
     }
 
-    private fun createTextButton(text: String, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
-            Button(mainBibleActivity).apply {
-                this.text = text
-                width = BUTTON_SIZE_PX
-                height = BUTTON_SIZE_PX
-                setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-                setTypeface(null, Typeface.BOLD)
-                setSingleLine(true)
+    private fun createTextButton(text: String, onClickListener: (View) -> Unit,
+                                 onLongClickListener: ((View) -> Boolean)? = null): Button {
+        val b = Button(mainBibleActivity).apply {
+            this.text = text
+            width = BUTTON_SIZE_PX
+            height = BUTTON_SIZE_PX
+            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
+            setTypeface(null, Typeface.BOLD)
+            setSingleLine(true)
+            setOnClickListener(onClickListener)
+            setOnLongClickListener(onLongClickListener)
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                 setBackgroundResource(R.drawable.window_button)
-                setOnClickListener(onClickListener)
-                setOnLongClickListener(onLongClickListener)
             }
+        }
+        return b
+    }
 
     private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
             Button(mainBibleActivity).apply {
