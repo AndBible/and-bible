@@ -8,7 +8,8 @@
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
-	    $(document).bind("touchstart", function() {
+	    $(document).bind("touchstart", function(event) {
+	        console.log(event);
 	        stopAnimation = true;
 	    } );
 	}
@@ -90,16 +91,16 @@ function scrollToVerse(toId, now, deltaParam) {
     stopAnimation = true;
     var delta = 0;
     if(deltaParam !== undefined) {
-        delta = deltaParam;
+        delta = deltaParam/window.devicePixelRatio;
     }
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
         console.debug("scrollToVerse", toElement, toId, now, toElement.offsetTop, delta)
 	    if(now===true) {
-            window.scrollTo(0, toElement.offsetTop - delta/2);
+            window.scrollTo(0, toElement.offsetTop - delta);
 		}
 		else {
-    		doScrolling(toElement.offsetTop - delta/2, 1000);
+    		doScrolling(toElement.offsetTop - delta, 1000);
     	}
 	}
 }

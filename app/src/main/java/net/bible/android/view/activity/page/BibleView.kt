@@ -63,8 +63,8 @@ import org.apache.commons.lang3.StringUtils
  * the object manually (not from a layout XML file).
  */
 
-class BibleView(private val mainBibleActivity: MainBibleActivity,
-                private val windowNo: Window,
+class BibleView(val mainBibleActivity: MainBibleActivity,
+                val windowNo: Window,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -238,8 +238,13 @@ class BibleView(private val mainBibleActivity: MainBibleActivity,
         // call this from here because some documents may require an adjusted font size e.g. those using Greek font
         applyFontSize()
 
+        var delta = 0.0F
+        if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
+            delta = mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight
+        }
+
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "', true);})</script></body>")
+        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $delta);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -554,7 +559,6 @@ class BibleView(private val mainBibleActivity: MainBibleActivity,
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
             if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
                 val delta = mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight
-                // For some reason, this does not work. delta is 210, but delta = 170 works. Pixel density is 2.65.
                 executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', false, ${delta})")
             } else {
                 executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}')")

@@ -92,7 +92,7 @@ public class BibleViewFactory {
 			BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator = new BibleInfiniteScrollPopulator(bibleView, window.getPageManager());
 
 			VerseCalculator verseCalculator = new VerseCalculator();
-			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.getPageManager(), bibleInfiniteScrollPopulator);
+			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.getPageManager(), bibleInfiniteScrollPopulator, bibleView);
 			bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
 			bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
 			bibleView.initialise();
