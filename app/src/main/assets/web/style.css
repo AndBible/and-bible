@@ -6,10 +6,12 @@ body {
 	font-size: 1.1em;
 	margin: auto;
 	padding-top: 100px;
+	padding-bottom: 100px;
 	padding-left: 2vw;
 	padding-right: 2vw;
 	max-width: 17cm;
 	hyphens: auto;
+	-webkit-hyphens: auto;
 	text-align: justify;
 }
 
