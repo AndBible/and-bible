@@ -91,8 +91,9 @@ function scrollToVerse(toId, now, deltaParam) {
     if(deltaParam !== undefined) {
         delta = deltaParam/window.devicePixelRatio;
     }
-	var toElement = document.getElementById(toId);
+	var toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
 	if (toElement != null) {
+	    console.log("Scrolling to", toElement, toElement.offsetTop - delta)
 	    if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
 		}
