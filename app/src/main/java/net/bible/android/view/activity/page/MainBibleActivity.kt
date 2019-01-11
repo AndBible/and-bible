@@ -201,7 +201,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         refreshScreenKeepOn()
         requestSdcardPermission()
         setupToolbarButtons()
-
+        updateSpeakTransportVisibility()
     }
 
     override fun onPause() {
