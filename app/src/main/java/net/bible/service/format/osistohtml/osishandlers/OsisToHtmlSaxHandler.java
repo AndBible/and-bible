@@ -195,14 +195,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			String styleSheetTags = parameters.getCssStylesheets();
 			String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
 			write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
-					+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
+					+ "<html xmlns='http://www.w3.org/1999/xhtml' lang='" + parameters.getLanguageCode() + "' dir='" + getDirection() + "'><head>"
 					+ styleSheetTags + "\n"
 					+ customFontStyle
 					+ jQueryjs
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
 					+ "</head>"
-					+ "<body lang='" + parameters.getLanguageCode() + "' onscroll='jsonscroll()' >");
+					+ "<body onscroll='jsonscroll()'>");
 		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but
