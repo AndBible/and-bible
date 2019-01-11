@@ -5,7 +5,6 @@ body {
 	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
 	margin: auto;
-	padding-top: 100px;
 	padding-bottom: 100%;
 	padding-left: 2vw;
 	padding-right: 2vw;
