@@ -226,9 +226,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return changed
     }
 
-    /**
-     * Show a page from bible commentary
-     */
     override fun show(origHtml: String, chapterVerse: ChapterVerse, jumpToYOffsetRatio: Float) {
         var html = origHtml
         Log.d(TAG, "Show(html,$chapterVerse,$jumpToYOffsetRatio) Window:$windowNo")
@@ -244,7 +241,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $delta);})</script></body>")
+        html = html.replace("</body>", "<script>$(document).ready(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $delta);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -324,7 +321,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // must zero mJumpToYOffsetRatio because setting location causes another onPageFinished
                 mJumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
 
-                scrollTo(0, Math.max(y, TOP_OF_SCREEN))
+                // Top of the screen is handled by scrollToVerse in the page loading.
+                // We want to take care of only to go to specific point in commentary/generalbook page
+                // when pressing back button.
+                if(y > TOP_OF_SCREEN) {
+                    scrollTo(0, y)
+                }
             }
         }
     }
