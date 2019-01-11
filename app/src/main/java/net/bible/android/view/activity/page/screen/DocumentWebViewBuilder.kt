@@ -389,10 +389,12 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createMaximiseToggleButton(window: Window): Button {
-        return createImageButton(R.drawable.ic_menu_unmaximise,
+        val b = createImageButton(R.drawable.ic_menu_unmaximise,
                 { v -> showPopupWindow(window, v) },
                 { v -> windowControl.unmaximiseWindow(window); true}
         )
+        b.translationY = mainBibleActivity.statusBarHeight + mainBibleActivity.actionBarSize
+        return b
     }
 
     private fun createMinimiseButton(window: Window): Button {
