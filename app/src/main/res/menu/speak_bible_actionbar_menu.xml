@@ -23,7 +23,6 @@
     <item android:id="@+id/advancedSettings"
         android:title="@string/speak_advanced_settings"
         android:icon="@android:drawable/ic_menu_preferences"
-        appcompat:showAsAction="ifRoom"
         />
 
     <item android:id="@+id/systemSettings"
