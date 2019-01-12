@@ -110,6 +110,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
+    class BibleViewTouched
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
@@ -118,6 +120,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         gestureDetector = GestureDetectorCompat(context, gestureListener)
         setOnTouchListener { v, event ->
+            ABEventBus.getDefault().post(BibleViewTouched())
             if (gestureDetector.onTouchEvent(event)) {
                 true
             } else v.performClick()

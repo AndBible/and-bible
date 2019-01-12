@@ -263,7 +263,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private var sleepTimer: Timer = Timer("TTS sleep timer")
     private var timerTask: TimerTask? = null
 
-    fun onEvent(event: BibleJavascriptInterface.BibleViewScrolled) {
+    fun onEvent(event: BibleView.BibleViewTouched) {
         mainBibleActivity.runOnUiThread{
             toggleWindowButtonVisibility(true)
         }

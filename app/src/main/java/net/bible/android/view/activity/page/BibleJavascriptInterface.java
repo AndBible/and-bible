@@ -74,11 +74,8 @@ public class BibleJavascriptInterface {
 		Log.d(TAG, "onLoad from js");
 	}
 
-	public class BibleViewScrolled {}
-
 	@JavascriptInterface
 	public void onScroll(int newYPos) {
-		ABEventBus.getDefault().post(new BibleViewScrolled());
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
 		if (notificationsEnabled && !addingContentAtTop && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			if (currentPageManager.isBibleShown()) {
