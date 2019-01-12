@@ -111,21 +111,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private var statusBarHeight = 0.0F
     private var navigationBarHeight = 0.0F
-    private var actionBarSize = 0.0F
+    private var actionBarHeight = 0.0F
     private var transportBarHeight = 0.0F
 
     private var hasHwKeys: Boolean = false
     private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
-    private val rightNavBarVisible get() = !isPortrait && !hasHwKeys
-    private val leftNavBarVisible get() = false; //!isPortrait && !hasHwKeys
+    private val rightNavBarVisible get() = false
+    private val leftNavBarVisible get() = false
     private var transportBarVisible = false
 
     // Top offset with only statusbar
-    val topOffset1 get() = if(isFullScreen) 0.0F else statusBarHeight
+    val topOffset1 get() = if(isPortrait && !isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
-    val topOffset2 get() = topOffset1 + if(isFullScreen) 0.0F else actionBarSize
+    val topOffset2 get() = topOffset1 + if(!isFullScreen) actionBarHeight else 0.0F
     // Bottom offset with only navigation bar
-    val bottomOffset1 get() = if(bottomNavBarVisible) navigationBarHeight else 0.0F
+    val bottomOffset1 get() = if(isPortrait && bottomNavBarVisible) navigationBarHeight else 0.0F
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
@@ -174,7 +174,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         val tv = TypedValue()
         if(theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarSize = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
         if(theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
@@ -446,7 +446,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             Log.d(TAG, "Fullscreen off")
             toolbar.translationY = -toolbar.height.toFloat()
             supportActionBar?.show()
-            toolbar.animate().translationY(statusBarHeight)
+            toolbar.animate().translationY(topOffset1)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
         } else {
@@ -461,7 +461,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
     private val sharedActivityState = SharedActivityState.getInstance()
 
-
     private fun hideSystemUI() {
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -475,14 +474,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
-    // Shows the system bars by removing all the flags
-    // except for the ones that make the content appear under the system bars.
     private fun showSystemUI() {
-        //window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        window.decorView.systemUiVisibility = (
-                //View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+        window.decorView.systemUiVisibility = if (isPortrait) {
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        }
+        else View.SYSTEM_UI_FLAG_VISIBLE
     }
 
     private fun updateSpeakTransportVisibility() {
@@ -594,6 +590,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         speakTransport.translationY = -bottomOffset1
         toolbar.translationY = topOffset1
         toolbar.setPadding(leftOffset1.roundToInt(), 0, rightOffset1.roundToInt(), 0)
+        if(isFullScreen)
+            hideSystemUI()
+        else
+            showSystemUI()
     }
 
     val isSplitHorizontally: Boolean get() {

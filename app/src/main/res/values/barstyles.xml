@@ -9,7 +9,7 @@
     	ActionBar background colour also set in DefaultActionBarManager.java
     	For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
     -->
-    <style name="AppThemeDayGeneric" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="colorAccent">@color/accent_day</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
@@ -20,9 +20,6 @@
 		<item name="windowButtonBackgroundColor">#886e6e6e</item>
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
-	</style>
-	
-	<style name="AppThemeDay" parent="AppThemeDayGeneric">
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
