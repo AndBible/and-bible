@@ -163,7 +163,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     // For tests. In production this is always null.
     var mockedBooks: ArrayList<SwordBook>? = null
 
-    private fun getCurrentBooks(): ArrayList<SwordBook> {
+    private val currentBooks: ArrayList<SwordBook> get() {
         if(mockedBooks != null) {
             return mockedBooks as ArrayList<SwordBook>
         }
@@ -210,18 +210,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 cmds.add(SilenceCommand())
             }
         }
-        if(settings.multiTranslation) {
-            val books = getCurrentBooks()
-            if(books.size > 1) {
-                for (b in books) {
-                    cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
-                    cmds.addAll(getSpeakCommandsForVerse(verse, b))
-                }
-                cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
+        if(settings.multiTranslation && currentBooks.size > 1) {
+            for (b in currentBooks) {
+                cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
+                cmds.addAll(getSpeakCommandsForVerse(verse, b))
             }
-            else {
-                cmds.addAll(getSpeakCommandsForVerse(verse))
-            }
+            cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
         } else {
             cmds.addAll(getSpeakCommandsForVerse(verse))
         }
@@ -259,7 +253,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         cmds.addAll(getCommandsForVerse(endVerse, verse))
 
-        if(!settings.multiTranslation) {
+        if(!(settings.multiTranslation && currentBooks.size > 1)) {
             // If verse does not end in period, add the part before period to the current reading
             val rest = SpeakCommandArray()
 
