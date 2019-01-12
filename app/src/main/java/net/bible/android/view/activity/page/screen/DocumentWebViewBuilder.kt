@@ -128,18 +128,18 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    @SuppressLint("RtlHardcoded")
-    fun addWebView(parent: LinearLayout) {
-
+    private val isSplitHorizontally: Boolean get() {
         val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
-
-        val isSplitHorizontally: Boolean = when (pref) {
+        return when (pref) {
             SPLIT_MODE_AUTOMATIC -> mainBibleActivity.isPortrait
             SPLIT_MODE_VERTICAL -> false
             SPLIT_MODE_HORIZONTAL -> true
             else -> throw RuntimeException("Illegal preference")
         }
+    }
 
+    @SuppressLint("RtlHardcoded")
+    fun addWebView(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
 
@@ -210,6 +210,20 @@ class DocumentWebViewBuilder @Inject constructor(
                 } else {
                     createDefaultWindowActionButton(window)
                 }
+
+                if(!isSplitHorizontally) {
+                    defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+                    if(windowNo == windows.size - 1) {
+                        defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+                    }
+                }
+                else {
+                    if(windowNo == 0) {
+                        defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+                    }
+                    defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+                }
+
                 windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
@@ -254,16 +268,31 @@ class DocumentWebViewBuilder @Inject constructor(
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         for (b in windowButtons) {
-            if(!event.isFullScreen) {
-                b.visibility = View.VISIBLE
-                b.animate().translationX(0.0F)
-                        .setInterpolator(DecelerateInterpolator())
-                        .start()
-            }  else {
-                b.animate().translationX(b.width.toFloat())
-                        .setInterpolator(AccelerateInterpolator())
-                        .withEndAction { b.visibility = View.GONE }
-                        .start()
+            if(isSplitHorizontally) {
+                if(!event.isFullScreen) {
+                    b.visibility = View.VISIBLE
+                    b.animate().translationX(-mainBibleActivity.rightOffset1)
+                            .setInterpolator(DecelerateInterpolator())
+                            .start()
+                }  else {
+                    b.animate().translationX(b.width.toFloat())
+                            .setInterpolator(AccelerateInterpolator())
+                            .withEndAction { b.visibility = View.GONE }
+                            .start()
+                }
+            }
+            else {
+                if(!event.isFullScreen) {
+                    b.visibility = View.VISIBLE
+                    b.animate().translationY(mainBibleActivity.topOffset2)
+                            .setInterpolator(DecelerateInterpolator())
+                            .start()
+                }  else {
+                    b.animate().translationY(-b.height.toFloat())
+                            .setInterpolator(AccelerateInterpolator())
+                            .withEndAction { b.visibility = View.GONE }
+                            .start()
+                }
             }
         }
         updateMinimizedButtons(event.isFullScreen)
@@ -288,7 +317,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createDefaultWindowActionButton(window: Window): Button {
-        return when {
+        val b = when {
             window.defaultOperation == WindowOperation.CLOSE -> // close button for the links window
                 createCloseButton(window)
             window.defaultOperation == WindowOperation.MAXIMISE -> // normalise button for maximised window
@@ -296,6 +325,7 @@ class DocumentWebViewBuilder @Inject constructor(
             else -> // minimise button for normal window
                 createMinimiseButton(window)
         }
+        return b
     }
 
     /**
@@ -410,8 +440,6 @@ class DocumentWebViewBuilder @Inject constructor(
             { v -> showPopupWindow(window, v) },
             { v -> showPopupWindow(window, v) ; true }
         )
-        b.translationY = mainBibleActivity.topOffset2
-        b.translationX = -mainBibleActivity.rightOffset1
         return b
     }
 

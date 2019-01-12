@@ -116,6 +116,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var hasHwKeys: Boolean = false
     private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
     private val rightNavBarVisible get() = !isPortrait && !hasHwKeys
+    private val leftNavBarVisible get() = false; //!isPortrait && !hasHwKeys
     private var transportBarVisible = false
 
     // Top offset with only statusbar
@@ -128,6 +129,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
     val rightOffset1 get() = if(rightNavBarVisible) navigationBarHeight else 0.0F
+    // Left offset with navigation bar
+    val leftOffset1 get() = if(leftNavBarVisible) navigationBarHeight else 0.0F
 
      /**
      * return percentage scrolled down page
@@ -167,7 +170,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         showSystemUI()
 
         toolbar.translationY = topOffset1
-        toolbar.setPadding(0, 0, rightOffset1.toInt(), 0)
+        updateToolbar()
 
         val tv = TypedValue()
         if(theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
@@ -588,10 +591,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     /**
      * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
      */
+    private fun updateToolbar() = toolbar.setPadding(leftOffset1.toInt(), 0, rightOffset1.toInt(), 0)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
+        updateToolbar()
         // essentially if the current page is Bible then we need to recalculate verse offsets
         // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
         if (!windowControl.activeWindowPageManager.currentPage.isSingleKey) {
