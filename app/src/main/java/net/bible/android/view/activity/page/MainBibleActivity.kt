@@ -121,7 +121,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var transportBarVisible = false
 
     // Top offset with only statusbar
-    val topOffset1 get() = if(isPortrait && !isFullScreen) statusBarHeight else 0.0F
+    val topOffset1 get() = if(!isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
     val topOffset2 get() = topOffset1 + if(!isFullScreen) actionBarHeight else 0.0F
     // Bottom offset with only navigation bar
@@ -462,15 +462,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val sharedActivityState = SharedActivityState.getInstance()
 
     private fun hideSystemUI() {
-        window.decorView.systemUiVisibility = (
+        window.decorView.systemUiVisibility = if(isPortrait) (
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 // Set the content to appear under the system bars so that the
                 // content doesn't resize when the system bars hide and show.
-                //or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 // Hide the nav bar and status bar
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        else(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
@@ -478,7 +484,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         window.decorView.systemUiVisibility = if (isPortrait) {
             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         }
-        else View.SYSTEM_UI_FLAG_VISIBLE
+        else View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
     }
 
     private fun updateSpeakTransportVisibility() {
