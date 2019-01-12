@@ -211,11 +211,17 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
         }
         if(settings.multiTranslation) {
-            for(b in getCurrentBooks()) {
-                cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
-                cmds.addAll(getSpeakCommandsForVerse(verse, b))
+            val books = getCurrentBooks()
+            if(books.size > 1) {
+                for (b in books) {
+                    cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
+                    cmds.addAll(getSpeakCommandsForVerse(verse, b))
+                }
+                cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
             }
-            cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
+            else {
+                cmds.addAll(getSpeakCommandsForVerse(verse))
+            }
         } else {
             cmds.addAll(getSpeakCommandsForVerse(verse))
         }
