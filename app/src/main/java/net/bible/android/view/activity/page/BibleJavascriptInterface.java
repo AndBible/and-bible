@@ -22,6 +22,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
@@ -73,8 +74,11 @@ public class BibleJavascriptInterface {
 		Log.d(TAG, "onLoad from js");
 	}
 
+	public class BibleViewScrolled {}
+
 	@JavascriptInterface
 	public void onScroll(int newYPos) {
+		ABEventBus.getDefault().post(new BibleViewScrolled());
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
 		if (notificationsEnabled && !addingContentAtTop && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			if (currentPageManager.isBibleShown()) {

@@ -45,9 +45,11 @@ import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.page.BibleJavascriptInterface
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
+import java.util.*
 
 import javax.inject.Inject
 
@@ -250,14 +252,42 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    val windowButtons: MutableList<Button> = ArrayList()
-    val restoreButtons: MutableList<Button> = ArrayList()
-    lateinit var minimisedWindowsFrameContainer: LinearLayout
+    private val windowButtons: MutableList<Button> = ArrayList()
+    private val restoreButtons: MutableList<Button> = ArrayList()
+    private lateinit var minimisedWindowsFrameContainer: LinearLayout
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
-        for (b in windowButtons) {
+        toggleWindowButtonVisibility(!event.isFullScreen, force=true)
+    }
+
+    private var sleepTimer: Timer = Timer("TTS sleep timer")
+    private var timerTask: TimerTask? = null
+
+    fun onEvent(event: BibleJavascriptInterface.BibleViewScrolled) {
+        mainBibleActivity.runOnUiThread{
+            toggleWindowButtonVisibility(true)
+        }
+        timerTask?.cancel()
+        timerTask = object : TimerTask() {
+            override fun run() {
+                mainBibleActivity.runOnUiThread {
+                    toggleWindowButtonVisibility(false)
+                }
+            }
+        }
+        sleepTimer.schedule(timerTask, (2 * 1000).toLong())
+    }
+    private var buttonsVisible = true
+    private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
+        if(buttonsVisible == show && !force) {
+            return
+        }
+        for ((idx, b) in windowButtons.withIndex()) {
             if(mainBibleActivity.isSplitHorizontally) {
-                if(!event.isFullScreen) {
+                b.animate().translationY(if(idx == 0) mainBibleActivity.topOffset2 else 0.0F)
+                        .setInterpolator(DecelerateInterpolator()).start()
+
+                if(show) {
                     b.visibility = View.VISIBLE
                     b.animate().translationX(-mainBibleActivity.rightOffset1)
                             .setInterpolator(DecelerateInterpolator())
@@ -270,7 +300,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
             }
             else {
-                if(!event.isFullScreen) {
+                b.animate().translationX(-mainBibleActivity.rightOffset1)
+                        .setInterpolator(DecelerateInterpolator()).start()
+                if(show) {
                     b.visibility = View.VISIBLE
                     b.animate().translationY(mainBibleActivity.topOffset2)
                             .setInterpolator(DecelerateInterpolator())
@@ -283,15 +315,16 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
             }
         }
-        updateMinimizedButtons(event.isFullScreen)
+        updateMinimizedButtons(show)
+        buttonsVisible = show
     }
 
     fun onEventMainThread(event: MainBibleActivity.TransportBarVisibilityChanged) {
         updateMinimizedButtons(SharedActivityState.getInstance().isFullScreen)
     }
 
-    fun updateMinimizedButtons(isFullScreen: Boolean) {
-        if(!isFullScreen) {
+    fun updateMinimizedButtons(show: Boolean) {
+        if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
             minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
                     .setInterpolator(DecelerateInterpolator())
