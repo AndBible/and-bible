@@ -505,10 +505,15 @@ class DocumentWebViewBuilder @Inject constructor(
     @SuppressLint("RestrictedApi")
     private fun showPopupWindow(window: Window, view: View) {
         // ensure actions affect the right window
+        timerTask?.cancel()
+        toggleWindowButtonVisibility(true)
         windowControl.activeWindow = window
 
         val popup = PopupMenu(mainBibleActivity, view)
-        popup.setOnMenuItemClickListener { menuItem -> windowMenuCommandHandler.handleMenuRequest(menuItem) }
+        popup.setOnMenuItemClickListener { menuItem ->
+            resetTouchTimer()
+            windowMenuCommandHandler.handleMenuRequest(menuItem)
+        }
 
         val inflater = popup.menuInflater
         inflater.inflate(R.menu.window_popup_menu, popup.menu)
@@ -517,6 +522,10 @@ class DocumentWebViewBuilder @Inject constructor(
         windowControl.updateOptionsMenu(popup.menu)
 
         val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
+        menuHelper.setOnDismissListener {
+            resetTouchTimer()
+        }
+
         menuHelper.setForceShowIcon(true)
         menuHelper.show()
     }
