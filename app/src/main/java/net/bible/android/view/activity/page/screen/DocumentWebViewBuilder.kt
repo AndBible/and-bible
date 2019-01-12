@@ -260,6 +260,10 @@ class DocumentWebViewBuilder @Inject constructor(
         toggleWindowButtonVisibility(!event.isFullScreen, force=true)
     }
 
+    fun onEvent(event: MainBibleActivity.TransportBarVisibilityChanged) {
+        toggleWindowButtonVisibility(!SharedActivityState.getInstance().isFullScreen, force=true)
+    }
+
     private var sleepTimer: Timer = Timer("TTS sleep timer")
     private var timerTask: TimerTask? = null
 
@@ -315,10 +319,6 @@ class DocumentWebViewBuilder @Inject constructor(
             updateMinimizedButtons(show)
         }
         buttonsVisible = show
-    }
-
-    fun onEventMainThread(event: MainBibleActivity.TransportBarVisibilityChanged) {
-        updateMinimizedButtons(SharedActivityState.getInstance().isFullScreen)
     }
 
     fun updateMinimizedButtons(show: Boolean) {
