@@ -20,6 +20,7 @@ package net.bible.android.view.activity.readingplan.actionbar
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import android.util.Log
@@ -160,7 +161,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     private fun unsplitIfLandscape(parts: Array<String>): Array<String> {
         var parts = parts
         // un-split if in landscape because landscape actionBar has more width but less height
-        if (!CommonUtils.isPortrait()) {
+        if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             parts = arrayOf(StringUtils.join(parts, " "))
         }
         return parts

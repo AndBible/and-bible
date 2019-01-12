@@ -238,7 +238,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var delta = 0.0F
         if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
             // TODO: move this to some function
-            delta = (mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight) / mainBibleActivity.resources.displayMetrics.density
+            delta = (mainBibleActivity.topOffset2) / mainBibleActivity.resources.displayMetrics.density
         }
 
         if(windowControl.windowRepository.firstWindow == windowNo) {
@@ -565,7 +565,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // jump to correct verse
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
             if(!SharedActivityState.getInstance().isFullScreen && windowControl.windowRepository.firstWindow == windowNo) {
-                val delta = (mainBibleActivity.actionBarSize + mainBibleActivity.statusBarHeight) / mainBibleActivity.resources.displayMetrics.density
+                val delta = (mainBibleActivity.topOffset2) / mainBibleActivity.resources.displayMetrics.density
                 executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', false, ${delta})")
             } else {
                 executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}')")

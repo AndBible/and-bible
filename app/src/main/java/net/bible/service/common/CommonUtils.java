@@ -284,10 +284,6 @@ public class CommonUtils {
     		Log.e(TAG, "Error sleeping", e);
     	}
     }
-    
-    public static boolean isPortrait() {
-    	return BibleApplication.Companion.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
-    }
 
     public static String getLocalePref() {
     	return getSharedPreferences().getString("locale_pref", null);

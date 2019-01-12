@@ -18,7 +18,9 @@
 
 package net.bible.android.view.util.buttongrid;
 
+import android.content.res.Configuration;
 import android.util.Log;
+import android.view.View;
 
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.service.common.CommonUtils;
@@ -35,6 +37,11 @@ public class LayoutDesigner {
 
 	private static int MIN_COLS = 5;
 	private static int MIN_COLS_LAND = 8;
+	private final View view;
+
+	public LayoutDesigner(View view) {
+		this.view = view;
+	}
 
 	static class RowColLayout {
 		int rows;
@@ -100,6 +107,6 @@ public class LayoutDesigner {
 	
 
 	private boolean isPortrait() {
-		return CommonUtils.isPortrait();
+		return view.getContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 }

@@ -51,7 +51,7 @@ public class MyNoteViewBuilder {
 		this.mainActivity = mainBibleActivity;
 		
         myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
-        myNoteText.setPadding(0, (int) mainBibleActivity.getStatusBarHeight() + mainBibleActivity.getActionBarSize(), 0, (int) mainBibleActivity.getNavigationBarHeight());
+        myNoteText.setPadding(0, (int) mainBibleActivity.getTopOffset2(), (int) mainBibleActivity.getRightOffset1(), (int) mainBibleActivity.getBottomOffset2());
 
 		//noinspection ResourceType
 		myNoteText.setId(MYNOTE_TEXT_ID);

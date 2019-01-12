@@ -22,15 +22,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.WindowManager
 
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -61,6 +60,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     protected open var nightTheme = R.style.AppThemeNight
     protected open var dayTheme = R.style.AppThemeDay
+    val isPortrait get() = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
 
     /** Called when the activity is first created.  */

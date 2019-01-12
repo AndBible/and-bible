@@ -114,7 +114,7 @@ public class ButtonGrid extends TableLayout {
 		int textSize = getResources().getInteger(R.integer.grid_cell_text_size_sp);
 
 		// calculate the number of rows and columns so that the grid looks nice
-		mRowColLayout = new LayoutDesigner().calculateLayout(buttonInfoList);
+		mRowColLayout = new LayoutDesigner(this).calculateLayout(buttonInfoList);
 		
 		LayoutParams rowInTableLp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 		TableRow.LayoutParams cellInRowLp = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);

@@ -134,7 +134,7 @@ class DocumentWebViewBuilder @Inject constructor(
         val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
 
         val isSplitHorizontally: Boolean = when (pref) {
-            SPLIT_MODE_AUTOMATIC -> CommonUtils.isPortrait()
+            SPLIT_MODE_AUTOMATIC -> mainBibleActivity.isPortrait
             SPLIT_MODE_VERTICAL -> false
             SPLIT_MODE_HORIZONTAL -> true
             else -> throw RuntimeException("Illegal preference")
@@ -227,7 +227,8 @@ class DocumentWebViewBuilder @Inject constructor(
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
-            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.navigationBarHeight - minButtonTranslationY
+            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
+            minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
             val minimisedScreens = windowControl.windowRepository.minimisedScreens
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
@@ -250,8 +251,6 @@ class DocumentWebViewBuilder @Inject constructor(
     val windowButtons: MutableList<Button> = ArrayList()
     val restoreButtons: MutableList<Button> = ArrayList()
     lateinit var minimisedWindowsFrameContainer: LinearLayout
-    val minButtonTranslationY
-            get() = if(speakControl.isStopped) 0 else mainBibleActivity.transportBarHeight
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         for (b in windowButtons) {
@@ -277,11 +276,11 @@ class DocumentWebViewBuilder @Inject constructor(
     fun updateMinimizedButtons(isFullScreen: Boolean) {
         if(!isFullScreen) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
-            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.navigationBarHeight - minButtonTranslationY)
+            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
         }  else {
-            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.navigationBarHeight + minButtonTranslationY + minimisedWindowsFrameContainer.height)
+            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.bottomOffset2 + minimisedWindowsFrameContainer.height)
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
                     .start()
@@ -393,7 +392,8 @@ class DocumentWebViewBuilder @Inject constructor(
                 { v -> showPopupWindow(window, v) },
                 { v -> windowControl.unmaximiseWindow(window); true}
         )
-        b.translationY = mainBibleActivity.statusBarHeight + mainBibleActivity.actionBarSize
+        b.translationY = mainBibleActivity.topOffset2
+        b.translationX = -mainBibleActivity.rightOffset1
         return b
     }
 
@@ -410,7 +410,8 @@ class DocumentWebViewBuilder @Inject constructor(
             { v -> showPopupWindow(window, v) },
             { v -> showPopupWindow(window, v) ; true }
         )
-        b.translationY = mainBibleActivity.statusBarHeight + mainBibleActivity.actionBarSize
+        b.translationY = mainBibleActivity.topOffset2
+        b.translationX = -mainBibleActivity.rightOffset1
         return b
     }
 

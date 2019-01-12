@@ -120,7 +120,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 
 	        // show short book name to save space if Portrait
 			boolean fullBookNameSave = BookName.isFullBookName();
-			BookName.setFullBookName(!CommonUtils.isPortrait());
+			BookName.setFullBookName(!isPortrait());
 	        
 	        TableLayout layout = (TableLayout)findViewById(R.id.reading_container);
 	        for (int i=0; i<mReadings.getNumReadings(); i++) {

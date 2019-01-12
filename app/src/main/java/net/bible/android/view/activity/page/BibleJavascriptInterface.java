@@ -81,9 +81,7 @@ public class BibleJavascriptInterface {
 				// All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
 				// I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
 				if(!SharedActivityState.getInstance().isFullScreen() && bibleView.getWindowNo() == windowControl.getWindowRepository().getFirstWindow()) {
-					newYPos += (bibleView.getMainBibleActivity().getActionBarSize()
-							+ bibleView.getMainBibleActivity().getStatusBarHeight())
-							/ bibleView.getResources().getDisplayMetrics().density;
+					newYPos += (bibleView.getMainBibleActivity().getTopOffset2()) / bibleView.getResources().getDisplayMetrics().density;
 				}
 				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);
 				if (currentChapterVerse != prevCurrentChapterVerse) {

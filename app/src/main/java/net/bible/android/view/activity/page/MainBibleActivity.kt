@@ -108,16 +108,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
-    var statusBarHeight = 0.0F
-        private set
-    var navigationBarHeight = 0.0F
-        private set
-    var actionBarSize = 0
-        private set
-    var transportBarHeight = 0
-        private set
+    private var statusBarHeight = 0.0F
+    private var navigationBarHeight = 0.0F
+    private var actionBarSize = 0.0F
+    private var transportBarHeight = 0.0F
 
-    /**
+    private var hasHwKeys: Boolean = false
+    private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
+    private val rightNavBarVisible get() = !isPortrait && !hasHwKeys
+    private var transportBarVisible = false
+
+    // Top offset with only statusbar
+    val topOffset1 get() = if(isFullScreen) 0.0F else statusBarHeight
+    // Top offset with only statusbar and toolbar
+    val topOffset2 get() = topOffset1 + if(isFullScreen) 0.0F else actionBarSize
+    // Bottom offset with only navigation bar
+    val bottomOffset1 get() = if(bottomNavBarVisible) navigationBarHeight else 0.0F
+    // Bottom offset with navigation bar and transport bar
+    val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
+    // Right offset with navigation bar
+    val rightOffset1 get() = if(rightNavBarVisible) navigationBarHeight else 0.0F
+
+     /**
      * return percentage scrolled down page
      */
     private val currentPosition: Float
@@ -129,40 +141,46 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
+
         super.onCreate(savedInstanceState, true)
+
+        setContentView(R.layout.main_bible_view)
+        DaggerMainBibleActivityComponent.builder()
+                .applicationComponent(BibleApplication.application.applicationComponent)
+                .mainBibleActivityModule(MainBibleActivityModule(this))
+                .build()
+                .inject(this)
+
+        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
         if (statusBarId > 0) {
             statusBarHeight = resources.getDimensionPixelSize(statusBarId).toFloat()
         }
 
-
         val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         if (navBarId > 0) {
-            val hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
-            navigationBarHeight = if(hasHwKeys) 0.0F else resources.getDimensionPixelSize(navBarId).toFloat()
+            navigationBarHeight = resources.getDimensionPixelSize(navBarId).toFloat()
         }
-        setContentView(R.layout.main_bible_view)
+
         setSupportActionBar(toolbar)
         showSystemUI()
 
-        toolbar.translationY = statusBarHeight
-
-        speakTransport.visibility = View.GONE
-        speakTransport.translationY = -navigationBarHeight
+        toolbar.translationY = topOffset1
+        toolbar.setPadding(0, 0, rightOffset1.toInt(), 0)
 
         val tv = TypedValue()
         if(theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarSize = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+            actionBarSize = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
         if(theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
-            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
         toolbar.setContentInsetsAbsolute(0, 0)
 
-        navigationView.setPadding(0, 0, 0, navigationBarHeight.toInt())
+        navigationView.setPadding(0, 0, 0, bottomOffset1.toInt())
         navigationView.setNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
@@ -185,12 +203,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         })
 
-        DaggerMainBibleActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .mainBibleActivityModule(MainBibleActivityModule(this))
-                .build()
-                .inject(this)
-
         // create related objects
         documentViewManager.buildView()
         // register for passage change and appToBackground events
@@ -201,6 +213,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         refreshScreenKeepOn()
         requestSdcardPermission()
         setupToolbarButtons()
+
+        speakTransport.visibility = View.GONE
+        speakTransport.translationY = -bottomOffset1
         updateSpeakTransportVisibility()
     }
 
@@ -471,15 +486,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun updateSpeakTransportVisibility() {
         if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
+            transportBarVisible = false
             speakTransport.animate().translationY(speakTransport.height.toFloat())
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { speakTransport.visibility = View.GONE }
                     .start()
             ABEventBus.getDefault().post(TransportBarVisibilityChanged(false))
         } else if (speakTransport.visibility == View.GONE && !speakControl.isStopped){
+            transportBarVisible = true
             speakTransport.translationY = speakTransport.height.toFloat()
             speakTransport.visibility = View.VISIBLE
-            speakTransport.animate().translationY(-navigationBarHeight)
+            speakTransport.animate().translationY(-bottomOffset1)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             ABEventBus.getDefault().post(TransportBarVisibilityChanged(true))
@@ -571,6 +588,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     /**
      * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
      */
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
