@@ -250,6 +250,7 @@ class DocumentWebViewBuilder @Inject constructor(
             isLaidOutWithHorizontalSplit = isSplitHorizontally
             isWindowConfigurationChanged = false
         }
+        resetTouchTimer()
     }
 
     private val windowButtons: MutableList<Button> = ArrayList()
@@ -257,17 +258,28 @@ class DocumentWebViewBuilder @Inject constructor(
     private lateinit var minimisedWindowsFrameContainer: LinearLayout
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        toggleWindowButtonVisibility(!event.isFullScreen, force=true)
+        toggleWindowButtonVisibility(true, force=true)
+        resetTouchTimer()
+    }
+
+    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
+        toggleWindowButtonVisibility(true, force=true)
+        resetTouchTimer()
     }
 
     fun onEvent(event: MainBibleActivity.TransportBarVisibilityChanged) {
-        toggleWindowButtonVisibility(!SharedActivityState.getInstance().isFullScreen, force=true)
+        toggleWindowButtonVisibility(true, force=true)
+        resetTouchTimer()
     }
 
     private var sleepTimer: Timer = Timer("TTS sleep timer")
     private var timerTask: TimerTask? = null
 
     fun onEvent(event: BibleView.BibleViewTouched) {
+        resetTouchTimer()
+    }
+
+    private fun resetTouchTimer() {
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
         timerTask = object : TimerTask() {
@@ -277,6 +289,7 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         sleepTimer.schedule(timerTask, 3000L)
     }
+
     private var buttonsVisible = true
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
         if(buttonsVisible == show && !force) {
