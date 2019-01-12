@@ -281,7 +281,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.verseNumbersOption -> ItemOptions("show_verseno_pref", true, true)
         R.id.versePerLineOption -> ItemOptions("verse_per_line_pref", false, true)
         R.id.footnoteOption -> ItemOptions("show_notes_pref", false, true)
-        R.id.myNotesOption -> ItemOptions("show_mynotes_pref", true)
+        R.id.myNotesOption -> ItemOptions("show_mynotes_pref", true, true)
         R.id.morphologyOption -> ItemOptions("show_morphology_pref", false, true)
         else -> null
     }
