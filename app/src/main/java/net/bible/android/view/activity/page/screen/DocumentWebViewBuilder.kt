@@ -256,7 +256,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private val restoreButtons: MutableList<Button> = ArrayList()
     private lateinit var minimisedWindowsFrameContainer: LinearLayout
 
-    fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
+    fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         toggleWindowButtonVisibility(!event.isFullScreen, force=true)
     }
 
@@ -264,15 +264,11 @@ class DocumentWebViewBuilder @Inject constructor(
     private var timerTask: TimerTask? = null
 
     fun onEvent(event: BibleView.BibleViewTouched) {
-        mainBibleActivity.runOnUiThread{
-            toggleWindowButtonVisibility(true)
-        }
+        toggleWindowButtonVisibility(true)
         timerTask?.cancel()
         timerTask = object : TimerTask() {
             override fun run() {
-                mainBibleActivity.runOnUiThread {
-                    toggleWindowButtonVisibility(false)
-                }
+                toggleWindowButtonVisibility(false)
             }
         }
         sleepTimer.schedule(timerTask, (2 * 1000).toLong())
@@ -282,40 +278,42 @@ class DocumentWebViewBuilder @Inject constructor(
         if(buttonsVisible == show && !force) {
             return
         }
-        for ((idx, b) in windowButtons.withIndex()) {
-            if(mainBibleActivity.isSplitHorizontally) {
-                b.animate().translationY(if(idx == 0) mainBibleActivity.topOffset2 else 0.0F)
-                        .setInterpolator(DecelerateInterpolator()).start()
+        mainBibleActivity.runOnUiThread {
+            for ((idx, b) in windowButtons.withIndex()) {
+                if(mainBibleActivity.isSplitHorizontally) {
+                    b.animate().translationY(if(idx == 0) mainBibleActivity.topOffset2 else 0.0F)
+                            .setInterpolator(DecelerateInterpolator()).start()
 
-                if(show) {
-                    b.visibility = View.VISIBLE
+                    if(show) {
+                        b.visibility = View.VISIBLE
+                        b.animate().translationX(-mainBibleActivity.rightOffset1)
+                                .setInterpolator(DecelerateInterpolator())
+                                .start()
+                    }  else {
+                        b.animate().translationX(b.width.toFloat())
+                                .setInterpolator(AccelerateInterpolator())
+                                .withEndAction { b.visibility = View.GONE }
+                                .start()
+                    }
+                }
+                else {
                     b.animate().translationX(-mainBibleActivity.rightOffset1)
-                            .setInterpolator(DecelerateInterpolator())
-                            .start()
-                }  else {
-                    b.animate().translationX(b.width.toFloat())
-                            .setInterpolator(AccelerateInterpolator())
-                            .withEndAction { b.visibility = View.GONE }
-                            .start()
+                            .setInterpolator(DecelerateInterpolator()).start()
+                    if(show) {
+                        b.visibility = View.VISIBLE
+                        b.animate().translationY(mainBibleActivity.topOffset2)
+                                .setInterpolator(DecelerateInterpolator())
+                                .start()
+                    }  else {
+                        b.animate().translationY(-b.height.toFloat())
+                                .setInterpolator(AccelerateInterpolator())
+                                .withEndAction { b.visibility = View.GONE }
+                                .start()
+                    }
                 }
             }
-            else {
-                b.animate().translationX(-mainBibleActivity.rightOffset1)
-                        .setInterpolator(DecelerateInterpolator()).start()
-                if(show) {
-                    b.visibility = View.VISIBLE
-                    b.animate().translationY(mainBibleActivity.topOffset2)
-                            .setInterpolator(DecelerateInterpolator())
-                            .start()
-                }  else {
-                    b.animate().translationY(-b.height.toFloat())
-                            .setInterpolator(AccelerateInterpolator())
-                            .withEndAction { b.visibility = View.GONE }
-                            .start()
-                }
-            }
+            updateMinimizedButtons(show)
         }
-        updateMinimizedButtons(show)
         buttonsVisible = show
     }
 
