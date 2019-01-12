@@ -271,7 +271,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 toggleWindowButtonVisibility(false)
             }
         }
-        sleepTimer.schedule(timerTask, (2 * 1000).toLong())
+        sleepTimer.schedule(timerTask, 3000L)
     }
     private var buttonsVisible = true
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
