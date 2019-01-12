@@ -40,7 +40,7 @@ public class MyNoteViewBuilder {
 	private MyNoteEditTextView myNoteText;
 	private static final int MYNOTE_TEXT_ID = 992;
 	
-	private Activity mainActivity;
+	private MainBibleActivity mainActivity;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
@@ -51,7 +51,6 @@ public class MyNoteViewBuilder {
 		this.mainActivity = mainBibleActivity;
 		
         myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
-        myNoteText.setPadding(0, (int) mainBibleActivity.getTopOffset2(), (int) mainBibleActivity.getRightOffset1(), (int) mainBibleActivity.getBottomOffset2());
 
 		//noinspection ResourceType
 		myNoteText.setId(MYNOTE_TEXT_ID);

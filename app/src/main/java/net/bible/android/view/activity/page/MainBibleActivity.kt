@@ -609,6 +609,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateToolbar()
+        updateActionBarButtons()
         // essentially if the current page is Bible then we need to recalculate verse offsets
         // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
         if (!windowControl.activeWindowPageManager.currentPage.isSingleKey) {

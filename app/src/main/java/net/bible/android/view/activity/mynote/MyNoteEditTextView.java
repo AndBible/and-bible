@@ -32,6 +32,7 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -47,17 +48,26 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "MyNoteEditTextView";
-	
-	public MyNoteEditTextView(Context context, MyNoteControl myNoteControl) {
+	private final MainBibleActivity mainBibleActivity;
+
+	public MyNoteEditTextView(MainBibleActivity context, MyNoteControl myNoteControl) {
 		super(context);
+		this.mainBibleActivity = context;
 		this.myNoteControl = myNoteControl;
 
 		setSingleLine(false);
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 		setLayoutParams(layoutParams);
 		setGravity(Gravity.TOP);
-		
+		updatePadding();
 		applyPreferenceSettings();
+	}
+
+	private void updatePadding() {
+		setPadding((int)mainBibleActivity.getLeftOffset1(),
+				(int) mainBibleActivity.getTopOffset2(),
+				(int) mainBibleActivity.getRightOffset1(),
+				(int) mainBibleActivity.getBottomOffset2());
 	}
 	
 	@Override
@@ -91,6 +101,7 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 	public void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio) {
 		applyPreferenceSettings();
 		setText(html);
+		updatePadding();
 	}
 
 	@Override
