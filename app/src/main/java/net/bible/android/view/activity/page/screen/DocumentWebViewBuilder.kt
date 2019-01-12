@@ -43,13 +43,11 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils
 
 import javax.inject.Inject
 
@@ -79,7 +77,6 @@ class DocumentWebViewBuilder @Inject constructor(
         private val windowControl: WindowControl,
         private val mainBibleActivity: MainBibleActivity,
         private val bibleViewFactory: BibleViewFactory,
-        private val speakControl: SpeakControl,
         private val windowMenuCommandHandler: WindowMenuCommandHandler
 ) {
 
@@ -128,20 +125,11 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    private val isSplitHorizontally: Boolean get() {
-        val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
-        return when (pref) {
-            SPLIT_MODE_AUTOMATIC -> mainBibleActivity.isPortrait
-            SPLIT_MODE_VERTICAL -> false
-            SPLIT_MODE_HORIZONTAL -> true
-            else -> throw RuntimeException("Illegal preference")
-        }
-    }
-
     @SuppressLint("RtlHardcoded")
     fun addWebView(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
+        val isSplitHorizontally = mainBibleActivity.isSplitHorizontally
 
         if (!isWebView ||
                 isWindowConfigurationChanged ||
@@ -268,7 +256,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     fun onEventMainThread(event: MainBibleActivity.FullScreenEvent) {
         for (b in windowButtons) {
-            if(isSplitHorizontally) {
+            if(mainBibleActivity.isSplitHorizontally) {
                 if(!event.isFullScreen) {
                     b.visibility = View.VISIBLE
                     b.animate().translationX(-mainBibleActivity.rightOffset1)
@@ -515,12 +503,6 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     companion object {
-
-        private const val SPLIT_MODE_PREF = "split_mode_pref"
-        private const val SPLIT_MODE_AUTOMATIC = "automatic"
-        private const val SPLIT_MODE_VERTICAL = "vertical"
-        private const val SPLIT_MODE_HORIZONTAL = "horizontal"
-
         private const val TAG = "DocumentWebViewBuilder"
     }
 }

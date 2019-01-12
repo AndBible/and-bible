@@ -81,6 +81,7 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 
 /** The main activity screen showing Bible text
@@ -169,7 +170,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         setSupportActionBar(toolbar)
         showSystemUI()
 
-        toolbar.translationY = topOffset1
         updateToolbar()
 
         val tv = TypedValue()
@@ -183,7 +183,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         toolbar.setContentInsetsAbsolute(0, 0)
 
-        navigationView.setPadding(0, 0, 0, bottomOffset1.toInt())
         navigationView.setNavigationItemSelectedListener { menuItem ->
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
@@ -218,7 +217,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         setupToolbarButtons()
 
         speakTransport.visibility = View.GONE
-        speakTransport.translationY = -bottomOffset1
         updateSpeakTransportVisibility()
     }
 
@@ -355,7 +353,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
-        val maxWidth = (toolbarLayout.width * 0.5).toInt()
+        val maxWidth = (toolbarLayout.width * 0.5).roundToInt()
         val approximateSize = homeButton.width
 
         val maxButtons: Int = if(approximateSize > 0) maxWidth / approximateSize else 127
@@ -591,7 +589,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     /**
      * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
      */
-    private fun updateToolbar() = toolbar.setPadding(leftOffset1.toInt(), 0, rightOffset1.toInt(), 0)
+    private fun updateToolbar() {
+        navigationView.setPadding(0, 0, 0, bottomOffset1.roundToInt())
+        speakTransport.translationY = -bottomOffset1
+        toolbar.translationY = topOffset1
+        toolbar.setPadding(leftOffset1.roundToInt(), 0, rightOffset1.roundToInt(), 0)
+    }
+
+    val isSplitHorizontally: Boolean get() {
+        val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
+        return when (pref) {
+            SPLIT_MODE_AUTOMATIC -> isPortrait
+            SPLIT_MODE_VERTICAL -> false
+            SPLIT_MODE_HORIZONTAL -> true
+            else -> throw RuntimeException("Illegal preference")
+        }
+    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -779,6 +792,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         internal const val BACKUP_SAVE_REQUEST = 0
         internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
+
+        private const val SPLIT_MODE_PREF = "split_mode_pref"
+        private const val SPLIT_MODE_AUTOMATIC = "automatic"
+        private const val SPLIT_MODE_VERTICAL = "vertical"
+        private const val SPLIT_MODE_HORIZONTAL = "horizontal"
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

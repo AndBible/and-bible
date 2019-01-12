@@ -29,6 +29,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
@@ -364,7 +365,6 @@ open class WindowControl @Inject constructor(
     }
 
     companion object {
-
         var SCREEN_SETTLE_TIME_MILLIS = 1000
     }
 }
