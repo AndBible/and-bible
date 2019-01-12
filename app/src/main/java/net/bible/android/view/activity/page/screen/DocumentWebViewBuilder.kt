@@ -195,11 +195,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top right of each window
-                val defaultWindowActionButton = if(windowNo == 0 && !window.isMaximised) {
-                    createMainWindowButton(window)
-                } else {
-                    createDefaultWindowActionButton(window)
-                }
+                val defaultWindowActionButton = createDefaultWindowActionButton(window)
 
                 if(!isSplitHorizontally) {
                     defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
@@ -217,10 +213,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
-                defaultWindowActionButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
-                    true -> View.GONE
-                    false -> View.VISIBLE
-                }
                 window.bibleView = bibleView
 
             }
@@ -237,10 +229,6 @@ class DocumentWebViewBuilder @Inject constructor(
             for (i in minimisedScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minimisedScreens[i])
-                restoreButton.visibility = when(SharedActivityState.getInstance().isFullScreen) {
-                    true -> View.GONE
-                    false -> View.VISIBLE
-                }
                 restoreButtons.add(restoreButton)
                 minimisedWindowsFrameContainer.addView(restoreButton,
                         LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
@@ -460,19 +448,11 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createMinimiseButton(window: Window): Button {
-        return createTextButton("━━",
+        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
+        return createTextButton(text,
                 { v -> showPopupWindow(window, v) },
                 { v -> windowControl.minimiseWindow(window); true}
         )
-    }
-
-    private fun createMainWindowButton(window: Window): Button {
-        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "M"
-        val b = createTextButton(text,
-            { v -> showPopupWindow(window, v) },
-            { v -> showPopupWindow(window, v) ; true }
-        )
-        return b
     }
 
     private fun createRestoreButton(window: Window): Button {
