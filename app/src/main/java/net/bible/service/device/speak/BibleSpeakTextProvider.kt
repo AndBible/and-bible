@@ -215,7 +215,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 cmds.add(ChangeLanguageCommand(Locale(b.language.code)))
                 cmds.addAll(getSpeakCommandsForVerse(verse, b))
             }
-            cmds.add(ChangeLanguageCommand(Locale(book.language.code)))
         } else {
             cmds.addAll(getSpeakCommandsForVerse(verse))
         }
