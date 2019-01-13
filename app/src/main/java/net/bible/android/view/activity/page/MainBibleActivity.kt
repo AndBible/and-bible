@@ -485,13 +485,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 // Hide the nav bar and status bar
-                    //    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
         else(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 // Set the content to appear under the system bars so that the
                 // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 // Hide the nav bar and status bar
                 or View.SYSTEM_UI_FLAG_FULLSCREEN)
@@ -787,7 +788,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         Log.d(TAG, "showVerseActionModeMenu")
 
         runOnUiThread {
-            if(isFullScreen) toggleFullScreen()
             val actionMode = startSupportActionMode(actionModeCallbackHandler)
             // Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
             actionMode?.invalidate()
