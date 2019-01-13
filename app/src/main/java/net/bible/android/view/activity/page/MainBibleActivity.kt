@@ -353,10 +353,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
-        val maxWidth = (toolbarLayout.width * 0.5).roundToInt()
-        val approximateSize = homeButton.width
-
-        val maxButtons: Int = if(approximateSize > 0) maxWidth / approximateSize else 127
+        val screenWidth = mainBibleView.width
+        val approximateSize = 53 * resources.displayMetrics.density
+        val maxWidth = (screenWidth * 0.5).roundToInt()
+        val maxButtons: Int = (maxWidth / approximateSize).toInt()
 
         bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
@@ -449,6 +449,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             toolbar.animate().translationY(topOffset1)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
+            updateActionBarButtons()
         } else {
             Log.d(TAG, "Fullscreen on")
             hideSystemUI()
@@ -622,7 +623,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateToolbar()
-        updateActionBarButtons()
         ABEventBus.getDefault().post(ConfigurationChanged())
         // essentially if the current page is Bible then we need to recalculate verse offsets
         // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
