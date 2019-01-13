@@ -126,10 +126,7 @@ class SpeakControl @Inject constructor(
         val settings = SpeakSettings.load()
         if (settings.synchronize) {
             speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
-            var book = event.book
-            if (settings.multiTranslation) {
-                book = speakPageManager.currentPage.currentDocument
-            }
+            val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
         }
     }
