@@ -789,7 +789,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun clearVerseActionMode(actionMode: ActionMode) {
-        runOnUiThread { actionMode.finish() }
+        runOnUiThread {
+            actionMode.finish()
+            resetSystemUi()
+        }
     }
 
     /**
