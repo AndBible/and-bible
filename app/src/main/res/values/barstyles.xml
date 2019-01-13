@@ -31,6 +31,7 @@
 		<item name="windowButtonStrokeColor">#80000000</item>
 		<item name="windowButtonBackgroundColor">#9b6e6e6e</item>
 		<item name="speakTransportBackground">#000000</item>
+		<item name="transportBarHeight">75dp</item>
 	</style>
 
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">

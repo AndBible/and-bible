@@ -153,7 +153,7 @@
         <net.bible.android.view.util.widget.SpeakTransportWidget
             android:id="@+id/speakTransport"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?transportBarHeight"
             app:layout_constraintBottom_toBottomOf="parent"
             custom:hideStatus="false"
             custom:showConfig="true"
