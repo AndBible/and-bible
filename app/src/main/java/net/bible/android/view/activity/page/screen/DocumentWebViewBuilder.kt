@@ -239,6 +239,7 @@ class DocumentWebViewBuilder @Inject constructor(
             isWindowConfigurationChanged = false
         }
         resetTouchTimer()
+        mainBibleActivity.resetSystemUi()
     }
 
     private val windowButtons: MutableList<Button> = ArrayList()
@@ -524,6 +525,7 @@ class DocumentWebViewBuilder @Inject constructor(
         val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
         menuHelper.setOnDismissListener {
             resetTouchTimer()
+            mainBibleActivity.resetSystemUi()
         }
 
         menuHelper.setForceShowIcon(true)

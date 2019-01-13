@@ -460,6 +460,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
         updateSpeakTransportVisibility()
     }
+
+    fun resetSystemUi() {
+        if(isFullScreen)
+            hideSystemUI()
+    }
+
     private val sharedActivityState = SharedActivityState.getInstance()
 
     private fun hideSystemUI() {
