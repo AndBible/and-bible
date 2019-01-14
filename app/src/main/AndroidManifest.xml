@@ -72,13 +72,11 @@
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageChapterName"
-            android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageBook"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageVerseName"
-            android:parentActivityName="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
             android:name="net.bible.android.view.activity.search.Search"
