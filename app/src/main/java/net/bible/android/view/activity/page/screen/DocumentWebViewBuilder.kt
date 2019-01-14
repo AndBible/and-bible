@@ -439,7 +439,8 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createMaximiseToggleButton(window: Window): Button {
-        val b = createImageButton(R.drawable.ic_menu_unmaximise,
+        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
+        val b = createTextButton(text,
                 { v -> showPopupWindow(window, v) },
                 { v -> windowControl.unmaximiseWindow(window); true}
         )
