@@ -66,15 +66,6 @@
                     android:onClick="onSettingsChange"
                     android:text="@string/conf_replace_divinename" />
 
-                <CheckBox
-                    android:id="@+id/multiTranslation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/speak_row_padding"
-                    android:layout_marginLeft="@dimen/speak_row_padding"
-                    android:onClick="onSettingsChange"
-                    android:text="@string/conf_speak_multitranslation" />
-
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="15dip" />

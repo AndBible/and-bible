@@ -378,15 +378,6 @@ class SpeakControl @Inject constructor(
         enableSleepTimer(SpeakSettings.load().sleepTimer)
     }
 
-    fun onEvent(ev: NumberOfWindowsChangedEvent) {
-        val work = Thread(Runnable {
-            if (isSpeaking && SpeakSettings.load().multiTranslation) {
-                pause(true)
-                continueAfterPause(true)
-            }
-        })
-        work.start()
-    }
 
     fun onEvent(ev: SpeakSettingsChangedEvent) {
         textToSpeechServiceManager.get().updateSettings(ev)
