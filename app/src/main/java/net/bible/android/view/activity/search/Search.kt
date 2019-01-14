@@ -24,7 +24,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.OnKeyListener
@@ -37,7 +36,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -99,7 +98,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search view")
         setContentView(R.layout.search)
-
+        CommonUtils.getSharedPreferences().edit().putLong("search-last-used", System.currentTimeMillis()).apply()
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {

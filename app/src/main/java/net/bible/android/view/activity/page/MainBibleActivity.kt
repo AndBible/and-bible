@@ -366,39 +366,58 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxWidth = (screenWidth * 0.5).roundToInt()
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
 
-        bibleButton.visibility = if(visibleButtonCount < maxButtons && suggestedBible != null) {
+        bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        commentaryButton.visibility = if(suggestedCommentary != null && visibleButtonCount < maxButtons) {
+        commentaryButton.visibility = if (suggestedCommentary != null && visibleButtonCount < maxButtons) {
             commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
             commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        strongsButton.visibility = if(visibleButtonCount< maxButtons && documentControl.isStrongsInBook) {
+        strongsButton.visibility = if (visibleButtonCount < maxButtons && documentControl.isStrongsInBook) {
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        searchButton.visibility = if(visibleButtonCount< maxButtons) {
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
 
-        speakButton.visibility = if(visibleButtonCount< maxButtons && speakControl.isStopped) {
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
+        fun addSearch() {
+            searchButton.visibility = if (visibleButtonCount < maxButtons) {
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+        }
+        fun addSpeak() {
+            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped) {
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+        }
 
-        bookmarkButton.visibility = if(visibleButtonCount< maxButtons) {
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
+        fun addBookmarks() {
+            bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
+                visibleButtonCount += 1
+                View.VISIBLE
+            } else View.GONE
+        }
+
+        val speakLastUsed = preferences.getLong("speak-last-used", 0)
+        val searchLastUsed = preferences.getLong("search-last-used", 0)
+        val bookmarksLastUsed = preferences.getLong("bookmarks-last-used", 0)
+
+        val funs = arrayListOf(Pair(speakLastUsed, {addSpeak()}),
+                               Pair(searchLastUsed, {addSearch()}),
+                               Pair(bookmarksLastUsed, {addBookmarks()}))
+        funs.sortBy { -it.first }
+
+        for(p in funs) {
+            p.second()
+        }
 
         dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < maxButtons) {
             dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
@@ -752,7 +771,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onResume() {
         super.onResume()
-
+        updateActionBarButtons()
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
     }

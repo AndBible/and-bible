@@ -40,6 +40,7 @@ import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
@@ -81,6 +82,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
         super.onCreate(savedInstanceState, true);
         setContentView(R.layout.bookmarks);
 
+		CommonUtils.getSharedPreferences().edit().putLong("bookmarks-last-used", System.currentTimeMillis()).apply();
 		buildActivityComponent().inject(this);
 
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
