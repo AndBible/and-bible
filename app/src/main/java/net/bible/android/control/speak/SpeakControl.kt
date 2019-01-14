@@ -212,8 +212,8 @@ class SpeakControl @Inject constructor(
     /** prepare to speak
      */
     fun speakText() {
-        val (_, _, _, _, _, _, _, _, queue, repeat, numPagesToSpeakId) = SpeakSettings.load()
-        val numPagesDefn = calculateNumPagesToSpeakDefinitions()[numPagesToSpeakId]
+        val settings = SpeakSettings.load()
+        val numPagesDefn = calculateNumPagesToSpeakDefinitions()[settings.numPagesToSpeakId]
 
         //, boolean queue, boolean repeat
         Log.d(TAG, "Chapters:" + numPagesDefn.numPages)
@@ -238,7 +238,7 @@ class SpeakControl @Inject constructor(
                 }
             }
 
-            textToSpeechServiceManager.get().speakText(fromBook, keyList, queue, repeat)
+            textToSpeechServiceManager.get().speakText(fromBook, keyList, settings.queue, settings.repeat)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
             throw AndRuntimeException("Error preparing Speech", e)
