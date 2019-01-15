@@ -114,7 +114,7 @@ public class BookmarkControl {
 
 			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
 			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
-			final View currentView = currentActivity.findViewById(android.R.id.content);
+			final View currentView = currentActivity.findViewById(R.id.coordinatorLayout);
 			boolean success = false;
 			Integer message = null;
 			if (bookmarkDto == null)
@@ -137,7 +137,9 @@ public class BookmarkControl {
 			if (success) {
 				// success
 				int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
-				Snackbar.make(currentView, message, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
+				Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
+						.setActionTextColor(actionTextColor)
+						.setAction(R.string.assign_labels, new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						showBookmarkLabelsActivity(currentActivity, affectedBookmark);
