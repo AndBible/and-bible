@@ -439,7 +439,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createMaximiseToggleButton(window: Window): Button {
-        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
+        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
                 { v -> showPopupWindow(window, v) },
                 { v -> windowControl.unmaximiseWindow(window); true}
@@ -484,6 +484,7 @@ class DocumentWebViewBuilder @Inject constructor(
             height = BUTTON_SIZE_PX
             setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
             setTypeface(null, Typeface.BOLD)
+            textSize = 20.0F
             setSingleLine(true)
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)

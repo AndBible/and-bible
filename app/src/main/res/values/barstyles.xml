@@ -17,7 +17,7 @@
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 		<item name="transportButtonColor">#ffffff</item>
 		<item name="windowButtonStrokeColor">#80FFFFFF</item>
-		<item name="windowButtonBackgroundColor">#886e6e6e</item>
+		<item name="windowButtonBackgroundColor">#B78D8D8D</item>
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
 	</style>
