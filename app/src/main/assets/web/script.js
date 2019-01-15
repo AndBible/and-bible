@@ -29,7 +29,8 @@ function registerVersePositions() {
 	for (i=0; i<verseTags.length; i++) {
 		verseTag = verseTags[i];
 		// send position of each verse to java to allow calculation of current verse after each scroll
-		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop + verseTag.offsetHeight - lineHeight);
+		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop
+		    + Math.max(0, verseTag.offsetHeight - 2*lineHeight));
 	}
 //	window.jsInterface.log("Register document height:"+document.height);
 //	window.jsInterface.setDocumentHeightWhenVersePositionsRegistered(document.height);
