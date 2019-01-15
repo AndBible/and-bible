@@ -88,17 +88,17 @@
             android:name="net.bible.android.view.activity.search.SearchResults"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.search.Search" />
+            />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndex"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            />
         <activity
             android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
