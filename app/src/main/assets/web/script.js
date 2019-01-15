@@ -3,10 +3,12 @@
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+var lineHeight = 0;
  $(window).load(
 	function() {
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
+        lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
 		registerVersePositions();
 	    $(document).bind("touchstart", function(event) {
 	        stopAnimation = true;
@@ -19,6 +21,7 @@ function jsonscroll() {
 }
 
 function registerVersePositions() {
+    console.log("Registering verse positions", lineHeight)
 	window.jsInterface.clearVersePositionCache();
 	
 	var verseTags = getVerseElements();
@@ -26,7 +29,7 @@ function registerVersePositions() {
 	for (i=0; i<verseTags.length; i++) {
 		verseTag = verseTags[i];
 		// send position of each verse to java to allow calculation of current verse after each scroll
-		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop);
+		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop + verseTag.offsetHeight - lineHeight);
 	}
 //	window.jsInterface.log("Register document height:"+document.height);
 //	window.jsInterface.setDocumentHeightWhenVersePositionsRegistered(document.height);
