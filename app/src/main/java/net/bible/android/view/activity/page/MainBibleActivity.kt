@@ -229,8 +229,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun onPause() {
-        if(isFullScreen)
-            toggleFullScreen()
+        fullScreen = false;
         super.onPause()
     }
 
@@ -462,6 +461,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class FullScreenEvent(val isFullScreen: Boolean)
     private var isFullScreen = false
+
+    var fullScreen
+        get() = isFullScreen
+        set(value) {
+            if(value != isFullScreen) {
+                toggleFullScreen()
+            }
+        }
 
     fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
