@@ -34,6 +34,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
@@ -155,6 +156,16 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     fun setupReading(book: SwordBook, verse: Verse) {
         reset()
         setupBook(book)
+        val range = settings.playbackSettings.verseRange
+
+        // If we have range playback mode set up, and user starts playback not from within the range,
+        // let's cancel the range playback mode.
+        if(range != null && !(range.start.ordinal <= verse.ordinal
+                        && range.end.ordinal >= verse.ordinal)) {
+            settings.playbackSettings.verseRange = null
+            settings.save()
+            ABEventBus.getDefault().post(ToastEvent(R.string.verse_range_mode_disabled))
+        }
         currentVerse = verse
         startVerse = verse
         endVerse = verse
