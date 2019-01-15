@@ -808,6 +808,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         Log.d(TAG, "showVerseActionModeMenu")
 
         runOnUiThread {
+            showSystemUI()
             val actionMode = startSupportActionMode(actionModeCallbackHandler)
             // Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
             actionMode?.invalidate()
