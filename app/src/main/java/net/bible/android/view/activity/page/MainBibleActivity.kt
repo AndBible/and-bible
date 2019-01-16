@@ -181,7 +181,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateToolbar()
 
         val tv = TypedValue()
-        if(theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+        if(theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
             actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
