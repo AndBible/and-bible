@@ -7,9 +7,32 @@
   <string name="splash_top_text">\nGénesis 1:3\n\"En God het gesê: Laat daar lig wees, en daar was lig.\"\n \n</string>
   <string name="help_text">Druk die sleutel Menu vir optrede\n\nGaan na die volgende of vorige hoofstuk deur die spoor-bal, D-pad of om jou vinger oor die skerm te beweeg</string>
   <string name="help_nav_title">Navigasie</string>
+  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te sleep.
+Tik eenmaal bybel teks om die volle skerm af te skakel. Bybel vensters het \'n kieslys knoppie in die boonste regterhoek,
+en jy kan toegang tot die venster kieslys kry deur lank te druk.</string>
+  <string name="help_speech_title">Spraak</string>
+  <string name="help_speech_text">Druk Praat om toegang tot \'n dialoog te verkry, om te begin lees of te stop</string>
+  <string name="help_mynote_title">My Nota</string>
+  <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
+Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
+  <string name="help_bookmarks_title">Boekmerke</string>
+  <string name="help_bookmarks_text">Boekmerke kan bygevoeg word via die vers konteks kieslys.
+
+Die boekmerkbestuurder word via die hoofkieslys verkry.
+Die konteks kieslys van Bookmark Manager laat boekmerke saam met etikette gegroepeer word.</string>
+  <string name="help_search_title">Soek</string>
+  <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
+(sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
+  <string name="help_contextmenus_title">Konteks Kieslys</string>
+  <string name="help_contextmenus_text">
+Druk lank op die Bybelbeskouing om die konteks kieslys oop te maak vir aksies wat die huidige vers raak.
+Druk lank op \'n dokument in die dokument selector om dit uit te vee of inligting te sien.
+Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
+</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
   <!--Main menu-->
+  <string name="menu">Kieslys</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Teks</string>
   <string name="search">Vind</string>
@@ -19,6 +42,8 @@
   <string name="help">Hulp</string>
   <string name="verse">Vers</string>
   <string name="administration">Administrasie</string>
+  <string name="rate_application">Beoordeel &amp; amp; Hersien in Google Play</string>
+  <string name="chooce_document">Kies Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
   <string name="choosePassageChapterName">Kies \'n Hoofstuk</string>
@@ -28,11 +53,13 @@
   <!--Search-->
   <string name="search_index">Soek Indeks</string>
   <string name="index_creation_required">\'n Indeks word benodig om te soek. \n\nIndekse kan van die internet afgelaai of plaaslik geskep word.\n\nAflaai is baie vinniger, en afgelaaide indekse het meer soek funksies.\n\n \'n Internet aansluiting is nodig om indekse af te laai.</string>
+  <string name="search_index_unavailable">Ongelukkig is die skepping van indeks slegs beskikbaar op Android 5.0 (Lollipop) en nuwer.</string>
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
   <string name="index">Indeks</string>
   <string name="index_download">Laai af</string>
   <string name="index_not_available_for_download">Hierdie indeks is nie beskikbaar vir aflaai</string>
   <string name="index_create">Skep</string>
+  <string name="rebuild_index">Herbou indeks</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
@@ -103,6 +130,7 @@
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van handmatig geïnstalleerde dokumente uit die jsword-lêergids op die SD-kaart</string>
   <!--Window-->
+  <string name="new_window">Nuwe venster</string>
   <string name="window">Venster</string>
   <string name="windowClose">Maak Toe</string>
   <string name="windowMaximise">Vermeeder</string>
@@ -140,6 +168,7 @@
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
   <!--Install zip file-->
   <string name="install_zip">Laai dokument van Zip </string>
+  <string name="install_zip_module">Installeer Bybel Module</string>
   <string name="install_zip_successfull">Module is suksesvol geïnstalleer</string>
   <string name="extracting_zip_file">Onttrek Zip lêer nou ...</string>
   <string name="checking_zip_file">Nagaan van gegewe lêer ...</string>
@@ -235,6 +264,13 @@
   <string name="speak_advanced_settings">Gevorderde Instellings</string>
   <string name="speak_sleep_timer_title">Slaap tydhouer</string>
   <string name="speak_no_books_available">Geen boeke beskibaar om te praat</string>
+  <string name="repeat_passage">Herhaal inleiding</string>
+  <string name="set_repeat_passage_range">Stel herhaalde inleiding omvang</string>
+  <string name="speak_beginning_of_passage">Kies begin van inlaiding</string>
+  <string name="speak_ending_of_passage">Kies einde van inleiding</string>
+  <string name="speak_verse_range_to_repeat">Kies vers omvang om te herhaal</string>
+  <string name="speak_ending_verse_must_be_later">Die einde van die vers moet later wees as die begin van die vers</string>
+  <string name="conf_speak_synchronize">Teks volg spraak</string>
   <string name="conf_speak_auto_bookmark">Outomatiese boekmerke</string>
   <string name="conf_save_playback_settings_to_bookmarks">Stoor speel instellings na boekmerke</string>
   <string name="conf_replace_divinename">Vervang goddelike naam met Yahweh</string>
@@ -242,6 +278,7 @@
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voet Notas</string>
   <string name="conf_speak_sleep_timer">Stel slaap tydhouer</string>
+  <string name="conf_speak_multitranslation">Spreek van enige sigbare vensters</string>
   <string name="sleep_timer_title">Slaap tydhouer in minute</string>
   <string name="sleep_timer_set">Stel slaap tydhouer.  Stel Tydhouer: %d minute </string>
   <string name="sleep_timer_started">Slaap tydhouer begin oor, %d minute</string>
@@ -251,6 +288,8 @@
   <string name="widget_toggle_sleep_timer">Verander slaap tydhour</string>
   <string name="widget_bookmark_helptext">Praat boekmerke kortpad knoppies sal hier verskyn.</string>
   <string name="speak_status_stopped">Gestop.</string>
+  <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
+  <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>
   <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
   <string name="speak_help_auto_bookmark">
 \'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
@@ -298,6 +337,7 @@ van die boekmerk af gelaai word.</string>
   <string name="mynote_view_edit">My Nota</string>
   <string name="mynote_saved">My Nota is geberg</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup">Rugsteun</string>
   <string name="backup_success">My Notas en Boekmerke word gestoor in %s op die SD-kaart</string>
   <string name="restore">Herstel</string>
@@ -332,6 +372,7 @@ van die boekmerk af gelaai word.</string>
   <string name="new_item">Nuut</string>
   <string name="close">Maak toe</string>
   <string name="edit">Wysig</string>
+  <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
   <!--Errors-->
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
