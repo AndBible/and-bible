@@ -56,11 +56,13 @@
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 		<item name="windowActionModeOverlay">true</item>
+		<item name="actionBarSize">@dimen/toolbar_height</item>
 	</style>
 	<style name="MainBibleViewNightTheme" parent="AppThemeNight">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 		<item name="windowActionModeOverlay">true</item>
+		<item name="actionBarSize">@dimen/toolbar_height</item>
 	</style>
 
 	<style name="NavigationViewTextStyle">
