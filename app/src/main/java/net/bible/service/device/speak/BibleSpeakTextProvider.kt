@@ -343,6 +343,18 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun prepareForStartSpeaking() {
         readBookmark()
+
+        val range = settings.playbackSettings.verseRange
+
+        // If we have range playback mode set up, and user starts playback not from within the range,
+        // let's cancel the range playback mode.
+        if(range != null && !(range.start.ordinal <= currentVerse.ordinal
+                        && range.end.ordinal >= currentVerse.ordinal)) {
+            settings.playbackSettings.verseRange = null
+            settings.save()
+            ABEventBus.getDefault().post(ToastEvent(R.string.verse_range_mode_disabled))
+        }
+
         isSpeaking = true
     }
 
