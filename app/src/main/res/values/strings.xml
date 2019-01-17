@@ -467,5 +467,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="download_documents">Downloading documents</string>
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
-    <string name="verse_range_mode_disabled">Verse range mode disabled</string>
 </resources>
