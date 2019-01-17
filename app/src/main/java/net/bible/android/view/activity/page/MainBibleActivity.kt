@@ -132,7 +132,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             } else {
                 false
             }
-            return if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight else 0.0F
+            return if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight -2 else 0.0F
         }
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
