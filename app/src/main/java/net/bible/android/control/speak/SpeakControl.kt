@@ -125,6 +125,9 @@ class SpeakControl @Inject constructor(
     fun onEventMainThread(event: SpeakProgressEvent) {
         val settings = SpeakSettings.load()
         if (settings.synchronize) {
+            if(!::speakPageManager.isInitialized) {
+                speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            }
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
         }
