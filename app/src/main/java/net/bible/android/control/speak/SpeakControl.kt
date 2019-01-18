@@ -129,7 +129,9 @@ class SpeakControl @Inject constructor(
                 speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
             }
             val book = speakPageManager.currentPage.currentDocument
-            speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
+            if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book.bookCategory)) {
+                speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
+            }
         }
     }
 
