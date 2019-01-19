@@ -68,6 +68,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             val intent = Intent(context, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
             context.startActivity(intent)
         }
+        rewindButton.setOnClickListener { onButtonClick(it) }
         forwardButton.setOnClickListener { onButtonClick(it) }
         bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
         bookmarkButton.visibility = if(SpeakSettings.load().autoBookmark) View.VISIBLE else View.GONE
