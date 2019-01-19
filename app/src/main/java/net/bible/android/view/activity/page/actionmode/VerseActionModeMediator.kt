@@ -58,11 +58,12 @@ class VerseActionModeMediator(
 
     private val startVerse: Verse?
         get() {
-            return if (chapterVerseRange == null) {
+            val chapVer = chapterVerseRange
+            return if (chapVer == null) {
                 null
             } else {
                 val mainVerse = pageControl.currentBibleVerse
-                val start = chapterVerseRange!!.start
+                val start = chapVer.start
                 Verse(mainVerse.versification, mainVerse.book, start.chapter, start.verse)
             }
         }
@@ -70,11 +71,12 @@ class VerseActionModeMediator(
     private val verseRange: VerseRange?
         get() {
             val startVerse = startVerse
-            return if (startVerse == null) {
+            val chapVer = chapterVerseRange
+            return if (startVerse == null || chapVer == null) {
                 null
             } else {
                 val v11n = startVerse.versification
-                val end = chapterVerseRange!!.end
+                val end = chapVer.end
                 val endVerse = Verse(v11n, startVerse.book, end.chapter, end.verse)
                 VerseRange(v11n, startVerse, endVerse)
             }
@@ -107,7 +109,10 @@ class VerseActionModeMediator(
             Log.i(TAG, "Action menu item clicked: $menuItem")
 
             // Similar to menu handling in Activity.onOptionsItemSelected()
-            verseMenuCommandHandler.handleMenuRequest(menuItem.itemId, verseRange)
+            val verseRange = verseRange
+            if(verseRange != null) {
+                verseMenuCommandHandler.handleMenuRequest(menuItem.itemId, verseRange)
+            }
 
             endVerseActionMode()
 

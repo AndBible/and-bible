@@ -33,6 +33,7 @@ import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
 import org.crosswire.jsword.passage.VerseRange;
+import org.jetbrains.annotations.NotNull;
 
 /** Handle requests from the selected verse action menu
  * 
@@ -63,7 +64,7 @@ public class VerseMenuCommandHandler {
 	/**
 	 * on Click handler for Selected verse menu
 	 */
-	public boolean handleMenuRequest(int menuItemId, VerseRange verseRange) {
+	public boolean handleMenuRequest(int menuItemId, @NotNull VerseRange verseRange) {
 		boolean isHandled = false;
 
 		{
