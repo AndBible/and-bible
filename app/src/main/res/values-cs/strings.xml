@@ -6,9 +6,35 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"I řekl Bůh: Budiž světlo! A bylo světlo.\"\nGenesis 1:3</string>
   <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu doleva nebo doprava</string>
+  <string name="help_nav_title">Navigace</string>
+  <string name="help_nav_text">Přejít na další či předchozí kapitolu lze tažením prstu přes obrazovku.
+        Klepnutím jednou na text Bible se zobrazení přepne na celou obrazovku. Okna Bible mají tlačítko menu v pravém horním rohu,
+        a k menu okna lze přistupovat dlouhým stiskem na nich.
+    </string>
+  <string name="help_speech_title">Řeč</string>
+  <string name="help_speech_text">Stiskněte Mluvit pro přístup ke spuštění či ukončení čtení</string>
+  <string name="help_mynote_title">Má poznámka</string>
+  <string name="help_mynote_text">Poznámky lze přidat položkou Má Poznámka z kontextového menu u verše.
+        K seznamu existujících poznámek se lze dostat přes hlavní menu.</string>
+  <string name="help_bookmarks_title">Záložky</string>
+  <string name="help_bookmarks_text">Poznámky přidat z kontextového menu u verše.
+        Správce poznámek je přístupný přes hlavní menu.
+        Kontextové menu správce poznámek dovoluje seskupovat záložky pomocí popisků.
+    </string>
+  <string name="help_search_title">Hledat</string>
+  <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
+        (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
+    </string>
+  <string name="help_contextmenus_title">Kontextová menu</string>
+  <string name="help_contextmenus_text">
+        Dlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš.
+        Dlouhým stiskem v okně pro výběr dokumentu lze dokument odstranit nebo o něm zobrazit informace.
+        Dlouhým stiskem tlačítka Zpět je možno přistupovat k seznamu s historií.
+    </string>
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
   <!--Main menu-->
+  <string name="menu">Menu</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Pasáž</string>
   <string name="search">Hledat</string>
@@ -18,6 +44,8 @@
   <string name="help">Nápověda</string>
   <string name="verse">Verš</string>
   <string name="administration">Správa</string>
+  <string name="rate_application">Ohodnotit a recenzovat na Google Play</string>
+  <string name="chooce_document">Vybrat dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vybrat knihu</string>
   <string name="choosePassageChapterName">Vybrat kapitolu</string>
@@ -27,11 +55,13 @@
   <!--Search-->
   <string name="search_index">Vyhledávací index</string>
   <string name="index_creation_required">Pro hledání jsou nutné indexy.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích možností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
+  <string name="search_index_unavailable">Bohužel vytváření indexu je dostupné jen pro Android 5.0 (Lollipop) a novější.</string>
   <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka Hledat.</string>
   <string name="index">Index</string>
   <string name="index_download">Stáhnout</string>
   <string name="index_not_available_for_download">Tento index není dostupný ke stažení</string>
   <string name="index_create">Vytvořit</string>
+  <string name="rebuild_index">Znovu vytvořit index</string>
   <!--Tasks-->
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
@@ -102,6 +132,7 @@
   <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Zapne používání ručně instalovaných dokumentů ze složky jsword na SD kartě</string>
   <!--Window-->
+  <string name="new_window">Nové okno</string>
   <string name="window">Okno</string>
   <string name="windowClose">Zavřít</string>
   <string name="windowMaximise">Maximalizovat</string>
@@ -139,6 +170,7 @@
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Načíst dokument ze Zip</string>
+  <string name="install_zip_module">Instalace modulu Bible</string>
   <string name="install_zip_successfull">Modul byl úspěšně nainstalován</string>
   <string name="extracting_zip_file">Rozbaluji Zip soubor...</string>
   <string name="checking_zip_file">Ověřuji zadaný soubor...</string>
@@ -234,6 +266,13 @@
   <string name="speak_advanced_settings">Pokročilé nastavení</string>
   <string name="speak_sleep_timer_title">Čas uspání</string>
   <string name="speak_no_books_available">Žádné knihy dostupné k mluvení</string>
+  <string name="repeat_passage">Opakovat pasáž</string>
+  <string name="set_repeat_passage_range">Nastavit rozsah opakování pasáže</string>
+  <string name="speak_beginning_of_passage">Vybrat začátek pasáže</string>
+  <string name="speak_ending_of_passage">Vybrat ukončení pasáže</string>
+  <string name="speak_verse_range_to_repeat">Vybrat rozsah veršů pro opakování</string>
+  <string name="speak_ending_verse_must_be_later">Poslední verš musí být větší než první</string>
+  <string name="conf_speak_synchronize">Text následuje řeč</string>
   <string name="conf_speak_auto_bookmark">Automatické vytváření záložek</string>
   <string name="conf_save_playback_settings_to_bookmarks">Uložit nastavení přehrávání do záložek</string>
   <string name="conf_replace_divinename">Nahradit božské jmíno slovem Jahve (Yahweh)</string>
@@ -241,6 +280,7 @@
   <string name="conf_change_title">Nadpisy</string>
   <string name="conf_speak_footnotes">Poznámky pod čarou</string>
   <string name="conf_speak_sleep_timer">Nastavit čas uspání</string>
+  <string name="conf_speak_multitranslation">Mluvení ze všech viditelných oken</string>
   <string name="sleep_timer_title">Čas uspání v minutách</string>
   <string name="sleep_timer_set">Nastavit čas uspání. Nastavený čas: %d minut</string>
   <string name="sleep_timer_started">Časovač uspání spuštěn, %d minut</string>
@@ -250,6 +290,8 @@
   <string name="widget_toggle_sleep_timer">Přepnout čas uspání</string>
   <string name="widget_bookmark_helptext">Tlačítkové zkratky pro záložky mluvení se objeví zde.</string>
   <string name="speak_status_stopped">pozastaveno</string>
+  <string name="speak_autobookmarking_disabled">Automatická tvorba záložek vypnuta!</string>
+  <string name="system_speak_settings">Otevřít systémové nastavení TTS</string>
   <string name="speak_bookmark_help">Nápověda k záložkám mluvení</string>
   <string name="speak_help_auto_bookmark">
 Záložka mluvení bude automaticky vytvořena když je mluvení zastaveno nebo pozastaveno. Automaticky generované záložky jsou označeny zvláštní  značkou mluvení. Když začnete opět záložkou mluvení, žáložka se přesune k verši,  u kterého zastavíte mluvení příště. Jen značky mluvení se posunují. Všechny ostatní značky zůstanou nezměněny.</string>
@@ -305,6 +347,7 @@ Záložka mluvení bude automaticky vytvořena když je mluvení zastaveno nebo 
   <string name="mynote_view_edit">Poznámka</string>
   <string name="mynote_saved">Poznámka uložena</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Záloha a Obnova</string>
   <string name="backup">Záloha</string>
   <string name="backup_success">Poznámky a záložky uloženy na SD kartu do %s</string>
   <string name="restore">Obnovit</string>

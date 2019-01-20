@@ -22,6 +22,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
   <!--Main menu-->
+  <string name="menu">Valikko</string>
   <string name="chooseBook">Teos</string>
   <string name="selectPassage">Siirry</string>
   <string name="search">Etsi</string>
@@ -31,6 +32,8 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="help">Ohje</string>
   <string name="verse">Jae</string>
   <string name="administration">Ylläpito</string>
+  <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
+  <string name="chooce_document">Valitse teos</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Valitse kirja</string>
   <string name="choosePassageChapterName">Valitse luku</string>
@@ -46,6 +49,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="index_download">Lataa</string>
   <string name="index_not_available_for_download">Tämä indeksi ei ole ladatavissa</string>
   <string name="index_create">Luo uusi</string>
+  <string name="rebuild_index">Tee hakuindeksi uudelleen</string>
   <!--Tasks-->
   <string name="progress_status">Edistyminen</string>
   <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
@@ -116,6 +120,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword-kansiossa SD-kortilla</string>
   <!--Window-->
+  <string name="new_window">Uusi ikkuna</string>
   <string name="window">Ikkuna</string>
   <string name="windowClose">Sulje</string>
   <string name="windowMaximise">Suurenna</string>
@@ -249,6 +254,12 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="speak_advanced_settings">Lisäasetukset</string>
   <string name="speak_sleep_timer_title">Uniajastin</string>
   <string name="speak_no_books_available">Ei ole kirjoja joita voisi puhua</string>
+  <string name="repeat_passage">Toista raamatunpaikkaa</string>
+  <string name="set_repeat_passage_range">Aseta toiston laajuus</string>
+  <string name="speak_beginning_of_passage">Valitse toistettavan alueen alkukohta</string>
+  <string name="speak_ending_of_passage">Valitse toistettavan alueen loppukohta</string>
+  <string name="speak_verse_range_to_repeat">Valitse jaejakso jota toistetaan</string>
+  <string name="speak_ending_verse_must_be_later">Lopetusjakeen pitää olla myöhemmin kuin aloitusjakeen</string>
   <string name="conf_speak_synchronize">Teksti seuraa puhetta</string>
   <string name="conf_speak_auto_bookmark">Automaattiset kirjanmerkit</string>
   <string name="conf_save_playback_settings_to_bookmarks">Tallenna soiton asetukset kirjanmerkkeihin</string>
@@ -372,15 +383,4 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="download_documents">Dokumenttien lataaminen</string>
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
-  <string name="menu">Valikko</string>
-  <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
-  <string name="chooce_document">Valitse teos</string>
-  <string name="repeat_passage">Toista raamatunpaikkaa</string>
-  <string name="set_repeat_passage_range">Aseta toiston laajuus</string>
-  <string name="speak_beginning_of_passage">Valitse toistettavan alueen alkukohta</string>
-  <string name="speak_ending_of_passage">Valitse toistettavan alueen loppukohta</string>
-  <string name="speak_verse_range_to_repeat">Valitse jaejakso jota toistetaan</string>
-  <string name="speak_ending_verse_must_be_later">Lopetusjakeen pitää olla myöhemmin kuin aloitusjakeen</string>
-  <string name="new_window">Uusi ikkuna</string>
-  <string name="rebuild_index">Tee hakuindeksi uudelleen</string>
 </resources>
