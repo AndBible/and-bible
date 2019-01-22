@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.mynote;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -56,9 +55,13 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 		this.myNoteControl = myNoteControl;
 
 		setSingleLine(false);
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT
+		);
 		setLayoutParams(layoutParams);
 		setGravity(Gravity.TOP);
+		setVerticalScrollBarEnabled(true);
 		updatePadding();
 		applyPreferenceSettings();
 	}
