@@ -80,6 +80,7 @@
 		<item>@string/lang_russian</item>
 		<item>@string/lang_slovak</item>
 		<item>@string/lang_slovenian</item>
+		<item>@string/lang_swahili</item>
 		<item>@string/lang_swedish</item>
 		<item>@string/lang_telugu</item>
 		<item>@string/lang_thai</item>
@@ -88,6 +89,7 @@
 		<item>@string/lang_uzbek</item>
 		<item>@string/lang_vietnamese</item>
 		<item>@string/lang_chinese</item>
+		<item>@string/lang_chinese_traditional</item>
 	</string-array>
 	
 	<!--  DO NOT TRANSLATE the following language codes -->
@@ -131,6 +133,7 @@
 		<item>ru</item>
 		<item>sk</item>
 		<item>sl</item>
+		<item>sw</item>
 		<item>sv</item>
 		<item>te</item>
 		<item>th</item>
@@ -139,6 +142,7 @@
 		<item>uz</item>
 		<item>vi</item>
 		<item>zh</item>
+		<item>zh-rTW</item>
 	</string-array>
 
 </resources>
