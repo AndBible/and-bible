@@ -49,8 +49,9 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="bible">Bible</string>
   <string name="deuterocanonical">Deutérocanonique</string>
   <!--Search-->
-  <string name="search_index">Recherche dans l\'index</string>
-  <string name="index_creation_required">Un index est nécessaire pour pouvoir lancer une recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est bien plus rapide et les index téléchargés offrent plus de capacités de recherche.\n\nUne connexion internet est requise pour pouvoir télécharger les index.</string>
+  <string name="search_index">Recherche d\'index</string>
+  <string name="index_creation_required">Un index est nécessaire pour pouvoir lancer une recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est bien plus rapide et les index téléchargés offrent plus de capacités de recherche.\n\nUne connexion internet est requise pour pouvoir télécharger les index.
+</string>
   <string name="search_index_unavailable">Malheureusement la création d\'index n\'est disponible que sur Android 5.0 (Lollipop) ou version ultérieure.</string>
   <string name="indexing_wait_msg">Vous retrouverez la page de recherche à la fin de l\'indexation.</string>
   <string name="index">Index</string>
