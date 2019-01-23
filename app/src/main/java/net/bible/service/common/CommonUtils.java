@@ -27,7 +27,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
