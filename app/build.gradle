@@ -97,6 +97,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     implementation 'org.apache.commons:commons-compress:1.12' // Note: versions > 1.12 will fail with Android Nougat and older.
     implementation "com.chenlb.mmseg4j:mmseg4j-analysis:1.8.6"
+    implementation "com.chenlb.mmseg4j:mmseg4j-dic:1.8.6"
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
