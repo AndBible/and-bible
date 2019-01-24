@@ -309,6 +309,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
             }
         }
+        val morphItem = menu.findItem(R.id.morphologyOption)
+        val strongsItem = menu.findItem(R.id.showStrongsOption)
+        morphItem.isEnabled = strongsItem.isChecked
         return true
     }
 
@@ -323,6 +326,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val prefNamePair = gerPreferenceOptions(item.itemId)
         if(prefNamePair != null) {
             handlePrefItem(prefNamePair.name, item, prefNamePair.default)
+            if(item.itemId == R.id.showStrongsOption)
+                invalidateOptionsMenu()
             return true
         }
         return super.onOptionsItemSelected(item)
