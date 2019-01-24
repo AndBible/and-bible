@@ -23,8 +23,8 @@ easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
 
 ## Project responsibilities
 
-Project Lead (development etc.): [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
-Quality Assurance Lead: [Ben Vahedy](http://github.com/bvahedy) (Since 1/2019)
+- Project Lead (development etc.): [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
+- Quality Assurance Lead: [Ben Vahedy](http://github.com/bvahedy) (Since 1/2019)
 
 ## Acknowledgements
 
