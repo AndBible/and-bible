@@ -79,6 +79,9 @@ class SearchIndex : CustomTitlebarActivityBase() {
      */
     fun onDownload(v: View) {
         Log.i(TAG, "CLICKED")
+        val doc = documentToIndex
+        swordDocumentFacade.deleteDocumentIndex(doc)
+
         val bOk = searchControl.downloadIndex(documentToIndex)
 
         if (bOk) {
