@@ -21,11 +21,14 @@ in wiki.
 Everyone is welcome to help translating And Bible to different languages via
 easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
 
-## Credits
+## Project responsibilities
 
-Original developer: [Martin Denham](http://github.com/mjdenham)
+Project Lead (development etc.): [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
+Quality Assurance Lead: [Ben Vahedy](http://github.com/bvahedy) (Since 1/2019)
 
-Current lead developer: [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
+## Acknowledgements
+
+And Bible was originally developed by [Martin Denham](http://github.com/mjdenham) (2010-2018)
 
 ## Licence
 
