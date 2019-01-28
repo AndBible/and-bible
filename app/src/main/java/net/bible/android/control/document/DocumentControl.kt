@@ -22,6 +22,7 @@ import android.util.Log
 
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.ConvertibleVerse
 import net.bible.android.view.activity.base.Dialogs
@@ -94,6 +95,9 @@ class DocumentControl @Inject constructor(
 
     val isBibleBook: Boolean
         get () = currentDocument.bookCategory == BookCategory.BIBLE
+
+    val currentPage: CurrentPageManager
+        get () = activeWindowPageManagerProvider.activeWindowPageManager
 
     val currentDocument: Book
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument

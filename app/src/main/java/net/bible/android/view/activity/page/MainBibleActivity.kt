@@ -369,6 +369,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val approximateSize = 53 * resources.displayMetrics.density
         val maxWidth = (screenWidth * 0.5).roundToInt()
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
+        val isMyNotes = documentControl.currentPage.isMyNoteShown
         bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
@@ -390,20 +391,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
 
         fun addSearch() {
-            searchButton.visibility = if (visibleButtonCount < maxButtons) {
+            searchButton.visibility = if (visibleButtonCount < maxButtons && !isMyNotes)
+           {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
         }
         fun addSpeak() {
-            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped) {
+            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped && !isMyNotes)
+            {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
         }
 
         fun addBookmarks() {
-            bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
+            bookmarkButton.visibility = if (visibleButtonCount < maxButtons && !isMyNotes) {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
