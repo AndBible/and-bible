@@ -44,6 +44,8 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
+import org.crosswire.jsword.book.Book;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -236,6 +238,10 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     private void bookmarkSelected(BookmarkDto bookmark) {
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
+    		if(getPageControl().getCurrentPageManager().isMyNoteShown()) {
+				Book document = getPageControl().getCurrentPageManager().getCurrentBible().getCurrentDocument();
+				getPageControl().getCurrentPageManager().setCurrentDocument(document);
+			}
 			getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
 			if(bookmarkControl.isSpeakBookmark(bookmark)) {
 				speakControl.speakFromBookmark(bookmark);
