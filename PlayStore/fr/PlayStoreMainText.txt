@@ -1,0 +1,33 @@
+And Bible est une application biblique, un logiciel libre et gratuit, sans publicités, fonctionnant hors-ligne permettant à toute personne dans tout pays, de lire, écouter et étudier l'Écriture aussi facilement que possible et d'en retirer personnellement les plus grands bienfaits.
+
+* Bibles, Commentaires, Dictionnaires bibliques, Cartes, et livres Chrétiens en plus de 700 langues.
+* Mode hors-ligne pour toute opération hormis le téléchargement initial, y compris l'ajout de notes, commentaires, recherches, etc.
+* Interface configurable en français, allemand, anglais, hongrois, tchèque, polonais, russe, chinois, hébreu, hindi,...
+* Multiples plans de lecture de la Bible
+* Entièrement libre et gratuit, pas de publicités, pas de courriels
+* Plusieurs Bibles en français, incluant Segond, Darby, Martin, Septante...
+* Commentaires bibliques
+* Dictionnaires bibliques et livres Chrétiens
+* Tous documents distribués légalement.
+* L'intégration des nombres de Strong permet l'analyse des mots en grec ou hébreu
+* Partage d'écran
+* Ajout de notes personnelles
+* Personnalisation de la langue d'interface parmi une liste de 25+
+* Recherche souple
+* Signets
+* Cartes des pays bibliques
+* Écoute de tout document lu à voix haute pour vous
+* Défilement automatique, mode jour/nuit automatique
+* Comparaison de différentes versions sur le même écran
+* Une des plus rapides applications bibliques sur Android
+* Logiciel libre - Améliorez ou changez le code si vous le désirez
+* Utilise le puissant moteur JSword de CrossWire
+
+Nous sommes tous des bénévoles; nous n'envoyons pas de courriels agaçants, n'affichons pas de publicités ennuyantes, n'appelons jamais à recevoir des dons, ne demandons pas votre enregistrement; And Bible ne collecte aucune information depuis votre mobile.
+
+La provenance de tous les documents est soigneusement vérifiée pour être sûr que tous les documents peuvent être légalement distribués ou que la permission a été accordée par le détendeur des droits.
+
+<b>Notes</b>
+* Like And Bible sur Facebook: https://www.facebook.com/AndBible/
+* La FAQ And Bible (en anglais) : https://github.com/AndBible/and-bible/wiki/FAQ
+* La page du projet sur Github : https://github.com/AndBible/and-bible
