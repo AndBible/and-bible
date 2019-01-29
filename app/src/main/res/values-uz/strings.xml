@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">Muqaddas Kitob</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigatsiya</b>\nKeyingi yoki oldingi bobga o\'tish uchun barmoqni ekran bo\'ylab o\'tkazing \nTo\'liq ekranni yoqish/o\'chirish uchun barmoq bilan ekranni ikki marta bosing. \n\n<b>Menyu</b> \nNastroykalarga o\'tish uchun MENYU tugmasini bosing \n\nBoshqa fayllarni yuklab olish uchun Menu/Download Documents boring \n\n<b>Nutq</b>\nO\'qishni boshlash yoki to\'xtatish uchun Gapir tugmasini bosing \n\n<b>Eslatmalarim</b>\nEslatmalar oyat menyusidagi Eslatmalarim orqali kiritiladi. Mavjud Eslatmalar ro\'yxatini ko\'rish uchun Menyuga boring. \n\n<b>Xatcho\'plar</b>\nXatcho\'plar oyat menyusi orqali qo\'yiladi. Mavjud Xatcho\'plar ro\'yxatini ko\'rish uchun Menyuga boring. Menyuda Yorliqlar yordamida Xatcho\'plarni guruhlarga bo\'lish mumkin. \n\n<b>Qidir</b>\nQidirish matni quyudagi belgilarni o\'zi ichiga olishi mumkin *, ?, AND, OR, NOT (tafsilotlar uchun \"Apache Lucene - Query Parser Syntax\" ga qarang) \n\n<b>Kontekst Menyular</b> \nOyatga tegishli Kontekst Menyuni ochish uchun Muqaddas Kitob belgisini uzoq bosing. \nFaylni o\'chirish yoki u haqida ma\'lumotni ko\'rish fayl ustiga uzoq bosing. \nOldingi faoliyat ro\'yxatini ko\'rish uchun Orqaga tugmasini uzoq bosing</string>
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"Xudo: “Yorug‘lik bo‘lsin”, deb amr bergan edi, yorug‘lik paydo bo‘ldi.\nIbtido 1:3</string>
@@ -17,7 +15,6 @@
   <string name="history">Tarix</string>
   <string name="speak">Gapir</string>
   <string name="help">Yordam</string>
-  <string name="verse">Oyat</string>
   <string name="administration">Sozlamalar</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitobni tanlang</string>
@@ -29,7 +26,6 @@
   <string name="search_index">Qidiruv indeksi</string>
   <string name="index_creation_required">Qidiruv uchun indekslar zarur. \n\nIndekslari tarmoqdan yuklab olish yoki uskuna o\'zida yaratish mumkin.\n\nYuklab olish ancha tezroq va yuklab olingan indekslarda qidiruv imkoniyatlari ko\'proq.\n\nIndekslarni yuklab olish uchun tarmoq bilan aloqa zarur.\n</string>
   <string name="indexing_wait_msg">Indekslash tugagach, qidiruv bo\'limi ochiladi</string>
-  <string name="index">Indeks</string>
   <string name="index_download">Yuklab oling</string>
   <string name="index_not_available_for_download">Bu indeksni yuklab olish mumkin emas</string>
   <string name="index_create">Yarating</string>
@@ -38,7 +34,6 @@
   <string name="task_kill_warning">Agar boshqa aplikatsiyaga o\'tsangiz, ko\'p vaqt olayotgan bu vazifalar tugashidan oldin to\'xtab qo\'ladi.</string>
   <string name="no_tasks_running">Hozir bajariladigan hech qanday vazifa yo\'q</string>
   <!--Search-->
-  <string name="search_results">Qidiruv natijalari</string>
   <string name="search_words_group_prompt">Oyatlarni qidiring</string>
   <string name="search_all_words">Barcha so\'zlar</string>
   <string name="search_any_word">Har bir so\'z</string>
@@ -53,21 +48,13 @@
   <string name="error_executing_search">Noto\'g\'ri qidiruv iborasi</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Oyat raqamlari</string>
-  <string name="prefs_show_verseno_summary">Oyat raqamlarini ko\'rsatish</string>
   <string name="prefs_verse_per_line_title">Bir qatorda bir oyat</string>
-  <string name="prefs_verse_per_line_summary">Har bir oyatni boshqa qatorda ko\'rsatish</string>
   <string name="prefs_show_mynotes_title">Eslatmam belgisini ko\'rsat</string>
-  <string name="prefs_show_mynotes_summary">Eslatma bor oyatlarda belgini ko\'rsat</string>
   <string name="prefs_show_notes_title">Snoska va ssilkalar</string>
-  <string name="prefs_show_notes_summary">Snoska va ssilkalarni ko\'rsat</string>
   <string name="prefs_show_strongs_title">Strong raqamlarini ko\'rsat</string>
-  <string name="prefs_show_strongs_summary">Yunon &amp; Yahudiy tillaridagi izohlarni ulash</string>
   <string name="prefs_show_morphology_title">Morfologik shiriflar</string>
-  <string name="prefs_show_morphology_summary">Robinsonning Yunon morfologiyasini ko\'rsat</string>
   <string name="prefs_section_title_title">Bo\'lim sarlavhalari</string>
-  <string name="prefs_section_title_summary">Kanonga kirmagan bo\'lim sarlavhalarini ko\'rsat</string>
   <string name="prefs_red_letter_title">Qizil rangli harf</string>
-  <string name="prefs_red_letter_summary">Masih so\'zlarini qizil rangda ko\'rsatish</string>
   <string name="prefs_tilt_to_scroll_title">Matn o\'tishi uchun eging</string>
   <string name="prefs_tilt_to_scroll_summary">Matn pastga tushishi uchun smatfonni eging</string>
   <string name="prefs_night_mode_title">Tungi ko\'rinish</string>
@@ -80,12 +67,9 @@
   <string name="prefs_text_size_title">Shrift hajmi</string>
   <string name="prefs_text_size_summary">Ko\'proq ko\'rish yoki aniqroq ko\'rish</string>
   <string name="prefs_text_size_sample_text">Namuna matn</string>
-  <string name="x_minutes">%d daqiqa</string>
   <string name="prefs_interface_locale_title">Aplikatsiya tili</string>
   <string name="prefs_interface_locale_summary">Applikatsiya tilini tanglang</string>
-  <string name="locale_change_warning">Yangi tilga o\'tish uchun applikatsiya qayta boshlanadi</string>
   <!--Window-->
-  <string name="window">Oyna</string>
   <string name="windowClose">Yoping</string>
   <string name="windowMaximise">Maksimallashtirmoq</string>
   <string name="windowMinimise">Kamaytirish</string>
@@ -97,14 +81,11 @@
   <string name="previous">Oldingi</string>
   <string name="next">Keyingi</string>
   <!--Strongs-->
-  <string name="strongs">Strong Lug\'ati</string>
   <string name="strongs_not_installed">Iltimos, Strongning Yahudiy va Yunon lug\'atlarini yuklab oling</string>
   <string name="all_greek_occurrences">Bu so\'z unchaydigan barch matnlarni  qidir</string>
   <string name="all_hebrew_occurrences">Bu so\'z unchaydigan barch matnlarni  qidir</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong raqamlari mavjud Muqaddas Kitobni yuklab olishingiz va Qidiruv katagi orqali uning indekslarini yuklab olishingiz kerak</string>
   <string name="morph_robinson_not_installed">Iltimos, \'Robinsonning Morfologik Tahlil\' lug\'atini yuklab oling</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Fayllarni yuklab oling</string>
   <string name="download_confirmation">Tarmoqdan Muqaddas Kitob yuklab olinsinmi?</string>
@@ -115,9 +96,6 @@
   <string name="error_downloading">Yuklash jarayonida xato sodir bo\'ldi. Iltimos, tarmoq aloqasini tekshirib ko\'ring.</string>
   <string name="no_internet_connection">Tarmoq bilan aloqa yo\'q</string>
   <string name="storage_space_warning">Xotirada yetarli joy qo\'q.</string>
-  <string name="wait_for_bible">Iltimos Muqaddas Kitob yuklab olinishi tugashini kuting. Keyin asosiy ekranga borasiz. \n\nKeyin, boshqa fayllarni quyidagi manzildan yuklab oling Menyu tugmasi/Fayllarini yuklab oling</string>
-  <string name="wait_for_bible_not_yet">Iltimos kuting. Muqaddas Kitob hali to\'liq o\'rnatilgani yo\'q.</string>
-  <string name="download_complete_no_bibles">Biror Muqaddas Kitob o\'rnatilgani yo\'q. Iltimos, \'Orqaga\' tugmasini bosib, qayta qilib ko\'ring.</string>
   <string name="too_many_jobs">Ko\'p vasifalar bajarilmoqda. Iltimos, ba\'zilarining tugashini kuting va qayta qilib ko\'ring.</string>
   <string name="document_not_installed">Iltimos, \'%s\' yuklab oling</string>
   <!--Install zip file-->
@@ -134,12 +112,6 @@
   <string name="rdg_plan_set_start_jan1">1-Janvardan boshla</string>
   <string name="done">Tugadi</string>
   <string name="reset">Ilk holatga qaytarish</string>
-  <string name="rdg_plan_y1ntpspr">Yangi Ahd, Zabur, va Hikmatlarni bir yilda o\'qib chiqish</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Muqaddas Kitobni xronologik tartibda bir yilda o\'qib chiqish</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Eski Ahd va Yangi Ahdni bir yilga o\'qib chiqish</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Avval Eski Ahd, keyin Yangi Ahdni bir yilga o\'qib chiqish</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Muqaddas Kitobni bir yilda o\'qib tugatish (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 yillik reja - Eski Ahdni bir marta, Yangi Ahd va Zaburni ikki marta</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">O\'chir</string>
@@ -157,13 +129,11 @@
   <string name="bookmarks">Xatcho\'plar</string>
   <string name="add_bookmark">Xatcho\'p qo\'y</string>
   <string name="bookmark_added">Xatcho\'p qo\'yildi</string>
-  <string name="bookmark_exists">Xatcho\'p allaqachon mavjud</string>
   <string name="bookmark_labels">Xatcho\'p belgilari</string>
   <string name="assign_labels">Belgi qo\'ymoq</string>
   <string name="new_label">Yangi belgi</string>
   <string name="label_name_prompt">Ism</string>
   <string name="label_unlabelled">Belgilanmagan</string>
-  <string name="rename">Ismni o\'zgartir</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kun tartibi</string>
   <string name="sort_by_bible_book">Muqaddas Kitob tartibi</string>
@@ -171,10 +141,8 @@
   <!--Dictionary-->
   <string name="dictionary">Lug\'at</string>
   <string name="search_dictionary_hint">Lug\'atdan qidir</string>
-  <string name="dictionary_contents">Mundarija</string>
   <!--General Book-->
   <string name="general_book">Kitob</string>
-  <string name="general_book_contents">Mundarija</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -210,9 +178,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Mening Eslatmalarim</string>
-  <string name="mynote">Mening Eslatmam</string>
   <string name="mynote_add">Eslatma Kirit</string>
-  <string name="mynote_view_edit">Mening Eslatmam</string>
   <string name="mynote_saved">Mening Eslatmam saqlandi</string>
   <!--Backup and restore-->
   <string name="backup">Rezerv nusxa</string>
@@ -236,16 +202,10 @@
   <string name="cancel">Bekor qil</string>
   <string name="yes">Ha</string>
   <string name="no">Yo\'q</string>
-  <string name="save">Saqla</string>
   <string name="error">Xato</string>
-  <string name="more">Ko\'proq</string>
-  <string name="more_dotted">Ko\'proq...</string>
-  <string name="retry">Yana qilib ko\'ring</string>
   <string name="please_wait">Iltimos kuting...</string>
   <string name="all">Hammasi</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Yangi</string>
-  <string name="close">Yoping</string>
   <!--Errors-->
   <string name="error_occurred">Xato ro\'y berdi</string>
   <string name="error_no_content">Belgilangan oyat mavjud emas</string>

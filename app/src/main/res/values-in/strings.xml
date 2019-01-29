@@ -1,19 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigasi</b> \nKlik bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda
-\nKilk dua kali untuk matikan atau hidupkan Fullscreen.
-\n\n<b>Menu</b>
-\nTekan tombol MENU untuk tindakan
-\n\nUntuk men-download lebih banyak dokumen tekan Menu/Administrasi/Unduh Dokumen
-\n\n<b>Bicara</b> \nTekan Bicara untuk akses dialog untuk mulai atau stop membaca
-\n\n<b>Catatan Saya</b> \nCatatan bisa ditambahkan melalui menu Catatan Saya pada menu konteks ayat. Daftar catatan yang ada dapat diakses melalui menu utama.
-\n\n <b>Bookmarks</b> \nBookmarks dapat ditambahkan melalui menu konteks ayat. Manajer Bookmark dapat diakses melalui menu utama. Manajer Bookmark menu konteks memungkinkan bookmark untuk dikelompokkan menggunakan label.
- \n\n<b>Pencarian</b> \nPencarian teks dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelasan lebih lanjut).
-\n\n<b>Menu Konteks</b> \nTekan lama pada tampilan Alkitab untuk membuka menu konteks untuk tindakan kepada ayat yg sedang dibuka.
-\nTekan lama pada dokumen dalam pilihan dokumen untuk menghapus atau melihat informasi.\nTekan lama pada tombol Kembali untuk mengakses Daftar riwayat
-</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Berfirmanlah Allah: \"Jadilah terang.\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
   <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPindah ke pasal berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
@@ -49,7 +36,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="history">Histori</string>
   <string name="speak">Bicara</string>
   <string name="help">Bantuan</string>
-  <string name="verse">Ayat</string>
   <string name="administration">Administrasi</string>
   <string name="rate_application">Nilai dan Ulas di Google Play</string>
   <string name="chooce_document">Pilih dokumen</string>
@@ -64,7 +50,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="index_creation_required">Indeks diperlukan untuk pencarian.\n\nIndeks bisa diunduh dari internet atau dibuat secara lokal.\n\nMengunduh jauh lebih cepat dan indeks yg diunduh dari internet mempunyai lebih banyak fitur.\n\nKoneksi internet diperlukan untuk mengunduh indeks.\n</string>
   <string name="search_index_unavailable">Sayangnya pembuatan indeks hanya tersedia untuk Android 5.0 (Lollipop) atau lebih baru.</string>
   <string name="indexing_wait_msg">Ketika indeks sudah lengkap anda akan dibawa ke layar pencarian.</string>
-  <string name="index">Indeks</string>
   <string name="index_download">Unduh</string>
   <string name="index_not_available_for_download">Indeks ini tidak tersedia buat pengunduhan</string>
   <string name="index_create">Buat</string>
@@ -74,7 +59,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="task_kill_warning">Hubungan akan terputus jika anda berpindah ke aplikasi lain sebelum tugas selesai.</string>
   <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
   <!--Search-->
-  <string name="search_results">Temukan Hasil</string>
   <string name="search_words_group_prompt">Temukan ayat</string>
   <string name="search_all_words">Semua kata</string>
   <string name="search_any_word">Kata apa saja</string>
@@ -89,25 +73,16 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="error_executing_search">Permintaan pencarian salah</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Nomor ayat</string>
-  <string name="prefs_show_verseno_summary">Tampilkan nomor ayat</string>
   <string name="prefs_verse_per_line_title">Satu ayat per baris</string>
-  <string name="prefs_verse_per_line_summary">Tunjukan setiap ayat di baris yang berbeda</string>
   <string name="prefs_show_bookmarks_title">Tampilkan bookmark</string>
-  <string name="prefs_show_bookmarks_summary">Hapus tanda klik untuk menyembunyikan semua bookmark</string>
   <string name="prefs_default_bookmark_style_title">Model bookmark standar</string>
   <string name="prefs_default_bookmark_style_summary">Warna highlight atau ikon</string>
   <string name="prefs_show_mynotes_title">Tampilkan ikon Catatanku</string>
-  <string name="prefs_show_mynotes_summary">Tampilkan ikon di ayat-ayat dengan Catatanku</string>
   <string name="prefs_show_notes_title">Catatan kaki dan referensi silang</string>
-  <string name="prefs_show_notes_summary">Tampilkan catatan kaki dan referensi silang</string>
   <string name="prefs_show_strongs_title">Tampilkan nomor Strong</string>
-  <string name="prefs_show_strongs_summary">Link ke definisi Yunani dan Ibrani</string>
   <string name="prefs_show_morphology_title">Kode-kode morfologi</string>
-  <string name="prefs_show_morphology_summary">Tampilkan morfologi Yunani Robinson</string>
   <string name="prefs_section_title_title">Judul Perikop</string>
-  <string name="prefs_section_title_summary">Tampilkan judul perikop yg non-kanonik</string>
   <string name="prefs_red_letter_title">Huruf merah</string>
-  <string name="prefs_red_letter_summary">Tampilkan kata Kristus dalam huruf merah</string>
   <string name="prefs_tilt_to_scroll_title">Miringkan untuk menggulir</string>
   <string name="prefs_tilt_to_scroll_summary">Miringkan perangkat untuk menggulir halaman ke bawah</string>
   <string name="prefs_night_mode_title">Mode malam</string>
@@ -122,15 +97,8 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="prefs_text_size_sample_text">Contoh teks</string>
   <string name="prefs_screen_keep_on_title">Pertahankan layar menyala</string>
   <string name="prefs_screen_keep_on_summary">Mencegah layar tidur saat menggunakan aplikasi ini</string>
-  <string name="x_minutes">%d minit</string>
   <string name="prefs_interface_locale_title">Aplikasi bahasa</string>
   <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>
-  <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara yang baru</string>
-  <string name="prefs_speak_speed_title">Kecepatan berbicara</string>
-  <string name="prefs_speak_speed_summary">Bicara lebih pelan atau lebih cepat</string>
-  <string name="speak_speed_slow">Pelan</string>
-  <string name="speak_speed_normal">Normal</string>
-  <string name="speak_speed_fast">Cepat</string>
   <string name="prefs_split_mode_vertical">Vertikal</string>
   <string name="prefs_split_mode_horizontal">Horisontal</string>
   <string name="prefs_split_mode_automatic">Otomatis</string>
@@ -140,7 +108,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="prefs_request_sdcard_permission_summary">Izinkan penggunaan dokumen yang diinstal secara manual dari folder jsword pada kartu SD</string>
   <!--Window-->
   <string name="new_window">Jendela baru</string>
-  <string name="window">Jendela</string>
   <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Membesarkan</string>
   <string name="windowMinimise">Mengecilkan</string>
@@ -152,14 +119,11 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="previous">Sebelumnya</string>
   <string name="next">Berikutnya</string>
   <!--Strongs-->
-  <string name="strongs">Kamus Strong</string>
   <string name="strongs_not_installed">Silahkan download kamus Strong Ibrani dan Yunani</string>
   <string name="all_greek_occurrences">Cari semua yg ada</string>
   <string name="all_hebrew_occurrences">Cari semua yg ada</string>
   <string name="no_indexed_bible_with_strongs_ref">Anda harus mengunduh Alkitab berisi nomor Strong dan unduh indeksnya melalui Penelusuran/Pencarian</string>
   <string name="morph_robinson_not_installed">Silahkan mengunduh kamus \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Unduh Dokumen</string>
   <string name="download_confirmation">Unduh Alkitab dari internet?</string>
@@ -170,9 +134,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="error_downloading">Terjadi kesalahan saat mengunduh. Silakan periksa koneksi internet Anda.</string>
   <string name="no_internet_connection">Tidak dapat terhubung ke internet</string>
   <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
-  <string name="wait_for_bible">Silakan tunggu pengunduhan Alkitab sampai selesai. Anda akan dibawa ke layar utama.\n\nUnduh dokumen yang lain dengan menavigasikan ke tombol Menu/Administrasi/Unduh Dokumen.</string>
-  <string name="wait_for_bible_not_yet">Silahkan tunggu. Sebuah Alkitab belum selesai diinstal.</string>
-  <string name="download_complete_no_bibles">Tidak ada Alkitab yang terinstal. Silahkan tekan Kembali dan coba lagi.</string>
   <string name="too_many_jobs">Terlalu banyak tugas yang sedang berjalan. Silahkan tunggu sampai selesai dan coba lagi.</string>
   <string name="document_not_installed">Silahkan unduh \'%s\'</string>
   <!--Install zip file-->
@@ -191,12 +152,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="rdg_plan_set_start_jan1">Mulai 1 Jan</string>
   <string name="done">Selesai</string>
   <string name="reset">Atur Ulang</string>
-  <string name="rdg_plan_y1ntpspr">Perjanjian Baru, Mazmur, dan Amsal dalam setahun</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Lalui kronologis Alkitab dalam setahun</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Lalui Alkitab dalam setahun - PL dan PB</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Lalui Alkitab dalam setahun - PL kemudian PB</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Lalui Alkitab dalam setahun (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">Rencana 2 tahun - PL satu kali, PB dan Mazmur dua kali</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Hapus</string>
@@ -221,7 +176,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="delete_bookmark">Hapus bookmark</string>
   <string name="bookmark_added">Bookmark ditambahkan</string>
   <string name="bookmark_date_updated">Tanggal bookmark telah diperbarui</string>
-  <string name="bookmark_exists">Bookmark telah ada</string>
   <string name="bookmark_deleted">Bookmark telah dihapus</string>
   <string name="bookmark_labels">Label Bookmark</string>
   <string name="manage_labels">Atur Label Bookmark</string>
@@ -229,7 +183,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="new_label">Label Baru</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
-  <string name="rename">Ganti nama</string>
   <string name="style">Model</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urutan tanggal</string>
@@ -238,10 +191,8 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <!--Dictionary-->
   <string name="dictionary">Kamus</string>
   <string name="search_dictionary_hint">Cari kamus</string>
-  <string name="dictionary_contents">Daftar Isi</string>
   <!--General Book-->
   <string name="general_book">Buku</string>
-  <string name="general_book_contents">Daftar Isi</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -290,9 +241,7 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="speak_chapter_changed">Pasal</string>
   <!--User Notes-->
   <string name="mynotes">Catatan-catatan Saya</string>
-  <string name="mynote">Catatan Saya</string>
   <string name="mynote_add">Tambahkan Catatan Saya</string>
-  <string name="mynote_view_edit">Catatan Saya</string>
   <string name="mynote_saved">Catatan Saya disimpan</string>
   <!--Backup and restore-->
   <string name="backup">Backup</string>
@@ -317,16 +266,10 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="cancel">Batalkan</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
-  <string name="save">Simpan</string>
   <string name="error">Eror</string>
-  <string name="more">Lebih</string>
-  <string name="more_dotted">Lebih lanjut...</string>
-  <string name="retry">Coba lagi</string>
   <string name="please_wait">Silakan tunggu ...</string>
   <string name="all">Semua</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Baru</string>
-  <string name="close">Tutup</string>
   <string name="edit">Edit</string>
   <!--Errors-->
   <string name="report_error">Kirim laporan</string>

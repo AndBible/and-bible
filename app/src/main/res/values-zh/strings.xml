@@ -1,35 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And 圣经</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>导航</b>
-用轨迹球、D-pad或用手指滑动屏幕，转到下一章或上一章。
-点击圣经文本两次以切换全屏模式
-
-<b>菜单</b>
-按菜单键来开启动作菜单
-欲下载更多的圣经或者文档， 按菜单/更多/下载文档
-
-<b>朗读</b>
-按下朗读以开结或停止朗读
-
-<b>我的笔记</b>
-透过经节的菜单中我的笔记，可以加入笔记。
-主菜单中可以找到所有笔记。
-
-<b>书签</b>
-透过经节的菜单可以加入书签
-主菜单中可以管理书签卷标
-书签管理菜单中可以加入卷标将书签分组
-
-<b>查询</b>
-搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
-(有关详细信息请参「Apache Lucene - Query Parser Syntax」)
-
-<b>弹出菜单</b>
-长按经文可以开启本节菜单
-选择文件中，长按文件可删除或取得更多信息
-长按后退键可以开启阅读历史</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"神说：「要有光」，就有了光\"\n创世记 1:3</string>
   <string name="help_text">使用菜单的按钮操作\n向左滑动手指看下一章\n向右滑动手指看上一章\n向左或向右按轨迹球\n也可以前后翻动章节</string>
@@ -65,7 +36,6 @@
   <string name="history">阅读历史</string>
   <string name="speak">朗读</string>
   <string name="help">帮助</string>
-  <string name="verse">经文</string>
   <string name="administration">管理</string>
   <string name="rate_application">在Google Play中评分</string>
   <string name="chooce_document">选择文件</string>
@@ -80,7 +50,6 @@
   <string name="index_creation_required">查询功能需要可用的查询索引。索引可以在手机上创建或从网上下载。从网上下载更快，而下载来得索引功能更多。下载索引需要网络链接。\n</string>
   <string name="search_index_unavailable">索引创建只适用于Android 5.0 (Lollipop) 或更新版本。</string>
   <string name="indexing_wait_msg">当索引创建完成时，程序会回到查询页面。</string>
-  <string name="index">索引</string>
   <string name="index_download">下载索引</string>
   <string name="index_not_available_for_download">无适用索引以供下载</string>
   <string name="index_create">建立索引</string>
@@ -90,7 +59,6 @@
   <string name="task_kill_warning">请稍等！切换至其他程序会中止当前任务。</string>
   <string name="no_tasks_running">当前没有任务</string>
   <!--Search-->
-  <string name="search_results">寻找结果</string>
   <string name="search_words_group_prompt">寻找经文</string>
   <string name="search_all_words">所有的词</string>
   <string name="search_any_word">任何一词</string>
@@ -105,25 +73,16 @@
   <string name="error_executing_search">搜寻项目无效</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">显示节数</string>
-  <string name="prefs_show_verseno_summary">小节序号显示</string>
   <string name="prefs_verse_per_line_title">每行一节</string>
-  <string name="prefs_verse_per_line_summary">每行一小节圣经</string>
   <string name="prefs_show_bookmarks_title">显示书签图标</string>
-  <string name="prefs_show_bookmarks_summary">选取后显示书签图标</string>
   <string name="prefs_default_bookmark_style_title">默认书签样式</string>
   <string name="prefs_default_bookmark_style_summary">书签突出显示颜色或图标</string>
   <string name="prefs_show_mynotes_title">显示笔记图标</string>
-  <string name="prefs_show_mynotes_summary">在经文中显示笔记图标</string>
   <string name="prefs_show_notes_title">显示备注</string>
-  <string name="prefs_show_notes_summary">脚注和索引</string>
   <string name="prefs_show_strongs_title">显示原文编号</string>
-  <string name="prefs_show_strongs_summary">史特朗号码，希伯来语和希腊语定义链接显示</string>
   <string name="prefs_show_morphology_title">显示词形码</string>
-  <string name="prefs_show_morphology_summary">罗氏词形分析码显示</string>
   <string name="prefs_section_title_title">章节标题</string>
-  <string name="prefs_section_title_summary">显示非规范的章节标题</string>
   <string name="prefs_red_letter_title">红字</string>
-  <string name="prefs_red_letter_summary">基督的话显示红色字体</string>
   <string name="prefs_tilt_to_scroll_title">倾斜手机向下卷动</string>
   <string name="prefs_tilt_to_scroll_summary">倾斜手机到下页</string>
   <string name="prefs_night_mode_title">夜晚模式</string>
@@ -138,15 +97,8 @@
   <string name="prefs_text_size_sample_text">示例文本</string>
   <string name="prefs_screen_keep_on_title">保持屏幕开启</string>
   <string name="prefs_screen_keep_on_summary">使用此应用程序时防止屏幕睡眠</string>
-  <string name="x_minutes">%d 分钟</string>
   <string name="prefs_interface_locale_title">程序用户界面语言</string>
   <string name="prefs_interface_locale_summary">选择用户界面语言</string>
-  <string name="locale_change_warning">应用程序将重新启动切换到新的界面语言</string>
-  <string name="prefs_speak_speed_title">语速</string>
-  <string name="prefs_speak_speed_summary">语速加快或减慢</string>
-  <string name="speak_speed_slow">语速减慢</string>
-  <string name="speak_speed_normal">语速正常</string>
-  <string name="speak_speed_fast">语速加快</string>
   <string name="prefs_split_mode_vertical">垂直</string>
   <string name="prefs_split_mode_horizontal">水平</string>
   <string name="prefs_split_mode_automatic">自动</string>
@@ -156,7 +108,6 @@
   <string name="prefs_request_sdcard_permission_summary">允许使用SD卡jsword活页夹中手动安装的文件</string>
   <!--Window-->
   <string name="new_window">新窗口</string>
-  <string name="window">示窗</string>
   <string name="windowClose">关闭</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
@@ -168,14 +119,11 @@
   <string name="previous">上一页</string>
   <string name="next">下一页</string>
   <!--Strongs-->
-  <string name="strongs">Strong\'s 原文字典</string>
   <string name="strongs_not_installed">请下载Strong\'s希伯来语和希腊语的原文字典</string>
   <string name="all_greek_occurrences">查找所有希腊语字符</string>
   <string name="all_hebrew_occurrences">查找所有希伯来语字符</string>
   <string name="no_indexed_bible_with_strongs_ref">需要下载包含原文编号的圣经，并通过查询下载相应的索引</string>
   <string name="morph_robinson_not_installed">请下载罗氏词形分析码的字典</string>
-  <string name="strongs_toggle_button_on">已打开</string>
-  <string name="strongs_toggle_button_off">已关闭</string>
   <!--Module download-->
   <string name="download">下载文件</string>
   <string name="download_confirmation">从互联网上下载圣经吗？</string>
@@ -186,9 +134,6 @@
   <string name="error_downloading">下载时发生错误。请检查您的互联网连接。</string>
   <string name="no_internet_connection">无法连接网络</string>
   <string name="storage_space_warning">SD卡储存空间不足</string>
-  <string name="wait_for_bible">请等待下载完成。当下载完成，程序会转到主页面。您可以浏览至菜单/下载文件，以下载更多文件。</string>
-  <string name="wait_for_bible_not_yet">请稍等。正在安装已下载的圣经</string>
-  <string name="download_complete_no_bibles">圣经没有安装。请按后退键并重新下载。</string>
   <string name="too_many_jobs">正执行太多任务。 请等候一些任务完成后再试。</string>
   <string name="document_not_installed">请下载 \"%s\"</string>
   <!--Install zip file-->
@@ -207,12 +152,6 @@
   <string name="rdg_plan_set_start_jan1">从1月1日开始</string>
   <string name="done">完成</string>
   <string name="reset">重设</string>
-  <string name="rdg_plan_y1ntpspr">一年内读完新约、诗篇和箴言</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">一年读经计划：按时序</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">一年读经计划：旧约及新约</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">一年读经计划：旧约后新约</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">一年读经计划：麦琴 (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">两年读经计划：一次旧约、两次新约及诗篇</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">删除</string>
@@ -237,7 +176,6 @@
   <string name="delete_bookmark">删除书签</string>
   <string name="bookmark_added">书签已保存</string>
   <string name="bookmark_date_updated">书签日期已更新</string>
-  <string name="bookmark_exists">书签已存在</string>
   <string name="bookmark_deleted">书签已删除</string>
   <string name="bookmark_labels">书签卷标</string>
   <string name="manage_labels">管理书签卷标</string>
@@ -245,7 +183,6 @@
   <string name="new_label">新标签</string>
   <string name="label_name_prompt">标签名称</string>
   <string name="label_unlabelled">未有标签</string>
-  <string name="rename">重新命名</string>
   <string name="style">格式</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期顺序</string>
@@ -254,10 +191,8 @@
   <!--Dictionary-->
   <string name="dictionary">字典</string>
   <string name="search_dictionary_hint">查询字典</string>
-  <string name="dictionary_contents">字典内容</string>
   <!--General Book-->
   <string name="general_book">书卷</string>
-  <string name="general_book_contents">内容</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -303,7 +238,6 @@
   <string name="conf_change_title">标题</string>
   <string name="conf_speak_footnotes">注脚</string>
   <string name="conf_speak_sleep_timer">设定睡眠定时器</string>
-  <string name="conf_speak_multitranslation">从所有可见的窗口朗读</string>
   <string name="sleep_timer_title">分钟为单位</string>
   <string name="sleep_timer_set">设定睡眠定时器。已设为：%d分钟</string>
   <string name="sleep_timer_started">%d分钟睡眠计时开始</string>
@@ -366,9 +300,7 @@
   <string name="speak_fifth">第五</string>
   <!--User Notes-->
   <string name="mynotes">笔记列表</string>
-  <string name="mynote">我的笔记</string>
   <string name="mynote_add">添加笔记</string>
-  <string name="mynote_view_edit">查看编辑我的笔记</string>
   <string name="mynote_saved">我的笔记已储存</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">备份及回复</string>
@@ -395,16 +327,10 @@
   <string name="cancel">取消</string>
   <string name="yes">是</string>
   <string name="no">否</string>
-  <string name="save">储存</string>
   <string name="error">错误</string>
-  <string name="more">更多</string>
-  <string name="more_dotted">更多...</string>
-  <string name="retry">重试</string>
   <string name="please_wait">请稍等...</string>
   <string name="all">全部</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">新项目</string>
-  <string name="close">关闭</string>
   <string name="edit">编辑</string>
   <string name="watch_tutorial_video">观看示范影片 (英文)</string>
   <!--Errors-->
@@ -414,9 +340,7 @@
   <string name="error_page_too_large">页面太大无法加载</string>
   <string name="error_key_not_in_document">文件内没有发现</string>
   <string name="empty_list">无可显示项目</string>
-  <string name="add_widget">添加小部件</string>
   <!--Notifications-->
-  <string name="download_documents">下载文件中</string>
   <string name="notification_channel_tts_status">文字转语音</string>
   <string name="notification_channel_progress_status">文件下载等的进度状态通知</string>
 </resources>

@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigasie</b>\nGaan na die volgende of vorige hoofstuk met behulp van die spoor-bal, D-pad of beweeg oor die skerm met jou vinger\nDubbel druk verander Vol skerm aan/af.\n\n<b>Keurlys</b>\nDruk Menu sleutel vir meer aksies\n\nOm meer dokumente af te laai druk Menu/Administrasie/Laai Dokumente af.\n\n<b>Spraak</b>\nDruk op praat om \'n dialoog te begin of om op te hou lees.\n\n<b>My Notas</b>\nNotas kan bygevoeg word via My Note keurlys item op die vers konteks kieslys.\nDie lys van bestaande notas kan verkry word via die hoof keurlys\n\n\n<b>Boekmerke</b>\nBoekmerke kan toegevoeg word deur middel van die inhoud keurlys. Die Boekmerk Bestuurder kan deur middel van die hoof keurlys bereik word.\nDie Boekmerk Bestuurder inhoud keurlys laat boekmerke gegroepeer word deur om etikette te gebruik.\n\n<b>Soek</b>\nSoek teks kan spesiale karakters insluit soos *, ?, AND, OR, Not (sien \"Apache Lucene - Qury Parser Syntax\" vir meer inligting)\n\n<b>Inhoud Keurlys</b>\nDruk lank op die Bybel uitsig om die inhoud keurlys oop te maak vir aksies wat die huidige vers affekteer\nDruk lank op \'n dokument in die dokument kieser, om dit uit te wis of om sy informasie te sien\nDruk lank op die Terug knoppie om toegang tot die Geskiedenis lys te kry</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nGénesis 1:3\n\"En God het gesê: Laat daar lig wees, en daar was lig.\"\n \n</string>
   <string name="help_text">Druk die sleutel Menu vir optrede\n\nGaan na die volgende of vorige hoofstuk deur die spoor-bal, D-pad of om jou vinger oor die skerm te beweeg</string>
@@ -40,7 +38,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
-  <string name="verse">Vers</string>
   <string name="administration">Administrasie</string>
   <string name="rate_application">Beoordeel &amp; amp; Hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
@@ -55,7 +52,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="index_creation_required">\'n Indeks word benodig om te soek. \n\nIndekse kan van die internet afgelaai of plaaslik geskep word.\n\nAflaai is baie vinniger, en afgelaaide indekse het meer soek funksies.\n\n \'n Internet aansluiting is nodig om indekse af te laai.</string>
   <string name="search_index_unavailable">Ongelukkig is die skepping van indeks slegs beskikbaar op Android 5.0 (Lollipop) en nuwer.</string>
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
-  <string name="index">Indeks</string>
   <string name="index_download">Laai af</string>
   <string name="index_not_available_for_download">Hierdie indeks is nie beskikbaar vir aflaai</string>
   <string name="index_create">Skep</string>
@@ -65,7 +61,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
   <!--Search-->
-  <string name="search_results">Soek Resultate</string>
   <string name="search_words_group_prompt">Vind verse</string>
   <string name="search_all_words">Alle woorde</string>
   <string name="search_any_word">Enige woord</string>
@@ -80,25 +75,16 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="error_executing_search">Ongeldige soektog</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Vers nommers</string>
-  <string name="prefs_show_verseno_summary">Wys vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
-  <string name="prefs_verse_per_line_summary">Wys elke vers op \'n nuwe lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
-  <string name="prefs_show_bookmarks_summary">Ontmerk om alle boekmerke te versteek</string>
   <string name="prefs_default_bookmark_style_title">Standaard boekmerk styl</string>
   <string name="prefs_default_bookmark_style_summary">Hoogtepunt kleur of simbool</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
-  <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My Nota</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
-  <string name="prefs_show_notes_summary">Wys voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Wys Strong\'s getalle</string>
-  <string name="prefs_show_strongs_summary">Skakels na Grieks en Hebreeus definisies</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
-  <string name="prefs_show_morphology_summary">Wys Robinson se Griekse morfologie</string>
   <string name="prefs_section_title_title">Afdeling Titels</string>
-  <string name="prefs_section_title_summary">Wys nie-kanonieke afdeling titels\n</string>
   <string name="prefs_red_letter_title">Rooi woorde</string>
-  <string name="prefs_red_letter_summary">Wys woorde van Christus in die rooi</string>
   <string name="prefs_tilt_to_scroll_title">Kantel om te skuif</string>
   <string name="prefs_tilt_to_scroll_summary">Kantel toestel om bladsy af te skuif</string>
   <string name="prefs_night_mode_title">Nag mode</string>
@@ -113,15 +99,8 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
-  <string name="x_minutes">%d Minute</string>
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
-  <string name="locale_change_warning">Applikasie sal sal stop en weer van voor af begin om oor te skakel na die nuwe taal</string>
-  <string name="prefs_speak_speed_title">Praat spoed</string>
-  <string name="prefs_speak_speed_summary">Praat stadiger of vinniger</string>
-  <string name="speak_speed_slow">Stadig</string>
-  <string name="speak_speed_normal">Normaal</string>
-  <string name="speak_speed_fast">Vinnig</string>
   <string name="prefs_split_mode_vertical">Vertikal</string>
   <string name="prefs_split_mode_horizontal">Horisontal</string>
   <string name="prefs_split_mode_automatic">Outomaties</string>
@@ -131,7 +110,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van handmatig geïnstalleerde dokumente uit die jsword-lêergids op die SD-kaart</string>
   <!--Window-->
   <string name="new_window">Nuwe venster</string>
-  <string name="window">Venster</string>
   <string name="windowClose">Maak Toe</string>
   <string name="windowMaximise">Vermeeder</string>
   <string name="windowMinimise">Verminder</string>
@@ -143,14 +121,11 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="previous">Vorige</string>
   <string name="next">Volgende</string>
   <!--Strongs-->
-  <string name="strongs">Strong\'s Woordeboek</string>
   <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
   <string name="all_greek_occurrences">Vind alle gebeurtenisse</string>
   <string name="all_hebrew_occurrences">Vind alle gebeurtenisse</string>
   <string name="no_indexed_bible_with_strongs_ref">Jy moet \'n Bybel met die Strong\'s nommers aflaai, en dan, laai sy indeks volgens Soek funksie af</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
@@ -161,9 +136,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="error_downloading">\'n Fout met aflaai. Gaan asseblief jou internet konneksie na.</string>
   <string name="no_internet_connection">Kan nie met die internet konnekteer nie</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
-  <string name="wait_for_bible">Wag asseblief vir die Bybel om klaar af te laai. Jy sal dan na na die hoof skerm geneem word.</string>
-  <string name="wait_for_bible_not_yet">Wag asseblief. \'n Bybel het nog klaar geïnstalleer nie.</string>
-  <string name="download_complete_no_bibles">Geen Bybel is geïnstalleer. Druk terug en probeer weer.</string>
   <string name="too_many_jobs">Te veel take oop. Wag vir \'n paar om te voltooi en probeer dan weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
   <!--Install zip file-->
@@ -182,12 +154,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="rdg_plan_set_start_jan1">Begin Jan 1</string>
   <string name="done">Klaar</string>
   <string name="reset">Herstel</string>
-  <string name="rdg_plan_y1ntpspr">Nuwe Testament, Psalms, en Spreuke in \'n jaar</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Deur die Bybel chronologies in \'n jaar</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Deur die bybel in \'n jaar - OT en NT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Deur die bybel in \'n jaar - OT dan NT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Deur die bybel in \'n jaar (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 Jaar lees plan - OT een keer, NT en Psalms twee keer</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Skrap</string>
@@ -212,7 +178,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="delete_bookmark">Verwyder Boekmerk</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
   <string name="bookmark_date_updated">Boekmerk date opgedateer</string>
-  <string name="bookmark_exists">Boekmerk bestaan ​​alreeds</string>
   <string name="bookmark_deleted">Boekmerk is verwyder</string>
   <string name="bookmark_labels">Boekmerk etikette</string>
   <string name="manage_labels">Bestuur Bookmark Byskrifte</string>
@@ -220,7 +185,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="new_label">Nuwe etiket</string>
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
-  <string name="rename">Hernoem</string>
   <string name="style">Styl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
@@ -229,10 +193,8 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <!--Dictionary-->
   <string name="dictionary">Woordeboek</string>
   <string name="search_dictionary_hint">Soek woordeboek</string>
-  <string name="dictionary_contents">Inhoud</string>
   <!--General Book-->
   <string name="general_book">Boek</string>
-  <string name="general_book_contents">Inhoud</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -278,7 +240,6 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voet Notas</string>
   <string name="conf_speak_sleep_timer">Stel slaap tydhouer</string>
-  <string name="conf_speak_multitranslation">Spreek van enige sigbare vensters</string>
   <string name="sleep_timer_title">Slaap tydhouer in minute</string>
   <string name="sleep_timer_set">Stel slaap tydhouer.  Stel Tydhouer: %d minute </string>
   <string name="sleep_timer_started">Slaap tydhouer begin oor, %d minute</string>
@@ -332,9 +293,7 @@ van die boekmerk af gelaai word.</string>
   <string name="speak_fifth">Vyfde</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
-  <string name="mynote">My Nota</string>
   <string name="mynote_add">Voeg My Nota by</string>
-  <string name="mynote_view_edit">My Nota</string>
   <string name="mynote_saved">My Nota is geberg</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
@@ -361,16 +320,10 @@ van die boekmerk af gelaai word.</string>
   <string name="cancel">Kanselleer</string>
   <string name="yes">Ja</string>
   <string name="no">Nee</string>
-  <string name="save">Berg</string>
   <string name="error">Fout</string>
-  <string name="more">Meer</string>
-  <string name="more_dotted">Meer...</string>
-  <string name="retry">Probeer weer</string>
   <string name="please_wait">Wag asseblief ...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Nuut</string>
-  <string name="close">Maak toe</string>
   <string name="edit">Wysig</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
   <!--Errors-->
@@ -380,9 +333,7 @@ van die boekmerk af gelaai word.</string>
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
   <string name="empty_list">Geen items om te wys</string>
-  <string name="add_widget">Voeg byvoeging by</string>
   <!--Notifications-->
-  <string name="download_documents">Laai Dokumente af</string>
   <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
 </resources>

@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigointi</b>\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella.\nNapauta näytön alareunaa vierittääksesi tekstiä alas.\nKaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.\n\n<b>Valikko</b>\nSiirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Ylläpito / Lataa teoksia\n\n<b>Puhe</b>\nPaina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.\n\n<b>Oma kommentti</b>\nVoit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.\n\n<b>Kirjanmerkit</b>\nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.\n\n<b>Etsi</b>\nTekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)\n\n<b>Pikavalikot</b>\nPitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen.\nPitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja. \nPitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
   <string name="help_text">Siirry VALIKKO painikkeella toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai \'pyyhkäisemällä\' näyttöä sormella</string>
@@ -30,7 +28,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="history">Historia</string>
   <string name="speak">Puhe</string>
   <string name="help">Ohje</string>
-  <string name="verse">Jae</string>
   <string name="administration">Ylläpito</string>
   <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
   <string name="chooce_document">Valitse teos</string>
@@ -45,7 +42,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
   <string name="search_index_unavailable">Valitettavasti hakuindeksin luominen on mahdollista vain Andoir 5.0:lla (Lollipop) ja uudemmilla versioilla.</string>
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy välittömästi etsi-toimintoon.</string>
-  <string name="index">Indeksoi</string>
   <string name="index_download">Lataa</string>
   <string name="index_not_available_for_download">Tämä indeksi ei ole ladatavissa</string>
   <string name="index_create">Luo uusi</string>
@@ -55,7 +51,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
   <string name="no_tasks_running">Tehtäviä ei ole tällä hetkellä suoritettavana.</string>
   <!--Search-->
-  <string name="search_results">Hakutulokset</string>
   <string name="search_words_group_prompt">Etsi jakeista</string>
   <string name="search_all_words">Kaikkia sanoja</string>
   <string name="search_any_word">Jotain sanoista</string>
@@ -70,25 +65,16 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="error_executing_search">Virheellinen haku</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Jaenumerot</string>
-  <string name="prefs_show_verseno_summary">Näytä jaenumerot</string>
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
-  <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_title">Näytä kirjanmerkit</string>
-  <string name="prefs_show_bookmarks_summary">Piilota kirjanmerkit</string>
   <string name="prefs_default_bookmark_style_title">Oletus kirjanmerkkityyli</string>
   <string name="prefs_default_bookmark_style_summary">Korostusväri tai kuvake</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>
-  <string name="prefs_show_mynotes_summary">Näytä tekstissä kuvake ja kommentti</string>
   <string name="prefs_show_notes_title">Ala- ja rinnakkaisviitteet</string>
-  <string name="prefs_show_notes_summary">Näytä ala- ja rinnakkaisviitteet</string>
   <string name="prefs_show_strongs_title">Näytä Strongin numerointi</string>
-  <string name="prefs_show_strongs_summary">Linkitys kreikan- ja hepreankielen sanakirjaan</string>
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
-  <string name="prefs_show_morphology_summary">Näytä Robinsonin kreikankielen morfologia</string>
   <string name="prefs_section_title_title">Väliotsikot</string>
-  <string name="prefs_section_title_summary">Näytä ei-kanoniset kappaleotsikot</string>
   <string name="prefs_red_letter_title">Punaiset kirjaimet</string>
-  <string name="prefs_red_letter_summary">Näytä Jeesuksen sanat punaisella tekstillä</string>
   <string name="prefs_tilt_to_scroll_title">Vieritä kallistamalla</string>
   <string name="prefs_tilt_to_scroll_summary">Kallista laitetta vierittääksesi sivua alaspäin</string>
   <string name="prefs_night_mode_title">Yönäkymä</string>
@@ -103,15 +89,8 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
   <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
   <string name="prefs_screen_keep_on_summary">Estä näyttöä menemästä pois päällä ohjelmaa käytettäessä</string>
-  <string name="x_minutes">%d minuuttia</string>
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
-  <string name="locale_change_warning">Sovellus pitää käynnistää uudelleen uuden käyttöliittymän kielen ottamiseksi käyttöön.</string>
-  <string name="prefs_speak_speed_title">Puheen nopeus</string>
-  <string name="prefs_speak_speed_summary">Puhu hitaammin tai nopeammin</string>
-  <string name="speak_speed_slow">Hidas</string>
-  <string name="speak_speed_normal">Normaali</string>
-  <string name="speak_speed_fast">Nopea</string>
   <string name="prefs_split_mode_vertical">Vaakataso</string>
   <string name="prefs_split_mode_horizontal">Pystytaso</string>
   <string name="prefs_split_mode_automatic">Automaattinen</string>
@@ -121,7 +100,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword-kansiossa SD-kortilla</string>
   <!--Window-->
   <string name="new_window">Uusi ikkuna</string>
-  <string name="window">Ikkuna</string>
   <string name="windowClose">Sulje</string>
   <string name="windowMaximise">Suurenna</string>
   <string name="windowMinimise">Pienennä</string>
@@ -133,14 +111,11 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="previous">Edellinen</string>
   <string name="next">Seuraava</string>
   <!--Strongs-->
-  <string name="strongs">Strongin sanakirja</string>
   <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
   <string name="all_greek_occurrences">Etsi kaikki esiintymät</string>
   <string name="all_hebrew_occurrences">Etsi kaikki esiintymät</string>
   <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja ladata myös sen indeksi Haku-toiminnossa</string>
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Lataa teoksia</string>
   <string name="download_confirmation">Lataa teos internetistä?</string>
@@ -151,9 +126,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
   <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
-  <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma palaa tekstinäkymään.\n\nLataa lisää teoksia myöhemmin navigoimalla Valikko/Ylläpito/Lataa teoksia.</string>
-  <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen asennus ei ole vielä valmis.</string>
-  <string name="download_complete_no_bibles">Teosta ei ole asennettu. Siirry takaisin ja yritä uudelleen.</string>
   <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
   <!--Install zip file-->
@@ -172,12 +144,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="rdg_plan_set_start_jan1">Aloita vuoden alusta</string>
   <string name="done">Valmis</string>
   <string name="reset">Tyhjennä</string>
-  <string name="rdg_plan_y1ntpspr">Uusi testamentti, Psalmit ja Sananlaskut vuodessa</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Koko Raamattu aikajärjestyksessä vuodessa</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Koko Raamattu vuodessa - VT ja sitten UT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Koko Raamattu vuodessa - VT ja sitten UT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Koko Raamattu vuodessa (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 vuotinen - VT kerran, UT ja psalmit kahdesti</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Poista</string>
@@ -202,7 +168,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="delete_bookmark">Poista kirjanmerkki</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
   <string name="bookmark_date_updated">Kirjanmerkin päiväys on päivitetty</string>
-  <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
   <string name="bookmark_deleted">Kirjanmerkki poistettu</string>
   <string name="bookmark_labels">Kirjanmerkkiryhmät</string>
   <string name="manage_labels">Muokkaa kirjanmerkkiryhmiä</string>
@@ -210,7 +175,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="new_label">Uusi ryhmä</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
-  <string name="rename">Nimeä</string>
   <string name="style">Tyyli</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
@@ -219,10 +183,8 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <!--Dictionary-->
   <string name="dictionary">Sanakirja</string>
   <string name="search_dictionary_hint">Etsi sanakirjasta</string>
-  <string name="dictionary_contents">Sisältö</string>
   <!--General Book-->
   <string name="general_book">Kirja</string>
-  <string name="general_book_contents">Sisällys</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -268,7 +230,6 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="conf_change_title">Otsikot</string>
   <string name="conf_speak_footnotes">Alaviitteet</string>
   <string name="conf_speak_sleep_timer">Aseta uniajastin</string>
-  <string name="conf_speak_multitranslation">Puhu kaikista näkyvissä olevista ikkunoista</string>
   <string name="sleep_timer_title">Uniajastimen ajastus minuuteissa</string>
   <string name="sleep_timer_set">Aseta uniajastin. Ajastin asetettu: %d minuuttia</string>
   <string name="sleep_timer_started">Uniajastus aloitettu, %d minuuttia</string>
@@ -330,9 +291,7 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="speak_fifth">Viides</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
-  <string name="mynote">Oma kommentti</string>
   <string name="mynote_add">Lisää oma kommentti</string>
-  <string name="mynote_view_edit">Oma kommentti</string>
   <string name="mynote_saved">Oma kommentti tallennettiin</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
@@ -359,16 +318,10 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="cancel">Peruuta</string>
   <string name="yes">Kyllä</string>
   <string name="no">Ei</string>
-  <string name="save">Tallenna</string>
   <string name="error">Virhe</string>
-  <string name="more">Lisää</string>
-  <string name="more_dotted">Lisää...</string>
-  <string name="retry">Yritä uudelleen</string>
   <string name="please_wait">Odota hetki...</string>
   <string name="all">Kaikki</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Uusi</string>
-  <string name="close">Sulje</string>
   <string name="edit">Muokkaa</string>
   <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
   <!--Errors-->
@@ -378,9 +331,7 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
   <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
   <string name="empty_list">Ei näytettävää</string>
-  <string name="add_widget">Lisää widgetti</string>
   <!--Notifications-->
-  <string name="download_documents">Dokumenttien lataaminen</string>
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
 </resources>

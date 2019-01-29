@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>דפדוף</b>\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך, או ע\"י גלגלת המכשיר.\nלחיצה כפולה תעביר למצב של מסך מלא.\n\n<b>תפריט</b>\nלחץ על כפתור התפריט לאפשרויות נוספות \nכדי להוריד טקסטים (תנ\"כים) נוספים הכנס לתפריט --&gt; ניהול --&gt; הורדת טקסטים\n\n<b>הקראה בקול</b>\nלחץ \"הקראה\" כדי להתחיל או להפסיק הקראה בקול\n\n<b>הערה אישית</b>\nניתן להוסיף הערות ע\"י \"הערה אישית\" בתפריט ההקשר של הפסוק. לרשימת ההערות האישיות ניתן לגשת דרך התפריט הראשי\n\n<b>סימניות</b>\nניתן להוסיף סימניות מתפריט ההקשר. לניהול הסימניות ניתן להגיע באמצעות התפריט. ניתן גם להוסיף תוויות לסימניות.\n\n<b>חיפוש</b>\nבחיפוש ניתן להשתמש בתווים מיוחדים כמו *, ?, AND, OR, NOT (חפש \"Apache Lucene - Query Parser Syntax\" לפרטים נוספים)\n\n<b>תפריטי הקשר</b>\nלחיצה ארוכה על פסוק, תפתח תפריט ובו אפשרויות נוספות לגבי הפסוק.\nלחיצה ארוכה על טקסט תציג אפשרות למידע או למחיקתו.\nלחיצה ארוכה על לחצן ה\"חזור\" במכשיר תפתח את רשימת ההיסטוריה\n</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3</string>
   <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך</string>
@@ -16,7 +14,6 @@
   <string name="history">היסטוריה</string>
   <string name="speak">הקראה</string>
   <string name="help">עזרה</string>
-  <string name="verse">פסוק</string>
   <string name="administration">ניהול</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">בחר ספר</string>
@@ -28,7 +25,6 @@
   <string name="search_index">אינדקס לחיפוש</string>
   <string name="index_creation_required">נדרש אינדקס כדי לחפש.\n\nניתן להוריד אינדקסים מהאינטרנט, או ליצור אותם במכשיר.\n\nהורדה תהיה מהירה יותר, ותכיל יותר אפשרויות.\n\nנדרש חיבור לאינטרנט כדי להוריד אינדקסים.\n</string>
   <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
-  <string name="index">אינדקס</string>
   <string name="index_download">הורדה</string>
   <string name="index_not_available_for_download">האינדקס אינו זמין להורדה</string>
   <string name="index_create">יצירה</string>
@@ -37,7 +33,6 @@
   <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
   <string name="no_tasks_running">אין משימות שפועלות כעת.</string>
   <!--Search-->
-  <string name="search_results">תוצאות חיפוש</string>
   <string name="search_words_group_prompt">חיפוש פסוקים</string>
   <string name="search_all_words">כל המילים</string>
   <string name="search_any_word">כל מילה</string>
@@ -52,25 +47,16 @@
   <string name="error_executing_search">שגיאה בשאילתת החיפוש</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">מספרי פסוקים</string>
-  <string name="prefs_show_verseno_summary">הצג מספרי פסוקים</string>
   <string name="prefs_verse_per_line_title">כל פסוק בשורה נפרדת</string>
-  <string name="prefs_verse_per_line_summary">כל פסוק יוצג בשורה נפרדת</string>
   <string name="prefs_show_bookmarks_title">הצג סימניות</string>
-  <string name="prefs_show_bookmarks_summary">הסר סימון כדי להסתיר את כל הסימניות</string>
   <string name="prefs_default_bookmark_style_title">עיצוב ברירת מחדל לסימניה</string>
   <string name="prefs_default_bookmark_style_summary">צבע הדגשה או אייקון</string>
   <string name="prefs_show_mynotes_title">הצג אייקון של הערות</string>
-  <string name="prefs_show_mynotes_summary">הצג אייקון בפסוקים עם הערה</string>
   <string name="prefs_show_notes_title">הערות</string>
-  <string name="prefs_show_notes_summary">הצג הערות שוליים ומראי מקום</string>
   <string name="prefs_show_strongs_title">הצג מספרי Strong</string>
-  <string name="prefs_show_strongs_summary">קישורים להגדרות ביוונית ועברית</string>
   <string name="prefs_show_morphology_title">סימנים מורפולוגיים</string>
-  <string name="prefs_show_morphology_summary">הצג את המילון המורפולוגי של רובינסון</string>
   <string name="prefs_section_title_title">כותרות משנה</string>
-  <string name="prefs_section_title_summary">הצג כותרות משנה שאינן קאנוניות</string>
   <string name="prefs_red_letter_title">צבע אדום</string>
-  <string name="prefs_red_letter_summary">הצג באדום את דברי ישוע</string>
   <string name="prefs_tilt_to_scroll_title">הטה כדי לגלול</string>
   <string name="prefs_tilt_to_scroll_summary">הטה את המכשיר כדי לגלול למעלה ולמטה</string>
   <string name="prefs_night_mode_title">מצב לילה</string>
@@ -85,15 +71,8 @@
   <string name="prefs_text_size_sample_text">טקסט לדוגמה</string>
   <string name="prefs_screen_keep_on_title">השאר את המסך דולק</string>
   <string name="prefs_screen_keep_on_summary">המנע מכיבוי המסך כשתוכנה פועלת</string>
-  <string name="x_minutes">%d דקות</string>
   <string name="prefs_interface_locale_title">שפת התוכנה</string>
   <string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
-  <string name="locale_change_warning">התוכנה תופעל מחדש כדי לשנות את השפה</string>
-  <string name="prefs_speak_speed_title">מהירות הקראה</string>
-  <string name="prefs_speak_speed_summary">הקראה מהירה או איטית יותר</string>
-  <string name="speak_speed_slow">לאט</string>
-  <string name="speak_speed_normal">רגיל</string>
-  <string name="speak_speed_fast">מהר</string>
   <string name="prefs_split_mode_vertical">אנכי</string>
   <string name="prefs_split_mode_horizontal">אופקי</string>
   <string name="prefs_split_mode_automatic">אוטומטי</string>
@@ -102,7 +81,6 @@
   <string name="prefs_request_sdcard_permission_title">קיימים מסמכים שהותקנו ידנית</string>
   <string name="prefs_request_sdcard_permission_summary">אפשר שימוש במסמכים שהותקנו ידנית בתיקיית jsword בכרטיס הזכרון</string>
   <!--Window-->
-  <string name="window">חלון</string>
   <string name="windowClose">סגור</string>
   <string name="windowMaximise">הגדל</string>
   <string name="windowMinimise">הקטן</string>
@@ -114,14 +92,11 @@
   <string name="previous">אחורה</string>
   <string name="next">קדימה</string>
   <!--Strongs-->
-  <string name="strongs">מילון Strong</string>
   <string name="strongs_not_installed">אנא הורד מילוני Strong לעברית ויוונית</string>
   <string name="all_greek_occurrences">מצא את כל המופעים</string>
   <string name="all_hebrew_occurrences">מצא את כל המופעים</string>
   <string name="no_indexed_bible_with_strongs_ref">עליך להוריד טקסט שמכיל מספרי Strong, וגם להוריד את קובץ האינדקס שלו, ממסך החיפוש</string>
   <string name="morph_robinson_not_installed">נא להוריד את המילון \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">הורדת טקסטים</string>
   <string name="download_confirmation">האם להוריד טקסט מהאינטרנט ?</string>
@@ -132,9 +107,6 @@
   <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
   <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
-  <string name="wait_for_bible">אנא המתן לסיום ההורדה. לאחר מכן תוחזר למסך הראשי.</string>
-  <string name="wait_for_bible_not_yet">אנא המתן. יש טקסט שהתקנתו עדיין לא הסתיימה.</string>
-  <string name="download_complete_no_bibles">אין טקסטים מותקנים. אנא לחץ על כפתור החזרה ונסה שנית.</string>
   <string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
   <string name="document_not_installed">אנא הורד \'%s\'</string>
   <!--Install zip file-->
@@ -152,12 +124,6 @@
   <string name="rdg_plan_set_start_jan1">התחל 1 בינואר</string>
   <string name="done">סיום</string>
   <string name="reset">איפוס</string>
-  <string name="rdg_plan_y1ntpspr">הברית החדשה, תהילים ומשלי במשך שנה</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">כל התנך בשנה - בסדר כרונולוגי</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">כל הכתובים במשך שנה - תנ\"ך ברית חדשה</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">כל הכתובים בשנה - תנך וברית חדשה</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">רק התנ\"ך במשך שנה (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">תוכנית לשנתיים - פעם אחת את כל התנ\"ך, ופעמיים את תהילים והברית החדשה.</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">מחיקה</string>
@@ -182,7 +148,6 @@
   <string name="delete_bookmark">מחיקת סימניה</string>
   <string name="bookmark_added">הסימניה נוספה</string>
   <string name="bookmark_date_updated">תאריך עדכון הסימניה</string>
-  <string name="bookmark_exists">הסימניה כבר קיימת</string>
   <string name="bookmark_deleted">הסימניה נמחקה</string>
   <string name="bookmark_labels">תוויות לסימניות</string>
   <string name="manage_labels">ניהול תגיות סימניות</string>
@@ -190,7 +155,6 @@
   <string name="new_label">תווית חדשה</string>
   <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
-  <string name="rename">שנה שם</string>
   <string name="style">עיצוב</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">סדר תאריכים</string>
@@ -199,10 +163,8 @@
   <!--Dictionary-->
   <string name="dictionary">מילון</string>
   <string name="search_dictionary_hint">חיפוש במילון</string>
-  <string name="dictionary_contents">תכנים</string>
   <!--General Book-->
   <string name="general_book">ספר</string>
-  <string name="general_book_contents">תכנים</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -238,9 +200,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">הערות אישיות</string>
-  <string name="mynote">הערה אישית</string>
   <string name="mynote_add">הוספת הערה אישית</string>
-  <string name="mynote_view_edit">הערה אישית</string>
   <string name="mynote_saved">ההערה נשמרה</string>
   <!--Backup and restore-->
   <string name="backup">גיבוי</string>
@@ -266,16 +226,10 @@
   <string name="cancel">ביטול</string>
   <string name="yes">כן</string>
   <string name="no">לא</string>
-  <string name="save">שמירה</string>
   <string name="error">שגיאה</string>
-  <string name="more">עוד</string>
-  <string name="more_dotted">עוד...</string>
-  <string name="retry">נסה שנית</string>
   <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">חדש</string>
-  <string name="close">סגור</string>
   <string name="edit">עריכה</string>
   <!--Errors-->
   <string name="report_error">שלח דוון</string>

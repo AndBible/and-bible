@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Piibel</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigeerimine</b>\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega\n \nTopeltvajutus lülitav sisse/välja täisekraani vaate.\n \n\n<b>Menüü</b>\n \nVajuta tegevuste jaoks MENÜÜ nuppu\n \n\nRohkemate dokumentide allalaadimiseks vajuta Menüü/Lae dokumente alla\n \n\n<b>Kõne</b>\nVajuta Loe ette, et näha lugemise alustamise või lõpetamise dialoogi\n \n\n<b>Minu märkmed</b>\nMärkmeid võib lisada läbi Minu märkmete menüü või salmi kontekstimenüüst. Olemasolevaid märkmetele saab ligi läbi peamenüü.\n \n\n<b>Järjehoidjad</b>\nJärjehoidjaid saab lisada läbi salmi kontekstimenüü. Järjehoidjate haldajale saab ligi läbi peamenüü. Järjehoidjate haldaja kontekstimenüü võimaldab järjehoidjaid grupeerida kasutades silte.\n \n\n<b>Otsi</b>\nOtsingus võivad olla ka erimärgid nagu *, ?, AND, OR, NOT (vaata lisainfot \"Apache Lucene - Query Parser Syntax\")\n \n\n<b>Kontektimenüüd</b>\n \nPikk vajutus Piibli vaates avab kontekstimenüü konkreetse salmiga seotud tegevustega.\n \nPikk vajutus dokumendil, et kustutada või vaadata selle infot.\n \nPikk vajutus tagasi nupul viib ajaloo nimekirja</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ja Jumal ütles: \'Saagu valgus\' ja valgus sai.\"\n1. Moosese 1:3</string>
   <string name="help_text">Vajuta tegevuste jaoks MENÜÜ nuppu\n\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega</string>
@@ -16,7 +14,6 @@
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
-  <string name="verse">Salm</string>
   <string name="administration">Haldamine</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vali raamat</string>
@@ -28,7 +25,6 @@
   <string name="search_index">Otsinguindeks</string>
   <string name="index_creation_required">Otsimiseks on vajalik indeks.\n\nIndekseid võib alla laadida internetist või luua otse seadmes.\n\nAllalaadimine on palju kiirem ja allalaetud indeksitel on palju rohkem funktsioone.\n\nIndeksite allalaadimiseks on vajalik internetiühendus.\n</string>
   <string name="indexing_wait_msg">Kui indekseerimine lõpetatakse, siis viiakse sind tagasi avaekraanile.</string>
-  <string name="index">Indeks</string>
   <string name="index_download">Lae alla</string>
   <string name="index_not_available_for_download">See indeks pole allalaadimiseks saadaval</string>
   <string name="index_create">Loo</string>
@@ -37,7 +33,6 @@
   <string name="task_kill_warning">Need kaua töötavad toimingud võivad katkeda, kui sa lülitud enne nende lõpetamist mõnele teisele rakendusele.</string>
   <string name="no_tasks_running">Ühtegi ülesannet pole momendil täitmisel.</string>
   <!--Search-->
-  <string name="search_results">Otsingu tulemused</string>
   <string name="search_words_group_prompt">Leia salmid</string>
   <string name="search_all_words">Kõik sõnad</string>
   <string name="search_any_word">Mõni sõnadest</string>
@@ -52,25 +47,16 @@
   <string name="error_executing_search">Vigane otsingupäring</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Salminumbrid</string>
-  <string name="prefs_show_verseno_summary">Näita salminumbreid</string>
   <string name="prefs_verse_per_line_title">Üks salm rea kohta</string>
-  <string name="prefs_verse_per_line_summary">Näita igat salmi eraldi real</string>
   <string name="prefs_show_bookmarks_title">Näita järjehoidjaid</string>
-  <string name="prefs_show_bookmarks_summary">Võta linnuke ära, et kõik järjehoidjad peita</string>
   <string name="prefs_default_bookmark_style_title">Vaikimisi järjehoidjate stiil</string>
   <string name="prefs_default_bookmark_style_summary">Esiletõstmise värv või ikoon</string>
   <string name="prefs_show_mynotes_title">Näita minu märkmete ikooni</string>
-  <string name="prefs_show_mynotes_summary">Näita ikoone salmides, mille juures on märkmed</string>
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>
-  <string name="prefs_show_notes_summary">Näita allmärkusi ja ristviiteid</string>
   <string name="prefs_show_strongs_title">Näita Strongi numbreid</string>
-  <string name="prefs_show_strongs_summary">Lingid Kreeka ja Heebrea definitsioonidele</string>
   <string name="prefs_show_morphology_title">Morfoloogilised koodid</string>
-  <string name="prefs_show_morphology_summary">Näita Robinsoni kreeka morfoloogiat</string>
   <string name="prefs_section_title_title">Sektsiooni pealkirjad</string>
-  <string name="prefs_section_title_summary">Näita mittekanoonilisi sektsioonide pealkirju</string>
   <string name="prefs_red_letter_title">Punased tähed</string>
-  <string name="prefs_red_letter_summary">Näita Jeeuse sõnu punast värvi tekstiga</string>
   <string name="prefs_tilt_to_scroll_title">Kerimiseke kalluta</string>
   <string name="prefs_tilt_to_scroll_summary">Lehe alla kerimiseks kalluta seadet</string>
   <string name="prefs_night_mode_title">Öörežiim</string>
@@ -85,15 +71,8 @@
   <string name="prefs_text_size_sample_text">Näidistekst</string>
   <string name="prefs_screen_keep_on_title">Hoia ekraan sees</string>
   <string name="prefs_screen_keep_on_summary">Väldi ekraani kinni minemist selle rakenduse kasutamise ajal</string>
-  <string name="x_minutes">%d minutit</string>
   <string name="prefs_interface_locale_title">Rakenduse keel</string>
   <string name="prefs_interface_locale_summary">Vali rakenduse keel</string>
-  <string name="locale_change_warning">Rakendus käivitatakse, et näidata uut kasutajaliidese keelt</string>
-  <string name="prefs_speak_speed_title">Rääkimise kiirus</string>
-  <string name="prefs_speak_speed_summary">Räägi aeglasemalt või kiiremini</string>
-  <string name="speak_speed_slow">Aeglane</string>
-  <string name="speak_speed_normal">Tavaline</string>
-  <string name="speak_speed_fast">Kiire</string>
   <string name="prefs_split_mode_vertical">Vertikaalne</string>
   <string name="prefs_split_mode_horizontal">Horisontaalne</string>
   <string name="prefs_split_mode_automatic">Automaatne</string>
@@ -102,7 +81,6 @@
   <string name="prefs_request_sdcard_permission_title">Käsitsi paigaldatud dokumendid on olemas</string>
   <string name="prefs_request_sdcard_permission_summary">Luba mälukaardilt käsitsi paigaldatud jsword dokumentide kasutamist</string>
   <!--Window-->
-  <string name="window">Aken</string>
   <string name="windowClose">Sulge</string>
   <string name="windowMaximise">Maksimeeri</string>
   <string name="windowMinimise">Minimeeri</string>
@@ -114,14 +92,11 @@
   <string name="previous">Eelmine</string>
   <string name="next">Järgmine</string>
   <!--Strongs-->
-  <string name="strongs">Strongi Sõnaraamat</string>
   <string name="strongs_not_installed">Palun lae alla Strongi heebrea ja kreeka sõnaraamat</string>
   <string name="all_greek_occurrences">Leia kõik esinemised</string>
   <string name="all_hebrew_occurrences">Leia kõik esinemised</string>
   <string name="no_indexed_bible_with_strongs_ref">Sa pead laadima alla Piibli, milles on Strongi numbrid ja laadima otsingu kaudu selle indeksi</string>
   <string name="morph_robinson_not_installed">Palun lae alla sõnaraamat \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Lae dokumente alla</string>
   <string name="download_confirmation">Laadida Piibel alla internetist?</string>
@@ -132,9 +107,6 @@
   <string name="error_downloading">Allalaadimisel tekkis tõrge.  Palun kontrolli oma internetiühendust.</string>
   <string name="no_internet_connection">Internetti ühendumine ebaõnnestus</string>
   <string name="storage_space_warning">Pole piisavalt ruumi.</string>
-  <string name="wait_for_bible">Palun oota, kuni Piibli allalaadimine lõpetatakse. Sind viiakse seejärel avaekraanile.\n\nSa saad hiljem rohkem dokumente alla laadida valides menüüst Haldamine &gt; Lae dokumente alla.</string>
-  <string name="wait_for_bible_not_yet">Palun oota.  Piibli paigaldamine pole veel lõpetatud.</string>
-  <string name="download_complete_no_bibles">Ühtegi Piiblit ei paigaldatud.  Palun vajuta Tagasi ja proovi uuesti.</string>
   <string name="too_many_jobs">Käimas on liiga palju ülesandeid.  Palun oota kuni mõned lõpetatakse ja proovi uuesti.</string>
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
   <!--Install zip file-->
@@ -152,12 +124,6 @@
   <string name="rdg_plan_set_start_jan1">Alusta 1. jaanuariga</string>
   <string name="done">Valmis</string>
   <string name="reset">Nulli</string>
-  <string name="rdg_plan_y1ntpspr">Uus testament, Laulud ja Õpetussõnad aastaga</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Terve Piibel kronoloogiliselt aastaga</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Terve Piibel aastaga - VT ja UT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Terve Piibel aastaga - VT ja siis UT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Aastaga Piibel läbi (M\'Cheyene)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 aastane kava - VT üks kord, UT ja laulud kaks korda läbi</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Kustuta</string>
@@ -182,7 +148,6 @@
   <string name="delete_bookmark">Kustuta järjehoidja</string>
   <string name="bookmark_added">Järjehoidja on lisatud</string>
   <string name="bookmark_date_updated">Järjehoidja kuupäeva on uuendatud</string>
-  <string name="bookmark_exists">Järjehoidja on juba olemas</string>
   <string name="bookmark_deleted">Järjehoidja on kustutatud</string>
   <string name="bookmark_labels">Järjehoidja sildid</string>
   <string name="manage_labels">Järjehoidjate siltide haldamine</string>
@@ -190,7 +155,6 @@
   <string name="new_label">Uus silt</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Sildistamata</string>
-  <string name="rename">Nimeta ümber</string>
   <string name="style">Stiil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kuupäeva järgi</string>
@@ -199,10 +163,8 @@
   <!--Dictionary-->
   <string name="dictionary">Sõnaraamat</string>
   <string name="search_dictionary_hint">Otsi sõnaraamatust</string>
-  <string name="dictionary_contents">Sisu</string>
   <!--General Book-->
   <string name="general_book">Raamat</string>
-  <string name="general_book_contents">Sisu</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -305,9 +267,7 @@
   <string name="speak_fifth">Viies</string>
   <!--User Notes-->
   <string name="mynotes">Minu märkmed</string>
-  <string name="mynote">Minu nimi</string>
   <string name="mynote_add">Lisa minu märge</string>
-  <string name="mynote_view_edit">Minu märge</string>
   <string name="mynote_saved">Minu märge on salvestatud</string>
   <!--Backup and restore-->
   <string name="backup">Varukoopia</string>
@@ -333,16 +293,10 @@
   <string name="cancel">Loobu</string>
   <string name="yes">Jah</string>
   <string name="no">Ei</string>
-  <string name="save">Salvesta</string>
   <string name="error">Viga </string>
-  <string name="more">Veel</string>
-  <string name="more_dotted">Veel...</string>
-  <string name="retry">Proovi uuesti</string>
   <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Uus</string>
-  <string name="close">Sulge</string>
   <string name="edit">Muuda</string>
   <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
   <!--Errors-->
@@ -352,9 +306,7 @@
   <string name="error_page_too_large">Lehekülg on laadimiseks liiga suur</string>
   <string name="error_key_not_in_document">Dokumendist ei leitud</string>
   <string name="empty_list">Pole ühtegi kirjet, mida näidata</string>
-  <string name="add_widget">Lisa vidin</string>
   <!--Notifications-->
-  <string name="download_documents">Dokumentide allalaadimine</string>
   <string name="notification_channel_tts_status">Tekst kõneks</string>
   <string name="notification_channel_progress_status">Edenemise teavitus näiteks dokumentide allalaadimisel jms.</string>
 </resources>

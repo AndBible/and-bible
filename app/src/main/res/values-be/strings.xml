@@ -1,20 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Навігацыя</b>\nПераход да наступнага ці папярэдняга раздзелу з дапамогаю трэкбола, D-пэда ці рухаў пальцамі па экране.
-\nПадвойны тап уключае/выключае Поўнаэкранны рэжым.
-\n\n<b>Меню</b>
-Націсьніце кнопку МЕНЮ для дзеянняў
-\n\nДля сцягвання больш дакумэнтаў націсніце МЕНЮ/Адміністраваньне/Сцягнуць дакумэнты.
-\n\n<b>Маўленьне</b>\nНацісьніце Гаварыць каб пачаць ці спыніць чытаньне
-\n\n<b>Нататкі</b>\nНататкі могуць быць дададзеныя праз пункт меню Нататкі у кантэкстным меню верша. Спіс існуючых нататак можа быць даступны праз галоўнае меню.
-\n\n<b>Закладкі</b>\nЗакладкі могуць быць дададзеныя праз пункт меню Закладкі у кантэкстным меню верша. Мэнэджар закладак даступны праз галоўнае меню. Мэнэджар закладак кантэкстнага меню дазваляе групаваць закладкі з дапамогаю пазнакаў.
-\n\n<b>Пошук</b>\nПошук тэксту можа ўключаць спецыяльныя пазнакі, такія як *, ?, AND, OR, NOT (падрабязьней глядзіце ў \"Apache Lucene - Query Parser Syntax\")
-\n\n<b>Кантэкстнае меню</b>
-\nПрацягла націсьніце ў рэжыме чытаньня Бібліі, каб адкрыць кантэкстнае меню для дзеяньняў з бягучым вершам.
-\nПрацягла націсьніце на дакумант ў рэжыме выбару дакумантаў, каб выдаліць ці пабачыць інфармацыю.
-\nПрацягла націсьніце кнопку Назад, каб адкрыць гісторыю прагляду.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"І сказаў Бог: хай будзе сьвятло. І сталася сьвятло.\"\nБыцьцё 1:3</string>
@@ -29,7 +15,6 @@
   <string name="history">Гісторыя</string>
   <string name="speak">Агучыць</string>
   <string name="help">Дапамога</string>
-  <string name="verse">Верш</string>
   <string name="administration">Адміністраваньне</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выберыце кнігу</string>
@@ -41,7 +26,6 @@
   <string name="search_index">Указальнік пошуку</string>
   <string name="index_creation_required">Указальнік патрабуецца для пошуку.\n\nУказальнікі могуць быць сьцягнутыя з інтэрнэту ці створаныя лякальна.\n\nСьцягваньне ёсьць найхутчэйшым спосабам, а так сама, сьцягнутыя ўказальнікі маюць больш перавагаў для пошуку.\n\nДля сьцягваньня ўказальнікаў патрабуецца інтэрнэт злучэньне.\n</string>
   <string name="indexing_wait_msg">Калі стварэньне ўказальнікаў будзе завершана вы патрапіце на экран пошуку.</string>
-  <string name="index">Указальнік</string>
   <string name="index_download">Спампаваць</string>
   <string name="index_not_available_for_download">Гэты указальнік не даступны для сьцягваньня.</string>
   <string name="index_create">Стварыць</string>
@@ -50,7 +34,6 @@
   <string name="task_kill_warning">Задачы запушчаныя працяглы час могуць спыніцца незавершанымі, калі вы пераключыцеся на іншыя прыкладаньні.</string>
   <string name="no_tasks_running">Няма задач якія зараз выконваюцца.</string>
   <!--Search-->
-  <string name="search_results">Знайсьці вынікі</string>
   <string name="search_words_group_prompt">Знайсьці вершы</string>
   <string name="search_all_words">усе словы</string>
   <string name="search_any_word">любое слова</string>
@@ -65,25 +48,16 @@
   <string name="error_executing_search">Няправільны пошукавы запыт</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Нумар верша</string>
-  <string name="prefs_show_verseno_summary">Паказаць нумар верша</string>
   <string name="prefs_verse_per_line_title">Адзін верш на радок</string>
-  <string name="prefs_verse_per_line_summary">Паказваць кожны верш на новым радку. </string>
   <string name="prefs_show_bookmarks_title">Паказаць закладкі</string>
-  <string name="prefs_show_bookmarks_summary">Прыбраць гачак каб схаваць усе закладкі</string>
   <string name="prefs_default_bookmark_style_title">Стыль закладак па замоўчваньню</string>
   <string name="prefs_default_bookmark_style_summary">Вылучыце колер або значок</string>
   <string name="prefs_show_mynotes_title">Паказаць значкі \"Мае нататкі\"</string>
-  <string name="prefs_show_mynotes_summary">Паказваць значкі ў вершах пазначаных \"Мае нататкі\"</string>
   <string name="prefs_show_notes_title">Зноскі і спасылкі</string>
-  <string name="prefs_show_notes_summary">Паказваць зноскі і перакрыжаваныя спасылкі</string>
   <string name="prefs_show_strongs_title">Паказаць лікі Стронга</string>
-  <string name="prefs_show_strongs_summary">Спасылкі на грэцкія і габрэйскія азначэньні</string>
   <string name="prefs_show_morphology_title">Марфалягічныя коды</string>
-  <string name="prefs_show_morphology_summary">Паказаць Грэцкую марфалёгію Робінсона</string>
   <string name="prefs_section_title_title">Назвы разьдзелаў</string>
-  <string name="prefs_section_title_summary">Паказаць некананічныя разьдзелы</string>
   <string name="prefs_red_letter_title">Чырвоная літара</string>
-  <string name="prefs_red_letter_summary">Паказваць словы Хрыста чырвоным</string>
   <string name="prefs_tilt_to_scroll_title">Нахіліце для пракруткі</string>
   <string name="prefs_tilt_to_scroll_summary">Нахіліць прыладу для пракруткі старонкі ўніз</string>
   <string name="prefs_night_mode_title">Начны рэжым</string>
@@ -96,12 +70,9 @@
   <string name="prefs_text_size_title">Памер тэксту</string>
   <string name="prefs_text_size_summary">Бачыць больш ці бачыць выразна</string>
   <string name="prefs_text_size_sample_text">Прыклад тэксту</string>
-  <string name="x_minutes">%d хвілінаў</string>
   <string name="prefs_interface_locale_title">Мова прыкладаньня</string>
   <string name="prefs_interface_locale_summary">Выбраць мову інтэрфэйса</string>
-  <string name="locale_change_warning">Прыкладаньне будзе перазапушчана каб уключыць новую мову інтэрфэйса.</string>
   <!--Window-->
-  <string name="window">Вакно</string>
   <string name="windowClose">Зачыніць</string>
   <string name="windowMaximise">Павялічыць</string>
   <string name="windowMinimise">Зьменьшыць</string>
@@ -113,14 +84,11 @@
   <string name="previous">Папярэдні</string>
   <string name="next">Наступны</string>
   <!--Strongs-->
-  <string name="strongs">Слоўнік Стронга</string>
   <string name="strongs_not_installed">Калі ласка, сьцягніце габрэйскі і грэцкі слоўнікі Стронга</string>
   <string name="all_greek_occurrences">Знайсьці ўсе ўваходжаньні</string>
   <string name="all_hebrew_occurrences">Знайсьці ўсе ўваходжаньні</string>
   <string name="no_indexed_bible_with_strongs_ref">Вы мусіце сьцягнуць Біблію з лікамі Стронга і сьцягнуць яе ўказальнік праз пошук</string>
   <string name="morph_robinson_not_installed">Калі ласка сьцягніце слоўнік \"Марфалягічны аналіз кодаў Робінсана\"</string>
-  <string name="strongs_toggle_button_on">Лікі Ст.</string>
-  <string name="strongs_toggle_button_off">Лікі Ст.</string>
   <!--Module download-->
   <string name="download">Сьцягнуць дакумэнты</string>
   <string name="download_confirmation">Сьцягнуць Біблію з інтэрнэту?</string>
@@ -131,9 +99,6 @@
   <string name="error_downloading">Памылка сьцягваньня. Калі ласка праверце інтэрнэт злучэньне.</string>
   <string name="no_internet_connection">Ня ўдалося далучыцца да інтэрнэту</string>
   <string name="storage_space_warning">Не дастаткова прасторы для захаваньня.</string>
-  <string name="wait_for_bible">Калі ласка чакайце да завяршэньня запамоўкі Бібліі. Потым вы будзеце пераключаны на галоўны экран.\n\nСьцягніце больш дакумэнтаў пазьней праз кнопку Мэню/Адміністраваньне/Сьцягваньне дакумэнтаў.</string>
-  <string name="wait_for_bible_not_yet">Калі ласка чакайце. Яшчэ не завяршылася ўсталёўка Бібліі.</string>
-  <string name="download_complete_no_bibles">Біблія не была ўсталявана. Калі ласка націсьніце Назад і паспрабуйце зноў.</string>
   <string name="too_many_jobs">Вельмі шмат задачаў выконваецца. Калі ласка пачакайце пакул некаторыя завершацца, а потым паўтарыце спробу.</string>
   <string name="document_not_installed">Калі ласка сьцягніце \'%s\'</string>
   <!--Install zip file-->
@@ -150,12 +115,6 @@
   <string name="rdg_plan_set_start_jan1">Пачатак Ян 1</string>
   <string name="done">Скончыць</string>
   <string name="reset">Скінуць</string>
-  <string name="rdg_plan_y1ntpspr">Новы Запавет, Псальмы і Прыповесьці за год.</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Біблія храналягічна за год</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Біблія за год - Стары і Новы Запавет</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Біблія за год - Стары, а потым Новы Запавет</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Біблія за год (М\'Чэйн)</string>
-  <string name="rdg_plan_y2ot1ntps2">Плян на 2 гады - Стары Запавет адзін раз, Новы Запавет і Псальмы - двойчы.</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Выдаліць</string>
@@ -175,7 +134,6 @@
   <string name="add_bookmark">Дадаць закладку</string>
   <string name="delete_bookmark">Выдаліць закладку</string>
   <string name="bookmark_added">Закладка даданыя</string>
-  <string name="bookmark_exists">Закладка ўжо існуе</string>
   <string name="bookmark_deleted">Закладка выдалена</string>
   <string name="bookmark_labels">Закладка пазнакаў</string>
   <string name="manage_labels">Кіраваць закладкай пазнакаў</string>
@@ -183,7 +141,6 @@
   <string name="new_label">Новая пазнака</string>
   <string name="label_name_prompt">Імя</string>
   <string name="label_unlabelled">Непазначаны</string>
-  <string name="rename">Перайменаваць</string>
   <string name="style">Стыль</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Па даце</string>
@@ -192,10 +149,8 @@
   <!--Dictionary-->
   <string name="dictionary">Слоўнік</string>
   <string name="search_dictionary_hint">Шукаць слоўнік</string>
-  <string name="dictionary_contents">Зьмест</string>
   <!--General Book-->
   <string name="general_book">Кніга</string>
-  <string name="general_book_contents">Зьмест</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -231,9 +186,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Нататкі</string>
-  <string name="mynote">Нататка</string>
   <string name="mynote_add">Дадаць нататку</string>
-  <string name="mynote_view_edit">Нататка</string>
   <string name="mynote_saved">Нататка захавана</string>
   <!--Backup and restore-->
   <string name="backup">Рэзерваваньне</string>
@@ -258,16 +211,10 @@
   <string name="cancel">Адмена</string>
   <string name="yes">Так</string>
   <string name="no">Не</string>
-  <string name="save">Захаваць</string>
   <string name="error">Памылка</string>
-  <string name="more">Больш</string>
-  <string name="more_dotted">Больш...</string>
-  <string name="retry">Паспрабаваць яшчэ</string>
   <string name="please_wait">Калі ласка чакайце...</string>
   <string name="all">Усё</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Новы</string>
-  <string name="close">Зачыніць</string>
   <string name="edit">Рэдагаваць</string>
   <!--Errors-->
   <string name="report_error">Даслаць справаздачу</string>

@@ -1,21 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Kuabiri</b>\nHamia kwenye mlango ufuatao ama utanguliao kwa kubebesha kidole chako kwenye skrini
-    \nBonyeza mara mbili kuwasha na kuzima skrini nzima.
-    \n\n<b>Menyu</b>
-    \nBonyeza menyu kwa vitendo
-    \n\nKwa ajili ya kupakua maandiko na makala, bonyeza menyu/usimamizi/pakua makala
-    \n\n<b>Kusomewa</b>\nBonyeza \"Somewa\" kuanzisha ama kukomesha kitendo cha kusomewa andiko kwa sauti
-    \n\n<b>Mawazo yangu</b>\nUnaweza kuandika mawazo yato kwa menyu \"mawazo yangu\" kwenye menyu muktadha ya mstari uliopo. Orodha ya mawazo yako yote yanafikika kupitia menyu kuu
-    \n\n<b>Alamisho</b>\nUnaweza kuongeza alamisho kupitia menyu muktadha. Alamisho zilizohifadhiwa zinafikika kupitia menyu kuu. Inawezekana kupanga alamisho kwenye makundi ndani ya orodha ya alamisho.
-    \n\n<b>Kutafuta</b>\nUnaweza kutafuta kupanua utafutaji kwa kutumia herufi maalumu kama *, ?, AND, OR, NOT (angalia \"Apache Lucene - Query Parser Syntax\" kwa maelezo zaidi)
-    \n\n<b>Menyu muktadha</b>
-    \nBonyeza kwa muda kufungua menyu muktada kwa vitendo vinavyohusu mstari uliopo.
-    \nBonyeza kwa muda kwenye makala ndani ya orodha ya makala ili kuifuta ama kuangalia taarifa zake.
-    \nBonyeza kwa muda kitufe cha kurudi nyuma kwa ajili ya kufikia orodha ya historia uvinjari.
-    </string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Mungu akasema, Iwe nuru; ikawa nuru.\"\nMwanzo 1:3</string>
   <string name="help_text">Bonyeza menyu kwa vitendo\n\nHamia kwenye mlango ufuatao ama utanguliao kwa kubebesha kidole chako kwenye skrini</string>
@@ -29,7 +14,6 @@
   <string name="history">Historia uvinjari</string>
   <string name="speak">Kusomea</string>
   <string name="help">Msaada</string>
-  <string name="verse">Mstari</string>
   <string name="administration">Usimamizi</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Chagua kitabu</string>
@@ -42,7 +26,6 @@
   <string name="index_creation_required">Ni lazima kuwa na orodha ya matokeo ya maneno kwa ajilii kutafuta.\n\nOrodha zinapatikana kwenye utandawazi ama zinatengenezeka ndani ya app hii.\n\nKupakua kutoka kwenye utandawazi unaenda haraka zaidi na orodha hizo zina nguvu nyingi zaidi.\n\nKwa ajili ya kupakua ni lazima kuunganishwa na utandawazi.
 </string>
   <string name="indexing_wait_msg">Baada ya kuweka kupakua/kutengeneza orodah, utapelekwa kwenye skrini ya utafutaji.</string>
-  <string name="index">Orodha ya maneno</string>
   <string name="index_download">Upakuaji</string>
   <string name="index_not_available_for_download">Hakuna orodha ya maneno kwa makala hii</string>
   <string name="index_create">Kubuni</string>
@@ -51,7 +34,6 @@
   <string name="task_kill_warning">Vitendo hivi vinachukua muda. Ukihamia kwenye programu nyingine kabla havijamalizika vinaweza kukomeshwa.</string>
   <string name="no_tasks_running">Hakuna kazi inayofanyika kwa sasa.</string>
   <!--Search-->
-  <string name="search_results">Tafuta matokeo</string>
   <string name="search_words_group_prompt">Tafuta mistari</string>
   <string name="search_all_words">Maneno yote</string>
   <string name="search_any_word">Neno lolote</string>
@@ -66,25 +48,16 @@
   <string name="error_executing_search">Haiwezekani kutafuta unavyotaka</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Namba ya mstari</string>
-  <string name="prefs_show_verseno_summary">Onyesha namba za mistari</string>
   <string name="prefs_verse_per_line_title">Onyesha kila mstari peke yake</string>
-  <string name="prefs_verse_per_line_summary">Onyesha kila mstari kwenye laini yake</string>
   <string name="prefs_show_bookmarks_title">Onyesha alamisho</string>
-  <string name="prefs_show_bookmarks_summary">ondoa tiki kuficha alamisho zote</string>
   <string name="prefs_default_bookmark_style_title">Mfumo wa kawaida wa alamaisho</string>
   <string name="prefs_default_bookmark_style_summary">Rangi na alama</string>
   <string name="prefs_show_mynotes_title">Onyesha alama za mawazo yangu</string>
-  <string name="prefs_show_mynotes_summary">Onyesha alama kwenye mistari iliyo na mawazo yangu</string>
   <string name="prefs_show_notes_title">Tiniwayo na marejeo</string>
-  <string name="prefs_show_notes_summary">Onyesha tiniwaya na marejeo</string>
   <string name="prefs_show_strongs_title">Onyesha namba za kamusi ya Strong</string>
-  <string name="prefs_show_strongs_summary">virejeo kwenda kwenye kamusi za Kigiriki na Kiebrania</string>
   <string name="prefs_show_morphology_title">Vifupisho vya miundo ya maneno</string>
-  <string name="prefs_show_morphology_summary">Onyesha maelezo ya miundo ya maneno ya Kigiriki ya bw. Robinson</string>
   <string name="prefs_section_title_title">Vichwa vya vifungo</string>
-  <string name="prefs_section_title_summary">Onyesha vichwa vya vifungo ingawa siyo kwenye maandiko asilia</string>
   <string name="prefs_red_letter_title">herufi nyekundu</string>
-  <string name="prefs_red_letter_summary">Bainisha maneno ya Bwana Yesu kwa herufi nyekundu</string>
   <string name="prefs_tilt_to_scroll_title">Inamisha simu kubiringiza skrini</string>
   <string name="prefs_tilt_to_scroll_summary">Inamisha simu kwa ajili ya kuruka chini kwenye makala</string>
   <string name="prefs_night_mode_title">Hali-tumizi ya usiku</string>
@@ -99,15 +72,8 @@
   <string name="prefs_text_size_sample_text">Herufi za mfano</string>
   <string name="prefs_screen_keep_on_title">Usizimishe skrini</string>
   <string name="prefs_screen_keep_on_summary">Skrini isizimike wakati wa kutumia programu hii.</string>
-  <string name="x_minutes">dakika%d</string>
   <string name="prefs_interface_locale_title">Lugha ya programu hii kuonekana</string>
   <string name="prefs_interface_locale_summary">Chagua programu hii iendeshwe kwenye lugha nyingine</string>
-  <string name="locale_change_warning">Programu itazimwa na kuwashwa kwa upya katika lugha nyingine</string>
-  <string name="prefs_speak_speed_title">Mwendo wa kusomewa</string>
-  <string name="prefs_speak_speed_summary">Sauti iende kasi ama polepole</string>
-  <string name="speak_speed_slow">Polepole</string>
-  <string name="speak_speed_normal">kawaida</string>
-  <string name="speak_speed_fast">haraka</string>
   <string name="prefs_split_mode_vertical">Wima</string>
   <string name="prefs_split_mode_horizontal">Sambamba</string>
   <string name="prefs_split_mode_automatic">Otomatiki</string>
@@ -116,7 +82,6 @@
   <string name="prefs_request_sdcard_permission_title">Kuna makala zilizowekwa kwenye simu yako nje ya programu hii</string>
   <string name="prefs_request_sdcard_permission_summary">Wezesha programu kutumia makala zilizowekwa kwenye folda ya jsword kwenye SD-Kadi</string>
   <!--Window-->
-  <string name="window">Dirisha</string>
   <string name="windowClose">Funga</string>
   <string name="windowMaximise">Tanua</string>
   <string name="windowMinimise">Hafifisha</string>
@@ -128,14 +93,11 @@
   <string name="previous">Utanguliao</string>
   <string name="next">ufuatao</string>
   <!--Strongs-->
-  <string name="strongs">Kamusi ya bw. Strong</string>
   <string name="strongs_not_installed">Tafadhali upakue kamusi za Kigiriki na Kiebrania</string>
   <string name="all_greek_occurrences">Tafuta matokeo yote</string>
   <string name="all_hebrew_occurrences">Tafuta matokeo yote</string>
   <string name="no_indexed_bible_with_strongs_ref">Unahitaji kupakua Biblia yenye namba za kamusi ya bw. Strong na pia kupakua orodha ya maneno yake.</string>
   <string name="morph_robinson_not_installed">Tafadhali pakua kamusi ya \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Pakua makala</string>
   <string name="download_confirmation">Je, tupakue Biblia kutoka mtandaoni</string>
@@ -146,9 +108,6 @@
   <string name="error_downloading">Kupakua kumeshindikana. Tafadhali angalia kama mtandao upo.</string>
   <string name="no_internet_connection">Imeshindikana kujiunganisha na mtandao</string>
   <string name="storage_space_warning">nafasi ya kwenye simu haitoshi.</string>
-  <string name="wait_for_bible">Tafadhali subiri mpaka Biblia imepakuliwa, halafu utapelekwa kwenye skrini kuu.\n\Pakua makala nyingine baadaye kwa kubonyeza Menyu/Usimamizi/Upakuaji.</string>
-  <string name="wait_for_bible_not_yet">Tafadhali usubiri. Tafsiri haijamalizika kuingizwa.</string>
-  <string name="download_complete_no_bibles">Hakuna tafsiri ya Biblia iliyowekwa. Tafadhali bonyeza Nyuma na jaribu tena.</string>
   <string name="too_many_jobs">Kuna kazi nyingi mno. Tafadhali subiri mpaka baadhi zimemalizika halafu ukajaribu tena.</string>
   <string name="document_not_installed">Tafadhali pakua \'%s\'</string>
   <!--Install zip file-->
@@ -166,12 +125,6 @@
   <string name="rdg_plan_set_start_jan1">Anza Siku ya 1 mwezi wa 1</string>
   <string name="done">Tayari</string>
   <string name="reset">Tuweke upya</string>
-  <string name="rdg_plan_y1ntpspr">Agano jipya, Zaburi na mithali kati ya mwaka mmoja</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Soma Biblia yote kufuatana na matokeo katika mwaka mmoja</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Soma Biblia nzima katika mwaka mmoja kwa kupokezanisha Agano la kale na Agano jipya</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Soma Biblia nzima katika mwaka mmoja - Agano la kale kwanza, halafu Agano jipya</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Soma Biblia nzima ndani ya mwaka (kufuatana mpangilio wa bw. M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">Mpangilio wa miaka miwili - Agano la kala mara moja, Agano jipya na zaburi mara mbili</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Futa</string>
@@ -196,7 +149,6 @@
   <string name="delete_bookmark">Futa kumbukumbu</string>
   <string name="bookmark_added">Kumbukumbu imeongezwa</string>
   <string name="bookmark_date_updated">Tarehe ya kumbukumbu imewekwa upya</string>
-  <string name="bookmark_exists">Kumbukumbu hii ipo tayari</string>
   <string name="bookmark_deleted">Kumbukumbu imefutwa</string>
   <string name="bookmark_labels">Vikundi vya kumbukumbu</string>
   <string name="manage_labels">Simamia vikundi vya kumbukumbu</string>
@@ -204,7 +156,6 @@
   <string name="new_label">kikundi kipya</string>
   <string name="label_name_prompt">jina</string>
   <string name="label_unlabelled">bila kikundi</string>
-  <string name="rename">weka jina lingine</string>
   <string name="style">mfumo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">fuatana na tarehe</string>
@@ -213,10 +164,8 @@
   <!--Dictionary-->
   <string name="dictionary">kamusi</string>
   <string name="search_dictionary_hint">Tafuta katika kamusi</string>
-  <string name="dictionary_contents">Yaliyomo</string>
   <!--General Book-->
   <string name="general_book">kitabu</string>
-  <string name="general_book_contents">Yaliyomo</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -252,9 +201,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Mawazo yangu</string>
-  <string name="mynote">Wazo langu</string>
   <string name="mynote_add">Ongeza wazo</string>
-  <string name="mynote_view_edit">Wazo langu</string>
   <string name="mynote_saved">Wazo limehifadhiwa</string>
   <!--Backup and restore-->
   <string name="backup">Chelezo</string>
@@ -280,16 +227,10 @@
   <string name="cancel">Ghairi</string>
   <string name="yes">Ndiyo</string>
   <string name="no">Hapana</string>
-  <string name="save">Hapana</string>
   <string name="error">Kosa</string>
-  <string name="more">Zaidi</string>
-  <string name="more_dotted">Zaidi...</string>
-  <string name="retry">Jaribu tena</string>
   <string name="please_wait">Subiri tafadhali</string>
   <string name="all">Vyote</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Mpya</string>
-  <string name="close">Funga</string>
   <string name="edit">Hariri</string>
   <!--Errors-->
   <string name="report_error">Tuma taarifa</string>

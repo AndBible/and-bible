@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigácia</b>Ťahom zľava doprava alebo naopak môžeš prejsť na ďalšiu alebo predošlú kapitolu. Túto akciu možno vykonávať aj pomocou track-ballu alebo D-padu. Dvojdotykom sa prepneš do režimu celej obrazovky a späť. Pre viacero možností stlač klávesu<b>Menu</b>. Z internetu je možné stiahnuť ďalšie preklady a dokumenty - položka Stiahni dokumenty. Tlačidlom <b>Hovoriť</b> môžeš nastaviť čítanie daného textu androidom. Ku každému veršu môžeš pridávať poznámky alebo záložky, ktoré si potom môžeš triediť do skupín. Ich pridanie urobíš cez kontextové menu - dlhšie podržanie palca na zvolenom texte. Správca poznámok je v hlavnej ponuke. Takisto aj správca záložiek. Zatriedené skupiny môžu mať vlastné názvy. <b>Hľadanie</b> Text vyhľadávania môže obsahovať špeciálne znaky ako *, ?, AND, OR, NOT (Podrobné vysvetlenie: "Apache Lucene - Query Parser Syntax) <b>Kontektové menu</b> Dlhším podržaním prsta na zvolenom verši vyvolá kontextovú ponuku ovplyvňujúcu daný verš. Dlhším podržaním prsta pri výbere dokumentov je možné dokument priamo zmazať alebo zobraziť jeho podrobnejšie informácie. Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nTu povedal Boh: \"Buď svetlo!\" a bolo svetlo.</string>
   <string name="help_text">Stlač kláves MENU pre viaceré možnosti. Ťahom po obrazovke vľavo alebo vpravo sa rýchlo prepneš medzi kapitolami. (alebo track-ballom(</string>
@@ -16,7 +14,6 @@
   <string name="history">História</string>
   <string name="speak">Hovoriť</string>
   <string name="help">Pomoc</string>
-  <string name="verse">Verš</string>
   <string name="administration">Administrácia</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vyber knihu</string>
@@ -28,7 +25,6 @@
   <string name="search_index">Vyhľadávací index</string>
   <string name="index_creation_required">Pre vyhľadávanie v Biblii je potrebné vytvoriť index. Može byť stiahnutý z internetu alebo vytvorený lokálne. Stiahnutie je oveľa rýchlejšie a stiahnuté indexy majú viacero funkcií. Pre stiahnutie je potrebné funkčné internetové pripojenie.</string>
   <string name="indexing_wait_msg">Keď sa indexovanie zakončí, zobrazí sa obrazovka hľadania.</string>
-  <string name="index">Index</string>
   <string name="index_download">Stiahnuť</string>
   <string name="index_not_available_for_download">Tento index nie je dostupný pre stiahnutie</string>
   <string name="index_create">Vytvoriť</string>
@@ -37,7 +33,6 @@
   <string name="task_kill_warning">Tieto dlho trvajúce úlohy môžu byť systémom zrušené ak sa prepnete na inú aplikáciu.</string>
   <string name="no_tasks_running">Nie sú spustené žiadne úlohy</string>
   <!--Search-->
-  <string name="search_results">Nájsť výsledky</string>
   <string name="search_words_group_prompt">Nájsť verš</string>
   <string name="search_all_words">Všetky slová</string>
   <string name="search_any_word">Ktorékoľvek slovo</string>
@@ -52,25 +47,16 @@
   <string name="error_executing_search">Chyba</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Čísla veršov</string>
-  <string name="prefs_show_verseno_summary">Zobraziť čísla veršov</string>
   <string name="prefs_verse_per_line_title">Čo riadok, to verš</string>
-  <string name="prefs_verse_per_line_summary">Zobraziť každý verš v samostatnom riadku.</string>
   <string name="prefs_show_bookmarks_title">Ukaž záložky</string>
-  <string name="prefs_show_bookmarks_summary">Zaškrtni pre skrytie záložiek</string>
   <string name="prefs_default_bookmark_style_title">Predvolený štýl záložiek</string>
   <string name="prefs_default_bookmark_style_summary">Farba zvýraznenia alebo ikonky</string>
   <string name="prefs_show_mynotes_title">Ikonka Mojich poznámok</string>
-  <string name="prefs_show_mynotes_summary">Zobraziť obrázok Mojich vložených poznámok.</string>
   <string name="prefs_show_notes_title">Poznámky pod čiarou</string>
-  <string name="prefs_show_notes_summary">Zobraziť poznámky pod čiarov a súradnicové referencie</string>
   <string name="prefs_show_strongs_title">Strongove čísla</string>
-  <string name="prefs_show_strongs_summary">Odkazy na grécke a hebrejské definície</string>
   <string name="prefs_show_morphology_title">Morfologické značky</string>
-  <string name="prefs_show_morphology_summary">Zobraziť grécku morfológiou (Robinson)</string>
   <string name="prefs_section_title_title">Nadpisy oddielov</string>
-  <string name="prefs_section_title_summary">Zobraziť nadpisy oddielov (len niektoré dokumenty)</string>
   <string name="prefs_red_letter_title">Červené písma</string>
-  <string name="prefs_red_letter_summary">Zobraziť Kristove slová červenou farbou (len niektoré dokumenty)</string>
   <string name="prefs_tilt_to_scroll_title">Automatický posun</string>
   <string name="prefs_tilt_to_scroll_summary">Pri naklonené prístroja sa text automaticky posunie</string>
   <string name="prefs_night_mode_title">Nočný režim</string>
@@ -85,15 +71,8 @@
   <string name="prefs_text_size_sample_text">Príklad textu</string>
   <string name="prefs_screen_keep_on_title">Nechaj obrazovku zapnutú</string>
   <string name="prefs_screen_keep_on_summary">Zabrániť vypnutiu obrazovky počas používania programu</string>
-  <string name="x_minutes">%d minút</string>
   <string name="prefs_interface_locale_title">Jazyk programu</string>
   <string name="prefs_interface_locale_summary">Vybrať jazyk prostredia programu a názvov kníh</string>
-  <string name="locale_change_warning">Program sa reštartne pre prepnutie jazyka</string>
-  <string name="prefs_speak_speed_title">Rýchlosť reči</string>
-  <string name="prefs_speak_speed_summary">Hovoriť pomalšie alebo rýchlejšie</string>
-  <string name="speak_speed_slow">Pomaly</string>
-  <string name="speak_speed_normal">Normálne</string>
-  <string name="speak_speed_fast">Rýchlo</string>
   <string name="prefs_split_mode_vertical">Zvislo</string>
   <string name="prefs_split_mode_horizontal">Vodorovne</string>
   <string name="prefs_split_mode_automatic">Automaticky</string>
@@ -102,7 +81,6 @@
   <string name="prefs_request_sdcard_permission_title">Už existujú ručne nainštalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Povoliť ručnú inštaláciu dokumentov z adresára jsword na SD karte</string>
   <!--Window-->
-  <string name="window">Okno</string>
   <string name="windowClose">Zatvor</string>
   <string name="windowMaximise">Maximalizuj</string>
   <string name="windowMinimise">Skry</string>
@@ -114,14 +92,11 @@
   <string name="previous">Predošlá</string>
   <string name="next">Ďalšia</string>
   <!--Strongs-->
-  <string name="strongs">Strongov slovník</string>
   <string name="strongs_not_installed">Prosím stiahnite si Strongov hebrejský a grécky slovník</string>
   <string name="all_greek_occurrences">Nájsť všetky grécke nálezy</string>
   <string name="all_hebrew_occurrences">Nájsť všetky hebrejské nálezy</string>
   <string name="no_indexed_bible_with_strongs_ref">Je potrebné stiahnuť Bibliu obsahujúcu Strongove čísla a tiež stiahnuť k nej index pre vyhľadávanie</string>
   <string name="morph_robinson_not_installed">Prosím stiahnite si slovník - Robinsonov Morfologický Analytický Kódex</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Stiahni</string>
   <string name="download_confirmation">Stiahnuť Bibliu z internetu?</string>
@@ -132,9 +107,6 @@
   <string name="error_downloading">Vyskytla sa chyba pri sťahovaní. Skontrolujte svoje internetové pripojenie</string>
   <string name="no_internet_connection">Nedá sa pripojiť k internetu</string>
   <string name="storage_space_warning">Na disku je málo miesta</string>
-  <string name="wait_for_bible">Počkajte chvíľočku, kým sa Biblia stiahne. \n\nProgram sa prepne na hlavnú obrazovku.\n\nPre stiahnutie ďalších prekladov opäť vyberte \"Stiahnuť dokumenty\"</string>
-  <string name="wait_for_bible_not_yet">Prosím čakajte, Biblia je v procese inštalácie</string>
-  <string name="download_complete_no_bibles">Nebol stiahnutý žiadny dokument. Prosím, skúste to znova.</string>
   <string name="too_many_jobs">Príliš veľa úloh naraz. Prosím, počkajte kým sa niektoré ukončia.</string>
   <string name="document_not_installed">Prosím, stiahnete \'%s</string>
   <!--Install zip file-->
@@ -152,12 +124,6 @@
   <string name="rdg_plan_set_start_jan1">Začiatok 1. Januára</string>
   <string name="done">Hotovo</string>
   <string name="reset">Znovu nastaviť</string>
-  <string name="rdg_plan_y1ntpspr">Nový Zákon, Žalmy a Kniha prísloví za rok</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Celá Biblia chronologicky za rok</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Celá Biblia za rok - SZ a NZ</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Celá Biblia za rok - SZ a potom NZ</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Celá Biblia za rok (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">Dvojročný plán - SZ 1x, NZ a Žalmy 2x</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Vymazať</string>
@@ -182,7 +148,6 @@
   <string name="delete_bookmark">Zmaž záložku</string>
   <string name="bookmark_added">Záložka pridaná</string>
   <string name="bookmark_date_updated">Obnovený dátum záložky</string>
-  <string name="bookmark_exists">Záložka už existuje</string>
   <string name="bookmark_deleted">Záložka zmazaná</string>
   <string name="bookmark_labels">Názvy záložiek</string>
   <string name="manage_labels">Správa nadpisov záložiek</string>
@@ -190,7 +155,6 @@
   <string name="new_label">Nový názov</string>
   <string name="label_name_prompt">Názov</string>
   <string name="label_unlabelled">Nepomenovaný</string>
-  <string name="rename">Premenovať</string>
   <string name="style">Štýl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Zoradiť podľa dátumu</string>
@@ -199,10 +163,8 @@
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
   <string name="search_dictionary_hint">Hľadať v slovníku</string>
-  <string name="dictionary_contents">Obsah</string>
   <!--General Book-->
   <string name="general_book">Kniha</string>
-  <string name="general_book_contents">Obsah</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -302,9 +264,7 @@ keďže ich parametre sú uložené do zodpovedajúcich záložiek.</string>
   <string name="speak_fifth">Piata</string>
   <!--User Notes-->
   <string name="mynotes">Moje poznámky</string>
-  <string name="mynote">Moja poznámka</string>
   <string name="mynote_add">Pridať poznámku</string>
-  <string name="mynote_view_edit">Pozrieť si poznámku</string>
   <string name="mynote_saved">Poznámka uložená</string>
   <!--Backup and restore-->
   <string name="backup">Záloha</string>
@@ -330,16 +290,10 @@ keďže ich parametre sú uložené do zodpovedajúcich záložiek.</string>
   <string name="cancel">Zrušiť</string>
   <string name="yes">Áno</string>
   <string name="no">Nie</string>
-  <string name="save">Uložiť</string>
   <string name="error">Chyba</string>
-  <string name="more">Viac</string>
-  <string name="more_dotted">Viac...</string>
-  <string name="retry">Znovu</string>
   <string name="please_wait">Prosím čakajte...</string>
   <string name="all">Všetko</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Nový</string>
-  <string name="close">Zatvor</string>
   <string name="edit">Upraviť</string>
   <!--Errors-->
   <string name="report_error">Poslať report</string>
@@ -348,9 +302,7 @@ keďže ich parametre sú uložené do zodpovedajúcich záložiek.</string>
   <string name="error_page_too_large">Stránka je príliš veľká</string>
   <string name="error_key_not_in_document">V dokumente sa také čosi nenašlo :)</string>
   <string name="empty_list">Niet čo ukázať</string>
-  <string name="add_widget">Pridaj widget</string>
   <!--Notifications-->
-  <string name="download_documents">Sťahujem dokumenty</string>
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
 </resources>

@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigacija</b>\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami pirštu per ekraną. \nDvigubas ekrano palietimas įjungia ir išjungia viso ekrano veikseną.\n\n<b>MENIU </b>\nĮvairiems veiksmams atlikti spauskite Meniu mygtuką.\n\nNorėdami parsisiųsti daugiau dokumentų spauskite Meniu/Valdymas/Parsiųsti dokumentus \n\n<b>Mano pastabos</b>\nPastabas galima pridėti per „Mano pastabų“ meniu, kuris pasiekiamas iš Rašto eilutės kontekstinio meniu. Visų pastabų sąrašas pasiekiamas per pagrindinį meniu. \n\n<b>Klausymas</b>\nSpauskite „Klausyti“, norėdami pasiekti dialogą skaitymo pradėjimui ar sustabdymui.\n\n<b>Žymės</b>\nŽymės gali būti pridėtos per eilučių kontekstinį meniu. Žymių tvarkyklė pasiekiama per pagrindinį meniu. Žymių tvarkyklės kontekstinis meniu leidžia grupuoti žymes naudojant korteles.\n\n<b>Paieška</b>\nIeškomas tekstas gali turėti spacialius simbolius *, ?, AND, OR, NOT (norint išsamiau, žiūrėkite \"Apache Lucene - Query Parser Syntax\")\n\n<b>Kontekstinis meniu</b>\nNorėdami atverti kontekstinį meniu pasirinktai eilutei, palaikykite paspaudę ekraną pirštu. \nNorėdami gauti dokumento informaciją arba jį pašalinti, palaikykite paspaudę ant dokumento pirštu. \nNorėdami pasiekti atliktų veiksmų sąrašą, paspauskite ir palaikykite mygtuką „Atgal“.\n\n</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
   <string name="help_text">Veiksmams atlikti spauskite MENIU mygtuką\n\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami per ekraną pirštu.</string>
@@ -38,7 +36,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
-  <string name="verse">Eilutė</string>
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
@@ -53,7 +50,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n</string>
   <string name="search_index_unavailable">Deja, indekso kūrimas galimas tik Android 5.0 (Lollipop) arba naujesnėje sistemoje.</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
-  <string name="index">Indeksas</string>
   <string name="index_download">Parsiųsti</string>
   <string name="index_not_available_for_download">Šio indekso negalima parsiųsti.</string>
   <string name="index_create">Sukurti</string>
@@ -63,7 +59,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
   <string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
   <!--Search-->
-  <string name="search_results">Ieškoti rezultatų</string>
   <string name="search_words_group_prompt">Ieškoti eilučių</string>
   <string name="search_all_words">Visi žodžiai</string>
   <string name="search_any_word">Bet kuris žodis</string>
@@ -78,25 +73,16 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="error_executing_search">Neteisinga paieškos užklausa</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Eilučių numeriai</string>
-  <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
   <string name="prefs_verse_per_line_title">Vienas posmas eilutėje</string>
-  <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
   <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
-  <string name="prefs_show_bookmarks_summary">Atžymėti norint paslėpti visas žymes</string>
   <string name="prefs_default_bookmark_style_title">Įprastas žymių stilius</string>
   <string name="prefs_default_bookmark_style_summary">Išryškinti spalvą arba piktogramą</string>
   <string name="prefs_show_mynotes_title">Rodyti Mano pastabos piktogramas</string>
-  <string name="prefs_show_mynotes_summary">Su Mano pastaba rodyti piktogramas eilutėse</string>
   <string name="prefs_show_notes_title">Išnašos ir x-nuor.</string>
-  <string name="prefs_show_notes_summary">Rodyti išnašas ir nuorodas</string>
   <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
-  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp; hebrajų apibrėžimus</string>
   <string name="prefs_show_morphology_title">Morfologiniai kodai</string>
-  <string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string>
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
-  <string name="prefs_section_title_summary">Rodyti nekanoninių skyrių antraštes</string>
   <string name="prefs_red_letter_title">Raudonas laiškas</string>
-  <string name="prefs_red_letter_summary">Kristaus žodžius rodyti raudonai</string>
   <string name="prefs_tilt_to_scroll_title">Pakelti paslinkimui</string>
   <string name="prefs_tilt_to_scroll_summary">Pakelti įrenginį puslapio paslinkimui žemyn</string>
   <string name="prefs_night_mode_title">Naktinė veiksena</string>
@@ -111,15 +97,8 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Palaikyti įjungtą ekraną</string>
   <string name="prefs_screen_keep_on_summary">Palaiko įjungtą ekraną kol naudojamasi šia programėle</string>
-  <string name="x_minutes">%d minutės</string>
   <string name="prefs_interface_locale_title">Programos kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkite vartotojo sąsajos kalbą</string>
-  <string name="locale_change_warning">Kad pasikeistų kalba, programa bus perkrauta</string>
-  <string name="prefs_speak_speed_title">Kalbėjimo greitis</string>
-  <string name="prefs_speak_speed_summary">Kalbėti lėčiau arba greičiau</string>
-  <string name="speak_speed_slow">Lėtai</string>
-  <string name="speak_speed_normal">Normaliai</string>
-  <string name="speak_speed_fast">Greitai</string>
   <string name="prefs_split_mode_vertical">Vertikaliai</string>
   <string name="prefs_split_mode_horizontal">Horizontaliai</string>
   <string name="prefs_split_mode_automatic">Automatiškai</string>
@@ -129,7 +108,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_request_sdcard_permission_summary">Leidžia naudoti SD kortelės jsword kataloge rankiniu būdu įdiegtus dokumentus</string>
   <!--Window-->
   <string name="new_window">Naujas langas</string>
-  <string name="window">Langas</string>
   <string name="windowClose">Užverti</string>
   <string name="windowMaximise">Išdidinti</string>
   <string name="windowMinimise">Sumažinti</string>
@@ -141,14 +119,11 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="previous">Ankstesnis</string>
   <string name="next">Kitas</string>
   <!--Strongs-->
-  <string name="strongs">Strongo žodynas</string>
   <string name="strongs_not_installed">Prašome parsisiųsti Strongo žydų ir graikų žodynus</string>
   <string name="all_greek_occurrences">Rodyti visus atvejus</string>
   <string name="all_hebrew_occurrences">Rasti visus atvejus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums reikia atsisiųsti bibliją su Strongo numeriais, o taip pat ir jos indeksus per „Paeišką“</string>
   <string name="morph_robinson_not_installed">Prašome atsisiųsti žodyną \'Robinson\'s Morphological Analysis Codes</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Parsiųsti dokumentus</string>
   <string name="download_confirmation">Parsiųsti Bibliją iš interneto?</string>
@@ -159,9 +134,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="error_downloading">Parsiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
   <string name="no_internet_connection">Nepavyko prisijungti prie interneto</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
-  <string name="wait_for_bible">Prašome palaukti, kol bus parsiųsta Biblija. Tuomet jūs atsirasite pagrindiniame lange.</string>
-  <string name="wait_for_bible_not_yet">Prašome palaukti. Biblijos diegimas dar nebaigtas.</string>
-  <string name="download_complete_no_bibles">Nėra įdiegtų Biblijų. Spauskite „Atgal“ ir bandykite vėl.</string>
   <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
   <!--Install zip file-->
@@ -180,12 +152,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="rdg_plan_set_start_jan1">Pradžia Sausio 1</string>
   <string name="done">Atlikta</string>
   <string name="reset">Perstatyti</string>
-  <string name="rdg_plan_y1ntpspr">Naujasis Testamentas, Psalmės ir patarlės per metus</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Biblija chronologiškai per metus</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Biblija per metus - ST ir NT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Biblija per metus - pirma ST, po to NT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Biblija per metus (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">Dviejų metų planas: ST - kartą, NT ir Psalmės - du kartus</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Pašalinti</string>
@@ -210,7 +176,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="delete_bookmark">Pašalinti žymę</string>
   <string name="bookmark_added">Žymė pridėta</string>
   <string name="bookmark_date_updated">Žymės data atnaujinta</string>
-  <string name="bookmark_exists">Žymė jau egzistuoja</string>
   <string name="bookmark_deleted">Žymė pašalinta</string>
   <string name="bookmark_labels">Žymės kortelės</string>
   <string name="manage_labels">Tvarkyti žymių korteles</string>
@@ -218,7 +183,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="new_label">Nauja kortelė</string>
   <string name="label_name_prompt">Pavadinimas</string>
   <string name="label_unlabelled">Nėra kortelės</string>
-  <string name="rename">Pervadinti</string>
   <string name="style">Stilius</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Rūšiavimas pagal datą</string>
@@ -227,10 +191,8 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Dictionary-->
   <string name="dictionary">Žodynas</string>
   <string name="search_dictionary_hint">Ieškoti žodyne</string>
-  <string name="dictionary_contents">Turinys</string>
   <!--General Book-->
   <string name="general_book">Knyga</string>
-  <string name="general_book_contents">Turinys</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -276,7 +238,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="conf_change_title">Antraštei</string>
   <string name="conf_speak_footnotes">Išnašai</string>
   <string name="conf_speak_sleep_timer">Nustatyti miego laikrodį</string>
-  <string name="conf_speak_multitranslation">Kalbėjimas iš visų matomų langų</string>
   <string name="sleep_timer_title">Miegojimo laikas minutėmis</string>
   <string name="sleep_timer_set">Nustatyti miego laikrodį. Laikrodis nustatytas: %d minučių</string>
   <string name="sleep_timer_started">Miego laikas prasidėjo, %d minučių</string>
@@ -335,9 +296,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="speak_fifth">Penktas</string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
-  <string name="mynote">Mano pastaba</string>
   <string name="mynote_add">Pridėti savo pastabą</string>
-  <string name="mynote_view_edit">Mano pastaba</string>
   <string name="mynote_saved">Mano pastaba išsaugota</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
@@ -364,16 +323,10 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="cancel">Atšaukti</string>
   <string name="yes">Taip</string>
   <string name="no">Ne</string>
-  <string name="save">Išsaugoti</string>
   <string name="error">Klaida</string>
-  <string name="more">Daugiau</string>
-  <string name="more_dotted">Daugiau...</string>
-  <string name="retry">Bandyti dar</string>
   <string name="please_wait">Prašome palaukti...</string>
   <string name="all">Viskas</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Naujas</string>
-  <string name="close">Užverti</string>
   <string name="edit">Keisti</string>
   <string name="watch_tutorial_video">Žiūrėti video aprašymą (Angliškai)</string>
   <!--Errors-->
@@ -383,9 +336,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
   <string name="empty_list">Nėra ko rodyti</string>
-  <string name="add_widget">Pridėti įtaisą</string>
   <!--Notifications-->
-  <string name="download_documents">Parsiunčiami dokumentai</string>
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Progreso būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
 </resources>

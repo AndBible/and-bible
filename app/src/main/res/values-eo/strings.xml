@@ -1,20 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Biblio</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigado</b>\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon
-\nDuobla tuŝeto eniras/eliras plenekranon.
-\n\n<b>Menuo</b>
-\nTuŝetu la MENU-butonon por montri ĉefmenuon
-\n\nPor elŝuti pli da dokumentoj, iru al Menuo/Administri/Elŝuti dokumentojn
-\n\n<b>Parolo</b>\nPremu \'Paroli\' por montri butonojn por komenci/haltigi aŭskultadon
-\n\n<b>Miaj notoj</b>\nOni povas aldoni notojn per funkcio ‘Miaj notoj’ en kunteksta menuo de verso. La listo de ekzistaj notoj estas disponebla en ĉefmenuo.
-\n\n<b>Legosignoj</b>\nOni povas aldoni legosignojn en kunteksta menuo de verso. Legosigna mastrumilo estas disponebla en ĉefmenuo. Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.
-\n\n<b>Serĉado</b>\nSerĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj).
-\n\n<b>Kuntekstaj menuoj</b>
-\nPremtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
-\nPremtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
-\nPremtenu sur reen-butonon por aliri liston de historio</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
   <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
@@ -50,7 +36,6 @@
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
-  <string name="verse">Verso</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
   <string name="chooce_document">Elektu dokumenton</string>
@@ -65,7 +50,6 @@
   <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
   <string name="search_index_unavailable">Bedaŭrinde kreado de indeksoj estas nur disponebla ĉe Android 5.0 (Lollipop) aŭ pli nova.</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
-  <string name="index">Indekso</string>
   <string name="index_download">Elŝuti</string>
   <string name="index_not_available_for_download">Tiu ĉi indekso ne estas disponebla por elŝuti</string>
   <string name="index_create">Krei</string>
@@ -75,7 +59,6 @@
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniuj taskoj estas lanĉataj.</string>
   <!--Search-->
-  <string name="search_results">Rezultoj de serĉado</string>
   <string name="search_words_group_prompt">Serĉi versojn</string>
   <string name="search_all_words">Ĉiuj vortoj</string>
   <string name="search_any_word">Iu vorto</string>
@@ -90,25 +73,16 @@
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Versaj numeroj</string>
-  <string name="prefs_show_verseno_summary">Montri numerojn de versoj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
-  <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
-  <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
   <string name="prefs_default_bookmark_style_title">Ĉefa stilo de legosignoj</string>
   <string name="prefs_default_bookmark_style_summary">Distinga koloro aŭ piktogramo</string>
   <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
-  <string name="prefs_show_mynotes_summary">Montri piktogramon ĉe verso en miaj notoj</string>
   <string name="prefs_show_notes_title">Piednotoj kaj internaj referencoj</string>
-  <string name="prefs_show_notes_summary">Montri piednotojn kaj internajn referencojn</string>
   <string name="prefs_show_strongs_title">Montri numerojn de Strong</string>
-  <string name="prefs_show_strongs_summary">Ligiloj al grekaj kaj hebreaj difinoj</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
-  <string name="prefs_show_morphology_summary">Montri grekan morfologion de Robinson</string>
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
-  <string name="prefs_section_title_summary">Montri nekanonajn titolojn de sekcioj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
-  <string name="prefs_red_letter_summary">Montri vortojn de Kristo ruĝe</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
   <string name="prefs_tilt_to_scroll_summary">Skuu aparaton por rulumi paĝon malsupren</string>
   <string name="prefs_night_mode_title">Nokta reĝimo</string>
@@ -123,15 +97,8 @@
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
-  <string name="x_minutes">%d minutoj</string>
   <string name="prefs_interface_locale_title">Programa lingvo</string>
   <string name="prefs_interface_locale_summary">Elekti propran fasadan lingvon</string>
-  <string name="locale_change_warning">Programo relanĉiĝos por ŝanĝiĝi al nova fasada lingvo</string>
-  <string name="prefs_speak_speed_title">Parol-rapido</string>
-  <string name="prefs_speak_speed_summary">Paroli pli rapide aŭ pli malrapide</string>
-  <string name="speak_speed_slow">Malrapide</string>
-  <string name="speak_speed_normal">Norme</string>
-  <string name="speak_speed_fast">Rapide</string>
   <string name="prefs_split_mode_vertical">Vertikale</string>
   <string name="prefs_split_mode_horizontal">Horizontale</string>
   <string name="prefs_split_mode_automatic">Aŭtomate</string>
@@ -141,7 +108,6 @@
   <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
   <!--Window-->
   <string name="new_window">Nova fenestro</string>
-  <string name="window">Fenestro</string>
   <string name="windowClose">Fermi</string>
   <string name="windowMaximise">Maksimumigi</string>
   <string name="windowMinimise">Kaŝi</string>
@@ -153,7 +119,6 @@
   <string name="previous">Antaŭa</string>
   <string name="next">Sekva</string>
   <!--Strongs-->
-  <string name="strongs">Vortaro de Strong</string>
   <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
   <string name="all_greek_occurrences">Montri ĉiujn aperojn</string>
   <string name="all_hebrew_occurrences">Montri ĉiujn aperojn</string>
@@ -169,9 +134,6 @@
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
   <string name="no_internet_connection">Ne povis konekti al la interreto</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
-  <string name="wait_for_bible">Bonvolu atendi ĝis la Biblio elŝutiĝos. Poste vi iros al la ĉefmenuo.\n\nElŝutu pli da dokumentoj poste per premo de Menu-butono/Administri/Elŝuti dokumentojn.</string>
-  <string name="wait_for_bible_not_yet">Bonvolu atendi. Biblio ne estas jam instalita komplete.</string>
-  <string name="download_complete_no_bibles">Neniu Biblio instalita. Bonvolu premu reen-butonon kaj reprovu.</string>
   <string name="too_many_jobs">Tro multe da taskoj estas lanĉataj. Bonvolu atendi ĝis iajn finiĝos kaj reprovu.</string>
   <string name="document_not_installed">Bonvolu elŝuti ‘%s’</string>
   <!--Install zip file-->
@@ -190,12 +152,6 @@
   <string name="rdg_plan_set_start_jan1">Eki je jan 1-a</string>
   <string name="done">Farita</string>
   <string name="reset">Reagordi</string>
-  <string name="rdg_plan_y1ntpspr">Nova Testamento, Psalmaro kaj Sentencoj de Salomono jare</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Tra Biblio ĥronologie jare</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Tra Biblio jare - MT kaj NT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Tra Biblio jare - MT, poste NT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Tra Biblio jare (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2-jara plano - MT unufoje, NT kaj Psalmaro dufoje</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Forigi</string>
@@ -220,7 +176,6 @@
   <string name="delete_bookmark">Forigi legosignon</string>
   <string name="bookmark_added">Legosigno aldonita</string>
   <string name="bookmark_date_updated">Dato de legosigno aktualigita</string>
-  <string name="bookmark_exists">Legosigno jam ekzistas</string>
   <string name="bookmark_deleted">Legosigno forigita</string>
   <string name="bookmark_labels">Legosignaj etikedoj</string>
   <string name="manage_labels">Administri etikedojn de legosignoj</string>
@@ -228,7 +183,6 @@
   <string name="new_label">Nova etikedo</string>
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
-  <string name="rename">Alinomi</string>
   <string name="style">Stilo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
@@ -237,10 +191,8 @@
   <!--Dictionary-->
   <string name="dictionary">Vortaro</string>
   <string name="search_dictionary_hint">Serĉi en vortaro</string>
-  <string name="dictionary_contents">Enhavo</string>
   <!--General Book-->
   <string name="general_book">Libro</string>
-  <string name="general_book_contents">Enhavo</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -286,7 +238,6 @@
   <string name="conf_change_title">Titoloj</string>
   <string name="conf_speak_footnotes">Piednotoj</string>
   <string name="conf_speak_sleep_timer">Agordi aŭtomatan fermon</string>
-  <string name="conf_speak_multitranslation">Paroli el ĉiuj videblaj fenestroj</string>
   <string name="sleep_timer_title">Dormi post (en minutoj)</string>
   <string name="sleep_timer_set">Agordis aŭtomatan fermon al %d minutoj</string>
   <string name="sleep_timer_started">Agordis aŭtomatan fermon al %d minutoj</string>
@@ -339,9 +290,7 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="speak_fifth">Kvina</string>
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
-  <string name="mynote">Mia noto</string>
   <string name="mynote_add">Aldoni mian noton</string>
-  <string name="mynote_view_edit">Mia noto</string>
   <string name="mynote_saved">Mia noto konservita</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
@@ -368,16 +317,10 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="cancel">Nuligi</string>
   <string name="yes">Jes</string>
   <string name="no">Ne</string>
-  <string name="save">Konservi</string>
   <string name="error">Eraro</string>
-  <string name="more">Pli</string>
-  <string name="more_dotted">Pli…</string>
-  <string name="retry">Reprovi</string>
   <string name="please_wait">Bonvolu atendi…</string>
   <string name="all">Ĉiuj</string>
   <string name="default_value">Implicita</string>
-  <string name="new_item">Nova</string>
-  <string name="close">Fermi</string>
   <string name="edit">Redakti</string>
   <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
   <!--Errors-->
@@ -387,9 +330,7 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
   <string name="empty_list">Neniuj elementoj por montri</string>
-  <string name="add_widget">Aldoni fenestraĵon</string>
   <!--Notifications-->
-  <string name="download_documents">Elŝutado de dokumentoj</string>
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
 </resources>

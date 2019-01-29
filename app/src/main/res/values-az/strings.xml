@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Axtarış əmirləri</b>\n hissəni dəyişdirmək üçün ekranda barmağınızı sürüşdürün,iztopunu çevirin və ya istiqamət düymələrinə basın. Sonrakı hissə üçün sağa gedin. Əvvəlki bölmə üçün sola gedin. Çüt basış tam ekran rejimini açıb bağlayır.\n \n Menyu \əməliyyatlar üçün Menyu düyməsini basın.\n \n Müqəddəs Kitab tərcüməsi, şərh və ya lüğət kimi başqa sənədlər yükləmək üçün Menyu \ Mudiriyyət \sənəd yüklə\'e basın\n \n <b>Səsli oxuma</b>\n Səsli sənədin səsli oxumasını başlatmaq və dayandırmaq üçün Səsli Oxu elementini seçin.\n \n <b>Qeydlərim</b>\n Ayə məzmur menyusunda tapılan Qeydlərimə daxil et elementi vasitəsi ilə qeyd əlavə edə bilərsiniz. Mövcud olan qeydləri Menyu\'dan tapa bilərsiniz.\n \n <b>İştirak imiləri</b>\n iştirak imilərini,ayə məzmur menyusundan istifadə edərək əlavə edə bilərsiniz. Iştirak imi istiqamətləndiricisini ana menyudan tapa bilərsiniz. Iştirak imiləri görüləndə sıralamanı istədiyiniz formada dəyişdirmək üçün məzmun menyusundan istifadə edə bilərsiniz.\n \n Axtarış \Axtarış mətnində *, ?, AND (və), OR (və ya), NOT(deyil)kimi xüsusi xarakterlər və fikirlər istifadə oluna bilər, (daha çox məlumat üçün \ “Apache Lucene – Query Parser Syntax\” adlı məqaləni oxuyun)\n \n <b>Məzmur Menyuları</b>\n Müqəddəs Kitab oxuma rejimində seçilmiş ayə üzərində iş görmək üçün məzmur menyusundan istifadə edə bilərsiniz. Menyunu açmaq üçün ayəyə uzun müddətli basın.\n \n Sənəd seçmə rejimində sənədi silmək və ya sənət haqqında məlumat almaq üçün sənədə uzun müddətli basın.\n \n Keçmişdəki hərəkətlərinizin siyahısını görmək üçün Əvvələ düyməsinə uzun müddətli basın.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n
 \"Tanrı \'işıq olsun\' dedi və işıq oldu.\"\n
@@ -20,7 +18,6 @@ Yaradılış 1:3</string>
   <string name="history">Əvvəl</string>
   <string name="speak">Səsli oxu</string>
   <string name="help">Kömək</string>
-  <string name="verse">Ayə</string>
   <string name="administration">Mudiriyyət</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı seç</string>
@@ -39,7 +36,6 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
 İndeks yükləmək üçün internetiniz olmalıdır.
 </string>
   <string name="indexing_wait_msg">İndeks yaradıldıqdan sonra axtarış səhifəsi açılacaq.</string>
-  <string name="index">İndeks</string>
   <string name="index_download">Yüklə</string>
   <string name="index_not_available_for_download">Bu indeks yükləmək üçün mövcud deyil.</string>
   <string name="index_create">Düzəlt</string>
@@ -48,7 +44,6 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="task_kill_warning">Bu əməliyyat üçün vaxt lazımdır. Əgər tətbiqi dayandırsanız əməliyyat qurtarmamış dayanacaq. Əməliyyat görən vəzifə yoxdur.</string>
   <string name="no_tasks_running">Işlem gören görev yok.</string>
   <!--Search-->
-  <string name="search_results">Axtarış nəticələri</string>
   <string name="search_words_group_prompt">Ayə tap</string>
   <string name="search_all_words">Sözlərin hamısı</string>
   <string name="search_any_word">Hər hansı bir söz</string>
@@ -63,25 +58,16 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="error_executing_search">Axtarılan mətn tapılmadı</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Ayə nömrələri</string>
-  <string name="prefs_show_verseno_summary">Ayə nömrələri göstərilir</string>
   <string name="prefs_verse_per_line_title">Sətir başına tək ayə</string>
-  <string name="prefs_verse_per_line_summary">Hər ayə təzə bir sətirdə göstərilir</string>
   <string name="prefs_show_bookmarks_title">Nişanlı yerləri göstər</string>
-  <string name="prefs_show_bookmarks_summary">Bütün əlfəcinləri qizlət</string>
   <string name="prefs_default_bookmark_style_title">Ümumi əlfəcinlərin stili</string>
   <string name="prefs_default_bookmark_style_summary">Seçilmişlərin rəngi</string>
   <string name="prefs_show_mynotes_title">Qeydlərin nişanlarını göstər</string>
-  <string name="prefs_show_mynotes_summary">Haqqında qeyd yazdığım ayələri nişanlarla müəyyən et</string>
   <string name="prefs_show_notes_title">Haşiyə</string>
-  <string name="prefs_show_notes_summary">Kitabının kənarlarında edilən qeydlər</string>
   <string name="prefs_show_strongs_title">Strong Nömrələri</string>
-  <string name="prefs_show_strongs_summary">Yunanca ve Yəhudicə sözlərin tanımlarına əlaqələr göstərilir</string>
   <string name="prefs_show_morphology_title">Morfoloji kodlar</string>
-  <string name="prefs_show_morphology_summary">Robinsonun Yunanca morfolojik qısaltmaları göstərilir</string>
   <string name="prefs_section_title_title">Hissə başlıqları</string>
-  <string name="prefs_section_title_summary">Əsl mətində tapılmayan başlıqlar göstərilir</string>
   <string name="prefs_red_letter_title">Qırmızı hərflər</string>
-  <string name="prefs_red_letter_summary">İsa Məsihin sözləri qırmızı rəngdədir</string>
   <string name="prefs_tilt_to_scroll_title">Avtomatik sürüşdür</string>
   <string name="prefs_tilt_to_scroll_summary">Cihazı əyərək səhifəni aşağıya-yuxarıya sürüşdürün</string>
   <string name="prefs_night_mode_title">Qaranlıq rejimi</string>
@@ -96,15 +82,8 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_text_size_sample_text">Mətn nümunəsi</string>
   <string name="prefs_screen_keep_on_title">Ekran açıq qalsın</string>
   <string name="prefs_screen_keep_on_summary">İstifadə edərkən ekran açıq qalsın</string>
-  <string name="x_minutes">%d dəqiqə</string>
   <string name="prefs_interface_locale_title">Proqram dili</string>
   <string name="prefs_interface_locale_summary">Fərqli bir proqram dilini seç</string>
-  <string name="locale_change_warning">İnterfeysi təzə dildə istifadə edə bilmək üçün əməliyyat yenidən başladılacaq</string>
-  <string name="prefs_speak_speed_title">Nitqin sürəti</string>
-  <string name="prefs_speak_speed_summary">Daha yavaş danış</string>
-  <string name="speak_speed_slow">Yavaş</string>
-  <string name="speak_speed_normal">Normal</string>
-  <string name="speak_speed_fast">Sürətli</string>
   <string name="prefs_split_mode_vertical">Şaquli</string>
   <string name="prefs_split_mode_horizontal">Üfüqi</string>
   <string name="prefs_split_mode_automatic">Avtomatik</string>
@@ -113,7 +92,6 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_request_sdcard_permission_title">Əllə quraşdırılmış sənədlər var</string>
   <string name="prefs_request_sdcard_permission_summary">Əl ilə quraşdırılmış sənədləri SD kartdakı jsword qovluğundan istifadə et</string>
   <!--Window-->
-  <string name="window">Pəncərə</string>
   <string name="windowClose">Bağla</string>
   <string name="windowMaximise">Böyüt</string>
   <string name="windowMinimise">Kiçilt</string>
@@ -125,14 +103,11 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="previous">Əvvəlki</string>
   <string name="next">Sonrakı</string>
   <!--Strongs-->
-  <string name="strongs">Strongun lüğəti</string>
   <string name="strongs_not_installed">Zəhmət olmazsa Strongs Yunanca və Yəhudicə lüğətlərini yükləyin</string>
   <string name="all_greek_occurrences">Sözün hamısını tap</string>
   <string name="all_hebrew_occurrences">Sözü bütöv tap</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong nömrələri daxil olan bir Müqəddəs Kitab çeviricisini və ona aid indeksi yükləməyiniz lazımdır. İndekslər Axtarış səhifəsindən yüklənilir.</string>
   <string name="morph_robinson_not_installed">Zəhmət olmazsa \'Robinson\'s Morphological Analysis Codes\' lüğətini yükləyin</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Sənəd yüklə</string>
   <string name="download_confirmation">İnternetdən bir Müqəddəs Kitab çeviricisini yükləmək istəyirsinizmi?</string>
@@ -146,9 +121,6 @@ səhifələrdən yüklənilir</string>
   <string name="error_downloading">Yükləyəndə bir xəta oldu. İnternetinizi yoxlayin.</string>
   <string name="no_internet_connection">İnternetiniz bağlıdır</string>
   <string name="storage_space_warning">Yerli anbar kafi deyil</string>
-  <string name="wait_for_bible">Zəhmət olmazsa gözləyin. Çevirici yüklənir. Yükləmə qurtarandan sonra ekran açılacaq.\n \n Daha çox sənəd yükləmək üçün Menyu düyməsi Mudiriyyət-Sənəd yükləmə elementinə keçin</string>
-  <string name="wait_for_bible_not_yet">Zəhmət olmazsa gözləyin. Çevirici cihazınız yüklənir.</string>
-  <string name="download_complete_no_bibles">Çevirici yüklənmədi. Zəhmət olmazsa Geri düyməsinə basıb təzədən yoxlayın.</string>
   <string name="too_many_jobs">İndi daha çox iş görülür. Birinin qurtarmasını gözləyib təkrar yoxlayın.</string>
   <string name="document_not_installed">Zəhmət olmazsa \'%s\' sənədini yükləyin</string>
   <!--Install zip file-->
@@ -166,12 +138,6 @@ səhifələrdən yüklənilir</string>
   <string name="rdg_plan_set_start_jan1">1 Yanvardan başla</string>
   <string name="done">Bitdi</string>
   <string name="reset">Sıfırdan başla</string>
-  <string name="rdg_plan_y1ntpspr">Bir illik Əhdi-Cədid, Məzmurlar və Süleymanın məsəlləri</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Bir illik tarixi sıralama ilə Müqəddəs Kitab</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Bir illik bütöv Müqəddəs Kitab - Əhdi-Ətiq və Əhdi-Cədid birlikdə</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir illik bütöv Müqəddəs Kitab - əvvəlcə Əhdi-Ətiq, sonra Əhdi-Cədid</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Bir illik bütöv Müqəddəs Kitab (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 il planı - ƏC 1x, ƏƏ və Zəbur 2x</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Sil</string>
@@ -196,7 +162,6 @@ səhifələrdən yüklənilir</string>
   <string name="delete_bookmark">əlfəcini sil</string>
   <string name="bookmark_added">Əlfəcini yükləndi</string>
   <string name="bookmark_date_updated">Nişanlı yerlərin - Əlfəcinlərin tarixi yeniləndi</string>
-  <string name="bookmark_exists">Əlfəcini artıq var</string>
   <string name="bookmark_deleted">əlfəcin silinib</string>
   <string name="bookmark_labels">Əlfəcinlərin etiketləri</string>
   <string name="manage_labels">əlfəcinlərin adları</string>
@@ -204,7 +169,6 @@ səhifələrdən yüklənilir</string>
   <string name="new_label">Təzə etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlənməmiş</string>
-  <string name="rename">Yenidən adlandır</string>
   <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarix sıralaması</string>
@@ -213,10 +177,8 @@ səhifələrdən yüklənilir</string>
   <!--Dictionary-->
   <string name="dictionary">Lüğət</string>
   <string name="search_dictionary_hint">Lüğətdə tap</string>
-  <string name="dictionary_contents">İçindəkilər</string>
   <!--General Book-->
   <string name="general_book">Kitab</string>
-  <string name="general_book_contents">İçindəkilər</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -252,9 +214,7 @@ səhifələrdən yüklənilir</string>
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Qeydlərim</string>
-  <string name="mynote">Qeydim</string>
   <string name="mynote_add">Qeydlərimə daxil et</string>
-  <string name="mynote_view_edit">Qeydim</string>
   <string name="mynote_saved">Qeydlərim yaddaşa vuruldu</string>
   <!--Backup and restore-->
   <string name="backup">Kopyala</string>
@@ -280,16 +240,10 @@ səhifələrdən yüklənilir</string>
   <string name="cancel">Ləğv</string>
   <string name="yes">Bəli</string>
   <string name="no">Xeyr</string>
-  <string name="save">Yaddaşa vur</string>
   <string name="error">Xəta</string>
-  <string name="more">Daha çox</string>
-  <string name="more_dotted">Daha...</string>
-  <string name="retry">Təkrar yoxlayın</string>
   <string name="please_wait">Zəhmət olmazsa gözləyin...</string>
   <string name="all">Hamısı</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Yeni</string>
-  <string name="close">Bağla</string>
   <string name="edit">Düzəliş edin</string>
   <!--Errors-->
   <string name="report_error">Reportu göndərin</string>

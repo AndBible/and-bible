@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">Библия</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Навигация</b>\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево. \nДля того, чтобы выключить/включить просмотр на весь экран щелкните пальцем по экрану два раза. \n\n<b>Меню</b> \nДля доступа к настройкам и функциям зайдите в Меню. \nДля того, чтобы скачать Библии и/или другие ресурсы нажмите Mеню/Еще/Скачать ресурсы. \n\n<b>Прослушивание вслух</b>\nДля того, чтобы начать или остановить прослушивание нажмите Mеню/Управление/Прослушать вслух . \n\n<b>Мои заметки</b>\nДля того, чтобы добавить заметки, зайдите в Мои заметки в контекстном меню стиха. Для того, чтобы просмотреть список существующих заметок зайдите в Меню/Мои заметки. \n\n<b>Закладки</b>\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы просмотреть существующие закладки, зайдите в Меню/Закладки. В нём можно сгруппировать закладки через ярлыки.\n\n<b>Поиск</b>\nПоиск может содержать особые символы как *, ?, AND, OR, NOT (для более подробной информации см. \"Apache Lucene - Query Parser Syntax\")\n\n<b>Контестное меню</b>\nДля того, чтобы открыть контекстное меню стиха сделайте долгое нажатие по тексту Библии.\nДля того, чтобы удалить ресурс или посмотреть его источник сделайте долгое нажатие по ресурсу в разделе Ресурсы.\nДля того, чтобы просмотреть историю сделайте долгое нажатие на кнопку Назад</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
   <string name="help_text">Для доступа к настройкам и функциям зайдите в Меню.\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.</string>
@@ -37,7 +35,6 @@
   <string name="history">История</string>
   <string name="speak">Прослушать</string>
   <string name="help">Помощь</string>
-  <string name="verse">Стих</string>
   <string name="administration">Управление</string>
   <string name="rate_application">Оценить &amp; amp; Просмотреть в Google Play</string>
   <string name="chooce_document">Выбрать модуль</string>
@@ -52,7 +49,6 @@
   <string name="index_creation_required">Для поиска требуется индекс.\nИндексы можно скачать с Интернета или создать.\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\nДля того, чтобы скачать индексы, подключитесь к Интернету.\n</string>
   <string name="search_index_unavailable">К сожалению, создание индекса доступно только на Android 5,0 (Lollipop) и новее.</string>
   <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
-  <string name="index">Индекс</string>
   <string name="index_download">Скачать</string>
   <string name="index_not_available_for_download">Этот индекс недоступен для скачивания.</string>
   <string name="index_create">Создать</string>
@@ -62,7 +58,6 @@
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
   <!--Search-->
-  <string name="search_results">Показать результаты</string>
   <string name="search_words_group_prompt">Найти стихи</string>
   <string name="search_all_words">Все слова</string>
   <string name="search_any_word">Любое слово</string>
@@ -77,25 +72,16 @@
   <string name="error_executing_search">Неверный запрос</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Нумерация стихов</string>
-  <string name="prefs_show_verseno_summary">Отображать нумерацию стихов</string>
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
-  <string name="prefs_verse_per_line_summary">Расположить каждый стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
-  <string name="prefs_show_bookmarks_summary">Убрать галочку, чтобы скрыть все закладки</string>
   <string name="prefs_default_bookmark_style_title">Стиль закладки по умолчанию</string>
   <string name="prefs_default_bookmark_style_summary">Цвет подсветки или иконка</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
-  <string name="prefs_show_mynotes_summary">Показать значки в стихах с моими заметками</string>
   <string name="prefs_show_notes_title">Заметки</string>
-  <string name="prefs_show_notes_summary">Показать заметки и ссылки</string>
   <string name="prefs_show_strongs_title"> Показать числа Стронга</string>
-  <string name="prefs_show_strongs_summary">Отображать ссылки к значениям на греческом &amp; иврите</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
-  <string name="prefs_show_morphology_summary">Показать морфологию греческого языка по Робинсону</string>
   <string name="prefs_section_title_title">Названия разделов</string>
-  <string name="prefs_section_title_summary">Показать названия разделов</string>
   <string name="prefs_red_letter_title">Красный шрифт</string>
-  <string name="prefs_red_letter_summary">Показать слова Иисуса красным цветом</string>
   <string name="prefs_tilt_to_scroll_title">Прокручивание текста</string>
   <string name="prefs_tilt_to_scroll_summary">Наклоните устройство для того, чтобы прокрутить страницы вниз</string>
   <string name="prefs_night_mode_title">Ночной режим</string>
@@ -110,15 +96,8 @@
   <string name="prefs_text_size_sample_text">Образец текста</string>
   <string name="prefs_screen_keep_on_title">Не выключать экран</string>
   <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
-  <string name="x_minutes">%d минут</string>
   <string name="prefs_interface_locale_title">Язык</string>
   <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
-  <string name="locale_change_warning">Приложение перезагрузится для перехода интерфейса на новый язык.</string>
-  <string name="prefs_speak_speed_title">Скорость речи</string>
-  <string name="prefs_speak_speed_summary">Говорить медленнее или быстрее</string>
-  <string name="speak_speed_slow">Медленно</string>
-  <string name="speak_speed_normal">Обычно</string>
-  <string name="speak_speed_fast">Быстро</string>
   <string name="prefs_split_mode_vertical">Вертикально</string>
   <string name="prefs_split_mode_horizontal">Горизонтально</string>
   <string name="prefs_split_mode_automatic">Автоматически</string>
@@ -128,7 +107,6 @@
   <string name="prefs_request_sdcard_permission_summary">Разрешить использование модулей, установленных вручную, из папки jsword на SD-карте</string>
   <!--Window-->
   <string name="new_window">Новое окно</string>
-  <string name="window">Окно</string>
   <string name="windowClose">Закрыть</string>
   <string name="windowMaximise">Развернуть</string>
   <string name="windowMinimise">Свернуть</string>
@@ -140,14 +118,11 @@
   <string name="previous">Назад</string>
   <string name="next">Вперед</string>
   <!--Strongs-->
-  <string name="strongs">Словарь Стронга</string>
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
   <string name="all_greek_occurrences">Показать все случаи употребления</string>
   <string name="all_hebrew_occurrences">Показать все случаи употребления</string>
   <string name="no_indexed_bible_with_strongs_ref">Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск.</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Скачать ресурсы</string>
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
@@ -158,9 +133,6 @@
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
   <string name="no_internet_connection">Нет подключения к Интернету.</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
-  <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
-  <string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
-  <string name="download_complete_no_bibles">Библия не установилась. Нажмите Назад и попытайтесь снова.</string>
   <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
   <!--Install zip file-->
@@ -179,12 +151,6 @@
   <string name="rdg_plan_set_start_jan1">Начать с 1 января</string>
   <string name="done">Готово</string>
   <string name="reset">Перезагрузить</string>
-  <string name="rdg_plan_y1ntpspr">Новый Завет, Псалтырь и Притчи за год</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Вся Библия в хронологическом порядке за год</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Вся Библия за год - ВЗ и НЗ</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Вся Библия за год - ВЗ потом НЗ</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Вся Библия за год (по МакЧейну)</string>
-  <string name="rdg_plan_y2ot1ntps2">План на 2 года: ВЗ - один раз, НЗ и Псалтирь - два раза</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Удалить</string>
@@ -209,7 +175,6 @@
   <string name="delete_bookmark">Удалить закладку</string>
   <string name="bookmark_added">Закладка добавлена</string>
   <string name="bookmark_date_updated">Дата закладки обновлена</string>
-  <string name="bookmark_exists">Закладка уже существует</string>
   <string name="bookmark_deleted">Закладка удалена</string>
   <string name="bookmark_labels">Ярлыки</string>
   <string name="manage_labels">Управление метками закладок</string>
@@ -217,7 +182,6 @@
   <string name="new_label">Новый ярлык</string>
   <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Без ярлыка</string>
-  <string name="rename">Переименовать</string>
   <string name="style">Стиль</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
@@ -226,10 +190,8 @@
   <!--Dictionary-->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>
-  <string name="dictionary_contents">Содержание</string>
   <!--General Book-->
   <string name="general_book">Книга</string>
-  <string name="general_book_contents">Содержание</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -275,7 +237,6 @@
   <string name="conf_change_title">Подзаголовок</string>
   <string name="conf_speak_footnotes">Примечаний</string>
   <string name="conf_speak_sleep_timer">Установить таймер сна</string>
-  <string name="conf_speak_multitranslation">Произнести из всех видимых окон</string>
   <string name="sleep_timer_title">Время сна в минутах</string>
   <string name="sleep_timer_set">Установить таймер сна. Таймер установлен: %dминут</string>
   <string name="sleep_timer_started">Таймер сна запущен, %d минут</string>
@@ -341,9 +302,7 @@
   <string name="speak_fifth">Пятая</string>
   <!--User Notes-->
   <string name="mynotes">Мои заметки</string>
-  <string name="mynote">Моя заметка</string>
   <string name="mynote_add">Добавить заметку</string>
-  <string name="mynote_view_edit">Моя заметка</string>
   <string name="mynote_saved">Сохранено</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
@@ -370,16 +329,10 @@
   <string name="cancel">Отмена</string>
   <string name="yes">Да</string>
   <string name="no">Нет</string>
-  <string name="save">Сохранить</string>
   <string name="error">Ошибка</string>
-  <string name="more">Еще</string>
-  <string name="more_dotted">Еще...</string>
-  <string name="retry">Попытайтесь снова</string>
   <string name="please_wait">Пожалуйста подождите...</string>
   <string name="all">Все</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Новое</string>
-  <string name="close">Закрыть</string>
   <string name="edit">Правка</string>
   <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <!--Errors-->
@@ -389,9 +342,7 @@
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
   <string name="empty_list">Для отображения ничего нет</string>
-  <string name="add_widget">Добавить виджет</string>
   <!--Notifications-->
-  <string name="download_documents">Загрузка модулей</string>
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
 </resources>

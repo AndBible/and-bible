@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Biblija</string>
-  <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>Navigacija</b>\nNa naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, smernih tipk ali pomikom prsta preko ekrana v desno ali levo.\n \nDvakraten pritisk vklopi/izklopi celoten ekran. \n\n<b>Meni</b> \nZa dejanja se pritisne gumb MENI.\n\n \nZa prenos več dokumentov se pritisne Menu/Upravljanje/Prenos Dokumentov\n \n\n<b>Govor</b>\nPritisnite Govor, da pridete do okna za pričetek in zaustavitev branja.\n \n\n<b>Moja Opomba</b>\nOpombe se lahko dodajajo preko menija Dodaj Mojo opombo, ki se prikaže ob daljšem pritisku na vrstico. Do seznama obstoječih opomb se lahko dostopa prek glavnega menuja.\n \n\n<b>Zaznamki</b>\nZaznamke se lahko dodaja prek menuja, ki se prikaže ob daljšem pritisku na vrstico. Upravljalec zaznamkov je dostopen preko glavnega menuja. Podmeni Upravljalca zaznamkov dovoljuje razvrščanje zaznamkov glede na oznako.\n \n\n<b>Iskanje</b>\nIskanje besedila lahko vsebuje tudi posebne znake kot so: *, ?, AND, OR, NOT (za več podrobnosti glej \"Apache Lucene - Query Parser Syntax\")\n \n\n<b>Vrstični meniji</b>\n \nDaljši pritisk na biblične vrstice odpre ustrezen menu za dejanja, ki se nanašajo na trenutno vrstico.\n \nDaljši pritisk na biblijo ali dokument, pri izbiranju biblije ali dokumenta, ga lahko izbriše ali pa pokaže informacije o njem.\n \nDaljši pritisk na gumb Nazaj prikaže seznam zgodovine.</string>
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"In Bog je rekel: \'Naj bo svetloba;\' in bila je svetloba.\"\nGeneza 1:3</string>
@@ -41,7 +39,6 @@
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
-  <string name="verse">Vrstica</string>
   <string name="administration">Upravljanje</string>
   <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
@@ -56,7 +53,6 @@
   <string name="index_creation_required">Za iskanje je potreben indeks.\n\nIndeksi se lahko prenesejo iz interneta ali pa se jih ustvari lokalno.\n\nPrenos iz interneta je mnogo hitrejši in preneseni indeksi imajo več iskalnih značilnosti.\n\nZa prenos indeksov je potrebna internetna povezava.\n</string>
   <string name="search_index_unavailable">Na žalost je kreiranje kazala na voljo samo na Android 5.0 (Lollipop) in novejšem.</string>
   <string name="indexing_wait_msg">Ko se indeksiranje konča, se bo pojavilo okno za iskanje.</string>
-  <string name="index">Indeks</string>
   <string name="index_download">Prenos</string>
   <string name="index_not_available_for_download">Ta indeks ni na voljo za prenos</string>
   <string name="index_create">Ustvari</string>
@@ -66,7 +62,6 @@
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
   <string name="no_tasks_running">Trenutno se ne izvaja nobeno opravilo.</string>
   <!--Search-->
-  <string name="search_results">Najdi rezultate</string>
   <string name="search_words_group_prompt">Najdi vrstice</string>
   <string name="search_all_words">Vse besede</string>
   <string name="search_any_word">Katerakoli beseda</string>
@@ -81,25 +76,16 @@
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Številke vrstic</string>
-  <string name="prefs_show_verseno_summary">Prikaži številke vrstic</string>
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
-  <string name="prefs_verse_per_line_summary">Prikaži vsako vrstico v drugi vrsti</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
-  <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki</string>
   <string name="prefs_default_bookmark_style_title">Privzet stil zaznamkov</string>
   <string name="prefs_default_bookmark_style_summary">Poudari barvo ali ikono</string>
   <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
-  <string name="prefs_show_mynotes_summary">Prikaži ikono v vrsticah z mojimi opombami</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
-  <string name="prefs_show_notes_summary">Prikaži zaznamke in sklice</string>
   <string name="prefs_show_strongs_title">Prikaži Strong-ova števila</string>
-  <string name="prefs_show_strongs_summary">Povezave na grške &amp; hebrejske definicije</string>
   <string name="prefs_show_morphology_title">Oblikoslovne kode</string>
-  <string name="prefs_show_morphology_summary">Prikaži Robinsonovo grško oblikoslovje</string>
   <string name="prefs_section_title_title">Naslovi poglavij</string>
-  <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij</string>
   <string name="prefs_red_letter_title">Rdeče črke</string>
-  <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi</string>
   <string name="prefs_tilt_to_scroll_title">Nagib za pomik</string>
   <string name="prefs_tilt_to_scroll_summary">Za pomik strani nagni napravo</string>
   <string name="prefs_night_mode_title">Nočni način</string>
@@ -114,15 +100,8 @@
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje ekrana med uporabo te aplikacije</string>
-  <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jezik aplikacije</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika</string>
-  <string name="locale_change_warning">Aplikacija bo ponovno zagnana, da lahko preklopi na drug jezika uporabniškega vmesnika</string>
-  <string name="prefs_speak_speed_title">Hitrost govora</string>
-  <string name="prefs_speak_speed_summary">Govori počasneje ali hitreje</string>
-  <string name="speak_speed_slow">Počasi</string>
-  <string name="speak_speed_normal">Običajno</string>
-  <string name="speak_speed_fast">Hitro</string>
   <string name="prefs_split_mode_vertical">Navpično</string>
   <string name="prefs_split_mode_horizontal">Vodoravno</string>
   <string name="prefs_split_mode_automatic">Avtomatično</string>
@@ -132,7 +111,6 @@
   <string name="prefs_request_sdcard_permission_summary">Omogoči uporabo ročno nameščenih dokumentov iz jsword mape na SD kartici</string>
   <!--Window-->
   <string name="new_window">Novo okno</string>
-  <string name="window">Okno</string>
   <string name="windowClose">Zapri</string>
   <string name="windowMaximise">Maksimiraj</string>
   <string name="windowMinimise">Minimiraj</string>
@@ -144,14 +122,11 @@
   <string name="previous">Prejšnji</string>
   <string name="next">Naslednji</string>
   <!--Strongs-->
-  <string name="strongs">Slovar Strong-ovih števil</string>
   <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
   <string name="all_greek_occurrences">Najdi vse pojavitve</string>
   <string name="all_hebrew_occurrences">Najdi vse pojavitve</string>
   <string name="no_indexed_bible_with_strongs_ref">Potreben je prenos biblije, ki vsebuje Strong-ove številke in prenos njegovega indeksa preko Iskanja</string>
   <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Prenos dokumentov</string>
   <string name="download_confirmation">Prenos biblije iz interneta?</string>
@@ -162,9 +137,6 @@
   <string name="error_downloading">Pri prenosu se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
   <string name="no_internet_connection">Ne da se povezati na internet</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
-  <string name="wait_for_bible">Prosim počakajte, da se prenos biblije konča. Potem boste vodeni na glavni ekran.\n\nDodatne dokumente lahko prenesete kasneje z izbiro gumba Menu/Upravljanje/Prenos dokumentov.</string>
-  <string name="wait_for_bible_not_yet">Prosim počakajte.  Biblija še ni zaključila z namestitvijo.</string>
-  <string name="download_complete_no_bibles">Nameščena ni bila nobena biblija.  Prosim pritisnite Nazaj in ponovno poskusite.</string>
   <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
   <!--Install zip file-->
@@ -183,12 +155,6 @@
   <string name="rdg_plan_set_start_jan1">Pričetek 1. Jan</string>
   <string name="done">Končano</string>
   <string name="reset">Reset</string>
-  <string name="rdg_plan_y1ntpspr">Nova zaveza, Psalmi in Pregovori v enem letu</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Biblija v enem letu - po vrsti</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Biblija v enem letu - SZ in NZ</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Biblija v enem letu - SZ in potem NZ</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Biblija v enem letu - (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">2 letni načrt - SZ enkrat, NZ in Psalmi dvakrat</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Izbriši</string>
@@ -213,7 +179,6 @@
   <string name="delete_bookmark">Zaznamek izbriši</string>
   <string name="bookmark_added">Zaznamek dodan</string>
   <string name="bookmark_date_updated">Zaznamek osvežen</string>
-  <string name="bookmark_exists">Zaznamek že obstaja</string>
   <string name="bookmark_deleted">Zaznamek pobrisan</string>
   <string name="bookmark_labels">Oznake zaznamkov</string>
   <string name="manage_labels">Upravljaj oznake zaznamkov</string>
@@ -221,7 +186,6 @@
   <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeno</string>
-  <string name="rename">Preimenuj</string>
   <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
@@ -230,10 +194,8 @@
   <!--Dictionary-->
   <string name="dictionary">Slovar</string>
   <string name="search_dictionary_hint">Išči po slovarju</string>
-  <string name="dictionary_contents">Vsebine</string>
   <!--General Book-->
   <string name="general_book">Knjiga</string>
-  <string name="general_book_contents">Vsebine</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -279,7 +241,6 @@
   <string name="conf_change_title">Naslovi</string>
   <string name="conf_speak_footnotes">Zaznamki</string>
   <string name="conf_speak_sleep_timer">Nastavi časovnik za spanje</string>
-  <string name="conf_speak_multitranslation">Govor iz vseh vidnih oken</string>
   <string name="sleep_timer_title">Časovnik za spanje v minutah</string>
   <string name="sleep_timer_set">Nastavi časovnik za spanje. Časovnik nastavljen na: %d minut</string>
   <string name="sleep_timer_started">Časovnik za spanje zagnan, %d minut</string>
@@ -343,9 +304,7 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="speak_fifth">Peti</string>
   <!--User Notes-->
   <string name="mynotes">Moje opombe</string>
-  <string name="mynote">Moja opomba</string>
   <string name="mynote_add">Dodaj Mojo opombo</string>
-  <string name="mynote_view_edit">Moja opomba</string>
   <string name="mynote_saved">Moja opomba je shranjena</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova varnostne kopije</string>
@@ -372,16 +331,10 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="cancel">Prekliči</string>
   <string name="yes">Da</string>
   <string name="no">Ne</string>
-  <string name="save">Shrani</string>
   <string name="error">Napaka</string>
-  <string name="more">Več</string>
-  <string name="more_dotted">Več...</string>
-  <string name="retry">Poskusi ponovno</string>
   <string name="please_wait">Prosim počakaj...</string>
   <string name="all">Vse</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Novo</string>
-  <string name="close">Zapri</string>
   <string name="edit">Uredi</string>
   <string name="watch_tutorial_video">Ogled video navodil (Angleščina)</string>
   <!--Errors-->
@@ -391,9 +344,7 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
-  <string name="add_widget">Dodaj orodje</string>
   <!--Notifications-->
-  <string name="download_documents">Prejemanje dokumentov</string>
   <string name="notification_channel_tts_status">Besedilo v govor</string>
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
 </resources>
