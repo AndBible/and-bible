@@ -510,29 +510,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val sharedActivityState = SharedActivityState.getInstance()
 
     private fun hideSystemUI() {
-        window.decorView.systemUiVisibility = if(isPortrait) (
+        var uiFlags = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                //or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        else(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                //or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        // only hide navigation bar in portrait mode
+        if (isPortrait)
+            uiFlags = (uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+
+        window.decorView.systemUiVisibility = uiFlags
     }
 
     private fun showSystemUI() {
-        window.decorView.systemUiVisibility = if (isPortrait) {
-            (View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            //or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            )
-        }
-        else View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        var uiFlags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+
+        // only need to un-hide navigation bar in portrait mode
+        if (isPortrait)
+            uiFlags = (uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+
+        window.decorView.systemUiVisibility = uiFlags
     }
 
     private fun updateSpeakTransportVisibility() {
