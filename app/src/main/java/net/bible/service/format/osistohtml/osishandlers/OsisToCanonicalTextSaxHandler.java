@@ -162,7 +162,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		// reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
 		if (!StringUtils.isWhitespace(s)) {
 			super.write(s);
-			spaceJustWritten = false;
+			spaceJustWritten = Character.isWhitespace(s.charAt(s.length() - 1));
 		} else if (!spaceJustWritten) {
 			super.write(" ");
 			spaceJustWritten = true;
