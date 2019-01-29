@@ -82,12 +82,12 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_show_verseno_summary">Affiche les numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_verse_per_line_summary">Affiche les versets ligne par ligne</string>
-  <string name="prefs_show_bookmarks_title">Afficher les signets</string>
+  <string name="prefs_show_bookmarks_title">Icônes Mes signets</string>
   <string name="prefs_show_bookmarks_summary">Applique un style spécial aux versets marqués d\'un signet</string>
   <string name="prefs_default_bookmark_style_title">Style des signets</string>
   <string name="prefs_default_bookmark_style_summary">Sélectionne le style spécial d\'affichage des versets marqués d\'un signet</string>
-  <string name="prefs_show_mynotes_title">Afficher Mes Notes</string>
-  <string name="prefs_show_mynotes_summary">Ajoute une icône aux versets commentés dans Mes Notes</string>
+  <string name="prefs_show_mynotes_title">Icônes Mes notes</string>
+  <string name="prefs_show_mynotes_summary">Ajoute une icône aux versets commentés dans Mes notes</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
   <string name="prefs_show_notes_summary">Affiche les notes de bas de page et les références croisées</string>
   <string name="prefs_show_strongs_title">Codes de Strong</string>
@@ -96,7 +96,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_show_morphology_summary">Affiche la morphologie grecque de Robinson</string>
   <string name="prefs_section_title_title">Titres de section</string>
   <string name="prefs_section_title_summary">Affiche les titres de section non-canonique</string>
-  <string name="prefs_red_letter_title">Paroles de Christ</string>
+  <string name="prefs_red_letter_title">Paroles de Christ en rouge</string>
   <string name="prefs_red_letter_summary">Affiche les paroles de Christ en rouge</string>
   <string name="prefs_tilt_to_scroll_title">Défilement par basculement</string>
   <string name="prefs_tilt_to_scroll_summary">L\'inclinaison de l\'appareil fait défiler la page vers le bas</string>

@@ -2,25 +2,52 @@
 <resources>
   <string name="app_name">And 聖經</string>
   <!--Old long help text. This will be removed later.-->
-  <string name="help_text_long"><b>導航</b>\n到前一章或者后一章： 使用軌跡球，D-pad或用手指在屏幕上左右滑動\n全屏模式打開或關閉： 雙擊屏幕\n\n<b>菜單</b>\n按MENU菜單鍵來開啟動作菜單\n\n欲下載更多的聖經或者文檔， 按 菜單／更多／下載文檔\n\n<b>朗讀</b>\n按朗讀啟動開關朗讀功能的對話框\n\n<b>我的筆記</b>\n按彈出菜單中的我的筆記菜單項可以添加筆記。現有筆記列表通過主菜單訪問\n\n<b>書簽</b>\n在彈出菜單中可以給對應小節添加書簽。 書簽管理通過主菜單訪問。 書簽管理的彈出菜單提供書簽分組功能，而且可以使用標簽。\n\n<b>查詢</b>\n查詢文本可以包括的特殊字符有 *，?，AND，OR，NOT (請參考 \"Apache Lucene - Query Parser Syntax\" 獲得更多的信息)\n\n<b>彈出菜單</b>\n長按聖經文本顯示針對當前小節的有效動作菜單\n長按文檔選擇列表中某項來刪除文檔或者查看文檔的信息\n長按BACK返回按鈕查看歷史記錄</string>
+  <string name="help_text_long"><b>導航</b>
+用軌跡球、D-pad或用手指滑動螢幕，轉到下一章或上一章。
+點擊聖經文本兩次以切換全螢幕模式
+
+<b>選單</b>
+按選單鍵來開啟動作選單
+欲下載更多的聖經或者文檔， 按選單/更多/下載文檔
+
+<b>朗讀</b>
+按下朗讀以開結或停止朗讀
+
+<b>我的筆記</b>
+透過經節的選單中我的筆記，可以加入筆記。
+主選單中可以找到所有筆記。
+
+<b>書簽</b>
+透過經節的選單可以加入書籤
+主選單中可以管理書籤標籤
+書籤管理選單中可以加入標籤將書籤分組
+
+<b>查詢</b>
+搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
+(有關詳細信息請參「Apache Lucene - Query Parser Syntax」)
+
+<b>彈出選單</b>
+長按經文可以開啟本節選單
+選擇文件中，長按文件可刪除或取得更多資訊
+長按後退鍵可以開啟閱讀歷史</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n創世記 1:3</string>
-  <string name="help_text">使用MENU菜單的按鈕操作\n向左滑動手指看下一章\n向右滑動手指看上一章\n向左或向右按軌跡球\n也可以前后翻動章節</string>
+  <string name="help_text">使用選單的按鈕操作\n向左滑動手指看下一章\n向右滑動手指看上一章\n向左或向右按軌跡球\n也可以前後翻動章節</string>
   <string name="help_nav_title">導航</string>
-  <string name="help_nav_text">用手指滑動屏幕，轉到下一章或上一章。
-         點擊聖經文本一次以切換全屏模式。 聖經視窗的右上角有選單按鈕，
-         長按可訪問視窗選單。</string>
+  <string name="help_nav_text">用手指滑動螢幕，轉到下一章或上一章。
+點擊聖經文本一次以切換全螢幕模式。 聖經視窗的右上角有選單按鈕，
+長按可訪問視窗選單。</string>
   <string name="help_speech_title">語音</string>
-  <string name="help_speech_text">按下朗讀以開結或停止閱讀</string>
+  <string name="help_speech_text">按下朗讀以開結或停止朗讀</string>
   <string name="help_mynote_title">我的筆記</string>
-  <string name="help_mynote_text">透過經節的選單中「我的筆記」，可以加入筆記。
-        主選單中可以找到所有筆記。</string>
+  <string name="help_mynote_text">透過經節的選單中我的筆記，可以加入筆記。
+主選單中可以找到所有筆記。</string>
   <string name="help_bookmarks_title">書籤</string>
   <string name="help_bookmarks_text">透過經節的選單可以加入書籤
 主選單中可以管理書籤標籤
 書籤管理選單中可以加入標籤將書籤分組</string>
   <string name="help_search_title">搜尋</string>
-  <string name="help_search_text">搜尋字詞可以加入特殊字符如 * ,?，AND，OR，NOT
+  <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_contextmenus_title">內文選單</string>
   <string name="help_contextmenus_text">
@@ -50,9 +77,9 @@
   <string name="deuterocanonical">次經</string>
   <!--Search-->
   <string name="search_index">查詢索引</string>
-  <string name="index_creation_required">查詢功能需要可用的查詢索引。索引可以在手機上創建或從網上下載。從網上下載更快，而下載來得索引功能更多。下載索引需要網絡鏈接。\n</string>
+  <string name="index_creation_required">搜尋功能需要可用的查詢索引。索引可以在手機上創建或從網上下載。從網上下載會更快，而且引功能更多。下載索引需要網絡連接。\n</string>
   <string name="search_index_unavailable">索引創建只適用於Android 5.0 (Lollipop) 或更新版本。</string>
-  <string name="indexing_wait_msg">當索引創建完成時，程序會回到查詢頁面。</string>
+  <string name="indexing_wait_msg">當索引創建完成時，程式會回到查詢頁面。</string>
   <string name="index">索引</string>
   <string name="index_download">下載索引</string>
   <string name="index_not_available_for_download">無適用索引以供下載</string>
@@ -83,32 +110,32 @@
   <string name="prefs_verse_per_line_summary">每行一小節聖經</string>
   <string name="prefs_show_bookmarks_title">顯示書籤圖示</string>
   <string name="prefs_show_bookmarks_summary">選取後顯示書籤圖示</string>
-  <string name="prefs_default_bookmark_style_title">默認書籤樣式</string>
+  <string name="prefs_default_bookmark_style_title">預設書籤樣式</string>
   <string name="prefs_default_bookmark_style_summary">書籤突出顯示顏色或圖示</string>
   <string name="prefs_show_mynotes_title">顯示筆記圖示</string>
   <string name="prefs_show_mynotes_summary">在經文中顯示筆記圖示</string>
-  <string name="prefs_show_notes_title">顯示備注</string>
-  <string name="prefs_show_notes_summary">腳注和索引</string>
+  <string name="prefs_show_notes_title">注腳和交叉對照</string>
+  <string name="prefs_show_notes_summary">顯示注腳和交叉對照</string>
   <string name="prefs_show_strongs_title">顯示原文編號</string>
-  <string name="prefs_show_strongs_summary">史特朗號碼，希伯來語和希臘語定義鏈接顯示</string>
+  <string name="prefs_show_strongs_summary">連結至希臘文和希伯來文定義</string>
   <string name="prefs_show_morphology_title">顯示詞形碼</string>
   <string name="prefs_show_morphology_summary">羅氏詞形分析碼顯示</string>
   <string name="prefs_section_title_title">章節標題</string>
   <string name="prefs_section_title_summary">顯示非規範的章節標題</string>
   <string name="prefs_red_letter_title">紅字</string>
   <string name="prefs_red_letter_summary">基督的話顯示紅色字體</string>
-  <string name="prefs_tilt_to_scroll_title">傾斜手機向下卷動</string>
+  <string name="prefs_tilt_to_scroll_title">傾斜手機向下捲動</string>
   <string name="prefs_tilt_to_scroll_summary">傾斜手機到下頁</string>
-  <string name="prefs_night_mode_title">夜晚模式</string>
+  <string name="prefs_night_mode_title">夜間模式</string>
   <string name="prefs_night_mode_summary">方便在暗處閱讀</string>
   <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
-  <string name="prefs_navigate_to_verse_title">導航到經文小節標題</string>
+  <string name="prefs_navigate_to_verse_title">導航到經節</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
-  <string name="prefs_open_links_in_special_window_title">在特殊視窗打開鏈接</string>
-  <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉引用和Strong\'s原文編號</string>
+  <string name="prefs_open_links_in_special_window_title">在特殊視窗打開連結</string>
+  <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉對照和Strong\'s原文編號</string>
   <string name="prefs_text_size_title">字體大小</string>
   <string name="prefs_text_size_summary">調整字體</string>
-  <string name="prefs_text_size_sample_text">示例文本</string>
+  <string name="prefs_text_size_sample_text">示範文字</string>
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
   <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
   <string name="x_minutes">%d 分鐘</string>
@@ -129,23 +156,23 @@
   <string name="prefs_request_sdcard_permission_summary">允許使用SD卡jsword文件夾中手動安裝的文件</string>
   <!--Window-->
   <string name="new_window">新視窗</string>
-  <string name="window">示窗</string>
+  <string name="window">視窗</string>
   <string name="windowClose">關閉</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
-  <string name="windowMoveFirst">首先移動</string>
+  <string name="windowMoveFirst">移動至最前</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">本章沒有備注</string>
   <string name="no_verse_notes">本節沒有備注</string>
   <string name="previous">上一頁</string>
   <string name="next">下一頁</string>
   <!--Strongs-->
-  <string name="strongs">Strong\'s 原文字典</string>
-  <string name="strongs_not_installed">請下載Strong\'s希伯來語和希臘語的原文字典</string>
-  <string name="all_greek_occurrences">查找所有希臘語字符</string>
-  <string name="all_hebrew_occurrences">查找所有希伯來語字符</string>
-  <string name="no_indexed_bible_with_strongs_ref">需要下載包含原文編號的聖經，並通過查詢下載相應的索引</string>
+  <string name="strongs">Strong\'s原文字典</string>
+  <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
+  <string name="all_greek_occurrences">查找所有希臘文字符</string>
+  <string name="all_hebrew_occurrences">查找所有希伯來文字符</string>
+  <string name="no_indexed_bible_with_strongs_ref">需要下載包含原文編號的聖經，並於搜尋下載相應的索引</string>
   <string name="morph_robinson_not_installed">請下載羅氏詞形分析碼的字典</string>
   <string name="strongs_toggle_button_on">已打開</string>
   <string name="strongs_toggle_button_off">已關閉</string>
@@ -238,8 +265,8 @@
   <string name="some_chapters">%d 章</string>
   <string name="rest_of_book">到書卷末</string>
   <!--Speak - Commentary-->
-  <string name="one_verse">第 %d句</string>
-  <string name="some_verses">%d句</string>
+  <string name="one_verse">第 %d節</string>
+  <string name="some_verses">共%d節</string>
   <string name="rest_of_chapter">到章節末</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">第 %d頁</string>
@@ -267,7 +294,7 @@
   <string name="speak_beginning_of_passage">選取段落開結</string>
   <string name="speak_ending_of_passage">選擇段落結尾</string>
   <string name="speak_verse_range_to_repeat">設定重複節數範圍</string>
-  <string name="speak_ending_verse_must_be_later">結束節數必需後於開結節數</string>
+  <string name="speak_ending_verse_must_be_later">結束節數必須在開始節數之後</string>
   <string name="conf_speak_synchronize">文字跟隨語音</string>
   <string name="conf_speak_auto_bookmark">自動標籤</string>
   <string name="conf_save_playback_settings_to_bookmarks">儲存播放設定至書籤</string>
@@ -296,7 +323,7 @@
 只有朗讀標籤會移動，
 而其他標籤將不受影響。</string>
   <string name="speak_help_playback_settings">
-特殊播放設定 (在朗讀屏幕上的「播放設定」)
+特殊播放設定 (在朗讀螢幕上的「播放設定」)
 會在選擇此設定後，儲存為朗讀書籤。
 當您從朗讀書籤重新開始講話時，
 將會書籤載入已儲存的播放設定。</string>
