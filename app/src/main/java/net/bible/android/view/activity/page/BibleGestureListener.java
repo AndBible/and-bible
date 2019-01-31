@@ -138,18 +138,11 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		}
 		if (verseSelectionMode) {
 			return false;
-
 		}
-		if(disableSingleTapOnce) {
-			disableSingleTapOnce = false;
-			return false;
+		if(mainBibleActivity.getFullScreen()) {
+			mainBibleActivity.toggleFullScreen();
+			return true;
 		}
-		else {
-			if(mainBibleActivity.getFullScreen()) {
-				mainBibleActivity.toggleFullScreen();
-				return true;
-			}
-			return false;
-		}
+		return false;
 	}
 }
