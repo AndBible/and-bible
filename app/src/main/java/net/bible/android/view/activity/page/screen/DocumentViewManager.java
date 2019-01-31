@@ -67,6 +67,7 @@ public class DocumentViewManager {
 
 	public synchronized void buildView() {
     	if (myNoteViewBuilder.isMyNoteViewType()) {
+    		mainBibleActivity.resetSystemUi();
     		documentWebViewBuilder.removeWebView(parent);
     		myNoteViewBuilder.addMyNoteView(parent);
     	} else {

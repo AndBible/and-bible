@@ -93,6 +93,9 @@ class DocumentControl @Inject constructor(
     val commentariesForVerse: List<Book>
         get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { it -> commentaryFilter.test(it) }
 
+    val isMyNotes: Boolean
+        get () = currentPage.isMyNoteShown
+
     val isBibleBook: Boolean
         get () = currentDocument.bookCategory == BookCategory.BIBLE
 
