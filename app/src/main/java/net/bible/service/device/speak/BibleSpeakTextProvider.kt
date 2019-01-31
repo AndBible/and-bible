@@ -80,7 +80,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         set(newValue) {
             // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
             _currentVerse = if(newValue.verse == 0) {
-                getNextVerse(newValue)
+                bibleTraverser.getNextVerse(book, newValue)
             } else {
                 newValue
             }
