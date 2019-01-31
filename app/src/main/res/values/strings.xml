@@ -14,7 +14,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="help_nav_title">Navigation</string>
     <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Tap bible text once to toggle full screen mode. Bible windows have menu button on the top-right corner,
+        Double-tap bible text to toggle full screen mode. Bible windows have menu button on the top-right corner,
         and you can access window menu long pressing them.
     </string>
 
