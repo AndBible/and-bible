@@ -133,9 +133,6 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
-		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-			return false;
-		}
 		if (verseSelectionMode) {
 			return false;
 		}
