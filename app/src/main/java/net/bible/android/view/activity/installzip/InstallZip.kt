@@ -81,8 +81,11 @@ internal class ZipHandler(
 
         val targetDirectory = SwordBookPath.getSwordDownloadDir()
         val zin = ZipInputStream(newInputStream())
-
-        entry = zin.nextEntry
+        try {
+            entry = zin.nextEntry
+        } catch (e: IllegalArgumentException) {
+            throw InvalidModule()
+        }
 
         while (entry != null) {
             totalEntries++
