@@ -353,6 +353,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_fourth">Fourth</string>
     <string name="speak_fifth">Fifth</string>
 
+    <string name="verse_range_mode_disabled">
+        Repeat passage mode was disabled automatically because
+        speaking was started outside of defined verse range.
+    </string>
+
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
     <string name="mynote_add">Add My Note</string>

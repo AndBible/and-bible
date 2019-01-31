@@ -34,7 +34,6 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
@@ -79,11 +78,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         get() = _currentVerse
         set(newValue) {
             // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
-            _currentVerse = if(newValue.verse == 0) {
-                getNextVerse(newValue)
-            } else {
-                newValue
-            }
+            _currentVerse = nextIfZero(newValue)
+
         }
 
     private var lastVerseWithTitle: Verse? = null
@@ -99,6 +95,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         setupBook(initialBook)
     }
 
+    private fun nextIfZero(verse: Verse) =
+        if(verse.verse == 0) {
+            bibleTraverser.getNextVerse(book, verse)
+        } else {
+            verse
+        }
     private var readList = SpeakCommandArray()
     internal var settings = SpeakSettings.load()
 
@@ -234,7 +236,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val cmds = SpeakCommandArray()
 
         var verse = limitToRange(currentVerse)
-        startVerse = currentVerse
+        startVerse = verse
 
         // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
@@ -252,6 +254,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         while (!cmds.endsSentence) {
             val nextVerse = getNextVerse(verse)
+            // We can have infinite loop if we are in repeat passage mode
+            if(nextVerse.ordinal < verse.ordinal) {
+                break
+            }
             val nextCommands = getCommandsForVerse(verse, nextVerse)
 
             cmds.addUntilSentenceBreak(nextCommands, rest)
@@ -424,9 +430,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun limitToRange(verse: Verse): Verse {
         val range = settings.playbackSettings.verseRange
         if(range != null && (verse.ordinal > range.end.ordinal || verse.ordinal < range.start.ordinal)) {
-            return range.start
+            return nextIfZero(range.start)
         }
-        return verse
+        return nextIfZero(verse)
     }
 
     private fun getNextVerse(verse: Verse): Verse {

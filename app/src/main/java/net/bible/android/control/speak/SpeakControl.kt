@@ -185,15 +185,28 @@ class SpeakControl @Inject constructor(
             // Start Speak
         } else {
             if (!booksAvailable()) {
-                EventBus.getDefault().post(ToastEvent(
-                        BibleApplication.application.getString(R.string.speak_no_books_available))
-                )
+                EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
                 return
             }
             try {
                 val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
                 val fromBook = page.currentDocument
                 if (fromBook.bookCategory == BookCategory.BIBLE) {
+                    val settings = SpeakSettings.load()
+                    val range = settings.playbackSettings.verseRange
+                    val currentVerse = page.singleKey as Verse
+
+                    // If we have range playback mode set up, and user starts playback not from within the range,
+                    // let's cancel the range playback mode.
+                    if(range != null && !(range.start.ordinal <= currentVerse.ordinal
+                            && range.end.ordinal >= currentVerse.ordinal)) {
+                        settings.playbackSettings.verseRange = null
+                        settings.save()
+                        ABEventBus.getDefault().post(ToastEvent(
+                            messageId = R.string.verse_range_mode_disabled,
+                            duration = Toast.LENGTH_LONG
+                        ))
+                    }
                     speakBible()
                 } else {
                     speakText()
@@ -302,7 +315,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Rewind TTS speaking")
             textToSpeechServiceManager.get().rewind(amount)
-            Toast.makeText(BibleApplication.application, R.string.rewind, Toast.LENGTH_SHORT).show()
+            ABEventBus.getDefault().post(ToastEvent(R.string.rewind))
         }
     }
 
@@ -311,7 +324,7 @@ class SpeakControl @Inject constructor(
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Forward TTS speaking")
             textToSpeechServiceManager.get().forward(amount)
-            Toast.makeText(BibleApplication.application, R.string.forward, Toast.LENGTH_SHORT).show()
+            ABEventBus.getDefault().post(ToastEvent(R.string.forward))
         }
     }
 
@@ -343,7 +356,7 @@ class SpeakControl @Inject constructor(
             }
 
             if (!willContinueAfterThis && toast) {
-                Toast.makeText(BibleApplication.application, pauseToastText, Toast.LENGTH_SHORT).show()
+                ABEventBus.getDefault().post(ToastEvent(pauseToastText))
             }
         }
     }
@@ -368,7 +381,7 @@ class SpeakControl @Inject constructor(
         Log.d(TAG, "Stop TTS speaking")
         textToSpeechServiceManager.get().shutdown(willContinueAfter)
         stopTimer()
-        Toast.makeText(BibleApplication.application, R.string.stop, Toast.LENGTH_SHORT).show()
+        ABEventBus.getDefault().post(ToastEvent(R.string.stop))
     }
 
     private fun prepareForSpeaking() {
@@ -413,7 +426,7 @@ class SpeakControl @Inject constructor(
         if (sleepTimerAmount > 0) {
             Log.d(TAG, "Activating sleep timer")
             val app = BibleApplication.application
-            Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show()
+            ABEventBus.getDefault().post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
             timerTask = object : TimerTask() {
                 override fun run() {
                     pause(false, false)
@@ -423,8 +436,6 @@ class SpeakControl @Inject constructor(
                 }
             }
             sleepTimer.schedule(timerTask, (sleepTimerAmount * 60000).toLong())
-        } else {
-            Toast.makeText(BibleApplication.application, R.string.speak, Toast.LENGTH_SHORT).show()
         }
     }
 
