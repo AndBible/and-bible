@@ -28,7 +28,6 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -172,6 +171,26 @@ class SpeakControl @Inject constructor(
         return definitions
     }
 
+    private fun resetPassageRepeatIfOutsideRange() {
+        val settings = SpeakSettings.load()
+        val range = settings.playbackSettings.verseRange
+        val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+        val currentVerse = page.singleKey as Verse
+
+        // If we have range playback mode set up, and user starts playback not from within the range,
+        // let's cancel the range playback mode.
+        if(range != null && !(range.start.ordinal <= currentVerse.ordinal
+                && range.end.ordinal >= currentVerse.ordinal)) {
+            settings.playbackSettings.verseRange = null
+            settings.save()
+            ABEventBus.getDefault().post(ToastEvent(
+                messageId = R.string.verse_range_mode_disabled,
+                duration = Toast.LENGTH_LONG
+            ))
+        }
+
+    }
+
     /** Toggle speech - prepare to speak single page OR if speaking then stop speaking
      */
     fun toggleSpeak() {
@@ -192,21 +211,7 @@ class SpeakControl @Inject constructor(
                 val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
                 val fromBook = page.currentDocument
                 if (fromBook.bookCategory == BookCategory.BIBLE) {
-                    val settings = SpeakSettings.load()
-                    val range = settings.playbackSettings.verseRange
-                    val currentVerse = page.singleKey as Verse
-
-                    // If we have range playback mode set up, and user starts playback not from within the range,
-                    // let's cancel the range playback mode.
-                    if(range != null && !(range.start.ordinal <= currentVerse.ordinal
-                            && range.end.ordinal >= currentVerse.ordinal)) {
-                        settings.playbackSettings.verseRange = null
-                        settings.save()
-                        ABEventBus.getDefault().post(ToastEvent(
-                            messageId = R.string.verse_range_mode_disabled,
-                            duration = Toast.LENGTH_LONG
-                        ))
-                    }
+                    resetPassageRepeatIfOutsideRange()
                     speakBible()
                 } else {
                     speakText()
