@@ -63,11 +63,12 @@ open class BibleApplication : MultiDexApplication() {
         get() = getSharedPreferences(saveStateTag, 0)
 
     override fun onCreate() {
+        // save to a singleton to allow easy access from anywhere
+        application = this
+
         super.onCreate()
         ABEventBus.getDefault().register(this)
 
-        // save to a singleton to allow easy access from anywhere
-        application = this
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
         Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
