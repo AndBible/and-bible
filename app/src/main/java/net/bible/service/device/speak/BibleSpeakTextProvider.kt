@@ -34,7 +34,6 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
@@ -157,9 +156,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         reset()
         setupBook(book)
 
-        currentVerse = verse
-        startVerse = verse
-        endVerse = verse
+        val verse_ = limitToRange(verse)
+
+        currentVerse = verse_
+        startVerse = verse_
+        endVerse = verse_
     }
 
     // For tests. In production this is always null.
@@ -252,6 +253,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         while (!cmds.endsSentence) {
             val nextVerse = getNextVerse(verse)
+            // We can have infinite loop if we are in repeat passage mode
+            if(nextVerse.ordinal < verse.ordinal) {
+                break
+            }
             val nextCommands = getCommandsForVerse(verse, nextVerse)
 
             cmds.addUntilSentenceBreak(nextCommands, rest)
