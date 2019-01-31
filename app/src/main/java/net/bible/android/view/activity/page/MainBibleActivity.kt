@@ -357,7 +357,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val titleSplitter = TitleSplitter()
     private val actionButtonMaxChars = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
 
-    override fun updateActionBarButtons() {
+    override fun updateActions() {
         updateTitle()
 
         val suggestedBible = documentControl.suggestedBible
@@ -370,6 +370,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxWidth = (screenWidth * 0.5).roundToInt()
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val isMyNotes = documentControl.currentPage.isMyNoteShown
+        val showSearch = documentControl.isBibleBook || documentControl.isCommentary
+
+
         bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
             bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
             bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
@@ -391,7 +394,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
 
         fun addSearch() {
-            searchButton.visibility = if (visibleButtonCount < maxButtons && !isMyNotes)
+            searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch && !isMyNotes)
            {
                 visibleButtonCount += 1
                 View.VISIBLE
@@ -432,6 +435,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             View.VISIBLE
         } else View.GONE
         invalidateOptionsMenu()
+
+        val btn = navigationView.menu.findItem(R.id.searchButton)
+        btn.isEnabled = showSearch
     }
 
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
@@ -442,7 +448,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if(!speakEvent.isTemporarilyStopped) {
             updateSpeakTransportVisibility()
         }
-        updateActionBarButtons()
+        updateActions()
     }
 
     private fun menuForDocs(v: View, documents: List<Book>): Boolean {
@@ -490,7 +496,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             toolbar.animate().translationY(topOffset1)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
-            updateActionBarButtons()
+            updateActions()
         } else {
             Log.d(TAG, "Fullscreen on")
             hideSystemUI()
@@ -607,7 +613,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             mWholeAppWasInBackground = true
         }
         else {
-            updateActionBarButtons()
+            updateActions()
         }
     }
 
@@ -709,7 +715,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 preferenceSettingsChanged()
                 ABEventBus.getDefault().post(SynchronizeWindowsEvent())
             }
-            mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActionBarButtons()
+            mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActions()
         }
 
     }
@@ -765,7 +771,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
-        updateActionBarButtons()
+        updateActions()
     }
 
     /**
@@ -779,7 +785,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      * called by PassageChangeMediator after a new passage has been changed and displayed
      */
     fun onEventMainThread(event: PassageChangedEvent) {
-        updateActionBarButtons()
+        updateActions()
     }
 
     override fun onResume() {

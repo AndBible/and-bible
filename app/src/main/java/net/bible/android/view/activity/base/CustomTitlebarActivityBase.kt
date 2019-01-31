@@ -72,12 +72,12 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
         super.onConfigurationChanged(newConfig)
 
         // the title bar has different widths depending on the orientation
-        updateActionBarButtons()
+        updateActions()
     }
 
     /** update the quick links in the title bar
      */
-    open fun updateActionBarButtons() {
+    open fun updateActions() {
         actionBarManager.updateButtons()
     }
 
