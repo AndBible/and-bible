@@ -120,7 +120,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         gestureDetector = GestureDetectorCompat(context, gestureListener)
         setOnTouchListener { v, event ->
-            ABEventBus.getDefault().post(BibleViewTouched())
             if (gestureDetector.onTouchEvent(event)) {
                 true
             } else v.performClick()

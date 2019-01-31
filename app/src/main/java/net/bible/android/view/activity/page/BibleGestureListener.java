@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.page;
 
-import android.os.Build;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -39,7 +38,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	// TODO: final int swipeMinDistance = vc.getScaledTouchSlop();
 	// TODO: and other suggestions in http://stackoverflow.com/questions/937313/android-basic-gesture-detection
 	private static final int DISTANCE_DIP = 40;
-	private static final int SCROLL_DIP = 40;
+	private static final int SCROLL_DIP = 56; // should be at least toolbar height
 	private int scaledMinimumDistance;
 	private int scaledMinimumFullScreenScrollDistance;
 
@@ -67,7 +66,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
 		scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
-		scaledMinimumFullScreenScrollDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
+		scaledMinimumFullScreenScrollDistance = CommonUtils.convertDipsToPx(SCROLL_DIP);
     	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
@@ -111,14 +110,35 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		disableSingleTapOnce = true;
 	}
 
+	private MotionEvent ev = null;
+	private boolean lastDirection = false;
+
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		float dist = e1.getY()-e2.getY();
-		if(!mainBibleActivity.getFullScreen() && dist > scaledMinimumFullScreenScrollDistance) {
-			mainBibleActivity.toggleFullScreen();
+		if(ev == null || e1.getEventTime() > ev.getEventTime()) {
+			// New scroll event
+			ABEventBus.getDefault().post(new BibleView.BibleViewTouched());
+			ev = MotionEvent.obtain(e1);
 		}
-		if(mainBibleActivity.getFullScreen() && dist < -scaledMinimumFullScreenScrollDistance) {
-			mainBibleActivity.toggleFullScreen();
+		if(e2.getEventTime() - ev.getEventTime() > 1000 ) {
+			// Too slow motion
+			ev = MotionEvent.obtain(e2);
+		}
+
+		boolean direction = distanceY > 0;
+		if(lastDirection != direction) {
+			ev = MotionEvent.obtain(e2);
+			lastDirection = direction;
+		}
+
+		float dist = e2.getY()-ev.getY();
+		if(!mainBibleActivity.getFullScreen() && dist < -scaledMinimumFullScreenScrollDistance) {
+			mainBibleActivity.setFullScreen(true);
+			ev = MotionEvent.obtain(e2);
+		}
+		if(mainBibleActivity.getFullScreen() && dist > scaledMinimumFullScreenScrollDistance) {
+			mainBibleActivity.setFullScreen(false);
+			ev = MotionEvent.obtain(e2);
 		}
 		return false;
 	}
