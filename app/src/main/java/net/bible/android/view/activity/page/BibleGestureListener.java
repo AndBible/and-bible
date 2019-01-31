@@ -155,6 +155,10 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		if (verseSelectionMode) {
 			return false;
 		}
+		if(disableSingleTapOnce) {
+			disableSingleTapOnce = false;
+			return false;
+		}
 		if(mainBibleActivity.getFullScreen()) {
 			mainBibleActivity.toggleFullScreen();
 			return true;
