@@ -283,6 +283,10 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private var buttonsVisible = true
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
+        if(!::minimisedWindowsFrameContainer.isInitialized) {
+            // Too early to do anything
+            return
+        }
         if(buttonsVisible == show && !force) {
             return
         }
