@@ -34,7 +34,8 @@ import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.BookmarkListItem;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
-import net.bible.service.db.bookmark.LabelDto;
+
+import org.crosswire.jsword.book.Book;
 
 import java.util.List;
 
@@ -62,9 +63,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-
 		BookmarkDto item = getItem(position);
-		List<LabelDto> labels = bookmarkControl.getBookmarkLabels(item);
 
 		// Pick up the TwoLineListItem defined in the xml file
 		BookmarkListItem view;
@@ -74,8 +73,8 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		} else {
 			view = (BookmarkListItem) convertView;
 		}
-
-		if(bookmarkControl.isSpeakBookmark(item)){
+		boolean isSpeak = bookmarkControl.isSpeakBookmark(item);
+		if(isSpeak){
 			view.getSpeakIcon().setVisibility(View.VISIBLE);
 		}
 		else {
@@ -85,7 +84,12 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		// Set value for the first text field
 		if (view.getVerseText() != null) {
 			String key = bookmarkControl.getBookmarkVerseKey(item);
-			view.getVerseText().setText(key);
+			Book book = item.getSpeakBook();
+			if(isSpeak && book != null) {
+				view.getVerseText().setText(key + " (" + book.getAbbreviation() + ")");
+			}else {
+				view.getVerseText().setText(key);
+			}
 		}
 
 		// Set value for the date text field
@@ -106,15 +110,6 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 				view.getVerseContentText().setText("");
 			}
 		}
-
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			if (actionModeActivity.isItemChecked(position)) {
-				view.setBackgroundColor(ACTIVATED_COLOUR);
-			} else {
-				view.setBackgroundColor(Color.TRANSPARENT);
-			}
-		}
-
 		return view;
 	}
 }
