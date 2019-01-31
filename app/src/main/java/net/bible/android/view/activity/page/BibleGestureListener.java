@@ -114,6 +114,8 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		return true;
 	}
 
+	// Disabled for now.
+	/*
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
 		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
@@ -131,5 +133,5 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 			mainBibleActivity.toggleFullScreen();
 			return true;
 		}
-	}
+	}*/
 }

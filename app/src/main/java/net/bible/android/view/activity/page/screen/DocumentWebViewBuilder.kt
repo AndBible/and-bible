@@ -44,6 +44,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -269,12 +270,15 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun resetTouchTimer() {
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
-        timerTask = object : TimerTask() {
-            override fun run() {
-                toggleWindowButtonVisibility(false)
+
+        if(mainBibleActivity.fullScreen) {
+            timerTask = object : TimerTask() {
+                override fun run() {
+                    toggleWindowButtonVisibility(false)
+                }
             }
+            sleepTimer.schedule(timerTask, 3000L)
         }
-        sleepTimer.schedule(timerTask, 3000L)
     }
 
     private var buttonsVisible = true
