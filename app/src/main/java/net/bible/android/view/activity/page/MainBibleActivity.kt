@@ -703,6 +703,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if(GridChoosePassageBook::class.java.name == data?.component?.className) {
             val verseStr = data?.extras!!.getString("verse")
             val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
+            if(pageControl.currentPageManager.isMyNoteShown) {
+                val doc = pageControl.currentPageManager.currentBible.currentDocument
+                pageControl.currentPageManager.setCurrentDocument(doc)
+            }
+
             windowControl.activeWindowPageManager.currentPage.key = verse
             return
         }
