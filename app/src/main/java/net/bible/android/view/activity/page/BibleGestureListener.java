@@ -112,7 +112,10 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		float dist = e1.getY()-e2.getY();
 		Log.d(TAG, "Scrolling distance " + dist);
-		if(!mainBibleActivity.getFullScreen() && Math.abs(dist) > 100) {
+		if(!mainBibleActivity.getFullScreen() && dist > 100) {
+			mainBibleActivity.toggleFullScreen();
+		}
+		if(mainBibleActivity.getFullScreen() && dist < -100) {
 			mainBibleActivity.toggleFullScreen();
 		}
 		return false;
