@@ -353,6 +353,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_fourth">Fourth</string>
     <string name="speak_fifth">Fifth</string>
 
+    <string name="verse_range_mode_disabled">
+        Speaking was started outside of verse range defined in Repeat Passage setting.
+        Repeat passage mode was disabled automatically.
+    </string>
+
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
     <string name="mynote_add">Add My Note</string>
@@ -405,5 +410,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
-    <string name="verse_range_mode_disabled">Verse range mode disabled</string>
 </resources>
