@@ -354,8 +354,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_fifth">Fifth</string>
 
     <string name="verse_range_mode_disabled">
-        Speaking was started outside of verse range defined in Repeat Passage setting.
-        Repeat passage mode was disabled automatically.
+        Repeat passage mode was disabled automatically because
+        speaking was started outside of defined verse range.
     </string>
 
     <!-- User Notes -->
