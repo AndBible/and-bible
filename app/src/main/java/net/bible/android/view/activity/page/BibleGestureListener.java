@@ -39,8 +39,10 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	// TODO: final int swipeMinDistance = vc.getScaledTouchSlop();
 	// TODO: and other suggestions in http://stackoverflow.com/questions/937313/android-basic-gesture-detection
 	private static final int DISTANCE_DIP = 40;
+	private static final int SCROLL_DIP = 40;
 	private int scaledMinimumDistance;
-	
+	private int scaledMinimumFullScreenScrollDistance;
+
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
 
@@ -65,6 +67,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
 		scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
+		scaledMinimumFullScreenScrollDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
     	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
@@ -112,10 +115,10 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		float dist = e1.getY()-e2.getY();
 		Log.d(TAG, "Scrolling distance " + dist);
-		if(!mainBibleActivity.getFullScreen() && dist > 100) {
+		if(!mainBibleActivity.getFullScreen() && dist > scaledMinimumFullScreenScrollDistance) {
 			mainBibleActivity.toggleFullScreen();
 		}
-		if(mainBibleActivity.getFullScreen() && dist < -100) {
+		if(mainBibleActivity.getFullScreen() && dist < -scaledMinimumFullScreenScrollDistance) {
 			mainBibleActivity.toggleFullScreen();
 		}
 		return false;
