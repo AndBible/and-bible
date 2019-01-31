@@ -109,13 +109,22 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	}
 
 	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		float dist = e1.getY()-e2.getY();
+		Log.d(TAG, "Scrolling distance " + dist);
+		if(!mainBibleActivity.getFullScreen() && Math.abs(dist) > 100) {
+			mainBibleActivity.toggleFullScreen();
+		}
+		return false;
+	}
+
+
+	@Override
 	public boolean onDoubleTap(MotionEvent e) {
 		mainBibleActivity.toggleFullScreen();
 		return true;
 	}
 
-	// Disabled for now.
-	/*
 	@Override
 	public boolean onSingleTapConfirmed(MotionEvent e) {
 		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
@@ -130,8 +139,11 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 			return false;
 		}
 		else {
-			mainBibleActivity.toggleFullScreen();
-			return true;
+			if(mainBibleActivity.getFullScreen()) {
+				mainBibleActivity.toggleFullScreen();
+				return true;
+			}
+			return false;
 		}
-	}*/
+	}
 }
