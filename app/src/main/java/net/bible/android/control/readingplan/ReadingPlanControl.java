@@ -215,8 +215,10 @@ public class ReadingPlanControl {
 		}
 		
     	//if user is not behind then do not show Daily Reading screen
-    	if (!isDueToBeRead(planInfo, nextDayToShow)) {
-    		nextDayToShow = -1;    	}
+		// Reason for commenting next 2 lines is because it is no longer
+		// necessary to run this check since adding the Next Day button. Timmy
+//    	if (!isDueToBeRead(planInfo, nextDayToShow)) {
+//    		nextDayToShow = -1;    	}
 
 		
 		return nextDayToShow;
