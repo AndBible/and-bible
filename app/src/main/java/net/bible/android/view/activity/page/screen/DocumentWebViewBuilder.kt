@@ -277,7 +277,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     toggleWindowButtonVisibility(false)
                 }
             }
-            sleepTimer.schedule(timerTask, 3000L)
+            sleepTimer.schedule(timerTask, 2000L)
         }
     }
 
