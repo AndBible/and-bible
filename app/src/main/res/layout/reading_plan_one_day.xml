@@ -42,28 +42,39 @@
 			android:layout_width="wrap_content"/>
    	</LinearLayout>
 
-    <!-- container for daily readings -->
-    <TableLayout android:id="@+id/reading_container"
-	    android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_margin="10dip"
+	<!-- container for daily readings -->
+	<ScrollView
+		android:id="@+id/scroll_layout"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
 		android:layout_below="@id/top_text"
-		android:shrinkColumns="1"
-		android:stretchColumns="1,2,3">
+		android:layout_marginBottom="60dip"
+		android:layout_marginLeft="10dip"
+		android:layout_marginRight="10dip">
 
-    </TableLayout>
-    
+		<TableLayout
+			android:id="@+id/reading_container"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dip"
+			android:shrinkColumns="1"
+			android:stretchColumns="1,2,3">
+
+		</TableLayout>
+
+	</ScrollView>
+
 	<!-- Button bar -->
 	<LinearLayout android:id="@+id/button_panel"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:orientation="horizontal">
+		android:orientation="horizontal">
 	    <!-- Left spacer -->
 	    <View
 	        android:layout_width="0dip"
 	        android:layout_height="fill_parent"
-	        android:layout_weight="1"/>
+	        android:layout_weight=".5"/>
 	
 	 	<Button android:id="@+id/doneButton"
  			android:text="@string/done"
@@ -72,11 +83,18 @@
 	        android:layout_height="wrap_content"
 	        android:layout_weight="2"/>
 
+		<Button android:id="@+id/nextDayButton"
+			android:text="@string/next_day"
+			android:onClick="onNextDay"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="2"/>
+
 	    <!-- Right spacer -->
 	    <View
 	        android:layout_width="0dip"
 	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
+	        android:layout_weight=".5"
 	    />
 	</LinearLayout>
 		

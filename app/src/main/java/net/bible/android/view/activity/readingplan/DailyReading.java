@@ -61,6 +61,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	private TextView mDateView;
 	private List<ImageView> mImageTickList;
 	private Button mDoneButton;
+	private Button mNextDayButton;
 	
 	private int mDay;
 	
@@ -115,6 +116,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        mDateView.setText(mReadings.getReadingDateString());
 	
 	        mDoneButton = (Button)findViewById(R.id.doneButton);
+	        mNextDayButton = (Button)findViewById(R.id.nextDayButton);
 	        
 	        mImageTickList = new ArrayList<>();
 
@@ -244,20 +246,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onDone(View view) {
     	Log.i(TAG, "Done");
     	try {
-	    	// do not add to History list because it will just redisplay same page
-	    	setIntegrateWithHistoryManager(false);
-	    	
-	    	// all readings must be ticked for this to be enabled
-	    	int nextDayToShow = readingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
-	    	
-	    	//if user is behind then go to next days readings
-	    	if (nextDayToShow>0) {
-	    		showDay(nextDayToShow);
-	    	} else {
-	    		// else exit
-	        	finish();
-	    	}
-	
+        	finish();
+
 	    	// if we move away then add to history list
 	    	setIntegrateWithHistoryManager(true);
         } catch (Exception e) {
@@ -265,6 +255,29 @@ public class DailyReading extends CustomTitlebarActivityBase {
         	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
         }
     }
+
+	/** user pressed "Next Day" button so must have read currently displayed readings
+	 */
+	public void onNextDay(View view) {
+		Log.i(TAG, "Next Day pressed");
+		try {
+			// do not add to History list because it will just redisplay same page
+			setIntegrateWithHistoryManager(false);
+
+			// all readings must be ticked for this to be enabled
+			int nextDayToShow = readingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
+			if (nextDayToShow >= 0) {
+				showDay(nextDayToShow);
+			} else {
+				finish();
+			}
+
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error when pressing 'Next Day' on daily reading", e);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		}
+	}
     
     /** allow activity to enhance intent to correctly restore state */
 	public Intent getIntentForHistoryList() {
@@ -307,6 +320,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		}
 		
 		mDoneButton.setEnabled(status.isAllRead());
+		mNextDayButton.setEnabled(status.isAllRead());
 	}
 	
 	
