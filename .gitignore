@@ -6,3 +6,6 @@
 /captures
 /.idea
 /app/release
+/app/.idea
+/app/gradle*
+/app/local.properties
