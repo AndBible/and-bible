@@ -248,7 +248,10 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	try {
         	finish();
 
-	    	// if we move away then add to history list
+        	// Mark day as done
+			readingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
+
+	    	// Since we're exiting out of screen, add to history list
 	    	setIntegrateWithHistoryManager(true);
         } catch (Exception e) {
         	Log.e(TAG, "Error when Done daily reading", e);
