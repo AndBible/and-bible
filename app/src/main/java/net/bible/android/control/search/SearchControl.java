@@ -40,6 +40,7 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.book.sword.SwordBook;
@@ -188,7 +189,16 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument(), key);
+			Book doc = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument();
+			BookCategory cat = doc.getBookCategory();
+			if(cat.equals(BookCategory.BIBLE) || cat.equals(BookCategory.COMMENTARY)) {
+				verseText = swordContentFacade.getPlainText(doc, key);
+			}
+			else {
+				Book bible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
+				verseText = swordContentFacade.getPlainText(bible, key);
+			}
+
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
