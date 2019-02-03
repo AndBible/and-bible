@@ -30,7 +30,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Main menu-->
   <string name="menu">Meniu</string>
   <string name="chooseBook">Dokumentas</string>
-  <string name="selectPassage">Tekstas</string>
+  <string name="selectPassage">Ištrauka</string>
   <string name="search">Paieška</string>
   <string name="settings">Nuostatos</string>
   <string name="history">Istorija</string>
@@ -294,6 +294,10 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="speak_third">Trečias</string>
   <string name="speak_fourth">Ketvirtas</string>
   <string name="speak_fifth">Penktas</string>
+  <string name="verse_range_mode_disabled">
+        Ištraukos kartojimo veiksena buvo automatiškai išjungta, nes
+        kalba buvo pradėta už apibrėžtų eilučių srities.
+    </string>
   <!--User Notes-->
   <string name="mynotes">Mano pastabos</string>
   <string name="mynote_add">Pridėti savo pastabą</string>

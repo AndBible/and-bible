@@ -298,6 +298,9 @@
   <string name="speak_third">第三</string>
   <string name="speak_fourth">第四</string>
   <string name="speak_fifth">第五</string>
+  <string name="verse_range_mode_disabled">
+重複朗讀模式已取消
+因為經節從定義範圍外開始</string>
   <!--User Notes-->
   <string name="mynotes">筆記列表</string>
   <string name="mynote_add">添加筆記</string>
