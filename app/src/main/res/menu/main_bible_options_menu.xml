@@ -7,7 +7,7 @@
 	>
 	<item
 		android:id="@+id/bibleViewBehaviorSubMenu"
-		android:title="@string/bible_view_behavior"
+		android:title="@string/settings"
 		>
 		<menu>
 			<item android:id="@+id/autoFullscreen"

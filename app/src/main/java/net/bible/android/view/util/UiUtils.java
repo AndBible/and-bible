@@ -51,14 +51,16 @@ public class UiUtils {
 	}
 
 	public static void applyTheme(Activity activity, boolean recreate) {
-    	ScreenSettings.isNightModeChanged();
-        if (ScreenSettings.isNightMode()) {
-        	activity.setTheme(R.style.AppThemeNight);
-        } else {
-        	activity.setTheme(R.style.AppThemeDay);
-        }
-		if(recreate) {
-			activity.recreate();
+    	boolean changed = ScreenSettings.isNightModeChanged();
+    	if(changed) {
+			if (ScreenSettings.isNightMode()) {
+				activity.setTheme(R.style.AppThemeNight);
+			} else {
+				activity.setTheme(R.style.AppThemeDay);
+			}
+			if (recreate) {
+				activity.recreate();
+			}
 		}
     }
 

@@ -343,8 +343,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
     }
 
-    open class StringValuedOptions(name: String, default: Boolean):
-        ItemOptions(name, default, isBoolean = false)
+    open class StringValuedOptions(name: String, default: Boolean, trueValue: String = "true", falseValue: String = "false"):
+        ItemOptions(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
 
     class SubMenu(onlyBibles: Boolean): ItemOptions(
@@ -354,6 +354,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     )
     class NightMode: StringValuedOptions("night_mode_pref2", false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+    }
+
+    class SplitMode: StringValuedOptions("split_mode_pref", false, trueValue = "vertical", falseValue = "horizontal") {
+        override fun handle() = mainBibleActivity.documentViewManager.buildView()
     }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
@@ -369,7 +373,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.autoFullscreen -> AutoFullScreen()
         R.id.tiltToScroll -> TiltToScroll()
         R.id.nightMode -> NightMode()
-        R.id.splitMode -> StringValuedOptions("split_mode_pref", false)
+        R.id.splitMode -> SplitMode()
         R.id.bibleViewBehaviorSubMenu -> SubMenu(false)
         R.id.textOptionsSubMenu -> SubMenu(true)
         else -> throw RuntimeException("Unsupported menu item")
