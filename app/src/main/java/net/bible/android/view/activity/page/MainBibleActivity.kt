@@ -374,7 +374,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.tiltToScroll -> TiltToScroll()
         R.id.nightMode -> NightMode()
         R.id.splitMode -> SplitMode()
-        R.id.bibleViewBehaviorSubMenu -> SubMenu(false)
         R.id.textOptionsSubMenu -> SubMenu(true)
         else -> throw RuntimeException("Unsupported menu item")
     }
