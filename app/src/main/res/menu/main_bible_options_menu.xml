@@ -5,6 +5,62 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
+	<item
+		android:id="@+id/bibleViewBehaviorSubMenu"
+		android:title="@string/bible_view_behavior"
+		>
+		<menu>
+			<item android:id="@+id/autoFullscreen"
+				android:title="@string/auto_fullscreen"
+				android:checkable="true"
+				/>
+
+			<item android:id="@+id/tiltToScroll"
+				android:title="@string/prefs_tilt_to_scroll_title"
+				android:checkable="true"
+				/>
+
+			<item android:id="@+id/nightMode"
+				android:title="@string/prefs_night_mode_title"
+				android:checkable="true"
+				/>
+
+			<item android:id="@+id/splitMode"
+				android:title="@string/vertical_split_mode"
+				android:checkable="true"
+				/>
+		</menu>
+	</item>
+    <item
+		android:id="@+id/textOptionsSubMenu"
+        android:title="@string/text_options">
+		<menu>
+			<item android:id="@+id/redLettersOption"
+				android:title="@string/prefs_red_letter_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/sectionTitlesOption"
+				android:title="@string/prefs_section_title_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/verseNumbersOption"
+				android:title="@string/prefs_show_verseno_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/versePerLineOption"
+				android:title="@string/prefs_verse_per_line_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/showBookmarksOption"
+				android:title="@string/prefs_show_bookmarks_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/myNotesOption"
+				android:title="@string/prefs_show_mynotes_title"
+				android:checkable="true"
+				/>
+		</menu>
+	</item>
 	<item android:id="@+id/showStrongsOption"
 		android:title="@string/prefs_show_strongs_title"
 		android:checkable="true"
@@ -15,30 +71,6 @@
 		/>
 	<item android:id="@+id/footnoteOption"
 		android:title="@string/prefs_show_notes_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/redLettersOption"
-		android:title="@string/prefs_red_letter_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/sectionTitlesOption"
-		android:title="@string/prefs_section_title_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/verseNumbersOption"
-		android:title="@string/prefs_show_verseno_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/versePerLineOption"
-		android:title="@string/prefs_verse_per_line_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/showBookmarksOption"
-		android:title="@string/prefs_show_bookmarks_title"
-		android:checkable="true"
-		/>
-	<item android:id="@+id/myNotesOption"
-		android:title="@string/prefs_show_mynotes_title"
 		android:checkable="true"
 		/>
 </menu>

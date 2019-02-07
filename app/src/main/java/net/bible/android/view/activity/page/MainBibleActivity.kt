@@ -159,6 +159,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
 
+        // This is singleton so we can do this.
+        mainBibleActivity = this
         super.onCreate(savedInstanceState, true)
 
         setContentView(R.layout.main_bible_view)
@@ -266,9 +268,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = gerPreferenceOptions(R.id.showStrongsOption)!!
-            val oldValue = preferences.getBoolean(prefOptions.name, prefOptions.default)
-            preferences.edit().putBoolean(prefOptions.name, !oldValue).apply()
+            val prefOptions = getItemOptions(R.id.showStrongsOption)
+            val oldValue = preferences.getBoolean(prefOptions.preferenceName, prefOptions.default)
+            preferences.edit().putBoolean(prefOptions.preferenceName, !oldValue).apply()
             windowControl.windowSync.synchronizeAllScreens()
         }
 
@@ -291,19 +293,81 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
-    data class ItemOptions (val name: String, val default: Boolean = true, val onlyBibles: Boolean = false)
+    abstract class ItemOptions (
+        val preferenceName: String,
+        val default: Boolean = false,
+        val onlyBibles: Boolean = false,
+        val textContent: Boolean = false,
+        val isBoolean: Boolean = true,
 
-    private fun gerPreferenceOptions(itemId: Int) =  when(itemId) {
-        R.id.showBookmarksOption -> ItemOptions("show_bookmarks_pref", true, true)
-        R.id.redLettersOption -> ItemOptions("red_letter_pref", false, true)
-        R.id.sectionTitlesOption -> ItemOptions("section_title_pref", true, true)
-        R.id.showStrongsOption -> ItemOptions("show_strongs_pref", true, true)
-        R.id.verseNumbersOption -> ItemOptions("show_verseno_pref", true, true)
-        R.id.versePerLineOption -> ItemOptions("verse_per_line_pref", false, true)
-        R.id.footnoteOption -> ItemOptions("show_notes_pref", false, true)
-        R.id.myNotesOption -> ItemOptions("show_mynotes_pref", true, true)
-        R.id.morphologyOption -> ItemOptions("show_morphology_pref", false, true)
-        else -> null
+        // If we are handling non-boolean value
+        val trueValue: String = "true",
+        val falseValue: String = "false",
+        val automaticValue: String = "automatic",
+        val defaultString: String = automaticValue,
+
+        val subMenu: Boolean = false
+    ) {
+        private val preferences = mainBibleActivity.preferences
+        var value: Boolean
+            get() = if(isBoolean) {
+                preferences.getBoolean(preferenceName, default)
+            } else {
+                preferences.getString(preferenceName, defaultString) == trueValue
+            }
+            set(value) = if(isBoolean) {
+                preferences.edit().putBoolean(preferenceName, value).apply()
+            } else {
+                preferences.edit().putString(preferenceName, if(value) trueValue else falseValue).apply()
+            }
+
+        val automatic: Boolean
+            get() = if(isBoolean) {
+                false
+            } else {
+                preferences.getString(preferenceName, defaultString) == automaticValue
+            }
+
+        open fun handle() {}
+    }
+
+    class TextContent(name: String, default: Boolean, onlyBibles: Boolean):
+        ItemOptions(name, default, onlyBibles, textContent = true) {
+        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
+    }
+
+    class AutoFullScreen: ItemOptions("show_auto_fullscreen_pref", true, false)
+    class TiltToScroll: ItemOptions("tilt_to_scroll_pref", false, false) {
+        override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+    }
+
+    class StringValuedOptions(name: String, default: Boolean):
+        ItemOptions(name, default, isBoolean = false)
+
+
+    class SubMenu(onlyBibles: Boolean): ItemOptions(
+        "none",
+        onlyBibles = onlyBibles,
+        subMenu = true
+    )
+
+    private fun getItemOptions(itemId: Int) =  when(itemId) {
+        R.id.showBookmarksOption -> TextContent("show_bookmarks_pref", true, true)
+        R.id.redLettersOption -> TextContent("red_letter_pref", false, true)
+        R.id.sectionTitlesOption -> TextContent("section_title_pref", true, true)
+        R.id.showStrongsOption -> TextContent("show_strongs_pref", true, true)
+        R.id.verseNumbersOption -> TextContent("show_verseno_pref", true, true)
+        R.id.versePerLineOption -> TextContent("verse_per_line_pref", false, true)
+        R.id.footnoteOption -> TextContent("show_notes_pref", false, true)
+        R.id.myNotesOption -> TextContent("show_mynotes_pref", true, true)
+        R.id.morphologyOption -> TextContent("show_morphology_pref", false, true)
+        R.id.autoFullscreen -> AutoFullScreen()
+        R.id.tiltToScroll -> TiltToScroll()
+        R.id.nightMode -> StringValuedOptions("night_mode_pref2", false)
+        R.id.splitMode -> StringValuedOptions("split_mode_pref", false)
+        R.id.bibleViewBehaviorSubMenu -> SubMenu(false)
+        R.id.textOptionsSubMenu -> SubMenu(true)
+        else -> throw RuntimeException("Unsupported menu item")
     }
 
     private val preferences = CommonUtils.getSharedPreferences()
@@ -311,15 +375,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
         for(item in menu.itemsSequence()) {
-            val itmOptions = gerPreferenceOptions(item.itemId)
-            if(itmOptions != null) {
-                item.isChecked = preferences.getBoolean(itmOptions.name, itmOptions.default)
-                if(itmOptions.onlyBibles) {
-                    item.isVisible = documentControl.isBibleBook
-                }
-                else {
-                    item.isVisible = true
-                }
+            val itmOptions = getItemOptions(item.itemId)
+            if(!itmOptions.subMenu)
+                item.isChecked = itmOptions.value
+
+            if(itmOptions.onlyBibles) {
+                item.isVisible = documentControl.isBibleBook
+            }
+            else {
+                item.isVisible = true
             }
         }
         val morphItem = menu.findItem(R.id.morphologyOption)
@@ -328,22 +392,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return true
     }
 
-    private fun handlePrefItem(name: String, item: MenuItem, default: Boolean) {
-        val oldValue = preferences.getBoolean(name, default)
-        preferences.edit().putBoolean(name, !oldValue).apply()
-        windowControl.windowSync.synchronizeAllScreens()
-        item.isChecked = !oldValue
+    private fun handlePrefItem(item: MenuItem) {
+        val itemOptions = getItemOptions(item.itemId)
+        if(itemOptions.subMenu)
+            return
+
+        itemOptions.value = !itemOptions.value
+        itemOptions.handle()
+        item.isChecked = itemOptions.value
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val prefNamePair = gerPreferenceOptions(item.itemId)
-        if(prefNamePair != null) {
-            handlePrefItem(prefNamePair.name, item, prefNamePair.default)
-            if(item.itemId == R.id.showStrongsOption)
-                invalidateOptionsMenu()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+        handlePrefItem(item)
+        if(item.itemId == R.id.showStrongsOption)
+            invalidateOptionsMenu()
+        return true
     }
 
     private val documentTitleText: String
@@ -737,7 +800,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
             mainMenuCommandHandler.isDisplayRefreshRequired(requestCode) -> {
                 preferenceSettingsChanged()
-                ABEventBus.getDefault().post(SynchronizeWindowsEvent())
             }
             mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActions()
         }
@@ -771,6 +833,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         documentViewManager.documentView.applyPreferenceSettings()
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
+        invalidateOptionsMenu()
+        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+
     }
 
     private fun requestSdcardPermission() {
@@ -787,11 +852,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      */
     fun onEvent(event: PreBeforeCurrentPageChangeEvent) {
         val currentPage = windowControl.activeWindowPageManager.currentPage
-        if (currentPage != null) {
-            // save current scroll position so history can return to correct place in document
-            val screenPosn = currentPosition
-            currentPage.currentYOffsetRatio = screenPosn
-        }
+        // save current scroll position so history can return to correct place in document
+        currentPage.currentYOffsetRatio = currentPosition
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
@@ -877,6 +939,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
 
     companion object {
+        private lateinit var mainBibleActivity: MainBibleActivity
         internal const val BACKUP_SAVE_REQUEST = 0
         internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
