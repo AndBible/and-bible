@@ -45,7 +45,7 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// change theme according to light sensor
-		UiUtils.applyTheme(this);
+		UiUtils.applyTheme(this, false);
 
 		super.onCreate(savedInstanceState);
 

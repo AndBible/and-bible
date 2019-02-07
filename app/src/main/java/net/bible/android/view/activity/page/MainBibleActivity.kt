@@ -40,7 +40,6 @@ import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
-import androidx.core.view.size
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 
@@ -72,7 +71,6 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
-import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
@@ -109,6 +107,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
+
+    // If the activity has been created
+    var ready = false
 
     private var statusBarHeight = 0.0F
     private var navigationBarHeight = 0.0F
@@ -234,6 +235,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         speakTransport.visibility = View.GONE
         updateSpeakTransportVisibility()
+        ready = true
     }
 
     override fun onPause() {
@@ -843,7 +845,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
-        UiUtils.applyTheme(this)
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()

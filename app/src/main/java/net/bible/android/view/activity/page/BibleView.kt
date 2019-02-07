@@ -222,6 +222,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val nightMode = ScreenSettings.isNightMode()
         val changed = nightMode != this.wasNightMode
         if (changed) {
+            if(mainBibleActivity.ready) {
+                UiUtils.applyTheme(mainBibleActivity)
+            }
             UiUtils.setBibleViewBackgroundColour(this, nightMode)
             this.wasNightMode = nightMode
         }
