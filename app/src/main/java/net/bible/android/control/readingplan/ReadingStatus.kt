@@ -26,7 +26,10 @@ import android.content.SharedPreferences
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class ReadingStatus(protected val planCode: String, protected val day: Int, private val numReadings: Int) {
+open class ReadingStatus(
+		val planCode: String,
+		val day: Int,
+		private val numReadings: Int) {
 
     // there won't be any more than 10 readings per day in any plan
     private val status = BitSet(4)

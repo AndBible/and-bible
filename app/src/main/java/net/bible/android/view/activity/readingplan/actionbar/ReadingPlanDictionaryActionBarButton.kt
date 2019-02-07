@@ -32,7 +32,7 @@ import javax.inject.Inject
 class ReadingPlanDictionaryActionBarButton @Inject
 constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
 
-    override fun getSuggestedDocument(): Book {
+    override fun getSuggestedDocument(): Book? {
         return currentPageManager.currentDictionary.currentDocument
     }
 
