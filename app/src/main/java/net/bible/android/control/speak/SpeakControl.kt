@@ -68,12 +68,19 @@ class SpeakControl @Inject constructor(
     @Inject lateinit var bookmarkControl: BookmarkControl
     private var sleepTimer: Timer = Timer("TTS sleep timer")
     private var timerTask: TimerTask? = null
-    private lateinit var speakPageManager: CurrentPageManager
+    private lateinit var _speakPageManager: CurrentPageManager
+
+    private val speakPageManager: CurrentPageManager
+        get() {
+            if(!::_speakPageManager.isInitialized) {
+                _speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            }
+            return _speakPageManager
+        }
 
     val isCurrentDocSpeakAvailable: Boolean
         get() {
-            var isAvailable: Boolean
-            isAvailable = try {
+            val isAvailable: Boolean = try {
                 val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument.language.code
                 textToSpeechServiceManager.get().isLanguageAvailable(docLangCode)
             } catch (e: Exception) {
@@ -124,9 +131,6 @@ class SpeakControl @Inject constructor(
     fun onEventMainThread(event: SpeakProgressEvent) {
         val settings = SpeakSettings.load()
         if (settings.synchronize) {
-            if(!::speakPageManager.isInitialized) {
-                speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
-            }
             val book = speakPageManager.currentPage.currentDocument
             if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book.bookCategory)) {
                 speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
@@ -275,7 +279,7 @@ class SpeakControl @Inject constructor(
         }
 
         prepareForSpeaking()
-
+        speakPageManager.setCurrentDocumentAndKey(book, verse)
         try {
             textToSpeechServiceManager.get().speakBible(book, verse)
         } catch (e: Exception) {
@@ -286,7 +290,6 @@ class SpeakControl @Inject constructor(
     }
 
     fun speakBible() {
-        speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
         val page = speakPageManager.currentPage
         speakBible(page.singleKey as Verse)
     }

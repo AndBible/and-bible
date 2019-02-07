@@ -249,8 +249,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 			doFinish();
 		} catch (Exception e) {
-    		Log.e(TAG, "Error on attempt to download", e);
-    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+    		Log.e(TAG, "Error on bookmarkSelected", e);
+    		Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
     	}
     }
 
