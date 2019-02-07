@@ -43,15 +43,25 @@
    	</LinearLayout>
 
     <!-- container for daily readings -->
-    <TableLayout android:id="@+id/reading_container"
-	    android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:layout_margin="10dip"
+	<ScrollView
+		android:id="@+id/scroll_layout"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
 		android:layout_below="@id/top_text"
-		android:shrinkColumns="1"
-		android:stretchColumns="1,2,3">
+		android:layout_marginLeft="10dip"
+		android:layout_marginRight="10dip"
+		android:layout_marginBottom="60dip">
 
-    </TableLayout>
+		<TableLayout
+			android:id="@+id/reading_container"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dip"
+			android:shrinkColumns="1"
+			android:stretchColumns="1,2,3">
+
+		</TableLayout>
+	</ScrollView>
     
 	<!-- Button bar -->
 	<LinearLayout android:id="@+id/button_panel"
