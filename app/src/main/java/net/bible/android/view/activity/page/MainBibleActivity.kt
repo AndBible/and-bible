@@ -39,6 +39,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
+import androidx.core.view.children
+import androidx.core.view.size
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 
@@ -78,11 +80,9 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import org.jetbrains.anko.itemsSequence
 
 import javax.inject.Inject
 import kotlin.math.roundToInt
-
 
 /** The main activity screen showing Bible text
  *
@@ -297,7 +297,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val preferenceName: String,
         val default: Boolean = false,
         val onlyBibles: Boolean = false,
-        val textContent: Boolean = false,
         val isBoolean: Boolean = true,
 
         // If we are handling non-boolean value
@@ -331,17 +330,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         open fun handle() {}
     }
 
-    class TextContent(name: String, default: Boolean, onlyBibles: Boolean):
-        ItemOptions(name, default, onlyBibles, textContent = true) {
+    class TextContent(name: String, default: Boolean, onlyBibles: Boolean): ItemOptions(name, default, onlyBibles) {
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
     class AutoFullScreen: ItemOptions("show_auto_fullscreen_pref", true, false)
+
     class TiltToScroll: ItemOptions("tilt_to_scroll_pref", false, false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
     }
 
-    class StringValuedOptions(name: String, default: Boolean):
+    open class StringValuedOptions(name: String, default: Boolean):
         ItemOptions(name, default, isBoolean = false)
 
 
@@ -350,6 +349,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         onlyBibles = onlyBibles,
         subMenu = true
     )
+    class NightMode: StringValuedOptions("night_mode_pref2", false) {
+        override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+    }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContent("show_bookmarks_pref", true, true)
@@ -363,7 +365,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.morphologyOption -> TextContent("show_morphology_pref", false, true)
         R.id.autoFullscreen -> AutoFullScreen()
         R.id.tiltToScroll -> TiltToScroll()
-        R.id.nightMode -> StringValuedOptions("night_mode_pref2", false)
+        R.id.nightMode -> NightMode()
         R.id.splitMode -> StringValuedOptions("split_mode_pref", false)
         R.id.bibleViewBehaviorSubMenu -> SubMenu(false)
         R.id.textOptionsSubMenu -> SubMenu(true)
@@ -374,21 +376,30 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
-        for(item in menu.itemsSequence()) {
-            val itmOptions = getItemOptions(item.itemId)
-            if(!itmOptions.subMenu)
+        fun handleMenu(menu: Menu) {
+            for(item in menu.children) {
+                if(item.hasSubMenu()) {
+                    handleMenu(item.subMenu)
+                    continue;
+                }
+
+                val itmOptions = getItemOptions(item.itemId)
                 item.isChecked = itmOptions.value
 
-            if(itmOptions.onlyBibles) {
-                item.isVisible = documentControl.isBibleBook
-            }
-            else {
-                item.isVisible = true
+                if(itmOptions.onlyBibles) {
+                    item.isVisible = documentControl.isBibleBook
+                }
+                else {
+                    item.isVisible = true
+                }
             }
         }
+        handleMenu(menu)
+
         val morphItem = menu.findItem(R.id.morphologyOption)
         val strongsItem = menu.findItem(R.id.showStrongsOption)
         morphItem.isEnabled = strongsItem.isChecked
+
         return true
     }
 
