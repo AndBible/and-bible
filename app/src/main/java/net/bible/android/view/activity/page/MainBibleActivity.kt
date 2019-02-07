@@ -238,6 +238,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onPause()
     }
 
+    override fun onBackPressed() {
+        if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawers()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     private fun setupToolbarButtons() {
         homeButton.setOnClickListener {
             if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
