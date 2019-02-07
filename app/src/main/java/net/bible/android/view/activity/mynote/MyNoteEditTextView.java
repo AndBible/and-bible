@@ -117,7 +117,7 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 	}
 
 	@Override
-	public boolean changeBackgroundColour() {
+	public void changeBackgroundColour() {
 		if (ScreenSettings.isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 			setTextColor(Color.WHITE);
@@ -125,8 +125,6 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 			setBackgroundColor(Color.WHITE);
 			setTextColor(Color.BLACK);
 		}
-		// should not return false but it is used to see if text needs refreshing, which it doesn't
-		return false;
 	}
 
 	public boolean isPageNextOkay() {

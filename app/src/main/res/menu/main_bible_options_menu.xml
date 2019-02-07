@@ -6,29 +6,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
 
-	<item android:id="@+id/autoFullscreen"
-		android:title="@string/auto_fullscreen"
-		android:checkable="true"
-		/>
 
-	<item android:id="@+id/tiltToScroll"
-		android:title="@string/prefs_tilt_to_scroll_title"
-		android:checkable="true"
-		/>
-
-	<item android:id="@+id/nightMode"
-		android:title="@string/prefs_night_mode_title"
-		android:checkable="true"
-		/>
-
-	<item android:id="@+id/splitMode"
-		android:title="@string/vertical_split_mode"
-		android:checkable="true"
-		/>
 	<item
 		android:id="@+id/textOptionsSubMenu"
-		android:title="@string/text_options">
+		android:title="@string/bible_text_options">
 		<menu>
+			<item android:id="@+id/showStrongsOption"
+				android:title="@string/prefs_show_strongs_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/morphologyOption"
+				android:title="@string/prefs_show_morphology_title"
+				android:checkable="true"
+				/>
+			<item android:id="@+id/footnoteOption"
+				android:title="@string/prefs_show_notes_title"
+				android:checkable="true"
+				/>
+
 			<item android:id="@+id/redLettersOption"
 				android:title="@string/prefs_red_letter_title"
 				android:checkable="true"
@@ -55,16 +50,25 @@
 				/>
 		</menu>
 	</item>
-	<item android:id="@+id/showStrongsOption"
-		android:title="@string/prefs_show_strongs_title"
+
+	<item android:id="@+id/autoFullscreen"
+		android:title="@string/auto_fullscreen"
 		android:checkable="true"
 		/>
-	<item android:id="@+id/morphologyOption"
-		android:title="@string/prefs_show_morphology_title"
+
+	<item android:id="@+id/tiltToScroll"
+		android:title="@string/prefs_tilt_to_scroll_title"
 		android:checkable="true"
 		/>
-	<item android:id="@+id/footnoteOption"
-		android:title="@string/prefs_show_notes_title"
+
+	<item android:id="@+id/nightMode"
+		android:title="@string/prefs_night_mode_title"
 		android:checkable="true"
 		/>
+
+	<item android:id="@+id/splitMode"
+		android:title="@string/vertical_split_mode"
+		android:checkable="true"
+		/>
+
 </menu>

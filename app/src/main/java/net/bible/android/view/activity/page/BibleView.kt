@@ -93,9 +93,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var maintainMovingChapterVerse = ChapterVerse.NOT_SET
 
-    // remember current background colour so we know when it changes
-    private var wasNightMode: Boolean? = null
-
     private var gestureDetector: GestureDetectorCompat
 
     /** Used to prevent scroll off bottom using auto-scroll
@@ -217,18 +214,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** may need updating depending on environmental brightness
      */
-    override fun changeBackgroundColour(): Boolean {
+    override fun changeBackgroundColour() {
         // if night mode then set dark background colour
-        val nightMode = ScreenSettings.isNightMode()
-        val changed = nightMode != this.wasNightMode
-        if (changed) {
-            if(mainBibleActivity.ready) {
-                UiUtils.applyTheme(mainBibleActivity)
-            }
-            UiUtils.setBibleViewBackgroundColour(this, nightMode)
-            this.wasNightMode = nightMode
-        }
-        return changed
+
+        val changed = if(mainBibleActivity.ready) {
+            UiUtils.applyTheme(mainBibleActivity)
+        } else true
+
+        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode())
     }
 
     override fun show(origHtml: String, chapterVerse: ChapterVerse, jumpToYOffsetRatio: Float) {

@@ -337,7 +337,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
-    class AutoFullScreen: ItemOptions("show_auto_fullscreen_pref", true, false)
+    class AutoFullScreenChanged(val newValue: Boolean)
+
+    class AutoFullScreen: ItemOptions("auto_fullscreen_pref", true, false) {
+        override fun handle() = ABEventBus.getDefault().post(AutoFullScreenChanged(value))
+    }
 
     class TiltToScroll: ItemOptions("tilt_to_scroll_pref", false, false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()

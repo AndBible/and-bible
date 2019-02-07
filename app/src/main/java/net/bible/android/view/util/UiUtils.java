@@ -46,11 +46,11 @@ public class UiUtils {
 	private static final int BIBLEVIEW_TEXT_NIGHT = CommonUtils.getResourceColor(R.color.bible_text_night);
 	private static final int BIBLEVIEW_TEXT_DAY = CommonUtils.getResourceColor(R.color.bible_text_day);
 
-	public static void applyTheme(Activity activity) {
-		applyTheme(activity, true);
+	public static boolean applyTheme(Activity activity) {
+		return applyTheme(activity, true);
 	}
 
-	public static void applyTheme(Activity activity, boolean recreate) {
+	public static boolean applyTheme(Activity activity, boolean recreate) {
     	boolean changed = ScreenSettings.isNightModeChanged();
     	if(changed) {
 			if (ScreenSettings.isNightMode()) {
@@ -61,7 +61,9 @@ public class UiUtils {
 			if (recreate) {
 				activity.recreate();
 			}
+			return true;
 		}
+		return false;
     }
 
 	/** Change actionBar colour according to day/night state

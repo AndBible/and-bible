@@ -411,7 +411,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
     <string name="text_formatting">Text formatting</string>
-    <string name="text_options">Text options</string>
+    <string name="bible_text_options">Bible text options</string>
     <string name="auto_fullscreen">Auto-fullscreen</string>
     <string name="bible_view_behavior">Bible view behavior</string>
     <string name="switch_split_mode">Switch split mode</string>
