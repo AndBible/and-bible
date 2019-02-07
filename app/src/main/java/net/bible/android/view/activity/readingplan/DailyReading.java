@@ -126,9 +126,19 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        for (int i=0; i<mReadings.getNumReadings(); i++) {
 	        	final int readingNo = i;
 	            View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
-	
-	            // Ticks
-	            mImageTickList.add((ImageView)child.findViewById(R.id.tick));
+
+				// Ticks
+				ImageView mImageTick = (ImageView)child.findViewById(R.id.tick);
+				mImageTickList.add(mImageTick);
+				// Allow check box to be clicked to mark off the day
+				mImageTick.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						ReadingStatus status = readingPlanControl.getReadingStatus(mDay);
+						status.setRead(readingNo);
+						updateTicksAndDone();
+					}
+				});
 	            
 	            // Passage description
 	            TextView rdgText = (TextView)child.findViewById(R.id.passage);
