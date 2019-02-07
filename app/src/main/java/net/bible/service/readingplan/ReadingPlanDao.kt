@@ -83,7 +83,9 @@ class ReadingPlanDao {
 			}
 
             val userPlans = USER_READING_PLAN_FOLDER.list()
-            allCodes.addAll(getReadingPlanCodes(userPlans))
+            if(userPlans != null) {
+                allCodes.addAll(getReadingPlanCodes(userPlans))
+            }
 
             return allCodes
         }
