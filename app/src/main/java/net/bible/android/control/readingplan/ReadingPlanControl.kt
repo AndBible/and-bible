@@ -228,7 +228,7 @@ class ReadingPlanControl @Inject constructor(
 
     /** increment current day
      */
-    fun incrementCurrentPlanDay(): Int {
+	private fun incrementCurrentPlanDay(): Int {
         val nextDay = currentPlanDay + 1
         currentPlanDay = nextDay
 
@@ -326,10 +326,10 @@ class ReadingPlanControl @Inject constructor(
 
     companion object {
 
-        private val READING_PLAN = "reading_plan"
-        private val READING_PLAN_DAY_EXT = "_day"
+        private const val READING_PLAN = "reading_plan"
+        private const val READING_PLAN_DAY_EXT = "_day"
 
-        private val TAG = "ReadingPlanControl"
+        private const val TAG = "ReadingPlanControl"
     }
 
 }
