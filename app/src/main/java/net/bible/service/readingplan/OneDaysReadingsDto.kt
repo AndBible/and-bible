@@ -72,10 +72,10 @@ class OneDaysReadingsDto(val day: Int, private val mReadings: String, val readin
             return mReadingKeys!!.size
         }
 
-    val readingKeys: List<Key>?
+    val readingKeys: List<Key>
         get() {
             checkKeysGenerated()
-            return mReadingKeys
+            return mReadingKeys!!
         }
 
     override fun toString(): String {
