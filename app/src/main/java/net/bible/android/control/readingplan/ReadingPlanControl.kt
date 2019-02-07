@@ -96,10 +96,10 @@ class ReadingPlanControl @Inject constructor(
 
     /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
      */
-    private val currentPlanCode: String?
+    private val currentPlanCode: String
         get() {
             val prefs = CommonUtils.getSharedPreferences()
-            return prefs.getString(READING_PLAN, null)
+            return prefs.getString(READING_PLAN, "") as String
         }
 
     val currentPageManager: CurrentPageManager
