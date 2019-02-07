@@ -296,7 +296,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
-    abstract class ItemOptions (
+    class AutoFullScreenChanged(val newValue: Boolean)
+
+    abstract class MenuItemPreference (
         val preferenceName: String,
         val default: Boolean = false,
         val onlyBibles: Boolean = false,
@@ -333,53 +335,57 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         open fun handle() {}
     }
 
-    class TextContent(name: String, default: Boolean, onlyBibles: Boolean): ItemOptions(name, default, onlyBibles) {
+    abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
+                                                  trueValue: String = "true", falseValue: String = "false"):
+        MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
+
+    class TextContentMenuItemPreference(name: String, default: Boolean):
+        MenuItemPreference(name, default, true)
+    {
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
-    class AutoFullScreenChanged(val newValue: Boolean)
-
-    class AutoFullScreen: ItemOptions("auto_fullscreen_pref", true, false) {
+    class AutoFullscreenMenuItemPreference:
+        MenuItemPreference("auto_fullscreen_pref", true, false)
+    {
         override fun handle() = ABEventBus.getDefault().post(AutoFullScreenChanged(value))
     }
 
-    class TiltToScroll: ItemOptions("tilt_to_scroll_pref", false, false) {
+    class TiltToScrollMenuItemPreference:
+        MenuItemPreference("tilt_to_scroll_pref", false, false)
+    {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
     }
 
-    open class StringValuedOptions(name: String, default: Boolean, trueValue: String = "true", falseValue: String = "false"):
-        ItemOptions(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
+    class SubMenuMenuItemPreference(onlyBibles: Boolean):
+        MenuItemPreference("none", onlyBibles = onlyBibles,subMenu = true)
 
-
-    class SubMenu(onlyBibles: Boolean): ItemOptions(
-        "none",
-        onlyBibles = onlyBibles,
-        subMenu = true
-    )
-    class NightMode: StringValuedOptions("night_mode_pref2", false) {
+    class NightModeMenuItemPreference: StringValuedMenuItemPreference("night_mode_pref2", false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
     }
 
-    class SplitMode: StringValuedOptions("split_mode_pref", false, trueValue = "vertical", falseValue = "horizontal") {
+    class SplitModeMenuItemPreference:
+        StringValuedMenuItemPreference("split_mode_pref", false, trueValue = "vertical", falseValue = "horizontal")
+    {
         override fun handle() = mainBibleActivity.documentViewManager.buildView()
     }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
-        R.id.showBookmarksOption -> TextContent("show_bookmarks_pref", true, true)
-        R.id.redLettersOption -> TextContent("red_letter_pref", false, true)
-        R.id.sectionTitlesOption -> TextContent("section_title_pref", true, true)
-        R.id.showStrongsOption -> TextContent("show_strongs_pref", true, true)
-        R.id.verseNumbersOption -> TextContent("show_verseno_pref", true, true)
-        R.id.versePerLineOption -> TextContent("verse_per_line_pref", false, true)
-        R.id.footnoteOption -> TextContent("show_notes_pref", false, true)
-        R.id.myNotesOption -> TextContent("show_mynotes_pref", true, true)
-        R.id.morphologyOption -> TextContent("show_morphology_pref", false, true)
-        R.id.autoFullscreen -> AutoFullScreen()
-        R.id.tiltToScroll -> TiltToScroll()
-        R.id.nightMode -> NightMode()
-        R.id.splitMode -> SplitMode()
-        R.id.textOptionsSubMenu -> SubMenu(true)
-        else -> throw RuntimeException("Unsupported menu item")
+        R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
+        R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
+        R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
+        R.id.showStrongsOption -> TextContentMenuItemPreference("show_strongs_pref", true)
+        R.id.verseNumbersOption -> TextContentMenuItemPreference("show_verseno_pref", true)
+        R.id.versePerLineOption -> TextContentMenuItemPreference("verse_per_line_pref", false)
+        R.id.footnoteOption -> TextContentMenuItemPreference("show_notes_pref", false)
+        R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
+        R.id.morphologyOption -> TextContentMenuItemPreference("show_morphology_pref", false)
+        R.id.autoFullscreen -> AutoFullscreenMenuItemPreference()
+        R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
+        R.id.nightMode -> NightModeMenuItemPreference()
+        R.id.splitMode -> SplitModeMenuItemPreference()
+        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+        else -> throw RuntimeException("Illegal menu item")
     }
 
     private val preferences = CommonUtils.getSharedPreferences()
