@@ -16,33 +16,23 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
-import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
+import android.view.MenuItem
 
-import javax.inject.Inject;
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton
 
 /**
- * Button to stop Speak when viewing Reading Plan.  Visible when speaking.
- *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-public class ReadingPlanStopActionBarButton extends SpeakStopActionBarButton {
+abstract class ReadingPlanQuickDocumentChangeButton : QuickDocumentChangeToolbarButton() {
 
-	@Inject
-	public ReadingPlanStopActionBarButton(SpeakControl speakControl) {
-		super(speakControl);
-	}
+    override fun onMenuItemClick(arg0: MenuItem): Boolean {
+        val isHandled = super.onMenuItemClick(arg0)
+        // exit the Daily Reading page, returning up to the Document page display to see the bible
+        CurrentActivityHolder.getInstance().currentActivity.finish()
 
-	/**
-	 *  do not show if nothing is being said.  If speaking then allow pause and vice-versa
-	 */
-	@Override
-	public boolean canShow() {
-		return super.canShow() &&
-				isSpeakMode();
-	}
+        return isHandled
+    }
 }

@@ -16,38 +16,26 @@
  *
  */
 
-package net.bible.android.control.readingplan;
+package net.bible.android.view.activity.readingplan.actionbar
 
-/** return isRead' for all historical readings
- * 
+import net.bible.android.control.ApplicationScope
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
+
+import javax.inject.Inject
+
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class HistoricReadingStatus extends ReadingStatus {
+@ApplicationScope
+class ReadingPlanPauseActionBarButton @Inject
+constructor(speakControl: SpeakControl, documentControl: DocumentControl) : SpeakActionBarButton(speakControl, documentControl) {
 
-	public HistoricReadingStatus(String planCode, int day, int numReadings) {
-		super(planCode, day, numReadings);
-	}
-
-	@Override
-	public void setRead(int readingNo) {
-		// do nothing - all readings are already read
-	}
-
-	@Override
-	public boolean isRead(int readingNo) {
-		// all readings are already read
-		return true;
-	}
-
-	@Override
-	public void delete() {
-		// do nothing
-	}
-
-	@Override
-	public void reloadStatus() {
-		// do nothing
-	}
-	
-	
+    /**
+     * do not show if nothing is being said.  If speaking then allow pause and vice-versa
+     */
+    public override fun canShow(): Boolean {
+        return super.canShow() && isSpeakMode
+    }
 }

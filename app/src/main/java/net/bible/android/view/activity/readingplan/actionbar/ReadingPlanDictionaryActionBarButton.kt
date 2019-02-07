@@ -16,24 +16,28 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
-import android.view.MenuItem;
+import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 
-import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton;
+import org.crosswire.jsword.book.Book
+
+import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public abstract class ReadingPlanQuickDocumentChangeButton extends QuickDocumentChangeToolbarButton {
+@ApplicationScope
+class ReadingPlanDictionaryActionBarButton @Inject
+constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
 
-	@Override
-	public boolean onMenuItemClick(MenuItem arg0) {
-		boolean isHandled = super.onMenuItemClick(arg0);
-    	// exit the Daily Reading page, returning up to the Document page display to see the bible
-    	CurrentActivityHolder.getInstance().getCurrentActivity().finish();
-    	
-    	return isHandled;
+    override fun getSuggestedDocument(): Book {
+        return currentPageManager.currentDictionary.currentDocument
+    }
+
+    /** return true if Strongs are relevant to this doc & screen  */
+    override fun canShow(): Boolean {
+        return super.canShow() && isWide
     }
 }

@@ -16,32 +16,23 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
-import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.document.DocumentControl;
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
+import net.bible.android.control.ApplicationScope
 
-import javax.inject.Inject;
+import org.crosswire.jsword.book.Book
 
-/**
+import javax.inject.Inject
+
+/** Quick change bible toolbar button
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-public class ReadingPlanPauseActionBarButton extends SpeakActionBarButton {
+class ReadingPlanBibleActionBarButton @Inject
+constructor() : ReadingPlanQuickDocumentChangeButton() {
 
-	@Inject
-	public ReadingPlanPauseActionBarButton(SpeakControl speakControl, DocumentControl documentControl) {
-		super(speakControl, documentControl);
-	}
-
-	/**
-	 *  do not show if nothing is being said.  If speaking then allow pause and vice-versa
-	 */
-	@Override
-	public boolean canShow() {
-		return super.canShow() &&
-				isSpeakMode();
-	}
+    override fun getSuggestedDocument(): Book {
+        return currentPageManager.currentBible.currentDocument
+    }
 }
