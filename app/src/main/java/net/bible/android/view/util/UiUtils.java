@@ -50,8 +50,10 @@ public class UiUtils {
     	ScreenSettings.isNightModeChanged();
         if (ScreenSettings.isNightMode()) {
         	activity.setTheme(R.style.AppThemeNight);
+        	activity.recreate();
         } else {
         	activity.setTheme(R.style.AppThemeDay);
+        	activity.recreate();
         }
     }
 

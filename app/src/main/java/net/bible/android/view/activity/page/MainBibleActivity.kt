@@ -72,6 +72,7 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
+import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
@@ -842,11 +843,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
+        UiUtils.applyTheme(this)
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-
     }
 
     private fun requestSdcardPermission() {
