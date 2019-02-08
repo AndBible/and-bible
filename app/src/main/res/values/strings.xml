@@ -102,7 +102,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_default_bookmark_style_summary">Highlight colour or icon</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
-    <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
+    <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
     <string name="prefs_section_title_title">Section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
@@ -412,8 +412,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
     <string name="text_formatting">Text formatting</string>
     <string name="bible_text_options">Bible text options</string>
-    <string name="auto_fullscreen">Auto-fullscreen</string>
+    <string name="auto_fullscreen">Fullscreen by scrolling</string>
     <string name="bible_view_behavior">Bible view behavior</string>
     <string name="switch_split_mode">Switch split mode</string>
-    <string name="vertical_split_mode">Vertical split mode</string>
+    <string name="reversed_split_mode">Vertical split</string>
 </resources>

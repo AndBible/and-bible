@@ -67,7 +67,7 @@
 		/>
 
 	<item android:id="@+id/splitMode"
-		android:title="@string/vertical_split_mode"
+		android:title="@string/reversed_split_mode"
 		android:checkable="true"
 		/>
 
