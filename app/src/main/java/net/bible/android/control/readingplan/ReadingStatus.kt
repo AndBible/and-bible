@@ -55,6 +55,11 @@ open class ReadingStatus(
         saveStatus()
     }
 
+    open fun setUnread(readingNo: Int) {
+        status.set(readingNo, false)
+        saveStatus()
+    }
+
     open fun isRead(readingNo: Int): Boolean {
         return status.get(readingNo)
     }

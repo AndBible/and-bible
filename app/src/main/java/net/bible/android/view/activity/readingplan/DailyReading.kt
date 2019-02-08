@@ -106,7 +106,11 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 // Allow check box to be clicked to mark off the day
                 mImageTick.setOnClickListener {
                     val status = readingPlanControl.getReadingStatus(mDay)
-                    status.setRead(i)
+                    if (status.isRead(i)) {
+                        status.setUnread(i)
+                    } else {
+                        status.setRead(i)
+                    }
                     updateTicksAndDone()
                 }
 
