@@ -16,35 +16,32 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
-import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.ApplicationScope
 
-import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.Book
 
-import javax.inject.Inject;
+import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-public class ReadingPlanDictionaryActionBarButton extends ReadingPlanQuickDocumentChangeButton {
+class ReadingPlanCommentaryActionBarButton @Inject
+constructor() : ReadingPlanQuickDocumentChangeButton() {
 
-	@Inject
-	public ReadingPlanDictionaryActionBarButton(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-	}
 
-	@Override
-	protected
-	Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentDictionary().getCurrentDocument();
-	}
-	
-	/** return true if Strongs are relevant to this doc & screen */
-	@Override
-	protected boolean canShow() {
-		return super.canShow() && 
-				isWide(); 
-	}
+    override fun getSuggestedDocument(): Book {
+        return currentPageManager.currentCommentary.currentDocument
+    }
+
+    /**
+     * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary
+     */
+    override fun canShow(): Boolean {
+        return super.canShow() && (isWide || !isSpeakMode)
+    }
+
+
 }

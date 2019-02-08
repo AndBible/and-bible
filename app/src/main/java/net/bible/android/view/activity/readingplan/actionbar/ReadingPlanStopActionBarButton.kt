@@ -16,38 +16,27 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.view.activity.readingplan.actionbar
 
-import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.ApplicationScope
+import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 
-import org.crosswire.jsword.book.Book;
-
-import javax.inject.Inject;
+import javax.inject.Inject
 
 /**
+ * Button to stop Speak when viewing Reading Plan.  Visible when speaking.
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-public class ReadingPlanCommentaryActionBarButton extends ReadingPlanQuickDocumentChangeButton {
+class ReadingPlanStopActionBarButton @Inject
+constructor(speakControl: SpeakControl) : SpeakStopActionBarButton(speakControl) {
 
-	@Inject
-	public ReadingPlanCommentaryActionBarButton() {
-	}
-
-
-	@Override
-	protected Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentCommentary().getCurrentDocument();
-	}
-
-	/**
-	 * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary 
-	 */
-	@Override
-	protected boolean canShow() {
-		return super.canShow() &&
-				(isWide() || !isSpeakMode());
-	}
-	
-	
+    /**
+     * do not show if nothing is being said.  If speaking then allow pause and vice-versa
+     */
+    public override fun canShow(): Boolean {
+        return super.canShow() && isSpeakMode
+    }
 }
