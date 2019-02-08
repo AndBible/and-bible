@@ -16,27 +16,30 @@
  *
  */
 
-package net.bible.android.view.activity.readingplan.actionbar;
+package net.bible.android.control.readingplan
 
-import net.bible.android.control.ApplicationScope;
-
-import org.crosswire.jsword.book.Book;
-
-import javax.inject.Inject;
-
-/** Quick change bible toolbar button
- * 
+/** return isRead' for all historical readings
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-public class ReadingPlanBibleActionBarButton extends ReadingPlanQuickDocumentChangeButton {
+class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int) : ReadingStatus(planCode, day, numReadings) {
 
-	@Inject
-	public ReadingPlanBibleActionBarButton() {
-	}
+    override fun setRead(readingNo: Int) {
+        // do nothing - all readings are already read
+    }
 
-	@Override
-	protected Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentBible().getCurrentDocument();
-	}
+    override fun isRead(readingNo: Int): Boolean {
+        // all readings are already read
+        return true
+    }
+
+    override fun delete() {
+        // do nothing
+    }
+
+    override fun reloadStatus() {
+        // do nothing
+    }
+
+
 }

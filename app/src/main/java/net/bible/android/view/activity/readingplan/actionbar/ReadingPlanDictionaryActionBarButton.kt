@@ -16,38 +16,28 @@
  *
  */
 
-package net.bible.android.control.readingplan;
+package net.bible.android.view.activity.readingplan.actionbar
 
-/** return isRead' for all historical readings
- * 
+import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+
+import org.crosswire.jsword.book.Book
+
+import javax.inject.Inject
+
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class HistoricReadingStatus extends ReadingStatus {
+@ApplicationScope
+class ReadingPlanDictionaryActionBarButton @Inject
+constructor(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) : ReadingPlanQuickDocumentChangeButton() {
 
-	public HistoricReadingStatus(String planCode, int day, int numReadings) {
-		super(planCode, day, numReadings);
-	}
+    override fun getSuggestedDocument(): Book? {
+        return currentPageManager.currentDictionary.currentDocument
+    }
 
-	@Override
-	public void setRead(int readingNo) {
-		// do nothing - all readings are already read
-	}
-
-	@Override
-	public boolean isRead(int readingNo) {
-		// all readings are already read
-		return true;
-	}
-
-	@Override
-	public void delete() {
-		// do nothing
-	}
-
-	@Override
-	public void reloadStatus() {
-		// do nothing
-	}
-	
-	
+    /** return true if Strongs are relevant to this doc & screen  */
+    override fun canShow(): Boolean {
+        return super.canShow() && isWide
+    }
 }
