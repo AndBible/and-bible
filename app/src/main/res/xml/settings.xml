@@ -6,11 +6,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
 			android:key="bible_display_pref">
 
-    <!-- first night mode setting is for use with no light sensor, second is a list with automatic added -->			
-	<CheckBoxPreference android:key="auto_night_mode_pref"
-				android:title="@string/prefs_auto_night_mode_title"
-				android:summary="@string/prefs_auto_night_mode_summary"
-				android:defaultValue="false"/> 
+	<ListPreference android:key="night_mode_pref2"
+		android:title="@string/prefs_night_mode_title"
+		android:summary="@string/prefs_night_mode_summary"
+		android:entries="@array/prefs_night_mode_descriptions"
+		android:entryValues="@array/prefs_night_mode_values"
+		android:defaultValue="false"/>
+
 	<net.bible.android.view.util.BookmarkColourPreference
 				android:key="default_bookmark_style_pref"
 				android:title="@string/prefs_default_bookmark_style_title"

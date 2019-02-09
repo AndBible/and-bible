@@ -54,12 +54,12 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-	val autoNightMode	get() = preferences.getBoolean("auto_night_mode_pref", false)
+	private val autoNightMode	get() =
+		autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
 
 	val autoModeAvailable: Boolean get() = mLightSensor.isLightSensor
 
 	private val nightMode get() =
 		if(autoNightMode) mLightSensor.reading <= MAX_DARK_READING
-		else preferences.getBoolean("night_mode_pref", false)
-
+		else preferences.getString("night_mode_pref2", "false") == "true"
 }

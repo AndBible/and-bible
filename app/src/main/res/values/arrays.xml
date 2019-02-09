@@ -15,6 +15,29 @@
 	</string-array>
 
 	<!-- Screen colors: automatic night mode, day, night -->
+	<string-array name="prefs_night_mode_descriptions">
+		<item>@string/no</item>
+		<item>@string/yes</item>
+		<item>@string/prefs_night_mode_automatic</item>
+	</string-array>
+	<string-array name="prefs_night_mode_values">
+		<item>false</item>
+		<item>true</item>
+		<item>automatic</item>
+	</string-array>
+
+	<!-- Split mode: vertical, horizontal, automatic -->
+	<string-array name="prefs_split_mode_descriptions">
+		<item>@string/prefs_split_mode_vertical</item>
+		<item>@string/prefs_split_mode_horizontal</item>
+		<item>@string/prefs_split_mode_automatic</item>
+	</string-array>
+	<string-array name="prefs_split_mode_values">
+		<item>vertical</item>
+		<item>horizontal</item>
+		<item>automatic</item>
+	</string-array>
+	<!-- Screen colors: automatic night mode, day, night -->
 
     <!-- Split mode: vertical, horizontal, automatic -->
 
