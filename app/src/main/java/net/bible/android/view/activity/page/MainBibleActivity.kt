@@ -53,6 +53,7 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageTiltScrollControl.isTiltSensingPossible
 import net.bible.android.control.page.window.WindowControl
@@ -391,6 +392,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         MenuItemPreference("reverse_split_mode_pref", false)
     {
         override fun handle() = mainBibleActivity.documentViewManager.buildView()
+        override val visible: Boolean get() = mainBibleActivity.windowControl.isMultiWindow
     }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
@@ -893,6 +895,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onEvent(event: CurrentWindowChangedEvent) {
         updateActions()
+    }
+
+    fun onEvent(event: NumberOfWindowsChangedEvent) {
+        invalidateOptionsMenu()
     }
 
     /**
