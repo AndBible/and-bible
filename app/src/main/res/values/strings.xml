@@ -135,6 +135,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
 
+    <string name="bible_text_options">Bible text options</string>
+    <string name="auto_fullscreen">Fullscreen by scrolling</string>
+    <string name="bible_view_behavior">Bible view behavior</string>
+    <string name="switch_split_mode">Switch split mode</string>
+    <string name="reversed_split_mode">Reversed split mode</string>
+    <string name="prefs_auto_night_mode_title">Automatic night mode</string>
+    <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
+
     <!-- Window -->
     <string name="new_window">New window</string>
     <string name="windowClose">Close</string>
@@ -412,12 +420,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
-    <string name="text_formatting">Text formatting</string>
-    <string name="bible_text_options">Bible text options</string>
-    <string name="auto_fullscreen">Fullscreen by scrolling</string>
-    <string name="bible_view_behavior">Bible view behavior</string>
-    <string name="switch_split_mode">Switch split mode</string>
-    <string name="reversed_split_mode">Reversed split mode</string>
-    <string name="prefs_auto_night_mode_title">Automatic night mode</string>
-    <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
 </resources>
