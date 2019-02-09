@@ -45,9 +45,6 @@ object ScreenSettings {
     var isNightMode = false
         private set
 
-    private var contentViewHeightPx = 0
-    private var lineHeightDips = 0
-
     private val TAG = "ScreenSettings"
 
     // may possible be no reading yet but need to have a screen colour
@@ -56,15 +53,7 @@ object ScreenSettings {
     val isNightModeChanged: Boolean
         get() {
             val origNightMode = isNightMode
-
-            val nightModePref = nightModePreferenceValue
-            if (AUTO_NIGHT_MODE == nightModePref) {
-                val lightReading = mLightSensor.reading
-                isNightMode = lightReading <= MAX_DARK_READING
-            } else {
-                isNightMode = NIGHT_MODE == nightModePref
-            }
-
+			isNightMode = nightMode
             return origNightMode != isNightMode
         }
 
@@ -74,10 +63,17 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
+	private val autoNightMode
+		get() = nightModePreferenceValue == AUTO_NIGHT_MODE
+
+	private val nightMode get() =
+		if(autoNightMode) mLightSensor.reading <= MAX_DARK_READING
+		else nightModePreferenceValue == NIGHT_MODE
+
     /** get the preference setting - could be using either of 2 preference settings depending on presence of a light sensor
      */
-    private// boolean pref setting if no light meter
-    val nightModePreferenceValue: String
+	// boolean pref setting if no light meter
+    private val nightModePreferenceValue: String
         get() {
             var nightModePref: String = NOT_NIGHT_MODE
 
@@ -97,38 +93,12 @@ object ScreenSettings {
     /** get the preference key being used/unused, dependent on light sensor availability
      */
     val usedNightModePreferenceKey: String
-        get() = if (mLightSensor.isLightSensor) ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR else ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR
+        get() =
+			if (mLightSensor.isLightSensor) ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR
+			else ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR
+
     val unusedNightModePreferenceKey: String
-        get() = if (mLightSensor.isLightSensor) ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR else ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR
-
-    /** get the height of the WebView that will contain the text
-     */
-    // content view height is not set until after the first page view so first call is normally an approximation
-    // return an appropriate default if the actual content height has not been set yet
-    val contentViewHeightDips: Int
-        get() {
-            var heightPx = 0
-            if (contentViewHeightPx > 0) {
-                heightPx = contentViewHeightPx
-            } else {
-                heightPx = BibleApplication.application.resources.displayMetrics.heightPixels
-            }
-
-            return CommonUtils.convertPxToDips(heightPx)
-        }
-
-    fun setContentViewHeightPx(contentViewHeightPx: Int) {
-        ScreenSettings.contentViewHeightPx = contentViewHeightPx
-    }
-
-    /** get the height of each line in the WebView
-     */
-    fun getLineHeightDips(): Int {
-        return lineHeightDips
-    }
-
-    fun setLineHeightDips(lineHeightDips: Int) {
-        Log.d(TAG, "LineHeightPx:$lineHeightDips")
-        ScreenSettings.lineHeightDips = lineHeightDips
-    }
+        get() =
+			if (mLightSensor.isLightSensor) ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR
+			else ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR
 }

@@ -185,31 +185,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         onEvent(CurrentWindowChangedEvent(windowControl.activeWindow))
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        // update the height in ScreenSettings. Global screen height must be taken from parent view
-        // that contains all windows.
-        if (parent != null && parent.parent != null) {
-            ScreenSettings.setContentViewHeightPx((parent.parent as View).measuredHeight)
-        }
-    }
-
     /** apply settings set by the user using Preferences
      */
     override fun applyPreferenceSettings() {
         applyFontSize()
 
         changeBackgroundColour()
-
-        ScreenSettings.setContentViewHeightPx(height)
     }
 
     private fun applyFontSize() {
         val fontSize = pageControl.getDocumentFontSize(windowNo)
         settings.defaultFontSize = fontSize
-
-        // 1.6 is taken from css - line-height: 1.6em;
-        ScreenSettings.setLineHeightDips((1.6 * fontSize).toInt())
     }
 
     /** may need updating depending on environmental brightness
@@ -217,9 +203,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     override fun changeBackgroundColour() {
         // if night mode then set dark background colour
 
-        val changed = if(mainBibleActivity.ready) {
+        if(mainBibleActivity.ready) {
             UiUtils.applyTheme(mainBibleActivity)
-        } else true
+        }
 
         UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
