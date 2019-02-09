@@ -32,7 +32,7 @@ class ReadingPlanCommentaryActionBarButton @Inject
 constructor() : ReadingPlanQuickDocumentChangeButton() {
 
 
-    override fun getSuggestedDocument(): Book {
+    override fun getSuggestedDocument(): Book? {
         return currentPageManager.currentCommentary.currentDocument
     }
 
