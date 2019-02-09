@@ -64,7 +64,7 @@ public class BookmarkLabelItemAdapter extends ArrayAdapter<LabelDto> {
 		CheckedTextView nameView = (CheckedTextView) rowView;
 		nameView.setText(labelDto.getName());
 		if (labelDto.getBookmarkStyle()==null) {
-			nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
+			nameView.setBackgroundColor(UiUtils.INSTANCE.getThemeBackgroundColour(getContext()));
 		} else {
 			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
 		}

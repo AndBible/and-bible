@@ -59,14 +59,14 @@ public class BookmarkStyleAdapterHelper {
 		CharSequence imgText;
 		switch (bookmarkStyle) {
 			case SPEAK:
-				backgroundColor = UiUtils.getThemeBackgroundColour(context);
-				view.setTextColor(UiUtils.getThemeTextColour(context));
+				backgroundColor = UiUtils.INSTANCE.getThemeBackgroundColour(context);
+				view.setTextColor(UiUtils.INSTANCE.getThemeTextColour(context));
 				imgText = addImageAtStart("* "+baseText, R.drawable.hearing, context);
 				view.setText(imgText, TextView.BufferType.SPANNABLE);
 				break;
 			case YELLOW_STAR:
-				backgroundColor = UiUtils.getThemeBackgroundColour(context);
-				view.setTextColor(UiUtils.getThemeTextColour(context));
+				backgroundColor = UiUtils.INSTANCE.getThemeBackgroundColour(context);
+				view.setTextColor(UiUtils.INSTANCE.getThemeTextColour(context));
 				imgText = addImageAtStart("* "+baseText, R.drawable.goldstar16x16, context);
 				view.setText(imgText, TextView.BufferType.SPANNABLE);
 				break;

@@ -35,11 +35,11 @@ public class DefaultActionBarManager implements ActionBarManager {
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		this.actionBar = actionBar;
 		
-		UiUtils.setActionBarColor(actionBar);
+		UiUtils.INSTANCE.setActionBarColor(actionBar);
 	}
 
 	@Override
 	public void updateButtons() {
-		UiUtils.setActionBarColor(actionBar);
+		UiUtils.INSTANCE.setActionBarColor(actionBar);
 	}
 }
