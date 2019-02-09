@@ -370,7 +370,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     class SplitModeMenuItemPreference:
-        StringValuedMenuItemPreference("split_mode_pref", false, trueValue = "vertical", falseValue = "horizontal")
+        MenuItemPreference("reverse_split_mode_pref", false)
     {
         override fun handle() = mainBibleActivity.documentViewManager.buildView()
     }
@@ -764,13 +764,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     val isSplitHorizontally: Boolean get() {
-        val pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC)
-        return when (pref) {
-            SPLIT_MODE_AUTOMATIC -> isPortrait
-            SPLIT_MODE_VERTICAL -> false
-            SPLIT_MODE_HORIZONTAL -> true
-            else -> throw RuntimeException("Illegal preference")
-        }
+        val reverse = CommonUtils.getSharedPreferences().getBoolean("reverse_split_mode_pref", false)
+        return if(reverse) !isPortrait else isPortrait
     }
 
     class ConfigurationChanged
@@ -968,11 +963,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         internal const val BACKUP_SAVE_REQUEST = 0
         internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
-
-        private const val SPLIT_MODE_PREF = "split_mode_pref"
-        private const val SPLIT_MODE_AUTOMATIC = "automatic"
-        private const val SPLIT_MODE_VERTICAL = "vertical"
-        private const val SPLIT_MODE_HORIZONTAL = "horizontal"
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

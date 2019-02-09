@@ -26,11 +26,7 @@
 				android:summary="@string/prefs_text_size_summary"
 				android:defaultValue="16"
 				android:max="60"/> 
-	<CheckBoxPreference android:key="tilt_to_scroll_pref"
-				android:title="@string/prefs_tilt_to_scroll_title"
-				android:summary="@string/prefs_tilt_to_scroll_summary"
-				android:defaultValue="false"/>
-	<CheckBoxPreference android:key="navigate_to_verse_pref" 
+	<CheckBoxPreference android:key="navigate_to_verse_pref"
 				android:title="@string/prefs_navigate_to_verse_title"
 				android:summary="@string/prefs_navigate_to_verse_summary"
 				android:defaultValue="false"/>
@@ -42,12 +38,6 @@
 				android:title="@string/prefs_open_links_in_special_window_title"
 				android:summary="@string/prefs_open_links_in_special_window_summary"
 				android:defaultValue="true"/>
-	<ListPreference android:key="split_mode_pref"
-				android:title="@string/prefs_split_mode_title"
-				android:summary="@string/prefs_split_mode_summary"
-				android:entries="@array/prefs_split_mode_descriptions"
-				android:entryValues="@array/prefs_split_mode_values"
-				android:defaultValue="automatic"/>
 	<CheckBoxPreference android:key="screen_keep_on_pref"
 				android:title="@string/prefs_screen_keep_on_title"
 				android:summary="@string/prefs_screen_keep_on_summary"
