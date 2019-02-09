@@ -54,6 +54,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.PageTiltScrollControl.isTiltSensingPossible
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -332,6 +333,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 preferences.getString(preferenceName, defaultString) == automaticValue
             }
 
+        open val visible: Boolean
+            get() = if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+
         open fun handle() {}
     }
 
@@ -355,6 +359,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         MenuItemPreference("tilt_to_scroll_pref", false, false)
     {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+        override val visible: Boolean get() = isTiltSensingPossible()
     }
 
     class SubMenuMenuItemPreference(onlyBibles: Boolean):
@@ -401,13 +406,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
                 val itmOptions = getItemOptions(item.itemId)
                 item.isChecked = itmOptions.value
-
-                if(itmOptions.onlyBibles) {
-                    item.isVisible = documentControl.isBibleBook
-                }
-                else {
-                    item.isVisible = true
-                }
+                item.isVisible = itmOptions.visible
             }
         }
         handleMenu(menu)
