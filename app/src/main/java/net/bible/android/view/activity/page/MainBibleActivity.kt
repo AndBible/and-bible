@@ -307,17 +307,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val subMenu: Boolean = false
     ) {
         private val preferences = mainBibleActivity.preferences
-        var value: Boolean
+        open var value: Boolean
             get() = preferences.getBoolean(preferenceName, default)
             set(value) = preferences.edit().putBoolean(preferenceName, value).apply()
 
         open val visible: Boolean
             get() = if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
+        open val enabled: Boolean
+            get() = true
+
         open fun handle() {}
     }
 
-    class TextContentMenuItemPreference(name: String, default: Boolean):
+    open class TextContentMenuItemPreference(name: String, default: Boolean):
         MenuItemPreference(name, default, true)
     {
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
@@ -344,6 +347,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val visible: Boolean get() = !ScreenSettings.autoNightMode
     }
 
+    class StrongsMenuItemPreference: TextContentMenuItemPreference("show_strongs_pref", true)
+
+    class MorphologyMenuItemPreference: TextContentMenuItemPreference("show_morphology_pref", false) {
+        override val enabled: Boolean
+            get() = StrongsMenuItemPreference().value
+        override var value: Boolean
+            get() = if(enabled) super.value else false
+            set(value) { super.value = value }
+    }
+
     class SplitModeMenuItemPreference:
         MenuItemPreference("reverse_split_mode_pref", false)
     {
@@ -354,12 +367,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
         R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
-        R.id.showStrongsOption -> TextContentMenuItemPreference("show_strongs_pref", true)
         R.id.verseNumbersOption -> TextContentMenuItemPreference("show_verseno_pref", true)
         R.id.versePerLineOption -> TextContentMenuItemPreference("verse_per_line_pref", false)
         R.id.footnoteOption -> TextContentMenuItemPreference("show_notes_pref", false)
         R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
-        R.id.morphologyOption -> TextContentMenuItemPreference("show_morphology_pref", false)
+        R.id.showStrongsOption -> StrongsMenuItemPreference()
+        R.id.morphologyOption -> MorphologyMenuItemPreference()
         R.id.autoFullscreen -> AutoFullscreenMenuItemPreference()
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
         R.id.nightMode -> NightModeMenuItemPreference()
@@ -382,14 +395,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val itmOptions = getItemOptions(item.itemId)
                 item.isChecked = itmOptions.value
                 item.isVisible = itmOptions.visible
+                item.isEnabled = itmOptions.enabled
             }
         }
         handleMenu(menu)
-
-        val morphItem = menu.findItem(R.id.morphologyOption)
-        val strongsItem = menu.findItem(R.id.showStrongsOption)
-        morphItem.isEnabled = strongsItem.isChecked
-
         return true
     }
 
