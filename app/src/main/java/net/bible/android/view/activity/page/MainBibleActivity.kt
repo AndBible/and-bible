@@ -273,9 +273,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         strongsButton.setOnClickListener {
             val prefOptions = getItemOptions(R.id.showStrongsOption)
-            val oldValue = preferences.getBoolean(prefOptions.preferenceName, prefOptions.default)
-            preferences.edit().putBoolean(prefOptions.preferenceName, !oldValue).apply()
-            windowControl.windowSync.synchronizeAllScreens()
+            prefOptions.value = !prefOptions.value
+            prefOptions.handle()
+            invalidateOptionsMenu()
         }
 
         strongsButton.setOnLongClickListener {
@@ -347,7 +347,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val visible: Boolean get() = !ScreenSettings.autoNightMode
     }
 
-    class StrongsMenuItemPreference: TextContentMenuItemPreference("show_strongs_pref", true)
+    class StrongsMenuItemPreference: TextContentMenuItemPreference("show_strongs_pref", true) {
+        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
+    }
 
     class MorphologyMenuItemPreference: TextContentMenuItemPreference("show_morphology_pref", false) {
         override val enabled: Boolean
@@ -355,6 +357,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override var value: Boolean
             get() = if(enabled) super.value else false
             set(value) { super.value = value }
+
+        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
     class SplitModeMenuItemPreference:
