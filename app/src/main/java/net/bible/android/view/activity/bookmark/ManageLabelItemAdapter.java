@@ -70,7 +70,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 		TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
 		nameView.setText(labelDto.getName());
 		if (labelDto.getBookmarkStyle()==null) {
-			nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
+			nameView.setBackgroundColor(UiUtils.INSTANCE.getThemeBackgroundColour(getContext()));
 		} else {
 			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
 		}
@@ -100,7 +100,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 			deleteButton.setVisibility(View.VISIBLE);
 		}
 
-		if (ScreenSettings.isNightMode()) {
+		if (ScreenSettings.INSTANCE.isNightMode()) {
 			editButton.setImageResource(R.drawable.ic_pen_24dp);
 			deleteButton.setImageResource(R.drawable.ic_delete_24dp);
 		} else {

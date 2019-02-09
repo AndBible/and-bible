@@ -462,7 +462,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 		// canonical
 		try {
-			ScreenSettings.setContentViewHeightPx(300);
+			//ScreenSettings.INSTANCE.setContentViewHeightPx(300);
 
 			if (osissep != null) {
 				OsisToHtmlParameters params = new OsisToHtmlParameters();

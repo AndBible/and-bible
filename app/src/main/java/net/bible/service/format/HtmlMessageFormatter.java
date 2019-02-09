@@ -61,7 +61,7 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(String text) {
-		boolean isNightMode = ScreenSettings.isNightMode();
+		boolean isNightMode = ScreenSettings.INSTANCE.isNightMode();
 		
 		String formattedText;
 		

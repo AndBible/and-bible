@@ -35,7 +35,7 @@ public interface DocumentView {
 
 	/** may need updating depending on environmental brightness
 	 */
-	boolean changeBackgroundColour();
+	void changeBackgroundColour();
 	
 	// allow stop/start of autoscroll
 	void onScreenTurnedOn();

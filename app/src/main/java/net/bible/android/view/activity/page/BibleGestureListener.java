@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -44,6 +45,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
+	private boolean autoFullScreen;
 
 	public void setDisableSingleTapOnce(boolean disableSingleTapOnce) {
 		this.disableSingleTapOnce = disableSingleTapOnce;
@@ -71,6 +73,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
 		ABEventBus.getDefault().register(this);
+		autoFullScreen = CommonUtils.getSharedPreferences().getBoolean("auto_fullscreen_pref", true);
 	}
 
 	@Override
@@ -105,6 +108,9 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		}
 		return false;
 	}
+	public void onEvent(MainBibleActivity.AutoFullScreenChanged event) {
+		autoFullScreen = event.getNewValue();
+	}
 
 	public void onEvent(CurrentWindowChangedEvent event) {
 		disableSingleTapOnce = true;
@@ -115,6 +121,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		if(!autoFullScreen) return false;
 		if(ev == null || e1.getEventTime() > ev.getEventTime()) {
 			// New scroll event
 			ABEventBus.getDefault().post(new BibleView.BibleViewTouched());
