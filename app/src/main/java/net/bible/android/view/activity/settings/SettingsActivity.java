@@ -20,13 +20,12 @@ package net.bible.android.view.activity.settings;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.Preference;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
@@ -61,7 +60,9 @@ public class SettingsActivity extends PreferenceActivity {
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
 
 			if(!ScreenSettings.INSTANCE.getAutoModeAvailable()) {
-				getPreferenceScreen().removePreference(getPreferenceScreen().findPreference("auto_night_mode_pref"));
+				ListPreference pref = (ListPreference) getPreferenceScreen().findPreference("night_mode_pref2");
+				pref.setEntries(R.array.prefs_night_mode_descriptions_noauto);
+				pref.setEntryValues(R.array.prefs_night_mode_values_noauto);
 			}
 
 			// if locale is overridden then have to force title to be translated here
