@@ -70,7 +70,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        ScreenSettings.isNightModeChanged
         if (ScreenSettings.isNightMode) {
             setTheme(nightTheme)
         } else {
