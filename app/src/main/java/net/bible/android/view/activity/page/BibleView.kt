@@ -221,7 +221,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             UiUtils.applyTheme(mainBibleActivity)
         } else true
 
-        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode())
+        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
 
     override fun show(origHtml: String, chapterVerse: ChapterVerse, jumpToYOffsetRatio: Float) {

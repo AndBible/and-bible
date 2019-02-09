@@ -86,7 +86,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
             val isTotalRefreshRequired = isFirstTimeInit
-                    || lastSynchWasInNightMode != ScreenSettings.isNightMode()
+                    || lastSynchWasInNightMode != ScreenSettings.isNightMode
                     || screenPreferencesChanged || resynchRequired
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised
@@ -122,7 +122,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         }
         lastSynchdInactiveWindowKey = targetActiveWindowKey
-        lastSynchWasInNightMode = ScreenSettings.isNightMode()
+        lastSynchWasInNightMode = ScreenSettings.isNightMode
         screenPreferencesChanged = false
         resynchRequired = false
         isFirstTimeInit = false

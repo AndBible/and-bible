@@ -59,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		    //If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.getUnusedNightModePreferenceKey());
+			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.INSTANCE.getUnusedNightModePreferenceKey());
 			getPreferenceScreen().removePreference(unusedNightModePreference);
 			
 			// if no tilt sensor then remove tilt-to-scroll setting

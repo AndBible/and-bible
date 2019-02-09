@@ -742,7 +742,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun refreshIfNightModeChange() {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
-        if (ScreenSettings.isNightModeChanged()) {
+        if (ScreenSettings.isNightModeChanged) {
             // then update text if colour changed
             documentViewManager.documentView.changeBackgroundColour()
             PassageChangeMediator.getInstance().forcePageUpdate()

@@ -118,7 +118,7 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 
 	@Override
 	public void changeBackgroundColour() {
-		if (ScreenSettings.isNightMode()) {
+		if (ScreenSettings.INSTANCE.isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 			setTextColor(Color.WHITE);
 		} else {

@@ -51,9 +51,9 @@ public class UiUtils {
 	}
 
 	public static boolean applyTheme(Activity activity, boolean recreate) {
-    	boolean changed = ScreenSettings.isNightModeChanged();
+    	boolean changed = ScreenSettings.INSTANCE.isNightModeChanged();
     	if(changed) {
-			if (ScreenSettings.isNightMode()) {
+			if (ScreenSettings.INSTANCE.isNightMode()) {
 				activity.setTheme(R.style.AppThemeNight);
 			} else {
 				activity.setTheme(R.style.AppThemeDay);
@@ -69,7 +69,7 @@ public class UiUtils {
 	/** Change actionBar colour according to day/night state
 	 */
 	public static void setActionBarColor(final ActionBar actionBar) {
-		final int newColor = ScreenSettings.isNightMode() ? ACTIONBAR_BACKGROUND_NIGHT : ACTIONBAR_BACKGROUND_DAY;
+		final int newColor = ScreenSettings.INSTANCE.isNightMode() ? ACTIONBAR_BACKGROUND_NIGHT : ACTIONBAR_BACKGROUND_DAY;
 
 		if (actionBar!=null) {
 			CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
@@ -88,10 +88,10 @@ public class UiUtils {
 	}
 
 	public static int getBackgroundColour() {
-		return ScreenSettings.isNightMode() ? BIBLEVIEW_BACKGROUND_NIGHT : BIBLEVIEW_BACKGROUND_DAY;
+		return ScreenSettings.INSTANCE.isNightMode() ? BIBLEVIEW_BACKGROUND_NIGHT : BIBLEVIEW_BACKGROUND_DAY;
 	}
 	public static int getTextColour() {
-		return ScreenSettings.isNightMode() ? BIBLEVIEW_TEXT_NIGHT : BIBLEVIEW_TEXT_DAY;
+		return ScreenSettings.INSTANCE.isNightMode() ? BIBLEVIEW_TEXT_NIGHT : BIBLEVIEW_TEXT_DAY;
 	}
 
 	public static int getThemeBackgroundColour(Context context) {
