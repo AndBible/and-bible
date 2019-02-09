@@ -28,6 +28,10 @@ class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int) : Read
         // do nothing - all readings are already read
     }
 
+    override fun setUnread(readingNo: Int) {
+        // do nothing - all readings are already read
+    }
+
     override fun isRead(readingNo: Int): Boolean {
         // all readings are already read
         return true
