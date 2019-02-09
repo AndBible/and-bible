@@ -303,45 +303,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val preferenceName: String,
         val default: Boolean = false,
         val onlyBibles: Boolean = false,
-        val isBoolean: Boolean = true,
-
-        // If we are handling non-boolean value
-        val trueValue: String = "true",
-        val falseValue: String = "false",
-        val automaticValue: String = "automatic",
-        val defaultString: String = automaticValue,
 
         val subMenu: Boolean = false
     ) {
         private val preferences = mainBibleActivity.preferences
         var value: Boolean
-            get() = if(isBoolean) {
-                preferences.getBoolean(preferenceName, default)
-            } else {
-                preferences.getString(preferenceName, defaultString) == trueValue
-            }
-            set(value) = if(isBoolean) {
-                preferences.edit().putBoolean(preferenceName, value).apply()
-            } else {
-                preferences.edit().putString(preferenceName, if(value) trueValue else falseValue).apply()
-            }
-
-        val automatic: Boolean
-            get() = if(isBoolean) {
-                false
-            } else {
-                preferences.getString(preferenceName, defaultString) == automaticValue
-            }
+            get() = preferences.getBoolean(preferenceName, default)
+            set(value) = preferences.edit().putBoolean(preferenceName, value).apply()
 
         open val visible: Boolean
             get() = if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
         open fun handle() {}
     }
-
-    abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
-                                                  trueValue: String = "true", falseValue: String = "false"):
-        MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
     class TextContentMenuItemPreference(name: String, default: Boolean):
         MenuItemPreference(name, default, true)
@@ -365,8 +339,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     class SubMenuMenuItemPreference(onlyBibles: Boolean):
         MenuItemPreference("none", onlyBibles = onlyBibles,subMenu = true)
 
-    class NightModeMenuItemPreference: StringValuedMenuItemPreference("night_mode_pref2", false) {
+    class NightModeMenuItemPreference: MenuItemPreference("night_mode_pref", false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+        override val visible: Boolean get() = !ScreenSettings.autoNightMode
     }
 
     class SplitModeMenuItemPreference:

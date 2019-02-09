@@ -59,15 +59,11 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		    //If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.INSTANCE.getUnusedNightModePreferenceKey());
-			getPreferenceScreen().removePreference(unusedNightModePreference);
-			
-			// if no tilt sensor then remove tilt-to-scroll setting
-			if (!PageTiltScrollControl.isTiltSensingPossible()) {
-				Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
-				getPreferenceScreen().removePreference(tiltToScrollPreference);
+
+			if(!ScreenSettings.INSTANCE.getAutoModeAvailable()) {
+				getPreferenceScreen().removePreference(getPreferenceScreen().findPreference("auto_night_mode_pref"));
 			}
-			
+
 			// if locale is overridden then have to force title to be translated here
 			LocaleHelper.translateTitle(this);
 

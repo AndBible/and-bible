@@ -37,7 +37,6 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
-import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
@@ -161,15 +160,6 @@ open class BibleApplication : MultiDexApplication() {
                     }
                 }
             }
-            // add new
-            if (prevInstalledVersion < 61) {
-                if (prefs.contains(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR)) {
-                    val pref2Val = if (prefs.getBoolean(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR, false)) "true" else "false"
-                    Log.d(TAG, "Setting new night mode pref list value:$pref2Val")
-                    editor.putString(ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR, pref2Val)
-                }
-            }
-
             // clear old split screen config because it has changed a lot
             if (prevInstalledVersion < 154) {
                 editor.remove("screen1_weight")
