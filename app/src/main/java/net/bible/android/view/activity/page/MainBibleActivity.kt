@@ -391,15 +391,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
+                val itmOptions = getItemOptions(item.itemId)
+                item.isVisible = itmOptions.visible
+                item.isEnabled = itmOptions.enabled
+
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue;
                 }
 
-                val itmOptions = getItemOptions(item.itemId)
                 item.isChecked = itmOptions.value
-                item.isVisible = itmOptions.visible
-                item.isEnabled = itmOptions.enabled
             }
         }
         handleMenu(menu)
