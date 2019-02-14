@@ -106,9 +106,6 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         new Thread() {
         	public void run() {
         		try {
-        			// allow the splash screen to be displayed immediately
-        			CommonUtils.pauseMillis(1);
-        			
 	                // force Sword to initialise itself
 	                warmUp.warmUpSwordNow();
         		} finally {
