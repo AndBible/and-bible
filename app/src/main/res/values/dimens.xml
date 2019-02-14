@@ -34,6 +34,7 @@
 	<dimen name="window_separator_width">4dip</dimen>
 	<dimen name="window_separator_touch_expansion_width">10dip</dimen>
 	<dimen name="minimise_restore_button_size">40dip</dimen>
+	<dimen name="bible_ref_overlay_offset">80dip</dimen>
 	<dimen name="bible_ref_size">200dip</dimen>
 
 	<!-- Navigation Drawer -->

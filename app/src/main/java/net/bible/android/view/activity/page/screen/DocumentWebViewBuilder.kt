@@ -92,6 +92,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private val WINDOW_BUTTON_TEXT_COLOUR: Int
     private val WINDOW_BUTTON_BACKGROUND_COLOUR: Int
     private val BUTTON_SIZE_PX: Int
+    private val BIBLE_REF_OVERLAY_OFFSET: Int
 
     private var previousParent: LinearLayout? = null
 
@@ -104,6 +105,7 @@ class DocumentWebViewBuilder @Inject constructor(
         WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour)
 
         BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size)
+        BIBLE_REF_OVERLAY_OFFSET = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
         // Be notified of any changes to window config
         ABEventBus.getDefault().register(this)
@@ -178,21 +180,6 @@ class DocumentWebViewBuilder @Inject constructor(
 
                     // extend touch area of separator
                     addTopOrLeftSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
-                } else {
-                    bibleReferenceOverlay = TextView(mainBibleActivity).apply {
-                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                            setBackgroundResource(R.drawable.bible_reference_overlay)
-                        }
-                        visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
-                        ellipsize = TextUtils.TruncateAt.MIDDLE
-                        setLines(1)
-                        gravity = Gravity.CENTER
-                        translationY = -mainBibleActivity.bottomOffset2
-                    }
-                    currentWindowFrameLayout.addView(bibleReferenceOverlay,
-                        FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                            Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-
                 }
 
                 // Add screen separator
@@ -240,12 +227,25 @@ class DocumentWebViewBuilder @Inject constructor(
                 window.bibleView = bibleView
 
             }
-
+            bibleReferenceOverlay = TextView(mainBibleActivity).apply {
+                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                    setBackgroundResource(R.drawable.bible_reference_overlay)
+                }
+                visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
+                ellipsize = TextUtils.TruncateAt.MIDDLE
+                setLines(1)
+                gravity = Gravity.CENTER
+                translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
+                text = mainBibleActivity.pageTitleText
+            }
+            currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
+                FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
             // Display minimised screens
             restoreButtons.clear()
 
             minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
-            currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
+            currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
@@ -388,6 +388,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateBibleReferenceOverlay(show: Boolean) {
+        val show = mainBibleActivity.fullScreen && show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
