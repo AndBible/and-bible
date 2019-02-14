@@ -40,6 +40,7 @@ import android.widget.TextView
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -77,10 +78,11 @@ import javax.inject.Inject
  */
 @MainBibleActivityScope
 class DocumentWebViewBuilder @Inject constructor(
-        private val windowControl: WindowControl,
-        private val mainBibleActivity: MainBibleActivity,
-        private val bibleViewFactory: BibleViewFactory,
-        private val windowMenuCommandHandler: WindowMenuCommandHandler
+    private val windowControl: WindowControl,
+    private val mainBibleActivity: MainBibleActivity,
+    private val bibleViewFactory: BibleViewFactory,
+    private val documentControl: DocumentControl,
+    private val windowMenuCommandHandler: WindowMenuCommandHandler
 ) {
 
     private var isWindowConfigurationChanged = true
@@ -280,7 +282,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     fun onEvent(event: CurrentVerseChangedEvent) {
         mainBibleActivity.runOnUiThread {
-            bibleReferenceOverlay.setText(mainBibleActivity.pageTitleText)
+            bibleReferenceOverlay.text = mainBibleActivity.pageTitleText
         }
 
     }
@@ -374,7 +376,6 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateMinimizedButtons(show: Boolean) {
-        if(!mainBibleActivity.fullScreen) return
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
             minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
@@ -389,7 +390,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateBibleReferenceOverlay(show: Boolean) {
-        val show = mainBibleActivity.fullScreen && show
+        val show = mainBibleActivity.fullScreen && documentControl.isBibleBook && show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)
