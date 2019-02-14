@@ -239,7 +239,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 gravity = Gravity.CENTER
                 translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
                 text = mainBibleActivity.pageTitleText
-                textSize = 20F
+                textSize = 18F
             }
             currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
                 FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
