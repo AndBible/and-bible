@@ -128,6 +128,8 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
+    val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.size == 0
+
     @SuppressLint("RtlHardcoded")
     fun addWebView(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
@@ -148,7 +150,6 @@ class DocumentWebViewBuilder @Inject constructor(
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
             windowButtons.clear()
-            val isSingleWindow = windows.size == 1
             for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
 
@@ -323,7 +324,6 @@ class DocumentWebViewBuilder @Inject constructor(
             return
         }
         mainBibleActivity.runOnUiThread {
-            val isSingleWindow = windowButtons.size == 1
             for ((idx, b) in windowButtons.withIndex()) {
                 if(mainBibleActivity.isSplitHorizontally) {
                     b.animate().translationY(
