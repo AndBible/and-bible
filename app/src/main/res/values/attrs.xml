@@ -31,4 +31,7 @@
         <attr name="windowButtonStrokeColor" format="color"/>
         <attr name="windowButtonBackgroundColor" format="color"/>
     </declare-styleable>
+    <declare-styleable name="bibleReferenceOverlayTheme">
+        <attr name="bibleReferenceOverlayBackgroundColor" format="color"/>
+    </declare-styleable>
 </resources>

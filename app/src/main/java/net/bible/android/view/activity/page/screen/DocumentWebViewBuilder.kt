@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Build
+import android.text.TextUtils
 
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -35,16 +36,17 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -218,6 +220,19 @@ class DocumentWebViewBuilder @Inject constructor(
 
             // Display minimised screens
             restoreButtons.clear()
+            bibleReferenceOverlay = TextView(mainBibleActivity).apply {
+                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                    setBackgroundResource(R.drawable.bible_reference_overlay)
+                }
+                visibility = View.GONE
+                ellipsize = TextUtils.TruncateAt.MIDDLE
+                setLines(1)
+                gravity = Gravity.CENTER
+            }
+            currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
+                    FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                            Gravity.CENTER_HORIZONTAL or Gravity.TOP))
+
             minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
@@ -244,10 +259,15 @@ class DocumentWebViewBuilder @Inject constructor(
     private val windowButtons: MutableList<Button> = ArrayList()
     private val restoreButtons: MutableList<Button> = ArrayList()
     private lateinit var minimisedWindowsFrameContainer: LinearLayout
+    private lateinit var bibleReferenceOverlay: TextView
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
+    }
+
+    fun onEvent(event: CurrentVerseChangedEvent) {
+        bibleReferenceOverlay.setText(mainBibleActivity.pageTitleText)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -325,6 +345,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
             }
             updateMinimizedButtons(show)
+            updateBibleReferenceOverlay(mainBibleActivity.fullScreen && show)
         }
         buttonsVisible = show
     }
@@ -340,6 +361,20 @@ class DocumentWebViewBuilder @Inject constructor(
                     .setInterpolator(AccelerateInterpolator())
                     .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
                     .start()
+        }
+    }
+
+    private fun updateBibleReferenceOverlay(show: Boolean) {
+        if(show) {
+            bibleReferenceOverlay.visibility = View.VISIBLE
+            bibleReferenceOverlay.animate().alpha(1.0f)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+        }  else {
+            bibleReferenceOverlay.animate().alpha(0f)
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { bibleReferenceOverlay.visibility = View.GONE }
+                .start()
         }
     }
 

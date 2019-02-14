@@ -458,7 +458,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPage.currentDocument.name
 
-    private val pageTitleText: String
+    val pageTitleText: String
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
             var key = pageControl.currentPageManager.currentPage.key

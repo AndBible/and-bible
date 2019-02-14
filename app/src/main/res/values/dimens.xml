@@ -34,7 +34,8 @@
 	<dimen name="window_separator_width">4dip</dimen>
 	<dimen name="window_separator_touch_expansion_width">10dip</dimen>
 	<dimen name="minimise_restore_button_size">40dip</dimen>
-	
+	<dimen name="bible_ref_size">200dip</dimen>
+
 	<!-- Navigation Drawer -->
 	<dimen name="list_preferred_item_height_small">48dip</dimen>
 	<integer name="action_button_max_chars">4</integer>
