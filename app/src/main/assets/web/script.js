@@ -8,7 +8,8 @@ $(window).load(
     function() {
         window.jsInterface.log("JS onload");
         window.jsInterface.onLoad();
-        lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
+        lineHeight = parseFloat(window.getComputedStyle(document.body)
+            .getPropertyValue('line-height'));
         registerVersePositions();
         $(document).bind("touchstart", function(event) {
             stopAnimation = true;
@@ -21,7 +22,7 @@ function jsonscroll() {
 }
 
 function registerVersePositions() {
-    console.log("Registering verse positions", lineHeight)
+    console.log("Registering verse positions", lineHeight);
     window.jsInterface.clearVersePositionCache();
     
     var verseTags = getVerseElements();
@@ -58,7 +59,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 }
 
 var currentAnimation = null;
-var stopAnimation = false
+var stopAnimation = false;
 
 function doScrolling(elementY, duration) {
     stopAnimation = false;
@@ -97,7 +98,7 @@ function scrollToVerse(toId, now, deltaParam) {
     }
     var toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
     if (toElement != null) {
-        console.log("Scrolling to", toElement, toElement.offsetTop - delta)
+        console.log("Scrolling to", toElement, toElement.offsetTop - delta);
         if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
         }

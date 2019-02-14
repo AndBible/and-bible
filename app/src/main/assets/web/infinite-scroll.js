@@ -4,7 +4,8 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 (function($) {
-    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId, insertAfterAtTop, insertBeforeAtBottom) {
+    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
+                                 insertAfterAtTop, insertBeforeAtBottom) {
         // up is very hard when still scrolling so make the margin tiny to cause scroll to stop before pre-filling up
         var UP_MARGIN = 2;
         var DOWN_MARGIN = 200;
@@ -22,14 +23,14 @@
             var scrollingUp = currentPos < previousPos;
             var scrollingDown = currentPos > previousPos;
             if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now()>lastAddMoreTime+1000) {
-                lastAddMoreTime = Date.now()
+                lastAddMoreTime = Date.now();
                 addMoreAtEnd();
             } else if (scrollingUp && currentPos < UP_MARGIN && Date.now()>lastAddMoreTime+1000) {
-                lastAddMoreTime = Date.now()
+                lastAddMoreTime = Date.now();
                 addMoreAtTop();
             }
             currentPos = scrollPosition();
-        }
+        };
 
         // Could add start() and stop() methods
         $(window).scroll(scrollHandler);
@@ -103,7 +104,14 @@ var idToInsertTextAt = null;
 $(document).ready(function() {
     var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
-        $.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter, "#topOfBibleText", "#bottomOfBibleText");
+        $.fn.infiniScroll(
+            loadTextAtTop,
+            loadTextAtEnd,
+            chapterInfo.chapter,
+            chapterInfo.first_chapter,
+            chapterInfo.last_chapter,
+            "#topOfBibleText",
+            "#bottomOfBibleText");
     }
 });
 
