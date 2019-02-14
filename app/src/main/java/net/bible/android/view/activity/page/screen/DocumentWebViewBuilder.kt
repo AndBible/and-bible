@@ -148,6 +148,7 @@ class DocumentWebViewBuilder @Inject constructor(
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
             windowButtons.clear()
+            val isSingleWindow = windows.size == 1
             for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
 
@@ -210,7 +211,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top right of each window
-                val defaultWindowActionButton = createDefaultWindowActionButton(window)
+                val defaultWindowActionButton =
+                    if(isSingleWindow) createSingleWindowButton(window)
+                    else createDefaultWindowActionButton(window)
 
                 if(!isSplitHorizontally) {
                     defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
@@ -220,14 +223,18 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 else {
                     if(windowNo == 0) {
-                        defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+                        defaultWindowActionButton.translationY =
+                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
+                            else mainBibleActivity.topOffset2
                     }
                     defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
                 }
 
                 windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
-                        FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP or Gravity.RIGHT))
+                        FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX,
+                            if(isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT
+                            else Gravity.TOP or Gravity.RIGHT))
                 window.bibleView = bibleView
 
             }
@@ -316,10 +323,16 @@ class DocumentWebViewBuilder @Inject constructor(
             return
         }
         mainBibleActivity.runOnUiThread {
+            val isSingleWindow = windowButtons.size == 1
             for ((idx, b) in windowButtons.withIndex()) {
                 if(mainBibleActivity.isSplitHorizontally) {
-                    b.animate().translationY(if(idx == 0) mainBibleActivity.topOffset2 else 0.0F)
-                            .setInterpolator(DecelerateInterpolator()).start()
+                    b.animate().translationY(
+                        if(idx == 0) {
+                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
+                            else mainBibleActivity.topOffset2}
+                        else 0.0F
+                    )
+                        .setInterpolator(DecelerateInterpolator()).start()
 
                     if(show) {
                         b.visibility = View.VISIBLE
@@ -338,14 +351,17 @@ class DocumentWebViewBuilder @Inject constructor(
                             .setInterpolator(DecelerateInterpolator()).start()
                     if(show) {
                         b.visibility = View.VISIBLE
-                        b.animate().translationY(mainBibleActivity.topOffset2)
-                                .setInterpolator(DecelerateInterpolator())
-                                .start()
+                        b.animate().translationY(
+                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
+                            else mainBibleActivity.topOffset2
+                        )
+                            .setInterpolator(DecelerateInterpolator())
+                            .start()
                     }  else {
                         b.animate().translationY(-b.height.toFloat())
-                                .setInterpolator(AccelerateInterpolator())
-                                .withEndAction { b.visibility = View.GONE }
-                                .start()
+                            .setInterpolator(AccelerateInterpolator())
+                            .withEndAction { b.visibility = View.GONE }
+                            .start()
                     }
                 }
             }
@@ -475,6 +491,13 @@ class DocumentWebViewBuilder @Inject constructor(
 
     fun getView(window: Window): BibleView {
         return bibleViewFactory.createBibleView(window)
+    }
+
+    private fun createSingleWindowButton(window: Window): Button {
+        return createTextButton("⊕",
+            { v -> windowControl.addNewWindow()},
+            { v -> false}
+        )
     }
 
     private fun createCloseButton(window: Window): Button {

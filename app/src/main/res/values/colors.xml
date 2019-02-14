@@ -12,7 +12,7 @@
 	<color name="window_separator_colour">#FF6B6B6B</color>
 	<color name="window_separator_drag_colour">@color/yellow_500</color>
 
-	<color name="window_button_text_colour">#66FFFFFF</color>
+	<color name="window_button_text_colour">#7FFFFFFF</color>
 	<color name="window_button_background_colour">#466b6b6b</color>
 				    
 	<!-- matches background_holo_dark -->
