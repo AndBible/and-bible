@@ -107,11 +107,9 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         if (ev == null || e1.eventTime > ev!!.eventTime) {
             // New scroll event
-            ABEventBus.getDefault().post(BibleView.BibleViewTouched())
             ev = MotionEvent.obtain(e1)
-        } else {
-            ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
         }
+		ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - ev!!.eventTime > 1000) {
             // Too slow motion
             ev = MotionEvent.obtain(e2)

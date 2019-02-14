@@ -366,12 +366,13 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
             }
             updateMinimizedButtons(show)
-            updateBibleReferenceOverlay(mainBibleActivity.fullScreen && show)
+            updateBibleReferenceOverlay(show)
         }
         buttonsVisible = show
     }
 
     private fun updateMinimizedButtons(show: Boolean) {
+        if(!mainBibleActivity.fullScreen) return
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
             minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
