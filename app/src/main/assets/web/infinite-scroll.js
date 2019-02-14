@@ -10,13 +10,13 @@
         var DOWN_MARGIN = 200;
         var currentPos = scrollPosition();
 
-		var topId = initialId;
-		var endId = initialId;
+        var topId = initialId;
+        var endId = initialId;
 
         var lastAddMoreTime = 0;
         var addMoreAtTopOnTouchUp = false;
 
-		var scrollHandler = function() {
+        var scrollHandler = function() {
             previousPos = currentPos;
             currentPos = scrollPosition();
             var scrollingUp = currentPos < previousPos;
@@ -31,24 +31,24 @@
             currentPos = scrollPosition();
         }
 
-		// Could add start() and stop() methods
-		$(window).scroll(scrollHandler);
-		//$(window).unbind("scroll", scrollHandler);
-    	 window.addEventListener('touchstart', touchstartListener, false);
-         window.addEventListener('touchend', touchendListener, false);
-         window.addEventListener("touchcancel", touchendListener, false);
+        // Could add start() and stop() methods
+        $(window).scroll(scrollHandler);
+        //$(window).unbind("scroll", scrollHandler);
+        window.addEventListener('touchstart', touchstartListener, false);
+        window.addEventListener('touchend', touchendListener, false);
+        window.addEventListener("touchcancel", touchendListener, false);
 
         function addMoreAtEnd() {
-			if (endId<maxId && !stillLoading) {
-			    stillLoading = true;
-				var id = ++endId;
-				var textId = 'insertedText' + id;
-				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
-				$(insertBeforeAtBottom).before(placeMarker);
+            if (endId<maxId && !stillLoading) {
+                stillLoading = true;
+                var id = ++endId;
+                var textId = 'insertedText' + id;
+                // place marker for text which may take longer to load
+                var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+                $(insertBeforeAtBottom).before(placeMarker);
 
-				fnLoadTextAtEnd(id, textId);
-			}
+                fnLoadTextAtEnd(id, textId);
+            }
         }
 
         function addMoreAtTop() {
@@ -56,15 +56,15 @@
                 // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;
             } else if (topId>minId && !stillLoading) {
-			    stillLoading = true;
-			    var id = --topId;
-				var textId = 'insertedText' + id;
-				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
-				insertAtTop($(insertAfterAtTop), placeMarker);
+                stillLoading = true;
+                var id = --topId;
+                var textId = 'insertedText' + id;
+                // place marker for text which may take longer to load
+                var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+                insertAtTop($(insertAfterAtTop), placeMarker);
 
-				fnLoadTextAtTop(id, textId);
-			}
+                fnLoadTextAtTop(id, textId);
+            }
         }
 
         function insertAtTop($afterComponent, text) {
@@ -103,7 +103,7 @@ var idToInsertTextAt = null;
 $(document).ready(function() {
     var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
-    	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter, "#topOfBibleText", "#bottomOfBibleText");
+        $.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter, "#topOfBibleText", "#bottomOfBibleText");
     }
 });
 
