@@ -176,6 +176,20 @@ class DocumentWebViewBuilder @Inject constructor(
 
                     // extend touch area of separator
                     addTopOrLeftSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
+                } else {
+                    bibleReferenceOverlay = TextView(mainBibleActivity).apply {
+                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                            setBackgroundResource(R.drawable.bible_reference_overlay)
+                        }
+                        visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
+                        ellipsize = TextUtils.TruncateAt.MIDDLE
+                        setLines(1)
+                        gravity = Gravity.CENTER
+                    }
+                    currentWindowFrameLayout.addView(bibleReferenceOverlay,
+                        FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                            Gravity.CENTER_HORIZONTAL or Gravity.TOP))
+
                 }
 
                 // Add screen separator
@@ -220,18 +234,6 @@ class DocumentWebViewBuilder @Inject constructor(
 
             // Display minimised screens
             restoreButtons.clear()
-            bibleReferenceOverlay = TextView(mainBibleActivity).apply {
-                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                    setBackgroundResource(R.drawable.bible_reference_overlay)
-                }
-                visibility = View.GONE
-                ellipsize = TextUtils.TruncateAt.MIDDLE
-                setLines(1)
-                gravity = Gravity.CENTER
-            }
-            currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
-                    FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                            Gravity.CENTER_HORIZONTAL or Gravity.TOP))
 
             minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
             currentWindowFrameLayout!!.addView(minimisedWindowsFrameContainer,
@@ -267,7 +269,10 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        bibleReferenceOverlay.setText(mainBibleActivity.pageTitleText)
+        mainBibleActivity.runOnUiThread {
+            bibleReferenceOverlay.setText(mainBibleActivity.pageTitleText)
+        }
+
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -291,7 +296,7 @@ class DocumentWebViewBuilder @Inject constructor(
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
 
-        if(mainBibleActivity.fullScreen) {
+        if(true || mainBibleActivity.fullScreen) {
             timerTask = object : TimerTask() {
                 override fun run() {
                     toggleWindowButtonVisibility(false)
