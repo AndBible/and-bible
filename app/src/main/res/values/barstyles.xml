@@ -32,7 +32,7 @@
 		<item name="transportButtonColor">#d4d4d4</item>
 		<item name="windowButtonStrokeColor">#80000000</item>
 		<item name="windowButtonBackgroundColor">#9b6e6e6e</item>
-		<item name="bibleReferenceOverlayBackgroundColor">#DE000000</item>
+		<item name="bibleReferenceOverlayBackgroundColor">#DE3A3A3A</item>
 		<item name="speakTransportBackground">#000000</item>
 		<item name="transportBarHeight">75dp</item>
 	</style>
