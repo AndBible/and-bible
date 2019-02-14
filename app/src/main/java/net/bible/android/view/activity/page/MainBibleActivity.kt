@@ -133,6 +133,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val topOffset1 get() = if(!isFullScreen && !isMyNotes) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
     val topOffset2 get() = topOffset1 + if(!isFullScreen) actionBarHeight else 0.0F
+    // Top offset with only statusbar and toolbar taken into account always
+    val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
+
     // Bottom offset with only navigation bar
     val bottomOffset1: Float
         get() {

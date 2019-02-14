@@ -219,17 +219,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // call this from here because some documents may require an adjusted font size e.g. those using Greek font
         applyFontSize()
 
-        var delta = 0.0F
+        val startPaddingHeight = mainBibleActivity.topOffsetWithActionBar / mainBibleActivity.resources.displayMetrics.density
+        html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        if(!SharedActivityState.getInstance().isFullScreen
-                && (!mainBibleActivity.isSplitHorizontally || windowControl.windowRepository.firstWindow == windowNo))
-        {
-            delta = mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density
-            html = html.replace("<div id='start'>", "<div id='start' style='height:${delta}px'>")
-        }
+        val offset = if(!SharedActivityState.getInstance().isFullScreen
+            && (!mainBibleActivity.isSplitHorizontally || windowControl.windowRepository.firstWindow == windowNo)
+        ) {
+            mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density
+        }  else 0.0F
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(document).ready(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $delta);})</script></body>")
+        html = html.replace("</body>", "<script>$(document).ready(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
