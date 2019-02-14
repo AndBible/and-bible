@@ -18,13 +18,14 @@
 
 package net.bible.android.view.activity.page;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.ToastEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
@@ -46,6 +47,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
 	private boolean autoFullScreen;
+	private boolean lastFullScreenByDoubleTap = false;
 
 	public void setDisableSingleTapOnce(boolean disableSingleTapOnce) {
 		this.disableSingleTapOnce = disableSingleTapOnce;
@@ -121,7 +123,6 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-		if(!autoFullScreen) return false;
 		if(ev == null || e1.getEventTime() > ev.getEventTime()) {
 			// New scroll event
 			ABEventBus.getDefault().post(new BibleView.BibleViewTouched());
@@ -140,11 +141,15 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 		float dist = e2.getY()-ev.getY();
 		if(!mainBibleActivity.getFullScreen() && dist < -scaledMinimumFullScreenScrollDistance) {
-			mainBibleActivity.setFullScreen(true);
+			if(!lastFullScreenByDoubleTap && autoFullScreen) {
+				mainBibleActivity.setFullScreen(true);
+			}
 			ev = MotionEvent.obtain(e2);
 		}
 		if(mainBibleActivity.getFullScreen() && dist > scaledMinimumFullScreenScrollDistance) {
-			mainBibleActivity.setFullScreen(false);
+			if(!lastFullScreenByDoubleTap && autoFullScreen) {
+				mainBibleActivity.setFullScreen(false);
+			}
 			ev = MotionEvent.obtain(e2);
 		}
 		return false;
@@ -153,6 +158,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {
+		lastFullScreenByDoubleTap = !mainBibleActivity.getFullScreen();
 		mainBibleActivity.toggleFullScreen();
 		return true;
 	}
@@ -166,8 +172,10 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 			disableSingleTapOnce = false;
 			return false;
 		}
+
 		if(mainBibleActivity.getFullScreen()) {
-			mainBibleActivity.toggleFullScreen();
+			mainBibleActivity.setFullScreen(false);
+			lastFullScreenByDoubleTap = false;
 			return true;
 		}
 		return false;
