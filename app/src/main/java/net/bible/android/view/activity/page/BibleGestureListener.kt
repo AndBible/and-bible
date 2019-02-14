@@ -104,6 +104,12 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         disableSingleTapOnce = true
     }
 
+	fun onEvent(event: MainBibleActivity.FullScreenEvent) {
+		if(!event.isFullScreen) {
+			lastFullScreenByDoubleTap = false
+		}
+	}
+
     override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         if (ev == null || e1.eventTime > ev!!.eventTime) {
             // New scroll event
@@ -140,12 +146,11 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
 
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (mainBibleActivity.fullScreen && lastFullScreenByDoubleTap) {
-            lastFullScreenByDoubleTap = false
             mainBibleActivity.fullScreen = false
 
         } else {
-            lastFullScreenByDoubleTap = true
             mainBibleActivity.fullScreen = true
+			lastFullScreenByDoubleTap = true
         }
         return true
     }
@@ -161,7 +166,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
 
         if (mainBibleActivity.fullScreen) {
             mainBibleActivity.fullScreen = false
-            lastFullScreenByDoubleTap = false
             return true
         }
         return false
