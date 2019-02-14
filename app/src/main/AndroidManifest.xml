@@ -55,7 +55,7 @@
             android:name="net.bible.android.view.activity.page.MainBibleActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:label="@string/app_name" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocument"
