@@ -40,8 +40,6 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
-        <!-- deprecated but necessary to prevent old shortcut breaking -->
         <activity
             android:name=".StartupActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
