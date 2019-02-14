@@ -148,7 +148,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         if (mainBibleActivity.fullScreen && lastFullScreenByDoubleTap) {
             mainBibleActivity.fullScreen = false
 
-        } else {
+        } else if(!mainBibleActivity.fullScreen){
             mainBibleActivity.fullScreen = true
 			lastFullScreenByDoubleTap = true
         }
