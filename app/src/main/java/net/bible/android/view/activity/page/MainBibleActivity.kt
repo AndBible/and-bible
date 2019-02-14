@@ -338,7 +338,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
 
         open val visible: Boolean
-            get() = if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+            get() = !mainBibleActivity.isMyNotes && if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
         open val enabled: Boolean
             get() = true
@@ -366,7 +366,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         MenuItemPreference("tilt_to_scroll_pref", false, false)
     {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-        override val visible: Boolean get() = isTiltSensingPossible()
+        override val visible: Boolean get() = super.visible && isTiltSensingPossible()
     }
 
     class SubMenuMenuItemPreference(onlyBibles: Boolean):
@@ -374,7 +374,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class NightModeMenuItemPreference: StringValuedMenuItemPreference("night_mode_pref2", false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-        override val visible: Boolean get() = !automatic
+        override val visible: Boolean get() = super.visible && !automatic
     }
 
     class StrongsMenuItemPreference: TextContentMenuItemPreference("show_strongs_pref", true) {
@@ -395,7 +395,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         MenuItemPreference("reverse_split_mode_pref", false)
     {
         override fun handle() = mainBibleActivity.documentViewManager.buildView()
-        override val visible: Boolean get() = mainBibleActivity.windowControl.isMultiWindow
+        override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
