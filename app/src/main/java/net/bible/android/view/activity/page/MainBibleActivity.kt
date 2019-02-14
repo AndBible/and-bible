@@ -130,7 +130,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         } else false
 
     // Top offset with only statusbar
-    val topOffset1 get() = if(!isFullScreen && !isMyNotes) statusBarHeight else 0.0F
+    val topOffset1 get() = if(!isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
     val topOffset2 get() = topOffset1 + if(!isFullScreen) actionBarHeight else 0.0F
     // Top offset with only statusbar and toolbar taken into account always
@@ -144,7 +144,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             } else {
                 false
             }
-            return if (isPortrait && bottomNavBarVisible && !isFullScreen && !isMyNotes && !multiWinMode) navigationBarHeight -2 else 0.0F
+            return if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight -2 else 0.0F
         }
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
@@ -655,15 +655,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun showSystemUI() {
-        var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
-        if(!isMyNotes) {
-            uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-
-            // only need to un-hide navigation bar in portrait mode
-            if (isPortrait)
-                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        }
+        // only need to un-hide navigation bar in portrait mode
+        if (isPortrait)
+            uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 
         window.decorView.systemUiVisibility = uiFlags
     }

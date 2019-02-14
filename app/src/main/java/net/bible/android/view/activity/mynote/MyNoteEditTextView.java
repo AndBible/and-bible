@@ -68,7 +68,7 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 
 	private void updatePadding() {
 		setPadding((int)mainBibleActivity.getLeftOffset1(),
-				(int) mainBibleActivity.getTopOffset2(),
+				(int) mainBibleActivity.getTopOffsetWithActionBar(),
 				(int) mainBibleActivity.getRightOffset1(),
 				(int) mainBibleActivity.getBottomOffset2());
 	}
@@ -95,7 +95,7 @@ public class MyNoteEditTextView extends AppCompatEditText implements DocumentVie
 		// force MyNote.save if in MyNote and suddenly change to another view 
 		save();
     }
-    
+
 	private void save() {
 		myNoteControl.saveMyNoteText(getText().toString());		
 	}
