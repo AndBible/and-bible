@@ -187,10 +187,11 @@ class DocumentWebViewBuilder @Inject constructor(
                         ellipsize = TextUtils.TruncateAt.MIDDLE
                         setLines(1)
                         gravity = Gravity.CENTER
+                        translationY = -mainBibleActivity.bottomOffset2
                     }
                     currentWindowFrameLayout.addView(bibleReferenceOverlay,
                         FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                            Gravity.CENTER_HORIZONTAL or Gravity.TOP))
+                            Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
 
                 }
 
