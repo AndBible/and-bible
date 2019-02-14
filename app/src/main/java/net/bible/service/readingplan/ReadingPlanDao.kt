@@ -36,7 +36,6 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.ArrayList
-import java.util.Collections
 import java.util.Properties
 
 /**
@@ -108,7 +107,7 @@ class ReadingPlanDao {
                 list.add(daysReading)
             }
         }
-        Collections.sort(list)
+        list.sort()
 
         return list
     }

@@ -329,7 +329,7 @@ class DocumentWebViewBuilder @Inject constructor(
         buttonsVisible = show
     }
 
-    fun updateMinimizedButtons(show: Boolean) {
+    private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
             minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
