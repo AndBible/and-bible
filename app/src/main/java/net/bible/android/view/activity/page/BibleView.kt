@@ -107,7 +107,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
-    class BibleViewTouched
+    class BibleViewTouched(val onlyTouch: Boolean = false)
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
