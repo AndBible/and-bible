@@ -119,7 +119,7 @@ class ReadingPlanDao {
         val properties = getPlanProperties(planName)
 
         val readings = properties[Integer.toString(dayNo)] as String?
-        Log.d(TAG, "Readings for day:" + readings!!)
+        Log.d(TAG, "Readings for day:" + readings)
         return OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName))
     }
 

@@ -31,7 +31,9 @@ import java.util.Calendar
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OneDaysReadingsDto(val day: Int, private val mReadings: String, val readingPlanInfo: ReadingPlanInfoDto) :
+class OneDaysReadingsDto(val day: Int,
+                         private val mReadings: String?,
+                         val readingPlanInfo: ReadingPlanInfoDto) :
 		Comparable<OneDaysReadingsDto>
 {
     private var mReadingKeys: List<Key>? = null
@@ -98,7 +100,7 @@ class OneDaysReadingsDto(val day: Int, private val mReadings: String, val readin
 
             if (StringUtils.isNotEmpty(mReadings)) {
                 val passageReader = PassageReader(readingPlanInfo.versification!!)
-                val readingArray = mReadings.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val readingArray = mReadings!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 for (reading in readingArray) {
                     //use the v11n specified in the reading plan (default is KJV)
                     readingKeyList.add(passageReader.getKey(reading))
