@@ -21,6 +21,7 @@ package net.bible.android.control.page.window
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -362,6 +363,19 @@ open class WindowControl @Inject constructor(
         }
 
         eventManager.post(WindowSizeChangedEvent(isMoveFinished, windowChapterVerseMap))
+    }
+
+    fun windowSizesChanged() {
+        if (isMultiWindow) {
+            // need to layout multiple windows differently
+            orientationChange()
+        }
+        // essentially if the current page is Bible then we need to recalculate verse offsets
+        // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
+        else if (!activeWindowPageManager.currentPage.isSingleKey) {
+            // force a recalculation of verse offsets
+            PassageChangeMediator.getInstance().forcePageUpdate()
+        }
     }
 
     companion object {

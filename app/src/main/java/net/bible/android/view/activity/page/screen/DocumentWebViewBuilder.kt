@@ -138,7 +138,7 @@ class DocumentWebViewBuilder @Inject constructor(
     fun addWebView(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
-        val isSplitHorizontally = mainBibleActivity.isSplitHorizontally
+        val isSplitHorizontally = mainBibleActivity.isSplitVertically
 
         if (!isWebView ||
                 isWindowConfigurationChanged ||
@@ -329,7 +329,7 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
-                if(mainBibleActivity.isSplitHorizontally) {
+                if(mainBibleActivity.isSplitVertically) {
                     b.animate().translationY(
                         if(idx == 0) {
                             if(isSingleWindow) -mainBibleActivity.bottomOffset2

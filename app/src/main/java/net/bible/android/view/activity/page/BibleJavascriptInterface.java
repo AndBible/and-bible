@@ -22,7 +22,6 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
@@ -81,7 +80,11 @@ public class BibleJavascriptInterface {
 			if (currentPageManager.isBibleShown()) {
 				// All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
 				// I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
-				if(!SharedActivityState.getInstance().isFullScreen() && bibleView.getWindowNo() == windowControl.getWindowRepository().getFirstWindow()) {
+
+				// if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
+				if(!SharedActivityState.getInstance().isFullScreen() &&
+						(!bibleView.getMainBibleActivity().isSplitVertically() || (bibleView.getWindowNo() == windowControl.getWindowRepository().getFirstWindow())))
+				{
 					newYPos += (bibleView.getMainBibleActivity().getTopOffset2()) / bibleView.getResources().getDisplayMetrics().density;
 				}
 				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);

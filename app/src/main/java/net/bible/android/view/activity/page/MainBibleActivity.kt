@@ -394,7 +394,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     class SplitModeMenuItemPreference:
         MenuItemPreference("reverse_split_mode_pref", false)
     {
-        override fun handle() = mainBibleActivity.documentViewManager.buildView()
+        override fun handle() = mainBibleActivity.windowControl.windowSizesChanged()
+
         override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
@@ -779,7 +780,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             showSystemUI()
     }
 
-    val isSplitHorizontally: Boolean get() {
+    val isSplitVertically: Boolean get() {
         val reverse = CommonUtils.getSharedPreferences().getBoolean("reverse_split_mode_pref", false)
         return if(reverse) !isPortrait else isPortrait
     }
@@ -790,15 +791,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onConfigurationChanged(newConfig)
         updateToolbar()
         ABEventBus.getDefault().post(ConfigurationChanged())
-        // essentially if the current page is Bible then we need to recalculate verse offsets
-        // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
-        if (!windowControl.activeWindowPageManager.currentPage.isSingleKey) {
-            // force a recalculation of verse offsets
-            PassageChangeMediator.getInstance().forcePageUpdate()
-        } else if (windowControl.isMultiWindow) {
-            // need to layout multiple windows differently
-            windowControl.orientationChange()
-        }
+        windowControl.windowSizesChanged()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
