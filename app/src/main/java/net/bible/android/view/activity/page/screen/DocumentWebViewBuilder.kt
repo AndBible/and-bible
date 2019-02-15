@@ -308,7 +308,7 @@ class DocumentWebViewBuilder @Inject constructor(
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
 
-        if(true || mainBibleActivity.fullScreen) {
+        if(mainBibleActivity.fullScreen) {
             timerTask = object : TimerTask() {
                 override fun run() {
                     toggleWindowButtonVisibility(false)
