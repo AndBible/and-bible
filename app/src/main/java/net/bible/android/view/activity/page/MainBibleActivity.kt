@@ -256,6 +256,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
     }
 
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
+        if (drawerLayout.isDrawerVisible(GravityCompat.START) &&
+            keyCode == KeyEvent.KEYCODE_BACK)
+            return true
+
+        return super.onKeyLongPress(keyCode, event)
+    }
+
     private fun setupToolbarButtons() {
         homeButton.setOnClickListener {
             if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
