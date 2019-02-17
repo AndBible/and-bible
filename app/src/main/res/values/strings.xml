@@ -137,7 +137,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="bible_text_options">Bible text options</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
-    <string name="bible_view_behavior">Bible view behavior</string>
     <string name="switch_split_mode">Switch split mode</string>
     <string name="reversed_split_mode">Reversed split mode</string>
     <string name="prefs_auto_night_mode_title">Automatic night mode</string>
