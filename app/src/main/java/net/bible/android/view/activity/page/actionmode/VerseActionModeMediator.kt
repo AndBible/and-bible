@@ -153,7 +153,7 @@ class VerseActionModeMediator(
             val toDeselect = chapterVerseRange!!.getExtrasIn(origRange)
 
             for (verseNo in toSelect) {
-                bibleView.highlightVerse(verseNo, true)
+                bibleView.highlightVerse(verseNo)
             }
             for (verseNo in toDeselect) {
                 bibleView.unhighlightVerse(verseNo)

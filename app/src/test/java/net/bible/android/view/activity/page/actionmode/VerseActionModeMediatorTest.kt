@@ -64,7 +64,7 @@ class VerseActionModeMediatorTest {
 
         verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE)
         verify(mainBibleActivity).showVerseActionModeMenu(any())
-        verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE)
+        verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE, true)
         verify(bibleView).enableVerseTouchSelection()
     }
 
@@ -124,7 +124,7 @@ class VerseActionModeMediatorTest {
 
         // setup action mode and get callback
         verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE)
-        verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE)
+        verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE, true)
         verify(bibleView).enableVerseTouchSelection()
 
         verseActionModeMediator.verseTouch(TestData.SELECTED_CHAPTER_VERSE_PLUS_1)
