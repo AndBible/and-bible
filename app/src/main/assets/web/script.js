@@ -185,8 +185,18 @@ function selected($elem) {
 /**
  * Called by VerseActionModelMediator to highlight a verse
  */
-function highlightVerse(chapterVerse) {
+
+
+var toolbarOffset = 0;
+
+ function setToolbarOffset(value) {
+    toolbarOffset = value;
+}
+function highlightVerse(chapterVerse, start) {
     var $verseSpan = $('#'+escapeSelector(chapterVerse));
+    if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
+        doScrolling($verseSpan[0].offsetTop - toolbarOffset, 1000);
+    }
     $verseSpan.addClass("selected")
 }
 

@@ -222,14 +222,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val startPaddingHeight = mainBibleActivity.topOffsetWithActionBar / mainBibleActivity.resources.displayMetrics.density
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        val offset = if(!SharedActivityState.getInstance().isFullScreen
-            && (!mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == windowNo)
-        ) {
+        val topWindow = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == windowNo
+        val offset = if(!SharedActivityState.getInstance().isFullScreen && topWindow) {
             mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density
         }  else 0.0F
 
+        val toolbarOffset = if(topWindow) mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density else 0F
+
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(document).ready(function() {scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
+        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
         mJumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -636,8 +637,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         gestureListener.setVerseSelectionMode(false)
     }
 
-    override fun highlightVerse(chapterVerse: ChapterVerse) {
-        executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "')")
+    override fun highlightVerse(chapterVerse: ChapterVerse, start: Boolean) {
+        executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "' , $start)")
     }
 
     override fun unhighlightVerse(chapterVerse: ChapterVerse) {

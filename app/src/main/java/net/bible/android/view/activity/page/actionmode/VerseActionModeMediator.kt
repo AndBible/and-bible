@@ -153,7 +153,7 @@ class VerseActionModeMediator(
             val toDeselect = chapterVerseRange!!.getExtrasIn(origRange)
 
             for (verseNo in toSelect) {
-                bibleView.highlightVerse(verseNo)
+                bibleView.highlightVerse(verseNo, true)
             }
             for (verseNo in toDeselect) {
                 bibleView.unhighlightVerse(verseNo)
@@ -180,7 +180,7 @@ class VerseActionModeMediator(
         }
 
         Log.i(TAG, "Start verse action mode. verse no:$startChapterVerse")
-        bibleView.highlightVerse(startChapterVerse)
+        bibleView.highlightVerse(startChapterVerse, true)
 
         val currentVerse = pageControl.currentBibleVerse
         chapterVerseRange = ChapterVerseRange(currentVerse.versification, currentVerse.book,
@@ -218,7 +218,7 @@ class VerseActionModeMediator(
     interface VerseHighlightControl {
         fun enableVerseTouchSelection()
         fun disableVerseTouchSelection()
-        fun highlightVerse(chapterVerse: ChapterVerse)
+        fun highlightVerse(chapterVerse: ChapterVerse, start: Boolean=false)
         fun unhighlightVerse(chapterVerse: ChapterVerse)
         fun clearVerseHighlight()
     }
