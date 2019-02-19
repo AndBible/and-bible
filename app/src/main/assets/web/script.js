@@ -195,7 +195,7 @@ var toolbarOffset = 0;
 function highlightVerse(chapterVerse, start) {
     var $verseSpan = $('#'+escapeSelector(chapterVerse));
     if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
-        doScrolling($verseSpan[0].offsetTop - toolbarOffset, 1000);
+        doScrolling($verseSpan[0].offsetTop - toolbarOffset, 250);
     }
     $verseSpan.addClass("selected")
 }
