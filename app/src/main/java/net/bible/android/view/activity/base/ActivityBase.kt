@@ -148,16 +148,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             return true
         }
 
-        //TODO make Long press Back work for screens other than main window e.g. does not work from search screen because wrong window is displayed
-        if (keyCode == KeyEvent.KEYCODE_BACK && this is MainBibleActivity) {
-            Log.d(TAG, "Back Long")
-            // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
-            // been performed on the long press, so will set the cancelled flag for the following up event.
-            val intent = Intent(this, History::class.java)
-            startActivityForResult(intent, 1)
-            return true
-        }
-
         //TODO make Long press back - currently the History screen does not show the correct screen after item selection if not called from main window
         return if (keyCode == KeyEvent.KEYCODE_BACK) {
             // ignore

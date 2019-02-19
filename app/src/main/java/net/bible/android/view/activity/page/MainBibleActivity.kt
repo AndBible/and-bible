@@ -69,6 +69,7 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -259,9 +260,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
-        if (drawerLayout.isDrawerVisible(GravityCompat.START) &&
-            keyCode == KeyEvent.KEYCODE_BACK)
+        if (drawerLayout.isDrawerVisible(GravityCompat.START) && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
+        }
+
+        //TODO make Long press Back work for screens other than main window e.g. does not work from search screen because wrong window is displayed
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.d(TAG, "Back Long")
+            // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
+            // been performed on the long press, so will set the cancelled flag for the following up event.
+            val intent = Intent(this, History::class.java)
+            startActivityForResult(intent, 1)
+            return true
+        }
 
         return super.onKeyLongPress(keyCode, event)
     }
