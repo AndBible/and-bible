@@ -5,7 +5,7 @@
   <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
   <string name="help_text">Siirry VALIKKO painikkeella toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai \'pyyhkäisemällä\' näyttöä sormella</string>
   <string name="help_nav_title">Navigointi</string>
-  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän napautus vaihtaa kokonäyttötilaan tai pois siitä. Raamattuikkunoissa on valikko-painike oikeassa yläkulmassa ja voit käyttää ikkunavalikkoa pitkällä painalluksella valikko-painikkeisiin.</string>
+  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Raamattuikkunoissa on valikko-painike oikeassa yläkulmassa ja voit käyttää ikkunavalikkoa pitkällä painalluksella valikko-painikkeisiin.</string>
   <string name="help_speech_title">Puhe</string>
   <string name="help_speech_text">Paina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.</string>
   <string name="help_mynote_title">Omat kommentit</string>
@@ -71,7 +71,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_default_bookmark_style_summary">Korostusväri tai kuvake</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>
   <string name="prefs_show_notes_title">Ala- ja rinnakkaisviitteet</string>
-  <string name="prefs_show_strongs_title">Näytä Strongin numerointi</string>
+  <string name="prefs_show_strongs_title">Strongin numerointi</string>
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
   <string name="prefs_section_title_title">Väliotsikot</string>
   <string name="prefs_red_letter_title">Punaiset kirjaimet</string>
@@ -98,6 +98,12 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_split_mode_title">Jaettu tila</string>
   <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword-kansiossa SD-kortilla</string>
+  <string name="bible_text_options">Raamatun tekstin asetukset</string>
+  <string name="auto_fullscreen">Kokoruututilaan vierittämällä</string>
+  <string name="switch_split_mode">Vaihda ruudunjaon tilaa</string>
+  <string name="reversed_split_mode">Käänteinen ruudunjaon tila</string>
+  <string name="prefs_auto_night_mode_title">Automaattinen yötila</string>
+  <string name="prefs_auto_night_mode_summary">Vaihda yötilaan automaattisesti valaistuksen perusteella</string>
   <!--Window-->
   <string name="new_window">Uusi ikkuna</string>
   <string name="windowClose">Sulje</string>
@@ -289,6 +295,9 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
   <string name="speak_third">Kolmas</string>
   <string name="speak_fourth">Neljäs</string>
   <string name="speak_fifth">Viides</string>
+  <string name="verse_range_mode_disabled">
+Jaejakson toisto kytkettiin pois automaattisesti koska
+puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--User Notes-->
   <string name="mynotes">Omat kommentit</string>
   <string name="mynote_add">Lisää oma kommentti</string>

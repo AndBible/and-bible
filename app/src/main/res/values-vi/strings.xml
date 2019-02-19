@@ -3,7 +3,6 @@
   <string name="app_name">Kinh Thánh</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Đức Chúa Trời phán rằng: Phải có sự sáng; thì có sự sáng.\"\nSáng thế ký 1:3</string>
-  <string name="help_text">Nhấn phím MENU cho các lựa chọn\n\nTới chương kế tiếp hoặc trước đó bằng cách sử dụng track-ball, D-pad hoặc trượt ngang màn hình bằng ngón tay.</string>
   <string name="version_text">Phiên bản %s</string>
   <string name="no_sdcard_error">Gắn thẻ nhớ vào sau đó khởi động lại chương trình.</string>
   <!--Main menu-->
@@ -47,7 +46,6 @@
   <string name="prefs_verse_per_line_title">Một câu trên một dòng</string>
   <string name="prefs_show_mynotes_title">Hiện biểu tượng Ghi chú</string>
   <string name="prefs_show_notes_title">Chú thích và tham khảo</string>
-  <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
   <string name="prefs_show_morphology_title">Morphological codes</string>
   <string name="prefs_section_title_title">Tiêu đề</string>
   <string name="prefs_red_letter_title">Ký tự màu đỏ</string>

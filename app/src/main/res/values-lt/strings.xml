@@ -3,11 +3,14 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
-  <string name="help_text">Veiksmams atlikti spauskite MENIU mygtuką\n\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami per ekraną pirštu.</string>
+  <string name="help_text">Veiksmams atlikti, spauskite MENIU mygtuką\n\n
+        Keiskite skyrius, naudodami ratuką,
+        D-pad ar braukdami per ekraną pirštu</string>
   <string name="help_nav_title">Navigacija</string>
-  <string name="help_nav_text">Į tolesnį ar ankstesnį skyrius pateksite braukdami per ekraną pirštu.
-Vieną kartą patapšnoję Biblijos tekstą įjungsite arba išjungsite viso ekrano režimą. Biblijų langai viršutiniame dešiniajame kampe turi meniu mygtuką,
-kurį paspaudę ir palaikę, galėsite pasiekti lango meniu.</string>
+  <string name="help_nav_text">Į kitą ar ankstesnį skyrius pateksite braukdami per ekraną pirštu.
+        Du kartus bakstelėję Biblijos tekstą, perjungsite viso ekrano veikseną. Biblijų langai viršutiniame dešiniajame kampe turi meniu mygtuką,
+        kurį paspaudę ir palaikę, galėsite pasiekti lango meniu.
+    </string>
   <string name="help_speech_title">Kalba</string>
   <string name="help_speech_text">Spauskite Klausytis, norėdami pasiekti skaitymo pradžios ir pabaigos dialogo langą</string>
   <string name="help_mynote_title">Mano pastaba</string>
@@ -79,7 +82,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_default_bookmark_style_summary">Išryškinti spalvą arba piktogramą</string>
   <string name="prefs_show_mynotes_title">Rodyti Mano pastabos piktogramas</string>
   <string name="prefs_show_notes_title">Išnašos ir x-nuor.</string>
-  <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
+  <string name="prefs_show_strongs_title">Strongo numeriai</string>
   <string name="prefs_show_morphology_title">Morfologiniai kodai</string>
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
   <string name="prefs_red_letter_title">Raudonas laiškas</string>
@@ -106,6 +109,12 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_split_mode_title">Dalinimo būdas</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leidžia naudoti SD kortelės jsword kataloge rankiniu būdu įdiegtus dokumentus</string>
+  <string name="bible_text_options">Biblijos teksto parametrai</string>
+  <string name="auto_fullscreen">Visas ekranas, slenkant</string>
+  <string name="switch_split_mode">Perjungti dalinimo būdą</string>
+  <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
+  <string name="prefs_auto_night_mode_title">Automatinė naktinė veiksena</string>
+  <string name="prefs_auto_night_mode_summary">Automatiškai perjungti į naktinę veikseną pagal jutiklį</string>
   <!--Window-->
   <string name="new_window">Naujas langas</string>
   <string name="windowClose">Užverti</string>

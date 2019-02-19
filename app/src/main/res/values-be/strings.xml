@@ -4,7 +4,6 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"І сказаў Бог: хай будзе сьвятло. І сталася сьвятло.\"\nБыцьцё 1:3</string>
-  <string name="help_text">Націсьніце кнопку МЕНЮ для дзеяньняў.\n\nПерайсьці ў наступны ці папярэдні раздзел можна з дапамогаю трэк-бола, D-пэда ці рухамі пальцаў па экране.</string>
   <string name="version_text">Вэрсія %s</string>
   <string name="no_sdcard_error">Калі ласка, ўстаўце SD картку і перазапусьціце And Bible.</string>
   <!--Main menu-->
@@ -54,7 +53,6 @@
   <string name="prefs_default_bookmark_style_summary">Вылучыце колер або значок</string>
   <string name="prefs_show_mynotes_title">Паказаць значкі \"Мае нататкі\"</string>
   <string name="prefs_show_notes_title">Зноскі і спасылкі</string>
-  <string name="prefs_show_strongs_title">Паказаць лікі Стронга</string>
   <string name="prefs_show_morphology_title">Марфалягічныя коды</string>
   <string name="prefs_section_title_title">Назвы разьдзелаў</string>
   <string name="prefs_red_letter_title">Чырвоная літара</string>

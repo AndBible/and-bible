@@ -4,7 +4,6 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \"Akkor ezt mondta Isten: Legyen világosság! És lett világosság.\"\nI. Mózes 1:3</string>
-  <string name="help_text">A funkciók eléréséhez nyomd meg a MENÜ gombot\n\nAz előző vagy következő fejezethez ugráshoz, használd a trackballt, D-padot vagy húzd végig az ujjad a képernyőn</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Helyezz be egy SD-kártyát és indítsd újra az And Bible-t.</string>
   <!--Main menu-->
@@ -54,7 +53,6 @@
   <string name="prefs_default_bookmark_style_summary">Kiemelő szín vagy ikon</string>
   <string name="prefs_show_mynotes_title">Jegyzetjelző ikonok</string>
   <string name="prefs_show_notes_title">Lábjegyzetek és hivatkozások</string>
-  <string name="prefs_show_strongs_title">Strong számozás megjelenítése</string>
   <string name="prefs_show_morphology_title">Morfológiai kódok</string>
   <string name="prefs_section_title_title">Fejezetcímek</string>
   <string name="prefs_red_letter_title">Piros betűk</string>

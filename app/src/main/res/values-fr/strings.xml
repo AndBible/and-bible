@@ -3,11 +3,11 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
-  <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
+  <string name="help_text">Ouvrez le Menu pour accéder aux différentes fonctions.\n\n
+Pour se déplacer au chapitre précédent ou au suivant, utilisez le pavé tactile, le pavé de direction ou balayez l\'écran horizontalement avec votre doigt.</string>
   <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Pour aller au chapitre suivant ou au précédent, balayez horizontalement l\'écran avec votre doigt.
-Un tapotement permet de basculer l\'affichage en mode plein écran et inversement. Les fenêtres ont un bouton de menu en haut au coin droit,
-le menu s\'ouvre par un appui prolongé sur le bouton.</string>
+  <string name="help_nav_text">Déplacez-vous au chapitre précédent ou au suivant en balayant l\'écran horizontalement avec votre doigt.
+Tapotez deux fois sur le texte biblique pour activer le mode plein écran. Vous avez accès au menu des fenêtres de texte biblique par un appui prolongé sur le bouton Menu affiché dans le coin droit.</string>
   <string name="help_speech_title">Lecture audio</string>
   <string name="help_speech_text">Sélectionner Lecture audio pour ouvrir la fenêtre permettant de démarrer ou arrêter la lecture à voix haute.</string>
   <string name="help_mynote_title">Mes notes</string>
@@ -22,8 +22,8 @@ Le menu du gestionnaire des signets permet de classer les signets par étiquette
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
   <string name="help_contextmenus_title">Menus contextuels</string>
   <string name="help_contextmenus_text">
-Un Appui prolongé sur un verset dans le texte biblique ouvre le menu contextuel des actions applicables à ce verset.
-Un Appui prolongé sur un document dans le sélecteur de documents affiche le menu contextuel permettant soit de le supprimer, soit d\'afficher les informations relatives à ce document.
+Un Appui prolongé sur un verset dans le texte biblique ouvre le menu contextuel des actions possibles sur ce verset.
+Un Appui prolongé sur un document dans le sélecteur de documents affiche le menu contextuel permettant d\'afficher les informations relatives à ce document, ou si besoin de le supprimer.
 Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
@@ -50,7 +50,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="index_creation_required">Un index est nécessaire pour pouvoir lancer une recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est bien plus rapide et les index téléchargés offrent plus de capacités de recherche.\n\nUne connexion internet est requise pour pouvoir télécharger les index.
 </string>
   <string name="search_index_unavailable">Malheureusement la création d\'index n\'est disponible que sur Android 5.0 (Lollipop) ou version ultérieure.</string>
-  <string name="indexing_wait_msg">Vous retrouverez la page de recherche à la fin de l\'indexation.</string>
+  <string name="indexing_wait_msg">Merci de patienter. Vous retrouverez l\'écran de recherche à la fin de l\'indexation.</string>
   <string name="index_download">Télécharger</string>
   <string name="index_not_available_for_download">Cet index n\'est pas disponible en téléchargement</string>
   <string name="index_create">Créer</string>
@@ -75,16 +75,16 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
-  <string name="prefs_show_bookmarks_title">Icônes Mes signets</string>
+  <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_default_bookmark_style_title">Style des signets</string>
   <string name="prefs_default_bookmark_style_summary">Sélectionne le style spécial d\'affichage des versets marqués d\'un signet</string>
-  <string name="prefs_show_mynotes_title">Icônes Mes notes</string>
+  <string name="prefs_show_mynotes_title">Marques des notes</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
-  <string name="prefs_show_strongs_title">Codes de Strong</string>
+  <string name="prefs_show_strongs_title">Nombres de Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
-  <string name="prefs_section_title_title">Titres de section</string>
+  <string name="prefs_section_title_title">Titres de sections</string>
   <string name="prefs_red_letter_title">Paroles de Christ en rouge</string>
-  <string name="prefs_tilt_to_scroll_title">Défilement par basculement</string>
+  <string name="prefs_tilt_to_scroll_title">Incliner pour faire défiler</string>
   <string name="prefs_tilt_to_scroll_summary">L\'inclinaison de l\'appareil fait défiler la page vers le bas</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Facilite la lecture dans la pénombre</string>
@@ -107,6 +107,12 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_split_mode_title">Mode multi-fenêtres</string>
   <string name="prefs_request_sdcard_permission_title">Documents à installer manuellement</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword sur la carte SD</string>
+  <string name="bible_text_options">Options du texte biblique</string>
+  <string name="auto_fullscreen">Plein-écran sur défilement</string>
+  <string name="switch_split_mode">Activer le mode partagé</string>
+  <string name="reversed_split_mode">Désactiver le mode partagé</string>
+  <string name="prefs_auto_night_mode_title">Mode nuit automatique</string>
+  <string name="prefs_auto_night_mode_summary">Active le mode nuit sur détection automatique</string>
   <!--Window-->
   <string name="new_window">Nouvelle fenêtre</string>
   <string name="windowClose">Fermer</string>
@@ -290,9 +296,11 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
   <string name="speak_third">Troisième</string>
   <string name="speak_fourth">Quatrième</string>
   <string name="speak_fifth">Cinquième</string>
+  <string name="verse_range_mode_disabled">
+La répétition automatique de passage a été automatiquement désactivée car la lecture audio a démarré en dehors de la plage des versets à répéter.</string>
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
-  <string name="mynote_add">Ajouter ma note</string>
+  <string name="mynote_add">Ajouter une note</string>
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>

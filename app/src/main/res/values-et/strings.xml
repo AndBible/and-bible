@@ -3,7 +3,6 @@
   <string name="app_name">And Piibel</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ja Jumal ütles: \'Saagu valgus\' ja valgus sai.\"\n1. Moosese 1:3</string>
-  <string name="help_text">Vajuta tegevuste jaoks MENÜÜ nuppu\n\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega</string>
   <string name="version_text">Versioon %s</string>
   <string name="no_sdcard_error">Palun sisesta SD-kaart ja käivita AND Bible uuesti.</string>
   <!--Main menu-->
@@ -53,7 +52,6 @@
   <string name="prefs_default_bookmark_style_summary">Esiletõstmise värv või ikoon</string>
   <string name="prefs_show_mynotes_title">Näita minu märkmete ikooni</string>
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>
-  <string name="prefs_show_strongs_title">Näita Strongi numbreid</string>
   <string name="prefs_show_morphology_title">Morfoloogilised koodid</string>
   <string name="prefs_section_title_title">Sektsiooni pealkirjad</string>
   <string name="prefs_red_letter_title">Punased tähed</string>

@@ -3,11 +3,7 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\"Un Dievs sacīja: \'Lai top gaisma\' un gaisma tapa.\" \nGenesis 1:03</string>
-  <string name="help_text">Lai piekļūtu darbībām nospiediet MENU taustiņu\n\nPārvietojieties no vienas nodaļas uz otru izmantojot track-ball, D-pad vai uzsitot uz ekrāna ar pirkstu</string>
   <string name="help_nav_title">Navigācija</string>
-  <string name="help_nav_text">Pārejiet uz nākamo vai iepriekšējo nodaļu, ar pirkstu pavelkotekrānu.
-Lai pārslēgtu pilnekrāna režīmu, vienreiz pieskarieties pie Bībelesteksta. Bībeles logiem augšējā labajā stūrī ir izvēlnes poga,
-un varat piekļūt loga izvēlnei, to ilgāk nospiežot.</string>
   <string name="help_speech_title">Runa</string>
   <string name="help_speech_text">Nospiediet Runāt, lai piekļūtu dialogam un sāktu vai pārtrauktu lasīšanu</string>
   <string name="help_mynote_title">Manas piezīmes</string>
@@ -62,7 +58,6 @@ un varat piekļūt loga izvēlnei, to ilgāk nospiežot.</string>
   <string name="prefs_verse_per_line_title">Katrā rindā viens pants</string>
   <string name="prefs_show_mynotes_title">Rādīt Manu Piezīmju Ikonu</string>
   <string name="prefs_show_notes_title">Piezīmes un x-saistītie</string>
-  <string name="prefs_show_strongs_title">Rādīt Stronga numerāciju</string>
   <string name="prefs_show_morphology_title">Morfoloģiskie kodi</string>
   <string name="prefs_section_title_title">Sekciju nosaukumi</string>
   <string name="prefs_red_letter_title">Lasīt Vēstuli</string>

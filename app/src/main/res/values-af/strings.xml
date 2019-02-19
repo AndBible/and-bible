@@ -3,10 +3,12 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nGénesis 1:3\n\"En God het gesê: Laat daar lig wees, en daar was lig.\"\n \n</string>
-  <string name="help_text">Druk die sleutel Menu vir optrede\n\nGaan na die volgende of vorige hoofstuk deur die spoor-bal, D-pad of om jou vinger oor die skerm te beweeg</string>
+  <string name="help_text">Druk die knoppie KIESLYS vir aksies \n\n
+Gaan na die volgende of vorige hoofstuk deur die baanbal te gebruik,
+D-pad of sleep die skerm met jou vinger</string>
   <string name="help_nav_title">Navigasie</string>
   <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te sleep.
-Tik eenmaal bybel teks om die volle skerm af te skakel. Bybel vensters het \'n kieslys knoppie in die boonste regterhoek,
+Dubbelklik bybel teks om die volle skerm af te skakel. Bybelvensters het \'n Kieslys knoppie in die boonste regterhoek,
 en jy kan toegang tot die venster kieslys kry deur lank te druk.</string>
   <string name="help_speech_title">Spraak</string>
   <string name="help_speech_text">Druk Praat om toegang tot \'n dialoog te verkry, om te begin lees of te stop</string>
@@ -39,7 +41,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
   <string name="administration">Administrasie</string>
-  <string name="rate_application">Beoordeel &amp; amp; Hersien in Google Play</string>
+  <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
@@ -81,7 +83,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_default_bookmark_style_summary">Hoogtepunt kleur of simbool</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
-  <string name="prefs_show_strongs_title">Wys Strong\'s getalle</string>
+  <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
   <string name="prefs_section_title_title">Afdeling Titels</string>
   <string name="prefs_red_letter_title">Rooi woorde</string>
@@ -108,6 +110,12 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_split_mode_title">Split modus</string>
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van handmatig geïnstalleerde dokumente uit die jsword-lêergids op die SD-kaart</string>
+  <string name="bible_text_options">Bybel teks opsies</string>
+  <string name="auto_fullscreen">Volskerm deur te blaai</string>
+  <string name="switch_split_mode">Skakel verdeel modus</string>
+  <string name="reversed_split_mode">Omgekeerde verdeel modus</string>
+  <string name="prefs_auto_night_mode_title">Outomatiese nag mode</string>
+  <string name="prefs_auto_night_mode_summary">Skakel outomaties na nag mode deur die censor</string>
   <!--Window-->
   <string name="new_window">Nuwe venster</string>
   <string name="windowClose">Maak Toe</string>
@@ -291,6 +299,9 @@ van die boekmerk af gelaai word.</string>
   <string name="speak_third">Derde</string>
   <string name="speak_fourth">Vierde</string>
   <string name="speak_fifth">Vyfde</string>
+  <string name="verse_range_mode_disabled">
+Herhaalde gedeelte mode was outomaties gedeaktiveer omdat
+praat buite die omskrewe versreeks begin het.</string>
   <!--User Notes-->
   <string name="mynotes">My Notas</string>
   <string name="mynote_add">Voeg My Nota by</string>

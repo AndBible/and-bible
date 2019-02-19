@@ -3,11 +3,7 @@
   <string name="app_name">Библия</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
-  <string name="help_text">Для доступа к настройкам и функциям зайдите в Меню.\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.</string>
   <string name="help_nav_title">Навигация</string>
-  <string name="help_nav_text">Для перехода к следующей или предыдущей главе проведите пальцем по экрану.
-Одиночный тап на библейском тексте для перехода в полноэкранный режим. Окна Библии имеют кнопку меню в правом верхнем углу,
-и вы можете получить доступ к меню окна через долгое нажатие на них.</string>
   <string name="help_speech_title">Речь</string>
   <string name="help_speech_text">Нажмите Речь, чтобы открыть диалоговое окно для запуска или остановки чтения</string>
   <string name="help_mynote_title">Моя заметка</string>
@@ -78,7 +74,6 @@
   <string name="prefs_default_bookmark_style_summary">Цвет подсветки или иконка</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
   <string name="prefs_show_notes_title">Заметки</string>
-  <string name="prefs_show_strongs_title"> Показать числа Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
   <string name="prefs_section_title_title">Названия разделов</string>
   <string name="prefs_red_letter_title">Красный шрифт</string>

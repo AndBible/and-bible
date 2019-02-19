@@ -3,7 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"വെളിച്ചം ഉണ്ടാകട്ടെ എന്നു ദൈവം കല്പിച്ചു; വെളിച്ചം ഉണ്ടായി.\"\nഉല്പത്തി 1:3</string>
-  <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
   <string name="version_text">വേർഷൻ %s</string>
   <string name="no_sdcard_error">SD കാർഡ്‌ ഉള്ളിൽ ഇട്ടശേഷം And Bible വീണ്ടും തുടങ്ങുക.</string>
   <!--Main menu-->
@@ -53,7 +52,6 @@
   <string name="prefs_verse_per_line_title">ഒരു വരിയിൽ ഒരു വാക്യം വീതം</string>
   <string name="prefs_show_mynotes_title">എന്റെ കുറിപ്പ് ഐക്കോൺ കാണിക്കുക</string>
   <string name="prefs_show_notes_title">അടിക്കുറിപ്പും മറ്റു ഫലകങ്ങളും</string>
-  <string name="prefs_show_strongs_title">സ്റ്റ്റോങ്ങിന്റെ സംഖ്യ കാണിക്കുക</string>
   <string name="prefs_show_morphology_title">മോർഫോളജി കോഡ്</string>
   <string name="prefs_section_title_title">ശീർഷകം തലക്കെട്ട്</string>
   <string name="prefs_red_letter_title">ചുവന്ന അക്ഷരം</string>

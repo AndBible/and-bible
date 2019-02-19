@@ -3,7 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3</string>
-  <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך</string>
   <string name="version_text">גרסה %s</string>
   <string name="no_sdcard_error">אנא הכנס כרטיס זכרון, והפעל מחדש את התוכנה.</string>
   <!--Main menu-->
@@ -53,7 +52,6 @@
   <string name="prefs_default_bookmark_style_summary">צבע הדגשה או אייקון</string>
   <string name="prefs_show_mynotes_title">הצג אייקון של הערות</string>
   <string name="prefs_show_notes_title">הערות</string>
-  <string name="prefs_show_strongs_title">הצג מספרי Strong</string>
   <string name="prefs_show_morphology_title">סימנים מורפולוגיים</string>
   <string name="prefs_section_title_title">כותרות משנה</string>
   <string name="prefs_red_letter_title">צבע אדום</string>

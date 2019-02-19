@@ -3,11 +3,14 @@
   <string name="app_name">And 聖經</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n創世記 1:3</string>
-  <string name="help_text">使用選單的按鈕操作\n向左滑動手指看下一章\n向右滑動手指看上一章\n向左或向右按軌跡球\n也可以前後翻動章節</string>
+  <string name="help_text">按選單鍵以選取行動\n\n
+使用軌跡球、觸控板或滑動螢幕
+翻閱至上一章或下一章</string>
   <string name="help_nav_title">導航</string>
-  <string name="help_nav_text">用手指滑動螢幕，轉到下一章或上一章。
-點擊聖經文本一次以切換全螢幕模式。 聖經視窗的右上角有選單按鈕，
-長按可訪問視窗選單。</string>
+  <string name="help_nav_text">滑動螢幕以翻閱至上一章或下一章
+雙點經文文字以切換至全螢幕。
+長按經文視窗右上方選項鍵，可以選取不同的控制項。
+</string>
   <string name="help_speech_title">語音</string>
   <string name="help_speech_text">按下朗讀以開結或停止朗讀</string>
   <string name="help_mynote_title">我的筆記</string>
@@ -79,7 +82,7 @@
   <string name="prefs_default_bookmark_style_summary">書籤突出顯示顏色或圖示</string>
   <string name="prefs_show_mynotes_title">顯示筆記圖示</string>
   <string name="prefs_show_notes_title">注腳和交叉對照</string>
-  <string name="prefs_show_strongs_title">顯示原文編號</string>
+  <string name="prefs_show_strongs_title">Strong\'s原文編號</string>
   <string name="prefs_show_morphology_title">顯示詞形碼</string>
   <string name="prefs_section_title_title">章節標題</string>
   <string name="prefs_red_letter_title">紅字</string>
@@ -102,10 +105,16 @@
   <string name="prefs_split_mode_vertical">垂直</string>
   <string name="prefs_split_mode_horizontal">水平</string>
   <string name="prefs_split_mode_automatic">自動</string>
-  <string name="prefs_split_mode_summary">如何拆分多視窗？</string>
-  <string name="prefs_split_mode_title">拆分視窗</string>
+  <string name="prefs_split_mode_summary">分拆多視窗的方法</string>
+  <string name="prefs_split_mode_title">分拆視窗</string>
   <string name="prefs_request_sdcard_permission_title">手動安裝文件存在</string>
   <string name="prefs_request_sdcard_permission_summary">允許使用SD卡jsword文件夾中手動安裝的文件</string>
+  <string name="bible_text_options">經文文字選項</string>
+  <string name="auto_fullscreen">捲動以切換至全螢幕</string>
+  <string name="switch_split_mode">切換分拆視窗模式</string>
+  <string name="reversed_split_mode">反轉分拆視窗模式</string>
+  <string name="prefs_auto_night_mode_title">自動夜間模式</string>
+  <string name="prefs_auto_night_mode_summary">以感應器自動切換夜間模式</string>
   <!--Window-->
   <string name="new_window">新視窗</string>
   <string name="windowClose">關閉</string>
@@ -120,9 +129,9 @@
   <string name="next">下一頁</string>
   <!--Strongs-->
   <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
-  <string name="all_greek_occurrences">查找所有希臘文字符</string>
-  <string name="all_hebrew_occurrences">查找所有希伯來文字符</string>
-  <string name="no_indexed_bible_with_strongs_ref">需要下載包含原文編號的聖經，並於搜尋下載相應的索引</string>
+  <string name="all_greek_occurrences">查找所有包含此希臘文字符的經文</string>
+  <string name="all_hebrew_occurrences">查找所有包含此希伯來文字符的經文</string>
+  <string name="no_indexed_bible_with_strongs_ref">需要下載包含Strong\'s原文編號的聖經，並於搜尋下載相應的索引</string>
   <string name="morph_robinson_not_installed">請下載羅氏詞形分析碼的字典</string>
   <!--Module download-->
   <string name="download">下載文件</string>
@@ -342,7 +351,7 @@
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
-  <string name="empty_list">無可顯示項目</string>
+  <string name="empty_list">沒有可顯示項目</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字轉語音</string>
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>

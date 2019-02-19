@@ -3,7 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"พระ​เจ้า​ตรัส​ว่า “จง​เกิด​ความ​สว่าง” ความ​สว่าง​ก็​เกิด​ขึ้น\"\nปฐมกาล 1:3</string>
-  <string name="help_text">​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า​โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad)</string>
   <string name="version_text">รุ่นที่ %s</string>
   <string name="no_sdcard_error">กรุณาใส่ SD card และเริ่มต้น And Bible อีกครั้ง</string>
   <!--Main menu-->
@@ -48,7 +47,6 @@
   <string name="prefs_show_bookmarks_title">แสดงไอคอนของตัวคั่น</string>
   <string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกส่วนตัว</string>
   <string name="prefs_show_notes_title">เชิงอรรถและข้ออ้างโยง</string>
-  <string name="prefs_show_strongs_title">แสดงตัวเลขสตรอง</string>
   <string name="prefs_show_morphology_title">รหัสไวยากรณ์</string>
   <string name="prefs_section_title_title">หัวข้อ</string>
   <string name="prefs_red_letter_title">ตัวอักษรสีแดง</string>

@@ -3,11 +3,12 @@
   <string name="app_name">And Biblio</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
-  <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
+  <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\n
+Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
   <string name="help_nav_title">Navigi</string>
   <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
- Duobla frapeto eniras/eliras plenekranon.
- Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ povas montri ĝin per frapetadi fenestron.</string>
+Duobla frapeto eniras/eliras plenekranon.
+Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ povas montri ĝin per frapetadi fenestron.</string>
   <string name="help_speech_title">Parolo</string>
   <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
   <string name="help_mynote_title">Miaj notoj</string>
@@ -79,7 +80,7 @@
   <string name="prefs_default_bookmark_style_summary">Distinga koloro aŭ piktogramo</string>
   <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
   <string name="prefs_show_notes_title">Piednotoj kaj internaj referencoj</string>
-  <string name="prefs_show_strongs_title">Montri numerojn de Strong</string>
+  <string name="prefs_show_strongs_title">Numeroj de Strong</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
@@ -106,6 +107,12 @@
   <string name="prefs_split_mode_title">Ekran-divido</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
+  <string name="bible_text_options">Tekstaj agordoj</string>
+  <string name="auto_fullscreen">Plenekranigi per rulumi</string>
+  <string name="switch_split_mode">Reĝimo de dividita ekrano</string>
+  <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
+  <string name="prefs_auto_night_mode_title">Aŭtomata nokta reĝimo</string>
+  <string name="prefs_auto_night_mode_summary">Aktivigi noktan reĝimon aŭtomate laŭ lum-sentilo</string>
   <!--Window-->
   <string name="new_window">Nova fenestro</string>
   <string name="windowClose">Fermi</string>
@@ -288,6 +295,8 @@ Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapi
   <string name="speak_third">Tria</string>
   <string name="speak_fourth">Kvara</string>
   <string name="speak_fifth">Kvina</string>
+  <string name="verse_range_mode_disabled">
+Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difinita amplekso de verso.</string>
   <!--User Notes-->
   <string name="mynotes">Miaj notoj</string>
   <string name="mynote_add">Aldoni mian noton</string>

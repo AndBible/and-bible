@@ -4,12 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"En God zei: \'Er moet licht komen\' en er was licht.\"\nGenesis 1:3</string>
-  <string name="help_text">Druk op de Menutoets voor acties\n\n\Ga naar het volgende of vorige hoofdstuk met behulp van de trackbal, het D-pad of veeg op het scherm met je vinger</string>
   <string name="help_nav_title">Navigatie</string>
-  <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen.
-        Druk eenmaal op de bijbeltekst om over te schakelen naar de volledig scherm-modus. Bijbelvensters hebben rechtsboven een menuknop,
-        waarmee je het menu kunt openen d.m.v. lang indrukken.
-    </string>
   <string name="help_speech_title">Voorlezen</string>
   <string name="help_speech_text">Druk op Voorlezen om een venster te openen waar je het voorlezen kunt starten of stoppen</string>
   <string name="help_mynote_title">Mijn notitie</string>
@@ -85,7 +80,6 @@
   <string name="prefs_default_bookmark_style_summary">Markeringskleur of -pictogram</string>
   <string name="prefs_show_mynotes_title">Mijn notitie-pictogrammen tonen</string>
   <string name="prefs_show_notes_title">Voetnoten en kruisverwijzingen</string>
-  <string name="prefs_show_strongs_title">Strong-nummers tonen</string>
   <string name="prefs_show_morphology_title">Morfologische codes</string>
   <string name="prefs_section_title_title">Sectietitels</string>
   <string name="prefs_red_letter_title">Rode letter</string>
@@ -112,6 +106,12 @@
   <string name="prefs_split_mode_title">Splitsmodus</string>
   <string name="prefs_request_sdcard_permission_title">Handmatige geïnstalleerde documenten</string>
   <string name="prefs_request_sdcard_permission_summary">Het gebruik van handmatig geïnstalleerde documenten inschakelen uit de jsword-map op de SD-kaart</string>
+  <string name="bible_text_options">Opties voor bijbeltekst</string>
+  <string name="auto_fullscreen">Volledig scherm door te scrollen</string>
+  <string name="switch_split_mode">Splitsmodus omdraaien</string>
+  <string name="reversed_split_mode">Omgekeerde splitsmodus</string>
+  <string name="prefs_auto_night_mode_title">Automatische nachtmodus</string>
+  <string name="prefs_auto_night_mode_summary">Schakel automatisch over naar nachtmodus op basis van de sensordetectie</string>
   <!--Window-->
   <string name="new_window">Nieuw venster</string>
   <string name="windowClose">Sluiten</string>

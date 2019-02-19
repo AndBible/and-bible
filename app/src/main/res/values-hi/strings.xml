@@ -3,7 +3,6 @@
   <string name="app_name">आन्ड बाइबल</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nतब परमेश्वर ने कहा, “उजियाला हो” और उजियाला हो गया।\nउत्पत्ति 1:3</string>
-  <string name="help_text">अगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ\n अन्य कार्य के लिये \'मेनू\' दबाएँ</string>
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error">एक एस-डी कार्ड डालें और बाइबिल फिर से शुरू करें ।</string>
   <!--Main menu-->
@@ -47,7 +46,6 @@
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
-  <string name="prefs_show_strongs_title">\"र्स्टो्न्ग\" की संख्या दिखाना</string>
   <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
   <string name="prefs_section_title_title">खंड शीर्षक (टाइटिल)</string>
   <string name="prefs_red_letter_title">लाल अक्षर</string>

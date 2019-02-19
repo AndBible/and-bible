@@ -3,7 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Και ο Θεός είπε,« Γενηθήτω φως, και υπήρχε φως. \"\nΓένεσις 1:03</string>
-  <string name="help_text">Πιέστε το πλήκτρο ΜΕΝΟΥ για δράσεις\n\nΜετάβαση στο επόμενο ή στο προηγούμενο κεφάλαιο με τη χρήση της γραμμής-μπάλα, D-pad ή περνώντας την οθόνη με το δάχτυλό σας</string>
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Παρακαλώ εισάγετε μια κάρτα SD για να αρχίσει και πάλι το And Bible.</string>
   <!--Main menu-->
@@ -47,7 +46,6 @@
   <string name="prefs_verse_per_line_title">Ένας στίχος ανά γραμμή</string>
   <string name="prefs_show_mynotes_title">Εμφάνιση εικονιδίων των σημείωσεων μου</string>
   <string name="prefs_show_notes_title">Υποσημειώσεις και x-διαιτητές</string>
-  <string name="prefs_show_strongs_title">Εμφανιση ισχυρων αριθμων</string>
   <string name="prefs_show_morphology_title">Μορφολογική κώδικες</string>
   <string name="prefs_section_title_title">Τμήμα τίτλων</string>
   <string name="prefs_red_letter_title">Κόκκινο Γράμμα</string>

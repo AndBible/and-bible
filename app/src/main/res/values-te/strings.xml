@@ -3,7 +3,6 @@
   <string name="app_name">ఆండ్ బైబిల్</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nఅప్పుడు దేవుడు, “వెలుగు కలుగును గాక!” అన్నాడు. వెలుగు ప్రకాశించటం మొదలయింది.\nఆదికాండము 1:3</string>
-  <string name="help_text">విషయాల కొరకు మెన్యును నొక్కండి\n\nఅధ్యాయాలు మార్చడానికి వేలితో స్వైప్ చేయండి</string>
   <string name="version_text">వర్షన్ %s</string>
   <string name="no_sdcard_error">దయచేసి SD కార్డ్ లోపల పెట్టి మరొక సారి ఆండ్ బైబిల్ మొదలు పెట్టండి.</string>
   <!--Main menu-->
@@ -50,7 +49,6 @@
   <string name="prefs_show_bookmarks_title">గుర్తించిన ఐకాన్ చూపు</string>
   <string name="prefs_show_mynotes_title">నేను గుర్తించిన ఐకాన్ చూపు</string>
   <string name="prefs_show_notes_title">పుట్‌నోట్ మరియు క్రాస్ రెపెరెన్స్</string>
-  <string name="prefs_show_strongs_title">స్ట్రాంగ్స్ సంఖ్యలను చూపు</string>
   <string name="prefs_show_morphology_title">పదనిర్మాణ సంకేతాలు</string>
   <string name="prefs_section_title_title">విభాగపు శీర్షికలు</string>
   <string name="prefs_red_letter_title">ఎరుపు రంగు పదాలు</string>

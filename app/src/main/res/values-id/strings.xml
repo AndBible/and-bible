@@ -3,11 +3,13 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Berfirmanlah Allah: \"Jadilah terang.\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
-  <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPindah ke pasal berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
+  <string name="help_text">Tekan tombol MENU untuk tindakan\n\n
+Pindah ke pasal berikutnya atau sebelumnya dengan menggunakan jalur-bola
+D-pad atau menggesekkan layar dengan jari anda</string>
   <string name="help_nav_title">Navigasi</string>
   <string name="help_nav_text">Pindah ke pasal berikutnya atau sebelumnya dengan menggesekkan layar dengan jari anda.
-Klik teks alkitab satu kali untuk mode full screen. Jendela alkitab memiliki tombol menu di sudut kanan atas,
-dan anda dapat mengakses jendela menu dengan menekan lama.</string>
+Ketuk dua kali teks alkitab untuk mode full screen. Jendela alkitab memiliki tombol menu di sudut kanan atas,
+dan anda dapat mengakses jendela menu dengan menekannya lama.</string>
   <string name="help_speech_title">Bicara</string>
   <string name="help_speech_text">Tekan Bicara untuk mengakses dialog untuk memulai atau menghentikan pembacaan </string>
   <string name="help_mynote_title">Catatanku</string>
@@ -56,7 +58,7 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="rebuild_index">Bangun kembail indeks</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
-  <string name="task_kill_warning">Hubungan akan terputus jika anda berpindah ke aplikasi lain sebelum tugas selesai.</string>
+  <string name="task_kill_warning">Hubungan akan terputus jika anda beralih ke aplikasi lain sebelum tugas selesai.</string>
   <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Temukan ayat</string>
@@ -79,7 +81,7 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="prefs_default_bookmark_style_summary">Warna highlight atau ikon</string>
   <string name="prefs_show_mynotes_title">Tampilkan ikon Catatanku</string>
   <string name="prefs_show_notes_title">Catatan kaki dan referensi silang</string>
-  <string name="prefs_show_strongs_title">Tampilkan nomor Strong</string>
+  <string name="prefs_show_strongs_title">Nomor Strong</string>
   <string name="prefs_show_morphology_title">Kode-kode morfologi</string>
   <string name="prefs_section_title_title">Judul Perikop</string>
   <string name="prefs_red_letter_title">Huruf merah</string>
@@ -106,6 +108,12 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="prefs_split_mode_title">Mode terbagi</string>
   <string name="prefs_request_sdcard_permission_title">Tersedia dokumen yang diinstal secara manual</string>
   <string name="prefs_request_sdcard_permission_summary">Izinkan penggunaan dokumen yang diinstal secara manual dari folder jsword pada kartu SD</string>
+  <string name="bible_text_options">Pilihan teks alkitab </string>
+  <string name="auto_fullscreen">Full screen dengan menggulir</string>
+  <string name="switch_split_mode">Alihkan ke mode terbagi</string>
+  <string name="reversed_split_mode">Kembali dari mode terbagi</string>
+  <string name="prefs_auto_night_mode_title">Mode malam otomatis</string>
+  <string name="prefs_auto_night_mode_summary">Alihkan ke mode malam secara otomatis dengan sensor</string>
   <!--Window-->
   <string name="new_window">Jendela baru</string>
   <string name="windowClose">Tutup</string>
@@ -207,7 +215,7 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="one_page">%d halaman</string>
   <string name="some_pages">%d halaman-halaman</string>
   <!--Speak - Common-->
-  <string name="stop">Stop</string>
+  <string name="stop">Hentikan</string>
   <string name="pause">Jeda</string>
   <string name="rewind">Mundur</string>
   <string name="forward">Maju</string>
@@ -216,43 +224,107 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="speak_repeat">Ulangi</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Kecepatan berbicara</string>
-  <string name="speak_and_play_earcons_title">Bicara dan putar suara earcon untuk</string>
+  <string name="speak_and_play_earcons_title">Bicara dan putar efek suara untuk</string>
   <string name="playback_settings_title">Pengaturan Pemutaran</string>
   <string name="speak_settings_title">Pengaturan Umum Bicara</string>
   <string name="speak_bookmarking_settings_title">Pengaturan Bookmark</string>
   <string name="speak_bookmarks_menu_title">Bicara dari bookmark</string>
   <string name="speak_advanced_settings">Pengaturan Lanjutan</string>
-  <string name="speak_sleep_timer_title">Pengaturan waktu tidur</string>
+  <string name="speak_sleep_timer_title">Waktu tidur</string>
   <string name="speak_no_books_available">Tidak ada buku tersedia untuk bicara</string>
   <string name="repeat_passage">Ulang bagian</string>
+  <string name="set_repeat_passage_range">Atur panjang bagian yang berulang</string>
+  <string name="speak_beginning_of_passage">Pilih permulaan dari bagian</string>
+  <string name="speak_ending_of_passage">Pilih akhir dari bagian</string>
+  <string name="speak_verse_range_to_repeat">Pilih panjang bagian yang berulang</string>
+  <string name="speak_ending_verse_must_be_later">Akhir ayat harus setelah awal ayat</string>
+  <string name="conf_speak_synchronize">Teks mengikuti bicara</string>
+  <string name="conf_speak_auto_bookmark">Bookmark otomatis</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Simpan pengaturan pemutaran ke bookmark</string>
+  <string name="conf_replace_divinename">Ganti nama ilahi dengan Yahweh</string>
+  <string name="conf_change_chapter">Perubahan pasal</string>
+  <string name="conf_change_title">Judul</string>
   <string name="conf_speak_footnotes">Catatan kaki</string>
+  <string name="conf_speak_sleep_timer">Atur waktu tidur</string>
+  <string name="sleep_timer_title">Waktu tidur dalam menit</string>
+  <string name="sleep_timer_set">Atur waktu tidur. Atur waktu: %d minutes</string>
+  <string name="sleep_timer_started">Waktu tidur dimulai, %d menit</string>
+  <string name="sleep_timer_active_at">Waktu tidur: tinggal %s menit</string>
+  <string name="speak_next">Berikut</string>
+  <string name="speak_previous">Sebelum</string>
+  <string name="widget_toggle_sleep_timer">Aktivasi waktu tidur</string>
+  <string name="widget_bookmark_helptext">Shortcut bookmark untuk bicara akan muncul di sini</string>
+  <string name="speak_status_stopped">Terhenti</string>
   <string name="speak_autobookmarking_disabled">Autobookmark dinonaktifkan!</string>
+  <string name="system_speak_settings">Buka pengaturan sistem bicara</string>
+  <string name="speak_bookmark_help">Bantuan bookmark untuk bicara</string>
+  <string name="speak_help_auto_bookmark">
+Bookmark untuk bicara akan ditambahkan secara otomatis ketika Bicara dijeda atau dihentikan.
+Bookmark otomatis ditandai dengan label Bicara khusus.
+Jika anda mulai dari bookmark Bicara, bookmark akan berpindah ke ayat 
+tempat dijeda atau dihentikan. Hanya label Bicara akan dipindahkan, label-label lainnya akan dibiarkan.</string>
+  <string name="speak_help_playback_settings">
+Pengaturan pemutaran khusus (dalam \'Pengaturan Pemutaran\' pada layar Bicara)
+disimpan pada bookmark Bicara jika pengaturan ini dipilih.
+Ketika anda mengulang kembali bicara dari bookmark Bicara, pengaturan pemutaran yang tersimpan
+akan diambil dari bookmark.</string>
+  <string name="speak_help_playback_settings_example">
+Misalkan jika mendengarkan Kejadian dan Roma dan
+ingin mendengarkan Kejadian dibaca dengan cepat tanpa notifikasi pergantian pasal,
+tetapi ingin mendengarkan Roma dengan kecepatan lebih lambat dengan notifikasi pada pergantian pasal,
+anda dapat memilih pengaturan pemutaran yang berbeda pada buku yang berbeda,
+ketika pengaturan-pengaturan ini disimpan pada bookmark yang bersangkutan.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Tuhan</item>
+    <item>Allah</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Kitab terganti.</string>
   <string name="speak_chapter_changed">Pasal</string>
+  <string name="speak_first">Pertama</string>
+  <string name="speak_second">Kedua</string>
+  <string name="speak_third">Ketiga</string>
+  <string name="speak_fourth">Keempat</string>
+  <string name="speak_fifth">Kelima</string>
+  <string name="verse_range_mode_disabled">
+Mode pengulangan bagian dinonaktifkan secara otomatis karena
+bicara dimulai di luar bagian yang telah ditentukan.</string>
   <!--User Notes-->
   <string name="mynotes">Catatan-catatan Saya</string>
   <string name="mynote_add">Tambahkan Catatan Saya</string>
-  <string name="mynote_saved">Catatan Saya disimpan</string>
+  <string name="mynote_saved">Catatan Saya tersimpan</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Backup &amp; Pulihkan</string>
   <string name="backup">Backup</string>
-  <string name="backup_success">Catatan-catatan Saya dan Bookmarks disimpan di %s di kartu SD</string>
-  <string name="restore">Restore</string>
-  <string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string>
-  <string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string>
+  <string name="backup_success">Catatan-catatan Saya dan Bookmark tersimpan di %s pada kartu SD</string>
+  <string name="restore">Pulihkan</string>
+  <string name="restore_confirmation">Timpa Catatan-catatan Saya dan Bookmark?</string>
+  <string name="restore_success">Catatan-catatan Saya dan Bookmark dipulihkan dari %s pada Kartu SD</string>
+  <string name="error_no_backup_file">File backup tidak dapat ditemukan</string>
   <!--About-->
-  <string name="about_copyright">Hak cipta %s</string>
+  <string name="about_copyright">Hak cipta: %s</string>
   <string name="about_version">Versi: %s</string>
-  <string name="about_versification">Versification: %s</string>
+  <string name="about_versification">Versifikasi: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Alkitab</string>
   <string name="doc_type_commentary">Tafsiran</string>
@@ -266,17 +338,20 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="cancel">Batalkan</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
-  <string name="error">Eror</string>
+  <string name="error">Salah</string>
   <string name="please_wait">Silakan tunggu ...</string>
   <string name="all">Semua</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Edit</string>
+  <string name="watch_tutorial_video">Lihat video tutorial (dalam bahasa Inggris)</string>
   <!--Errors-->
   <string name="report_error">Kirim laporan</string>
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
-  <string name="error_no_content">Ayat yang dipilih, tidak ada isi </string>
+  <string name="error_no_content">Tidak ada isi pada ayat yang dipilih</string>
   <string name="error_page_too_large">Halaman terlalu besar untuk dimuat</string>
   <string name="error_key_not_in_document">Tidak ditemukan dalam dokumen</string>
   <string name="empty_list">Tidak ada item untuk ditampilkan</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Teks ke bicara</string>
+  <string name="notification_channel_progress_status">Notifikasi status perkembangan untuk pengunduhan dokumen dll.</string>
 </resources>

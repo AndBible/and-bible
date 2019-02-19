@@ -3,11 +3,7 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n«Dijo Dios: \"Haya luz\", y hubo luz.»\nGénesis 1,3</string>
-  <string name="help_text">Pulse el botón de MENÚ para acciones\n\nVaya al capítulo siguiente o anterior usando la track-ball, el D-pad o desplazando la pantalla con su dedo</string>
   <string name="help_nav_title">Navegación</string>
-  <string name="help_nav_text">Vaya al capítulo siguiente o anterior desplazando la pantalla con su dedo.
-Toque el texto de la Biblia una vez para cambiar a modo pantalla completa. Las ventanas de  la Biblia tienen un botón de menú en la esquina superior derecha,
-y puede acceder al menú de ventana haciendo una pulsación larga sobre ellas.</string>
   <string name="help_speech_title">Voz</string>
   <string name="help_speech_text">Pulse \"Con voz\" para acceder a un diálogo para comenzar o terminar la lectura</string>
   <string name="help_mynote_title">Mi nota</string>
@@ -79,7 +75,6 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_default_bookmark_style_summary">Color de subrayado o icono</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
-  <string name="prefs_show_strongs_title">Mostrar números de Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
   <string name="prefs_section_title_title">Títulos de sección</string>
   <string name="prefs_red_letter_title">Letra roja</string>
@@ -298,6 +293,10 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="speak_third">Tercero</string>
   <string name="speak_fourth">Cuarto</string>
   <string name="speak_fifth">Quinto</string>
+  <string name="verse_range_mode_disabled">
+        El modo de repetición de pasaje ha sido desactivado automáticamente porque
+        la reproducción por voz comenzó fuera del rango de versículos definidos.
+    </string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
   <string name="mynote_add">Agrega Mi Nota</string>

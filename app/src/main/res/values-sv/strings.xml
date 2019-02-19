@@ -4,7 +4,6 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"Gud sade: \'Varde ljus!\' Och det blev ljus.\"\n1 Mos 1:3</string>
-  <string name="help_text">Tryck på Meny-knappen för alternativ\n\nBläddra till nästa och föregående kapitel genom att svepa åt höger och vänster med fingret eller rulla med styrkulan.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om And Bible.</string>
   <!--Main menu-->
@@ -51,7 +50,6 @@
   <string name="prefs_verse_per_line_title">En vers per rad</string>
   <string name="prefs_show_mynotes_title">Visa anteckningsikoner</string>
   <string name="prefs_show_notes_title">Fotnoter och referenser</string>
-  <string name="prefs_show_strongs_title">Visa Strongs nummer</string>
   <string name="prefs_show_morphology_title">Morfologiska koder</string>
   <string name="prefs_section_title_title">Rubriker</string>
   <string name="prefs_red_letter_title">Röd text</string>

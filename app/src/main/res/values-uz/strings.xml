@@ -4,10 +4,17 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"Xudo: “Yorug‘lik bo‘lsin”, deb amr bergan edi, yorug‘lik paydo bo‘ldi.\nIbtido 1:3</string>
-  <string name="help_text">MENYU tugmasini bosing\n\nKeyingi yoki oldingi bobga o\'tish uchun barmoqni ekran bo\'ylab o\'tkazing</string>
+  <string name="help_nav_title">Navigatsiya</string>
+  <string name="help_speech_title">Gapirish</string>
+  <string name="help_speech_text">Gapirishni boshlash yoki to\'xtatish dialogi ochilishi uchun Gapir belgisini tanlang</string>
+  <string name="help_mynote_title">Eslatmalarim</string>
+  <string name="help_bookmarks_title">Xatcho\'plar</string>
+  <string name="help_search_title">Qidiruv</string>
+  <string name="help_contextmenus_title">Konteks Menyusi</string>
   <string name="version_text">Versiya %s</string>
   <string name="no_sdcard_error">Fleshkani soling va And Bibleni qayta boshlang</string>
   <!--Main menu-->
+  <string name="menu">Menyu</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Parcha</string>
   <string name="search">Qidir</string>
@@ -16,6 +23,8 @@
   <string name="speak">Gapir</string>
   <string name="help">Yordam</string>
   <string name="administration">Sozlamalar</string>
+  <string name="rate_application">Google Playda beho bering, fikringizni yozib qoldiring</string>
+  <string name="chooce_document">Faylni tanlang</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitobni tanlang</string>
   <string name="choosePassageChapterName">Bobni tanlang</string>
@@ -25,10 +34,12 @@
   <!--Search-->
   <string name="search_index">Qidiruv indeksi</string>
   <string name="index_creation_required">Qidiruv uchun indekslar zarur. \n\nIndekslari tarmoqdan yuklab olish yoki uskuna o\'zida yaratish mumkin.\n\nYuklab olish ancha tezroq va yuklab olingan indekslarda qidiruv imkoniyatlari ko\'proq.\n\nIndekslarni yuklab olish uchun tarmoq bilan aloqa zarur.\n</string>
+  <string name="search_index_unavailable">Afsuski, indeks yaratish faqat Android 5.0 (Lollipop) va undan yangi sistemalardagina mavjud</string>
   <string name="indexing_wait_msg">Indekslash tugagach, qidiruv bo\'limi ochiladi</string>
   <string name="index_download">Yuklab oling</string>
   <string name="index_not_available_for_download">Bu indeksni yuklab olish mumkin emas</string>
   <string name="index_create">Yarating</string>
+  <string name="rebuild_index">Indeksni qayta yaratish</string>
   <!--Tasks-->
   <string name="progress_status">Jarayon</string>
   <string name="task_kill_warning">Agar boshqa aplikatsiyaga o\'tsangiz, ko\'p vaqt olayotgan bu vazifalar tugashidan oldin to\'xtab qo\'ladi.</string>
@@ -49,9 +60,11 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Oyat raqamlari</string>
   <string name="prefs_verse_per_line_title">Bir qatorda bir oyat</string>
+  <string name="prefs_show_bookmarks_title">Xatcho\'plarni ko\'rsat</string>
+  <string name="prefs_default_bookmark_style_title">Xatcho\'pning defolt ko\'rinishi</string>
+  <string name="prefs_default_bookmark_style_summary">Yoritish rangi va belgisi</string>
   <string name="prefs_show_mynotes_title">Eslatmam belgisini ko\'rsat</string>
   <string name="prefs_show_notes_title">Snoska va ssilkalar</string>
-  <string name="prefs_show_strongs_title">Strong raqamlarini ko\'rsat</string>
   <string name="prefs_show_morphology_title">Morfologik shiriflar</string>
   <string name="prefs_section_title_title">Bo\'lim sarlavhalari</string>
   <string name="prefs_red_letter_title">Qizil rangli harf</string>
@@ -67,9 +80,19 @@
   <string name="prefs_text_size_title">Shrift hajmi</string>
   <string name="prefs_text_size_summary">Ko\'proq ko\'rish yoki aniqroq ko\'rish</string>
   <string name="prefs_text_size_sample_text">Namuna matn</string>
+  <string name="prefs_screen_keep_on_title">Ekran o\'chmasin</string>
+  <string name="prefs_screen_keep_on_summary">Ishlatilayotgan paytda ekran o\'chmasin</string>
   <string name="prefs_interface_locale_title">Aplikatsiya tili</string>
   <string name="prefs_interface_locale_summary">Applikatsiya tilini tanglang</string>
+  <string name="prefs_split_mode_vertical">Vertikal</string>
+  <string name="prefs_split_mode_horizontal">Gorizontal</string>
+  <string name="prefs_split_mode_automatic">Avtomatik</string>
+  <string name="prefs_split_mode_summary">Qanday qilib erkanda bir necha oynani ko\'rsatish mumkin?</string>
+  <string name="prefs_split_mode_title">Ekranda bir necha oynani ko\'rsatish</string>
+  <string name="prefs_request_sdcard_permission_title">O\'zingiz yuklab olgan fayllar mavjud</string>
+  <string name="prefs_request_sdcard_permission_summary">Flesh karddagi jsword papkasidan fayllarni o\'zingiz yuklab olishingiz uchun ijozat bering</string>
   <!--Window-->
+  <string name="new_window">Yangi oyna</string>
   <string name="windowClose">Yoping</string>
   <string name="windowMaximise">Maksimallashtirmoq</string>
   <string name="windowMinimise">Kamaytirish</string>
@@ -100,11 +123,13 @@
   <string name="document_not_installed">Iltimos, \'%s\' yuklab oling</string>
   <!--Install zip file-->
   <string name="install_zip">ZIP o\'qish</string>
+  <string name="install_zip_module">Muqaddas Kitob modulini o\'rnatish</string>
   <string name="install_zip_successfull">Module muvaffaqiyatli o\'rnatildi</string>
   <string name="extracting_zip_file">ZIP o\'qishyapti</string>
   <string name="checking_zip_file">Faylni tekshirish</string>
   <string name="invalid_module">Fayl bir amaliy SWORD moduli o\'z ichiga olmaydi</string>
   <string name="module_already_installed">Fayl allaqachon o\'rnatilgan bir modul o\'z ichiga oladi</string>
+  <string name="install_zip_title">Iltimos kuting. Zip fayli yuklanyapti.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">O\'qish Rejasi</string>
   <string name="rdg_plan_selector_title">O\'qish Rejasini tanlang</string>
@@ -122,18 +147,28 @@
   <!--Verse context menu-->
   <string name="notes">Snoska va Ssilkalar</string>
   <string name="copy">Nusxa</string>
+  <string name="share_verse">Boshqalar bilan bo\'lishing</string>
   <string name="share_verse_subject">And Bible orqali Muqaddas Kitob oyatini siz bilan bo\'lishdi</string>
   <string name="compare_translations">Tarjimalarni taqqosla</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">Linkni bu yerda oching</string>
+  <string name="open_link_in_new_window">Linkni yangı oynada ochish</string>
+  <string name="open_link_in_main_window">Linkni asosiy oynada ochish</string>
+  <string name="open_link_in_special_window">Linkni maxsus oynada ochish</string>
   <!--Bookmarks-->
   <string name="bookmarks">Xatcho\'plar</string>
   <string name="add_bookmark">Xatcho\'p qo\'y</string>
+  <string name="delete_bookmark">Xatcho\'plarni o\'chirish</string>
   <string name="bookmark_added">Xatcho\'p qo\'yildi</string>
+  <string name="bookmark_date_updated">Xatcho\'p sanasi yangilandi</string>
+  <string name="bookmark_deleted">Xatcho\'p o\'chirildi</string>
   <string name="bookmark_labels">Xatcho\'p belgilari</string>
+  <string name="manage_labels">Xatcho\'p belgisini o\'zgartirish</string>
   <string name="assign_labels">Belgi qo\'ymoq</string>
   <string name="new_label">Yangi belgi</string>
   <string name="label_name_prompt">Ism</string>
   <string name="label_unlabelled">Belgilanmagan</string>
+  <string name="style">Ko\'rinishi</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kun tartibi</string>
   <string name="sort_by_bible_book">Muqaddas Kitob tartibi</string>
@@ -165,28 +200,83 @@
   <string name="speak_queue">Navbat</string>
   <string name="speak_repeat">Takrorla</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Gapirish tezligi</string>
+  <string name="playback_settings_title">Multimediya Sozlamalari</string>
+  <string name="speak_settings_title">Gapirishning Umumiy Sozlamalari</string>
+  <string name="speak_bookmarking_settings_title">Xatcho\'p Sozlamalari</string>
+  <string name="speak_bookmarks_menu_title">Xatcho\'plarni Gapirish</string>
+  <string name="speak_advanced_settings">Qo\'shimcha Sozlash</string>
+  <string name="speak_sleep_timer_title">Uxlash Taymeri</string>
+  <string name="speak_no_books_available">Gapirish uchun biror kitob yo\'q</string>
+  <string name="repeat_passage">Matnni Takrorlash</string>
+  <string name="set_repeat_passage_range">Matnni takrorlash chegarasini belgilang</string>
+  <string name="speak_beginning_of_passage">Matnning boshlanish nuqtasini tanlang</string>
+  <string name="speak_ending_of_passage">Matnning tugash nuqtasini tanlang</string>
+  <string name="speak_verse_range_to_repeat">Oyatning takrorlash chegarasini tanlang</string>
+  <string name="speak_ending_verse_must_be_later">Oxirgi tanlangan oyat boshlash oyatidan oldinda </string>
+  <string name="conf_speak_auto_bookmark">Avtomatik xatcho\'p qo\'yish</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Multimedia sozlamalarini xatcho\'pda saqlash</string>
+  <string name="conf_replace_divinename">Xudovand ismini Yahvega o\'zgartirish</string>
+  <string name="conf_change_chapter">Bobga kiritilgan o\'zgarishlar</string>
+  <string name="conf_change_title">Sarlavhalar</string>
+  <string name="conf_speak_footnotes">Izohlar</string>
+  <string name="conf_speak_sleep_timer">Uxlash taymerini qo\'yish</string>
+  <string name="sleep_timer_title">Uxlash va</string>
+  <string name="sleep_timer_set">Uxlash taymerini qo\'yish. Taymer %d daqiqaga qo\'yildi</string>
+  <string name="sleep_timer_started">Uxlsha taymeri boshlandi, %d daqiqa</string>
+  <string name="sleep_timer_active_at">Uxlash taymeri: %s daqiqa qo\'di.</string>
+  <string name="speak_next">Keyingi</string>
+  <string name="speak_previous">Oldingi</string>
+  <string name="widget_toggle_sleep_timer">Uxlash taymerini o\'zgartirish</string>
+  <string name="widget_bookmark_helptext">Xatcho\'plarni gapirish belgisi bu yerda payda bo\'ladi.</string>
+  <string name="speak_status_stopped">to\'xtatilgan</string>
+  <string name="speak_autobookmarking_disabled">Avtomatik xatcho\'p qo\'yish bekor qilindi!</string>
+  <string name="system_speak_settings">Sistema TSS sozlamalarini ochish</string>
+  <string name="speak_bookmark_help">Xatcho\'plarni gapirish haqida ma\'lumot</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Egamiz</item>
+    <item>Xudo</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace"/>
+  <string name="speak_book_changed">Kitob o\'zgartirildi.</string>
+  <string name="speak_chapter_changed">Bob</string>
+  <string name="speak_first">Birinchi</string>
+  <string name="speak_second">Ikkinchi</string>
+  <string name="speak_third">Uchinchi</string>
+  <string name="speak_fourth">To\'rtinchi</string>
+  <string name="speak_fifth">Beshinchi</string>
+  <string name="verse_range_mode_disabled">
+Matnni takrorlash avtomatik ravishda bekor qilindi chunki
+gapirish oyatlar chegarasidan tashqarida boshlandi.
+</string>
   <!--User Notes-->
   <string name="mynotes">Mening Eslatmalarim</string>
   <string name="mynote_add">Eslatma Kirit</string>
   <string name="mynote_saved">Mening Eslatmam saqlandi</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Faylni saqlab qo\'yish; Qayta tiklash</string>
   <string name="backup">Rezerv nusxa</string>
   <string name="backup_success">Eslatma va Xatcho\'plar fleshkadagi %s ga saqlandi</string>
   <string name="restore">Qayta tikla</string>
   <string name="restore_confirmation">Eslatma va Xatcho\'plarimning ustiga yozaymi?</string>
   <string name="restore_success">Eslatma va Xatcho\'plar fleshkadagi %s dan qayta tiklandi</string>
+  <string name="error_no_backup_file">Saqlab qo\'yilgan fayl topilmadi</string>
   <!--About-->
+  <string name="about_copyright">%sMualliflik Huquqi</string>
   <string name="about_version">Versiya: %s</string>
   <string name="about_versification">Versifikatsiya: %s</string>
   <!--Document types-->
@@ -206,11 +296,16 @@
   <string name="please_wait">Iltimos kuting...</string>
   <string name="all">Hammasi</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="edit">Tahrirlash</string>
+  <string name="watch_tutorial_video">Videodarsni tomosha qilish (Ingliz tilida)</string>
   <!--Errors-->
+  <string name="report_error">Ma\'lumot Yuborish</string>
   <string name="error_occurred">Xato ro\'y berdi</string>
   <string name="error_no_content">Belgilangan oyat mavjud emas</string>
   <string name="error_page_too_large">Bu sahifani kattaligi uchun yulab bo\'lmadi</string>
   <string name="error_key_not_in_document">Hech qanday fayl topilmadi</string>
   <string name="empty_list">Ko\'rsatadigan hech narsa yo\'q</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Matnni gapirish</string>
+  <string name="notification_channel_progress_status">Faylni yuklash progresi haqida ma\'lumot va boshqalar</string>
 </resources>

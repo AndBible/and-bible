@@ -3,7 +3,6 @@
   <string name="app_name">E Bibbia</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\'E Dio disse:\"Sia luce!\" e la luce comparve\'\nGenesi 1:3</string>
-  <string name="help_text">Clicca il tasto \'MENU\' per continuare\n\nUsa la \'track-ball\', \'D-pad\' o muovi il dito sullo schermo per andare al capitolo successivo o tornare a quello precedente</string>
   <string name="version_text">Versione %s</string>
   <string name="no_sdcard_error">Inserisci una carta \'SD\' e inizia nuovamente E Bibbia.</string>
   <!--Main menu-->
@@ -48,7 +47,6 @@
   <string name="prefs_show_bookmarks_title">Mostra le icone del segnalibro</string>
   <string name="prefs_show_mynotes_title">Mostra le icone dei miei appunti</string>
   <string name="prefs_show_notes_title">Note e x-referenze</string>
-  <string name="prefs_show_strongs_title">Mostra i numeri di Strong</string>
   <string name="prefs_show_morphology_title">Codici morfologici</string>
   <string name="prefs_section_title_title">Titoli delle sezioni</string>
   <string name="prefs_red_letter_title">Lettera Rossa</string>

@@ -3,7 +3,6 @@
   <string name="app_name">Киелі Кітап</string>
   <!--Startup & Help-->
   <string name="splash_top_text">Сонда Құдай: «Жарық пайда болсын!» — деп бұйырды. Осылай жарық пайда болды.</string>
-  <string name="help_text">Іс әрекет жасау үшін МӘЗІР белгісін басыңыз⏎\n⏎\nКомпьютер жүгірткісі, жандандыру панель немесе экран бейнесіне бармақтарыңызды тигізу арқылы келесі немесе алдағы өткен тарауға барыңыз</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және Киелі Кітап қайта қосыңыз.</string>
   <!--Main menu-->
@@ -55,7 +54,6 @@
 Тус немесе белгішені анықтап бояу</string>
   <string name="prefs_show_mynotes_title">Менің Жазбаларым таңбасын көрсет</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
-  <string name="prefs_show_strongs_title">Стронг нөмірлерін көрсет</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
   <string name="prefs_section_title_title">Бастамалар секция</string>
   <string name="prefs_red_letter_title">Қызыл Хат</string>

@@ -3,7 +3,6 @@
   <string name="app_name">Ыйык китеп</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ошондо Кудай: \'Жарык болсун!” – деди.\' Жарык пайда болду.\"\nБашталыш 1:3</string>
-  <string name="help_text">Тууралоого жана иштемге кирүү үчүн Иштизмеге кириңиз. Кийинки же мурунку бөлүмгө өтүү үчүн трэкболду тегеретиңиз же бармагыңызды экрандын бетине тийгизип, оңго жана солго жылдырыңыз.</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салып, Библияны кайрадан ачыңыз.</string>
   <!--Main menu-->
@@ -50,7 +49,6 @@
   <string name="prefs_verse_per_line_title">Абзацсыз көрсөтүү</string>
   <string name="prefs_show_mynotes_title">Жеке байкоомдун жарлыгы</string>
   <string name="prefs_show_notes_title">Түшүрмө</string>
-  <string name="prefs_show_strongs_title">Стронгдун номерлерин көрсөтүү</string>
   <string name="prefs_show_morphology_title">Морфологиялык белгилер</string>
   <string name="prefs_section_title_title">Бөлүмчөнүн аталыштары</string>
   <string name="prefs_red_letter_title">Кызыл арип</string>

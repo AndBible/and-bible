@@ -4,10 +4,21 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"И Бог каза: \'Да бъде светлина.\' И стана светлина. \"\nБитие 1:3</string>
-  <string name="help_text">За достъпа до настройките и функциите отворете МЕНЮ.\n За да преминете към предишната или следващата глава, плъзнете с пръста надясно или наляво (или хардуерните копчета за курсора).</string>
+  <string name="help_nav_title">Навигация</string>
+  <string name="help_speech_title">Глас</string>
+  <string name="help_speech_text">Натисни Говор за да се отвори прозорец с управление на четене</string>
+  <string name="help_mynote_title">Мои бележки</string>
+  <string name="help_mynote_text">Добави бележки от менюто което излиза след дълго натискане върху стиха. Списъкът с всичките бележки е достъпен от главното меню.</string>
+  <string name="help_bookmarks_title">Отметки</string>
+  <string name="help_search_title">Търси</string>
+  <string name="help_search_text">Текстът за търсене може да включва специални знаци като *, ?, AND, OR, NOT
+        (виж документацията на \"Apache Lucene - Query Parser Syntax\")
+    </string>
+  <string name="help_contextmenus_title">Контекстни менюта</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вкарайте SD карта и отворете отново And Bible.</string>
   <!--Main menu-->
+  <string name="menu">Меню</string>
   <string name="chooseBook">Ресурси</string>
   <string name="selectPassage">Пасаж</string>
   <string name="search">Търсене</string>
@@ -16,6 +27,8 @@
   <string name="speak">Реч</string>
   <string name="help">Помощ</string>
   <string name="administration">Управление...</string>
+  <string name="rate_application">Оставете отзив в Google Play</string>
+  <string name="chooce_document">Избери документ</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Избери книга</string>
   <string name="choosePassageChapterName">Избери глава</string>
@@ -25,10 +38,12 @@
   <!--Search-->
   <string name="search_index">Индексация за търсене</string>
   <string name="index_creation_required">Търсенето изисква индексация.\nИндексите мога да бъдат изтеглени от интернет или да бъдат създадени.\nИзтеглените индекси имат повече функции и отнемат по-малко време.\nЗа да изтеглите индекс, трябва да имате връзка с интернет.\n</string>
+  <string name="search_index_unavailable">За съжаление индексацията работи само във версия 5.0 (Lollipop) на андроид и по-нови</string>
   <string name="indexing_wait_msg">Екранът за търсене ще се покаже, след като индексирането приключи.</string>
   <string name="index_download">Изтегли</string>
   <string name="index_not_available_for_download">Този ресурс не е достъпен за изтегляне.</string>
   <string name="index_create">Създай</string>
+  <string name="rebuild_index">Поднови индексирането</string>
   <!--Tasks-->
   <string name="progress_status">Прогрес</string>
   <string name="task_kill_warning">Тези дълги задачи могат да бъдат прекъснати, ако затворите And Bible преди те да са приключили.</string>
@@ -54,7 +69,6 @@
   <string name="prefs_default_bookmark_style_summary">Подчертаване - цвят или иконка</string>
   <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
   <string name="prefs_show_notes_title">Бележки и препратки</string>
-  <string name="prefs_show_strongs_title">Покажи числата на Стронг</string>
   <string name="prefs_show_morphology_title">Морфологичните кодове</string>
   <string name="prefs_section_title_title">Заглавия</string>
   <string name="prefs_red_letter_title">Червен шрифт</string>
@@ -70,6 +84,8 @@
   <string name="prefs_text_size_title">Размер шрифт</string>
   <string name="prefs_text_size_summary">Повече текст или по-голям текст</string>
   <string name="prefs_text_size_sample_text">Примерен текст</string>
+  <string name="prefs_screen_keep_on_title">Дръж екрана включен</string>
+  <string name="prefs_screen_keep_on_summary">Не изключвай екрана докато се ползва приложението</string>
   <string name="prefs_interface_locale_title">Език</string>
   <string name="prefs_interface_locale_summary">Избери езика на интерфейса</string>
   <string name="prefs_split_mode_vertical">Вертикално</string>
@@ -77,7 +93,10 @@
   <string name="prefs_split_mode_automatic">Автоматично</string>
   <string name="prefs_split_mode_summary">В коя посока да бъде разделен екрана?</string>
   <string name="prefs_split_mode_title">Разделен екран</string>
+  <string name="prefs_request_sdcard_permission_title">Има ръчно инсталирани документи</string>
+  <string name="prefs_request_sdcard_permission_summary">Ползвай документи ръчно инсталирани в папка jsword на SD картата</string>
   <!--Window-->
+  <string name="new_window">Нов прозорец</string>
   <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Уголеми</string>
   <string name="windowMinimise">Смали</string>
@@ -108,6 +127,7 @@
   <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Зареди документ от ZIP архив</string>
+  <string name="install_zip_module">Инсталирай модул</string>
   <string name="install_zip_successfull">Успешна инсталация на модула</string>
   <string name="extracting_zip_file">Разаривиране...</string>
   <string name="checking_zip_file">Проверка на файла...</string>
@@ -184,6 +204,16 @@
   <string name="speak_queue">Опашка</string>
   <string name="speak_repeat">Повтори</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Скорост на говора</string>
+  <string name="conf_replace_divinename">Показвай Yahweh вместо името на Бога</string>
+  <string name="conf_change_title">Заглавия</string>
+  <string name="sleep_timer_set">Включн таймер. Отброява %d минути.</string>
+  <string name="sleep_timer_started">Таймерът отброява %d минути</string>
+  <string name="sleep_timer_active_at">Таймер: Остават %s минути.</string>
+  <string name="speak_next">Следващ</string>
+  <string name="speak_previous">Предишен</string>
+  <string name="widget_toggle_sleep_timer">Покажи/скрий таймера</string>
+  <string name="speak_status_stopped">спрян</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -200,11 +230,13 @@
   <string name="mynote_add">Добави бележка</string>
   <string name="mynote_saved">Съхранено</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Резервно копие</string>
   <string name="backup">Резервно копие</string>
   <string name="backup_success">Бележките и отметките са съхранени в %s на SD картата</string>
   <string name="restore">Възстанови</string>
   <string name="restore_confirmation">Презаписване на бележките и отметките?</string>
   <string name="restore_success">Бележките и отметките са възстановени от %s на SD картата</string>
+  <string name="error_no_backup_file">Не е намерено резервно копие</string>
   <!--About-->
   <string name="about_copyright">Авторско право: %s</string>
   <string name="about_version">Версия:  %s</string>
@@ -227,6 +259,7 @@
   <string name="all">Всичко</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Редактирай</string>
+  <string name="watch_tutorial_video">Гледай гид на потребителя (на английски)</string>
   <!--Errors-->
   <string name="report_error">Изпрати отчет</string>
   <string name="error_occurred">Грешка</string>

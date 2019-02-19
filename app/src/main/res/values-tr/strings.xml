@@ -3,7 +3,6 @@
   <string name="app_name">And İncil\'i</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\'Tanrı, \"Işık olsun\" diye buyurdu ve ışık oldu.\'\nYaratılış 1:3</string>
-  <string name="help_text">İşlemler için MENÜ düğmesine basınız.\n\nÖnceki veya sonraki bölüme geçmek için ekranda parmağınızı kaydırın, iztopunu çevirin veya yön düğmelerine basın.</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen hafıza (SD) kartını takıp And Bible uygulamasını yeniden başlatın.</string>
   <!--Main menu-->
@@ -53,7 +52,6 @@
   <string name="prefs_default_bookmark_style_summary">İşaretlemek için renk veya simge</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>
-  <string name="prefs_show_strongs_title">Strong Numaraları</string>
   <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
   <string name="prefs_section_title_title">Kısım Başlıkları</string>
   <string name="prefs_red_letter_title">Kırmızı Harflar</string>
