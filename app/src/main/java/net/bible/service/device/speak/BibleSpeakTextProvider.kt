@@ -214,6 +214,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 cmds.add(SilenceCommand())
             }
         }
+        else if(verse.ordinal < prevVerse.ordinal) {
+            // TODO: we could say something special related to repeating
+            cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(SilenceCommand())
+        }
         cmds.addAll(getSpeakCommandsForVerse(verse))
         return cmds
     }
