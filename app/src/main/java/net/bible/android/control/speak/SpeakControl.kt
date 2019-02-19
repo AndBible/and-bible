@@ -80,22 +80,20 @@ class SpeakControl @Inject constructor(
 
     val isCurrentDocSpeakAvailable: Boolean
         get() {
-            val isAvailable: Boolean = try {
+            return try {
                 val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument.language.code
                 textToSpeechServiceManager.get().isLanguageAvailable(docLangCode)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking TTS lang available")
                 false
             }
-
-            return isAvailable
         }
 
     val isSpeaking: Boolean
-        get() = booksAvailable() && textToSpeechServiceManager.get().isSpeaking
+        get() = booksAvailable && textToSpeechServiceManager.get().isSpeaking
 
     val isPaused: Boolean
-        get() = booksAvailable() && textToSpeechServiceManager.get().isPaused
+        get() = booksAvailable && textToSpeechServiceManager.get().isPaused
 
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
@@ -113,10 +111,10 @@ class SpeakControl @Inject constructor(
             Date(timerTask!!.scheduledExecutionTime())
         }
     val currentlyPlayingBook: Book?
-        get() = if (!booksAvailable()) null else textToSpeechServiceManager.get().currentlyPlayingBook
+        get() = if (!booksAvailable) null else textToSpeechServiceManager.get().currentlyPlayingBook
 
     val currentlyPlayingVerse: Verse?
-        get() = if (!booksAvailable()) null else textToSpeechServiceManager.get().currentlyPlayingVerse
+        get() = if (!booksAvailable) null else textToSpeechServiceManager.get().currentlyPlayingVerse
 
     init {
         ABEventBus.getDefault().register(this)
@@ -207,7 +205,7 @@ class SpeakControl @Inject constructor(
             pause()
             // Start Speak
         } else {
-            if (!booksAvailable()) {
+            if (!booksAvailable) {
                 EventBus.getDefault().post(ToastEvent(R.string.speak_no_books_available))
                 return
             }
@@ -229,11 +227,9 @@ class SpeakControl @Inject constructor(
         }
     }
 
-    private fun booksAvailable(): Boolean {
-        // By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
-        // (such as headphone switching in the initial startup screen)
-        return this.swordDocumentFacade.bibles.size > 0
-    }
+    // By this checking, try to avoid issues with isSpeaking and isPaused causing crash if window is not yet available
+    // (such as headphone switching in the initial startup screen)
+    private val booksAvailable: Boolean get() = this.swordDocumentFacade.bibles.size > 0
 
     /** prepare to speak
      */
