@@ -222,12 +222,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val startPaddingHeight = mainBibleActivity.topOffsetWithActionBar / mainBibleActivity.resources.displayMetrics.density
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        val topWindow = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == windowNo
         val offset = if(!SharedActivityState.getInstance().isFullScreen && topWindow) {
             mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density
         }  else 0.0F
-
-        val toolbarOffset = if(topWindow) mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density else 0F
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
         html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
@@ -476,6 +473,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
+        executeJavascript("setToolbarOffset($toolbarOffset);");
+    }
+
+    private val topWindow get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == windowNo
+    private val toolbarOffset get() = if(topWindow) mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density else 0F
+
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
         val isScreenVerse = event.isVerseNoSet(windowNo)
@@ -524,6 +528,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (visibility == View.VISIBLE && event.isVerseNoSet(windowNo)) {
             setJumpToVerse(event.getChapterVerse(windowNo))
         }
+        executeJavascript("setToolbarOffset($toolbarOffset);");
     }
 
     fun setVersePositionRecalcRequired(mIsVersePositionRecalcRequired: Boolean) {
@@ -657,7 +662,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         handler?.post(runnable)
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private fun executeJavascript(javascript: String) {
         Log.d(TAG, "Executing JS:" + StringUtils.abbreviate(javascript, 100))
         evaluateJavascript("$javascript;", null)
