@@ -27,6 +27,7 @@ import android.view.View
 import android.widget.LinearLayout
 
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.ChapterVerse
@@ -85,6 +86,10 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         // force MyNote.save if in MyNote and suddenly change to another view
         save()
     }
+
+	fun onEvent(event: AppToBackgroundEvent) {
+		save()
+	}
 
     private fun save() {
         myNoteControl.saveMyNoteText(text!!.toString())
