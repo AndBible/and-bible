@@ -31,8 +31,6 @@ import android.view.View
 
 import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper
-import net.bible.android.view.activity.navigation.History
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
