@@ -68,14 +68,16 @@ class SpeakControl @Inject constructor(
     @Inject lateinit var bookmarkControl: BookmarkControl
     private var sleepTimer: Timer = Timer("TTS sleep timer")
     private var timerTask: TimerTask? = null
-    private lateinit var _speakPageManager: CurrentPageManager
+    private var _speakPageManager: CurrentPageManager? = null
 
     private val speakPageManager: CurrentPageManager
         get() {
-            if(!::_speakPageManager.isInitialized) {
-                _speakPageManager = activeWindowPageManagerProvider.activeWindowPageManager
+            var pageManager = _speakPageManager
+            if(pageManager == null) {
+                pageManager = activeWindowPageManagerProvider.activeWindowPageManager
+                _speakPageManager = pageManager
             }
-            return _speakPageManager
+            return pageManager
         }
 
     val isCurrentDocSpeakAvailable: Boolean
@@ -381,6 +383,8 @@ class SpeakControl @Inject constructor(
         if (!isSpeaking && !isPaused) {
             return
         }
+        // Reset page manager
+        _speakPageManager = null
 
         Log.d(TAG, "Stop TTS speaking")
         textToSpeechServiceManager.get().shutdown(willContinueAfter)
