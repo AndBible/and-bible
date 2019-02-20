@@ -196,6 +196,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
 
     fun addUntilSentenceBreak(commands: ArrayList<SpeakCommand>, rest: ArrayList<SpeakCommand>) {
         var sentenceBreakFound = false
+        var textContinuation = false
         for(cmd in commands) {
             if(sentenceBreakFound) {
                 rest.add(cmd)
@@ -211,10 +212,17 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                 }
                 else {
                     this.add(cmd)
+                    textContinuation = true
                 }
             }
+            // if there's some other command than TextCommand, we will intepret this as a sentence break too.
             else {
-                this.add(cmd)
+                if(textContinuation) {
+                    this.add(cmd)
+                    sentenceBreakFound = true
+                } else {
+                    this.add(cmd)
+                }
             }
         }
     }

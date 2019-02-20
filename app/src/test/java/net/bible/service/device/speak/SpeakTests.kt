@@ -962,6 +962,42 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text1, startsWith("The Yahweh's Concern for His Holy Name"))
     }
 
+    @Config(qualifiers="en")
+    @Test
+    fun textProgressionAndRepeatPassageESV() {
+        // related to issue #314
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.settings.playbackSettings = PlaybackSettings(verseRange = VerseRange(book.versification, getVerse("Rev.1.2"), getVerse("Rev.1.5")))
+        provider.setupReading(book, getVerse("Rev.1.5"))
+
+        var text = nextText()
+
+        assertThat(range(), equalTo("Rev.1.5"))
+        assertThat(text, startsWith("and from Jesus"))
+        assertThat(text, endsWith("earth."))
+
+        text = nextText()
+
+        assertThat(range(), equalTo("Rev.1.5"))
+        assertThat(text, startsWith("To him who"))
+        assertThat(text, endsWith("his blood"))
+
+        text = nextText()
+
+        assertThat(text, equalTo("Revelation of John Chapter 1."))
+        assertThat(range(), equalTo("Rev.1.2"))
+
+        text = nextText()
+
+        assertThat(range(), equalTo("Rev.1.2"))
+
+        assertThat(text, startsWith("who bore"))
+        assertThat(text, endsWith("he saw."))
+
+
+    }
+
     @Test
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
