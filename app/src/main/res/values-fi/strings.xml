@@ -75,7 +75,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
   <string name="prefs_section_title_title">Väliotsikot</string>
   <string name="prefs_red_letter_title">Punaiset kirjaimet</string>
-  <string name="prefs_tilt_to_scroll_title">Vieritä kallistamalla</string>
+  <string name="prefs_tilt_to_scroll_title">Vieritä tekstiä kallistamalla</string>
   <string name="prefs_tilt_to_scroll_summary">Kallista laitetta vierittääksesi sivua alaspäin</string>
   <string name="prefs_night_mode_title">Yönäkymä</string>
   <string name="prefs_night_mode_summary">Hämärässä lukemiseen soveltuva väritys</string>
@@ -98,7 +98,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_split_mode_title">Jaettu tila</string>
   <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
   <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword-kansiossa SD-kortilla</string>
-  <string name="bible_text_options">Raamatun tekstin asetukset</string>
+  <string name="bible_text_options">Tekstin asetukset</string>
   <string name="auto_fullscreen">Kokoruututilaan vierittämällä</string>
   <string name="switch_split_mode">Vaihda ruudunjaon tilaa</string>
   <string name="reversed_split_mode">Käänteinen ruudunjaon tila</string>
