@@ -1,0 +1,33 @@
+And Bible je open-source, offlin a úplne bezplatný biblický program bez reklamy, aby umožnil čo najväčšiemu množstvu ľudí všetkých krajín čítať, počúvať a študovať Sväté Písmo tak ľahko ako to len ide a tiež s čo najväčším osobným požehnaním.
+
+Preklady Biblie, komentáre, Teologické slovníky, Mapy, kresťanské knihy vo viac ako 700 jazykoch.
+Offline pre všetko po úvodnom stiahnutí vrátane vyhľadávania, poznámok, komentárov, atď.
+Rozhranie programu dostupné v Čínštine, Ruštine, Nemčine, Francúzštine, Maďarčine, Češtine, Poľštine, Hebrejšite, Indičtine,...
+Rôzne plány čítania Biblie
+Úplne zadarmo, žiadne reklamy, žiadne otravné emaily.
+Viac ako 40 anglických prekladov Biblie vrátane ESV, KJV a NET.
+29 biblických komentárov
+Rozsiahly slovník a zbierka kresťanských kníh.
+Všetky dokumenty sú legálne distribuované (dôvod prečo verzie ako NKJV a NIV nie sú dostupné)
+Podpora Strongových čísel pre analýzu slov gréckeho a hebrejského textu.
+Rozdelenie obrazovky
+Zapisuj si osobné poznámky
+Vyber si rozhranie programu z viac ako 25 jazykov
+Prispôsobivé vyhľadávanie
+Záložky
+Mapy biblických zemí
+Vypočuj si každý dokument čítaný pre teba
+Automatické posúvanie, automatický režim deň/noc
+Porovnávaj všetky biblické preklady priamo na jednej obrazovke
+Jedna z najrýchlejších aplikácií pre prácu s Bibliou pre Android
+Open source - možnosť vylepšťi alebo zmeniť zdrojový kód
+Použi silný JSword engine z biblického projektu CrossWire
+
+My všetci sme dobrovoľníci; neposielame blbé emaily; nepodporujeme otravné reklamy; nepýtame finančnú podporu; nie je potrebná registrácia; And Bible nezbiera žiadne údaje z vášho telefónu.
+
+Pôvod všetkých dokumentov je obozretne preverovaný, aby bola zabezpečená ich legálna distribúcia s povolením vlastníka kopírovacích práv, napr. ESV. To je tiež dôvod prečo preklady ako NIV a NKJV nie sú dostupné.
+
+<b>Poznámky</b>
+Postavte páčik na Facebooku: https://www.facebook.com/AndBible/
+Odkaz na často kladené otázky FAQ: https://github.com/AndBible/and-bible/wiki/FAQ
+Stránka projektu na GitHub: https://github.com/AndBible/and-bible
