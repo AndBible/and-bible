@@ -80,6 +80,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 
@@ -480,6 +481,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPage.currentDocument.name
 
+    class KeyIsNull: Exception()
+
     val pageTitleText: String
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
@@ -490,11 +493,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     key = Verse(key.versification, key.book, key.chapter, 1)
                 }
             }
-            return key.name
+            return key?.name ?: throw KeyIsNull()
         }
 
     private fun updateTitle() {
-        pageTitle.text = pageTitleText
+        try {
+            pageTitle.text = pageTitleText
+        } catch (e: KeyIsNull) {
+            Log.e(TAG, "Key is null, not updating", e)
+        }
         documentTitle.text = documentTitleText
     }
 

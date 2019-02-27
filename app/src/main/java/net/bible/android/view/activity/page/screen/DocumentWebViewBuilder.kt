@@ -238,7 +238,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 setLines(1)
                 gravity = Gravity.CENTER
                 translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
-                text = mainBibleActivity.pageTitleText
+                text = try {mainBibleActivity.pageTitleText} catch (e: MainBibleActivity.KeyIsNull) {""}
                 textSize = 18F
             }
             currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
@@ -282,7 +282,11 @@ class DocumentWebViewBuilder @Inject constructor(
 
     fun onEvent(event: CurrentVerseChangedEvent) {
         mainBibleActivity.runOnUiThread {
-            bibleReferenceOverlay.text = mainBibleActivity.pageTitleText
+            try {
+                bibleReferenceOverlay.text = mainBibleActivity.pageTitleText
+            } catch(e: MainBibleActivity.KeyIsNull) {
+                Log.e(TAG, "Key is null, can't update", e)
+            }
         }
 
     }
