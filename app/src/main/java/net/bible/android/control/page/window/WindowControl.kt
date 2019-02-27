@@ -82,7 +82,7 @@ open class WindowControl @Inject constructor(
             val windowVerseMap = HashMap<Window, ChapterVerse>()
             for (window in windowRepository.windows) {
                 val currentPage = window.pageManager.currentPage
-                if (BookCategory.BIBLE == currentPage.currentDocument.bookCategory) {
+                if (BookCategory.BIBLE == currentPage.currentDocument?.bookCategory) {
                     val chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.singleKey))
                     windowVerseMap[window] = chapterVerse
                 }
