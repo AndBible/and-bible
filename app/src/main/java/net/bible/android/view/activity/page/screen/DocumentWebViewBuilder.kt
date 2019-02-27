@@ -281,6 +281,8 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
+        if(!::bibleReferenceOverlay.isInitialized) return
+        
         mainBibleActivity.runOnUiThread {
             try {
                 bibleReferenceOverlay.text = mainBibleActivity.pageTitleText
