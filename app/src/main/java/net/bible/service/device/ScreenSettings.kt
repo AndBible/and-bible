@@ -36,7 +36,7 @@ object ScreenSettings {
     var isNightMode = false
         private set
 
-	val preferences: SharedPreferences = CommonUtils.getSharedPreferences()
+	val preferences: SharedPreferences get() = CommonUtils.getSharedPreferences()
 
     // may possible be no reading yet but need to have a screen colour
     // If no light change has occurred then it is most likely pitch black so allow default of black,
