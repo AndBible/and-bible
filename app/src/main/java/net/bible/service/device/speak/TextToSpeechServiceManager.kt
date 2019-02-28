@@ -30,6 +30,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.versification.BibleTraverser
@@ -75,7 +76,8 @@ class TextToSpeechServiceManager @Inject constructor(
 		swordContentFacade: SwordContentFacade,
 		bibleTraverser: BibleTraverser,
 		windowControl: WindowControl,
-		bookmarkControl: BookmarkControl
+		bookmarkControl: BookmarkControl,
+		val speakControl: SpeakControl
 ) {
 
     private var mTts: TextToSpeech? = null
@@ -134,16 +136,18 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.d(TAG, "Tts initialised")
         var isOk = false
 
+		val tts = mTts
+
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-        if (mTts != null && status == TextToSpeech.SUCCESS) {
+        if (tts != null && status == TextToSpeech.SUCCESS) {
             Log.d(TAG, "Tts initialisation succeeded")
 
             // Add earcons
-            mTts!!.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
-            mTts!!.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling_reverse)
-            mTts!!.addEarcon(EARCON_PRE_TITLE, BibleApplication.application.packageName, R.raw.pageflip)
-            mTts!!.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.application.packageName, R.raw.medium_pling)
-            mTts!!.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.application.packageName, R.raw.long_pling)
+            tts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
+            tts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling_reverse)
+            tts.addEarcon(EARCON_PRE_TITLE, BibleApplication.application.packageName, R.raw.pageflip)
+            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.application.packageName, R.raw.medium_pling)
+            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.application.packageName, R.raw.long_pling)
 
             // set speech rate
             setRate(SpeakSettings.load().playbackSettings.speed)
@@ -154,7 +158,7 @@ class TextToSpeechServiceManager @Inject constructor(
             while (i < localePreferenceList.size && !localeOK) {
                 locale = localePreferenceList[i]
                 Log.d(TAG, "Checking for locale:$locale")
-                val result = mTts!!.setLanguage(locale)
+                val result = tts.setLanguage(locale)
                 localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
                 if (localeOK) {
                     Log.d(TAG, "Successful locale:$locale")
@@ -171,7 +175,7 @@ class TextToSpeechServiceManager @Inject constructor(
             } else {
                 // The TTS engine has been successfully initialized.
                 ttsLanguageSupport.addSupportedLocale(locale)
-                val ok = mTts!!.setOnUtteranceProgressListener(utteranceProgressListener)
+                val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
                 if (ok == TextToSpeech.ERROR) {
                     Log.e(TAG, "Error registering utteranceProgressListener")
                 } else {
@@ -187,7 +191,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         if (!isOk) {
-            shutdown()
+            speakControl.stop()
         }
     }
 
@@ -215,7 +219,7 @@ class TextToSpeechServiceManager @Inject constructor(
                         speakNextChunk()
                     } else {
                         Log.d(TAG, "Shutting down TTS")
-                        shutdown()
+                        speakControl.stop()
                     }
                 }
             }
@@ -361,7 +365,7 @@ class TextToSpeechServiceManager @Inject constructor(
         val wasPaused = isPaused
         isPaused = true
         if (isSpeaking) {
-            mTts!!.stop()
+            mTts?.stop()
         }
         isSpeaking = false
 
@@ -387,7 +391,7 @@ class TextToSpeechServiceManager @Inject constructor(
         val wasPaused = isPaused
         isPaused = true
         if (isSpeaking) {
-            mTts!!.stop()
+            mTts?.stop()
         }
         isSpeaking = false
 
@@ -417,7 +421,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
             if (willContinueAfterThis) {
                 clearTtsQueue()
-                mTts!!.stop()
+                mTts?.stop()
             } else {
                 //kill the tts engine because it could be a long ime before restart and the engine may
                 // become corrupted or used elsewhere
@@ -440,7 +444,7 @@ class TextToSpeechServiceManager @Inject constructor(
             Log.e(TAG, "TTS Error continuing after Pause", e)
             mSpeakTextProvider.reset()
             isSpeaking = false
-            shutdown()
+            speakControl.stop()
         }
 
         // should be able to clear this because we are now speaking
@@ -482,7 +486,7 @@ class TextToSpeechServiceManager @Inject constructor(
         if (isSpeaking) {
             Log.d(TAG, "Flushing speech")
             // flush remaining text
-            mTts!!.speak(" ", TextToSpeech.QUEUE_FLUSH, null)
+            mTts?.speak(" ", TextToSpeech.QUEUE_FLUSH, null)
         }
 
         mSpeakTextProvider.reset()
@@ -491,10 +495,6 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private fun showError(msgId: Int, e: Exception) {
         Dialogs.getInstance().showErrorMsg(msgId)
-    }
-
-    private fun shutdown() {
-        shutdown(false)
     }
 
     fun shutdown(willContinueAfter: Boolean) {
@@ -515,15 +515,12 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.d(TAG, "Shutdown TTS Engine")
         try {
             // Don't forget to shutdown!
-            if (mTts != null) {
-                try {
-                    mTts!!.stop()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error stopping Tts engine", e)
-                }
-
-                mTts!!.shutdown()
-            }
+			try {
+				mTts?.stop()
+			} catch (e: Exception) {
+				Log.e(TAG, "Error stopping Tts engine", e)
+			}
+			mTts?.shutdown()
         } catch (e: Exception) {
             Log.e(TAG, "Error shutting down Tts engine", e)
         } finally {
@@ -606,9 +603,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun setRate(speechRate: Int) {
-        if (mTts != null) {
-            mTts!!.setSpeechRate(speechRate / 100f)
-        }
+		mTts?.setSpeechRate(speechRate / 100f)
     }
 
     fun getStatusText(showFlag: Int): String {
