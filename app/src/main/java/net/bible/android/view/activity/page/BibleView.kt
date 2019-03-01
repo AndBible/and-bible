@@ -219,7 +219,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // call this from here because some documents may require an adjusted font size e.g. those using Greek font
         applyFontSize()
 
-        val startPaddingHeight = mainBibleActivity.topOffsetWithActionBar / mainBibleActivity.resources.displayMetrics.density
+        val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
         val offset = if(!SharedActivityState.getInstance().isFullScreen && topWindow) {
