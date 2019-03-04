@@ -379,8 +379,8 @@ class SpeakControl @Inject constructor(
         textToSpeechServiceManager.get().continueAfterPause()
     }
 
-    fun stop(willContinueAfter: Boolean=false) {
-        if (!isSpeaking && !isPaused) {
+    fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
+        if (!force && !isSpeaking && !isPaused) {
             return
         }
         // Reset page manager
@@ -389,7 +389,9 @@ class SpeakControl @Inject constructor(
         Log.d(TAG, "Stop TTS speaking")
         textToSpeechServiceManager.get().shutdown(willContinueAfter)
         stopTimer()
-        ABEventBus.getDefault().post(ToastEvent(R.string.stop))
+        if(!force) {
+            ABEventBus.getDefault().post(ToastEvent(R.string.stop))
+        }
     }
 
     private fun prepareForSpeaking() {
