@@ -125,7 +125,7 @@
                         style="@style/Widget.AppCompat.ActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_bible"
+                        android:contentDescription="@string/strongs"
                         android:text="nnnn"
                         />
                     <Button
