@@ -131,6 +131,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             documentControl.isMyNotes
         } else false
 
+    val multiWinMode get() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
+
     // Top offset with only statusbar
     val topOffset1 get() = if(!isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
@@ -141,15 +144,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
     // Bottom offset with only navigation bar
-    val bottomOffset1: Float
-        get() {
-            val multiWinMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                isInMultiWindowMode
-            } else {
-                false
-            }
-            return if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight -2 else 0.0F
-        }
+    val bottomOffset1: Float get() =
+        if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight -2 else 0.0F
+
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
