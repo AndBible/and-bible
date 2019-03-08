@@ -108,9 +108,9 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_request_sdcard_permission_title">Documents à installer manuellement</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword sur la carte SD</string>
   <string name="bible_text_options">Options du texte biblique</string>
-  <string name="auto_fullscreen">Plein-écran sur défilement</string>
+  <string name="auto_fullscreen">Plein-écran par défilement</string>
   <string name="switch_split_mode">Activer le mode partagé</string>
-  <string name="reversed_split_mode">Désactiver le mode partagé</string>
+  <string name="reversed_split_mode">Partage d\'écran renversé</string>
   <string name="prefs_auto_night_mode_title">Mode nuit automatique</string>
   <string name="prefs_auto_night_mode_summary">Active le mode nuit sur détection automatique</string>
   <!--Window-->
@@ -258,12 +258,14 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
   <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
-Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrêt. Ces signets ont pour label Lecture audio. Si vous avez redémarré l\'écoute à partir d\'un tel signet, celui-ci sera déplacé au verset où la Lecture audio sera mise en pause ou arrêt. Seuls les signets de type Lecture audio sont transposables, les autres signets restent inchangés.</string>
+Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrêt. Ces signets ont pour label Lecture audio.
+Si vous avez redémarré l\'écoute à partir d\'un tel signet, celui-ci sera déplacé au verset où la Lecture audio sera mise en pause ou arrêt.
+Seuls les signets de type Lecture audio sont transposables, les autres signets restent inchangés.</string>
   <string name="speak_help_playback_settings">
-Vos paramètres audio (section Paramètres de lecture dans la page Lecture audio) sont enregistrés dans les signets audio, à condition que cette option soit activée.
+Vos paramètres audio (section Paramètres des signets de la Lecture audio) sont enregistrés avec le signet audio, quand cette option est activée.
 Lorsque vous redémarrez la lecture à partir d\'un signet audio, les paramètres de lecture sont alors rechargés avec le signet.</string>
   <string name="speak_help_playback_settings_example">
-Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à bonne vitesse sans notifications de changement de chapitre mais Romains plutôt lentement avec un effet sonore en tête de chapitre, vous pouvez conserver ces paramètres différents pour l\'écoute si l\'enregistrement des paramètres audio dans les signets est activé.</string>
+Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à bonne vitesse sans notifications de changement de chapitre mais Romains plutôt lentement avec un effet sonore en tête de chapitre, vous conserverez ces paramètres différents pour l\'écoute si ces paramètres sont enregistrés dans les signets correspondants.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 

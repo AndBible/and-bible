@@ -3,7 +3,14 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"I řekl Bůh: Budiž světlo! A bylo světlo.\"\nGenesis 1:3</string>
+  <string name="help_text">Akce vyvoláte stisknutím tlačítka MENU\n\n
+        Na další nebo předchozí kapitolu se přesunete track-ballem,
+        D-padem nebo posuvem prstu doleva nebo doprava</string>
   <string name="help_nav_title">Navigace</string>
+  <string name="help_nav_text">Na další či předchozí kapitolu se přesunete tažením prstu přes obrazovku.
+        Dvojdotykem na text Bible se zobrazení přepne na celou obrazovku. Okna Bible mají tlačítko menu v pravém horním rohu,
+         a k menu okna lze přistupovat dlouhým stiskem na nich.
+    </string>
   <string name="help_speech_title">Řeč</string>
   <string name="help_speech_text">Stiskněte Mluvit pro přístup ke spuštění či ukončení čtení</string>
   <string name="help_mynote_title">Má poznámka</string>
@@ -78,6 +85,7 @@
   <string name="prefs_default_bookmark_style_summary">Zvýraznit barvu či ikonu</string>
   <string name="prefs_show_mynotes_title">Zobrazit ikony poznámek</string>
   <string name="prefs_show_notes_title">Poznámky a odkazy</string>
+  <string name="prefs_show_strongs_title">Strongova čísla</string>
   <string name="prefs_show_morphology_title">Morfologické značky</string>
   <string name="prefs_section_title_title">Nadpisy oddílů</string>
   <string name="prefs_red_letter_title">Červená písmena</string>
@@ -104,6 +112,12 @@
   <string name="prefs_split_mode_title">Režim rozdělení okna</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
   <string name="prefs_request_sdcard_permission_summary">Zapne používání ručně instalovaných dokumentů ze složky jsword na SD kartě</string>
+  <string name="bible_text_options">Nastavení textu Bible</string>
+  <string name="auto_fullscreen">Posunem textu na celou obrazovku</string>
+  <string name="switch_split_mode">Přepnout rozdělení okna</string>
+  <string name="reversed_split_mode">Obrácené rozdělení okna</string>
+  <string name="prefs_auto_night_mode_title">Automatický noční režim</string>
+  <string name="prefs_auto_night_mode_summary">Přepnout automaticky na noční režim čidlem</string>
   <!--Window-->
   <string name="new_window">Nové okno</string>
   <string name="windowClose">Zavřít</string>
@@ -295,6 +309,9 @@ Záložka mluvení bude automaticky vytvořena když je mluvení zastaveno nebo 
   <string name="speak_third">Třetí</string>
   <string name="speak_fourth">Čtvrtý</string>
   <string name="speak_fifth">Pátý</string>
+  <string name="verse_range_mode_disabled">
+Režim opakování pasáže byl automaticky vypnut, protože
+bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <!--User Notes-->
   <string name="mynotes">Poznámky</string>
   <string name="mynote_add">Přidat poznámku</string>
