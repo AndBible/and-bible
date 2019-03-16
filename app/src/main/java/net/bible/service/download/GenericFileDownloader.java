@@ -110,7 +110,7 @@ public class GenericFileDownloader {
             job.setCancelable(false);
             if (!job.isFinished()) {
             	File tempFile = NetUtil.getAsFile(temp);
-                if (!FileManager.copyFile(tempFile, target)) {
+                if (!FileManager.INSTANCE.copyFile(tempFile, target)) {
                 	Log.e(TAG, "Download Error renaming temp file "+tempFile+" to:"+target);
                     Reporter.informUser(this, CommonUtils.getResourceString(R.string.error_occurred));
                     job.cancel();
