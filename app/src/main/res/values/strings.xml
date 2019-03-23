@@ -193,8 +193,32 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_set_start_jan1">Start Jan 1</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
-    <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->
-    
+    <string name="import_plan">Import Plans from SD</string>
+    <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
+    <string name="this_day_has_no_readings">This day has no readings</string>
+    <string name="plan_name_y1ntpspr">NT, Psalms &amp; Proverbs in a Year</string>
+    <string name="plan_description_y1ntpspr">Courtesy of HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, permission granted</string>
+    <string name="plan_name_y1ot1nt1_chronological">Chronological 1-Year through Bible</string>
+    <string name="plan_description_y1ot1nt1_chronological">Plan based on chronological events in the Bible.
+        The chronological time-line is approximate.</string>
+    <string name="plan_name_y1ot1nt1_OTandNT">1-Year OT+NT Simultaneously</string>
+    <string name="plan_description_y1ot1nt1_OTandNT">Read through the Bible in 1 year, with chapters
+        in the OT and NT every day.</string>
+    <string name="plan_name_y1ot1nt1_OTthenNT">1-Year through Bible</string>
+    <string name="plan_description_y1ot1nt1_OTthenNT">Read through the Bible in 1 year, starting in Genesis
+        and finishing in Revelation. The OT is first, then the NT.</string>
+    <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-Year 4-chapter/day</string>
+    <string name="plan_description_y1ot1nt2_mcheyne">This plan is based on the M’Cheyne reading system,
+        featuring four different readings for use in both family and personal devotions. Each day has
+        two passages from the Old Testament, one from the New Testament, and one from either the Psalms or the Gospels. In one year,
+        you read the Old Testament once and the New Testament and Psalms twice.</string>
+    <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-chapter/day Reading Plan</string>
+    <string name="plan_description_y1ot6nt4_profHorner">Courtesy of Prof. Horner, permission granted</string>
+    <string name="plan_name_y2ot1ntps2">2-Year Through Bible, NT+PS twice</string>
+    <string name="plan_description_y2ot1ntps2">Read through the Bible in 2 years, reading the NT and Psalms twice.
+        Courtesy of Wholesome Words,  http://www.wholesomewords.org/, permission granted</string>
+
     <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="delete_index">Delete search index</string>
