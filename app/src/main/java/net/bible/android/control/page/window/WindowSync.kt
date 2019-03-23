@@ -63,7 +63,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
     }
 
-    internal fun synchronizeAllScreens() {
+    fun synchronizeAllScreens() {
         for (window in windowRepository.visibleWindows) {
             UpdateInactiveScreenTextTask().execute(window)
         }
@@ -72,11 +72,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
      */
     @JvmOverloads
-    fun synchronizeScreens(sourceWindow: Window? = null) {
-        var sourceWindow = sourceWindow
-        if (sourceWindow == null) {
-            sourceWindow = windowRepository.activeWindow
-        }
+    fun synchronizeScreens(sourceWindow_: Window? = null) {
+        val sourceWindow = sourceWindow_?: windowRepository.activeWindow
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
 
@@ -166,6 +163,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                         ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse))
                 )
             } else if (isGeneralBook || isUnsynchronizedCommentary) {
+                //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                 // Do not update! Updating would reset page position.
             } else {
                 UpdateInactiveScreenTextTask().execute(inactiveWindow)

@@ -233,8 +233,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
 
-        // force the screen to be populated
-        PassageChangeMediator.getInstance().forcePageUpdate()
+        // force all windows to be populated
+        windowControl.windowSync.synchronizeAllScreens()
+        updateActions()
         refreshScreenKeepOn()
         requestSdcardPermission()
         setupToolbarButtons()

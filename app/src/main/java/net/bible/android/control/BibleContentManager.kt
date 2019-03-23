@@ -58,10 +58,7 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
 
     fun updateText(forceUpdate: Boolean, window_: Window?) {
         val prevVerse = previousVerse
-        var window = window_
-        if (window == null) {
-            window = windowControl.activeWindow
-        }
+        val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
         val key = currentPage.key
