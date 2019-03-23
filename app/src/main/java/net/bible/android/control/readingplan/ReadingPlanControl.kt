@@ -50,15 +50,45 @@ class ReadingPlanControl @Inject constructor(
 		private val speakControl: SpeakControl,
 		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider)
 {
+    companion object {
 
-    private val readingPlanDao = ReadingPlanDao()
+        private const val READING_PLAN = "reading_plan"
+        private const val READING_PLAN_DAY_EXT = "_day"
+
+        private const val TAG = "ReadingPlanControl"
+
+        private val readingPlanDao = ReadingPlanDao()
+
+        /** allow front end to determine if a plan needs has been selected
+         */
+        val isReadingPlanSelected: Boolean
+            get() = StringUtils.isNotEmpty(currentPlanCode)
+
+        /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
+         */
+        private val currentPlanCode: String
+            get() {
+                val prefs = CommonUtils.getSharedPreferences()
+                return prefs.getString(READING_PLAN, "") as String
+            }
+
+        var currentPlanDay: Int
+            get() {
+                val planCode = currentPlanCode
+                val prefs = CommonUtils.getSharedPreferences()
+                return prefs.getInt(planCode!! + READING_PLAN_DAY_EXT, 1)
+            }
+            private set(day) {
+                val planCode = currentPlanCode
+                val prefs = CommonUtils.getSharedPreferences()
+                prefs.edit()
+                    .putInt(planCode!! + READING_PLAN_DAY_EXT, day)
+                    .apply()
+            }
+
+    }
 
     private var readingStatus: ReadingStatus? = null
-
-    /** allow front end to determine if a plan needs has been selected
-     */
-    val isReadingPlanSelected: Boolean
-        get() = StringUtils.isNotEmpty(currentPlanCode)
 
     /** get a list of plans so the user can choose one
      */
@@ -70,20 +100,6 @@ class ReadingPlanControl @Inject constructor(
     val currentPlansReadingList: List<OneDaysReadingsDto>
         get() = readingPlanDao.getReadingList(currentPlanCode)
 
-    var currentPlanDay: Int
-        get() {
-            val planCode = currentPlanCode
-            val prefs = CommonUtils.getSharedPreferences()
-            return prefs.getInt(planCode!! + READING_PLAN_DAY_EXT, 1)
-        }
-        private set(day) {
-            val planCode = currentPlanCode
-            val prefs = CommonUtils.getSharedPreferences()
-            prefs.edit()
-                    .putInt(planCode!! + READING_PLAN_DAY_EXT, day)
-                    .apply()
-        }
-
     val shortTitle: String
         get() = StringUtils.left(currentPlanCode, 8)
 
@@ -92,14 +108,6 @@ class ReadingPlanControl @Inject constructor(
             getDaysReading(currentPlanDay).dayDesc
         } else {
             ""
-        }
-
-    /** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
-     */
-    private val currentPlanCode: String
-        get() {
-            val prefs = CommonUtils.getSharedPreferences()
-            return prefs.getString(READING_PLAN, "") as String
         }
 
     val currentPageManager: CurrentPageManager
@@ -149,7 +157,7 @@ class ReadingPlanControl @Inject constructor(
             }
 			this.readingStatus = readingStatus
         }
-        return readingStatus
+        return readingStatus!!
     }
 
     private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
@@ -323,13 +331,4 @@ class ReadingPlanControl @Inject constructor(
         keyList.add(convertedPassage)
         return keyList
     }
-
-    companion object {
-
-        private const val READING_PLAN = "reading_plan"
-        private const val READING_PLAN_DAY_EXT = "_day"
-
-        private const val TAG = "ReadingPlanControl"
-    }
-
 }

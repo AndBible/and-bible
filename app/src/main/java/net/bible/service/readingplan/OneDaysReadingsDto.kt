@@ -25,18 +25,26 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
 
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.Calendar
+import java.util.Date
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class OneDaysReadingsDto(val day: Int,
-                         private val mReadings: String?,
-                         val readingPlanInfo: ReadingPlanInfoDto) :
-		Comparable<OneDaysReadingsDto>
+                         private var mReadings: String?,
+                         val readingPlanInfo: ReadingPlanInfoDto,
+                         val planName: String?,
+                         val planDescription: String?)
+    : Comparable<OneDaysReadingsDto>
 {
     private var mReadingKeys: List<Key>? = null
+    var dateBasedReadingDate: Date? = null
+    var dateBasedReadingDateStringFromFile: String? = null
+
+    init {
+        checkKeysGenerated()
+    }
 
     val dayDesc: String
         get() = BibleApplication.application.getString(R.string.rdg_plan_day, Integer.toString(day))
@@ -58,7 +66,6 @@ class OneDaysReadingsDto(val day: Int,
 
     val readingsDesc: String
         get() {
-            checkKeysGenerated()
             val readingsBldr = StringBuilder()
             for (i in mReadingKeys!!.indices) {
                 if (i > 0) {
@@ -70,13 +77,11 @@ class OneDaysReadingsDto(val day: Int,
         }
     val numReadings: Int
         get() {
-            checkKeysGenerated()
             return mReadingKeys!!.size
         }
 
     val readingKeys: List<Key>
         get() {
-            checkKeysGenerated()
             return mReadingKeys!!
         }
 
@@ -89,8 +94,11 @@ class OneDaysReadingsDto(val day: Int,
     }
 
     fun getReadingKey(no: Int): Key {
-        checkKeysGenerated()
         return mReadingKeys!![no]
+    }
+
+    fun getReadingsString(): String? {
+        return mReadings
     }
 
     @Synchronized
@@ -98,7 +106,16 @@ class OneDaysReadingsDto(val day: Int,
         if (mReadingKeys == null) {
             val readingKeyList = ArrayList<Key>()
 
+
             if (StringUtils.isNotEmpty(mReadings)) {
+                // Check if string contains : (Would happen in case of date-based plan, shows Feb-1:Gen.1,Exo.1)
+                if (StringUtils.contains(mReadings,";")) {
+                    dateBasedReadingDateStringFromFile = mReadings?.replace(";.*".toRegex(),"") // like Feb-1
+                    val dateFormat = SimpleDateFormat("MMM-dd/yyyy")
+                    dateBasedReadingDate = dateFormat.parse(dateBasedReadingDateStringFromFile + "/" + Calendar.getInstance().get(Calendar.YEAR))
+                    mReadings = mReadings?.replace("^.*;".toRegex(),"")
+                }
+
                 val passageReader = PassageReader(readingPlanInfo.versification!!)
                 val readingArray = mReadings!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 for (reading in readingArray) {

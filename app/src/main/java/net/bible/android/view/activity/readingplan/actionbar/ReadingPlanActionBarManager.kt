@@ -36,7 +36,7 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class ReadingPlanActionBarManager @Inject
-constructor(private val readingPlanTitle: ReadingPlanTitle, private val pauseActionBarButton: ReadingPlanPauseActionBarButton, private val stopActionBarButton: ReadingPlanStopActionBarButton, private val bibleActionBarButton: ReadingPlanBibleActionBarButton, private val commentaryActionBarButton: ReadingPlanCommentaryActionBarButton, private val dictionaryActionBarButton: ReadingPlanDictionaryActionBarButton) : DefaultActionBarManager(), ActionBarManager {
+constructor(val readingPlanTitle: ReadingPlanTitle, private val pauseActionBarButton: ReadingPlanPauseActionBarButton, private val stopActionBarButton: ReadingPlanStopActionBarButton, private val bibleActionBarButton: ReadingPlanBibleActionBarButton, private val commentaryActionBarButton: ReadingPlanCommentaryActionBarButton, private val dictionaryActionBarButton: ReadingPlanDictionaryActionBarButton) : DefaultActionBarManager(), ActionBarManager {
 
     init {
 

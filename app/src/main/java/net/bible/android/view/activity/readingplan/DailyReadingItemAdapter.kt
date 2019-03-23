@@ -25,14 +25,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TwoLineListItem
+import net.bible.service.db.readingplan.ReadingPlanOneDayDB
 
 /**
  * Retain similar style to TwoLineListView but for single TextView on each line
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DailyReadingItemAdapter(_context: Context, private val resource: Int, _items: List<OneDaysReadingsDto>) :
-		ArrayAdapter<OneDaysReadingsDto>(_context, resource, _items) {
+class DailyReadingItemAdapter(_context: Context, private val resource: Int, _items: List<ReadingPlanOneDayDB>) :
+		ArrayAdapter<ReadingPlanOneDayDB>(_context, resource, _items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -49,13 +50,13 @@ class DailyReadingItemAdapter(_context: Context, private val resource: Int, _ite
 
         // Set value for the first text field
         if (view.text1 != null) {
-            val line1 = item!!.dayDesc
+            val line1 = item!!.dayAndNumberDescription
             view.text1.text = line1
         }
 
         // set value for the second text field
         if (view.text2 != null) {
-            val line2 = item!!.readingsDesc
+            val line2 = item!!.readingChaptersDescription
             view.text2.text = line2
         }
 

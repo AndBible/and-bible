@@ -27,6 +27,7 @@ import android.util.Log;
 import net.bible.android.BibleApplication;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
+import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition;
 
 /**
  * Oversee database creation and upgrade based on version
@@ -36,7 +37,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = "CommonDatabaseHelper";
-	static final int DATABASE_VERSION = 5;
+	static final int DATABASE_VERSION = 6;
 	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
 	private static CommonDatabaseHelper sSingleton = null;
@@ -67,6 +68,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		BookmarkDatabaseDefinition.getInstance().onCreate(db);
 		MyNoteDatabaseDefinition.getInstance().onCreate(db);
+		ReadingPlanDatabaseDefinition.Operations.onCreate(db);
 	}
 	
 	@Override
@@ -92,6 +94,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 			}
 			if (oldVersion == 4) {
 				BookmarkDatabaseDefinition.getInstance().upgradeToVersion5(db);
+				oldVersion += 1;
+			}
+			if (oldVersion == 5) {
+				ReadingPlanDatabaseDefinition.Operations.onCreate(db);
 				oldVersion += 1;
 			}
 		} catch (SQLiteException e) {

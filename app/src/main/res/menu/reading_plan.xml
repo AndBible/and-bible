@@ -13,4 +13,7 @@
 	<item android:id="@+id/reset" 
 		  android:title="@string/reset"
 		  android:icon="@android:drawable/ic_menu_delete"/>
+	<item android:id="@+id/importNewPlan"
+		android:title="@string/import_plan"
+		android:icon="@android:drawable/ic_menu_day"/>
 </menu>

@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -27,10 +26,13 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.readingplan.OneDaysReadingsDto
+import net.bible.service.db.readingplan.ReadingPlanDBAdapter
+import net.bible.service.db.readingplan.ReadingPlanOneDayDB
+import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
 import javax.inject.Inject
 
@@ -41,9 +43,10 @@ import javax.inject.Inject
 class DailyReadingList : ListActivityBase() {
 
     @Inject lateinit var readingPlanControl: ReadingPlanControl
+    private val dbAdapter = ReadingPlanDBAdapter()
 
-    private lateinit var readingsList: List<OneDaysReadingsDto>
-    private lateinit var adapter: ArrayAdapter<OneDaysReadingsDto>
+    private lateinit var readingsList: List<ReadingPlanOneDayDB>
+    private lateinit var adapter: ArrayAdapter<ReadingPlanOneDayDB>
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -54,7 +57,7 @@ class DailyReadingList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
 
-		readingsList = readingPlanControl.currentPlansReadingList
+		readingsList = dbAdapter.getMetaPlanDaysList(dbAdapter.metaCurrentActiveReadingPlanID!!)
 
         adapter = DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, readingsList)
         listAdapter = adapter
@@ -74,12 +77,10 @@ class DailyReadingList : ListActivityBase() {
 
     }
 
-    private fun itemSelected(oneDaysReadingsDto: OneDaysReadingsDto) {
-        Log.d(TAG, "Day selected:$oneDaysReadingsDto")
+    private fun itemSelected(readingPlanOneDayParam: ReadingPlanOneDayDB) {
+        Log.d(TAG, "Day selected:${readingPlanOneDayParam.dayNumber}")
         try {
-            val intent = Intent(this, DailyReading::class.java)
-            intent.putExtra(DailyReading.DAY, oneDaysReadingsDto.day)
-            startActivity(intent)
+            ABEventBus.getDefault().post(ReadingPlanDayChangeEvent(readingPlanOneDayParam))
             finish()
         } catch (e: Exception) {
             Log.e(TAG, "error on select of gen book key", e)

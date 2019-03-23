@@ -30,8 +30,8 @@ import java.util.Date
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanInfoDto(var code: String) {
+    var planName: String? = null
     var description: String? = null
-        private set
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
 

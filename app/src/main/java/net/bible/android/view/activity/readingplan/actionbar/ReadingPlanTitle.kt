@@ -35,8 +35,8 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
+import net.bible.service.db.readingplan.ReadingPlanDBAdapter
 
 import org.apache.commons.lang3.ArrayUtils
 import org.apache.commons.lang3.StringUtils
@@ -57,12 +57,13 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
 
     private lateinit var actionBar: ActionBar
     private lateinit var activity: Activity
-        private set
+    fun isActivityInitialized() = ::activity.isInitialized
 
     private lateinit var documentTitle: TextView
     private lateinit var documentSubtitle: TextView
     private lateinit var pageTitle: TextView
     private lateinit var pageSubtitle: TextView
+    private val dbAdapter = ReadingPlanDBAdapter()
 
     private val twoPageTitleParts: Array<String>
         get() {
@@ -120,7 +121,11 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     }
 
 
-    fun update() {
+    fun update(shortCode: String? = null, dayDescription: String? = null) {
+
+        documentTitleShortCode = shortCode
+        pageTitlePlanDayDescription = dayDescription
+
         // update everything if called externally
         update(true)
     }
@@ -167,15 +172,17 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
         return parts
     }
 
+    private var documentTitleShortCode: String? = null
     private val documentTitleParts: Array<String>
         get() {
-            val title = readingPlanControl.shortTitle
+            val title = documentTitleShortCode ?: dbAdapter.getCurrentPlanShortCode
             return getTwoTitleParts(title, false)
         }
 
+    private var pageTitlePlanDayDescription: String? = null
     private val pageTitleParts: Array<String>
         get() {
-            val planDayDesc = readingPlanControl.currentDayDescription
+            val planDayDesc = pageTitlePlanDayDescription ?: dbAdapter.getCurrentDayAndNumberDescription
             return getTwoTitleParts(planDayDesc, true)
         }
 
@@ -183,14 +190,12 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
         val readingPlanActivity = activity
         val docHandlerIntent = Intent(readingPlanActivity, ReadingPlanSelectorList::class.java)
         readingPlanActivity.startActivityForResult(docHandlerIntent, 1)
-        readingPlanActivity.finish()
     }
 
     private fun onPageTitleClick() {
         val currentActivity = activity
         val pageHandlerIntent = Intent(currentActivity, DailyReadingList::class.java)
         currentActivity.startActivityForResult(pageHandlerIntent, 1)
-        currentActivity.finish()
     }
 
     companion object {

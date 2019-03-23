@@ -75,7 +75,7 @@ import javax.inject.Inject
 @MainBibleActivityScope
 class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
-            private val readingPlanControl: ReadingPlanControl,
+//            private val readingPlanControl: ReadingPlanControl, // May add again later.
             private val searchControl: SearchControl,
             private val windowMenuCommandHandler: WindowMenuCommandHandler,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
@@ -147,13 +147,7 @@ constructor(private val callingActivity: MainBibleActivity,
                             .bookCategory == BookCategory.BIBLE
                     handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
                 }
-                R.id.dailyReadingPlanButton ->
-                    // show todays plan or allow plan selection
-                    handlerIntent = if (readingPlanControl.isReadingPlanSelected) {
-                        Intent(callingActivity, DailyReading::class.java)
-                    } else {
-                        Intent(callingActivity, ReadingPlanSelectorList::class.java)
-                    }
+                R.id.dailyReadingPlanButton -> handlerIntent = Intent(callingActivity, DailyReading::class.java)
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
                     handlerIntent = Intent(callingActivity, Download::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH

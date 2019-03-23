@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.ContextMenu
@@ -31,10 +30,14 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.readingplan.ReadingPlanInfoDto
+import net.bible.service.db.readingplan.ReadingPlanDBAdapter
+import net.bible.service.db.readingplan.ReadingPlanInformationDB
+import net.bible.service.db.readingplan.ReadingPlanOneDayDB
+import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
 import javax.inject.Inject
 
@@ -44,8 +47,9 @@ import javax.inject.Inject
  */
 class ReadingPlanSelectorList : ListActivityBase() {
 
-    private lateinit var mReadingPlanList: List<ReadingPlanInfoDto>
-    private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInfoDto>
+    private val dbAdapter = ReadingPlanDBAdapter()
+    private var mReadingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getMetaReadingPlanList()
+    private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInformationDB>
 
     @Inject lateinit var readingPlanControl: ReadingPlanControl
 
@@ -58,9 +62,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
         try {
-            mReadingPlanList = readingPlanControl.readingPlanList
-
-            mPlanArrayAdapter = ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList)
+            mPlanArrayAdapter = ReadingPlanItemAdapter(this, R.layout.reading_plan_list_single, mReadingPlanList)
             listAdapter = mPlanArrayAdapter
 
             registerForContextMenu(listView)
@@ -77,11 +79,17 @@ class ReadingPlanSelectorList : ListActivityBase() {
      */
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
-            readingPlanControl.startReadingPlan(mReadingPlanList[position])
+            dbAdapter.switchToReadingPlan(mReadingPlanList[position])
 
-            val intent = Intent(this@ReadingPlanSelectorList, DailyReading::class.java)
-            startActivity(intent)
+            var readingPlanOneDay: ReadingPlanOneDayDB? = null
+            try {
+                readingPlanOneDay = ReadingPlanOneDayDB(mReadingPlanList[position])
+            } catch (e: java.lang.Exception) { }
+
+            ABEventBus.getDefault().post(ReadingPlanDayChangeEvent(readingPlanOneDay, mReadingPlanList[position]))
+
             finish()
+
         } catch (e: Exception) {
             Log.e(TAG, "Plan selection error", e)
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
@@ -100,10 +108,10 @@ class ReadingPlanSelectorList : ListActivityBase() {
         super.onContextItemSelected(item)
         val menuInfo = item.menuInfo as AdapterContextMenuInfo
         val plan = mReadingPlanList[menuInfo.position]
-        Log.d(TAG, "Selected " + plan.code)
+        Log.d(TAG, "Selected " + plan.readingPlanName)
 		when (item.itemId) {
 			R.id.reset -> {
-				readingPlanControl.reset(plan)
+//				readingPlanControl.reset(plan)
 				return true
 			}
 		}
@@ -113,6 +121,5 @@ class ReadingPlanSelectorList : ListActivityBase() {
     companion object {
         private val TAG = "ReadingPlanList"
 
-        private val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
     }
 }

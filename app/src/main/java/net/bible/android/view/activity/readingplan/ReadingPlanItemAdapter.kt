@@ -18,45 +18,43 @@
 
 package net.bible.android.view.activity.readingplan
 
-import net.bible.service.readingplan.ReadingPlanInfoDto
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TwoLineListItem
+import kotlinx.android.synthetic.main.reading_plan_list_single.view.*
+import net.bible.service.db.readingplan.ReadingPlanInformationDB
+
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanItemAdapter(_context: Context, private val resource: Int, _items: List<ReadingPlanInfoDto>):
-		ArrayAdapter<ReadingPlanInfoDto>(_context, resource, _items) {
+class ReadingPlanItemAdapter(_context: Context, private val resource: Int, _items: List<ReadingPlanInformationDB>):
+		ArrayAdapter<ReadingPlanInformationDB>(_context, resource, _items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         val item = getItem(position)
 
-        // Pick up the TwoLineListItem defined in the xml file
-        val view: TwoLineListItem
+        val view: View
         if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            view = inflater.inflate(resource, parent, false) as TwoLineListItem
+            view = inflater.inflate(resource, parent, false)
         } else {
-            view = convertView as TwoLineListItem
+            view = convertView
         }
 
         // Set value for the first text field
-        if (view.text1 != null) {
-            val text = item!!.code
-            view.text1.text = text
+        if (view.plan_name != null) {
+            view.plan_name.text = item?.readingPlanName ?: ""
         }
 
         // set value for the second text field
-        if (view.text2 != null) {
-            val text = item!!.description
-            view.text2.text = text
+        if (view.plan_description != null) {
+            view.plan_description.text = item?.readingPlanDescription ?: ""
         }
 
         return view
