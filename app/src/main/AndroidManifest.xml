@@ -146,11 +146,13 @@
             android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorList"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_selector_title"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReadingList"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_title"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReading"
