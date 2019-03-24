@@ -111,8 +111,8 @@ class ReadingPlanDBAdapter {
             }
         }
 
-    val getCurrentPlanShortCode: String = StringUtils.left(getMetaFileNameFromId(metaCurrentActiveReadingPlanID!!),8)
-    val getCurrentDayAndNumberDescription: String = app.getString(R.string.rdg_plan_day, getMetaCurrentDayNumber(metaCurrentActiveReadingPlanID!!).toString())
+    val getCurrentPlanShortCode: String = StringUtils.left(getMetaFileNameFromId(metaCurrentActiveReadingPlanID ?: 0),8)
+    val getCurrentDayAndNumberDescription: String = app.getString(R.string.rdg_plan_day, getMetaCurrentDayNumber(metaCurrentActiveReadingPlanID ?: 0).toString())
     /** Will always get or set the current day number from the active reading plan
      * @return Null result means that it is a date-based plan and there are no readings for today.
      */

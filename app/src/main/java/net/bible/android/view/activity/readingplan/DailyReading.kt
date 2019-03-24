@@ -114,8 +114,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         if (readingPlanInfo == null) {
             // Load plan selection screen
-            this.startActivity(
-                Intent(this, ReadingPlanSelectorList::class.java)
+            this.startActivityForResult(
+                Intent(this, ReadingPlanSelectorList::class.java),
+                REQUEST_CODE_READING_PLAN_LIST
             )
 
         } else {
@@ -460,12 +461,14 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         return dbAdapter.getDueDayToBeRead(readingPlanMetaId) >= day
     }
 
-    /** I don't think this is used because of hte finish() in onSearch()
-     */
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        if (resultCode == Activity.RESULT_OK) {
-//            returnToPreviousScreen()
-//        }
+        Log.d(TAG, "requestCode=$requestCode -- resultCode=$resultCode")
+        // If no reading plan is selected, and there is none selected from before, exit DailyReading
+        if (requestCode == REQUEST_CODE_READING_PLAN_LIST && resultCode != RESULT_OK) {
+            if (dbAdapter.metaCurrentActiveReadingPlanID == null) {
+                finish()
+            }
+        }
     }
 
     private fun updateTicksAndDone(readingPlanOneDay: ReadingPlanOneDayDB) {
@@ -580,6 +583,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         private val TAG = "DailyReading"
         private val app = BibleApplication.application
+        const val REQUEST_CODE_READING_PLAN_LIST = 101
 
         // Link AB distributed reading plan file names with plan name/description resource strings
         val ABDistributedPlanDetailArray: Array<PlanDetails> = arrayOf(

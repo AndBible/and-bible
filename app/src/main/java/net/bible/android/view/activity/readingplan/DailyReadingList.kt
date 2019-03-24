@@ -36,8 +36,7 @@ import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
 import javax.inject.Inject
 
-/** show a history list and allow to go to history item
- *
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DailyReadingList : ListActivityBase() {
@@ -51,13 +50,13 @@ class DailyReadingList : ListActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState, false)
         Log.i(TAG, "Displaying General Book Key chooser")
         setContentView(R.layout.list)
 
         buildActivityComponent().inject(this)
 
-		readingsList = dbAdapter.getMetaPlanDaysList(dbAdapter.metaCurrentActiveReadingPlanID!!)
+		readingsList = dbAdapter.getMetaPlanDaysList(dbAdapter.metaCurrentActiveReadingPlanID ?: 0)
 
         adapter = DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, readingsList)
         listAdapter = adapter

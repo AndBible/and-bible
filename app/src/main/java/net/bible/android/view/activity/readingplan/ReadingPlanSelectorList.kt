@@ -56,7 +56,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState, false)
         Log.i(TAG, "Displaying Reading Plan List")
         setContentView(R.layout.list)
 
@@ -97,26 +97,37 @@ class ReadingPlanSelectorList : ListActivityBase() {
 
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        val inflater = menuInflater
-        inflater.inflate(R.menu.reading_plan_list_context_menu, menu)
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
-
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        super.onContextItemSelected(item)
-        val menuInfo = item.menuInfo as AdapterContextMenuInfo
-        val plan = mReadingPlanList[menuInfo.position]
-        Log.d(TAG, "Selected " + plan.readingPlanName)
-		when (item.itemId) {
-			R.id.reset -> {
-//				readingPlanControl.reset(plan)
-				return true
-			}
-		}
-        return false
-    }
+    // Don't allow reset from plan list for now
+//    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo) {
+//        super.onCreateContextMenu(menu, v, menuInfo)
+//        val inflater = menuInflater
+//        inflater.inflate(R.menu.reading_plan_list_context_menu, menu)
+//    }
+//
+//
+//    override fun onContextItemSelected(item: MenuItem): Boolean {
+//        super.onContextItemSelected(item)
+//        val menuInfo = item.menuInfo as AdapterContextMenuInfo
+//        val plan = mReadingPlanList[menuInfo.position]
+//        Log.d(TAG, "Selected " + plan.readingPlanName)
+//		when (item.itemId) {
+//			R.id.reset -> {
+////				readingPlanControl.reset(plan)
+//				return true
+//			}
+//		}
+//        return false
+//    }
 
     companion object {
         private val TAG = "ReadingPlanList"
