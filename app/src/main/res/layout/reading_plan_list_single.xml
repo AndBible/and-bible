@@ -15,7 +15,8 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:paddingStart="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
     <TextView android:id="@+id/plan_name"
         android:layout_width="wrap_content"
@@ -37,9 +38,9 @@
         android:id="@+id/info_image"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_gravity="center_vertical"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_info_black_24dp"
         />
 
