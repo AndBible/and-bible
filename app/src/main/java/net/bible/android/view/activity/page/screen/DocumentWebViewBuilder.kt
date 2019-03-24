@@ -202,9 +202,22 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top right of each window
-                val defaultWindowActionButton =
-                    if(isSingleWindow) createSingleWindowButton(window)
-                    else createDefaultWindowActionButton(window)
+                val defaultWindowActionButton = if(isSingleWindow) {
+                    if(window.defaultOperation == WindowOperation.MAXIMISE) {
+                        createUnMaximizeButton(window)
+                    } else {
+                        createSingleWindowButton(window)
+                    }
+                }
+                else {
+                    if(window.defaultOperation == WindowOperation.CLOSE) {
+                        createCloseButton(window)
+                    } else {
+                        createMinimiseButton(window)
+                    }
+                }
+
+
 
                 if(!isSplitHorizontally) {
                     defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
@@ -410,18 +423,6 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    private fun createDefaultWindowActionButton(window: Window): Button {
-        val b = when {
-            window.defaultOperation == WindowOperation.CLOSE -> // close button for the links window
-                createCloseButton(window)
-            window.defaultOperation == WindowOperation.MAXIMISE -> // normalise button for maximised window
-                createMaximiseToggleButton(window)
-            else -> // minimise button for normal window
-                createMinimiseButton(window)
-        }
-        return b
-    }
-
     /**
      * Add extension preceding separator
      */
@@ -518,11 +519,11 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createMaximiseToggleButton(window: Window): Button {
+    private fun createUnMaximizeButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
-                { v -> showPopupWindow(window, v) },
-                { v -> windowControl.unmaximiseWindow(window); true}
+            { v -> windowControl.unmaximiseWindow(window)},
+            { v -> windowControl.unmaximiseWindow(window); true}
         )
         b.translationY = mainBibleActivity.topOffset2
         b.translationX = -mainBibleActivity.rightOffset1
