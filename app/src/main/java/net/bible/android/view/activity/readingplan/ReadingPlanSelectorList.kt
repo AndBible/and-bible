@@ -31,7 +31,6 @@ import android.widget.ListView
 
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
@@ -41,8 +40,7 @@ import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
 import javax.inject.Inject
 
-/** do the search and show the search results
- *
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanSelectorList : ListActivityBase() {
@@ -50,8 +48,6 @@ class ReadingPlanSelectorList : ListActivityBase() {
     private val dbAdapter = ReadingPlanDBAdapter()
     private var mReadingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getMetaReadingPlanList()
     private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInformationDB>
-
-    @Inject lateinit var readingPlanControl: ReadingPlanControl
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -75,8 +71,6 @@ class ReadingPlanSelectorList : ListActivityBase() {
         Log.d(TAG, "Finished displaying Reading Plan list")
     }
 
-    /** if a plan is selected then ask confirmation, save plan, and go straight to first day
-     */
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
             dbAdapter.switchToReadingPlan(mReadingPlanList[position])
@@ -106,28 +100,6 @@ class ReadingPlanSelectorList : ListActivityBase() {
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
-    // Don't allow reset from plan list for now
-//    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo) {
-//        super.onCreateContextMenu(menu, v, menuInfo)
-//        val inflater = menuInflater
-//        inflater.inflate(R.menu.reading_plan_list_context_menu, menu)
-//    }
-//
-//
-//    override fun onContextItemSelected(item: MenuItem): Boolean {
-//        super.onContextItemSelected(item)
-//        val menuInfo = item.menuInfo as AdapterContextMenuInfo
-//        val plan = mReadingPlanList[menuInfo.position]
-//        Log.d(TAG, "Selected " + plan.readingPlanName)
-//		when (item.itemId) {
-//			R.id.reset -> {
-////				readingPlanControl.reset(plan)
-//				return true
-//			}
-//		}
-//        return false
-//    }
 
     companion object {
         private val TAG = "ReadingPlanList"

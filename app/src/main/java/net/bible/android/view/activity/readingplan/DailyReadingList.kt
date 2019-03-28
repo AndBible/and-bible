@@ -27,7 +27,6 @@ import android.widget.ListView
 
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
@@ -41,7 +40,6 @@ import javax.inject.Inject
  */
 class DailyReadingList : ListActivityBase() {
 
-    @Inject lateinit var readingPlanControl: ReadingPlanControl
     private val dbAdapter = ReadingPlanDBAdapter()
 
     private lateinit var readingsList: List<ReadingPlanOneDayDB>

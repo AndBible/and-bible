@@ -31,7 +31,6 @@ import android.widget.TextView
 
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -52,7 +51,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class ReadingPlanTitle @Inject
-constructor(private val readingPlanControl: ReadingPlanControl) {
+constructor() {
 
 
     private lateinit var actionBar: ActionBar
