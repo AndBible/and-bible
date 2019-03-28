@@ -433,10 +433,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         if (dbAdapter.getMetaCurrentDayNumber(planID) == dayNumber) {
             // was this the last day in the plan
             if (readingPlanOneDay.readingPlanInfo.readingPlanTotalDays == mReadingPlanDayNumber) {
-                // last plan day is just Done so clear all plan status
-//                reset(planInfo)
-//                nextDayToShow = -1
-                nextDayToShow = dayNumber // TODO: this is only temporary, not to reset plan right away for now
+                // TODO: Give user the option to reset plan since it's done now.
+                nextDayToShow = dayNumber
             } else {
                 // move to next plan day
                 nextDayToShow = dbAdapter.incrementCurrentPlanDay()
@@ -484,29 +482,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
 
         doneButton.isEnabled = status.isAllRead()
-    }
-
-
-    override fun onScreenTurnedOn() {
-        super.onScreenTurnedOn()
-        // use reload to ensure colour is correct
-        reload()
-    }
-
-    /** Could possibly push this reload up to a higher level
-     * See: http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
-     */
-    private fun reload() {
-        // do not save current page to history because it is being reloaded
-        val wasIntegrateWithhistory = isIntegrateWithHistoryManager
-        isIntegrateWithHistoryManager = false
-
-        // reload page to refresh if screen colour change
-        val intent = intent
-        finish()
-        startActivity(intent)
-
-        isIntegrateWithHistoryManager = wasIntegrateWithhistory
     }
 
     /**
@@ -627,6 +602,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val fileName: String,
             val planName: String,
             val planDescription: String
-        ) {}
+        )
     }
 }
