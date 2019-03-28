@@ -80,7 +80,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private var mReadingPlanMetaID: Int? = null
     private var mReadingPlanDayNumber: Int? = null
-    lateinit private var readingPlanOneDay: ReadingPlanOneDayDB
+    private lateinit var readingPlanOneDay: ReadingPlanOneDayDB
 
     private var mImageTickList: MutableList<ImageView> = ArrayList()
 
@@ -275,7 +275,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     }
 
-    fun clearReadingInfo(layout: TableLayout) {
+    private fun clearReadingInfo(layout: TableLayout) {
         layout.removeAllViews()
         mImageTickList.clear()
     }
@@ -286,7 +286,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed read button by 1 reading
      */
-    fun onRead(readingNumber: Int) {
+    private fun onRead(readingNumber: Int) {
         Log.i(TAG, "Read $readingNumber")
         val readingKey = readingPlanOneDay.getReadingKey(readingNumber)
         read(mReadingPlanDayNumber!!, readingNumber, readingKey)
@@ -296,7 +296,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed speak button by 1 reading
      */
-    fun onSpeak(readingNumber: Int) {
+    private fun onSpeak(readingNumber: Int) {
         Log.i(TAG, "Speak $readingNumber")
         val readingKey = readingPlanOneDay.getReadingKey(readingNumber)
         speak(mReadingPlanDayNumber!!, readingNumber, readingKey)
@@ -306,7 +306,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed speak button by All
      */
-    fun onSpeakAll(view: View?) {
+    private fun onSpeakAll(view: View?) {
         Log.i(TAG, "Speak all")
         speak(mReadingPlanDayNumber!!, readingPlanOneDay.readingChaptersKeyArray!!)
 
@@ -506,7 +506,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             R.id.reset -> {
                 Dialogs.getInstance().showMsg(R.string.reset_plan_question,true)
                     {
-                        Log.d(TAG, "Resetting plan id ${mReadingPlanMetaID}.")
+                        Log.d(TAG, "Resetting plan id $mReadingPlanMetaID")
                         dbAdapter.resetPlan(mReadingPlanMetaID!!)
                         finish()
                     }
@@ -522,7 +522,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
             R.id.importNewPlan -> {
 
-                var permissionGranted: Boolean = false
+                var permissionGranted = false
                 val permission = ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)
 
@@ -556,7 +556,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     companion object {
 
-        private val TAG = "DailyReading"
+        private const val TAG = "DailyReading"
         private val app = BibleApplication.application
         const val REQUEST_CODE_READING_PLAN_LIST = 101
 
