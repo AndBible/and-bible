@@ -65,8 +65,7 @@ import java.util.Date
 
 import javax.inject.Inject
 
-/** Allow user to enter search criteria
- *
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
@@ -84,10 +83,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private var mImageTickList: MutableList<ImageView> = ArrayList()
 
-    //@Inject lateinit var readingPlanControl: ReadingPlanControl // Might use later yet
     @Inject lateinit var readingPlanActionBarManager: ReadingPlanActionBarManager
 
-    /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, false)
@@ -173,10 +170,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
                 dbAdapter.metaCurrentActiveReadingPlanID = mReadingPlanMetaID
 
-                // Populate view
                 description.text = readingPlanInfo.readingPlanName
                 status_message.text = ""
-
 
             }
 
@@ -185,7 +180,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 mReadingPlanDayNumber = readingPlanOneDay.dayNumber
 
                 try {
-                    // date display
                     day.text = when (readingPlanInfo.readingPlanIsDateBased) {
                         true -> ""
                         false -> readingPlanOneDay.dayAndNumberDescription
@@ -201,16 +195,13 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     val fullBookNameSave = BookName.isFullBookName()
                     BookName.setFullBookName(!isPortrait)
 
-                    // Clear needed items to reload
                     clearReadingInfo(layout)
 
                     for (i in 0 until readingPlanOneDay.numberOfReadings) {
                         val child = layoutInflater.inflate(R.layout.reading_plan_one_reading, null)
 
-                        // Ticks
                         val mImageTick = child.findViewById<View>(R.id.tick) as ImageView
                         mImageTickList.add(mImageTick)
-                        // Allow check box to be clicked to mark off the day
                         mImageTick.setOnClickListener {
                             val status = readingPlanOneDay.readingStatus
                             if (status.isRead(i)) {
@@ -221,23 +212,19 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                             updateTicksAndDone(readingPlanOneDay)
                         }
 
-                        // Passage description
                         val rdgText = child.findViewById<View>(R.id.passage) as TextView
                         val key = readingPlanOneDay.getReadingKey(i)
                         rdgText.text = key.name
 
-                        // handle read button clicks
                         val readBtn = child.findViewById<View>(R.id.readButton) as Button
                         readBtn.setOnClickListener { onRead(i) }
 
-                        // handle speak button clicks
                         val speakBtn = child.findViewById<View>(R.id.speakButton) as Button
                         speakBtn.setOnClickListener { onSpeak(i) }
 
                         layout.addView(child, i)
                     }
 
-                    // restore full book name setting
                     BookName.setFullBookName(fullBookNameSave)
 
                     updateTicksAndDone(readingPlanOneDay)
@@ -246,11 +233,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     if (readingPlanOneDay.numberOfReadings > 1) {
                         val child = layoutInflater.inflate(R.layout.reading_plan_one_reading, null)
 
-                        // hide the tick
                         val tick = child.findViewById<View>(R.id.tick) as ImageView
                         tick.visibility = View.INVISIBLE
 
-                        // Passage description
                         val rdgText = child.findViewById<View>(R.id.passage) as TextView
                         rdgText.text = resources.getString(R.string.all)
 
@@ -284,8 +269,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         loadPlanOneDay(event.readingPlanOneDay, event.readingPlanInfo)
     }
 
-    /** user pressed read button by 1 reading
-     */
     private fun onRead(readingNumber: Int) {
         Log.i(TAG, "Read $readingNumber")
         val readingKey = readingPlanOneDay.getReadingKey(readingNumber)
@@ -294,8 +277,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         finish()
     }
 
-    /** user pressed speak button by 1 reading
-     */
     private fun onSpeak(readingNumber: Int) {
         Log.i(TAG, "Speak $readingNumber")
         val readingKey = readingPlanOneDay.getReadingKey(readingNumber)
@@ -304,8 +285,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         updateTicksAndDone(readingPlanOneDay)
     }
 
-    /** user pressed speak button by All
-     */
     private fun onSpeakAll(view: View?) {
         Log.i(TAG, "Speak all")
         speakAllReadings(readingPlanOneDay.readingChaptersKeyArray!!)
@@ -317,7 +296,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         if (readingKey != null) {
             isIntegrateWithHistoryManager = true
 
-            // mark reading as 'read'
             readingPlanOneDay.readingStatus.setRead(readingNumber, mReadingPlanDayNumber!!)
 
             ABEventBus.getDefault().post(BeforeCurrentPageChangeEvent())
@@ -326,7 +304,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             val currentPageManager = currentPageManager
             val bible = currentPageManager.currentBible.currentPassageBook
 
-            // convert the verse to the v11n of the current bible
             val keyList = convertReadingVersification(readingKey, bible)
             val firstKey = keyList[0]
 
@@ -346,9 +323,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         return keyList
     }
 
-    /**
-     * Speak 1 reading and mark as read.  Also convert from ReadingPlan v11n type to v11n type of current Bible.
-     */
     fun speak(day: Int, readingNo: Int, readingKey: Key) {
         val bible = currentPageManager.currentBible.currentPassageBook
         val keyList = convertReadingVersification(readingKey, bible)
@@ -367,7 +341,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
         speakControl.speakKeyList(bible, allReadingsWithCorrectV11n, true, false)
 
-        // mark all readings as read
         for (i in allReadings.indices) {
             readingPlanOneDay.readingStatus.setRead(i, mReadingPlanDayNumber!!)
         }
@@ -387,12 +360,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             if (nextDayToShow > 0 && !readingPlanOneDay.readingPlanInfo.readingPlanIsDateBased) {
                 loadPlanOneDay(ReadingPlanOneDayDB(readingPlanOneDay.readingPlanInfo))
             } else {
-                // else exit
                 finish()
             }
 
-            // if we move away then add to history list
-//            isIntegrateWithHistoryManager = true
         } catch (e: Exception) {
             Log.e(TAG, "Error when Done daily reading", e)
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
@@ -400,9 +370,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     }
 
-    /** mark this day as complete unless it is in the future
-     * if last day then reset plan
-     */
     fun done(force: Boolean): Int {
         // which day to show next -1 means the user is up to date and can close Reading Plan
         var nextDayToShow = -1
@@ -411,10 +378,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         val dayNumber: Int = mReadingPlanDayNumber!!
         // force Done to work for whatever day is passed in, otherwise Done only works for current plan day and ignores other days
         if (force) {
-            // for Done to work for non plan day
             dbAdapter.setMetaCurrentDayNumber(planID, dayNumber)
 
-            // normal reading status update is circumvented so mark all days as read up to here
             dbAdapter.setAllDaysReadUpTo(mReadingPlanDayNumber!!)
             readingPlanOneDay.readingStatus.setAllRead(mReadingPlanDayNumber!!)
         }
@@ -428,9 +393,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 // TODO: Give user the option to reset plan since it's done now.
                 nextDayToShow = dayNumber
             } else {
-                // move to next plan day
                 nextDayToShow = dbAdapter.incrementCurrentPlanDay()
-
             }
         } else {
             if (readingPlanOneDay.readingPlanInfo.readingPlanTotalDays > mReadingPlanDayNumber ?: 0) {
@@ -438,7 +401,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
         }
 
-        //if user is not behind then do not show Daily Reading screen
+        // If user is not behind then do not show Daily Reading screen
         if (!readingPlanOneDay.readingPlanInfo.readingPlanIsDateBased && !isDueToBeRead(mReadingPlanMetaID!!,mReadingPlanDayNumber!!)) {
             nextDayToShow = -1
         }
@@ -476,9 +439,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         doneButton.isEnabled = status.isAllRead()
     }
 
-    /**
-     * on Click handlers
-     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
 
