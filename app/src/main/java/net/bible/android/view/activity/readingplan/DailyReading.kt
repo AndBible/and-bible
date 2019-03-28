@@ -289,7 +289,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     private fun onRead(readingNumber: Int) {
         Log.i(TAG, "Read $readingNumber")
         val readingKey = readingPlanOneDay.getReadingKey(readingNumber)
-        read(mReadingPlanDayNumber!!, readingNumber, readingKey)
+        readOnePassage(mReadingPlanDayNumber!!, readingNumber, readingKey)
 
         finish()
     }
@@ -308,15 +308,12 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
      */
     private fun onSpeakAll(view: View?) {
         Log.i(TAG, "Speak all")
-        speak(mReadingPlanDayNumber!!, readingPlanOneDay.readingChaptersKeyArray!!)
+        speakAllReadings(readingPlanOneDay.readingChaptersKeyArray!!)
 
         updateTicksAndDone(readingPlanOneDay)
     }
 
-    /** User wants to read a passage from the daily reading
-     * Also mark passage as read
-     */
-    fun read(day: Int, readingNumber: Int, readingKey: Key?) {
+    fun readOnePassage(day: Int, readingNumber: Int, readingKey: Key?) {
         if (readingKey != null) {
             isIntegrateWithHistoryManager = true
 
@@ -361,10 +358,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         readingPlanOneDay.readingStatus.setRead(readingNo, mReadingPlanDayNumber!!)
     }
 
-    /** User wants all passages from the daily reading spoken using TTS
-     * Also mark passages as read
-     */
-    fun speak(day: Int, allReadings: List<Key>) {
+    fun speakAllReadings(allReadings: List<Key>) {
         val bible = currentPageManager.currentBible.currentPassageBook
         val allReadingsWithCorrectV11n = java.util.ArrayList<Key>()
         for (key in allReadings) {
@@ -379,9 +373,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
     }
 
-    /** user pressed Done button so must have read currently displayed readings
-     */
-    fun onDone(view: View) {
+    fun onDoneButtonClick(view: View) {
         Log.i(TAG, "Done")
         try {
             // do not add to History list because it will just redisplay same page

@@ -77,7 +77,7 @@
 	
 	 	<Button android:id="@+id/doneButton"
  			android:text="@string/done"
-			android:onClick="onDone"
+			android:onClick="onDoneButtonClick"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="2"/>
