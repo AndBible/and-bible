@@ -182,7 +182,7 @@ object ReadingPlanDatabaseDefinition {
 
                             // Get Reading Plan date start, current day, and chapters read from SharedPrefs and update DB
                             // Set all days up to current day as all chapters read
-                            val chaptersReadArray: Array<ReadingPlanOneDayDB.ChapterRead?> = arrayOfNulls(dailyReading.numReadings)
+                            val chaptersReadArray = ArrayList<ReadingPlanOneDayDB.ChapterRead?>()
                             var readStatusString: String? = null
                             if (dailyReading.day == thisPlanDay) {
                                 val prefsKey: String = plan.code + "_" + dailyReading.day
@@ -191,9 +191,9 @@ object ReadingPlanDatabaseDefinition {
                                 if (prefsStatusString != null) {
                                     for (i in 0 until dailyReading.numReadings) {
                                         if (i < prefsStatusString.length && prefsStatusString[i] == '1') {
-                                            chaptersReadArray[i] = ReadingPlanOneDayDB.ChapterRead(i + 1, true)
+                                            chaptersReadArray.add(ReadingPlanOneDayDB.ChapterRead(i + 1, true))
                                         } else {
-                                            chaptersReadArray[i] = ReadingPlanOneDayDB.ChapterRead(i + 1, false)
+                                            chaptersReadArray.add(ReadingPlanOneDayDB.ChapterRead(i + 1, false))
                                         }
                                     }
                                     readStatusString = ReadingPlanOneDayDB.ReadingStatus(
