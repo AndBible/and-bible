@@ -56,7 +56,7 @@ constructor() {
 
     private lateinit var actionBar: ActionBar
     private lateinit var activity: Activity
-    fun isActivityInitialized() = ::activity.isInitialized
+    val isActivityInitialized get() = ::activity.isInitialized
 
     private lateinit var documentTitle: TextView
     private lateinit var documentSubtitle: TextView

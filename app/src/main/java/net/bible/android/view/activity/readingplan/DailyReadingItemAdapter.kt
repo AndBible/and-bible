@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.readingplan
 
-import net.bible.service.readingplan.OneDaysReadingsDto
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -32,8 +31,8 @@ import net.bible.service.db.readingplan.ReadingPlanOneDayDB
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DailyReadingItemAdapter(_context: Context, private val resource: Int, _items: List<ReadingPlanOneDayDB>) :
-		ArrayAdapter<ReadingPlanOneDayDB>(_context, resource, _items) {
+class DailyReadingItemAdapter(context: Context, private val resource: Int, items: List<ReadingPlanOneDayDB>) :
+		ArrayAdapter<ReadingPlanOneDayDB>(context, resource, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 

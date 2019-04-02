@@ -94,7 +94,8 @@ object ReadingPlanDatabaseDefinition {
                 "${ReadingPlanDays.COLUMN_READ_STATUS} TEXT" +
                 ");"
 
-            private const val SQL_CREATE_DAYS_INDEX = "CREATE INDEX days_date_name ON ${ReadingPlanDays.TABLE_NAME}(${ReadingPlanDays.COLUMN_READING_DATE});"
+            private const val SQL_CREATE_DAYS_INDEX =
+                "CREATE INDEX days_date_name ON ${ReadingPlanDays.TABLE_NAME}(${ReadingPlanDays.COLUMN_READING_DATE});"
 
 
             /** Called from CommonDatabaseHelper when ReadingPlan tables
@@ -111,9 +112,6 @@ object ReadingPlanDatabaseDefinition {
                 db.execSQL(SQL_CREATE_DAYS_INDEX)
             }
 
-            /** This is a function to run only 1 time when updating Database
-             * to have reading plans in DB instead of text files
-             */
             fun importReadingPlansToDatabase(db: SQLiteDatabase, firstImport: Boolean = false) {
 
                 // dbAdapter can ONLY be used in this function if it's not [firstImport]
@@ -191,9 +189,13 @@ object ReadingPlanDatabaseDefinition {
                                 if (prefsStatusString != null) {
                                     for (i in 0 until dailyReading.numReadings) {
                                         if (i < prefsStatusString.length && prefsStatusString[i] == '1') {
-                                            chaptersReadArray.add(ReadingPlanOneDayDB.ChapterRead(i + 1, true))
+                                            chaptersReadArray.add(
+                                                ReadingPlanOneDayDB.ChapterRead(i + 1,true)
+                                            )
                                         } else {
-                                            chaptersReadArray.add(ReadingPlanOneDayDB.ChapterRead(i + 1, false))
+                                            chaptersReadArray.add(
+                                                ReadingPlanOneDayDB.ChapterRead(i + 1, false)
+                                            )
                                         }
                                     }
                                     readStatusString = ReadingPlanOneDayDB.ReadingStatus(
@@ -204,7 +206,8 @@ object ReadingPlanDatabaseDefinition {
                                 }
                             } else if (dailyReading.day < thisPlanDay) {
                                 for (i in 0 until dailyReading.numReadings) {
-                                    chaptersReadArray[i] = ReadingPlanOneDayDB.ChapterRead(i + 1, true)
+                                    chaptersReadArray[i] =
+                                        ReadingPlanOneDayDB.ChapterRead(i + 1, true)
                                 }
                                 readStatusString = ReadingPlanOneDayDB.ReadingStatus(
                                     dbReadingPlanMetaID.toInt(),
@@ -221,7 +224,10 @@ object ReadingPlanDatabaseDefinition {
                                 put(ReadingPlanDays.COLUMN_DAY_CHAPTERS, dailyReading.getReadingsString())
                                 put(ReadingPlanDays.COLUMN_READ_STATUS, readStatusString)
                                 if (isDateBasedPlan) {
-                                    put(ReadingPlanDays.COLUMN_READING_DATE, dailyReading.dateBasedReadingDateStringFromFile) // only for those plans that are by-date
+                                    put(
+                                        ReadingPlanDays.COLUMN_READING_DATE,
+                                        dailyReading.dateBasedReadingDateStringFromFile
+                                    )
                                 }
                             }
                             db.insert(ReadingPlanDays.TABLE_NAME, null, dayValues)

@@ -8,27 +8,27 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <LinearLayout android:id="@+id/top_text"
+    <LinearLayout android:id="@+id/topTextLayout"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
     	android:layout_margin="10dip">
-	   	<TextView android:id="@+id/description"
+	   	<TextView android:id="@+id/descriptionTextView"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_height="wrap_content" 
 			android:layout_width="wrap_content"/>
 	   	
-	    <LinearLayout android:id="@+id/dates"
+	    <LinearLayout android:id="@+id/datesLayout"
 	        android:orientation="horizontal"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content">
 
-	        <TextView android:id="@+id/date"
+	        <TextView android:id="@+id/dateTextView"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:layout_height="wrap_content" 
 				android:layout_width="wrap_content"/>
-	        <TextView android:id="@+id/day"
+	        <TextView android:id="@+id/dayTextView"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:layout_height="wrap_content" 
 				android:layout_width="fill_parent"
@@ -36,7 +36,7 @@
 	        
 	  	</LinearLayout>
 	        	
-	   	<TextView android:id="@+id/status_message"
+	   	<TextView android:id="@+id/statusMessageTextView"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_height="wrap_content" 
 			android:layout_width="wrap_content"/>
@@ -44,16 +44,16 @@
 
     <!-- container for daily readings -->
 	<ScrollView
-		android:id="@+id/scroll_layout"
+		android:id="@+id/scrollLayout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@id/top_text"
+		android:layout_below="@id/topTextLayout"
 		android:layout_marginLeft="10dip"
 		android:layout_marginRight="10dip"
 		android:layout_marginBottom="60dip">
 
 		<TableLayout
-			android:id="@+id/reading_container"
+			android:id="@+id/readingContainerLayout"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="10dip"
@@ -64,7 +64,7 @@
 	</ScrollView>
     
 	<!-- Button bar -->
-	<LinearLayout android:id="@+id/button_panel"
+	<LinearLayout android:id="@+id/buttonPanelLayout"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"

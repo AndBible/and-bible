@@ -32,8 +32,8 @@ import net.bible.service.db.readingplan.ReadingPlanInformationDB
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanItemAdapter(_context: Context, private val resource: Int, _items: List<ReadingPlanInformationDB>):
-		ArrayAdapter<ReadingPlanInformationDB>(_context, resource, _items) {
+class ReadingPlanItemAdapter(context: Context, private val resource: Int, items: List<ReadingPlanInformationDB>):
+		ArrayAdapter<ReadingPlanInformationDB>(context, resource, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -49,12 +49,12 @@ class ReadingPlanItemAdapter(_context: Context, private val resource: Int, _item
 
         // Set value for the first text field
         if (view.plan_name != null) {
-            view.plan_name.text = item?.readingPlanName ?: ""
+            view.plan_name.text = item?.planName ?: ""
         }
 
         // set value for the second text field
         if (view.plan_description != null) {
-            view.plan_description.text = item?.readingPlanDescription ?: ""
+            view.plan_description.text = item?.planDescription ?: ""
         }
 
         return view
