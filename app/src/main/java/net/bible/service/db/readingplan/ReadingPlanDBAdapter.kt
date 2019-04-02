@@ -361,7 +361,7 @@ class ReadingPlanDBAdapter {
             "-- whereClause=$whereClause -- whereArgs=$whereArgs")
     }
 
-    private val getTodayDate: Date = Calendar.getInstance().time
+    val getTodayDate: Date = Calendar.getInstance().time
 
     fun getMetaTotalDays(ReadingPlanMetaID: Int): Int {
         return getMetaIntegerDB(ReadingPlanMetaID,ReadingPlanMeta.COLUMN_DAYS_IN_PLAN) ?: 0
@@ -638,7 +638,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
         return SimpleDateFormat.getDateInstance().format(returnDate)
     }
     private fun calculateReadingDateString(): String {
-        var dateString = ""
+        var dateString = SimpleDateFormat.getDateInstance().format(dbAdapter.getTodayDate)
         val startDate = readingPlanInfo.startDate
         if (startDate != null) {
             val cal = Calendar.getInstance()
