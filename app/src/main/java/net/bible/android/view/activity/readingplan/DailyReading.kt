@@ -153,7 +153,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         } else if (!forceReload && readingPlanOneDayParam != null) {
             readingPlanOneDay = readingPlanOneDayParam
         } else if (forceReload && readingPlanInformationParam != null) {
-            readingPlanOneDay.readingPlanInfo = readingPlanInformationParam
+            readingPlanOneDay = ReadingPlanOneDayDB(readingPlanInformationParam, readingPlanOneDay.dayNumber)
         }
 
         if (readingPlanOneDayParam != null || forceReload) {
