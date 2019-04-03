@@ -21,11 +21,8 @@ package net.bible.android.view.activity.readingplan
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.view.ContextMenu
-import android.view.ContextMenu.ContextMenuInfo
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ArrayAdapter
 import android.widget.ListView
 
@@ -38,16 +35,14 @@ import net.bible.service.db.readingplan.ReadingPlanInformationDB
 import net.bible.service.db.readingplan.ReadingPlanOneDayDB
 import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
-import javax.inject.Inject
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanSelectorList : ListActivityBase() {
 
     private val dbAdapter = ReadingPlanDBAdapter()
-    private var mReadingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getMetaReadingPlanList()
-    private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInformationDB>
+    private var readingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getMetaReadingPlanList()
+    private lateinit var planArrayAdapter: ArrayAdapter<ReadingPlanInformationDB>
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -58,8 +53,8 @@ class ReadingPlanSelectorList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
         try {
-            mPlanArrayAdapter = ReadingPlanItemAdapter(this, R.layout.reading_plan_list_single, mReadingPlanList)
-            listAdapter = mPlanArrayAdapter
+            planArrayAdapter = ReadingPlanItemAdapter(this, R.layout.reading_plan_list_single, readingPlanList)
+            listAdapter = planArrayAdapter
 
             registerForContextMenu(listView)
         } catch (e: Exception) {
@@ -73,14 +68,14 @@ class ReadingPlanSelectorList : ListActivityBase() {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
-            dbAdapter.switchToReadingPlan(mReadingPlanList[position])
+            dbAdapter.switchToReadingPlan(readingPlanList[position])
 
             var readingPlanOneDay: ReadingPlanOneDayDB? = null
             try {
-                readingPlanOneDay = ReadingPlanOneDayDB(mReadingPlanList[position])
+                readingPlanOneDay = ReadingPlanOneDayDB(readingPlanList[position])
             } catch (e: java.lang.Exception) { }
 
-            ABEventBus.getDefault().post(ReadingPlanDayChangeEvent(readingPlanOneDay, mReadingPlanList[position]))
+            ABEventBus.getDefault().post(ReadingPlanDayChangeEvent(readingPlanOneDay, readingPlanList[position]))
 
             finish()
 

@@ -48,13 +48,15 @@ class ReadingPlanItemAdapter(context: Context, private val resource: Int, items:
         }
 
         // Set value for the first text field
-        if (view.plan_name != null) {
-            view.plan_name.text = item?.planName ?: ""
+        if (view.planNameTextView != null) {
+            var name = item?.planName ?: ""
+            if (name == "") { name = item?.fileName ?: "" }
+            view.planNameTextView.text = name
         }
 
         // set value for the second text field
-        if (view.plan_description != null) {
-            view.plan_description.text = item?.planDescription ?: ""
+        if (view.planDescriptionTextView != null) {
+            view.planDescriptionTextView.text = item?.planDescription ?: ""
         }
 
         return view

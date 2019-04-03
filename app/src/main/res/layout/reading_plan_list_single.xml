@@ -18,14 +18,14 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
-    <TextView android:id="@+id/plan_name"
+    <TextView android:id="@+id/planNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
         android:singleLine="true"
         tools:text="1-Year Prof. Horner Reading Plan" />
 
-    <TextView android:id="@+id/plan_description"
+    <TextView android:id="@+id/planDescriptionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItemSecondary"
@@ -35,7 +35,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/info_image"
+        android:id="@+id/infoImageView"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginEnd="16dp"
