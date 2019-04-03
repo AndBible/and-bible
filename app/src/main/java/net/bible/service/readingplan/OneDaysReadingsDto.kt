@@ -20,6 +20,7 @@ package net.bible.service.readingplan
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.service.db.readingplan.ReadingPlanDBAdapter
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
@@ -111,8 +112,7 @@ class OneDaysReadingsDto(val day: Int,
                 // Check if string contains : (Would happen in case of date-based plan, shows Feb-1:Gen.1,Exo.1)
                 if (StringUtils.contains(mReadings,";")) {
                     dateBasedReadingDateStringFromFile = mReadings?.replace(";.*".toRegex(),"") // like Feb-1
-                    val dateFormat = SimpleDateFormat("MMM-dd/yyyy")
-                    dateBasedReadingDate = dateFormat.parse(dateBasedReadingDateStringFromFile + "/" + Calendar.getInstance().get(Calendar.YEAR))
+                    dateBasedReadingDate = ReadingPlanDBAdapter.dateBasedFormatWithYear.parse(dateBasedReadingDateStringFromFile + "/" + Calendar.getInstance().get(Calendar.YEAR))
                     mReadings = mReadings?.replace("^.*;".toRegex(),"")
                 }
 

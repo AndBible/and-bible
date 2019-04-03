@@ -57,7 +57,8 @@ class ReadingPlanDBAdapter {
         private val dbWritable = dbHelper.writableDatabase
         private val dbReadable = dbHelper.readableDatabase
 
-        private val showPlanFileDateFormat = SimpleDateFormat("MMM-dd")
+        private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
+        val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
 
     }
 
@@ -116,10 +117,9 @@ class ReadingPlanDBAdapter {
      */
     fun getMetaCurrentDayNumber(readingPlanMetaId: Int): Int {
         if (getMetaIsDateBasedPlan(readingPlanMetaId)) {
-            val today = Calendar.getInstance().time
             val projection = arrayOf(ReadingPlanDays.COLUMN_DAY_NUMBER)
             val selection = "${ReadingPlanDays.COLUMN_READING_PLAN_META_ID}=? AND ${ReadingPlanDays.COLUMN_READING_DATE}=?"
-            val selectionArgs = arrayOf(readingPlanMetaId.toString(), dateFormatterPlanDateToString(today))
+            val selectionArgs = arrayOf(readingPlanMetaId.toString(), dateFormatterPlanDateToString(getTodayDate))
 
             val q = dbReadable.query(ReadingPlanDays.TABLE_NAME,
                 projection,
@@ -131,6 +131,8 @@ class ReadingPlanDBAdapter {
                 result = q.getInt(0)
             }
             q.close()
+            Log.d(TAG, "selection=$selection -- selectionArgs=${selectionArgs[0]},${selectionArgs[1]} -- " +
+                "result=$result")
             return result
 
         } else {
@@ -361,7 +363,7 @@ class ReadingPlanDBAdapter {
             "-- whereClause=$whereClause -- whereArgs=$whereArgs")
     }
 
-    val getTodayDate: Date = Calendar.getInstance().time
+    val getTodayDate: Date get() = Calendar.getInstance().time
 
     fun getMetaTotalDays(ReadingPlanMetaID: Int): Int {
         return getMetaIntegerDB(ReadingPlanMetaID,ReadingPlanMeta.COLUMN_DAYS_IN_PLAN) ?: 0
@@ -530,15 +532,14 @@ class ReadingPlanDBAdapter {
      * @param dateString Must be in this format: Feb-1, Mar-22, Dec-11, etc
      */
     fun dateFormatterPlanStringToDate(dateString: String): Date {
-        val dateFormat = SimpleDateFormat("MMM-dd/yyyy")
-        return dateFormat.parse(dateString + "/" + Calendar.getInstance().get(Calendar.YEAR))
+        return dateBasedFormatWithYear.parse(dateString + "/" + Calendar.getInstance().get(Calendar.YEAR))
     }
 
     /**
      * @return Will return string in this format: Feb-1, Mar-22, Dec-11, etc
      */
     private fun dateFormatterPlanDateToString(date: Date): String {
-        return showPlanFileDateFormat.format(date).toString()
+        return dateBasedFormatMonthDay.format(date).toString()
     }
 
 }
