@@ -174,14 +174,14 @@ constructor() {
     private var documentTitleShortCode: String? = null
     private val documentTitleParts: Array<String>
         get() {
-            val title = documentTitleShortCode ?: dbAdapter.getCurrentPlanShortCode
+            val title = documentTitleShortCode ?: dbAdapter.currentPlanShortCode
             return getTwoTitleParts(title, false)
         }
 
     private var pageTitlePlanDayDescription: String? = null
     private val pageTitleParts: Array<String>
         get() {
-            val planDayDesc = pageTitlePlanDayDescription ?: dbAdapter.getCurrentDayAndNumberDescription
+            val planDayDesc = pageTitlePlanDayDescription ?: dbAdapter.currentDayAndNumberDescription
             return getTwoTitleParts(planDayDesc, true)
         }
 

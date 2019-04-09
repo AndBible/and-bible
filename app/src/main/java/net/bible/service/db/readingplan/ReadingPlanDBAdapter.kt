@@ -75,17 +75,16 @@ class ReadingPlanDBAdapter {
                 null,
                 null,
                 null)
-            var result: Int? = null
-            if (cursor.moveToFirst()) {
-                val readID: Int = cursor.getInt(0)
-                cursor.close()
-                result = readID
-            }
+            val result =
+                if (cursor.moveToFirst())
+                    cursor.getInt(0)
+                else null
+
             cursor.close()
             return result
         }
-        set(ReadPlanID) {
-            if (ReadPlanID != null && ReadPlanID != 0) {
+        set(newValue) {
+            if (newValue != null && newValue != 0) {
                 val setFalseValues = ContentValues().apply {
                     put(ReadingPlanMeta.COLUMN_LAST_USED_PLAN, DB_FALSE_VALUE)
                 }
@@ -93,7 +92,7 @@ class ReadingPlanDBAdapter {
                     put(ReadingPlanMeta.COLUMN_LAST_USED_PLAN, DB_TRUE_VALUE)
                 }
                 val whereClause = "${ReadingPlanMeta.COLUMN_ID}=?"
-                val whereArgs = arrayOf(ReadPlanID.toString())
+                val whereArgs = arrayOf(newValue.toString())
                 // Set all plans to false. ONLY 1 plan is the Current Active Plan
                 dbWritable.update(
                     ReadingPlanMeta.TABLE_NAME,
@@ -109,9 +108,13 @@ class ReadingPlanDBAdapter {
             }
         }
 
-    val getCurrentPlanShortCode: String =
+    val currentPlanShortCode: String get() =
         StringUtils.left(getMetaFileNameFromId(metaCurrentActiveReadingPlanID ?: 0),8)
-    val getCurrentDayAndNumberDescription: String = app.getString(R.string.rdg_plan_day, getMetaCurrentDayNumber(metaCurrentActiveReadingPlanID ?: 0).toString())
+    val currentDayAndNumberDescription: String get() =
+        app.getString(
+            R.string.rdg_plan_day,
+            getMetaCurrentDayNumber(metaCurrentActiveReadingPlanID ?: 0).toString()
+        )
     /** Will always get or set the current day number from the active reading plan
      * @return Null result means that it is a date-based plan and there are no readings for today.
      */
