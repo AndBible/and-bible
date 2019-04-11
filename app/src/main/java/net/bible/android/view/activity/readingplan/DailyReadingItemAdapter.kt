@@ -48,15 +48,16 @@ class DailyReadingItemAdapter(context: Context, private val resource: Int, items
         }
 
         // Set value for the first text field
-        if (view.text1 != null) {
-            val line1 = item!!.dayAndNumberDescription
-            view.text1.text = line1
+        if (view.text1 != null && item != null) {
+                view.text1.text =
+                    if (item.readingPlanInfo.isDateBased)
+                        item.readingDateForDateBasedPlan
+                    else item.dayAndNumberDescription
         }
 
         // set value for the second text field
-        if (view.text2 != null) {
-            val line2 = item!!.readingChaptersDescription
-            view.text2.text = line2
+        if (view.text2 != null && item != null) {
+            view.text2.text = item.readingChaptersDescription
         }
 
         return view

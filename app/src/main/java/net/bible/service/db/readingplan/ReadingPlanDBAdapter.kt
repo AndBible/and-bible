@@ -589,7 +589,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
                           private var readingPlanMetaId: Int? = null,
                           var dayNumber: Int? = null,
                           private var readingChaptersString: String? = null,
-                          private var readingDateForDateBasedPlan: String? = null,
+                          var readingDateForDateBasedPlan: String? = null,
                           private var readingStatusJSON: String? = null
 ) {
     companion object {
