@@ -45,6 +45,7 @@ import net.bible.android.control.versification.VersificationConverter
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
+import net.bible.service.db.CommonDatabaseHelper
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
 import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanInformationDB
@@ -507,7 +508,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 if (permissionGranted) {
                     Log.i(TAG, "Permission is granted to access external files.")
                     ReadingPlanDatabaseDefinition.Operations.importReadingPlansToDatabase(
-                        ReadingPlanDBAdapter.dbHelper.writableDatabase
+                        CommonDatabaseHelper.getInstance().readableDatabase
                     )
 
                     // TODO: Convert to string resource

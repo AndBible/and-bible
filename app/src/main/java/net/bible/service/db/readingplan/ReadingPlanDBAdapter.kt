@@ -49,10 +49,9 @@ import kotlin.collections.ArrayList
  */
 class ReadingPlanDBAdapter {
     companion object {
-        const val TAG = "ReadingPlanDBAdapter"
-        const val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
-        val app = BibleApplication.application
-        val dbHelper: CommonDatabaseHelper = CommonDatabaseHelper.getInstance()
+        private const val TAG = "ReadingPlanDBAdapter"
+        private val app = BibleApplication.application
+        private val dbHelper: CommonDatabaseHelper = CommonDatabaseHelper.getInstance()
 
         private val dbReadable = dbHelper.readableDatabase
 
@@ -541,10 +540,10 @@ class ReadingPlanDBAdapter {
 class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
     companion object {
         const val TAG = "ReadingPlanInfoDB"
+        private const val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
     }
 
     private val dbAdapter = ReadingPlanDBAdapter()
-    private val dbAdapterStatic = ReadingPlanDBAdapter
 
     val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.metaCurrentActiveReadingPlanID!!
     val isDateBased: Boolean = dbAdapter.getMetaIsDateBasedPlan(metaID)
@@ -568,8 +567,8 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
                 Versifications.instance().getVersification(versificationName)
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading versification from Reading plan:$fileName. " +
-                    "Will now use ${dbAdapterStatic.INCLUSIVE_VERSIFICATION} because it includes most books.")
-                Versifications.instance().getVersification(dbAdapterStatic.INCLUSIVE_VERSIFICATION)
+                    "Will now use $INCLUSIVE_VERSIFICATION because it includes most books.")
+                Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
             }
         }
 
@@ -644,14 +643,14 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
     val readingChaptersKeyArray = generateReadingKeys()
     val readingChaptersDescription: String
         get() {
-            val readingsBldr = StringBuilder()
+            val readingsBuilder = StringBuilder()
             var appendString = ""
             for (i in readingChaptersKeyArray!!.indices) {
-                readingsBldr.append(appendString)
-                readingsBldr.append(readingChaptersKeyArray[i].name)
+                readingsBuilder.append(appendString)
+                readingsBuilder.append(readingChaptersKeyArray[i].name)
                 appendString = ", "
             }
-            return readingsBldr.toString()
+            return readingsBuilder.toString()
         }
 
     fun getReadingKey(readingNumber: Int): Key {
