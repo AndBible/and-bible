@@ -60,7 +60,7 @@ class ReadingPlanDBAdapter {
 
     }
 
-    var metaCurrentActiveReadingPlanID: Int?
+    var currentActiveReadingPlanID: Int?
         get() {
             val cursor = dbReadable.query(
                 ReadingPlanMeta.TABLE_NAME,
@@ -104,17 +104,16 @@ class ReadingPlanDBAdapter {
         }
 
     val currentPlanShortCode: String get() =
-        StringUtils.left(getMetaFileNameFromId(metaCurrentActiveReadingPlanID ?: 0),8)
+        StringUtils.left(getPlanFileNameFromId(currentActiveReadingPlanID ?: 0),8)
     val currentDayAndNumberDescription: String get() =
         app.getString(
             R.string.rdg_plan_day,
-            getMetaCurrentDayNumber(metaCurrentActiveReadingPlanID ?: 0).toString()
+            getCurrentDayNumber(currentActiveReadingPlanID ?: 0).toString()
         )
     /** Will always get or set the current day number from the active reading plan
-     * @return Null result means that it is a date-based plan and there are no readings for today.
      */
-    fun getMetaCurrentDayNumber(readingPlanMetaId: Int): Int {
-        if (getMetaIsDateBasedPlan(readingPlanMetaId)) {
+    fun getCurrentDayNumber(readingPlanMetaId: Int): Int {
+        if (getIsDateBasedPlan(readingPlanMetaId)) {
             val q = dbReadable.query(
                 ReadingPlanDays.TABLE_NAME,
                 arrayOf(ReadingPlanDays.COLUMN_DAY_NUMBER),
@@ -133,15 +132,13 @@ class ReadingPlanDBAdapter {
         } else {
 
             val currentDay: Int = getMetaIntegerDB(readingPlanMetaId, ReadingPlanMeta.COLUMN_CURRENT_DAY) ?: 1
-            return when (currentDay) {
-                0 -> 1
-                else -> currentDay
-            }
+            return if (currentDay == 0) 1
+                else currentDay
         }
     }
 
-    fun setMetaCurrentDayNumber(readingPlanMetaId: Int, dayNumber: Int) {
-        if (!getMetaIsDateBasedPlan(readingPlanMetaId)) {
+    fun setCurrentDayNumber(readingPlanMetaId: Int, dayNumber: Int) {
+        if (!getIsDateBasedPlan(readingPlanMetaId)) {
             val values = ContentValues().apply {
                 put(ReadingPlanMeta.COLUMN_CURRENT_DAY, dayNumber)
             }
@@ -154,7 +151,7 @@ class ReadingPlanDBAdapter {
 
     fun getDueDayToBeRead(readingPlanMetaId: Int): Long {
         val today = CommonUtils.getTruncatedDate()
-        val startDate = getMetaReadingPlanStartDate(readingPlanMetaId)
+        val startDate = getPlanStartDate(readingPlanMetaId)
         startDate ?: return -1
         // on final day, after done the startDate will be null
 
@@ -170,8 +167,8 @@ class ReadingPlanDBAdapter {
     }
 
     fun incrementCurrentPlanDay(): Int {
-        val readingPlanMetaId: Int = metaCurrentActiveReadingPlanID!!
-        val currentDay: Int = getMetaCurrentDayNumber(readingPlanMetaId)
+        val readingPlanMetaId: Int = currentActiveReadingPlanID!!
+        val currentDay: Int = getCurrentDayNumber(readingPlanMetaId)
 
         val q = dbReadable.query(
             ReadingPlanDays.TABLE_NAME,
@@ -190,7 +187,7 @@ class ReadingPlanDBAdapter {
 
         // Update plan current day
         if (result > 0) {
-            setMetaCurrentDayNumber(metaCurrentActiveReadingPlanID!!, result)
+            setCurrentDayNumber(currentActiveReadingPlanID!!, result)
         }
 
 
@@ -198,7 +195,7 @@ class ReadingPlanDBAdapter {
     }
 
     fun setAllDaysReadUpTo(dayNumber: Int) {
-        val readingPlanMetaId: Int = metaCurrentActiveReadingPlanID!!
+        val readingPlanMetaId: Int = currentActiveReadingPlanID!!
         val numberOfReadings: Int = getDayNumberOfReadings(readingPlanMetaId,dayNumber)
 
         val values = ContentValues().apply {
@@ -216,21 +213,19 @@ class ReadingPlanDBAdapter {
         dbReadable.update(ReadingPlanDays.TABLE_NAME, values, whereClause, whereArgs)
     }
 
-    fun getMetaIsDateBasedPlan(ReadingPlanMetaID: Int): Boolean {
+    fun getIsDateBasedPlan(ReadingPlanMetaID: Int): Boolean {
         return when (getMetaIntegerDB(ReadingPlanMetaID,ReadingPlanMeta.COLUMN_CURRENT_DAY)) {
             ReadingPlanMeta.CONSTANT_CURRENT_DAY_BY_DATE -> true
             else -> false
         }
     }
 
-    fun getMetaIsCustomUserAddedPlan(fileName: String): Boolean {
-        return when (getPlanDetailLink(null, fileName)) {
-            null -> true
-            else -> false
-        }
+    fun getIsCustomUserAddedPlan(fileName: String): Boolean {
+        return if (getPlanDetailLink(null, fileName) == null) true
+            else false
     }
 
-    fun getMetaIsPlanAlreadyImported(fileName: String): Boolean {
+    fun getIsPlanAlreadyImported(fileName: String): Boolean {
         val q = dbReadable.query(
             ReadingPlanMeta.TABLE_NAME,
             arrayOf(ReadingPlanMeta.COLUMN_ID),
@@ -247,27 +242,27 @@ class ReadingPlanDBAdapter {
 
     /**
      * Get's Reading Plan description from resources strings. If not available there, it will try to get description
-     * from DB with second of this function with double constructor, here: [getMetaReadingPlanDescription]
+     * from DB with second of this function with double constructor, here: [getPlanDescription]
      */
-    fun getMetaReadingPlanDescription(ReadingPlanMetaID: Int): String {
+    fun getPlanDescription(ReadingPlanMetaID: Int): String {
         return getPlanDetailLink(ReadingPlanMetaID)?.planDescription ?:
-            getMetaReadingPlanDescription(ReadingPlanMetaID, true)
+            getPlanDescription(ReadingPlanMetaID, true)
     }
 
     /**
      * Get's Reading Plan description from database. AndBible distributed reading plans
      * should always get description from resources strings, which this first function with one
-     * constructor param does, here: [getMetaReadingPlanDescription]
+     * constructor param does, here: [getPlanDescription]
      */
-    private fun getMetaReadingPlanDescription(ReadingPlanMetaID: Int, fromDB: Boolean): String {
+    private fun getPlanDescription(ReadingPlanMetaID: Int, fromDB: Boolean): String {
         return getMetaStringDB(ReadingPlanMetaID, ReadingPlanMeta.COLUMN_DESCRIPTION) ?: ""
     }
 
-    fun getMetaFileNameFromId(ReadingPlanMetaID: Int): String {
+    fun getPlanFileNameFromId(ReadingPlanMetaID: Int): String {
         return getMetaStringDB(ReadingPlanMetaID, ReadingPlanMeta.COLUMN_PLAN_FILE_NAME) ?: ""
     }
 
-    fun getMetaReadingPlanList(): List<ReadingPlanInformationDB> {
+    fun getPlanList(): List<ReadingPlanInformationDB> {
         val readingPlanList = ArrayList<ReadingPlanInformationDB>()
 
         val q = dbReadable.query(
@@ -283,7 +278,7 @@ class ReadingPlanDBAdapter {
         return readingPlanList
     }
 
-    fun getMetaPlanDaysList(readingPlanMetaId: Int): List<ReadingPlanOneDayDB> {
+    fun getPlanDaysList(readingPlanMetaId: Int): List<ReadingPlanOneDayDB> {
         val readingPlanDaysList = ArrayList<ReadingPlanOneDayDB>()
 
         val planInfo = ReadingPlanInformationDB(readingPlanMetaId)
@@ -318,18 +313,18 @@ class ReadingPlanDBAdapter {
         return readingPlanDaysList
     }
 
-    fun getMetaReadingPlanName(ReadingPlanMetaID: Int): String {
-        return getPlanDetailLink(ReadingPlanMetaID)?.planName ?: getMetaReadingPlanName(ReadingPlanMetaID, true)
+    fun getPlanName(ReadingPlanMetaID: Int): String {
+        return getPlanDetailLink(ReadingPlanMetaID)?.planName ?: getPlanName(ReadingPlanMetaID, true)
     }
 
-    private fun getMetaReadingPlanName(ReadingPlanMetaID: Int, fromDB: Boolean): String {
+    private fun getPlanName(ReadingPlanMetaID: Int, fromDB: Boolean): String {
         return when (fromDB) {
             true -> getMetaStringDB(ReadingPlanMetaID, ReadingPlanMeta.COLUMN_PLAN_NAME) ?: ""
             else -> ""
         }
     }
 
-    fun getMetaReadingPlanStartDate(readingPlanMetaId: Int): Date? {
+    fun getPlanStartDate(readingPlanMetaId: Int): Date? {
         val startDateInt: Long? = getMetaLongDB(readingPlanMetaId,ReadingPlanMeta.COLUMN_DATE_START)
         startDateInt ?: return null
         return Date(startDateInt)
@@ -338,7 +333,7 @@ class ReadingPlanDBAdapter {
     /**
      * @param startDate If parameter is not passed, will set start date as today.
      */
-    fun setMetaReadingPlanStartDate(readingPlanMetaId: Int, startDate: Date? = null) {
+    fun setPlanStartDate(readingPlanMetaId: Int, startDate: Date? = null) {
         val updateDate: Date = startDate ?: getTodayDate
         val values = ContentValues().apply {
             put(ReadingPlanMeta.COLUMN_DATE_START, updateDate.time)
@@ -353,11 +348,11 @@ class ReadingPlanDBAdapter {
 
     val getTodayDate: Date get() = Calendar.getInstance().time
 
-    fun getMetaTotalDays(ReadingPlanMetaID: Int): Int {
+    fun getPlanTotalDays(ReadingPlanMetaID: Int): Int {
         return getMetaIntegerDB(ReadingPlanMetaID,ReadingPlanMeta.COLUMN_DAYS_IN_PLAN) ?: 0
     }
 
-    fun getMetaVersificationName(ReadingPlanMetaID: Int): String? {
+    fun getPlanVersificationName(ReadingPlanMetaID: Int): String? {
         return getMetaStringDB(ReadingPlanMetaID, ReadingPlanMeta.COLUMN_VERSIFICATION_NAME)
     }
 
@@ -415,7 +410,7 @@ class ReadingPlanDBAdapter {
 
         // Update meta info, reset start date and current day
         val metaValues = ContentValues().apply {
-            if (!getMetaIsDateBasedPlan(readingPlanMetaId)) {
+            if (!getIsDateBasedPlan(readingPlanMetaId)) {
                 put(ReadingPlanMeta.COLUMN_CURRENT_DAY, 0)
             }
             put(ReadingPlanMeta.COLUMN_DATE_START, getTodayDate.time)
@@ -428,9 +423,9 @@ class ReadingPlanDBAdapter {
     fun switchToReadingPlan(readingPlanInfo: ReadingPlanInformationDB) {
         Log.d(TAG, "Switching reading plan. R.Plan.Id=${readingPlanInfo.metaID} -- " +
             "startDate=${readingPlanInfo.startDate}")
-        metaCurrentActiveReadingPlanID = readingPlanInfo.metaID
-        if (getMetaReadingPlanStartDate(readingPlanInfo.metaID) == null) {
-            setMetaReadingPlanStartDate(readingPlanInfo.metaID)
+        currentActiveReadingPlanID = readingPlanInfo.metaID
+        if (getPlanStartDate(readingPlanInfo.metaID) == null) {
+            setPlanStartDate(readingPlanInfo.metaID)
         }
     }
 
@@ -512,7 +507,7 @@ class ReadingPlanDBAdapter {
      */
     private fun getPlanDetailLink(readingPlanMetaID: Int? = null, fileName: String? = null
     ): DailyReading.Companion.PlanDetails? {
-        val useFileName = fileName ?: getMetaFileNameFromId(readingPlanMetaID!!)
+        val useFileName = fileName ?: getPlanFileNameFromId(readingPlanMetaID!!)
         return DailyReading.ABDistributedPlanDetailArray.find { it.fileName == useFileName }
     }
 
@@ -545,15 +540,15 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
 
     private val dbAdapter = ReadingPlanDBAdapter()
 
-    val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.metaCurrentActiveReadingPlanID!!
-    val isDateBased: Boolean = dbAdapter.getMetaIsDateBasedPlan(metaID)
-    val fileName: String = dbAdapter.getMetaFileNameFromId(metaID)
-    val planName: String = dbAdapter.getMetaReadingPlanName(metaID)
-    val planDescription: String = dbAdapter.getMetaReadingPlanDescription(metaID)
-    val startDate: Date? = dbAdapter.getMetaReadingPlanStartDate(metaID)
-    val totalDays: Int = dbAdapter.getMetaTotalDays(metaID)
-    val versificationName: String? = dbAdapter.getMetaVersificationName(metaID)
-    val isCustomUserAdded: Boolean = dbAdapter.getMetaIsCustomUserAddedPlan(fileName)
+    val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.currentActiveReadingPlanID!!
+    val isDateBased: Boolean = dbAdapter.getIsDateBasedPlan(metaID)
+    val fileName: String = dbAdapter.getPlanFileNameFromId(metaID)
+    val planName: String = dbAdapter.getPlanName(metaID)
+    val planDescription: String = dbAdapter.getPlanDescription(metaID)
+    val startDate: Date? = dbAdapter.getPlanStartDate(metaID)
+    val totalDays: Int = dbAdapter.getPlanTotalDays(metaID)
+    val versificationName: String? = dbAdapter.getPlanVersificationName(metaID)
+    val isCustomUserAdded: Boolean = dbAdapter.getIsCustomUserAddedPlan(fileName)
 
     /**
      * Get versification specified in properties file e.g. 'Versification=Vulg', now stored in DB
@@ -606,7 +601,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
     init {
         if (readingPlanMetaId == null) {
             readingPlanMetaId = readingPlanInfo.metaID
-            dayNumber = readingPlanDayNumberParam ?: dbAdapter.getMetaCurrentDayNumber(readingPlanMetaId!!)
+            dayNumber = readingPlanDayNumberParam ?: dbAdapter.getCurrentDayNumber(readingPlanMetaId!!)
             readingChaptersString = dbAdapter.getDayReadingChaptersString(readingPlanMetaId!!, dayNumber!!)
             readingStatusJSON = dbAdapter.getDayReadingStatus(readingPlanMetaId!!, dayNumber!!)
             readingDateForDateBasedPlan = dbAdapter.getDayDateString(readingPlanMetaId!!, dayNumber!!)

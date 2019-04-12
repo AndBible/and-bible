@@ -101,7 +101,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         var readingPlanInfo: ReadingPlanInformationDB? = null
         var readingPlanOneDay: ReadingPlanOneDayDB? = null
 
-        if (dbAdapter.metaCurrentActiveReadingPlanID == null) {
+        if (dbAdapter.currentActiveReadingPlanID == null) {
             // Load plan selection screen
             startActivityForResult(
                 Intent(this, ReadingPlanSelectorList::class.java),
@@ -160,7 +160,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             if (readingPlanInfo.metaID != readingPlanMetaID || forceReload) {
                 readingPlanMetaID = readingPlanInfo.metaID
 
-                dbAdapter.metaCurrentActiveReadingPlanID = readingPlanMetaID
+                dbAdapter.currentActiveReadingPlanID = readingPlanMetaID
 
                 descriptionTextView.text = readingPlanInfo.planName
                 statusMessageTextView.text = ""
@@ -394,16 +394,16 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         val dayNumber: Int = readingPlanDayNumber!!
         // force Done to work for whatever day is passed in, otherwise Done only works for current plan day and ignores other days
         if (force) {
-            dbAdapter.setMetaCurrentDayNumber(planID, dayNumber)
+            dbAdapter.setCurrentDayNumber(planID, dayNumber)
 
             dbAdapter.setAllDaysReadUpTo(readingPlanDayNumber!!)
             readingPlanOneDay.readingStatus.setAllRead(readingPlanDayNumber!!)
         }
 
         // was this the next reading plan day due whether on schedule or not
-        Log.d(TAG, "The current day number for the plan is ${dbAdapter.getMetaCurrentDayNumber(planID)}")
+        Log.d(TAG, "The current day number for the plan is ${dbAdapter.getCurrentDayNumber(planID)}")
         Log.d(TAG, "The loaded day number on the screen is $dayNumber")
-        if (dbAdapter.getMetaCurrentDayNumber(planID) == dayNumber) {
+        if (dbAdapter.getCurrentDayNumber(planID) == dayNumber) {
             // was this the last day in the plan
             if (readingPlanOneDay.readingPlanInfo.totalDays == readingPlanDayNumber) {
                 // TODO: Give user the option to reset plan since it's done now.
@@ -435,7 +435,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         Log.d(TAG, "requestCode=$requestCode -- resultCode=$resultCode")
         // If no reading plan is selected, and there is none selected from before, exit DailyReading
         if (requestCode == REQUEST_CODE_READING_PLAN_LIST && resultCode != RESULT_OK) {
-            if (dbAdapter.metaCurrentActiveReadingPlanID == null) {
+            if (dbAdapter.currentActiveReadingPlanID == null) {
                 finish()
             }
         }
@@ -483,7 +483,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 isHandled = true
             }
             R.id.setStartToJan1 -> {
-                dbAdapter.setMetaReadingPlanStartDate(readingPlanMetaID!!, DateUtils.truncate(Date(), Calendar.YEAR))
+                dbAdapter.setPlanStartDate(readingPlanMetaID!!, DateUtils.truncate(Date(), Calendar.YEAR))
 
                 loadPlanOneDay(null, ReadingPlanInformationDB(readingPlanMetaID), true)
 

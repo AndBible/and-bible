@@ -41,7 +41,7 @@ import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 class ReadingPlanSelectorList : ListActivityBase() {
 
     private val dbAdapter = ReadingPlanDBAdapter()
-    private var readingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getMetaReadingPlanList()
+    private var readingPlanList: List<ReadingPlanInformationDB> = dbAdapter.getPlanList()
     private lateinit var planArrayAdapter: ArrayAdapter<ReadingPlanInformationDB>
 
     /** Called when the activity is first created.  */

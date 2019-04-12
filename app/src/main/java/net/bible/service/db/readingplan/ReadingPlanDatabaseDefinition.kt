@@ -136,7 +136,7 @@ object ReadingPlanDatabaseDefinition {
                 val currentPlanCode = prefs.getString("reading_plan", "") as String
 
                 for (plan in readingPlanCodes) {
-                    if (firstImport || (!firstImport && !dbAdapter.getMetaIsPlanAlreadyImported(plan.code))) {
+                    if (firstImport || (!firstImport && !dbAdapter.getIsPlanAlreadyImported(plan.code))) {
                         var thisPlanDay: Int = prefs.getInt(plan.code + "_day", 0)
 
                         val metaValues = ContentValues().apply {
@@ -154,9 +154,7 @@ object ReadingPlanDatabaseDefinition {
 
                         val dbReadingPlanMetaID = db.insert(ReadingPlanMeta.TABLE_NAME, null, metaValues)
 
-                        val planReadingList = ReadingPlanDao()
-                            .getReadingList(plan.code)
-
+                        val planReadingList = ReadingPlanDao().getReadingList(plan.code)
 
                         var isDateBasedPlan: Boolean? = null
 

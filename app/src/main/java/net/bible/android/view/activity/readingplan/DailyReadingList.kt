@@ -33,8 +33,6 @@ import net.bible.service.db.readingplan.ReadingPlanDBAdapter
 import net.bible.service.db.readingplan.ReadingPlanOneDayDB
 import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
 
-import javax.inject.Inject
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -54,7 +52,7 @@ class DailyReadingList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
 
-		readingsList = dbAdapter.getMetaPlanDaysList(dbAdapter.metaCurrentActiveReadingPlanID ?: 0)
+		readingsList = dbAdapter.getPlanDaysList(dbAdapter.currentActiveReadingPlanID ?: 0)
 
         adapter = DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, readingsList)
         listAdapter = adapter
