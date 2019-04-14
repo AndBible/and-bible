@@ -112,7 +112,10 @@ class OneDaysReadingsDto(val day: Int,
                 // Check if string contains : (Would happen in case of date-based plan, shows Feb-1:Gen.1,Exo.1)
                 if (StringUtils.contains(mReadings,";")) {
                     dateBasedReadingDateStringFromFile = mReadings?.replace(";.*".toRegex(),"") // like Feb-1
-                    dateBasedReadingDate = ReadingPlanDBAdapter.dateBasedFormatWithYear.parse(dateBasedReadingDateStringFromFile + "/" + Calendar.getInstance().get(Calendar.YEAR))
+                    dateBasedReadingDate =
+                        ReadingPlanDBAdapter.dateBasedFormatWithYear.parse(
+                            dateBasedReadingDateStringFromFile + "/" + Calendar.getInstance().get(Calendar.YEAR)
+                        )
                     mReadings = mReadings?.replace("^.*;".toRegex(),"")
                 }
 

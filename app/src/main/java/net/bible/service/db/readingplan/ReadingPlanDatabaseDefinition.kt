@@ -72,27 +72,27 @@ object ReadingPlanDatabaseDefinition {
         companion object {
             private const val TAG = "ReadingPlanDatabaseOps"
             private const val SQL_CREATE_ENTRIES_META =
-                "CREATE TABLE ${ReadingPlanMeta.TABLE_NAME} (" +
-                "${ReadingPlanMeta.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "${ReadingPlanMeta.COLUMN_PLAN_FILE_NAME} TEXT NOT NULL," +
-                "${ReadingPlanMeta.COLUMN_PLAN_NAME} TEXT NOT NULL," +
-                "${ReadingPlanMeta.COLUMN_DESCRIPTION} TEXT NOT NULL," +
-                "${ReadingPlanMeta.COLUMN_DATE_START} INTEGER," +
-                "${ReadingPlanMeta.COLUMN_DAYS_IN_PLAN} INTEGER," +
-                "${ReadingPlanMeta.COLUMN_CURRENT_DAY} INTEGER NOT NULL DEFAULT 0," +
-                "${ReadingPlanMeta.COLUMN_VERSIFICATION_NAME} TEXT NOT NULL," +
-                "${ReadingPlanMeta.COLUMN_LAST_USED_PLAN} INTEGER NOT NULL DEFAULT 0" +
-                "); "
+                """CREATE TABLE ${ReadingPlanMeta.TABLE_NAME} (
+                ${ReadingPlanMeta.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
+                ${ReadingPlanMeta.COLUMN_PLAN_FILE_NAME} TEXT NOT NULL,
+                ${ReadingPlanMeta.COLUMN_PLAN_NAME} TEXT NOT NULL,
+                ${ReadingPlanMeta.COLUMN_DESCRIPTION} TEXT NOT NULL,
+                ${ReadingPlanMeta.COLUMN_DATE_START} INTEGER,
+                ${ReadingPlanMeta.COLUMN_DAYS_IN_PLAN} INTEGER,
+                ${ReadingPlanMeta.COLUMN_CURRENT_DAY} INTEGER NOT NULL DEFAULT 0,
+                ${ReadingPlanMeta.COLUMN_VERSIFICATION_NAME} TEXT NOT NULL,
+                ${ReadingPlanMeta.COLUMN_LAST_USED_PLAN} INTEGER NOT NULL DEFAULT 0
+                ); """
 
             private const val SQL_CREATE_ENTRIES_DAYS =
-                "CREATE TABLE ${ReadingPlanDays.TABLE_NAME} (" +
-                "${ReadingPlanDays.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "${ReadingPlanDays.COLUMN_READING_PLAN_META_ID} INTEGER NOT NULL," +
-                "${ReadingPlanDays.COLUMN_DAY_NUMBER} INTEGER NOT NULL," +
-                "${ReadingPlanDays.COLUMN_READING_DATE} TEXT," +
-                "${ReadingPlanDays.COLUMN_DAY_CHAPTERS} TEXT NOT NULL," +
-                "${ReadingPlanDays.COLUMN_READ_STATUS} TEXT" +
-                ");"
+                """CREATE TABLE ${ReadingPlanDays.TABLE_NAME} (
+                ${ReadingPlanDays.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
+                ${ReadingPlanDays.COLUMN_READING_PLAN_META_ID} INTEGER NOT NULL,
+                ${ReadingPlanDays.COLUMN_DAY_NUMBER} INTEGER NOT NULL,
+                ${ReadingPlanDays.COLUMN_READING_DATE} TEXT,
+                ${ReadingPlanDays.COLUMN_DAY_CHAPTERS} TEXT NOT NULL,
+                ${ReadingPlanDays.COLUMN_READ_STATUS} TEXT
+                );"""
 
             private const val SQL_CREATE_DAYS_INDEX =
                 "CREATE INDEX days_date_name ON ${ReadingPlanDays.TABLE_NAME}(${ReadingPlanDays.COLUMN_READING_DATE});"
