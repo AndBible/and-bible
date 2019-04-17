@@ -19,6 +19,7 @@
 package net.bible.service.db.readingplan
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import android.provider.BaseColumns
 import android.util.Log
 import kotlinx.serialization.Serializable
@@ -50,68 +51,34 @@ import kotlin.collections.ArrayList
 class ReadingPlanDBAdapter {
     companion object {
         private const val TAG = "ReadingPlanDBAdapter"
+        const val CURRENT_PLAN_INDEX = "currentReadingPlanIndex"
         private val app = BibleApplication.application
         private val dbHelper: CommonDatabaseHelper = CommonDatabaseHelper.getInstance()
 
         private val writableDatabase = dbHelper.readableDatabase
+        private val preferences: SharedPreferences get() = CommonUtils.getSharedPreferences()
 
         private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
         val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
 
     }
 
-    var currentActiveReadingPlanID: Int?
+    var currentActiveReadingPlanID: Int
         get() {
-            val cursor = writableDatabase.query(
-                ReadingPlanMeta.TABLE_NAME,
-                arrayOf(BaseColumns._ID),
-                "${ReadingPlanMeta.COLUMN_LAST_USED_PLAN}=?",
-                arrayOf(DB_TRUE_VALUE),
-                null,
-                null,
-                null)
-            val result =
-                if (cursor.moveToFirst())
-                    cursor.getInt(0)
-                else null
-
-            cursor.close()
-            return result
+            return preferences.getInt(CURRENT_PLAN_INDEX,0)
         }
         set(newValue) {
-            if (newValue != null && newValue != 0) {
-                val setFalseValues = ContentValues().apply {
-                    put(ReadingPlanMeta.COLUMN_LAST_USED_PLAN, DB_FALSE_VALUE)
-                }
-                val setTheTrueValue = ContentValues().apply {
-                    put(ReadingPlanMeta.COLUMN_LAST_USED_PLAN, DB_TRUE_VALUE)
-                }
-                val whereClause = "${ReadingPlanMeta.COLUMN_ID}=?"
-                val whereArgs = arrayOf(newValue.toString())
-                // Set all plans to false. ONLY 1 plan is the Current Active Plan
-                writableDatabase.update(
-                    ReadingPlanMeta.TABLE_NAME,
-                    setFalseValues,
-                    null,
-                    null)
-                // Set the 1 Current Plan to Active
-                writableDatabase.update(
-                    ReadingPlanMeta.TABLE_NAME,
-                    setTheTrueValue,
-                    whereClause,
-                    whereArgs)
-            }
+            if (newValue != null) preferences.edit().putInt(CURRENT_PLAN_INDEX, newValue).apply()
         }
 
     val currentPlanShortCode: String get() =
-        StringUtils.left(getPlanFileNameFromId(currentActiveReadingPlanID ?: 0),8)
+        StringUtils.left(getPlanFileNameFromId(currentActiveReadingPlanID),8)
     val currentDayAndNumberDescription: String get() =
         app.getString(
             R.string.rdg_plan_day,
-            getCurrentDayNumber(currentActiveReadingPlanID ?: 0).toString()
+            getCurrentDayNumber(currentActiveReadingPlanID).toString()
         )
-    /** Will always get or set the current day number from the active reading plan
-     */
+
     fun getCurrentDayNumber(readingPlanMetaId: Int): Int {
         if (getIsDateBasedPlan(readingPlanMetaId)) {
             val q = writableDatabase.query(
@@ -167,7 +134,7 @@ class ReadingPlanDBAdapter {
     }
 
     fun incrementCurrentPlanDay(): Int {
-        val readingPlanMetaId: Int = currentActiveReadingPlanID!!
+        val readingPlanMetaId: Int = currentActiveReadingPlanID
         val currentDay: Int = getCurrentDayNumber(readingPlanMetaId)
 
         val q = writableDatabase.query(
@@ -187,7 +154,7 @@ class ReadingPlanDBAdapter {
 
         // Update plan current day
         if (result > 0) {
-            setCurrentDayNumber(currentActiveReadingPlanID!!, result)
+            setCurrentDayNumber(currentActiveReadingPlanID, result)
         }
 
 
@@ -195,7 +162,7 @@ class ReadingPlanDBAdapter {
     }
 
     fun setAllDaysReadUpTo(dayNumber: Int) {
-        val readingPlanMetaId: Int = currentActiveReadingPlanID!!
+        val readingPlanMetaId: Int = currentActiveReadingPlanID
         val numberOfReadings: Int = getDayNumberOfReadings(readingPlanMetaId,dayNumber)
 
         val values = ContentValues().apply {
@@ -540,7 +507,7 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
 
     private val dbAdapter = ReadingPlanDBAdapter()
 
-    val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.currentActiveReadingPlanID!!
+    val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.currentActiveReadingPlanID
     val isDateBased: Boolean = dbAdapter.getIsDateBasedPlan(metaID)
     val fileName: String = dbAdapter.getPlanFileNameFromId(metaID)
     val planName: String = dbAdapter.getPlanName(metaID)

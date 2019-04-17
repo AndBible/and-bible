@@ -55,7 +55,6 @@ object ReadingPlanDatabaseDefinition {
         const val COLUMN_DAYS_IN_PLAN = "days_in_plan"
         const val COLUMN_CURRENT_DAY = "current_day"
         const val COLUMN_VERSIFICATION_NAME = "versification"
-        const val COLUMN_LAST_USED_PLAN = "last_used"
     }
 
     object ReadingPlanDays : BaseColumns {
@@ -80,8 +79,7 @@ object ReadingPlanDatabaseDefinition {
                 ${ReadingPlanMeta.COLUMN_DATE_START} INTEGER,
                 ${ReadingPlanMeta.COLUMN_DAYS_IN_PLAN} INTEGER,
                 ${ReadingPlanMeta.COLUMN_CURRENT_DAY} INTEGER NOT NULL DEFAULT 0,
-                ${ReadingPlanMeta.COLUMN_VERSIFICATION_NAME} TEXT NOT NULL,
-                ${ReadingPlanMeta.COLUMN_LAST_USED_PLAN} INTEGER NOT NULL DEFAULT 0
+                ${ReadingPlanMeta.COLUMN_VERSIFICATION_NAME} TEXT NOT NULL
                 ); """
 
             private const val SQL_CREATE_ENTRIES_DAYS =
@@ -147,12 +145,12 @@ object ReadingPlanDatabaseDefinition {
                             put(ReadingPlanMeta.COLUMN_VERSIFICATION_NAME, plan.versification?.name)
                             put(ReadingPlanMeta.COLUMN_CURRENT_DAY, thisPlanDay)
                             put(ReadingPlanMeta.COLUMN_DATE_START, plan.startdate?.time)
-                            if (firstImport && currentPlanCode == plan.code) {
-                                put(ReadingPlanMeta.COLUMN_LAST_USED_PLAN, DB_TRUE_VALUE)
-                            }
                         }
 
                         val dbReadingPlanMetaID = db.insert(ReadingPlanMeta.TABLE_NAME, null, metaValues)
+                        if (firstImport && currentPlanCode == plan.code) {
+                            prefs.edit().putInt(ReadingPlanDBAdapter.CURRENT_PLAN_INDEX,dbReadingPlanMetaID.toInt()).apply()
+                        }
 
                         val planReadingList = ReadingPlanDao().getReadingList(plan.code)
 

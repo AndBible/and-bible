@@ -52,7 +52,7 @@ class DailyReadingList : ListActivityBase() {
 
         buildActivityComponent().inject(this)
 
-		readingsList = dbAdapter.getPlanDaysList(dbAdapter.currentActiveReadingPlanID ?: 0)
+		readingsList = dbAdapter.getPlanDaysList(dbAdapter.currentActiveReadingPlanID)
 
         adapter = DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, readingsList)
         listAdapter = adapter

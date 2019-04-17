@@ -101,7 +101,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         var readingPlanInfo: ReadingPlanInformationDB? = null
         var readingPlanOneDay: ReadingPlanOneDayDB? = null
 
-        if (dbAdapter.currentActiveReadingPlanID == null) {
+        if (dbAdapter.currentActiveReadingPlanID == 0) {
             // Load plan selection screen
             startActivityForResult(
                 Intent(this, ReadingPlanSelectorList::class.java),
@@ -160,7 +160,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             if (readingPlanInfo.metaID != readingPlanMetaID || forceReload) {
                 readingPlanMetaID = readingPlanInfo.metaID
 
-                dbAdapter.currentActiveReadingPlanID = readingPlanMetaID
+                dbAdapter.currentActiveReadingPlanID = readingPlanMetaID ?: 0
 
                 descriptionTextView.text = readingPlanInfo.planName
                 statusMessageTextView.text = ""
@@ -435,7 +435,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         Log.d(TAG, "requestCode=$requestCode -- resultCode=$resultCode")
         // If no reading plan is selected, and there is none selected from before, exit DailyReading
         if (requestCode == REQUEST_CODE_READING_PLAN_LIST && resultCode != RESULT_OK) {
-            if (dbAdapter.currentActiveReadingPlanID == null) {
+            if (dbAdapter.currentActiveReadingPlanID == 0) {
                 finish()
             }
         }
