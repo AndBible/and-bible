@@ -378,7 +378,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
     <string name="restore">Restore</string>
     <string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string>    
-    <string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string>
+    <string name="restore_success">My Notes and Bookmarks restored successfully</string>
     <string name="error_no_backup_file">A backup file could not be found</string>
 
     <!-- About -->
@@ -419,4 +419,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
+    <string name="backup_email_subject">And Bible database backup</string>
+    <string name="backup_email_message">Your And Bible database containing bookmarks and notes is attached</string>
+    <string name="backup_storage">Backup to storage</string>
+    <string name="restore_storage">Restore from storage</string>
+    <string name="restore_unsuccessfull">Restoring database was unsuccessfull. Perhaps you gave invalid database file.</string>
 </resources>
