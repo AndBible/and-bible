@@ -348,32 +348,20 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
-                if(mainBibleActivity.isSplitVertically) {
-                    b.animate().translationY(
-                        if(idx == 0) {
-                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2}
-                        else 0.0F
-                    )
-                        .setInterpolator(DecelerateInterpolator()).start()
-                }
-                else {
-                    b.animate().translationX(-mainBibleActivity.rightOffset1)
-                            .setInterpolator(DecelerateInterpolator()).start()
-                }
-                if(show) {
-                    b.animate()
-                        .alpha(VISIBLE_ALPHA)
-                        .translationY(
-                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2
-                        )
-                        .setInterpolator(DecelerateInterpolator())
-                        .start()
-                }  else {
-                    b.animate().alpha(HIDDEN_ALPHA)
-                        .setInterpolator(AccelerateInterpolator())
-                        .start()
+                // When switching to/from fullscreen, take into account the toolbar offset.
+                b.animate().translationY(
+                    if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                    else if(mainBibleActivity.isSplitVertically) 0.0F
+                    else mainBibleActivity.topOffset2
+                ).apply {
+                    if(show) {
+                        alpha(VISIBLE_ALPHA)
+                        interpolator = DecelerateInterpolator()
+                    }  else {
+                        alpha(HIDDEN_ALPHA)
+                        interpolator = AccelerateInterpolator()
+                    }
+                    start()
                 }
             }
 
