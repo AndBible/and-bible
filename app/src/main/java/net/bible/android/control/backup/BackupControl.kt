@@ -42,7 +42,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BackupControl {
+class BackupControl @Inject constructor() {
 
     /** return true if a backup has been done and the file is on the sd card.
      */
