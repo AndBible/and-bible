@@ -151,6 +151,11 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     }
 
 
+    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+        return super.onSingleTapUp(e)
+    }
+
     override fun onDoubleTap(e: MotionEvent): Boolean {
         if (mainBibleActivity.fullScreen) {
             mainBibleActivity.fullScreen = false
