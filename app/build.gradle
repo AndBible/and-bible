@@ -77,7 +77,7 @@ dependencies {
     
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation 'androidx.annotation:annotation:1.0.1'
+    implementation 'androidx.annotation:annotation:1.0.2'
 
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
