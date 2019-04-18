@@ -114,6 +114,7 @@ class BackupControl @Inject constructor() {
             out.write(header)
             out.write(inputStream.readBytes())
             out.close()
+            BibleApplication.application.deleteDatabase(CommonDatabaseHelper.DATABASE_NAME)
             ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
         }
 
