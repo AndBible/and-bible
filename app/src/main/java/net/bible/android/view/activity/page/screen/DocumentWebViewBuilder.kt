@@ -327,7 +327,7 @@ class DocumentWebViewBuilder @Inject constructor(
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
 
-        if(mainBibleActivity.fullScreen) {
+        if(true || mainBibleActivity.fullScreen) {
             timerTask = object : TimerTask() {
                 override fun run() {
                     toggleWindowButtonVisibility(false)
@@ -356,38 +356,27 @@ class DocumentWebViewBuilder @Inject constructor(
                         else 0.0F
                     )
                         .setInterpolator(DecelerateInterpolator()).start()
-
-                    if(show) {
-                        b.visibility = View.VISIBLE
-                        b.animate().translationX(-mainBibleActivity.rightOffset1)
-                                .setInterpolator(DecelerateInterpolator())
-                                .start()
-                    }  else {
-                        b.animate().translationX(b.width.toFloat())
-                                .setInterpolator(AccelerateInterpolator())
-                                .withEndAction { b.visibility = View.GONE }
-                                .start()
-                    }
                 }
                 else {
                     b.animate().translationX(-mainBibleActivity.rightOffset1)
                             .setInterpolator(DecelerateInterpolator()).start()
-                    if(show) {
-                        b.visibility = View.VISIBLE
-                        b.animate().translationY(
+                }
+                if(show) {
+                    b.animate()
+                        .alpha(VISIBLE_ALPHA)
+                        .translationY(
                             if(isSingleWindow) -mainBibleActivity.bottomOffset2
                             else mainBibleActivity.topOffset2
                         )
-                            .setInterpolator(DecelerateInterpolator())
-                            .start()
-                    }  else {
-                        b.animate().translationY(-b.height.toFloat())
-                            .setInterpolator(AccelerateInterpolator())
-                            .withEndAction { b.visibility = View.GONE }
-                            .start()
-                    }
+                        .setInterpolator(DecelerateInterpolator())
+                        .start()
+                }  else {
+                    b.animate().alpha(HIDDEN_ALPHA)
+                        .setInterpolator(AccelerateInterpolator())
+                        .start()
                 }
             }
+
             updateMinimizedButtons(show)
             updateBibleReferenceOverlay(show)
         }
@@ -397,14 +386,17 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
-            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
+            minimisedWindowsFrameContainer.animate()
+                .alpha(VISIBLE_ALPHA)
+                .translationY(-mainBibleActivity.bottomOffset2)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
         }  else {
-            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.bottomOffset2 + minimisedWindowsFrameContainer.height)
+            if(mainBibleActivity.fullScreen) {
+                minimisedWindowsFrameContainer.animate().alpha(HIDDEN_ALPHA)
                     .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
                     .start()
+            }
         }
     }
 
@@ -622,5 +614,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"
+        private const val HIDDEN_ALPHA = 0.2F
+        private const val VISIBLE_ALPHA = 1.0F
     }
 }
