@@ -18,6 +18,7 @@
 
 package net.bible.android.control.backup
 
+import android.app.Activity
 import android.os.Environment
 import android.util.Log
 import android.view.Menu
@@ -32,9 +33,17 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.FileManager
 import net.bible.service.db.CommonDatabaseHelper
 
+import android.content.Intent
+import android.net.Uri
+import androidx.core.content.FileProvider
+import kotlinx.serialization.internal.readExactNBytes
+import net.bible.android.activity.BuildConfig
 import java.io.File
-
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStreamWriter
 import javax.inject.Inject
+
 
 /**
  * Support backup and restore of the And bible database which contains bookmarks and notes.
@@ -42,7 +51,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BackupControl {
+class BackupControl @Inject constructor() {
 
     /** return true if a backup has been done and the file is on the sd card.
      */
@@ -64,6 +73,55 @@ class BackupControl {
         } else {
             Log.e(TAG, "Error copying database to SD card")
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+        }
+    }
+
+    /** backup database to custom target (email, drive etc.)
+     */
+    fun backupDatabaseViaIntent(callingActivity: Activity) {
+        val fileName = CommonDatabaseHelper.DATABASE_NAME
+        internalDbBackupDir.mkdirs()
+        FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, internalDbBackupDir)
+
+		val subject = callingActivity.getString(R.string.backup_email_subject)
+		val message = callingActivity.getString(R.string.backup_email_message)
+        val f = File(internalDbBackupDir, fileName)
+        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
+		val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, message)
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(uri))
+            type = "text/*"
+        }
+		val chooserIntent = Intent.createChooser(email, "Send")
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+		callingActivity.startActivity(chooserIntent)
+    }
+
+    /** backup database from custom source
+     */
+    fun restoreDatabaseViaIntent(inputStream: InputStream) {
+        val fileName = CommonDatabaseHelper.DATABASE_NAME
+        internalDbBackupDir.mkdirs()
+        val f = File(internalDbBackupDir, fileName)
+        var ok = false
+        val header = inputStream.readExactNBytes(16)
+        if(String(header) == "SQLite format 3\u0000") {
+            val out = FileOutputStream(f)
+            out.write(header)
+            out.write(inputStream.readBytes())
+            out.close()
+            ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbBackupDir, internalDbDir)
+        }
+
+        if (ok) {
+            CommonDatabaseHelper.reset()
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            Log.d(TAG, "Restored database successfully")
+            Dialogs.getInstance().showMsg(R.string.restore_success)
+        } else {
+            Log.e(TAG, "Error restoring database")
+            Dialogs.getInstance().showErrorMsg(R.string.restore_unsuccessfull)
         }
     }
 
@@ -94,6 +152,7 @@ class BackupControl {
 
         // this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
         private val internalDbDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/databases/")
+        private val internalDbBackupDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/backup")
 
         private val TAG = "BackupControl"
     }

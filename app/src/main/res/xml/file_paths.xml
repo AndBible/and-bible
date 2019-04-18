@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~ Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   ~
   ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
   ~
@@ -17,17 +17,6 @@
   ~
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/backup"
-        android:title="@string/backup"
-        android:icon="@android:drawable/ic_menu_save"/>
-    <item android:id="@+id/backupStorage"
-        android:title="@string/backup_storage"
-        android:icon="@android:drawable/ic_menu_save"/>
-    <item android:id="@+id/restore"
-        android:title="@string/restore"
-        android:icon="@android:drawable/ic_menu_set_as"/>
-    <item android:id="@+id/restoreStorage"
-        android:title="@string/restore_storage"
-        android:icon="@android:drawable/ic_menu_set_as"/>
-</menu>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="andBibleDatabase.db" path="backup"/>
+</paths>
