@@ -277,7 +277,9 @@ class SpeakControl @Inject constructor(
         }
 
         prepareForSpeaking()
-        speakPageManager.setCurrentDocumentAndKey(book, verse)
+        if(SpeakSettings.load().synchronize) {
+            speakPageManager.setCurrentDocumentAndKey(book, verse)
+        }
         try {
             textToSpeechServiceManager.get().speakBible(book, verse)
         } catch (e: Exception) {

@@ -8,6 +8,10 @@ android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId "net.bible.android.activity"
@@ -77,7 +81,7 @@ dependencies {
     
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation 'androidx.annotation:annotation:1.0.1'
+    implementation 'androidx.annotation:annotation:1.0.2'
 
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
