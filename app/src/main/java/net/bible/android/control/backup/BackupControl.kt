@@ -65,7 +65,6 @@ class BackupControl @Inject constructor() {
     /** backup database to sd card
      */
     fun backupDatabase() {
-        CommonDatabaseHelper.getInstance().writableDatabase.execSQL("PRAGMA wal_checkpoint(FULL)")
         CommonDatabaseHelper.sync()
         val ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR)
 
