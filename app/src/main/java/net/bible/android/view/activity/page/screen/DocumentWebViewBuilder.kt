@@ -348,12 +348,18 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
-                // When switching to/from fullscreen, take into account the toolbar offset.
-                b.animate().translationY(
-                    if (isSingleWindow) -mainBibleActivity.bottomOffset2
-                    else if(mainBibleActivity.isSplitVertically) 0.0F
-                    else mainBibleActivity.topOffset2
-                ).apply {
+                b.animate().apply {
+                    // When switching to/from fullscreen, take into account the toolbar offset.
+                    translationY(
+                        if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                        else (
+                            if(mainBibleActivity.isSplitVertically) {
+                                if(idx == 0) mainBibleActivity.topOffset2 else 0.0F
+                            }
+                            else mainBibleActivity.topOffset2
+                            )
+                    )
+
                     if(show) {
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
