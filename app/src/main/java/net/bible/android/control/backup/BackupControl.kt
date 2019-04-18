@@ -65,6 +65,8 @@ class BackupControl @Inject constructor() {
     /** backup database to sd card
      */
     fun backupDatabase() {
+        CommonDatabaseHelper.getInstance().writableDatabase.execSQL("PRAGMA wal_checkpoint(FULL)")
+        CommonDatabaseHelper.sync()
         val ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR)
 
         if (ok) {
@@ -79,9 +81,10 @@ class BackupControl @Inject constructor() {
     /** backup database to custom target (email, drive etc.)
      */
     fun backupDatabaseViaIntent(callingActivity: Activity) {
+        CommonDatabaseHelper.sync()
         val fileName = CommonDatabaseHelper.DATABASE_NAME
         internalDbBackupDir.mkdirs()
-        FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, internalDbBackupDir)
+        FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
 
 		val subject = callingActivity.getString(R.string.backup_email_subject)
 		val message = callingActivity.getString(R.string.backup_email_message)
@@ -111,7 +114,7 @@ class BackupControl @Inject constructor() {
             out.write(header)
             out.write(inputStream.readBytes())
             out.close()
-            ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbBackupDir, internalDbDir)
+            ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
         }
 
         if (ok) {

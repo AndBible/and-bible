@@ -63,6 +63,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.SharedActivityState
@@ -842,9 +843,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         when(requestCode) {
             REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    thread {
-                        val inputStream = contentResolver.openInputStream(data!!.data!!)
-                        backupControl.restoreDatabaseViaIntent(inputStream!!)
+                    CurrentActivityHolder.getInstance().currentActivity = this
+                    Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
+                        thread {
+                            val inputStream = contentResolver.openInputStream(data!!.data!!)
+                            backupControl.restoreDatabaseViaIntent(inputStream!!)
+                        }
                     }
                 }
             }
