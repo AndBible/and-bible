@@ -41,6 +41,7 @@ import net.bible.android.control.versification.VersificationConverter
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.db.CommonDatabaseHelper
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
@@ -492,6 +493,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     {
                         Log.d(TAG, "Resetting plan id $readingPlanMetaID")
                         dbAdapter.resetPlan(readingPlanMetaID!!)
+                        startActivity(Intent(app, DailyReading::class.java))
                         finish()
                     }
 

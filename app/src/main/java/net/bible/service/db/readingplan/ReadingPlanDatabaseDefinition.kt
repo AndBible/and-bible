@@ -157,9 +157,9 @@ object ReadingPlanDatabaseDefinition {
 
                         val dbReadingPlanMetaID = insertDatabaseMetaRecord(property, firstImport, db)
                         val planReadingList = getDailyReadingsFromProperties(property)
+                        planReadingList.sortBy { it.dayNumber }
 
                         for (dailyReading in planReadingList) {
-                            Log.d(TAG, "Parsing day ${dailyReading.dayNumber}, ${property.planName} plan")
                             val isDateBasedPlan = dailyReading.dateBasedDay != null
 
                             // Update meta table to specify plan as Date-Based

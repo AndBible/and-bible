@@ -149,6 +149,12 @@ class ReadingPlanDBAdapter {
             q.close()
         }
 
+        if (currentDay == 1) {
+            if (getPlanStartDate(readingPlanMetaId) == null) {
+                setPlanStartDate(readingPlanMetaId)
+            }
+        }
+
         // Update plan current day
         if (result > 0) {
             setCurrentDayNumber(currentActiveReadingPlanID, result)
@@ -387,8 +393,11 @@ class ReadingPlanDBAdapter {
         Log.d(TAG, """Switching reading plan. R.Plan.Id=${readingPlanInfo.metaID} --
             startDate=${readingPlanInfo.startDate}""")
         currentActiveReadingPlanID = readingPlanInfo.metaID
-        if (getPlanStartDate(readingPlanInfo.metaID) == null) {
-            setPlanStartDate(readingPlanInfo.metaID)
+
+        // Date based plan has no use for start date, except just for the record. Other plan start date is set
+        // in function incrementCurrentPlanDay()
+        if (getIsDateBasedPlan(readingPlanInfo.metaID) && getPlanStartDate(readingPlanInfo.metaID) == null) {
+                setPlanStartDate(readingPlanInfo.metaID)
         }
     }
 
