@@ -20,7 +20,6 @@ package net.bible.service.db.readingplan
 
 import android.content.ContentValues
 import android.content.SharedPreferences
-import android.provider.BaseColumns
 import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -30,8 +29,6 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.CommonDatabaseHelper
-import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition.DB_FALSE_VALUE
-import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition.DB_TRUE_VALUE
 import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition.ReadingPlanDays
 import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition.ReadingPlanMeta
 import net.bible.service.readingplan.PassageReader
@@ -68,7 +65,7 @@ class ReadingPlanDBAdapter {
             return preferences.getInt(CURRENT_PLAN_INDEX,0)
         }
         set(newValue) {
-            if (newValue != null) preferences.edit().putInt(CURRENT_PLAN_INDEX, newValue).apply()
+            preferences.edit().putInt(CURRENT_PLAN_INDEX, newValue).apply()
         }
 
     val currentPlanShortCode: String get() =
@@ -188,8 +185,7 @@ class ReadingPlanDBAdapter {
     }
 
     fun getIsCustomUserAddedPlan(fileName: String): Boolean {
-        return if (getPlanDetailLink(null, fileName) == null) true
-            else false
+        return getPlanDetailLink(null, fileName) == null
     }
 
     fun getIsPlanAlreadyImported(fileName: String): Boolean {
@@ -558,6 +554,22 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
 
         return readingPlanVersification!!
     }
+
+
+    override fun toString(): String {
+        return """
+            metaId=$metaID
+            isDateBased=$isDateBased
+            fileName=$fileName
+            planName=$planName
+            planDescription=$planDescription
+            startDate=$startDate
+            totalDays=$totalDays
+            versificationName=$versificationName
+            isCustomUserAdded=$isCustomUserAdded
+        """.trimIndent()
+    }
+
 }
 
 /**
@@ -735,4 +747,14 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
             dbAdapter.setDayReadingStatus(readingPlanMetaId, dayNumber, toJsonString())
         }
     }
+
+
+    override fun toString(): String {
+        return """metaId=$readingPlanMetaId
+            dayNumber=$dayNumber
+            readingChaptersString=$readingChaptersString
+            readingDateForDateBasedPlan=$readingDateForDateBasedPlan
+            readingStatusJSON=$readingStatusJSON""".trimIndent()
+    }
+
 }

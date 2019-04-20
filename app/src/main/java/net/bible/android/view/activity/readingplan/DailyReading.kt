@@ -18,10 +18,9 @@
 
 package net.bible.android.view.activity.readingplan
 
-import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -29,9 +28,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.reading_plan_one_day.*
 import net.bible.android.BibleApplication
 
@@ -42,6 +38,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.VersificationConverter
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
@@ -144,6 +141,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         readingPlanInformationParam: ReadingPlanInformationDB? = null,
         forceReload: Boolean = false
         ) {
+        Log.d(TAG, "readingPlanOneDayParam=${readingPlanOneDayParam.toString()}")
+        Log.d(TAG, "readingPlanInformationParam=${readingPlanInformationParam.toString()}")
+        Log.d(TAG, "forceReload=$forceReload")
 
         if (!forceReload && readingPlanOneDayParam == null && readingPlanInformationParam?.isDateBased == true) {
             // We have a started plan, but it is date-based and there's no reading for this day
@@ -437,11 +437,21 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "requestCode=$requestCode -- resultCode=$resultCode")
-        // If no reading plan is selected, and there is none selected from before, exit DailyReading
-        if (requestCode == REQUEST_CODE_READING_PLAN_LIST && resultCode != RESULT_OK) {
-            if (dbAdapter.currentActiveReadingPlanID == 0) {
-                finish()
+        Log.d(TAG, "onActivityResult requestCode=$requestCode, resultCode=$resultCode")
+        CurrentActivityHolder.getInstance().currentActivity = this
+        when (requestCode) {
+            RCODE_READING_PLAN_LIST -> {
+                if (resultCode != RESULT_OK || dbAdapter.currentActiveReadingPlanID == 0) {
+                    finish()
+                }
+            }
+            RCODE_PICK_PLAN_FILE -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    if (!ReadingPlanDatabaseDefinition.Operations.importReadingPlansToDatabase(
+                        CommonDatabaseHelper.getInstance().readableDatabase,
+                        data.data
+                    )) Dialogs.getInstance().showErrorMsg(R.string.error_importing_plan)
+                }
             }
         }
     }
@@ -496,29 +506,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
             R.id.importNewPlan -> {
 
-                var permissionGranted = false
-                val permission = ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "application/*"
+                startActivityForResult(intent, RCODE_PICK_PLAN_FILE)
 
-                if (permission != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(TAG, "Permission to access external storage denied")
-                    ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                        101)
-
-                } else {
-                    permissionGranted = true
-                }
-
-                if (permissionGranted) {
-                    Log.i(TAG, "Permission is granted to access external files.")
-                    ReadingPlanDatabaseDefinition.Operations.importReadingPlansToDatabase(
-                        CommonDatabaseHelper.getInstance().readableDatabase
-                    )
-
-                    // TODO: Convert to string resource
-                    Toast.makeText(this, "Reading plans have been imported.", Toast.LENGTH_SHORT).show()
-                }
                 isHandled = true
             }
         }
@@ -535,6 +526,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         private const val TAG = "DailyReading"
         private val app = BibleApplication.application
         const val RCODE_READING_PLAN_LIST = 101
+        const val RCODE_PICK_PLAN_FILE = 102
 
         // Link AB distributed reading plan file names with plan name/description resource strings
         val ABDistributedPlanDetailArray = arrayOf(
