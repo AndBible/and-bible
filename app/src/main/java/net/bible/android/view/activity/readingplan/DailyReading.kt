@@ -20,6 +20,7 @@ package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -41,7 +42,6 @@ import net.bible.android.control.versification.VersificationConverter
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.db.CommonDatabaseHelper
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
@@ -493,16 +493,28 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     {
                         Log.d(TAG, "Resetting plan id $readingPlanMetaID")
                         dbAdapter.resetPlan(readingPlanMetaID!!)
-                        startActivity(Intent(app, DailyReading::class.java))
-                        finish()
+                        reloadDailyReading()
                     }
 
                 isHandled = true
             }
             R.id.setStartDate -> {
-                dbAdapter.setPlanStartDate(readingPlanMetaID!!, DateUtils.truncate(Date(), Calendar.YEAR))
 
-                loadPlanOneDay(null, ReadingPlanInformationDB(readingPlanMetaID), true)
+                val nowTime = Calendar.getInstance()
+                val planStartDate = Calendar.getInstance()
+                planStartDate.time = dbAdapter.getPlanStartDate(readingPlanMetaID!!) ?: nowTime.time
+                val yearSet = planStartDate.get(Calendar.YEAR)
+                val monthSet = planStartDate.get(Calendar.MONTH)
+                val daySet = planStartDate.get(Calendar.DAY_OF_MONTH)
+
+                val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener {
+                    _, year, month, day ->
+                    planStartDate.set(year, month, day)
+                    dbAdapter.setPlanStartDate(readingPlanMetaID!!, planStartDate.time)
+                    reloadDailyReading()
+                }, yearSet, monthSet, daySet)
+                datePicker.datePicker.maxDate = nowTime.timeInMillis
+                datePicker.show()
 
                 isHandled = true
             }
@@ -521,6 +533,11 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         }
 
         return isHandled
+    }
+
+    private fun reloadDailyReading() {
+        startActivity(Intent(app, DailyReading::class.java))
+        finish()
     }
 
     companion object {
