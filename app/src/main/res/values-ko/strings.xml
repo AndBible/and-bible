@@ -109,7 +109,7 @@
   <string name="rdg_plan_title">읽기 계획</string>
   <string name="rdg_plan_selector_title">읽기 계획을 선택</string>
   <string name="rdg_plan_day">일 %s</string>
-  <string name="rdg_plan_set_start_jan1">시작 Jan 1</string>
+  <string name="rdg_plan_set_start_date">시작 Jan 1</string>
   <string name="done">완료</string>
   <string name="reset">재설정</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

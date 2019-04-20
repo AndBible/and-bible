@@ -110,7 +110,7 @@
   <string name="rdg_plan_title">Olvasási terv</string>
   <string name="rdg_plan_selector_title">Olvasási terv választása</string>
   <string name="rdg_plan_day">%s. nap</string>
-  <string name="rdg_plan_set_start_jan1">Kezdés jan. 1-én</string>
+  <string name="rdg_plan_set_start_date">Kezdés jan. 1-én</string>
   <string name="done">Kész</string>
   <string name="reset">Visszaállítás</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

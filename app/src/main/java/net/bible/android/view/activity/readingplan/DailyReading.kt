@@ -499,7 +499,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
                 isHandled = true
             }
-            R.id.setStartToJan1 -> {
+            R.id.setStartDate -> {
                 dbAdapter.setPlanStartDate(readingPlanMetaID!!, DateUtils.truncate(Date(), Calendar.YEAR))
 
                 loadPlanOneDay(null, ReadingPlanInformationDB(readingPlanMetaID), true)

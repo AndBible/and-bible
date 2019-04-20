@@ -116,7 +116,7 @@
   <string name="rdg_plan_title">Cynllun Darllen</string>
   <string name="rdg_plan_selector_title">Dewiswch Gynllun Darllen</string>
   <string name="rdg_plan_day">Dydd %s</string>
-  <string name="rdg_plan_set_start_jan1">Dechrau Ion 1</string>
+  <string name="rdg_plan_set_start_date">Dechrau Ion 1</string>
   <string name="done">Iawn</string>
   <string name="reset">Ailosod</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

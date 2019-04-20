@@ -138,7 +138,7 @@
   <string name="rdg_plan_title">План за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
   <string name="rdg_plan_day">Ден %s</string>
-  <string name="rdg_plan_set_start_jan1">Започни с 1 януари</string>
+  <string name="rdg_plan_set_start_date">Започни с 1 януари</string>
   <string name="done">Готово</string>
   <string name="reset">Изчистване</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

@@ -91,7 +91,7 @@
   <string name="rdg_plan_title">Piano di lettura</string>
   <string name="rdg_plan_selector_title">Scegli un piano di lettura</string>
   <string name="rdg_plan_day">Giorno %s</string>
-  <string name="rdg_plan_set_start_jan1">Inizia il 1 Gennaio</string>
+  <string name="rdg_plan_set_start_date">Inizia il 1 Gennaio</string>
   <string name="done">Fatto</string>
   <string name="reset">Azzera</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

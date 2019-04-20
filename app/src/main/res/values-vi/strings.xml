@@ -90,7 +90,7 @@
   <string name="rdg_plan_title">Kế hoạch đọc Kinh Thánh</string>
   <string name="rdg_plan_selector_title">Hãy chọn một kế hoạch</string>
   <string name="rdg_plan_day">Ngày %s</string>
-  <string name="rdg_plan_set_start_jan1">Bắt đầu ngày 1 tháng 1</string>
+  <string name="rdg_plan_set_start_date">Bắt đầu ngày 1 tháng 1</string>
   <string name="done">Hoàn thành</string>
   <string name="reset">Thiết lập lại</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

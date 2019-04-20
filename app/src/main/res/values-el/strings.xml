@@ -90,7 +90,7 @@
   <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
   <string name="rdg_plan_selector_title">Επιλέξτε ένα σχέδιο ανάγνωσης</string>
   <string name="rdg_plan_day">Ημέρα %s</string>
-  <string name="rdg_plan_set_start_jan1">Έναρξη 1η Γενάρη</string>
+  <string name="rdg_plan_set_start_date">Έναρξη 1η Γενάρη</string>
   <string name="done">Τελος</string>
   <string name="reset">Επαναφορά</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
