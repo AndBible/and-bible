@@ -193,8 +193,20 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_set_start_jan1">Start Jan 1</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
-    <string name="import_plan">Import Plans from SD</string>
+    <string name="delete_plan">Delete Plan</string>
+    <string name="error_only_delete_custom_plans">You can only delete custom plans that you have imported.
+    And Bible default plans can not be deleted.
+    </string>
+    <string name="import_plan">Import Plan...</string>
+    <string name="error_importing_plan">
+        There was an error importing the file to plans. Possible reasons: 1. The same file name is
+        already imported. 2. The file name does not end with .properties extension.
+        3. The format is incorrect. You can find information on the correct format at
+        https://github.com/AndBible/and-bible/wiki/Reading-Plans
+    </string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
+    <string name="delete_plan_question">Are you sure you want to delete this plan?</string>
+    <string name="plan_deleted">Reading Plan has been deleted</string>
     <string name="this_day_has_no_readings">This day has no readings</string>
     <string name="plan_name_y1ntpspr">NT, Psalms &amp; Proverbs in a Year</string>
     <string name="plan_description_y1ntpspr">
@@ -411,10 +423,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup">Backup to ...</string>
-    <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
+    <string name="backup_success">My Notes, Bookmarks and Reading Plans saved in %s on the SD card</string>
     <string name="restore">Restore from ...</string>
-    <string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string>    
-    <string name="restore_success">My Notes and Bookmarks restored successfully</string>
+    <string name="restore_confirmation">Overwrite My Notes, Bookmarks and Reading Plans?</string>
+    <string name="restore_success">My Notes, Bookmarks and Reading Plans restored from %s on the SD card</string>
     <string name="error_no_backup_file">A backup file could not be found</string>
 
     <string name="backup_email_subject">And Bible database backup</string>
