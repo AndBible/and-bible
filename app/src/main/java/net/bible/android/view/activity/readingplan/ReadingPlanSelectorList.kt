@@ -19,12 +19,16 @@
 package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.view.ContextMenu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -70,13 +74,13 @@ class ReadingPlanSelectorList : ListActivityBase() {
         try {
             dbAdapter.switchToReadingPlan(readingPlanList[position])
 
-            var readingPlanOneDay: ReadingPlanOneDayDB? = null
-            try {
-                readingPlanOneDay = ReadingPlanOneDayDB(readingPlanList[position])
-            } catch (e: java.lang.Exception) { }
+            val readingPlanOneDay: ReadingPlanOneDayDB? = try {
+                ReadingPlanOneDayDB(readingPlanList[position])
+            } catch (e: Exception) { null }
 
             ABEventBus.getDefault().post(ReadingPlanDayChangeEvent(readingPlanOneDay, readingPlanList[position]))
 
+            setResult(Activity.RESULT_OK)
             finish()
 
         } catch (e: Exception) {
@@ -85,6 +89,40 @@ class ReadingPlanSelectorList : ListActivityBase() {
         }
 
     }
+
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        val inflater = menuInflater
+        inflater.inflate(R.menu.reading_plan_list_context_menu, menu)
+    }
+
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        super.onContextItemSelected(item)
+        val menuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+        val plan = planArrayAdapter.getItem(menuInfo.position)
+        Log.d(TAG, "Selected " + plan!!.fileName)
+        when (item.itemId) {
+            R.id.deletePlan -> {
+                if (!plan.isCustomUserAdded) {
+                    Dialogs.getInstance().showErrorMsg(getString(R.string.error_only_delete_custom_plans))
+                    return false
+                }
+                var isDeleted = false
+                Dialogs.getInstance().showMsg(R.string.delete_plan_question, true)
+                {
+                    if (dbAdapter.deletePlan(plan.metaID)) {
+                        isDeleted = true
+                        planArrayAdapter.remove(plan)
+                        Toast.makeText(this, getString(R.string.plan_deleted), Toast.LENGTH_SHORT).show()
+                    }
+                }
+                return isDeleted
+            }
+        }
+        return false
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {

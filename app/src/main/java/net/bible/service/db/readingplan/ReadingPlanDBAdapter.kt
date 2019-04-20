@@ -396,6 +396,28 @@ class ReadingPlanDBAdapter {
         }
     }
 
+    fun deletePlan(readingPlanMetaId: Int): Boolean {
+        // Delete days related to plan
+        writableDatabase.delete(
+            ReadingPlanDays.TABLE_NAME,
+            "${ReadingPlanDays.COLUMN_READING_PLAN_META_ID}=?",
+            arrayOf(readingPlanMetaId.toString())
+        )
+
+        // Delete plan meta information
+        writableDatabase.delete(
+            ReadingPlanMeta.TABLE_NAME,
+            "${ReadingPlanMeta.COLUMN_ID}=?",
+            arrayOf(readingPlanMetaId.toString())
+        )
+
+        // If active reading plan is this plan. Change to 0 to be forced to select another plan
+        if (currentActiveReadingPlanID == readingPlanMetaId)
+            currentActiveReadingPlanID = 0
+
+        return true
+    }
+
     private fun getDayStringDB(ReadingPlanMetaID: Int, ReadingPlanDayNumber: Int, getColumn: String): String? {
         val q = writableDatabase.query(ReadingPlanDays.TABLE_NAME,
             arrayOf(getColumn),
@@ -561,7 +583,6 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
         val dbAdapter = ReadingPlanDBAdapter()
     }
 
-
     var readingPlanInfo: ReadingPlanInformationDB =
         readingPlanInformationParam ?: ReadingPlanInformationDB(readingPlanMetaId)
 
@@ -580,7 +601,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
      */
     val dayAndNumberDescription: String = app.getString(R.string.rdg_plan_day, dayNumber.toString())
 
-    val numberOfReadings: Int = readingChaptersString!!.split(",").count()
+    val numberOfReadings: Int = readingChaptersString?.split(",")?.count() ?: 0
 
     val dateString: String = formatReadingDateForDateBasedPlan() ?: calculateReadingDateString()
     private fun formatReadingDateForDateBasedPlan(): String? {
@@ -655,7 +676,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
                     return ReadingStatus(readingPlanMetaId, numOfReadings,null)
                 }
                 return try {
-                    JSON(strictMode = false).parse(ReadingStatus.serializer(), jsonString)
+                    JSON(strictMode = false).parse(serializer(), jsonString)
                 } catch (ex: SerializationException) {
                     ReadingStatus(readingPlanMetaId, numOfReadings,null)
                 } catch (ex: IllegalArgumentException) {
@@ -665,7 +686,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
         }
 
         fun toJsonString(): String {
-            return JSON.stringify(ReadingStatus.serializer(), this)
+            return JSON.stringify(serializer(), this)
         }
 
         init {

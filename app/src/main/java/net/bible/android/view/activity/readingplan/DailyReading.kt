@@ -105,7 +105,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             // Load plan selection screen
             startActivityForResult(
                 Intent(this, ReadingPlanSelectorList::class.java),
-                REQUEST_CODE_READING_PLAN_LIST
+                RCODE_READING_PLAN_LIST
             )
 
         } else {
@@ -115,6 +115,14 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             loadPlanOneDay(readingPlanOneDay, readingPlanInfo)
 
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        if (dbAdapter.currentActiveReadingPlanID == 0) {
+            finish()
         }
     }
 
@@ -405,12 +413,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         Log.d(TAG, "The loaded day number on the screen is $dayNumber")
         if (dbAdapter.getCurrentDayNumber(planID) == dayNumber) {
             // was this the last day in the plan
-            if (readingPlanOneDay.readingPlanInfo.totalDays == readingPlanDayNumber) {
-                // TODO: Give user the option to reset plan since it's done now.
-                nextDayToShow = dayNumber
-            } else {
-                nextDayToShow = dbAdapter.incrementCurrentPlanDay()
-            }
+            nextDayToShow =  if (readingPlanOneDay.readingPlanInfo.totalDays == readingPlanDayNumber) dayNumber
+            else dbAdapter.incrementCurrentPlanDay()
+
         } else {
             if (readingPlanOneDay.readingPlanInfo.totalDays > readingPlanDayNumber ?: 0) {
                 nextDayToShow = readingPlanDayNumber ?: 0 + 1
@@ -529,7 +534,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         private const val TAG = "DailyReading"
         private val app = BibleApplication.application
-        const val REQUEST_CODE_READING_PLAN_LIST = 101
+        const val RCODE_READING_PLAN_LIST = 101
 
         // Link AB distributed reading plan file names with plan name/description resource strings
         val ABDistributedPlanDetailArray = arrayOf(
