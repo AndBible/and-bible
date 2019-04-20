@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -62,6 +63,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.SharedActivityState
@@ -80,11 +82,11 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 
 import javax.inject.Inject
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 
 /** The main activity screen showing Bible text
@@ -838,16 +840,32 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "Activity result:$resultCode")
-        if(GridChoosePassageBook::class.java.name == data?.component?.className) {
-            val verseStr = data?.extras!!.getString("verse")
-            val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
-            if(pageControl.currentPageManager.isMyNoteShown) {
-                val doc = pageControl.currentPageManager.currentBible.currentDocument
-                pageControl.currentPageManager.setCurrentDocument(doc)
+        when(requestCode) {
+            REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    CurrentActivityHolder.getInstance().currentActivity = this
+                    Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
+                        thread {
+                            val inputStream = contentResolver.openInputStream(data!!.data!!)
+                            backupControl.restoreDatabaseViaIntent(inputStream!!)
+                        }
+                    }
+                }
             }
+            STD_REQUEST_CODE -> {
+                if (GridChoosePassageBook::class.java.name == data?.component?.className) {
+                    val verseStr = data?.extras!!.getString("verse")
+                    val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
+                    if (pageControl.currentPageManager.isMyNoteShown) {
+                        val doc = pageControl.currentPageManager.currentBible.currentDocument
+                        pageControl.currentPageManager.setCurrentDocument(doc)
+                    }
 
-            windowControl.activeWindowPageManager.currentPage.key = verse
-            return
+                    windowControl.activeWindowPageManager.currentPage.key = verse
+                    return
+                }
+            }
+            else -> throw RuntimeException("Unhandled request code $requestCode")
         }
         super.onActivityResult(requestCode, resultCode, data)
         when {
@@ -1002,6 +1020,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         internal const val BACKUP_SAVE_REQUEST = 0
         internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
+
+        // ActivityBase.STD_REQUEST_CODE = 1
+        const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

@@ -327,14 +327,12 @@ class DocumentWebViewBuilder @Inject constructor(
         toggleWindowButtonVisibility(true)
         timerTask?.cancel()
 
-        if(mainBibleActivity.fullScreen) {
-            timerTask = object : TimerTask() {
-                override fun run() {
-                    toggleWindowButtonVisibility(false)
-                }
+        timerTask = object : TimerTask() {
+            override fun run() {
+                toggleWindowButtonVisibility(false)
             }
-            sleepTimer.schedule(timerTask, 2000L)
         }
+        sleepTimer.schedule(timerTask, 2000L)
     }
 
     private var buttonsVisible = true
@@ -348,46 +346,29 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
-                if(mainBibleActivity.isSplitVertically) {
-                    b.animate().translationY(
-                        if(idx == 0) {
-                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2}
-                        else 0.0F
+                b.animate().apply {
+                    // When switching to/from fullscreen, take into account the toolbar offset.
+                    translationY(
+                        if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                        else (
+                            if(mainBibleActivity.isSplitVertically) {
+                                if(idx == 0) mainBibleActivity.topOffset2 else 0.0F
+                            }
+                            else mainBibleActivity.topOffset2
+                            )
                     )
-                        .setInterpolator(DecelerateInterpolator()).start()
 
                     if(show) {
-                        b.visibility = View.VISIBLE
-                        b.animate().translationX(-mainBibleActivity.rightOffset1)
-                                .setInterpolator(DecelerateInterpolator())
-                                .start()
+                        alpha(VISIBLE_ALPHA)
+                        interpolator = DecelerateInterpolator()
                     }  else {
-                        b.animate().translationX(b.width.toFloat())
-                                .setInterpolator(AccelerateInterpolator())
-                                .withEndAction { b.visibility = View.GONE }
-                                .start()
+                        alpha(HIDDEN_ALPHA)
+                        interpolator = AccelerateInterpolator()
                     }
-                }
-                else {
-                    b.animate().translationX(-mainBibleActivity.rightOffset1)
-                            .setInterpolator(DecelerateInterpolator()).start()
-                    if(show) {
-                        b.visibility = View.VISIBLE
-                        b.animate().translationY(
-                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2
-                        )
-                            .setInterpolator(DecelerateInterpolator())
-                            .start()
-                    }  else {
-                        b.animate().translationY(-b.height.toFloat())
-                            .setInterpolator(AccelerateInterpolator())
-                            .withEndAction { b.visibility = View.GONE }
-                            .start()
-                    }
+                    start()
                 }
             }
+
             updateMinimizedButtons(show)
             updateBibleReferenceOverlay(show)
         }
@@ -397,14 +378,17 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
-            minimisedWindowsFrameContainer.animate().translationY(-mainBibleActivity.bottomOffset2)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
+            minimisedWindowsFrameContainer.animate()
+                .alpha(VISIBLE_ALPHA)
+                .translationY(-mainBibleActivity.bottomOffset2)
+                .setInterpolator(DecelerateInterpolator())
+                .start()
         }  else {
-            minimisedWindowsFrameContainer.animate().translationY(mainBibleActivity.bottomOffset2 + minimisedWindowsFrameContainer.height)
+            if(mainBibleActivity.fullScreen) {
+                minimisedWindowsFrameContainer.animate().alpha(HIDDEN_ALPHA)
                     .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { minimisedWindowsFrameContainer.visibility = View.GONE }
                     .start()
+            }
         }
     }
 
@@ -622,5 +606,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"
+        private const val HIDDEN_ALPHA = 0.2F
+        private const val VISIBLE_ALPHA = 1.0F
     }
 }

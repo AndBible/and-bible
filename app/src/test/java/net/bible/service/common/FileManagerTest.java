@@ -33,7 +33,7 @@ public class FileManagerTest {
 		File target = new File(folder, "copiedFile");
 		target.deleteOnExit();
 
-		assertTrue("copy failed", FileManager.copyFile(toCopy, target));
+		assertTrue("copy failed", FileManager.INSTANCE.copyFile(toCopy, target));
 
 		assertTrue(target.exists());
 	}
@@ -47,8 +47,8 @@ public class FileManagerTest {
 		File target = new File(folder, "copiedFile");
 		target.deleteOnExit();
 
-		assertTrue("initial copy failed", FileManager.copyFile(toCopy, target));
-		assertTrue("overwriting copy failed", FileManager.copyFile(toCopy, target));
+		assertTrue("initial copy failed", FileManager.INSTANCE.copyFile(toCopy, target));
+		assertTrue("overwriting copy failed", FileManager.INSTANCE.copyFile(toCopy, target));
 		assertEquals("copied file has different length", toCopy.length(),  target.length());
 
 		assertTrue(target.exists());

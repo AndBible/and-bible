@@ -49,6 +49,13 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
         return sSingleton;
     }
 
+    public static void sync() {
+		// Sync all data so far into database file
+		getInstance().getWritableDatabase()
+				.rawQuery("PRAGMA wal_checkpoint(FULL)", new String[0])
+				.close();
+	}
+
     public static void reset() {
     	sSingleton = null;
 	}
