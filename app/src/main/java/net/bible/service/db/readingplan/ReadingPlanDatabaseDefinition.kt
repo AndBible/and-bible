@@ -132,19 +132,20 @@ object ReadingPlanDatabaseDefinition {
                 // dbAdapter can ONLY be used in this function if it's not [firstImport]
                 lateinit var dbAdapter: ReadingPlanDBAdapter
                 lateinit var readingPlanProperties: ArrayList<ReadingPlanPropertiesFromText>
-                lateinit var planCode: String
+                var planCode: String? = null
                 var customInput: InputStream? = null
                 val firstImport = uri == null
                 if (!firstImport) {
                     dbAdapter = ReadingPlanDBAdapter()
                     customInput = BibleApplication.application.contentResolver.openInputStream(uri!!)
                     planCode = getPlanCodeAsFileName(uri)
+                    if (planCode == null) return false // it's not a .properties file
                 }
                 var returnValue = false
 
                 readingPlanProperties = when (firstImport) {
                     true -> getAllReadingPlanProperties
-                    else -> ArrayList(arrayListOf(loadProperties(customInput!!, planCode)))
+                    else -> ArrayList(arrayListOf(loadProperties(customInput!!, planCode!!)))
                 }
 
                 for (property in readingPlanProperties) {
@@ -195,12 +196,16 @@ object ReadingPlanDatabaseDefinition {
                 return returnValue
             }
 
-            private fun getPlanCodeAsFileName(uri: Uri): String {
+            private fun getPlanCodeAsFileName(uri: Uri): String? {
                 val c = BibleApplication.application.contentResolver.query(
                     uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
                 if (c != null && c.moveToFirst()) {
                     val code = c.getString(0)
                     c.close()
+                    if (!code.endsWith(".properties",true)) {
+                        Log.e(TAG, "$code does not seem to be a reading plan file. Must end with .properties")
+                        return null
+                    }
                     Log.d(TAG, "File name as plan code retrieved from file system is $code")
                     return code.replace(".properties", "")
                 }
