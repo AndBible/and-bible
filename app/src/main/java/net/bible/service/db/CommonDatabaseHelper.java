@@ -50,7 +50,9 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 
     public static void sync() {
 		// Sync all data so far into database file
-		getInstance().getWritableDatabase().execSQL("PRAGMA wal_checkpoint(FULL)");
+		getInstance().getWritableDatabase()
+				.rawQuery("PRAGMA wal_checkpoint(FULL)", new String[0])
+				.close();
 	}
 
     public static void reset() {
