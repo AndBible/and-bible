@@ -13,7 +13,7 @@ For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the
 ## Developers
 
 Use Android Studio or IntelliJ IDEA to build And Bible.
-Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Code-contributions)
+Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation)
 in wiki.
 
 ## Translators
