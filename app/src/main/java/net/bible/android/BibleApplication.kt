@@ -59,7 +59,7 @@ open class BibleApplication : MultiDexApplication() {
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
     val appStateSharedPreferences: SharedPreferences
-        get() = getSharedPreferences(saveStateTag, 0)
+        get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
         // save to a singleton to allow easy access from anywhere

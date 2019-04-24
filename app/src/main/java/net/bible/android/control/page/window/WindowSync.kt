@@ -55,12 +55,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
      * Save/restore dynamic state that is not automatically saved as Preferences
      */
     fun onEvent(event: AppToBackgroundEvent) {
-        lastSynchdInactiveWindowKey = if (event.isMovedToBackground) {
-            // ensure nonactive screen is initialised when returning from background
-            null
-        } else {
-            null
-        }
+        // ensure nonactive screen is initialised when returning from background
+        lastSynchdInactiveWindowKey = null
     }
 
     fun synchronizeAllScreens() {
