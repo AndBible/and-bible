@@ -232,7 +232,7 @@ public class SwordContentFacade {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 		
-			ContentHandler osisHandler = new OsisToCanonicalTextSaxHandler();
+			ContentHandler osisHandler = new OsisToCopyTextSaxHandler();
 
 			osissep.provideSAXEvents(osisHandler);
 		

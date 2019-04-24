@@ -39,8 +39,8 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     @SuppressWarnings("unused")
 	private int currentVerseNo;
 
-    private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
-	private enum CONTENT_STATE {WRITE, IGNORE}
+    protected Stack<CONTENT_STATE> writeContentStack = new Stack<>();
+	protected enum CONTENT_STATE {WRITE, IGNORE}
 
 	// Avoid space at the start and, extra space between words
 	private boolean spaceJustWritten = true;
