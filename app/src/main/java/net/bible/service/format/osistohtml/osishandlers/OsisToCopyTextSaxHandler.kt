@@ -19,7 +19,7 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 
-import net.bible.service.common.Logger
+import net.bible.service.common.CommonUtils
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
 
 import org.crosswire.jsword.book.OSISUtil
@@ -36,6 +36,7 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
     private var currentVerseNumber: Int = 0
     private var verseCount: Int = 0
     private var writeChapter: String = ""
+    private val showVerseNumbersSetting: Boolean = CommonUtils.getSharedPreferences().getBoolean("show_verseno_pref", true)
 
     /*
      * Called when the starting of the Element is reached. For Example if we have Tag
@@ -50,7 +51,7 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
 
         when (getName(sName, qName)) {
             OSISUtil.OSIS_ELEMENT_CHAPTER -> {
-                if (attrs != null) {
+                if (attrs != null && showVerseNumbersSetting) {
                     val oldChapterNumber = currentChapterNumber
                     currentChapterNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
                     if (oldChapterNumber > 0 && currentChapterNumber > oldChapterNumber) {
@@ -60,7 +61,7 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
                 verseCount++
-                if (attrs != null && mulitpleVerses) {
+                if (attrs != null && mulitpleVerses && showVerseNumbersSetting) {
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
 
                     write("$writeChapter$currentVerseNumber. ")
