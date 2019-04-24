@@ -226,38 +226,39 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
-                R.id.saveState -> {
-                    val app = BibleApplication.application
-                    val input = EditText(callingActivity)
-                    AlertDialog.Builder(callingActivity)
-                        .setView(input)
-                        .setTitle("Name?")
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
-                            windowControl.windowRepository.saveState(state)
-                        }
-                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
-                        .create()
-                        .show()
-
-                }
-                R.id.restoreState -> {
-                    val app = BibleApplication.application
-                    val input = EditText(callingActivity)
-                    AlertDialog.Builder(callingActivity)
-                        .setView(input)
-                        .setTitle("Name?")
-                        .setPositiveButton(android.R.string.ok) { _, _ ->
-                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
-                            windowControl.windowRepository.restoreState(state)
-                            documentViewManager.resetView()
-                            windowControl.windowSync.synchronizeAllScreens()
-
-                        }
-                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
-                        .create()
-                        .show()
-                }
+//                R.id.saveState -> {
+//                    val app = BibleApplication.application
+//                    val input = EditText(callingActivity)
+//                    AlertDialog.Builder(callingActivity)
+//                        .setView(input)
+//                        .setTitle("Name?")
+//                        .setPositiveButton(android.R.string.ok) { _, _ ->
+//                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
+//                            val stateStr = windowControl.windowRepository.dumpState()
+//                        }
+//                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
+//                        .create()
+//                        .show()
+//
+//                }
+//                R.id.restoreState -> {
+//                    val app = BibleApplication.application
+//                    val input = EditText(callingActivity)
+//                    AlertDialog.Builder(callingActivity)
+//                        .setView(input)
+//                        .setTitle("Name?")
+//                        .setPositiveButton(android.R.string.ok) { _, _ ->
+//                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
+//                            //state.get
+//                            //windowControl.windowRepository.restoreState(stateStr)
+//                            documentViewManager.resetView()
+//                            windowControl.windowSync.synchronizeAllScreens()
+//
+//                        }
+//                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
+//                        .create()
+//                        .show()
+//                }
 
             }//handlerIntent = new Intent(callingActivity, Help.class);
 

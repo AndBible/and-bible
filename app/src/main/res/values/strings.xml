@@ -426,4 +426,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
     <string name="save_state">Save state</string>
     <string name="restore_state">Restore state</string>
+    <string name="tabs">Tabs</string>
+    <string name="new_tab">New Tab</string>
+    <string name="switch_to_tab">Switch to Tab ...</string>
+    <string name="clone_tab">Clone tab</string>
+    <string name="close_tab">Close tab</string>
 </resources>

@@ -46,14 +46,6 @@
             <item 	android:id="@+id/historyButton"
                 android:title="@string/history"
                 android:icon="@drawable/ic_history_white_24dp"/>
-
-            <item android:id="@+id/saveState"
-                android:title="@string/save_state"
-                android:icon="@drawable/ic_history_white_24dp"/>
-
-            <item android:id="@+id/restoreState"
-                android:title="@string/restore_state"
-                android:icon="@drawable/ic_history_white_24dp"/>
         </menu>
     </item>
     <item

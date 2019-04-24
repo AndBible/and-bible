@@ -247,20 +247,15 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    /** save current page and document state  */
-    private fun saveState() {
-        logger.info("Save instance state for screens")
-        val settings = BibleApplication.application.appStateSharedPreferences
-        saveState(settings)
-    }
-
     /** restore current page and document state  */
     private fun restoreState() {
         try {
             logger.info("Restore instance state for screens")
             val application = BibleApplication.application
             val settings = application.appStateSharedPreferences
-            restoreState(settings)
+            val stateJsonString = settings.getString("windowRepositoryState", null)
+            if(stateJsonString != null)
+                restoreState(stateJsonString)
         } catch (e: Exception) {
             logger.error("Restore error", e)
         }
@@ -271,26 +266,11 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    fun saveState(outState: SharedPreferences) {
+    private fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
         logger.info("save state")
         try {
-
-            val windowRepositoryStateObj = JSONObject()
-            val windowStateArray = JSONArray()
-            for (window in windowList) {
-                try {
-                    if (window.windowLayout.state !== WindowState.CLOSED) {
-                        windowStateArray.put(window.stateJson)
-                    }
-                } catch (je: JSONException) {
-                    logger.error("Error saving screen state", je)
-                }
-
-            }
-            windowRepositoryStateObj.put("windowState", windowStateArray)
-
             val editor = outState.edit()
-            editor.putString("windowRepositoryState", windowRepositoryStateObj.toString())
+            editor.putString("windowRepositoryState", dumpState())
             editor.apply()
         } catch (je: JSONException) {
             logger.error("Saving window state", je)
@@ -298,16 +278,32 @@ open class WindowRepository @Inject constructor(
 
     }
 
+    fun dumpState(): String {
+        val windowRepositoryStateObj = JSONObject()
+        val windowStateArray = JSONArray()
+        for (window in windowList) {
+            try {
+                if (window.windowLayout.state !== WindowState.CLOSED) {
+                    windowStateArray.put(window.stateJson)
+                }
+            } catch (je: JSONException) {
+                logger.error("Error saving screen state", je)
+            }
+
+        }
+        windowRepositoryStateObj.put("windowState", windowStateArray)
+        return windowRepositoryStateObj.toString()
+    }
+
     /** called during app start-up to restore previous state
      *
      * @param inState
      */
-    fun restoreState(inState: SharedPreferences) {
+    fun restoreState(stateJsonString: String) {
         logger.info("restore state")
-        val windowRepositoryStateString = inState.getString("windowRepositoryState", null)
-        if (StringUtils.isNotEmpty(windowRepositoryStateString)) {
+        if (StringUtils.isNotEmpty(stateJsonString)) {
             try {
-                val windowRepositoryState = JSONObject(windowRepositoryStateString)
+                val windowRepositoryState = JSONObject(stateJsonString)
                 val windowState = windowRepositoryState.getJSONArray("windowState")
                 if (windowState.length() > 0) {
 

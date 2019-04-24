@@ -325,6 +325,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class AutoFullScreenChanged(val newValue: Boolean)
 
+    interface OptionsMenuItemInterface {
+        var value: Boolean
+        val visible: Boolean
+        val enabled: Boolean
+        fun handle()
+    }
+
     abstract class MenuItemPreference (
         private val preferenceName: String,
         private val default: Boolean = false,
@@ -338,9 +345,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         private val defaultString: String = automaticValue,
 
         val subMenu: Boolean = false
-    ) {
+    ): OptionsMenuItemInterface {
         private val preferences = mainBibleActivity.preferences
-        open var value: Boolean
+        override var value: Boolean
             get() = if(isBoolean) {
                 preferences.getBoolean(preferenceName, default)
             } else {
@@ -359,13 +366,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 preferences.getString(preferenceName, defaultString) == automaticValue
             }
 
-        open val visible: Boolean
+        override val visible: Boolean
             get() = !mainBibleActivity.isMyNotes && if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
-        open val enabled: Boolean
+        override val enabled: Boolean
             get() = true
 
-        open fun handle() {}
+        override fun handle() {}
     }
 
     abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
@@ -389,6 +396,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
         override val visible: Boolean get() = super.visible && isTiltSensingPossible()
+    }
+
+    class DummyMenuItemPreference(
+        override var value: Boolean = true,
+        override val visible: Boolean = true,
+        override val enabled: Boolean = true
+    ): OptionsMenuItemInterface {
+        override fun handle() {}
+    }
+
+    class CommandItem(
+        val command: () -> Unit,
+        override val enabled: Boolean = true,
+        override var value: Boolean = true,
+        override val visible: Boolean = true
+    ): OptionsMenuItemInterface {
+        override fun handle() { command() }
     }
 
     class SubMenuMenuItemPreference(onlyBibles: Boolean):
@@ -421,6 +445,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
+    private fun newTab() {}
+    private fun closeTab() {}
+    private fun cloneTab() {}
+    private fun chooseTab() {}
+
+    private val haveTabs: Boolean get() = false
+
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
@@ -436,6 +467,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.nightMode -> NightModeMenuItemPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+        R.id.tabsSubMenu -> SubMenuMenuItemPreference(false)
+        R.id.newTab -> CommandItem({newTab()})
+        R.id.closeTab -> CommandItem({closeTab()}, haveTabs)
+        R.id.cloneTab -> CommandItem({cloneTab()})
+        R.id.switchToTab -> CommandItem({chooseTab()}, haveTabs)
         else -> throw RuntimeException("Illegal menu item")
     }
 
@@ -463,7 +499,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun handlePrefItem(item: MenuItem) {
         val itemOptions = getItemOptions(item.itemId)
-        if(itemOptions.subMenu)
+        if(itemOptions is SubMenuMenuItemPreference)
             return
 
         itemOptions.value = !itemOptions.value
