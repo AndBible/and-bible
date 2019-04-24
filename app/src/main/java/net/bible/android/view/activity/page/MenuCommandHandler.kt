@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -30,6 +31,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
@@ -222,6 +224,36 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
+                R.id.saveState -> {
+                    val app = BibleApplication.application
+                    val input = EditText(callingActivity)
+                    AlertDialog.Builder(callingActivity)
+                        .setView(input)
+                        .setTitle("Name?")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
+                            windowControl.windowRepository.saveState(state)
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
+                        .create()
+                        .show()
+
+                }
+                R.id.restoreState -> {
+                    val app = BibleApplication.application
+                    val input = EditText(callingActivity)
+                    AlertDialog.Builder(callingActivity)
+                        .setView(input)
+                        .setTitle("Name?")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
+                            windowControl.windowRepository.restoreState(state)
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->  }
+                        .create()
+                        .show()
+                }
+
             }//handlerIntent = new Intent(callingActivity, Help.class);
 
             if (!isHandled) {

@@ -424,4 +424,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
+    <string name="save_state">Save state</string>
+    <string name="restore_state">Restore state</string>
 </resources>

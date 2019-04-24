@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import android.content.Context
 import android.content.SharedPreferences
 
 import net.bible.android.BibleApplication
@@ -271,7 +272,7 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    private fun saveState(outState: SharedPreferences) {
+    fun saveState(outState: SharedPreferences) {
         logger.info("save state")
         try {
 
@@ -302,7 +303,7 @@ open class WindowRepository @Inject constructor(
      *
      * @param inState
      */
-    private fun restoreState(inState: SharedPreferences) {
+    fun restoreState(inState: SharedPreferences) {
         logger.info("restore state")
         val windowRepositoryStateString = inState.getString("windowRepositoryState", null)
         if (StringUtils.isNotEmpty(windowRepositoryStateString)) {
