@@ -30,7 +30,7 @@ import org.xml.sax.Attributes
  *
  * @author Timmy Braun [tim.bze at gmail dot com] (4/24/2019)
  */
-class OsisToCopyTextSaxHandler : OsisToCanonicalTextSaxHandler() {
+class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTextSaxHandler() {
 
     private var currentChapterNumber: Int = 0
     private var currentVerseNumber: Int = 0
@@ -60,7 +60,7 @@ class OsisToCopyTextSaxHandler : OsisToCanonicalTextSaxHandler() {
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
                 verseCount++
-                if (attrs != null) {
+                if (attrs != null && mulitpleVerses) {
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
 
                     write("$writeChapter$currentVerseNumber. ")

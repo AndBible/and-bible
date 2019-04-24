@@ -231,8 +231,8 @@ public class SwordContentFacade {
     	try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
-		
-			ContentHandler osisHandler = new OsisToCopyTextSaxHandler();
+
+			ContentHandler osisHandler = new OsisToCopyTextSaxHandler(key.getOsisID().trim().contains(" "));
 
 			osissep.provideSAXEvents(osisHandler);
 		
