@@ -18,7 +18,6 @@
 
 package net.bible.android.control.page.window
 
-import android.content.Context
 import android.content.SharedPreferences
 
 import net.bible.android.BibleApplication
@@ -317,12 +316,9 @@ open class WindowRepository @Inject constructor(
 
                     for (i in 0 until windowState.length()) {
                         try {
-                            val screenState = windowState.getJSONObject(i)
                             val window = Window(currentPageManagerProvider.get())
-                            window.restoreState(screenState)
-
+                            window.restoreState(windowState.getJSONObject(i))
                             maxWindowNoUsed = Math.max(maxWindowNoUsed, window.screenNo)
-
                             windowList.add(window)
                         } catch (je: JSONException) {
                             logger.error("Error restoring screen state", je)
@@ -333,7 +329,6 @@ open class WindowRepository @Inject constructor(
             } catch (je: JSONException) {
                 logger.error("Error restoring screen state", je)
             }
-
         }
     }
 }

@@ -65,6 +65,23 @@ public class DocumentViewManager {
 		buildView();
 	}
 
+	public synchronized void resetView() {
+		myNoteViewBuilder.removeMyNoteView(parent);
+		documentWebViewBuilder.removeWebView(parent);
+
+		if (myNoteViewBuilder.isMyNoteViewType()) {
+    		mainBibleActivity.resetSystemUi();
+    		myNoteViewBuilder.addMyNoteView(parent);
+    	} else {
+    		documentWebViewBuilder.addWebView(parent);
+    	}
+
+		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
+		for(Window window: windows) {
+			mainBibleActivity.registerForContextMenu((View) getDocumentView(window));
+		}
+	}
+
 	public synchronized void buildView() {
     	if (myNoteViewBuilder.isMyNoteViewType()) {
     		mainBibleActivity.resetSystemUi();

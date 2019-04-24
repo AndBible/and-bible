@@ -61,6 +61,7 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -86,7 +87,8 @@ constructor(private val callingActivity: MainBibleActivity,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
-            private val backupControl: BackupControl
+            private val backupControl: BackupControl,
+            private val documentViewManager: DocumentViewManager
 ) {
 
     /**
@@ -248,6 +250,9 @@ constructor(private val callingActivity: MainBibleActivity,
                         .setPositiveButton(android.R.string.ok) { _, _ ->
                             val state = app.getSharedPreferences(input.text.toString(), Context.MODE_PRIVATE)
                             windowControl.windowRepository.restoreState(state)
+                            documentViewManager.resetView()
+                            windowControl.windowSync.synchronizeAllScreens()
+
                         }
                         .setNegativeButton(android.R.string.cancel) { _, _ ->  }
                         .create()
