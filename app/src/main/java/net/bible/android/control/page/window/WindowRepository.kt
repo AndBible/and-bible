@@ -43,7 +43,7 @@ import javax.inject.Provider
 open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
-        private val currentPageManagerProvider: Provider<CurrentPageManager>)
+        val currentPageManagerProvider: Provider<CurrentPageManager>)
 {
 
     private var windowList: MutableList<Window> = ArrayList()
@@ -326,5 +326,6 @@ open class WindowRepository @Inject constructor(
                 logger.error("Error restoring screen state", je)
             }
         }
+        activeWindow = getDefaultActiveWindow()
     }
 }

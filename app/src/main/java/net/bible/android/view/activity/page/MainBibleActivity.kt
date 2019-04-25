@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -37,12 +38,15 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -51,6 +55,7 @@ import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -84,6 +89,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.json.JSONObject
 
 import javax.inject.Inject
 import kotlin.concurrent.thread
@@ -98,18 +104,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject lateinit var bibleContentManager: BibleContentManager
-    @Inject lateinit var documentViewManager: DocumentViewManager
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var speakControl: SpeakControl
+    @Inject
+    lateinit var bibleContentManager: BibleContentManager
+    @Inject
+    lateinit var documentViewManager: DocumentViewManager
+    @Inject
+    lateinit var windowControl: WindowControl
+    @Inject
+    lateinit var speakControl: SpeakControl
 
     // handle requests from main menu
-    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject lateinit var backupControl: BackupControl
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var documentControl: DocumentControl
-    @Inject lateinit var navigationControl: NavigationControl
+    @Inject
+    lateinit var mainMenuCommandHandler: MenuCommandHandler
+    @Inject
+    lateinit var bibleKeyHandler: BibleKeyHandler
+    @Inject
+    lateinit var backupControl: BackupControl
+    @Inject
+    lateinit var searchControl: SearchControl
+    @Inject
+    lateinit var documentControl: DocumentControl
+    @Inject
+    lateinit var navigationControl: NavigationControl
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
@@ -128,35 +144,38 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
 
-    val isMyNotes get() =
-        if(::documentControl.isInitialized) {
-            documentControl.isMyNotes
-        } else false
+    val isMyNotes
+        get() =
+            if (::documentControl.isInitialized) {
+                documentControl.isMyNotes
+            } else false
 
-    val multiWinMode get() =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
+    val multiWinMode
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar
-    val topOffset1 get() = if(!isFullScreen) statusBarHeight else 0.0F
+    val topOffset1 get() = if (!isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
-    val topOffset2 get() = topOffset1 + if(!isFullScreen) actionBarHeight else 0.0F
+    val topOffset2 get() = topOffset1 + if (!isFullScreen) actionBarHeight else 0.0F
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
     // Bottom offset with only navigation bar
-    val bottomOffset1: Float get() =
-        if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight -2 else 0.0F
+    val bottomOffset1: Float
+        get() =
+            if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
 
     // Bottom offset with navigation bar and transport bar
-    val bottomOffset2 get() = bottomOffset1 + if(transportBarVisible) transportBarHeight else 0.0F
+    val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
-    val rightOffset1 get() = if(rightNavBarVisible) navigationBarHeight else 0.0F
+    val rightOffset1 get() = if (rightNavBarVisible) navigationBarHeight else 0.0F
     // Left offset with navigation bar
-    val leftOffset1 get() = if(leftNavBarVisible) navigationBarHeight else 0.0F
+    val leftOffset1 get() = if (leftNavBarVisible) navigationBarHeight else 0.0F
 
-     /**
+    /**
      * return percentage scrolled down page
      */
     private val currentPosition: Float
@@ -175,10 +194,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         setContentView(R.layout.main_bible_view)
         DaggerMainBibleActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .mainBibleActivityModule(MainBibleActivityModule(this))
-                .build()
-                .inject(this)
+            .applicationComponent(BibleApplication.application.applicationComponent)
+            .mainBibleActivityModule(MainBibleActivityModule(this))
+            .build()
+            .inject(this)
 
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
@@ -198,11 +217,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateToolbar()
 
         val tv = TypedValue()
-        if(theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
+        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
             actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
-        if(theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
+        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
             transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
         }
 
@@ -212,18 +231,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
-        drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
             override fun onDrawerOpened(drawerView: View) {
-                if(isFullScreen) {
+                if (isFullScreen) {
                     showSystemUI()
                 }
             }
 
             override fun onDrawerClosed(drawerView: View) {
-                if(isFullScreen) {
+                if (isFullScreen) {
                     hideSystemUI()
                 }
             }
@@ -253,7 +272,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun onBackPressed() {
-        if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawers()
         } else {
             super.onBackPressed()
@@ -280,10 +299,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun setupToolbarButtons() {
         homeButton.setOnClickListener {
-            if(drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 drawerLayout.closeDrawers()
-            }
-            else {
+            } else {
                 drawerLayout.openDrawer(GravityCompat.START)
             }
         }
@@ -316,10 +334,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             startActivity(intent)
             true
         }
-        searchButton.setOnClickListener { startActivityForResult( searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE)   }
+        searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
         commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
-        bookmarkButton.setOnClickListener { startActivity( Intent(this, Bookmarks::class.java))  }
+        bookmarkButton.setOnClickListener { startActivity(Intent(this, Bookmarks::class.java)) }
         dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
@@ -332,7 +350,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         fun handle()
     }
 
-    abstract class MenuItemPreference (
+    abstract class MenuItemPreference(
         private val preferenceName: String,
         private val default: Boolean = false,
         private val onlyBibles: Boolean = false,
@@ -345,29 +363,29 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         private val defaultString: String = automaticValue,
 
         val subMenu: Boolean = false
-    ): OptionsMenuItemInterface {
+    ) : OptionsMenuItemInterface {
         private val preferences = mainBibleActivity.preferences
         override var value: Boolean
-            get() = if(isBoolean) {
+            get() = if (isBoolean) {
                 preferences.getBoolean(preferenceName, default)
             } else {
                 preferences.getString(preferenceName, defaultString) == trueValue
             }
-            set(value) = if(isBoolean) {
+            set(value) = if (isBoolean) {
                 preferences.edit().putBoolean(preferenceName, value).apply()
             } else {
-                preferences.edit().putString(preferenceName, if(value) trueValue else falseValue).apply()
+                preferences.edit().putString(preferenceName, if (value) trueValue else falseValue).apply()
             }
 
         protected val automatic: Boolean
-            get() = if(isBoolean) {
+            get() = if (isBoolean) {
                 false
             } else {
                 preferences.getString(preferenceName, defaultString) == automaticValue
             }
 
         override val visible: Boolean
-            get() = !mainBibleActivity.isMyNotes && if(onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+            get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
         override val enabled: Boolean
             get() = true
@@ -376,34 +394,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
-                                                  trueValue: String = "true", falseValue: String = "false"):
+                                                  trueValue: String = "true", falseValue: String = "false") :
         MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
-    open class TextContentMenuItemPreference(name: String, default: Boolean):
-        MenuItemPreference(name, default, true)
-    {
+    open class TextContentMenuItemPreference(name: String, default: Boolean) :
+        MenuItemPreference(name, default, true) {
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
-    class AutoFullscreenMenuItemPreference:
-        MenuItemPreference("auto_fullscreen_pref", true, false)
-    {
+    class AutoFullscreenMenuItemPreference :
+        MenuItemPreference("auto_fullscreen_pref", true, false) {
         override fun handle() = ABEventBus.getDefault().post(AutoFullScreenChanged(value))
     }
 
-    class TiltToScrollMenuItemPreference:
-        MenuItemPreference("tilt_to_scroll_pref", false, false)
-    {
+    class TiltToScrollMenuItemPreference :
+        MenuItemPreference("tilt_to_scroll_pref", false, false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
         override val visible: Boolean get() = super.visible && isTiltSensingPossible()
-    }
-
-    class DummyMenuItemPreference(
-        override var value: Boolean = true,
-        override val visible: Boolean = true,
-        override val enabled: Boolean = true
-    ): OptionsMenuItemInterface {
-        override fun handle() {}
     }
 
     class CommandItem(
@@ -411,46 +418,140 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val enabled: Boolean = true,
         override var value: Boolean = true,
         override val visible: Boolean = true
-    ): OptionsMenuItemInterface {
-        override fun handle() { command() }
+    ) : OptionsMenuItemInterface {
+        override fun handle() {
+            command()
+        }
     }
 
-    class SubMenuMenuItemPreference(onlyBibles: Boolean):
-        MenuItemPreference("none", onlyBibles = onlyBibles,subMenu = true)
+    class SubMenuMenuItemPreference(onlyBibles: Boolean) :
+        MenuItemPreference("none", onlyBibles = onlyBibles, subMenu = true)
 
-    class NightModeMenuItemPreference: StringValuedMenuItemPreference("night_mode_pref2", false) {
+    class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_pref2", false) {
         override fun handle() = mainBibleActivity.preferenceSettingsChanged()
         override val visible: Boolean get() = super.visible && !automatic
     }
 
-    class StrongsMenuItemPreference: TextContentMenuItemPreference("show_strongs_pref", true) {
+    class StrongsMenuItemPreference : TextContentMenuItemPreference("show_strongs_pref", true) {
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
-    class MorphologyMenuItemPreference: TextContentMenuItemPreference("show_morphology_pref", false) {
+    class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphology_pref", false) {
         override val enabled: Boolean
             get() = StrongsMenuItemPreference().value
         override var value: Boolean
-            get() = if(enabled) super.value else false
-            set(value) { super.value = value }
+            get() = if (enabled) super.value else false
+            set(value) {
+                super.value = value
+            }
 
         override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
     }
 
-    class SplitModeMenuItemPreference:
-        MenuItemPreference("reverse_split_mode_pref", false)
-    {
+    class SplitModeMenuItemPreference :
+        MenuItemPreference("reverse_split_mode_pref", false) {
         override fun handle() = mainBibleActivity.windowControl.windowSizesChanged()
 
         override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
-    private fun newTab() {}
-    private fun closeTab() {}
-    private fun cloneTab() {}
-    private fun chooseTab() {}
+    private fun closeTab() {
+        val nextTab = if (currentTab > 0) currentTab - 1 else 0
+        val tabs = tabStrings
+        tabs.removeAt(currentTab)
+        val newTab = tabs[nextTab]
+        currentTab = nextTab
+        tabStrings = tabs
+        openTab(newTab)
+    }
 
-    private val haveTabs: Boolean get() = false
+    private fun openTab(tab: String) {
+        windowControl.windowRepository.restoreState(tab)
+        documentViewManager.resetView()
+        windowControl.windowSync.synchronizeAllScreens()
+        invalidateOptionsMenu()
+    }
+
+    private fun cloneTab() {
+        val t = tabStrings
+        val current = currentTabState
+        t[currentTab] = currentTabState
+        t.add(current)
+        currentTab = t.size - 1
+        tabStrings = t
+        invalidateOptionsMenu()
+    }
+
+    private fun chooseTab() {
+        val tabs = tabStrings
+        tabs[currentTab] = currentTabState
+        tabStrings = tabs
+
+        val tabTitles = ArrayList<String>()
+        val pageManager = windowControl.windowRepository.currentPageManagerProvider.get()
+        for((idx, tab) in tabs.withIndex()) {
+            val windowRepositoryState = JSONObject(tab)
+            val windows = windowRepositoryState.getJSONArray("windowState")
+            val keyTitle = ArrayList<String>()
+            for(i in 0..windows.length()-1) {
+                pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
+                keyTitle.add(pageManager.currentPage.key.toString())
+            }
+            tabTitles.add("Tab ${idx + 1}: ${keyTitle.joinToString(", ")}")
+        }
+
+        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, tabTitles)
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.choose_tab_to_open))
+            .setAdapter(adapter) {_, which ->
+                openTab(tabs[which])
+                currentTab = which
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    // Not used now, but I'm planning make tab switching (next/prev) with some gesture in the future
+    private fun previousTab() {
+        val tabs = tabStrings
+        if(tabs.size < 2) return
+        tabs[currentTab] = currentTabState
+        tabStrings = tabs
+        currentTab = if(currentTab > 0) currentTab - 1 else tabs.size -1
+        openTab(tabs[currentTab])
+    }
+
+    private fun nextTab() {
+        val tabs = tabStrings
+        if(tabs.size < 2) return
+        tabs[currentTab] = currentTabState
+        tabStrings = tabs
+        currentTab = if(currentTab < tabs.size - 1) currentTab + 1 else 0
+        openTab(tabs[currentTab])
+    }
+
+    @Serializable class TabStrings(val data: ArrayList<String>)
+
+    private val currentTabState get() = windowControl.windowRepository.dumpState()
+
+    private var tabStrings: ArrayList<String>
+        get() {
+            val tabsSerialized = preferences.getString("tabs", null) ?: return arrayListOf(currentTabState)
+            return JSON.parse(TabStrings.serializer(), tabsSerialized).data
+        }
+        set(value) =
+            preferences.edit().putString("tabs", JSON.stringify(TabStrings.serializer(), TabStrings(value))).apply()
+
+    private val haveTabs: Boolean get() = numTabs > 1
+    private val numTabs: Int get() = tabStrings.size
+
+    private var currentTab: Int
+        get() = preferences.getInt("currentTab", 0)
+        set(newValue) {
+            preferences.edit().putInt("currentTab", newValue).apply()
+            ABEventBus.getDefault().post(ToastEvent("Tab ${newValue + 1}")) // TODO
+        }
+
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
@@ -468,9 +569,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.splitMode -> SplitModeMenuItemPreference()
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
         R.id.tabsSubMenu -> SubMenuMenuItemPreference(false)
-        R.id.newTab -> CommandItem({newTab()})
+        R.id.newTab -> CommandItem({cloneTab()})
         R.id.closeTab -> CommandItem({closeTab()}, haveTabs)
-        R.id.cloneTab -> CommandItem({cloneTab()})
         R.id.switchToTab -> CommandItem({chooseTab()}, haveTabs)
         else -> throw RuntimeException("Illegal menu item")
     }
@@ -581,7 +681,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         fun addSearch() {
             searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch && !isMyNotes)
-           {
+            {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
@@ -606,8 +706,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val bookmarksLastUsed = preferences.getLong("bookmarks-last-used", 0)
 
         val funs = arrayListOf(Pair(speakLastUsed, {addSpeak()}),
-                               Pair(searchLastUsed, {addSearch()}),
-                               Pair(bookmarksLastUsed, {addBookmarks()}))
+            Pair(searchLastUsed, {addSearch()}),
+            Pair(bookmarksLastUsed, {addBookmarks()}))
         funs.sortBy { -it.first }
 
         for(p in funs) {
@@ -648,7 +748,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         menu.setOnMenuItemClickListener { item ->
             windowControl.activeWindow.pageManager.setCurrentDocument(docs[item.itemId])
-        true
+            true
         }
         menu.show()
         return true
@@ -680,16 +780,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             toolbar.translationY = -toolbar.height.toFloat()
             supportActionBar?.show()
             toolbar.animate().translationY(topOffset1)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
+                .setInterpolator(DecelerateInterpolator())
+                .start()
             updateActions()
         } else {
             Log.d(TAG, "Fullscreen on")
             hideSystemUI()
             toolbar.animate().translationY(-toolbar.height.toFloat())
-                    .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { supportActionBar?.hide() }
-                    .start()
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { supportActionBar?.hide() }
+                .start()
         }
         updateSpeakTransportVisibility()
     }
@@ -733,17 +833,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
             transportBarVisible = false
             speakTransport.animate().translationY(speakTransport.height.toFloat())
-                    .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { speakTransport.visibility = View.GONE }
-                    .start()
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { speakTransport.visibility = View.GONE }
+                .start()
             ABEventBus.getDefault().post(TransportBarVisibilityChanged(false))
         } else if (speakTransport.visibility == View.GONE && !speakControl.isStopped){
             transportBarVisible = true
             speakTransport.translationY = speakTransport.height.toFloat()
             speakTransport.visibility = View.VISIBLE
             speakTransport.animate().translationY(-bottomOffset1)
-                    .setInterpolator(DecelerateInterpolator())
-                    .start()
+                .setInterpolator(DecelerateInterpolator())
+                .start()
             ABEventBus.getDefault().post(TransportBarVisibilityChanged(true))
         }
     }

@@ -12,9 +12,6 @@
             <item android:id="@+id/newTab"
                 android:title="@string/new_tab"
 				/>
-            <item android:id="@+id/cloneTab"
-                android:title="@string/clone_tab"
-				/>
             <item android:id="@+id/closeTab"
                 android:title="@string/close_tab"
 				/>
