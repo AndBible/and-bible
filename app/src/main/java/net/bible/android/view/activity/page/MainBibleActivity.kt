@@ -529,6 +529,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun chooseTab() {
         val tabs = tabStrings
+        if(tabs.size < 2) return
+
         tabs[currentTab] = currentTabState
         tabStrings = tabs
 
