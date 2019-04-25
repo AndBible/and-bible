@@ -390,14 +390,14 @@ class ReadingPlanDBAdapter {
     }
 
     fun switchToReadingPlan(readingPlanInfo: ReadingPlanInformationDB) {
-        Log.d(TAG, """Switching reading plan. R.Plan.Id=${readingPlanInfo.metaID} --
+        Log.d(TAG, """Switching reading plan. R.Plan.Id=${readingPlanInfo.readingPlanID} --
             startDate=${readingPlanInfo.startDate}""")
-        currentActiveReadingPlanID = readingPlanInfo.metaID
+        currentActiveReadingPlanID = readingPlanInfo.readingPlanID
 
         // Date based plan has no use for start date, except just for the record. Other plan start date is set
         // in function incrementCurrentPlanDay()
-        if (getIsDateBasedPlan(readingPlanInfo.metaID) && getPlanStartDate(readingPlanInfo.metaID) == null) {
-                setPlanStartDate(readingPlanInfo.metaID)
+        if (getIsDateBasedPlan(readingPlanInfo.readingPlanID) && getPlanStartDate(readingPlanInfo.readingPlanID) == null) {
+                setPlanStartDate(readingPlanInfo.readingPlanID)
         }
     }
 
@@ -534,14 +534,14 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
 
     private val dbAdapter = ReadingPlanDBAdapter()
 
-    val metaID: Int = readingPlanMetaIdParam ?: dbAdapter.currentActiveReadingPlanID
-    val isDateBased: Boolean = dbAdapter.getIsDateBasedPlan(metaID)
-    val fileName: String = dbAdapter.getPlanFileNameFromId(metaID)
-    val planName: String = dbAdapter.getPlanName(metaID)
-    val planDescription: String = dbAdapter.getPlanDescription(metaID)
-    val startDate: Date? = dbAdapter.getPlanStartDate(metaID)
-    val totalDays: Int = dbAdapter.getPlanTotalDays(metaID)
-    val versificationName: String? = dbAdapter.getPlanVersificationName(metaID)
+    val readingPlanID: Int = readingPlanMetaIdParam ?: dbAdapter.currentActiveReadingPlanID
+    val isDateBased: Boolean = dbAdapter.getIsDateBasedPlan(readingPlanID)
+    val fileName: String = dbAdapter.getPlanFileNameFromId(readingPlanID)
+    val planName: String = dbAdapter.getPlanName(readingPlanID)
+    val planDescription: String = dbAdapter.getPlanDescription(readingPlanID)
+    val startDate: Date? = dbAdapter.getPlanStartDate(readingPlanID)
+    val totalDays: Int = dbAdapter.getPlanTotalDays(readingPlanID)
+    val versificationName: String? = dbAdapter.getPlanVersificationName(readingPlanID)
     val isCustomUserAdded: Boolean = dbAdapter.getIsCustomUserAddedPlan(fileName)
 
     /**
@@ -567,7 +567,7 @@ class ReadingPlanInformationDB(private val readingPlanMetaIdParam: Int?) {
 
     override fun toString(): String {
         return """
-            metaId=$metaID
+            metaId=$readingPlanID
             isDateBased=$isDateBased
             fileName=$fileName
             planName=$planName
@@ -609,7 +609,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
 
     init {
         if (readingPlanMetaId == null) {
-            readingPlanMetaId = readingPlanInfo.metaID
+            readingPlanMetaId = readingPlanInfo.readingPlanID
             dayNumber = readingPlanDayNumberParam ?: dbAdapter.getCurrentDayNumber(readingPlanMetaId!!)
             readingChaptersString = dbAdapter.getDayReadingChaptersString(readingPlanMetaId!!, dayNumber!!)
             readingStatusJSON = dbAdapter.getDayReadingStatus(readingPlanMetaId!!, dayNumber!!)

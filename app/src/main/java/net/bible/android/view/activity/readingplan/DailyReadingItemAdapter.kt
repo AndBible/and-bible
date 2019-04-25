@@ -51,7 +51,7 @@ class DailyReadingItemAdapter(context: Context, private val resource: Int, items
         if (view.text1 != null && item != null) {
                 view.text1.text =
                     if (item.readingPlanInfo.isDateBased)
-                        item.readingDateForDateBasedPlan
+                        item.dateString
                     else item.dayAndNumberDescription
         }
 

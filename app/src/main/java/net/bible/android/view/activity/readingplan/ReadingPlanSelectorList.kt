@@ -111,7 +111,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
                 var isDeleted = false
                 Dialogs.getInstance().showMsg(R.string.delete_plan_question, true)
                 {
-                    if (dbAdapter.deletePlan(plan.metaID)) {
+                    if (dbAdapter.deletePlan(plan.readingPlanID)) {
                         isDeleted = true
                         planArrayAdapter.remove(plan)
                         Toast.makeText(this, getString(R.string.plan_deleted), Toast.LENGTH_SHORT).show()
