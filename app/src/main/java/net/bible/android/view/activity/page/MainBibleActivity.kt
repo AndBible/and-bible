@@ -104,28 +104,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject
-    lateinit var bibleContentManager: BibleContentManager
-    @Inject
-    lateinit var documentViewManager: DocumentViewManager
-    @Inject
-    lateinit var windowControl: WindowControl
-    @Inject
-    lateinit var speakControl: SpeakControl
+    @Inject lateinit var bibleContentManager: BibleContentManager
+    @Inject lateinit var documentViewManager: DocumentViewManager
+    @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 
     // handle requests from main menu
-    @Inject
-    lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject
-    lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject
-    lateinit var backupControl: BackupControl
-    @Inject
-    lateinit var searchControl: SearchControl
-    @Inject
-    lateinit var documentControl: DocumentControl
-    @Inject
-    lateinit var navigationControl: NavigationControl
+    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
+    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
+    @Inject lateinit var backupControl: BackupControl
+    @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var documentControl: DocumentControl
+    @Inject lateinit var navigationControl: NavigationControl
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
