@@ -432,4 +432,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="close_tab">Close this tab</string>
     <string name="choose_tab_to_open">Choose tab to open</string>
     <string name="new_copied_tab">Copy this tab as new</string>
+    <string name="tab_number">Tab %d</string>
 </resources>

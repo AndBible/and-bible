@@ -137,14 +137,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
 
-    val isMyNotes
-        get() =
+    val isMyNotes get() =
             if (::documentControl.isInitialized) {
                 documentControl.isMyNotes
             } else false
 
-    val multiWinMode
-        get() =
+    val multiWinMode get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar
@@ -157,8 +155,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
     // Bottom offset with only navigation bar
-    val bottomOffset1: Float
-        get() =
+    val bottomOffset1 get() =
             if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
 
     // Bottom offset with navigation bar and transport bar
@@ -597,7 +594,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = preferences.getInt("currentTab", 0)
         set(newValue) {
             preferences.edit().putInt("currentTab", newValue).apply()
-            ABEventBus.getDefault().post(ToastEvent("Tab ${newValue + 1}")) // TODO
+            ABEventBus.getDefault().post(ToastEvent(getString(R.string.tab_number, newValue + 1)))
         }
 
 
