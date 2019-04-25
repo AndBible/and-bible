@@ -328,4 +328,9 @@ open class WindowRepository @Inject constructor(
         }
         activeWindow = getDefaultActiveWindow()
     }
+
+    fun clear() {
+        windowList.clear()
+        activeWindow = getDefaultActiveWindow()
+    }
 }

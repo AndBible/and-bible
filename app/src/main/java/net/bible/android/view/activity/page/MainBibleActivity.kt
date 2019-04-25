@@ -460,6 +460,24 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         documentViewManager.resetView()
         windowControl.windowSync.synchronizeAllScreens()
         invalidateOptionsMenu()
+        updateTitle()
+        updateToolbar()
+    }
+
+    private fun newTab() {
+        val currentDocument = windowControl.activeWindowPageManager.currentPassageDocument
+
+        val t = tabStrings
+        t[currentTab] = currentTabState
+        currentTab = t.size
+        windowControl.windowRepository.clear()
+        t.add(currentTabState)
+        tabStrings = t
+
+        openTab(currentTabState)
+        windowControl.activeWindowPageManager.setCurrentDocument(currentDocument)
+
+        invalidateOptionsMenu()
     }
 
     private fun cloneTab() {
@@ -483,7 +501,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             val windowRepositoryState = JSONObject(tab)
             val windows = windowRepositoryState.getJSONArray("windowState")
             val keyTitle = ArrayList<String>()
-            for(i in 0..windows.length()-1) {
+            for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
                 keyTitle.add(pageManager.currentPage.key.toString())
             }
@@ -494,8 +512,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.choose_tab_to_open))
             .setAdapter(adapter) {_, which ->
-                openTab(tabs[which])
                 currentTab = which
+                openTab(tabs[which])
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -559,7 +577,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.splitMode -> SplitModeMenuItemPreference()
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
         R.id.tabsSubMenu -> SubMenuMenuItemPreference(false)
-        R.id.newTab -> CommandItem({cloneTab()})
+        R.id.newTab -> CommandItem({newTab()})
+        R.id.cloneTab -> CommandItem({cloneTab()})
         R.id.closeTab -> CommandItem({closeTab()}, haveTabs)
         R.id.switchToTab -> CommandItem({chooseTab()}, haveTabs)
         else -> throw RuntimeException("Illegal menu item")
