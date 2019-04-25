@@ -30,9 +30,11 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
+import android.view.GestureDetector
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
@@ -41,6 +43,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
@@ -253,7 +256,53 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         speakTransport.visibility = View.GONE
         updateSpeakTransportVisibility()
+        setupToolbarFlingDetection()
         ready = true
+    }
+
+    private fun setupToolbarFlingDetection() {
+        val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
+        var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        minScaledVelocity = (minScaledVelocity * 0.66).toInt()
+
+        val gestureListener = object: GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                Log.d(TAG, "onFling")
+                val vertical = Math.abs(e1.y - e2.y).toDouble()
+                val horizontal = Math.abs(e1.x - e2.x).toDouble()
+
+                if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
+                    chooseTab()
+                    return true
+
+                } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+                    if (e1.x > e2.x) {
+                        nextTab()
+                    } else {
+                        previousTab()
+                    }
+                    return true
+                }
+
+                return super.onFling(e1, e2, velocityX, velocityY)
+            }
+
+            override fun onLongPress(e: MotionEvent?) {
+                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), ActivityBase.STD_REQUEST_CODE)
+            }
+
+            override fun onSingleTapUp(e: MotionEvent?): Boolean {
+                val intent = Intent(this@MainBibleActivity, pageControl.currentPageManager.currentPage.keyChooserActivity)
+                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                return true
+            }
+
+        }
+        val gestureDetector = GestureDetectorCompat(this, gestureListener)
+        pageTitleContainer.setOnTouchListener { v, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
     }
 
     override fun onPause() {
@@ -294,15 +343,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             } else {
                 drawerLayout.openDrawer(GravityCompat.START)
             }
-        }
-
-        pageTitleContainer.setOnClickListener {
-            val intent = Intent(this, pageControl.currentPageManager.currentPage.keyChooserActivity)
-            startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
-        }
-        pageTitleContainer.setOnLongClickListener {
-            startActivityForResult(Intent(this, ChooseDocument::class.java), ActivityBase.STD_REQUEST_CODE)
-            true
         }
 
         strongsButton.setOnClickListener {
