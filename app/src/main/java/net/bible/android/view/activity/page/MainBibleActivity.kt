@@ -542,7 +542,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
                 keyTitle.add(pageManager.currentPage.key.toString())
             }
-            tabTitles.add("Tab ${idx + 1}: ${keyTitle.joinToString(", ")}")
+            tabTitles.add(getString(R.string.tab_num_contents, idx + 1, keyTitle.joinToString(", ")))
         }
 
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, tabTitles)
@@ -556,7 +556,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .show()
     }
 
-    // Not used now, but I'm planning make tab switching (next/prev) with some gesture in the future
     private fun previousTab() {
         val tabs = tabStrings
         if(tabs.size < 2) return
