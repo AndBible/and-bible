@@ -34,16 +34,9 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
 
     private var currentChapterNumber: Int = 0
     private var currentVerseNumber: Int = 0
-    private var verseCount: Int = 0
     private var writeChapter: String = ""
     private val showVerseNumbersSetting: Boolean = CommonUtils.getSharedPreferences().getBoolean("show_verseno_pref", true)
 
-    /*
-     * Called when the starting of the Element is reached. For Example if we have Tag
-     * called <Title> ... </Title>, then this method is called when <Title> tag is
-     * Encountered while parsing the Current XML File. The AttributeList Parameter has
-     * the list of all Attributes declared for the Current Element in the XML File.
-    */
     override fun startElement(namespaceURI: String,
                               sName: String, // simple name
                               qName: String, // qualified name
@@ -60,7 +53,6 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
                 }
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
-                verseCount++
                 if (attrs != null && mulitpleVerses && showVerseNumbersSetting) {
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
 

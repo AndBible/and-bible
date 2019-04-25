@@ -79,7 +79,7 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
+			String text = verseRange.getName()+"\n"+swordContentFacade.getTextWithVerseNumbers(book, verseRange);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.Companion.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
@@ -94,7 +94,7 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
+			String text = verseRange.getName()+"\n"+swordContentFacade.getTextWithVerseNumbers(book, verseRange);
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");
