@@ -551,8 +551,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.choose_tab_to_open))
             .setAdapter(adapter) {_, which ->
-                currentTab = which
-                openTab(tabs[which])
+                if(currentTab != which) {
+                    currentTab = which
+                    openTab(tabs[which])
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
