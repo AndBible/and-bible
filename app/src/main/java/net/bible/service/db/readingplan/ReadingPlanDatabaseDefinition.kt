@@ -40,7 +40,6 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJV
 import org.crosswire.jsword.versification.system.SystemNRSVA
 import org.crosswire.jsword.versification.system.Versifications
-import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -54,7 +53,7 @@ import kotlin.collections.ArrayList
  */
 object ReadingPlanDatabaseDefinition {
 
-    object ReadingPlanMeta : BaseColumns {
+    object ReadingPlan : BaseColumns {
         // If COLUMN_CURRENT_DAY has CONSTANT_CURRENT_DAY_BY_DATE value,
         // then the reading plan will by default get today's date
         const val CONSTANT_CURRENT_DAY_BY_DATE = -1
@@ -73,7 +72,7 @@ object ReadingPlanDatabaseDefinition {
     object ReadingPlanDays : BaseColumns {
         const val TABLE_NAME = "readingplan_days"
         const val COLUMN_ID = BaseColumns._ID
-        const val COLUMN_READING_PLAN_META_ID = "readingplan_meta_id"
+        const val COLUMN_READING_PLAN_ID = "readingplan_meta_id"
         const val COLUMN_DAY_NUMBER = "day_number"
         const val COLUMN_READING_DATE = "reading_date"
         const val COLUMN_DAY_CHAPTERS = "day_chapters"
@@ -83,30 +82,33 @@ object ReadingPlanDatabaseDefinition {
     class Operations {
         companion object {
             private const val TAG = "ReadingPlanDatabaseOps"
-            private const val SQL_CREATE_ENTRIES_META =
-                """CREATE TABLE ${ReadingPlanMeta.TABLE_NAME} (
-                ${ReadingPlanMeta.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
-                ${ReadingPlanMeta.COLUMN_PLAN_FILE_NAME} TEXT NOT NULL,
-                ${ReadingPlanMeta.COLUMN_PLAN_NAME} TEXT NOT NULL,
-                ${ReadingPlanMeta.COLUMN_DESCRIPTION} TEXT NOT NULL,
-                ${ReadingPlanMeta.COLUMN_DATE_START} INTEGER,
-                ${ReadingPlanMeta.COLUMN_DAYS_IN_PLAN} INTEGER,
-                ${ReadingPlanMeta.COLUMN_CURRENT_DAY} INTEGER NOT NULL DEFAULT 0,
-                ${ReadingPlanMeta.COLUMN_VERSIFICATION_NAME} TEXT NOT NULL
+            private val SQL_CREATE_ENTRIES_META = ReadingPlan.run {
+                """CREATE TABLE $TABLE_NAME (
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_PLAN_FILE_NAME TEXT NOT NULL,
+                $COLUMN_PLAN_NAME TEXT NOT NULL,
+                $COLUMN_DESCRIPTION TEXT NOT NULL,
+                $COLUMN_DATE_START INTEGER,
+                $COLUMN_DAYS_IN_PLAN INTEGER,
+                $COLUMN_CURRENT_DAY INTEGER NOT NULL DEFAULT 0,
+                $COLUMN_VERSIFICATION_NAME TEXT NOT NULL
                 ); """
+            }
 
-            private const val SQL_CREATE_ENTRIES_DAYS =
-                """CREATE TABLE ${ReadingPlanDays.TABLE_NAME} (
-                ${ReadingPlanDays.COLUMN_ID} INTEGER PRIMARY KEY AUTOINCREMENT,
-                ${ReadingPlanDays.COLUMN_READING_PLAN_META_ID} INTEGER NOT NULL,
-                ${ReadingPlanDays.COLUMN_DAY_NUMBER} INTEGER NOT NULL,
-                ${ReadingPlanDays.COLUMN_READING_DATE} TEXT,
-                ${ReadingPlanDays.COLUMN_DAY_CHAPTERS} TEXT NOT NULL,
-                ${ReadingPlanDays.COLUMN_READ_STATUS} TEXT
+            private val SQL_CREATE_ENTRIES_DAYS = ReadingPlanDays.run {
+                """CREATE TABLE $TABLE_NAME (
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_READING_PLAN_ID INTEGER NOT NULL,
+                $COLUMN_DAY_NUMBER INTEGER NOT NULL,
+                $COLUMN_READING_DATE TEXT,
+                $COLUMN_DAY_CHAPTERS TEXT NOT NULL,
+                $COLUMN_READ_STATUS TEXT
                 );"""
+            }
 
-            private const val SQL_CREATE_DAYS_INDEX =
-                "CREATE INDEX days_date_name ON ${ReadingPlanDays.TABLE_NAME}(${ReadingPlanDays.COLUMN_READING_DATE});"
+            private val SQL_CREATE_DAYS_INDEX = ReadingPlanDays.run {
+                "CREATE INDEX days_date_name ON $TABLE_NAME($COLUMN_READING_DATE);"
+            }
 
             private const val VERSIFICATION = "Versification"
             private const val DOT_PROPERTIES = ".properties"
@@ -144,51 +146,51 @@ object ReadingPlanDatabaseDefinition {
                 var returnValue = false
 
                 readingPlanProperties = when (firstImport) {
-                    true -> getAllReadingPlanProperties
-                    else -> ArrayList(arrayListOf(loadProperties(customInput!!, planCode!!)))
+                    true -> allReadingPlanProperties
+                    else -> ArrayList(arrayListOf(loadProperties(customInput!!, planCode!!) ?: return false))
                 }
 
                 for (property in readingPlanProperties) {
                     Log.d(TAG, "Parsing ${property.planCode}, ${property.planName} plan")
-                    if (firstImport ||
-                        (!firstImport &&
-                            !dbAdapter.getIsPlanAlreadyImported(property.planCode)
-                            )
-                    ) {
 
-                        val dbReadingPlanMetaID = insertDatabaseMetaRecord(property, firstImport, db)
-                        val planReadingList = getDailyReadingsFromProperties(property)
-                        planReadingList.sortBy { it.dayNumber }
+                    if (firstImport || (!firstImport && !dbAdapter.getIsPlanAlreadyImported(property.planCode))) {
+                        val readingPlanID = insertDatabaseMetaRecord(property, firstImport, db)
+                        val planDaysReadingList = getDailyReadingsFromProperties(property)
+                        planDaysReadingList.sortBy { it.dayNumber }
 
-                        for (dailyReading in planReadingList) {
+                        for (dailyReading in planDaysReadingList) {
                             val isDateBasedPlan = dailyReading.dateBasedDay != null
 
-                            // Update meta table to specify plan as Date-Based
                             if (isDateBasedPlan) {
-                                val values = ContentValues().apply {
-                                    put(ReadingPlanMeta.COLUMN_CURRENT_DAY, ReadingPlanMeta.CONSTANT_CURRENT_DAY_BY_DATE)
-                                }
-                                val whereClause = "${ReadingPlanMeta.COLUMN_ID} = ?"
-                                val whereArgs = arrayOf(dbReadingPlanMetaID.toString())
-                                db.update(ReadingPlanMeta.TABLE_NAME, values, whereClause, whereArgs)
+                                db.update(
+                                    ReadingPlan.TABLE_NAME,
+                                    ContentValues().apply {
+                                        put(ReadingPlan.COLUMN_CURRENT_DAY, ReadingPlan.CONSTANT_CURRENT_DAY_BY_DATE)},
+                                    "${ReadingPlan.COLUMN_ID}=?",
+                                    arrayOf(readingPlanID.toString())
+                                )
                             }
 
-                            val readStatusString: String? = getReadStatusString(dailyReading, property, dbReadingPlanMetaID)
+                            val readStatusString: String? = getReadStatusString(dailyReading, property, readingPlanID)
 
                             // Enter day info to DB
                             val dayValues = ContentValues().apply {
-                                put(ReadingPlanDays.COLUMN_READING_PLAN_META_ID, dbReadingPlanMetaID)
-                                put(ReadingPlanDays.COLUMN_DAY_NUMBER, dailyReading.dayNumber)
-                                put(ReadingPlanDays.COLUMN_DAY_CHAPTERS, dailyReading.dailyReadings)
-                                put(ReadingPlanDays.COLUMN_READ_STATUS, readStatusString)
-                                if (isDateBasedPlan) {
-                                    put(
-                                        ReadingPlanDays.COLUMN_READING_DATE,
-                                        dailyReading.dateBasedDay
-                                    )
+                                ReadingPlanDays.run {
+                                    put(COLUMN_READING_PLAN_ID, readingPlanID)
+                                    put(COLUMN_DAY_NUMBER, dailyReading.dayNumber)
+                                    put(COLUMN_DAY_CHAPTERS, dailyReading.dailyReadings)
+                                    put(COLUMN_READ_STATUS, readStatusString)
+                                    if (isDateBasedPlan) {
+                                        put(
+                                            COLUMN_READING_DATE,
+                                            dailyReading.dateBasedDay
+                                        )
+                                    }
                                 }
                             }
-                            db.insert(ReadingPlanDays.TABLE_NAME, null, dayValues)
+                            if (db.insert(ReadingPlanDays.TABLE_NAME, null, dayValues).toInt() == -1) {
+                                Log.e(TAG, "Error inserting day ${dailyReading.dayNumber} into DB")
+                            }
                         }
                         returnValue = true
                     }
@@ -223,27 +225,31 @@ object ReadingPlanDatabaseDefinition {
                 val startDate = CommonUtils.getSharedPreferences().getLong(property.planCode + "_start", 0)
 
                 val metaValues = ContentValues().apply {
-                    put(ReadingPlanMeta.COLUMN_PLAN_FILE_NAME, property.planCode)
-                    put(ReadingPlanMeta.COLUMN_PLAN_NAME, property.planName)
-                    put(ReadingPlanMeta.COLUMN_DESCRIPTION, property.planDescription)
-                    put(ReadingPlanMeta.COLUMN_DAYS_IN_PLAN, property.numberOfPlanDays)
-                    put(ReadingPlanMeta.COLUMN_VERSIFICATION_NAME, property.versification?.name)
-                    put(ReadingPlanMeta.COLUMN_CURRENT_DAY, thisPlanDay)
-                    if (startDate > 0L) put(ReadingPlanMeta.COLUMN_DATE_START, startDate)
+                    ReadingPlan.run {
+                        put(COLUMN_PLAN_FILE_NAME, property.planCode)
+                        put(COLUMN_PLAN_NAME, property.planName)
+                        put(COLUMN_DESCRIPTION, property.planDescription)
+                        put(COLUMN_DAYS_IN_PLAN, property.numberOfPlanDays)
+                        put(COLUMN_VERSIFICATION_NAME, property.versification?.name)
+                        put(COLUMN_CURRENT_DAY, thisPlanDay)
+                        if (startDate > 0L) put(COLUMN_DATE_START, startDate)
+                    }
                 }
 
-                val dbReadingPlanMetaID = db.insert(ReadingPlanMeta.TABLE_NAME, null, metaValues)
+                val readingPlanID = db.insert(ReadingPlan.TABLE_NAME, null, metaValues)
+                if (readingPlanID.toInt() == -1) Log.e(TAG, "Error inserting plan ${property.planCode}")
+
                 if (firstImport && currentPlanCode == property.planCode) {
-                    prefs.edit().putInt(ReadingPlanDBAdapter.CURRENT_PLAN_INDEX,dbReadingPlanMetaID.toInt()).apply()
+                    prefs.edit().putInt(ReadingPlanDBAdapter.CURRENT_PLAN_INDEX,readingPlanID.toInt()).apply()
                 }
 
-                return dbReadingPlanMetaID
+                return readingPlanID
             }
 
             private fun getReadStatusString(
                 dailyReading: DayInformationForImport,
                 property: ReadingPlanPropertiesFromText,
-                dbReadingPlanMetaID: Long
+                readingPlanID: Long
             ): String? {
                 val prefs = CommonUtils.getSharedPreferences()
                 val thisPlanDay: Int = prefs.getInt(property.planCode + "_day", 1)
@@ -265,7 +271,7 @@ object ReadingPlanDatabaseDefinition {
                             }
                         }
                         return ReadingPlanOneDayDB.ReadingStatus(
-                            dbReadingPlanMetaID.toInt(),
+                            readingPlanID.toInt(),
                             dailyReading.numberOfReadings,
                             chaptersReadArray
                         ).toJsonString()
@@ -276,7 +282,7 @@ object ReadingPlanDatabaseDefinition {
                             ReadingPlanOneDayDB.ChapterRead(i + 1, true)
                     }
                     return ReadingPlanOneDayDB.ReadingStatus(
-                        dbReadingPlanMetaID.toInt(),
+                        readingPlanID.toInt(),
                         dailyReading.numberOfReadings,
                         chaptersReadArray
                     ).toJsonString()
@@ -284,36 +290,34 @@ object ReadingPlanDatabaseDefinition {
                 return null
             }
 
-            private val getAllReadingPlanProperties: ArrayList<ReadingPlanPropertiesFromText>
+            private val allReadingPlanProperties: ArrayList<ReadingPlanPropertiesFromText>
                 @Throws(IOException::class)
                 get() {
 
                     val resources = BibleApplication.application.resources
                     val assetManager = resources.assets
 
-                    val allPlanCodes = ArrayList<ReadingPlanPropertiesFromText>()
+                    val allPlanProperties = ArrayList<ReadingPlanPropertiesFromText>()
 
                     val internalPlans = assetManager.list(READING_PLAN_FOLDER)
                     if(internalPlans != null) {
-                        allPlanCodes.addAll(
-                            getReadingPlanProperties(
-                                getPropertiesOnlyFromFiles(internalPlans),
-                                false
-                            )
+                        val internalProperties = getReadingPlanProperties(
+                            getPropertiesOnlyFromFiles(internalPlans),
+                            false
                         )
+                        if (internalProperties != null) { allPlanProperties.addAll(internalProperties) }
                     }
 
                     val userPlans = USER_READING_PLAN_FOLDER.list()
                     if (userPlans != null) {
-                        allPlanCodes.addAll(
-                            getReadingPlanProperties(
+                        val userProperties = getReadingPlanProperties(
                                 getPropertiesOnlyFromFiles(userPlans),
                                 true
                             )
-                        )
+                        if (userProperties != null) { allPlanProperties.addAll(userProperties) }
                     }
 
-                    return allPlanCodes
+                    return allPlanProperties
                 }
 
             private fun getPropertiesOnlyFromFiles(files: Array<String>): ArrayList<String> {
@@ -333,8 +337,7 @@ object ReadingPlanDatabaseDefinition {
                 planCodes: ArrayList<String>,
                 isUserPlan: Boolean,
                 inputStream_: InputStream? = null
-            ): ArrayList<ReadingPlanPropertiesFromText>
-            {
+            ): ArrayList<ReadingPlanPropertiesFromText>? {
                 val resources = BibleApplication.application.resources
                 val assetManager = resources.assets
                 val isImportPlan = inputStream_ != null
@@ -342,11 +345,7 @@ object ReadingPlanDatabaseDefinition {
 
                 val propertiesArrayReturn = ArrayList<ReadingPlanPropertiesFromText>()
                 lateinit var inputStream: InputStream
-                // bufferedReader is for comment lines in start of file for Plan Name
-                // because we can not read inputStream twice.
-                lateinit var bufferedReader: BufferedReader
                 try {
-
                     for (code in planCodes) {
                         val filename = code + DOT_PROPERTIES
                         val userReadingPlanFile = File(USER_READING_PLAN_FOLDER, filename)
@@ -357,25 +356,28 @@ object ReadingPlanDatabaseDefinition {
                             else -> assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
                         }
 
-                        val properties = loadProperties(inputStream, code)
-
+                        val properties = loadProperties(inputStream, code) ?: return null
                         propertiesArrayReturn.add(properties)
                     }
 
                     Log.d(TAG, "All properties are now loaded for import")
                 } catch (e: IOException) {
-                    System.err.println("Failed to open reading plan property file")
-                    e.printStackTrace()
+                    Log.e(TAG, "Failed to open reading plan property file", e)
                 } finally {
                     IOUtil.close(inputStream)
                 }
                 return propertiesArrayReturn
             }
 
-            private fun loadProperties(inputStream_: InputStream, planCode: String = ""): ReadingPlanPropertiesFromText {
+            private fun loadProperties(inputStream_: InputStream, planCode: String = ""): ReadingPlanPropertiesFromText? {
                 val properties = ReadingPlanPropertiesFromText()
                 val byteArrayForReuse = ByteArrayOutputStream()
-                byteArrayForReuse.write(inputStream_.readBytes())
+                try {
+                    byteArrayForReuse.write(inputStream_.readBytes())
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error reading from inputStream at function loadProperties", e)
+                    return null
+                }
                 inputStream_.close()
                 val inputStream1 = ByteArrayInputStream(byteArrayForReuse.toByteArray())
                 val inputStream2 = ByteArrayInputStream(byteArrayForReuse.toByteArray())
@@ -404,7 +406,7 @@ object ReadingPlanDatabaseDefinition {
                     // This will probably never be called, but maybe? This is how it was from before.
                     Versifications.instance().getVersification(SystemNRSVA.V11N_NAME)
                 }
-                Log.e(TAG, "planDays=${properties.numberOfPlanDays}")
+                Log.d(TAG, "planDays=${properties.numberOfPlanDays}")
                 return properties
             }
 
@@ -428,12 +430,9 @@ object ReadingPlanDatabaseDefinition {
                 return maxDayNumber
             }
 
-            /** get a list of all days readings in a plan
-             */
             private fun getDailyReadingsFromProperties(
                 properties: ReadingPlanPropertiesFromText
-            ): ArrayList<DayInformationForImport>
-            {
+            ): ArrayList<DayInformationForImport> {
                 val returnArray = ArrayList<DayInformationForImport>()
                 for ((key1, value1) in properties) {
                     val keyString = key1 as String
@@ -445,8 +444,9 @@ object ReadingPlanDatabaseDefinition {
                         var readingsString: String = readingsStringOrig
 
                         // Separate Date and Readings from date-based plans
-                        if (StringUtils.isNotEmpty(readingsStringOrig) && StringUtils.contains(readingsStringOrig,";")) {
-                            // Check if string contains : (Would happen in case of date-based plan, shows Feb-1:Gen.1,Exo.1)
+                        if (StringUtils.isNotEmpty(readingsStringOrig) &&
+                            StringUtils.contains(readingsStringOrig,";")) {
+                            // Check if string contains ; (Would happen in case of date-based plan, shows Feb-1;Gen.1,Exo.1)
                                 dateBasedDay = readingsStringOrig.replace(";.*".toRegex(),"") // like Feb-1
                                 readingsString = readingsStringOrig.replace("^.*;".toRegex(),"")
                         } else if (StringUtils.isEmpty(readingsStringOrig)) {
@@ -457,9 +457,9 @@ object ReadingPlanDatabaseDefinition {
                         val passageReader = PassageReader(properties.versification!!)
                         val readingArray =
                             readingsString.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                        val readingsCount = readingArray.count()
                         for (reading in readingArray) {
-                            val emptyPassageKey = PassageKeyFactory.instance().createEmptyKeyList(properties.versification!!)
+                            val emptyPassageKey =
+                                PassageKeyFactory.instance().createEmptyKeyList(properties.versification!!)
                             if (passageReader.getKey(reading) == emptyPassageKey)
                                 Log.e(TAG, "Invalid passage $reading on day $dayNumber")
                         }
@@ -469,7 +469,7 @@ object ReadingPlanDatabaseDefinition {
                                 dayNumber,
                                 dateBasedDay,
                                 readingsString,
-                                readingsCount
+                                readingArray.count()
                             )
                         returnArray.add(daysReading)
                     }
@@ -486,11 +486,11 @@ object ReadingPlanDatabaseDefinition {
             )
 
             private class ReadingPlanPropertiesFromText: Properties() {
-                var planCode: String = ""
-                var planName: String = ""
-                var planDescription: String = ""
+                var planCode = ""
+                var planName = ""
+                var planDescription = ""
                 var versification: Versification? = null
-                var numberOfPlanDays: Int = 0
+                var numberOfPlanDays = 0
             }
 
         }
