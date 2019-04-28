@@ -240,7 +240,7 @@ object ReadingPlanDatabaseDefinition {
                 if (readingPlanID.toInt() == -1) Log.e(TAG, "Error inserting plan ${property.planCode}")
 
                 if (firstImport && currentPlanCode == property.planCode) {
-                    prefs.edit().putInt(ReadingPlanDBAdapter.CURRENT_PLAN_INDEX,readingPlanID.toInt()).apply()
+                    prefs.edit().putInt(ReadingPlanDBAdapter.CURRENT_PLAN_INDEX_PREF,readingPlanID.toInt()).apply()
                 }
 
                 return readingPlanID
