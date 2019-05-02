@@ -422,7 +422,7 @@ class DocumentWebViewBuilder @Inject constructor(
             FrameLayout.LayoutParams(WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.RIGHT)
         previousWindowLayout.addView(separator.touchDelegateView1, frameLayoutParamsSeparatorDelegate)
         // separator will adjust layouts when dragged
-        separator.setView1LayoutParams(previousLp)
+        separator.view1LayoutParams = previousLp
     }
 
     /**
@@ -441,7 +441,7 @@ class DocumentWebViewBuilder @Inject constructor(
         currentWindowLayout.addView(separator.touchDelegateView2, frameLayoutParamsSeparatorDelegate)
 
         // separator will adjust layouts when dragged
-        separator.setView2LayoutParams(lp)
+        separator.view2LayoutParams = lp
     }
 
     private fun createSeparator(
