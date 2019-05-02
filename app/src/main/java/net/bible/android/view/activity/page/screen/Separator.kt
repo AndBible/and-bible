@@ -149,7 +149,7 @@ class Separator(
     }
 
     companion object {
-        private val DRAG_TOUCH_MOVE_FREQUENCY_MILLIS = 200
+        private val DRAG_TOUCH_MOVE_FREQUENCY_MILLIS = 0
 
         private val TAG = "Separator"
     }
