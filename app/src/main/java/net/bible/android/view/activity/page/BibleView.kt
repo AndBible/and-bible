@@ -240,7 +240,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
         // don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
         // 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
-        invokeJumpToOffsetIfRequired((if (CommonUtils.isSlowDevice()) 500 else 350).toLong())
+        invokeJumpToOffsetIfRequired((if (CommonUtils.isSlowDevice) 500 else 350).toLong())
         window.initialized = true
     }
 

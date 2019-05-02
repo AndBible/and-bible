@@ -113,14 +113,14 @@ public class Download extends DocumentSelectionBase {
      * @return
      */
     private boolean isRepoBookListOld() {
-    	long repoRefreshDate = CommonUtils.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
+    	long repoRefreshDate = CommonUtils.INSTANCE.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
     	Date today = new Date();
     	return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
     }
     
     private void updateLastRepoRefreshDate() {
 	 	Date today = new Date();
-		CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+		CommonUtils.INSTANCE.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
     }
     
     @Override

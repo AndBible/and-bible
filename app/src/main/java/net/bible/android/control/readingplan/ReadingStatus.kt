@@ -74,7 +74,7 @@ open class ReadingStatus(
     /** do not leave prefs around for historic days
      */
     open fun delete() {
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         if (prefs.contains(prefsKey)) {
             prefs.edit()
                     .remove(prefsKey)
@@ -85,7 +85,7 @@ open class ReadingStatus(
     /** read status from prefs string
      */
     open fun reloadStatus() {
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         val gotStatus = prefs.getString(prefsKey, "")
         for (i in 0 until gotStatus!!.length) {
             if (gotStatus[i] == ONE) {
@@ -107,7 +107,7 @@ open class ReadingStatus(
                 strStatus.append(ZERO)
             }
         }
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         prefs.edit()
                 .putString(prefsKey, strStatus.toString())
                 .commit()

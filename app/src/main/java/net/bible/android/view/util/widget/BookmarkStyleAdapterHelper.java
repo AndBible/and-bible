@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BookmarkStyleAdapterHelper {
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+	private String sampleText = CommonUtils.INSTANCE.getResourceString(R.string.prefs_text_size_sample_text);
 
 	public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText) {
 
@@ -88,7 +88,7 @@ public class BookmarkStyleAdapterHelper {
 				break;
 		}
 		view.setBackgroundColor(backgroundColor);
-		view.setHeight(CommonUtils.convertDipsToPx(30));
+		view.setHeight(CommonUtils.INSTANCE.convertDipsToPx(30));
 		if (centreText) {
 			view.setGravity(Gravity.CENTER);
 		}

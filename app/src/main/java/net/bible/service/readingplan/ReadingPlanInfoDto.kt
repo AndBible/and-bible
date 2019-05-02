@@ -40,7 +40,7 @@ class ReadingPlanInfoDto(var code: String) {
      */
     val startdate: Date?
         get() {
-            val startDate = CommonUtils.getSharedPreferences().getLong(code + READING_PLAN_START_EXT, 0) as Long
+            val startDate = CommonUtils.sharedPreferences.getLong(code + READING_PLAN_START_EXT, 0) as Long
             return if (startDate == 0L) {
                 null
             } else {
@@ -51,7 +51,7 @@ class ReadingPlanInfoDto(var code: String) {
     /** set a persistent start date
      */
     fun start() {
-        startOn(CommonUtils.getTruncatedDate(), false)
+        startOn(CommonUtils.truncatedDate, false)
     }
 
     fun setStartToJan1() {
@@ -65,7 +65,7 @@ class ReadingPlanInfoDto(var code: String) {
         // if changing plan
         if (startdate == null || force) {
 
-            CommonUtils.getSharedPreferences()
+            CommonUtils.sharedPreferences
                     .edit()
                     .putLong(code + READING_PLAN_START_EXT, date.time)
                     .apply()
@@ -78,7 +78,7 @@ class ReadingPlanInfoDto(var code: String) {
 
         // if changing plan
         if (startdate == null) {
-            CommonUtils.getSharedPreferences()
+            CommonUtils.sharedPreferences
                     .edit()
                     .remove(code + READING_PLAN_START_EXT)
                     .apply()

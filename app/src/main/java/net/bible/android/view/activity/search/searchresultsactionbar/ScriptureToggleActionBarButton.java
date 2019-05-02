@@ -45,9 +45,9 @@ public class ScriptureToggleActionBarButton extends ToggleActionBarButton {
 	@Override
 	protected String getTitle() {
 		if (isOn()) {
-			return CommonUtils.getResourceString(R.string.deuterocanonical); 
+			return CommonUtils.INSTANCE.getResourceString(R.string.deuterocanonical);
 		} else {
-			return CommonUtils.getResourceString(R.string.bible); 
+			return CommonUtils.INSTANCE.getResourceString(R.string.bible);
 		}
 	}
 

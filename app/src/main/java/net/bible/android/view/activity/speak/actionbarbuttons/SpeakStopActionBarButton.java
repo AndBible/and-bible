@@ -49,7 +49,7 @@ public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.stop);
+		return CommonUtils.INSTANCE.getResourceString(R.string.stop);
 	}
 	
 	@Override

@@ -110,9 +110,9 @@ open class BibleApplication : MultiDexApplication() {
     }
 
     private fun upgradePersistentData() {
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
-        if (prevInstalledVersion < CommonUtils.getApplicationVersionNumber() && prevInstalledVersion > -1) {
+        if (prevInstalledVersion < CommonUtils.applicationVersionNumber && prevInstalledVersion > -1) {
             val editor = prefs.edit()
 
             // ver 16 and 17 needed text size pref to be changed to int from string
@@ -180,7 +180,7 @@ open class BibleApplication : MultiDexApplication() {
 
 
 
-            editor.putInt("version", CommonUtils.getApplicationVersionNumber())
+            editor.putInt("version", CommonUtils.applicationVersionNumber)
             editor.apply()
             Log.d(TAG, "Finished all Upgrading")
         }

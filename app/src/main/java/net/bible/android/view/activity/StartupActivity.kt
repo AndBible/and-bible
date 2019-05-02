@@ -60,7 +60,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         supportActionBar!!.hide()
 
         val versionTextView = findViewById<View>(R.id.versionText) as TextView
-        val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
+        val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
         versionTextView.text = versionMsg
 
         var abortErrorMsgId = 0
@@ -123,9 +123,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun doGotoDownloadActivity() {
         var errorMessage: String? = null
-        if (!CommonUtils.isInternetAvailable()) {
+        if (!CommonUtils.isInternetAvailable) {
             errorMessage = getString(R.string.no_internet_connection)
-        } else if (CommonUtils.getSDCardMegsFree() < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        } else if (CommonUtils.sdCardMegsFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             errorMessage = getString(R.string.storage_space_warning)
         }
 

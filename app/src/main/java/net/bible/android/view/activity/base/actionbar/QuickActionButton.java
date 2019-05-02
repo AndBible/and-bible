@@ -108,7 +108,7 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	}
 	
 	protected boolean isWide() {
-		return 4<CommonUtils.getResourceInteger(R.integer.number_of_quick_buttons);
+		return 4< CommonUtils.INSTANCE.getResourceInteger(R.integer.number_of_quick_buttons);
 	}
 	
 	protected boolean isSpeakMode() {

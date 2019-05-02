@@ -16,22 +16,11 @@
  *
  */
 
-package net.bible.service.history;
+package net.bible.service.history
 
-import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.Window
 
 /**
- * An item in the History List
- * 
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface HistoryItem {
-
-	CharSequence getDescription();
-	
-	Window getScreen();
-	
-	// do back to the state at this point
-	void revertTo();
-
-}
+abstract class HistoryItemBase(override val screen: Window) : HistoryItem

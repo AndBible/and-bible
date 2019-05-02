@@ -199,7 +199,7 @@ public class SearchControl {
 				verseText = swordContentFacade.getPlainText(bible, key);
 			}
 
-			verseText = CommonUtils.limitTextLength(verseText);
+			verseText = CommonUtils.INSTANCE.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
 		}
@@ -245,9 +245,9 @@ public class SearchControl {
 	public boolean downloadIndex(Book book) {
 		boolean ok = false;
     	try {
-        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        	if (CommonUtils.INSTANCE.getSdCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	} else if (!CommonUtils.isInternetAvailable()) {
+        	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
             	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
             	ok = false;
         	} else {

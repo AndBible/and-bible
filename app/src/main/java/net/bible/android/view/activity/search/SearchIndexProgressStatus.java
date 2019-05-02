@@ -66,7 +66,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		// give the document up to 12 secs to reload - the Progress declares itself finished before the index status has been changed
 		int attempts = 0;
 		while (!IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus()) && attempts++<6) {
-			CommonUtils.pause(2);
+			CommonUtils.INSTANCE.pause(2);
 		}
 		
 		// if index is fine then goto search

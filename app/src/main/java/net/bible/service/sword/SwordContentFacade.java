@@ -404,7 +404,7 @@ public class SwordContentFacade {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));
 	    	
-			SharedPreferences preferences = CommonUtils.getSharedPreferences();
+			SharedPreferences preferences = CommonUtils.INSTANCE.getSharedPreferences();
 			if (preferences!=null) {
 				// prefs applying to any doc type
 				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", false));
@@ -451,7 +451,7 @@ public class SwordContentFacade {
 				osisToHtmlParameters.setCssClassForCustomFont(FontControl.getInstance().getCssClassForCustomFont(book));
 				
 				// indent depth - larger screens have a greater indent
-				osisToHtmlParameters.setIndentDepth(CommonUtils.getResourceInteger(R.integer.poetry_indent_chars));
+				osisToHtmlParameters.setIndentDepth(CommonUtils.INSTANCE.getResourceInteger(R.integer.poetry_indent_chars));
 			}
 		}
 		return new OsisToHtmlSaxHandler(osisToHtmlParameters);
