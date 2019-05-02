@@ -132,7 +132,7 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.size == 0
+    private val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.size == 0
 
     @SuppressLint("RtlHardcoded")
     fun addWebView(parent: LinearLayout) {
