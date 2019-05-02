@@ -31,6 +31,7 @@ import android.os.StatFs
 import android.preference.PreferenceManager
 
 import android.util.Log
+import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
 
@@ -61,6 +62,7 @@ object CommonUtils {
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
+	val JSON_CONFIG = JsonConfiguration(strictMode = false)
 
     private val TAG = "CommonUtils"
     var isAndroid = true

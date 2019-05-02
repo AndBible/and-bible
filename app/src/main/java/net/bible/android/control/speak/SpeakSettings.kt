@@ -20,9 +20,9 @@ package net.bible.android.control.speak
 import android.util.Log
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.JSON_CONFIG
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
@@ -30,7 +30,6 @@ import java.lang.IllegalArgumentException
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 const val TAG = "SpeakSettings"
-val JSON_CONFIG = JsonConfiguration(strictMode = false)
 
 @Serializer(forClass = VerseRange::class)
 object VerseRangeSerializer: KSerializer<VerseRange?> {
