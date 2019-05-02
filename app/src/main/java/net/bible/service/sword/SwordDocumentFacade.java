@@ -177,7 +177,7 @@ public class SwordDocumentFacade {
         String versionSuffix = version!=null ? "-" + new Version(version).toString() : "";
 
 		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
-		return CommonUtils.isHttpUrlAvailable(url);
+		return CommonUtils.INSTANCE.isHttpUrlAvailable(url);
 	}
 
 	public void downloadIndex(Book document) throws InstallException, BookException {

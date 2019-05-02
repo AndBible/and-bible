@@ -35,7 +35,7 @@ import net.bible.service.common.CommonUtils;
 public class ListPrefWrapperAdapter implements WrapperListAdapter {
 	private ListAdapter mOrigAdapter;
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+	private String sampleText = CommonUtils.INSTANCE.getResourceString(R.string.prefs_text_size_sample_text);
 
     public ListPrefWrapperAdapter(ListAdapter origAdapter) {
 		mOrigAdapter = origAdapter;

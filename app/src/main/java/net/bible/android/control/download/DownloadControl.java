@@ -84,10 +84,10 @@ public class DownloadControl {
 	public boolean checkDownloadOkay() {
 		boolean okay = true;
 		
-    	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+    	if (CommonUtils.INSTANCE.getSdCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
         	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
         	okay = false;
-    	} else if (!CommonUtils.isInternetAvailable()) {
+    	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
         	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
         	okay = false;
     	}

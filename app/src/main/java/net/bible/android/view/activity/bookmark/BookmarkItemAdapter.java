@@ -50,7 +50,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 	private BookmarkControl bookmarkControl;
 
-	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+	private static int ACTIVATED_COLOUR = CommonUtils.INSTANCE.getResourceColor(R.color.list_item_activated);
 	
 	private static final String TAG = "BookmarkItemAdapter";
 

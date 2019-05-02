@@ -439,7 +439,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         else -> throw RuntimeException("Illegal menu item")
     }
 
-    private val preferences = CommonUtils.getSharedPreferences()
+    private val preferences = CommonUtils.sharedPreferences
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
@@ -809,7 +809,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     val isSplitVertically: Boolean get() {
-        val reverse = CommonUtils.getSharedPreferences().getBoolean("reverse_split_mode_pref", false)
+        val reverse = CommonUtils.sharedPreferences.getBoolean("reverse_split_mode_pref", false)
         return if(reverse) !isPortrait else isPortrait
     }
 

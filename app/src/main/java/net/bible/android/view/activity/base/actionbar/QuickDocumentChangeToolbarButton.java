@@ -45,7 +45,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 	
 	private TitleSplitter titleSplitter = new TitleSplitter();
 	
-	private static int ACTION_BUTTON_MAX_CHARS = CommonUtils.getResourceInteger(R.integer.action_button_max_chars);
+	private static int ACTION_BUTTON_MAX_CHARS = CommonUtils.INSTANCE.getResourceInteger(R.integer.action_button_max_chars);
 	
 	/**
 	 * SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below

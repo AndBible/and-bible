@@ -30,7 +30,7 @@ public class LocaleChangerFactory {
 	private LocaleChanger localeChanger;
 
 	public LocaleChangerFactory() {
-		if (CommonUtils.isNougatPlus()) {
+		if (CommonUtils.INSTANCE.isNougatPlus()) {
 			localeChanger = new NougatPlusLocaleChanger();
 		} else {
 			localeChanger = new LegacyLocaleChanger();

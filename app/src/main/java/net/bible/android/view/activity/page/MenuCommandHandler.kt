@@ -164,7 +164,7 @@ constructor(private val callingActivity: MainBibleActivity,
                 R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
                 R.id.helpButton -> {
                     val app = BibleApplication.application
-                    val versionMsg = app.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
+                    val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
 
                     val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_speech_title,
                             R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
@@ -240,7 +240,7 @@ constructor(private val callingActivity: MainBibleActivity,
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {
         if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
             Log.i(TAG, "Refresh on finish")
-            if (!equals(CommonUtils.getLocalePref()?: "", BibleApplication.application.localeOverrideAtStartUp)) {
+            if (!equals(CommonUtils.localePref ?: "", BibleApplication.application.localeOverrideAtStartUp)) {
                 // must restart to change locale
                 CommonUtils.restartApp(callingActivity)
             }

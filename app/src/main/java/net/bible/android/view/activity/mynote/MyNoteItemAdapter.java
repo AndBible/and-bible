@@ -48,7 +48,7 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
-	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+	private static int ACTIVATED_COLOUR = CommonUtils.INSTANCE.getResourceColor(R.color.list_item_activated);
 
 	private static final String TAG = "UserNoteItemAdapter";
 

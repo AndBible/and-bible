@@ -400,7 +400,7 @@ class SpeakControl @Inject constructor(
         // ensure volume controls adjust correct stream - not phone which is the default
         // STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
         // http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CommonUtils.getSharedPreferences().edit().putLong("speak-last-used", System.currentTimeMillis()).apply()
+        CommonUtils.sharedPreferences.edit().putLong("speak-last-used", System.currentTimeMillis()).apply()
         val activity = CurrentActivityHolder.getInstance().currentActivity
         if (activity != null) {
             activity.volumeControlStream = AudioManager.STREAM_MUSIC
