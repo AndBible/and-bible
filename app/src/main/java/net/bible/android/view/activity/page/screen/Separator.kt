@@ -62,8 +62,8 @@ class Separator(
     lateinit var view1LayoutParams: LinearLayout.LayoutParams
     lateinit var view2LayoutParams: LinearLayout.LayoutParams
 
-    val touchDelegateView1: TouchDelegateView
-    val touchDelegateView2: TouchDelegateView
+    val touchDelegateView1 = TouchDelegateView(context, this)
+    val touchDelegateView2 = TouchDelegateView(context, this)
     private val SEPARATOR_COLOUR: Int
     private val SEPARATOR_DRAG_COLOUR: Int
 
@@ -75,20 +75,12 @@ class Separator(
     private val parentDimensionPx: Int
         get() = if (isPortrait) parentLayout.height else parentLayout.width
 
-    private val startingOffsetY: Int
-        get() = +parentStartRawPx.toInt() + (top + bottom) / 2
-    private val startingOffsetX: Int
-        get() = +parentStartRawPx.toInt() + (left + right) / 2
+	val res = BibleApplication.application.resources
 
-    init {
-
-        val res = BibleApplication.application.resources
+	init {
         SEPARATOR_COLOUR = res.getColor(R.color.window_separator_colour)
         SEPARATOR_DRAG_COLOUR = res.getColor(R.color.window_separator_drag_colour)
         setBackgroundColor(SEPARATOR_COLOUR)
-
-        touchDelegateView1 = TouchDelegateView(context, this)
-        touchDelegateView2 = TouchDelegateView(context, this)
     }
 
     /**
@@ -107,8 +99,8 @@ class Separator(
                 parentStartRawPx = (if (isPortrait) rawParentLocation[1] else rawParentLocation[0]).toFloat()
 
                 startTouchPx = if (isPortrait) event.rawY.toInt() else event.rawX.toInt()
-                startWeight1 = view1LayoutParams.weight //window1.getWeight();
-                startWeight2 = view2LayoutParams.weight //window2.getWeight();
+                startWeight1 = view1LayoutParams.weight
+                startWeight2 = view2LayoutParams.weight
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
