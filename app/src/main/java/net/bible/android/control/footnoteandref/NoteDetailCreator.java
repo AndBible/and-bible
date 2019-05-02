@@ -54,7 +54,7 @@ public class NoteDetailCreator {
 				String verse = StringUtils.isNotEmpty(note.getOsisRef()) ? note.getOsisRef() : note.getNoteText();
 
 				retval = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse);
-				retval = CommonUtils.limitTextLength(retval);
+				retval = CommonUtils.INSTANCE.limitTextLength(retval);
 			}
 		} catch (Exception e) {
 			log.error("Error getting note detail for osisRef "+note.getOsisRef(), e);

@@ -73,12 +73,12 @@ class ReadingPlanControl @Inject constructor(
     var currentPlanDay: Int
         get() {
             val planCode = currentPlanCode
-            val prefs = CommonUtils.getSharedPreferences()
+            val prefs = CommonUtils.sharedPreferences
             return prefs.getInt(planCode!! + READING_PLAN_DAY_EXT, 1)
         }
         private set(day) {
             val planCode = currentPlanCode
-            val prefs = CommonUtils.getSharedPreferences()
+            val prefs = CommonUtils.sharedPreferences
             prefs.edit()
                     .putInt(planCode!! + READING_PLAN_DAY_EXT, day)
                     .apply()
@@ -98,7 +98,7 @@ class ReadingPlanControl @Inject constructor(
      */
     private val currentPlanCode: String
         get() {
-            val prefs = CommonUtils.getSharedPreferences()
+            val prefs = CommonUtils.sharedPreferences
             return prefs.getString(READING_PLAN, "") as String
         }
 
@@ -126,7 +126,7 @@ class ReadingPlanControl @Inject constructor(
      */
     fun setReadingPlan(planCode: String) {
         // set default plan to this
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         prefs.edit()
                 .putString(READING_PLAN, planCode)
                 .apply()
@@ -153,7 +153,7 @@ class ReadingPlanControl @Inject constructor(
     }
 
     private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
-        val today = CommonUtils.getTruncatedDate()
+        val today = CommonUtils.truncatedDate
         val startDate = planInfo.startdate ?: return 0
         // on final day, after done the startDate will be null
 
@@ -299,7 +299,7 @@ class ReadingPlanControl @Inject constructor(
     fun reset(plan: ReadingPlanInfoDto) {
         plan.reset()
 
-        val prefs = CommonUtils.getSharedPreferences()
+        val prefs = CommonUtils.sharedPreferences
         val prefsEditor = prefs.edit()
 
         // if resetting default plan then remove default

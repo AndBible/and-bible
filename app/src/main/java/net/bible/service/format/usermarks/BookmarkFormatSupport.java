@@ -61,7 +61,7 @@ public class BookmarkFormatSupport {
 		// get all Bookmarks in containing book to include variations due to differing versifications
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		List<BookmarkDto> bookmarkList;
-		BookmarkStyle defaultBookmarkStyle = BookmarkStyle.valueOf(CommonUtils.getSharedPreferences().getString(
+		BookmarkStyle defaultBookmarkStyle = BookmarkStyle.valueOf(CommonUtils.INSTANCE.getSharedPreferences().getString(
 				"default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name()));
 		Map<Integer, Set<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
 		try {

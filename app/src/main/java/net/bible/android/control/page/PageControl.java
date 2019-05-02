@@ -146,7 +146,7 @@ public class PageControl {
 	 */
 	public int getDocumentFontSize(Window window) {
 		// get base font size
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		SharedPreferences preferences = CommonUtils.INSTANCE.getSharedPreferences();
 		int fontSize = preferences.getInt("text_size_pref", 16);
 
 		// if book has a special font it may require an adjusted font size
@@ -160,7 +160,7 @@ public class PageControl {
 	/** return true if Strongs numbers are shown */
 	public boolean isStrongsShown() {
 		return isStrongsRelevant() &&
-			   CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+			   CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_strongs_pref", true);
 	}
 
 	/** return true if Strongs are relevant to this doc & screen */

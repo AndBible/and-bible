@@ -175,11 +175,11 @@ public class FontControl {
 		
    		// load font properties from default install dir
 		File fontPropFile = new File(SharedConstants.FONT_DIR, FONT_PROPERTIES_FILENAME);
-   		fontProperties.putAll(CommonUtils.loadProperties(fontPropFile));
+   		fontProperties.putAll(CommonUtils.INSTANCE.loadProperties(fontPropFile));
 
    		// load font properties from manual install dir
    		fontPropFile = new File(SharedConstants.MANUAL_FONT_DIR, FONT_PROPERTIES_FILENAME);
-   		fontProperties.putAll(CommonUtils.loadProperties(fontPropFile));
+   		fontProperties.putAll(CommonUtils.INSTANCE.loadProperties(fontPropFile));
 	}
 	
 	/** find font in manual or default font dir

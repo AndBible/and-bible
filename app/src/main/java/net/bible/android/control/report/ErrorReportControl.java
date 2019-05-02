@@ -56,12 +56,12 @@ public class ErrorReportControl {
 	private String createErrorText(Exception exception) {
 		try {
 			StringBuilder text = new StringBuilder();
-			text.append("And Bible version: ").append(CommonUtils.getApplicationVersionName()).append("\n");
+			text.append("And Bible version: ").append(CommonUtils.INSTANCE.getApplicationVersionName()).append("\n");
 			text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n");
 			text.append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n");
 			text.append("Manufacturer: ").append(Build.MANUFACTURER).append("\n");
 			text.append("Model: ").append(Build.MODEL).append("\n\n");
-			text.append("SD card Mb free: ").append(CommonUtils.getSDCardMegsFree()).append("\n\n");
+			text.append("SD card Mb free: ").append(CommonUtils.INSTANCE.getSdCardMegsFree()).append("\n\n");
 			
 			final Runtime runtime = Runtime.getRuntime();
 			final long usedMemInMB=(runtime.totalMemory() - runtime.freeMemory()) / 1048576L;

@@ -337,7 +337,7 @@ public class LinkControl {
 				return false;
 			case WINDOW_MODE_UNDEFINED:
 			default:
-				return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+				return CommonUtils.INSTANCE.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
 		}
 	}
 

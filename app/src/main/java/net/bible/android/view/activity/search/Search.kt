@@ -98,7 +98,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         super.onCreate(savedInstanceState, true)
         Log.i(TAG, "Displaying Search view")
         setContentView(R.layout.search)
-        CommonUtils.getSharedPreferences().edit().putLong("search-last-used", System.currentTimeMillis()).apply()
+        CommonUtils.sharedPreferences.edit().putLong("search-last-used", System.currentTimeMillis()).apply()
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {

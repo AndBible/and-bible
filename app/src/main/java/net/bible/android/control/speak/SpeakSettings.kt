@@ -111,7 +111,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
     fun save(updateBookmark: Boolean = false) {
         if(currentSettings?.equals(this) != true) {
-            CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
+            CommonUtils.sharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
             val oldSettings = currentSettings
             currentSettings = this.makeCopy()
@@ -140,7 +140,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
         fun load(): SpeakSettings {
             val rv = currentSettings?.makeCopy()?: {
-                val sharedPreferences = CommonUtils.getSharedPreferences()
+                val sharedPreferences = CommonUtils.sharedPreferences
                 val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
                 settings }()
             Log.d(TAG, "SpeakSettings loaded! $rv")

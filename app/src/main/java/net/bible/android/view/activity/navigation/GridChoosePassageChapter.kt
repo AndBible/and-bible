@@ -76,7 +76,7 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             Log.e(TAG, "Error in selected book no", nsve)
         }
 
-        val navigateToVerseDefault = CommonUtils.getSharedPreferences().getBoolean("navigate_to_verse_pref", false)
+        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         val grid = ButtonGrid(this)

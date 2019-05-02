@@ -63,7 +63,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.speak);
+		return CommonUtils.INSTANCE.getResourceString(R.string.speak);
 	}
 	
 	@Override

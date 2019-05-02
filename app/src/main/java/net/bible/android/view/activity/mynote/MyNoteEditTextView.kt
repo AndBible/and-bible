@@ -104,7 +104,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     override fun applyPreferenceSettings() {
         changeBackgroundColour()
 
-        val preferences = CommonUtils.getSharedPreferences()
+        val preferences = CommonUtils.sharedPreferences
         val fontSize = preferences.getInt("text_size_pref", 16)
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }

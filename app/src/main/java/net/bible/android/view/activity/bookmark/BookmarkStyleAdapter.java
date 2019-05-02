@@ -45,7 +45,7 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 
 	private Context context;
 
-	private static final String DEFAULT_TEXT = CommonUtils.getResourceString(R.string.default_value);
+	private static final String DEFAULT_TEXT = CommonUtils.INSTANCE.getResourceString(R.string.default_value);
 
 	private static final String TAG = "BookmarkItemAdapter";
 

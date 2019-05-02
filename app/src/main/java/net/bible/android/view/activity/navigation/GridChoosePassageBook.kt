@@ -135,7 +135,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         if(customTitle != null)
             title = customTitle
 
-        val navigateToVerseDefault = CommonUtils.getSharedPreferences().getBoolean("navigate_to_verse_pref", false)
+        val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault
 
         bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
