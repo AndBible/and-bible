@@ -34,14 +34,11 @@ import net.bible.service.common.FileManager
 import net.bible.service.db.CommonDatabaseHelper
 
 import android.content.Intent
-import android.net.Uri
 import androidx.core.content.FileProvider
-import kotlinx.serialization.internal.readExactNBytes
 import net.bible.android.activity.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.io.OutputStreamWriter
 import javax.inject.Inject
 
 
@@ -107,7 +104,8 @@ class BackupControl @Inject constructor() {
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
         var ok = false
-        val header = inputStream.readExactNBytes(16)
+        val header = ByteArray(16)
+        inputStream.read(header)
         if(String(header) == "SQLite format 3\u0000") {
             val out = FileOutputStream(f)
             out.write(header)
