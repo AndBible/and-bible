@@ -35,10 +35,12 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
     private var currentChapterNumber: Int = 0
     private var currentVerseNumber: Int = 0
     private var writeChapter: String = ""
-    private val showVerseNumbersSetting: Boolean = CommonUtils.getSharedPreferences().getBoolean("show_verseno_pref", true)
+    private val showVerseNumbersSetting: Boolean = try {
+        CommonUtils.getSharedPreferences().getBoolean("show_verseno_pref", true)
+    } catch (e: UninitializedPropertyAccessException) { true } // necessary for JUnit Test
 
-    override fun startElement(namespaceURI: String,
-                              sName: String, // simple name
+    override fun startElement(namespaceURI: String?,
+                              sName: String?, // simple name
                               qName: String, // qualified name
                               attrs: Attributes?) {
 
@@ -54,7 +56,17 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
                 if (attrs != null && mulitpleVerses && showVerseNumbersSetting) {
-                    currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
+                    val osisID = attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID)
+                    currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(osisID)
+
+                    // if block necessary for JUnit tests and quite possibly will be needed in some cases in production
+                    if (currentChapterNumber == 0) {
+                        val parts = osisID.split("\\.".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+                        if (parts.size > 2) {
+                            val chapter = parts[parts.size - 2]
+                            currentChapterNumber = Integer.valueOf(chapter)
+                        }
+                    }
 
                     write("$writeChapter$currentVerseNumber. ")
                     writeContentStack.push(writeContentStack.peek())
