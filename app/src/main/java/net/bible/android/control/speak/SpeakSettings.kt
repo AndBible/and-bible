@@ -19,7 +19,8 @@
 package net.bible.android.control.speak
 import android.util.Log
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.VerseRange
@@ -29,20 +30,21 @@ import java.lang.IllegalArgumentException
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 const val TAG = "SpeakSettings"
+val JSON_CONFIG = JsonConfiguration(strictMode = false)
 
 @Serializer(forClass = VerseRange::class)
 object VerseRangeSerializer: KSerializer<VerseRange?> {
-    override fun serialize(output: Encoder, obj: VerseRange?) {
+    override fun serialize(encoder: Encoder, obj: VerseRange?) {
         if(obj != null) {
-            output.encodeString("${obj.versification.name}::${obj.osisRef}")
+            encoder.encodeString("${obj.versification.name}::${obj.osisRef}")
         }
         else {
-            output.encodeNull()
+            encoder.encodeNull()
         }
     }
 
-    override fun deserialize(input: Decoder): VerseRange? {
-        val str = input.decodeString()
+    override fun deserialize(decoder: Decoder): VerseRange? {
+        val str = decoder.decodeString()
         val splitted = str.split("::")
         val v11n = Versifications.instance().getVersification(splitted[0])
         return VerseRangeFactory.fromString(v11n, splitted[1])
@@ -63,9 +65,10 @@ data class PlaybackSettings (
         @Optional @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
 ) {
     companion object {
+
         fun fromJson(jsonString: String): PlaybackSettings {
             return try {
-                JSON(strictMode = false).parse(PlaybackSettings.serializer(), jsonString)
+                Json(JSON_CONFIG).parse(PlaybackSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 PlaybackSettings()
             } catch (ex: IllegalArgumentException) {
@@ -75,7 +78,7 @@ data class PlaybackSettings (
     }
 
     fun toJson(): String {
-        return JSON.stringify(PlaybackSettings.serializer(), this)
+        return Json(JSON_CONFIG).stringify(PlaybackSettings.serializer(), this)
     }
 }
 
@@ -97,7 +100,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
     private fun toJson(): String {
-        return JSON.stringify(SpeakSettings.serializer(), this)
+        return Json(JSON_CONFIG).stringify(SpeakSettings.serializer(), this)
     }
 
     fun makeCopy(): SpeakSettings {
@@ -127,7 +130,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
         private fun fromJson(jsonString: String): SpeakSettings {
             return try {
-                JSON(strictMode = false).parse(SpeakSettings.serializer(), jsonString)
+                Json(JSON_CONFIG).parse(SpeakSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 SpeakSettings()
             } catch (ex: IllegalArgumentException) {
@@ -138,7 +141,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
         fun load(): SpeakSettings {
             val rv = currentSettings?.makeCopy()?: {
                 val sharedPreferences = CommonUtils.getSharedPreferences()
-                val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
+                val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
                 settings }()
             Log.d(TAG, "SpeakSettings loaded! $rv")
             return rv
