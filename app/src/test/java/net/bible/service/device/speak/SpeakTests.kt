@@ -473,7 +473,7 @@ class TestPersistence : AbstractSpeakTests() {
     @Test
     fun storePersistence() {
         provider.setupReading(book, getVerse("Ps.14.1"))
-        val sharedPreferences = CommonUtils.getSharedPreferences()
+        val sharedPreferences = CommonUtils.sharedPreferences
         provider.persistState()
         assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.1"))
         assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
@@ -481,7 +481,7 @@ class TestPersistence : AbstractSpeakTests() {
 
     @Test
     fun readPersistence() {
-        val sharedPreferences = CommonUtils.getSharedPreferences()
+        val sharedPreferences = CommonUtils.sharedPreferences
         sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
         sharedPreferences.edit().putString("SpeakBibleVerse", "Ps.14.1").apply()
         provider.setupReading(book, getVerse("Ps.14.1"))

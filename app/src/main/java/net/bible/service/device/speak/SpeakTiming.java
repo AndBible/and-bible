@@ -107,9 +107,9 @@ public class SpeakTiming {
 	}
 	
 	private void loadCpms() {
-		cpms = CommonUtils.getSharedPreferences().getFloat(SPEAK_CPMS_KEY, DEFAULT_CPMS);
+		cpms = CommonUtils.INSTANCE.getSharedPreferences().getFloat(SPEAK_CPMS_KEY, DEFAULT_CPMS);
 	}
 	private void saveCpms() {
-		CommonUtils.getSharedPreferences().edit().putFloat(SPEAK_CPMS_KEY, cpms).commit();
+		CommonUtils.INSTANCE.getSharedPreferences().edit().putFloat(SPEAK_CPMS_KEY, cpms).commit();
 	}
 }

@@ -101,7 +101,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	 */
 	public String getFragmentForChapter(int chapter) {
 		Verse verseForFragment = new Verse(getVersification(), getVerseSelected().getBook(), chapter, 1);
-		Key wholeChapter = CommonUtils.getWholeChapter(verseForFragment);
+		Key wholeChapter = CommonUtils.INSTANCE.getWholeChapter(verseForFragment);
 		return getPageContent(wholeChapter, true);
 	}
 
@@ -147,7 +147,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		Verse targetChapterVerse1 = getKeyPlus(num);
 
 		// convert to full chapter before returning because bible view is for a full chapter
-		return CommonUtils.getWholeChapter(targetChapterVerse1);
+		return CommonUtils.INSTANCE.getWholeChapter(targetChapterVerse1);
 	}
 
 	/* (non-Javadoc)
@@ -201,7 +201,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerseRange()
-		        key = CommonUtils.getWholeChapter(verse);
+		        key = CommonUtils.INSTANCE.getWholeChapter(verse);
 			} else {
 				key = verse;
 			}

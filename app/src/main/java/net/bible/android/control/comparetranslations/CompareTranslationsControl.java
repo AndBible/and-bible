@@ -76,7 +76,7 @@ public class CompareTranslationsControl {
 
 		stringBuilder.append(BibleApplication.Companion.getApplication().getString(R.string.compare_translations))
 					 .append(": ")
-					 .append(CommonUtils.getKeyDescription(verseRange));
+					 .append(CommonUtils.INSTANCE.getKeyDescription(verseRange));
 
 		BookName.setFullBookName(wasFullBookname);
 		return stringBuilder.toString();

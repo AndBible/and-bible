@@ -68,7 +68,7 @@ public class HebrewCharacterPreprocessor implements TextPreprocessor {
 		// remove Hebrew vowels because i) they confuse bidi and ii) they are
 		// not positioned correctly under/over the appropriate letter
 		// http://groups.google.com/group/android-contrib/browse_thread/thread/5b6b079f9ec7792a?pli=1
-		s = CommonUtils.remove(s, HEBREW_VOWELS_AND_CANTILLATIONS);
+		s = CommonUtils.INSTANCE.remove(s, HEBREW_VOWELS_AND_CANTILLATIONS);
 
 		// even without vowel points the : at the end of each verse confuses
 		// Android's bidi but specifying the char as rtl helps

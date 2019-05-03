@@ -160,7 +160,7 @@ public class PageTiltScrollControl {
 	/** start or stop tilt to scroll functionality
 	 */
 	public boolean enableTiltScroll(boolean enable) {
-		if (!CommonUtils.getSharedPreferences().getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) ||
+		if (!CommonUtils.INSTANCE.getSharedPreferences().getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) ||
 			!isTiltSensingPossible()) {
 			return false;
 		} else if (mIsTiltScrollEnabled != enable) {

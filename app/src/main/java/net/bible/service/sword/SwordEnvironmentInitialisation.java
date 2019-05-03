@@ -58,21 +58,21 @@ public class SwordEnvironmentInitialisation {
 
 	public static void initialiseJSwordFolders() {
 		try {
-			if (CommonUtils.isAndroid() && !isSwordLoaded) {
+			if (CommonUtils.INSTANCE.isAndroid() && !isSwordLoaded) {
 				// ensure required module directories exist and register them with jsword
 				// This folder we can always access freely without any extra permissions.
 				File moduleDir = SharedConstants.MODULE_DIR;
 
 				// main module dir
-				CommonUtils.ensureDirExists(moduleDir);
+				CommonUtils.INSTANCE.ensureDirExists(moduleDir);
 				// mods.d
-				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
+				CommonUtils.INSTANCE.ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
 				// modules
-				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
+				CommonUtils.INSTANCE.ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
 				// indexes
-				CommonUtils.ensureDirExists(new File(moduleDir, LuceneIndexManager.DIR_LUCENE));
+				CommonUtils.INSTANCE.ensureDirExists(new File(moduleDir, LuceneIndexManager.DIR_LUCENE));
 				//fonts
-				CommonUtils.ensureDirExists(SharedConstants.FONT_DIR);
+				CommonUtils.INSTANCE.ensureDirExists(SharedConstants.FONT_DIR);
 
 				// Optimize for less memory
 				PassageKeyFactory.setDefaultType(PassageType.MIX);
@@ -130,13 +130,13 @@ public class SwordEnvironmentInitialisation {
 			private void showMsg(ReporterEvent ev) {
 				String msg;
 				if (ev==null) {
-					msg = CommonUtils.getResourceString(R.string.error_occurred);
+					msg = CommonUtils.INSTANCE.getResourceString(R.string.error_occurred);
 				} else if (!StringUtils.isEmpty(ev.getMessage())) {
 					msg = ev.getMessage();
 				} else if (ev.getException()!=null && StringUtils.isEmpty(ev.getException().getMessage())) {
 					msg = ev.getException().getMessage();
 				} else {
-					msg = CommonUtils.getResourceString(R.string.error_occurred);
+					msg = CommonUtils.INSTANCE.getResourceString(R.string.error_occurred);
 				}
 
 				// convert Throwable to Exception for Dialogs

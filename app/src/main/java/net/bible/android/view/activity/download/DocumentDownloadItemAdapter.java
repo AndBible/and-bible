@@ -52,7 +52,7 @@ public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
-	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+	private static int ACTIVATED_COLOUR = CommonUtils.INSTANCE.getResourceColor(R.color.list_item_activated);
 
 	public DocumentDownloadItemAdapter(Context _context, DownloadControl downloadControl, int resource, List<Book> items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, resource, items);

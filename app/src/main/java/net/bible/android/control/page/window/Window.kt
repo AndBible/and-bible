@@ -38,6 +38,7 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     }
 
     var isSynchronised = true
+    var initialized = false
 
     private val logger = Logger(this.javaClass.name)
 

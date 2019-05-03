@@ -19,6 +19,7 @@
 package net.bible.service.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -51,9 +52,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 
     public static void sync() {
 		// Sync all data so far into database file
-		getInstance().getWritableDatabase()
-				.rawQuery("PRAGMA wal_checkpoint(FULL)", new String[0])
-				.close();
+		Cursor cur = getInstance().getWritableDatabase()
+				.rawQuery("PRAGMA wal_checkpoint(FULL)", null);
+		cur.moveToFirst();
+		cur.close();
 	}
 
     public static void reset() {

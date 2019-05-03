@@ -50,7 +50,7 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 	
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
-	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+	private static int ACTIVATED_COLOUR = CommonUtils.INSTANCE.getResourceColor(R.color.list_item_activated);
 
 	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);

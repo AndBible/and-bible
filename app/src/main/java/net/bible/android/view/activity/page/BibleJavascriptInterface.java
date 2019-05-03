@@ -83,7 +83,7 @@ public class BibleJavascriptInterface {
 
 				// if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
 				if(!SharedActivityState.getInstance().isFullScreen() &&
-						(!bibleView.getMainBibleActivity().isSplitVertically() || (bibleView.getWindowNo() == windowControl.getWindowRepository().getFirstWindow())))
+						(!bibleView.getMainBibleActivity().isSplitVertically() || (bibleView.getWindow() == windowControl.getWindowRepository().getFirstWindow())))
 				{
 					newYPos += (bibleView.getMainBibleActivity().getTopOffset2()) / bibleView.getResources().getDisplayMetrics().density;
 				}

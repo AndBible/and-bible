@@ -162,7 +162,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 ABEventBus.getDefault().post(
                         ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse))
                 )
-            } else if (isGeneralBook || isUnsynchronizedCommentary) {
+            } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                 //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                 // Do not update! Updating would reset page position.
             } else {
