@@ -231,7 +231,7 @@ public class SwordContentFacade {
     	try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
-		
+
 			ContentHandler osisHandler = new OsisToCanonicalTextSaxHandler();
 
 			osissep.provideSAXEvents(osisHandler);
@@ -242,6 +242,26 @@ public class SwordContentFacade {
     		return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
     	}
     }
+
+	public String getTextWithVerseNumbers(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+		try {
+			BookData data = new BookData(book, key);
+			SAXEventProvider osissep = data.getSAXEventProvider();
+
+			ContentHandler osisHandler =
+					new OsisToCopyTextSaxHandler(
+							key.getOsisID().trim().contains(" ") &&
+									CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_verseno_pref", true)
+					);
+
+			osissep.provideSAXEvents(osisHandler);
+
+			return osisHandler.toString();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
+		}
+	}
 
 	private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
 		try {
