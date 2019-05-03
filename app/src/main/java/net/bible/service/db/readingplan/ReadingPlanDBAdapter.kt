@@ -24,7 +24,8 @@ import android.content.SharedPreferences
 import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -54,7 +55,7 @@ class ReadingPlanDBAdapter {
         private val app = BibleApplication.application
 
         private val writableDatabase = CommonDatabaseHelper.getInstance().readableDatabase
-        private val preferences: SharedPreferences get() = CommonUtils.getSharedPreferences()
+        private val preferences: SharedPreferences get() = CommonUtils.sharedPreferences
 
         @SuppressLint("SimpleDateFormat")
         private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
@@ -101,7 +102,7 @@ class ReadingPlanDBAdapter {
     }
 
     fun getDueDayToBeRead(readingPlanID: Int): Long {
-        val today = CommonUtils.getTruncatedDate()
+        val today = CommonUtils.truncatedDate
         val startDate = getPlanStartDate(readingPlanID)
         startDate ?: return -1
         // on final day, after done the startDate will be null
@@ -659,7 +660,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
                     return ReadingStatus(readingPlanID, numOfReadings,null)
                 }
                 return try {
-                    JSON(strictMode = false).parse(serializer(), jsonString)
+                    Json(JsonConfiguration(strictMode = false)).parse(serializer(), jsonString)
                 } catch (ex: SerializationException) {
                     ReadingStatus(readingPlanID, numOfReadings,null)
                 } catch (ex: IllegalArgumentException) {
@@ -669,7 +670,7 @@ class ReadingPlanOneDayDB(private val readingPlanInformationParam: ReadingPlanIn
         }
 
         fun toJsonString(): String {
-            return JSON.stringify(serializer(), this)
+            return Json.stringify(serializer(), this)
         }
 
         init {

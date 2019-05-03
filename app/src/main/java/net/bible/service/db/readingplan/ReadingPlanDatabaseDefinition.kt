@@ -219,10 +219,10 @@ object ReadingPlanDatabaseDefinition {
                 firstImport: Boolean,
                 db: SQLiteDatabase
             ): Long {
-                val prefs = CommonUtils.getSharedPreferences()
+                val prefs = CommonUtils.sharedPreferences
                 val currentPlanCode = prefs.getString("reading_plan", "") as String
                 val thisPlanDay: Int = prefs.getInt(property.planCode + "_day", 1)
-                val startDate = CommonUtils.getSharedPreferences().getLong(property.planCode + "_start", 0)
+                val startDate = prefs.getLong(property.planCode + "_start", 0)
 
                 val metaValues = ContentValues().apply {
                     ReadingPlan.run {
@@ -251,7 +251,7 @@ object ReadingPlanDatabaseDefinition {
                 property: ReadingPlanPropertiesFromText,
                 readingPlanID: Long
             ): String? {
-                val prefs = CommonUtils.getSharedPreferences()
+                val prefs = CommonUtils.sharedPreferences
                 val thisPlanDay: Int = prefs.getInt(property.planCode + "_day", 1)
                 val chaptersReadArray = ArrayList<ReadingPlanOneDayDB.ChapterRead?>()
                 if (dailyReading.dayNumber == thisPlanDay) {
