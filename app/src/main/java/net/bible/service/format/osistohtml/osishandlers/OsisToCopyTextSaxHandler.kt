@@ -30,14 +30,11 @@ import org.xml.sax.Attributes
  *
  * @author Timmy Braun [tim.bze at gmail dot com] (4/24/2019)
  */
-class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTextSaxHandler() {
+class OsisToCopyTextSaxHandler(val showVerseNumbers: Boolean) : OsisToCanonicalTextSaxHandler() {
 
     private var currentChapterNumber: Int = 0
     private var currentVerseNumber: Int = 0
     private var writeChapter: String = ""
-    private val showVerseNumbersSetting: Boolean = try {
-        CommonUtils.getSharedPreferences().getBoolean("show_verseno_pref", true)
-    } catch (e: UninitializedPropertyAccessException) { true } // necessary for JUnit Test
 
     override fun startElement(namespaceURI: String?,
                               sName: String?, // simple name
@@ -46,7 +43,7 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
 
         when (getName(sName, qName)) {
             OSISUtil.OSIS_ELEMENT_CHAPTER -> {
-                if (attrs != null && showVerseNumbersSetting) {
+                if (attrs != null && showVerseNumbers) {
                     val oldChapterNumber = currentChapterNumber
                     currentChapterNumber = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
                     if (oldChapterNumber > 0 && currentChapterNumber > oldChapterNumber) {
@@ -55,7 +52,7 @@ class OsisToCopyTextSaxHandler(val mulitpleVerses: Boolean) : OsisToCanonicalTex
                 }
             }
             OSISUtil.OSIS_ELEMENT_VERSE -> {
-                if (attrs != null && mulitpleVerses && showVerseNumbersSetting) {
+                if (attrs != null && showVerseNumbers) {
                     val osisID = attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID)
                     currentVerseNumber = TagHandlerHelper.osisIdToVerseNum(osisID)
 

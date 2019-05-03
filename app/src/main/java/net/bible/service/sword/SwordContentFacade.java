@@ -248,7 +248,11 @@ public class SwordContentFacade {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 
-			ContentHandler osisHandler = new OsisToCopyTextSaxHandler(key.getOsisID().trim().contains(" "));
+			ContentHandler osisHandler =
+					new OsisToCopyTextSaxHandler(
+							key.getOsisID().trim().contains(" ") &&
+									CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_verseno_pref", true)
+					);
 
 			osissep.provideSAXEvents(osisHandler);
 
