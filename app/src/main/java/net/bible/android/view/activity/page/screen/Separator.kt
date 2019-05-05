@@ -19,7 +19,6 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -37,7 +36,7 @@ import net.bible.android.view.util.TouchOwner
  */
 class Separator(
 		context: Context,
-		private val SEPARATOR_WIDTH: Int,
+		private val separatorWidth: Int,
 		private val parentLayout: View,
 		private val window1: Window,
 		private val window2: Window,
@@ -62,10 +61,8 @@ class Separator(
     lateinit var view1LayoutParams: LinearLayout.LayoutParams
     lateinit var view2LayoutParams: LinearLayout.LayoutParams
 
-    val touchDelegateView1: TouchDelegateView
-    val touchDelegateView2: TouchDelegateView
-    private val SEPARATOR_COLOUR: Int
-    private val SEPARATOR_DRAG_COLOUR: Int
+    val touchDelegateView1 = TouchDelegateView(context, this)
+    val touchDelegateView2 = TouchDelegateView(context, this)
 
     private val touchOwner = TouchOwner.getInstance()
 
@@ -75,20 +72,12 @@ class Separator(
     private val parentDimensionPx: Int
         get() = if (isPortrait) parentLayout.height else parentLayout.width
 
-    private val startingOffsetY: Int
-        get() = +parentStartRawPx.toInt() + (top + bottom) / 2
-    private val startingOffsetX: Int
-        get() = +parentStartRawPx.toInt() + (left + right) / 2
+	private val res = BibleApplication.application.resources
+	private val separatorColor = res.getColor(R.color.window_separator_colour)
+	private val separatorDragColor = res.getColor(R.color.window_separator_drag_colour)
 
-    init {
-
-        val res = BibleApplication.application.resources
-        SEPARATOR_COLOUR = res.getColor(R.color.window_separator_colour)
-        SEPARATOR_DRAG_COLOUR = res.getColor(R.color.window_separator_drag_colour)
-        setBackgroundColor(SEPARATOR_COLOUR)
-
-        touchDelegateView1 = TouchDelegateView(context, this)
-        touchDelegateView2 = TouchDelegateView(context, this)
+	init {
+        setBackgroundColor(separatorColor)
     }
 
     /**
@@ -100,19 +89,19 @@ class Separator(
                 Log.d(TAG, " y:" + event.rawY)
                 touchOwner.setTouchOwner(this)
                 windowControl.setSeparatorMoving(true)
-                setBackgroundColor(SEPARATOR_DRAG_COLOUR)
+                setBackgroundColor(separatorDragColor)
 
                 val rawParentLocation = IntArray(2)
                 parentLayout.getLocationOnScreen(rawParentLocation)
                 parentStartRawPx = (if (isPortrait) rawParentLocation[1] else rawParentLocation[0]).toFloat()
 
                 startTouchPx = if (isPortrait) event.rawY.toInt() else event.rawX.toInt()
-                startWeight1 = view1LayoutParams.weight //window1.getWeight();
-                startWeight2 = view2LayoutParams.weight //window2.getWeight();
+                startWeight1 = view1LayoutParams.weight
+                startWeight2 = view2LayoutParams.weight
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
-                setBackgroundColor(SEPARATOR_COLOUR)
+                setBackgroundColor(separatorColor)
                 window1.windowLayout.weight = view1LayoutParams.weight
                 window2.windowLayout.weight = view2LayoutParams.weight
                 windowControl.setSeparatorMoving(false)
@@ -126,7 +115,7 @@ class Separator(
                 var offsetFromEdgePx = if (isPortrait) event.rawY else event.rawX
 
                 // prevent going irretrievably off bottom or right edge
-                offsetFromEdgePx = Math.min(offsetFromEdgePx, (parentDimensionPx - SEPARATOR_WIDTH).toFloat())
+                offsetFromEdgePx = Math.min(offsetFromEdgePx, (parentDimensionPx - separatorWidth).toFloat())
 
                 // if position has moved at least one px then redraw separator
                 if (offsetFromEdgePx.toInt() != lastOffsetFromEdgePx) {
@@ -149,7 +138,7 @@ class Separator(
     }
 
     companion object {
-        private val DRAG_TOUCH_MOVE_FREQUENCY_MILLIS = 0
+        private const val DRAG_TOUCH_MOVE_FREQUENCY_MILLIS = 0
 
         private val TAG = "Separator"
     }
