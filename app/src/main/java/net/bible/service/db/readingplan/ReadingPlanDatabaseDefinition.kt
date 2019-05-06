@@ -102,7 +102,9 @@ object ReadingPlanDatabaseDefinition {
                 $COLUMN_DAY_NUMBER INTEGER NOT NULL,
                 $COLUMN_READING_DATE TEXT,
                 $COLUMN_DAY_CHAPTERS TEXT NOT NULL,
-                $COLUMN_READ_STATUS TEXT
+                $COLUMN_READ_STATUS TEXT,
+                FOREIGN KEY($COLUMN_READING_PLAN_ID) REFERENCES ${readingPlan.TABLE_NAME}(${readingPlan.COLUMN_ID}),
+                UNIQUE($COLUMN_READING_PLAN_ID, $COLUMN_DAY_NUMBER) ON CONFLICT IGNORE
                 );"""
             }
 
