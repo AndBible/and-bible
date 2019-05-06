@@ -19,9 +19,10 @@
 package net.bible.android.control.page;
 
 import android.app.Activity;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.ClipboardManager;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
@@ -34,18 +35,20 @@ import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.common.TitleSplitter;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.BibleNames;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -79,9 +82,8 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getTextWithVerseNumbers(book, verseRange);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.Companion.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
-			clipboard.setText(text);
+			clipboard.setPrimaryClip(ClipData.newPlainText("verseText", getCopyShareText(book, verseRange)));
 		} catch (Exception e) {
 			Log.e(TAG, "Error pasting to clipboard", e);
 			Dialogs.getInstance().showErrorMsg("Error copying to clipboard");
@@ -94,12 +96,10 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getTextWithVerseNumbers(book, verseRange);
-			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");
 
-			sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, getCopyShareText(book, verseRange));
 			// subject is used when user chooses to send verse via e-mail
 			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.Companion.getApplication().getText(R.string.share_verse_subject));
 
@@ -109,6 +109,20 @@ public class PageControl {
 		} catch (Exception e) {
 			Log.e(TAG, "Error sharing verse", e);
 			Dialogs.getInstance().showErrorMsg("Error sharing verse");
+		}
+	}
+
+	private String getCopyShareText(Book book, VerseRange verseRange) {
+		try {
+			String referenceName = StringUtils.replace(verseRange.getName(),
+					BibleNames.instance().getPreferredName(verseRange.getStart().getBook()),
+					BibleNames.instance().getPreferredNameInLocale(
+							verseRange.getStart().getBook(), new Locale(book.getLanguage().getCode()))
+			);
+			return referenceName+"\n"+"\n"+swordContentFacade.getTextWithVerseNumbers(book, verseRange);
+		} catch (Exception e) {
+			Log.e(TAG, "Error converting verse from OSIS to text.", e);
+			return null;
 		}
 	}
 	

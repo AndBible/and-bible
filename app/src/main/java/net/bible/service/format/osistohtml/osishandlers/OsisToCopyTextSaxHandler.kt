@@ -26,7 +26,7 @@ import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
 
 /**
- * Convert OSIS input into Canonical text (for copying and sharing verses)
+ * Convert OSIS input into text (for copying and sharing verses)
  *
  * @author Timmy Braun [tim.bze at gmail dot com] (4/24/2019)
  */
