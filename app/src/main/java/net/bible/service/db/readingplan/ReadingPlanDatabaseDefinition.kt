@@ -119,6 +119,8 @@ class ReadingPlanDbOperations {
         "CREATE INDEX days_date_name ON $TABLE_NAME($COLUMN_READING_DATE);"
     }
 
+    private val SQL_ENABLE_FOREIGN_KEY_CHECK = "PRAGMA foreign_keys = ON;"
+
     private val VERSIFICATION = "Versification"
     private val DOT_PROPERTIES = ".properties"
     private val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
@@ -135,6 +137,7 @@ class ReadingPlanDbOperations {
         importReadingPlansToDatabase(db)
 
         db.execSQL(SQL_CREATE_DAYS_INDEX)
+        db.execSQL(SQL_ENABLE_FOREIGN_KEY_CHECK)
     }
 
     fun importReadingPlansToDatabase(db: SQLiteDatabase, uri: Uri? = null): Boolean {
