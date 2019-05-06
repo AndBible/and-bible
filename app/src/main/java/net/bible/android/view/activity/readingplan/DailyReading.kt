@@ -44,7 +44,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.db.CommonDatabaseHelper
 import net.bible.service.db.readingplan.ReadingPlanDBAdapter
-import net.bible.service.db.readingplan.ReadingPlanDatabaseDefinition
+import net.bible.service.db.readingplan.ReadingPlanDbOperations
 import net.bible.service.db.readingplan.ReadingPlanInformationDB
 import net.bible.service.db.readingplan.ReadingPlanOneDayDB
 import net.bible.service.readingplan.event.ReadingPlanDayChangeEvent
@@ -430,7 +430,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             }
             RCODE_PICK_PLAN_FILE -> {
                 if (resultCode == Activity.RESULT_OK && data != null) {
-                    if (!ReadingPlanDatabaseDefinition.Operations.importReadingPlansToDatabase(
+                    if (!ReadingPlanDbOperations().importReadingPlansToDatabase(
                         CommonDatabaseHelper.getInstance().readableDatabase,
                         data.data
                     )) Dialogs.getInstance().showErrorMsg(R.string.error_importing_plan)
