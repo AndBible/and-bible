@@ -125,33 +125,33 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /**
      * Function loads reading plan information screen with correct data
-     * @param readingPlanOneDayParam Allows nulls, but the ONLY time null should be
+     * @param readingPlanOneDay Allows nulls, but the ONLY time null should be
      * passed is when no reading plan has been started or there is no reading for the day.
-     * @param readingPlanInformationParam Is REQUIRED ONLY when the
-     * [readingPlanOneDayParam] is passed as NULL
+     * @param readingPlanInfo Is REQUIRED ONLY when the
+     * [readingPlanOneDay] is passed as NULL
      */
     private fun loadPlanOneDay(
-        readingPlanOneDayParam: ReadingPlanOneDayDB?,
-        readingPlanInformationParam: ReadingPlanInformationDB? = null
+        readingPlanOneDay: ReadingPlanOneDayDB?,
+        readingPlanInfo: ReadingPlanInformationDB? = null
         ) {
-        Log.d(TAG, "readingPlanOneDayParam=${readingPlanOneDayParam.toString()}")
-        Log.d(TAG, "readingPlanInformationParam=${readingPlanInformationParam.toString()}")
+        Log.d(TAG, "readingPlanOneDayDB=${readingPlanOneDay.toString()}")
+        Log.d(TAG, "readingPlanInformationDB=${readingPlanInfo.toString()}")
 
-        if (readingPlanOneDayParam == null && readingPlanInformationParam?.isDateBased == true) {
+        if (readingPlanOneDay == null && readingPlanInfo?.isDateBased == true) {
             // We have a started plan, but it is date-based and there's no reading for this day
             clearReadingInfo()
-            descriptionTextView.text = readingPlanInformationParam.planName
+            descriptionTextView.text = readingPlanInfo.planName
             dateTextView.text = SimpleDateFormat.getDateInstance().format(Calendar.getInstance().time)
             statusMessageTextView.text = getString(R.string.this_day_has_no_readings)
             dayTextView.text = ""
 
-        } else if (readingPlanOneDayParam != null) {
-            readingPlanOneDay = readingPlanOneDayParam
+        } else if (readingPlanOneDay != null) {
+            this.readingPlanOneDay = readingPlanOneDay
         }
 
-        if (readingPlanOneDayParam != null) {
+        if (readingPlanOneDay != null) {
             // Load plan to screen
-            val readingPlanInfo = readingPlanOneDay.readingPlanInfo
+            val readingPlanInfo = this.readingPlanOneDay.readingPlanInfo
             val previousReadingPlanShownId = readingPlanID
 
             // Reload plan meta info if plan has changed or just now starting reading plan screen
@@ -167,9 +167,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             // Reload plan day info if day has changed or if it's just now starting reading plan screen
             if (readingPlanInfo.readingPlanID != previousReadingPlanShownId ||
-                readingPlanOneDay.dayNumber != readingPlanDayNumber
+                this.readingPlanOneDay.dayNumber != readingPlanDayNumber
             ) {
-                readingPlanDayNumber = readingPlanOneDay.dayNumber
+                readingPlanDayNumber = this.readingPlanOneDay.dayNumber
 
                 setupReadingsInformationForDay(readingPlanInfo)
 
