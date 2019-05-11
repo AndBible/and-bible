@@ -66,6 +66,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -864,6 +865,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     windowControl.activeWindowPageManager.currentPage.key = verse
                     return
                 }
+            }
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
+                // return from download documents. Do nothing
+                return
             }
             else -> throw RuntimeException("Unhandled request code $requestCode")
         }
