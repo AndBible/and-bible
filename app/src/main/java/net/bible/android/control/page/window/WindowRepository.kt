@@ -94,14 +94,8 @@ open class WindowRepository @Inject constructor(
     val maximisedScreens: List<Window>
         get() = getWindows(WindowState.MAXIMISED)
 
-
-    // if a window is maximised then show no minimised windows
     val minimisedScreens: List<Window>
-        get() = if (isMaximisedState) {
-            ArrayList()
-        } else {
-            getWindows(WindowState.MINIMISED)
-        }
+        get() = getWindows(WindowState.MINIMISED)
 
     private val isMaximisedState: Boolean
         get() {

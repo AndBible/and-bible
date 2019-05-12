@@ -132,7 +132,7 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    private val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.size == 0
+    private val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.isEmpty()
 
     @SuppressLint("RtlHardcoded")
     fun addWebView(parent: LinearLayout) {
@@ -202,21 +202,14 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top right of each window
-                val defaultWindowActionButton = if(isSingleWindow) {
-                    if(window.defaultOperation == WindowOperation.MAXIMISE) {
-                        createUnMaximizeButton(window)
-                    } else {
+                val defaultWindowActionButton =
+                    if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
                         createSingleWindowButton(window)
-                    }
-                }
-                else {
-                    if(window.defaultOperation == WindowOperation.CLOSE) {
+                    } else if (window.defaultOperation == WindowOperation.CLOSE) {
                         createCloseButton(window)
                     } else {
                         createMinimiseButton(window)
                     }
-                }
-
 
 
                 if(!isSplitHorizontally) {
@@ -237,7 +230,8 @@ class DocumentWebViewBuilder @Inject constructor(
                 windowButtons.add(defaultWindowActionButton)
                 currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX,
-                            if(isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT
+                            if(isSingleWindow && windowControl.windowRepository.maximisedScreens.isEmpty())
+                                Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
                 window.bibleView = bibleView
 
@@ -255,7 +249,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 textSize = 18F
             }
             currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
-                FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                     Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
             // Display minimised screens
             restoreButtons.clear()
@@ -503,17 +497,6 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createUnMaximizeButton(window: Window): Button {
-        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
-        val b = createTextButton(text,
-            { v -> windowControl.unmaximiseWindow(window)},
-            { v -> windowControl.unmaximiseWindow(window); true}
-        )
-        b.translationY = mainBibleActivity.topOffset2
-        b.translationX = -mainBibleActivity.rightOffset1
-        return b
-    }
-
     private fun createMinimiseButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
         return createTextButton(text,
@@ -543,7 +526,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null): Button {
-        val b = Button(mainBibleActivity).apply {
+        return Button(mainBibleActivity).apply {
             this.text = text
             width = BUTTON_SIZE_PX
             height = BUTTON_SIZE_PX
@@ -557,7 +540,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 setBackgroundResource(R.drawable.window_button)
             }
         }
-        return b
     }
 
     private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =

@@ -30,7 +30,6 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
@@ -229,9 +228,8 @@ open class WindowControl @Inject constructor(
     }
 
     fun maximiseWindow(window: Window) {
-        // there can only be one maximised window at a time so if there is another unmaximise it
-        for (w in windowRepository.maximisedScreens) {
-            w.isMaximised = false
+        windowRepository.visibleWindows.forEach {
+            if (it != window) it.windowLayout.state = WindowState.MINIMISED
         }
 
         window.isMaximised = true
@@ -249,6 +247,10 @@ open class WindowControl @Inject constructor(
 
     fun unmaximiseWindow(window: Window) {
         window.isMaximised = false
+
+        windowRepository.minimisedScreens.forEach {
+            it.windowLayout.state = WindowState.SPLIT
+        }
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
@@ -286,7 +288,14 @@ open class WindowControl @Inject constructor(
     }
 
     fun restoreWindow(window: Window) {
-        window.windowLayout.state = WindowState.SPLIT
+        var switchingMaximised = false
+        windowRepository.maximisedScreens.forEach {
+            switchingMaximised = true
+            it.windowLayout.state = WindowState.MINIMISED
+        }
+        
+        window.windowLayout.state = if (switchingMaximised) WindowState.MAXIMISED
+        else WindowState.SPLIT
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
