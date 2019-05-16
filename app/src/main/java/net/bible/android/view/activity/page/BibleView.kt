@@ -489,7 +489,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // when move finished the verse positions will have changed if in Landscape so recalc positions
         val isMoveFinished = event.isFinished
-        if (isMoveFinished && isScreenVerse) {
+        if (isMoveFinished && isScreenVerse && !mainBibleActivity.isSplitVertically) {
             val chapterVerse = event.getChapterVerse(window)
             setJumpToVerse(chapterVerse)
 
