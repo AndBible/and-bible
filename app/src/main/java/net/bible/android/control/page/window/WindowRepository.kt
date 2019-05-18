@@ -97,7 +97,15 @@ open class WindowRepository @Inject constructor(
     val minimisedScreens: List<Window>
         get() = getWindows(WindowState.MINIMISED)
 
-    private val isMaximisedState: Boolean
+    val minimisedAndMaximizedScreens: List<Window>
+    get() {
+        val ws = ArrayList<Window>()
+        ws.addAll(getWindows(WindowState.MINIMISED))
+        ws.addAll(getWindows(WindowState.MAXIMISED))
+        return ws.sortedBy { it.screenNo }
+    }
+
+    val isMaximisedState: Boolean
         get() {
             for (window in windows) {
                 if (window.windowLayout.state === WindowState.MAXIMISED) {

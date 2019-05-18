@@ -201,41 +201,43 @@ class DocumentWebViewBuilder @Inject constructor(
                     previousSeparator = separator
                 }
 
-                // create default action button for top right of each window
-                val defaultWindowActionButton =
-                    if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
-                        createSingleWindowButton(window)
-                    } else if (window.defaultOperation == WindowOperation.CLOSE) {
-                        createCloseButton(window)
+                // create default action button for top or bottom right of each window
+                if (!windowControl.windowRepository.isMaximisedState) {
+                    val defaultWindowActionButton =
+                        if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
+                            createSingleWindowButton(window)
+                        } else if (window.defaultOperation == WindowOperation.CLOSE) {
+                            createCloseButton(window)
+                        } else {
+                            createMinimiseButton(window)
+                        }
+
+
+                    if (!isSplitHorizontally) {
+                        defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+                        if (windowNo == windows.size - 1) {
+                            defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+                        }
                     } else {
-                        createMinimiseButton(window)
-                    }
-
-
-                if(!isSplitHorizontally) {
-                    defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
-                    if(windowNo == windows.size - 1) {
+                        if (windowNo == 0) {
+                            defaultWindowActionButton.translationY =
+                                if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                                else mainBibleActivity.topOffset2
+                        }
                         defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
                     }
-                }
-                else {
-                    if(windowNo == 0) {
-                        defaultWindowActionButton.translationY =
-                            if(isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2
-                    }
-                    defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-                }
 
-                windowButtons.add(defaultWindowActionButton)
-                currentWindowFrameLayout.addView(defaultWindowActionButton,
+
+                    windowButtons.add(defaultWindowActionButton)
+                    currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX,
-                            if(isSingleWindow && windowControl.windowRepository.maximisedScreens.isEmpty())
+                            if (isSingleWindow && windowControl.windowRepository.maximisedScreens.isEmpty())
                                 Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
+                }
                 window.bibleView = bibleView
-
             }
+
             bibleReferenceOverlay = TextView(mainBibleActivity).apply {
                 if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                     setBackgroundResource(R.drawable.bible_reference_overlay)
@@ -260,13 +262,21 @@ class DocumentWebViewBuilder @Inject constructor(
                             Gravity.BOTTOM or Gravity.RIGHT))
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
             minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
-            val minimisedScreens = windowControl.windowRepository.minimisedScreens
-            for (i in minimisedScreens.indices) {
+
+            val minAndMaxScreens = windowControl.windowRepository.minimisedAndMaximizedScreens
+            for (i in minAndMaxScreens.indices) {
                 Log.d(TAG, "Show restore button")
-                val restoreButton = createRestoreButton(minimisedScreens[i])
+                val restoreButton = createRestoreButton(minAndMaxScreens[i])
                 restoreButtons.add(restoreButton)
                 minimisedWindowsFrameContainer.addView(restoreButton,
                         LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
+            }
+            if (windowControl.windowRepository.isMaximisedState) {
+                val maximizedWindow = windowControl.windowRepository.maximisedScreens[0]
+                val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
+                restoreButtons.add(unMaximizeButton)
+                minimisedWindowsFrameContainer.addView(unMaximizeButton,
+                    LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
             }
 
             previousParent = parent
@@ -497,18 +507,28 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
+    private fun createUnMaximizeButton(window: Window): Button {
+        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
+        val b = createTextButton(text,
+            { v -> windowControl.unmaximiseWindow(window)},
+            { v -> windowControl.unmaximiseWindow(window); true}
+        )
+        return b
+    }
+
     private fun createMinimiseButton(window: Window): Button {
-        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
+        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
         return createTextButton(text,
-                { v -> showPopupWindow(window, v) },
-                { v -> windowControl.minimiseWindow(window); true}
+            { v -> showPopupWindow(window, v) },
+            { v -> windowControl.minimiseWindow(window); true }
         )
     }
 
     private fun createRestoreButton(window: Window): Button {
         return createTextButton(getDocumentInitial(window),
-                { windowControl.restoreWindow(window) },
-                { windowControl.restoreWindow(window); true }
+            { windowControl.restoreWindow(window) },
+            { windowControl.restoreWindow(window); true },
+            window.isMaximised
         )
     }
 
@@ -525,7 +545,8 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
-                                 onLongClickListener: ((View) -> Boolean)? = null): Button {
+                                 onLongClickListener: ((View) -> Boolean)? = null,
+                                 maximisedWindow: Boolean = false): Button {
         return Button(mainBibleActivity).apply {
             this.text = text
             width = BUTTON_SIZE_PX
@@ -536,8 +557,9 @@ class DocumentWebViewBuilder @Inject constructor(
             setSingleLine(true)
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
-            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                setBackgroundResource(R.drawable.window_button)
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                setBackgroundResource(if (maximisedWindow) R.drawable.window_button_active
+                else R.drawable.window_button)
             }
         }
     }
