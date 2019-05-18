@@ -288,17 +288,23 @@ open class WindowControl @Inject constructor(
     }
 
     fun restoreWindow(window: Window) {
+        if (window == activeWindow) return
+
         var switchingMaximised = false
         windowRepository.maximisedScreens.forEach {
             switchingMaximised = true
             it.windowLayout.state = WindowState.MINIMISED
         }
-        
-        window.windowLayout.state = if (switchingMaximised) WindowState.MAXIMISED
-        else WindowState.SPLIT
+
+        window.isMaximised = switchingMaximised
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+
+        if (switchingMaximised) {
+            activeWindow = window
+            if (!activeWindow.initialized) PassageChangeMediator.getInstance().forcePageUpdate()
+        }
 
         windowSync.setResynchRequired(true)
         windowSync.synchronizeScreens()

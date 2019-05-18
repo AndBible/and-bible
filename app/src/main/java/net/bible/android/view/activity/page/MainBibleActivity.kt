@@ -917,6 +917,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
+        windowControl.windowRepository.minimisedScreens.forEach {
+            it.initialized = false
+        }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
     }
 

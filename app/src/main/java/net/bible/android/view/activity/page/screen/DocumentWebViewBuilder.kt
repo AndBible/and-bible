@@ -43,6 +43,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
@@ -316,6 +317,11 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     fun onEvent(event: MainBibleActivity.TransportBarVisibilityChanged) {
+        toggleWindowButtonVisibility(true, force=true)
+        resetTouchTimer()
+    }
+
+    fun onEvent(event: CurrentWindowChangedEvent) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
     }
