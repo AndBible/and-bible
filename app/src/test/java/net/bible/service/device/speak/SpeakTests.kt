@@ -999,7 +999,6 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     }
 
-    @Ignore("TODO: fails!")
     @Test
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
