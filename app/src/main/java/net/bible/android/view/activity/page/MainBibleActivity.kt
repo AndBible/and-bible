@@ -27,6 +27,8 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
@@ -41,6 +43,7 @@ import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.PopupMenu
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
@@ -93,6 +96,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.versification.BookName
 import org.json.JSONObject
 
 import javax.inject.Inject
@@ -255,6 +259,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         speakTransport.visibility = View.GONE
         updateSpeakTransportVisibility()
         setupToolbarFlingDetection()
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         ready = true
     }
 
@@ -493,10 +498,34 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         openTab(newTab)
     }
 
+    private fun renameTab() {
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        input.text = SpannableStringBuilder(windowControl.windowRepository.name)
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.rename_tab_title))
+            .setView(input)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.okay) { dialog, _ ->
+                dialog.dismiss()
+                windowControl.windowRepository.name = input.text.toString()
+            }
+            .show()
+        val t = tabStrings
+        t[currentTab] = currentTabState
+        tabStrings = t
+    }
+
     private fun openTab(tab: String) {
         windowControl.windowRepository.restoreState(tab)
         documentViewManager.resetView()
         windowControl.windowSync.synchronizeAllScreens()
+        var text = windowControl.windowRepository.name
+
+        if(text.isEmpty())
+            text = getString(R.string.tab_number, currentTab + 1)
+        ABEventBus.getDefault().post(ToastEvent(text))
+
         invalidateOptionsMenu()
         updateTitle()
         updateToolbar()
@@ -540,12 +569,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         for((idx, tab) in tabs.withIndex()) {
             val windowRepositoryState = JSONObject(tab)
             val windows = windowRepositoryState.getJSONArray("windowState")
+            val name = windowRepositoryState.optString("name")
             val keyTitle = ArrayList<String>()
+            BookName.setFullBookName(false)
             for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
-                keyTitle.add(pageManager.currentPage.key.toString())
+                keyTitle.add(pageManager.currentPage.singleKey.name)
             }
-            tabTitles.add(getString(R.string.tab_num_contents, idx + 1, keyTitle.joinToString(", ")))
+            BookName.setFullBookName(true)
+            val text = if(!name.isEmpty())
+                getString(R.string.tab_name_contents, name, keyTitle.joinToString(", "))
+            else
+                getString(R.string.tab_num_contents, idx + 1, keyTitle.joinToString(", "))
+
+            tabTitles.add(text)
         }
 
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, tabTitles)
@@ -596,11 +633,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private var currentTab: Int
         get() = preferences.getInt("currentTab", 0)
-        set(newValue) {
-            preferences.edit().putInt("currentTab", newValue).apply()
-            ABEventBus.getDefault().post(ToastEvent(getString(R.string.tab_number, newValue + 1)))
-        }
-
+        set(newValue) = preferences.edit().putInt("currentTab", newValue).apply()
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
@@ -621,6 +654,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.newTab -> CommandItem({newTab()})
         R.id.cloneTab -> CommandItem({cloneTab()})
         R.id.closeTab -> CommandItem({closeTab()}, haveTabs)
+        R.id.renameTab -> CommandItem({renameTab()}, haveTabs)
         R.id.switchToTab -> CommandItem({chooseTab()}, haveTabs)
         else -> throw RuntimeException("Illegal menu item")
     }

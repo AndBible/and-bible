@@ -21,6 +21,9 @@
 			<item android:id="@+id/closeTab"
                 android:title="@string/close_tab"
 				/>
+			<item android:id="@+id/renameTab"
+                android:title="@string/rename_tab"
+				/>
         </menu>
     </item>
 

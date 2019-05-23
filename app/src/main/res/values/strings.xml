@@ -434,4 +434,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_copied_tab">Copy this tab as new</string>
     <string name="tab_number">Tab %d</string>
     <string name="tab_num_contents">Tab %d: %s</string>
+    <string name="tab_name_contents">%s: %s</string>
+    <string name="rename_tab">Rename tab …</string>
+    <string name="rename_tab_title">Give a name for this tab</string>
 </resources>

@@ -52,6 +52,8 @@ open class WindowRepository @Inject constructor(
 
     private var maxWindowNoUsed = 0
 
+    var name = ""
+
     private val logger = Logger(this.javaClass.name)
 
     //TODO if user presses a link then should also show links window
@@ -294,6 +296,7 @@ open class WindowRepository @Inject constructor(
 
         }
         windowRepositoryStateObj.put("windowState", windowStateArray)
+        windowRepositoryStateObj.put("name", name)
         return windowRepositoryStateObj.toString()
     }
 
@@ -307,6 +310,7 @@ open class WindowRepository @Inject constructor(
             try {
                 val windowRepositoryState = JSONObject(stateJsonString)
                 val windowState = windowRepositoryState.getJSONArray("windowState")
+                name = windowRepositoryState.optString("name")
                 if (windowState.length() > 0) {
 
                     // remove current (default) state before restoring

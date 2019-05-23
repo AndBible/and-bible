@@ -68,12 +68,13 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     val stateJson: JSONObject
         @Throws(JSONException::class)
         get() {
-            val `object` = JSONObject()
-            `object`.put("screenNo", screenNo)
-                    .put("isSynchronised", isSynchronised)
-                    .put("windowLayout", windowLayout.stateJson)
-                    .put("pageManager", pageManager.stateJson)
-            return `object`
+            val obj = JSONObject().apply {
+                put("screenNo", screenNo)
+                put("isSynchronised", isSynchronised)
+                put("windowLayout", windowLayout.stateJson)
+                put("pageManager", pageManager.stateJson)
+            }
+            return obj
         }
 
     open val isLinksWindow: Boolean
