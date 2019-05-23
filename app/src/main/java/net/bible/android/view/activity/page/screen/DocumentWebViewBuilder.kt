@@ -204,7 +204,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top or bottom right of each window
-                if (!windowControl.windowRepository.isMaximisedState) {
+                if (!windowControl.windowRepository.isMaximisedState || window.isLinksWindow) {
                     val defaultWindowActionButton =
                         if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
                             createSingleWindowButton(window)
