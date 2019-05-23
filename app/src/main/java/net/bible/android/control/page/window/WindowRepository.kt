@@ -28,6 +28,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.Logger
+import net.bible.service.history.HistoryManager
 
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
@@ -43,7 +44,9 @@ import javax.inject.Provider
 open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
-        private val currentPageManagerProvider: Provider<CurrentPageManager>)
+    val currentPageManagerProvider: Provider<CurrentPageManager>,
+    private val historyManagerProvider: Provider<HistoryManager>
+)
 {
 
     private var windowList: MutableList<Window> = ArrayList()
@@ -51,6 +54,8 @@ open class WindowRepository @Inject constructor(
         private set
 
     private var maxWindowNoUsed = 0
+
+    var name = ""
 
     private val logger = Logger(this.javaClass.name)
 
@@ -72,7 +77,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
-        restoreState()
+        //restoreState()
         ABEventBus.getDefault().safelyRegister(this)
     }
 
@@ -249,20 +254,15 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    /** save current page and document state  */
-    private fun saveState() {
-        logger.info("Save instance state for screens")
-        val settings = BibleApplication.application.appStateSharedPreferences
-        saveState(settings)
-    }
-
     /** restore current page and document state  */
-    private fun restoreState() {
+    fun restoreState() {
         try {
             logger.info("Restore instance state for screens")
             val application = BibleApplication.application
             val settings = application.appStateSharedPreferences
-            restoreState(settings)
+            val stateJsonString = settings.getString("windowRepositoryState", null)
+            if(stateJsonString != null)
+                restoreState(stateJsonString)
         } catch (e: Exception) {
             logger.error("Restore error", e)
         }
@@ -273,26 +273,11 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    private fun saveState(outState: SharedPreferences) {
+    private fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
         logger.info("save state")
         try {
-
-            val windowRepositoryStateObj = JSONObject()
-            val windowStateArray = JSONArray()
-            for (window in windowList) {
-                try {
-                    if (window.windowLayout.state !== WindowState.CLOSED) {
-                        windowStateArray.put(window.stateJson)
-                    }
-                } catch (je: JSONException) {
-                    logger.error("Error saving screen state", je)
-                }
-
-            }
-            windowRepositoryStateObj.put("windowState", windowStateArray)
-
             val editor = outState.edit()
-            editor.putString("windowRepositoryState", windowRepositoryStateObj.toString())
+            editor.putString("windowRepositoryState", dumpState())
             editor.apply()
         } catch (je: JSONException) {
             logger.error("Saving window state", je)
@@ -300,17 +285,36 @@ open class WindowRepository @Inject constructor(
 
     }
 
+    fun dumpState(): String {
+        val windowRepositoryStateObj = JSONObject()
+        val windowStateArray = JSONArray()
+        for (window in windowList) {
+            try {
+                if (window.windowLayout.state !== WindowState.CLOSED) {
+                    windowStateArray.put(window.stateJson)
+                }
+            } catch (je: JSONException) {
+                logger.error("Error saving screen state", je)
+            }
+
+        }
+        windowRepositoryStateObj.put("windowState", windowStateArray)
+        windowRepositoryStateObj.put("name", name)
+        windowRepositoryStateObj.put("history", historyManagerProvider.get().dumpString)
+        return windowRepositoryStateObj.toString()
+    }
+
     /** called during app start-up to restore previous state
      *
      * @param inState
      */
-    private fun restoreState(inState: SharedPreferences) {
+    fun restoreState(stateJsonString: String) {
         logger.info("restore state")
-        val windowRepositoryStateString = inState.getString("windowRepositoryState", null)
-        if (StringUtils.isNotEmpty(windowRepositoryStateString)) {
+        if (StringUtils.isNotEmpty(stateJsonString)) {
             try {
-                val windowRepositoryState = JSONObject(windowRepositoryStateString)
+                val windowRepositoryState = JSONObject(stateJsonString)
                 val windowState = windowRepositoryState.getJSONArray("windowState")
+                name = windowRepositoryState.optString("name")
                 if (windowState.length() > 0) {
 
                     // remove current (default) state before restoring
@@ -318,12 +322,9 @@ open class WindowRepository @Inject constructor(
 
                     for (i in 0 until windowState.length()) {
                         try {
-                            val screenState = windowState.getJSONObject(i)
                             val window = Window(currentPageManagerProvider.get())
-                            window.restoreState(screenState)
-
+                            window.restoreState(windowState.getJSONObject(i))
                             maxWindowNoUsed = Math.max(maxWindowNoUsed, window.screenNo)
-
                             windowList.add(window)
                         } catch (je: JSONException) {
                             logger.error("Error restoring screen state", je)
@@ -331,10 +332,17 @@ open class WindowRepository @Inject constructor(
 
                     }
                 }
+                historyManagerProvider.get().dumpString = windowRepositoryState.optString("history")
+
             } catch (je: JSONException) {
                 logger.error("Error restoring screen state", je)
             }
-
         }
+        activeWindow = getDefaultActiveWindow()
+    }
+
+    fun clear() {
+        windowList.clear()
+        activeWindow = getDefaultActiveWindow()
     }
 }

@@ -19,15 +19,19 @@
 package net.bible.service.history
 
 import android.util.Log
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
-import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils.JSON_CONFIG
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 
 
 import java.util.ArrayList
@@ -47,7 +51,7 @@ import javax.inject.Inject
 class HistoryManager @Inject
 constructor(private val windowControl: WindowControl) {
 
-    private val screenHistoryStackMap = HashMap<Window, Stack<HistoryItem>>()
+    private val screenHistoryStackMap = HashMap<Int, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
@@ -61,22 +65,70 @@ constructor(private val windowControl: WindowControl) {
 
     private val historyStack: Stack<HistoryItem>
         get() {
-            val window = windowControl.activeWindow
-            var historyStack = screenHistoryStackMap[window]
+            val windowNo = windowControl.activeWindow.screenNo
+            var historyStack = screenHistoryStackMap[windowNo]
             if (historyStack == null) {
                 synchronized(screenHistoryStackMap) {
-                    historyStack = screenHistoryStackMap[window]
+                    historyStack = screenHistoryStackMap[windowNo]
                     if (historyStack == null) {
                         historyStack = Stack()
-                        screenHistoryStackMap[window] = historyStack!!
+                        screenHistoryStackMap[windowNo] = historyStack!!
                     }
                 }
             }
             return historyStack!!
         }
 
-    init {
 
+    @Serializable
+    class SerializableHistoryItem(
+        val document: String,
+        val key: String,
+        val yOffsetRatio: Float
+    )
+
+    @Serializable
+	class HistorySerializer(val map: HashMap<Int, ArrayList<SerializableHistoryItem>>)
+
+	var dumpString: String
+        get() {
+            val map = HashMap<Int, ArrayList<SerializableHistoryItem>>()
+            for((windowId, historyStack) in screenHistoryStackMap) {
+                val historyItems = arrayListOf<SerializableHistoryItem>()
+                for(itm in historyStack) {
+                    if(itm is KeyHistoryItem) {
+                        historyItems.add(
+                            SerializableHistoryItem(itm.document.initials, itm.key.osisID, itm.yOffsetRatio)
+                        )
+                    }
+                }
+
+                map[windowId] = historyItems
+            }
+
+            val s = HistorySerializer(map)
+            return Json(JSON_CONFIG).stringify(HistorySerializer.serializer(), s)
+        }
+        set(newValue) {
+            screenHistoryStackMap.clear()
+            if(newValue.isEmpty()) return
+
+            val map = Json(JSON_CONFIG).parse(HistorySerializer.serializer(), newValue).map
+            for((windowId, historyItems) in map) {
+                val window = windowControl.windowRepository.getWindow(windowId)
+                if(window != null) {
+                    val stack = Stack<HistoryItem>()
+                    for (itm in historyItems) {
+                        val doc = Books.installed().getBook(itm.document) as Book
+                        val key = doc.getKey(itm.key)
+                        stack.add(KeyHistoryItem(doc, key, itm.yOffsetRatio, window))
+                    }
+                    screenHistoryStackMap[windowId] = stack
+                }
+            }
+        }
+
+    init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
         ABEventBus.getDefault().safelyRegister(this)
@@ -122,7 +174,9 @@ constructor(private val windowControl: WindowControl) {
         } else if (currentActivity is AndBibleActivity) {
             val andBibleActivity = currentActivity as AndBibleActivity
             if (andBibleActivity.isIntegrateWithHistoryManager) {
-                historyItem = IntentHistoryItem(currentActivity.title, (currentActivity as AndBibleActivity).intentForHistoryList, windowControl.activeWindow)
+                historyItem = IntentHistoryItem(currentActivity.title,
+                    (currentActivity as AndBibleActivity).intentForHistoryList,
+                    windowControl.activeWindow)
             }
         }
         return historyItem

@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -30,6 +31,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
@@ -59,6 +61,7 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -84,7 +87,8 @@ constructor(private val callingActivity: MainBibleActivity,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
-            private val backupControl: BackupControl
+            private val backupControl: BackupControl,
+            private val documentViewManager: DocumentViewManager
 ) {
 
     /**
@@ -222,7 +226,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
-            }//handlerIntent = new Intent(callingActivity, Help.class);
+            }
 
             if (!isHandled) {
                 isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem)

@@ -5,7 +5,27 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
-
+    <item
+		android:id="@+id/tabsSubMenu"
+        android:title="@string/tabs">
+        <menu>
+            <item android:id="@+id/switchToTab"
+                android:title="@string/switch_to_tab"
+				/>
+			<item android:id="@+id/newTab"
+                android:title="@string/new_tab"
+				/>
+			<item android:id="@+id/cloneTab"
+                android:title="@string/new_copied_tab"
+				/>
+			<item android:id="@+id/closeTab"
+                android:title="@string/close_tab"
+				/>
+			<item android:id="@+id/renameTab"
+                android:title="@string/rename_tab"
+				/>
+        </menu>
+    </item>
 
 	<item
 		android:id="@+id/textOptionsSubMenu"

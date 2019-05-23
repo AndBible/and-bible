@@ -52,16 +52,16 @@ object VerseRangeSerializer: KSerializer<VerseRange?> {
 
 @Serializable
 data class PlaybackSettings (
-        @Optional val speakChapterChanges: Boolean = true,
-        @Optional val speakTitles: Boolean = true,
-        @Optional val speakFootnotes: Boolean = false,
-        @Optional var speed: Int = 100,
+        val speakChapterChanges: Boolean = true,
+        val speakTitles: Boolean = true,
+        val speakFootnotes: Boolean = false,
+        var speed: Int = 100,
 
         // Bookmark related metadata.
         // Restoring bookmark from widget uses this.
-        @Optional var bookId: String? = null,
-        @Optional var bookmarkWasCreated: Boolean? = null,
-        @Optional @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
+        var bookId: String? = null,
+        var bookmarkWasCreated: Boolean? = null,
+        @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
 ) {
     companion object {
 
@@ -84,17 +84,17 @@ data class PlaybackSettings (
 data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
 
 @Serializable
-data class SpeakSettings(@Optional var synchronize: Boolean = true,
-                         @Optional var replaceDivineName: Boolean = false,
-                         @Optional var autoBookmark: Boolean = false,
-                         @Optional var restoreSettingsFromBookmarks: Boolean = false,
-                         @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
-                         @Optional var sleepTimer: Int = 0,
-                         @Optional var lastSleepTimer: Int = 10,
+data class SpeakSettings(var synchronize: Boolean = true,
+                         var replaceDivineName: Boolean = false,
+                         var autoBookmark: Boolean = false,
+                         var restoreSettingsFromBookmarks: Boolean = false,
+                         var playbackSettings: PlaybackSettings = PlaybackSettings(),
+                         var sleepTimer: Int = 0,
+                         var lastSleepTimer: Int = 10,
                          // General book speak settings
-                         @Optional var queue: Boolean = true,
-                         @Optional var repeat: Boolean = false,
-                         @Optional var numPagesToSpeakId: Int = 0
+                         var queue: Boolean = true,
+                         var repeat: Boolean = false,
+                         var numPagesToSpeakId: Int = 0
                          ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
