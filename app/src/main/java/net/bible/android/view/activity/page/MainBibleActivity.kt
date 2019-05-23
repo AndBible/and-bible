@@ -52,7 +52,7 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -89,6 +89,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.JSON_CONFIG
 import net.bible.service.common.TitleSplitter
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -193,7 +194,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .mainBibleActivityModule(MainBibleActivityModule(this))
             .build()
             .inject(this)
-
+        windowControl.windowRepository.restoreState()
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -623,10 +624,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var tabStrings: ArrayList<String>
         get() {
             val tabsSerialized = preferences.getString("tabs", null) ?: return arrayListOf(currentTabState)
-            return JSON.parse(TabStrings.serializer(), tabsSerialized).data
+            return Json(JSON_CONFIG).parse(TabStrings.serializer(), tabsSerialized).data
         }
         set(value) =
-            preferences.edit().putString("tabs", JSON.stringify(TabStrings.serializer(), TabStrings(value))).apply()
+            preferences.edit().putString("tabs", Json(JSON_CONFIG).stringify(TabStrings.serializer(), TabStrings(value))).apply()
 
     private val haveTabs: Boolean get() = numTabs > 1
     private val numTabs: Int get() = tabStrings.size

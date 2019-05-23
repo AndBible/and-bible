@@ -28,6 +28,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.Logger
+import net.bible.service.history.HistoryManager
 
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
@@ -43,7 +44,9 @@ import javax.inject.Provider
 open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
-        val currentPageManagerProvider: Provider<CurrentPageManager>)
+        val currentPageManagerProvider: Provider<CurrentPageManager>,
+        val historyManagerProvider: Provider<HistoryManager>
+)
 {
 
     private var windowList: MutableList<Window> = ArrayList()
@@ -74,7 +77,7 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
-        restoreState()
+        //restoreState()
         ABEventBus.getDefault().safelyRegister(this)
     }
 
@@ -252,7 +255,7 @@ open class WindowRepository @Inject constructor(
     }
 
     /** restore current page and document state  */
-    private fun restoreState() {
+    fun restoreState() {
         try {
             logger.info("Restore instance state for screens")
             val application = BibleApplication.application
@@ -297,6 +300,7 @@ open class WindowRepository @Inject constructor(
         }
         windowRepositoryStateObj.put("windowState", windowStateArray)
         windowRepositoryStateObj.put("name", name)
+        windowRepositoryStateObj.put("history", historyManagerProvider.get().dumpString)
         return windowRepositoryStateObj.toString()
     }
 
@@ -328,6 +332,8 @@ open class WindowRepository @Inject constructor(
 
                     }
                 }
+                historyManagerProvider.get().dumpString = windowRepositoryState.optString("history")
+
             } catch (je: JSONException) {
                 logger.error("Error restoring screen state", je)
             }

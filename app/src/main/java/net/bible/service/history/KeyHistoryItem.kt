@@ -31,7 +31,12 @@ import org.crosswire.jsword.passage.Key
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class KeyHistoryItem(private val document: Book, val key: Key, private val yOffsetRatio: Float, window: Window) : HistoryItemBase(window) {
+class KeyHistoryItem(
+    val document: Book,
+    val key: Key,
+    val yOffsetRatio: Float,
+    window: Window
+) : HistoryItemBase(window) {
 
     override val description: String
         get() {
