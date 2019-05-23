@@ -74,6 +74,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -131,8 +132,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var actionBarHeight = 0.0F
     private var transportBarHeight = 0.0F
 
-    private var hasSoftNavigationBar: Boolean = true
-    private val bottomNavBarVisible get() = isPortrait && hasSoftNavigationBar
+    private var hasHwKeys: Boolean = false
+    private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
     private val rightNavBarVisible get() = false
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
@@ -189,12 +190,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .build()
             .inject(this)
 
-        // Detecting if there's software navigation bar or not is not easy in Android. This one should work on real devices,
-        // but on emulator it is not.
-        // https://stackoverflow.com/questions/28983621/detect-soft-navigation-bar-availability-in-android-device-progmatically/28983720
-
-        val id = resources.getIdentifier("config_showNavigationBar", "bool", "android");
-        hasSoftNavigationBar = id > 0 && resources.getBoolean(id)
+        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
         if (statusBarId > 0) {
@@ -1055,6 +1051,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     return
                 }
             }
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
+                // return from download documents. Do nothing
+                return
+            }
             else -> throw RuntimeException("Unhandled request code $requestCode")
         }
         super.onActivityResult(requestCode, resultCode, data)
@@ -1098,6 +1098,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
+        windowControl.windowRepository.minimisedScreens.forEach {
+            it.initialized = false
+        }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
     }
 
