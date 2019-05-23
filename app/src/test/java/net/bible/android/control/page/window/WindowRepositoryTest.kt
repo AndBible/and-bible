@@ -5,6 +5,7 @@ import net.bible.android.control.event.EventManagerStub
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
@@ -27,6 +28,7 @@ import org.mockito.Mockito.mock
 @RunWith(MyRobolectricTestRunner::class)
 class WindowRepositoryTest {
     private var windowRepository: WindowRepository? = null
+    private var windowControl: WindowControl? = null
 
     @Before
     @Throws(Exception::class)
@@ -37,8 +39,9 @@ class WindowRepositoryTest {
         val myNoteDao = mock(MyNoteDAO::class.java)
 
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(null), bibleTraverser, myNoteDao) }
-
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider)
+        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
+        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
+        windowControl = WindowControl(windowRepository!!, eventManager)
     }
 
     @After

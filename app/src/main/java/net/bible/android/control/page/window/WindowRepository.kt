@@ -44,8 +44,8 @@ import javax.inject.Provider
 open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
         // different current Bible module, so must create new cpm for each window
-        val currentPageManagerProvider: Provider<CurrentPageManager>,
-        val historyManagerProvider: Provider<HistoryManager>
+    val currentPageManagerProvider: Provider<CurrentPageManager>,
+    private val historyManagerProvider: Provider<HistoryManager>
 )
 {
 
