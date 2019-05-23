@@ -33,6 +33,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -122,8 +123,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var actionBarHeight = 0.0F
     private var transportBarHeight = 0.0F
 
-    private var hasSoftNavigationBar: Boolean = true
-    private val bottomNavBarVisible get() = isPortrait && hasSoftNavigationBar
+    private var hasHwKeys: Boolean = false
+    private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
     private val rightNavBarVisible get() = false
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
@@ -180,12 +181,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 .build()
                 .inject(this)
 
-        // Detecting if there's software navigation bar or not is not easy in Android. This one should work on real devices,
-        // but on emulator it is not.
-        // https://stackoverflow.com/questions/28983621/detect-soft-navigation-bar-availability-in-android-device-progmatically/28983720
-
-        val id = resources.getIdentifier("config_showNavigationBar", "bool", "android");
-        hasSoftNavigationBar = id > 0 && resources.getBoolean(id)
+        hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
         if (statusBarId > 0) {
