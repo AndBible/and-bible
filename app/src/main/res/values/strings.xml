@@ -472,4 +472,17 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Notifications -->
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
+
+    <!-- Tabs -->
+    <string name="tabs">Tabs</string>
+    <string name="new_tab">New Tab</string>
+    <string name="switch_to_tab">Switch to Tab …</string>
+    <string name="close_tab">Close this tab</string>
+    <string name="choose_tab_to_open">Choose tab to open</string>
+    <string name="new_copied_tab">Copy this tab as new</string>
+    <string name="tab_number">Tab %d</string>
+    <string name="tab_num_contents">Tab %d: %s</string>
+    <string name="tab_name_contents">%s: %s</string>
+    <string name="rename_tab">Rename tab …</string>
+    <string name="rename_tab_title">Give a name for this tab</string>
 </resources>

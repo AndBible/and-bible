@@ -35,6 +35,7 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
+import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController

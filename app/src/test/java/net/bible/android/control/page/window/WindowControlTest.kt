@@ -1,23 +1,21 @@
 package net.bible.android.control.page.window
 
 import android.view.Menu
-import android.view.MenuItem
 
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.mynote.MyNoteDAO
-import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
 
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -69,7 +67,8 @@ class WindowControlTest {
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(null), bibleTraverser, myNoteDao) }
-        windowRepository = WindowRepository(mockCurrentPageManagerProvider)
+        val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
+        windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         reset<EventManager>(eventManager)
     }
@@ -168,9 +167,9 @@ class WindowControlTest {
         windowControl!!.minimiseWindow(newWindow2)
         assertThat(windowRepository!!.minimisedScreens, contains(newWindow2))
 
-        // 1 window is minimised, but because a window is maximised no windows should be returned
+        // A window is maximized, the others should then all be minimized.
         windowControl!!.maximiseWindow(activeWindow)
-        assert(windowRepository!!.minimisedScreens.isEmpty())
+        assertThat<List<Window>>(windowRepository!!.minimisedScreens, containsInAnyOrder(newWindow1, newWindow2))
     }
 
     @Test
