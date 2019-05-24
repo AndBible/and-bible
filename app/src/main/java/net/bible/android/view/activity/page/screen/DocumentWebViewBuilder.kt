@@ -363,7 +363,9 @@ class DocumentWebViewBuilder @Inject constructor(
                         if (isSingleWindow) -mainBibleActivity.bottomOffset2
                         else (
                             if(mainBibleActivity.isSplitVertically) {
-                                if(idx == 0) mainBibleActivity.topOffset2 else 0.0F
+                                if(idx == 0 && !windowControl.windowRepository.isMaximisedState)
+                                    mainBibleActivity.topOffset2
+                                else 0.0F
                             }
                             else mainBibleActivity.topOffset2
                             )
