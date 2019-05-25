@@ -719,8 +719,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     val bibleOverlayText: String
         get() {
-            val abbreviation = pageControl.currentPageManager.currentPage.currentDocument.abbreviation
-            return "$abbreviation: $pageTitleText"
+            return "$documentTitleText\n$pageTitleText"
         }
 
     private fun updateTitle() {

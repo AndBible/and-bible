@@ -246,7 +246,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
                 ellipsize = TextUtils.TruncateAt.MIDDLE
-                setLines(1)
+                setLines(2)
                 gravity = Gravity.CENTER
                 translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
                 text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
