@@ -477,8 +477,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascript("setToolbarOffset($toolbarOffset);");
     }
 
-    private val topWindow get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == window
-    private val toolbarOffset get() = if(topWindow) mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density else 0F
+    private val topWindow
+        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == window
+            || window.isMaximised
+    private val toolbarOffset
+        get() =
+            if(topWindow)
+                (mainBibleActivity.topOffsetWithActionBarAndStatusBar
+                    / mainBibleActivity.resources.displayMetrics.density)
+            else 0F
 
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
