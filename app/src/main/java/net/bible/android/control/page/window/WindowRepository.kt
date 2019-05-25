@@ -86,7 +86,7 @@ open class WindowRepository @Inject constructor(
     val visibleWindows: MutableList<Window>
         get() {
             val maximisedWindows = getWindows(WindowState.MAXIMISED)
-            return if (!maximisedWindows.isEmpty()) {
+            return if (maximisedWindows.isNotEmpty()) {
                 if (!maximisedWindows.contains(dedicatedLinksWindow as Window)) {
                     addLinksWindowIfVisible(maximisedWindows)
                 }
@@ -185,6 +185,8 @@ open class WindowRepository @Inject constructor(
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
         val windows = visibleWindows
+        if(isMaximisedState)
+            windows.addAll(minimisedScreens)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }

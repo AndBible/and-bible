@@ -303,7 +303,8 @@ open class WindowControl @Inject constructor(
 
         if (switchingMaximised) {
             activeWindow = window
-            if (!activeWindow.initialized) PassageChangeMediator.getInstance().forcePageUpdate()
+            if (!activeWindow.initialized)
+                PassageChangeMediator.getInstance().forcePageUpdate()
         }
 
         windowSync.setResynchRequired(true)
