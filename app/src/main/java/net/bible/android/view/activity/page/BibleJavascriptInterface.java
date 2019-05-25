@@ -82,8 +82,7 @@ public class BibleJavascriptInterface {
 				// I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
 
 				// if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
-				if(!SharedActivityState.getInstance().isFullScreen() &&
-						(!bibleView.getMainBibleActivity().isSplitVertically() || (bibleView.getWindow() == windowControl.getWindowRepository().getFirstWindow())))
+				if(!SharedActivityState.getInstance().isFullScreen() && bibleView.isTopWindow())
 				{
 					newYPos += (bibleView.getMainBibleActivity().getTopOffset2()) / bibleView.getResources().getDisplayMetrics().density;
 				}
