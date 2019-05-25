@@ -249,7 +249,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 setLines(1)
                 gravity = Gravity.CENTER
                 translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
-                text = try {mainBibleActivity.pageTitleText} catch (e: MainBibleActivity.KeyIsNull) {""}
+                text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
                 textSize = 18F
             }
             currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
@@ -299,17 +299,18 @@ class DocumentWebViewBuilder @Inject constructor(
         resetTouchTimer()
     }
 
-    fun onEvent(event: CurrentVerseChangedEvent) {
+    fun onEvent(event: CurrentVerseChangedEvent) = updateBibleReference()
+
+    private fun updateBibleReference() {
         if(!::bibleReferenceOverlay.isInitialized) return
         
         mainBibleActivity.runOnUiThread {
             try {
-                bibleReferenceOverlay.text = mainBibleActivity.pageTitleText
+                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
             } catch(e: MainBibleActivity.KeyIsNull) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
         }
-
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -325,6 +326,7 @@ class DocumentWebViewBuilder @Inject constructor(
     fun onEvent(event: CurrentWindowChangedEvent) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
+        updateBibleReference()
     }
 
     private var sleepTimer: Timer = Timer("TTS sleep timer")
@@ -405,8 +407,8 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    private fun updateBibleReferenceOverlay(show: Boolean) {
-        val show = mainBibleActivity.fullScreen && documentControl.isBibleBook && show
+    private fun updateBibleReferenceOverlay(_show: Boolean) {
+        val show = mainBibleActivity.fullScreen && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
             bibleReferenceOverlay.animate().alpha(1.0f)

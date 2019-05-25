@@ -704,7 +704,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class KeyIsNull: Exception()
 
-    val pageTitleText: String
+    private val pageTitleText: String
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
             var key = pageControl.currentPageManager.currentPage.key
@@ -715,6 +715,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
             }
             return key?.name ?: throw KeyIsNull()
+        }
+
+    val bibleOverlayText: String
+        get() {
+            val abbreviation = pageControl.currentPageManager.currentPage.currentDocument.abbreviation
+            return "$abbreviation: $pageTitleText"
         }
 
     private fun updateTitle() {
