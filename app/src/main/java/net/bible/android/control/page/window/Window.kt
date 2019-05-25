@@ -37,6 +37,20 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
         pageManager.window = this
     }
 
+    private var _justRestored = false
+
+    var justRestored: Boolean
+        get() {
+            if(_justRestored) {
+                justRestored = false
+                return true
+            }
+            return false
+        }
+        set(value) {
+            _justRestored = value
+        }
+
     var isSynchronised = true
     var initialized = false
 

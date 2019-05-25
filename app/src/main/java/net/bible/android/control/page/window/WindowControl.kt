@@ -289,6 +289,7 @@ open class WindowControl @Inject constructor(
 
     fun restoreWindow(window: Window) {
         if (window == activeWindow) return
+        window.justRestored = true
 
         var switchingMaximised = false
         windowRepository.maximisedScreens.forEach {

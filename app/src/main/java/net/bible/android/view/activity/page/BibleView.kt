@@ -560,11 +560,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (ChapterVerse.isSet(chapterVerse)) {
             // jump to correct verse
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
+            val now = if(window.justRestored) "true" else "false"
             if(!SharedActivityState.getInstance().isFullScreen && isTopWindow) {
                 val delta = (mainBibleActivity.topOffset2) / mainBibleActivity.resources.displayMetrics.density
-                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', false, ${delta})")
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $delta)")
             } else {
-                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}')")
+                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now)")
             }
         }
     }
