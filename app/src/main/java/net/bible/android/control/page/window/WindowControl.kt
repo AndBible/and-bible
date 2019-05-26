@@ -271,14 +271,17 @@ open class WindowControl @Inject constructor(
 
             // redisplay the current page
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            if (!activeWindow.initialized)
+                PassageChangeMediator.getInstance().forcePageUpdate()
         }
     }
 
     private fun isWindowMinimisable(window: Window): Boolean {
-        return isWindowRemovable(window) && !window.isLinksWindow
+        return !windowRepository.isMaximisedState && isWindowRemovable(window) && !window.isLinksWindow
     }
 
     private fun isWindowRemovable(window: Window): Boolean {
+        if(windowRepository.isMaximisedState && windowRepository.minimisedAndMaximizedScreens.size > 1) return true
         var normalWindows = windowRepository.visibleWindows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
             normalWindows--

@@ -166,21 +166,28 @@ open class WindowRepository @Inject constructor(
     }
 
     fun close(window: Window) {
+        val wasMaximized = isMaximisedState
+
         window.windowLayout.state = WindowState.CLOSED
 
         // links window is just closed not deleted
         if (!window.isLinksWindow) {
-
             if (!windowList.remove(window)) {
                 logger.error("Failed to close window " + window.screenNo)
             }
-        }
 
-        // has the active screen been minimised?
-        if (activeWindow == window) {
-            activeWindow = getDefaultActiveWindow()
+            if(wasMaximized) {
+                val lastScreen = minimisedScreens.last()
+                lastScreen.isMaximised = true
+                activeWindow = lastScreen
+            }
+            else {
+                // has the active screen been minimised?
+                if (activeWindow == window) {
+                    activeWindow = getDefaultActiveWindow()
+                }
+            }
         }
-
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
