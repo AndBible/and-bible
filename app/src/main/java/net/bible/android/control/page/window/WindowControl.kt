@@ -228,6 +228,9 @@ open class WindowControl @Inject constructor(
     }
 
     fun maximiseWindow(window: Window) {
+        windowRepository.minimisedScreens.forEach {
+            it.wasMinimized = true
+        }
         windowRepository.visibleWindows.forEach {
             if (it != window) it.windowLayout.state = WindowState.MINIMISED
         }
@@ -249,7 +252,8 @@ open class WindowControl @Inject constructor(
         window.isMaximised = false
 
         windowRepository.minimisedScreens.forEach {
-            it.windowLayout.state = WindowState.SPLIT
+            it.windowLayout.state = if(it.wasMinimized) WindowState.MINIMISED else WindowState.SPLIT
+            it.wasMinimized = false
         }
 
         // redisplay the current page
