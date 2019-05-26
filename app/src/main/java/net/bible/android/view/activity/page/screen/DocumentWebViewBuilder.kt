@@ -521,7 +521,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createUnMaximizeButton(window: Window): Button {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
-            { v -> windowControl.unmaximiseWindow(window)},
+            { v -> showPopupWindow(window, v) },
             { v -> windowControl.unmaximiseWindow(window); true}
         )
         return b

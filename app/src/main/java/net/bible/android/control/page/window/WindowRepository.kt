@@ -132,10 +132,17 @@ open class WindowRepository @Inject constructor(
     fun getWindow(screenNo: Int): Window? = windows.find {it.screenNo == screenNo}
 
     fun addNewWindow(): Window {
-        // ensure main screen is not maximized
-        activeWindow.windowLayout.state = WindowState.SPLIT
+        val newWindow = addNewWindow(nextWindowNo)
 
-        return addNewWindow(nextWindowNo)
+        if(isMaximisedState) {
+            activeWindow.windowLayout.state = WindowState.MINIMISED
+            newWindow.windowLayout.state = WindowState.MAXIMISED
+
+        } else {
+            activeWindow.windowLayout.state = WindowState.SPLIT
+        }
+
+        return newWindow
     }
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
