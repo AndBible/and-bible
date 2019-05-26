@@ -85,76 +85,41 @@ open class WindowRepository @Inject constructor(
     // should only ever be one maximised window
     val visibleWindows: MutableList<Window>
         get() {
-            val maximisedWindows = getWindows(WindowState.MAXIMISED)
+            val maximisedWindows = ArrayList(getWindows(WindowState.MAXIMISED))
             return if (maximisedWindows.isNotEmpty()) {
                 if (!maximisedWindows.contains(dedicatedLinksWindow as Window)) {
                     addLinksWindowIfVisible(maximisedWindows)
                 }
                 maximisedWindows
             } else {
-                getWindows(WindowState.SPLIT)
+                ArrayList(getWindows(WindowState.SPLIT))
             }
         }
 
-    val maximisedScreens: List<Window>
-        get() = getWindows(WindowState.MAXIMISED)
+    val maximisedScreens get() = getWindows(WindowState.MAXIMISED)
 
-    val minimisedScreens: List<Window>
-        get() = getWindows(WindowState.MINIMISED)
+    val minimisedScreens  get() = getWindows(WindowState.MINIMISED)
 
     val minimisedAndMaximizedScreens: List<Window>
-        get() {
-            val ws = ArrayList<Window>()
-            for (window in windows) {
-                if (window.windowLayout.state === WindowState.MINIMISED
-                    || window.windowLayout.state == WindowState.MAXIMISED)
-                {
-                    ws.add(window)
-                }
-            }
-            return ws
+        get() = windows.filter {
+            val state = it.windowLayout.state
+            state === WindowState.MAXIMISED || state === WindowState.MINIMISED
         }
 
-    val isMaximisedState: Boolean
-        get() {
-            for (window in windows) {
-                if (window.windowLayout.state === WindowState.MAXIMISED) {
-                    return true
-                }
-            }
-            return false
-        }
+    val isMaximisedState get() = windows.find{ it.windowLayout.state === WindowState.MAXIMISED } !== null
 
-    val isMultiWindow: Boolean
-        get() {
-            val windows = visibleWindows
-            return windows.size > 1
-        }
+    val isMultiWindow get() = visibleWindows.size > 1
 
-    private val defaultState: WindowLayout.WindowState
-        get() = WindowState.SPLIT
+    private val defaultState get() = WindowState.SPLIT
 
-    val firstWindow: Window
-        get() = windowList[0]
+    val firstWindow get() = windowList[0]
 
     /**
      * Return window no larger than any windows created during this session and larger than 0
      */
-    private val nextWindowNo: Int
-        get() = maxWindowNoUsed + 1
+    private val nextWindowNo get() = maxWindowNoUsed + 1
 
-
-
-    private fun getDefaultActiveWindow(): Window {
-        for (window in windows) {
-            if (window.isVisible) {
-                return window
-            }
-        }
-
-        // no suitable window found so add one and make it default
-        return addNewWindow(nextWindowNo)
-    }
+    private fun getDefaultActiveWindow() = windows.find { it.isVisible } ?: addNewWindow(nextWindowNo)
 
     private fun addLinksWindowIfVisible(windows: MutableList<Window>) {
         if (dedicatedLinksWindow.isVisible) {
@@ -162,24 +127,9 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    private fun getWindows(state: WindowState): MutableList<Window> {
-        val ws = ArrayList<Window>()
-        for (window in windows) {
-            if (window.windowLayout.state === state) {
-                ws.add(window)
-            }
-        }
-        return ws
-    }
+    private fun getWindows(state: WindowState)= windows.filter { it.windowLayout.state === state}
 
-    fun getWindow(screenNo: Int): Window? {
-        for (window in windows) {
-            if (window.screenNo == screenNo) {
-                return window
-            }
-        }
-        return null
-    }
+    fun getWindow(screenNo: Int): Window? = windows.find {it.screenNo == screenNo}
 
     fun addNewWindow(): Window {
         // ensure main screen is not maximized
