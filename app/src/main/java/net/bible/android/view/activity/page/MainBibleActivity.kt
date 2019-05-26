@@ -859,7 +859,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
         }
 
-    fun toggleFullScreen() {
+    private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
         ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
