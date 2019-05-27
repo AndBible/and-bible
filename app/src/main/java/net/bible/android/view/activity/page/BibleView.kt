@@ -543,7 +543,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun setJumpToVerse(chapterVerse: ChapterVerse) {
-        this.mJumpToChapterVerse = chapterVerse
+        mJumpToChapterVerse = chapterVerse
     }
 
     /** move the view so the selected verse is at the top or at least visible
