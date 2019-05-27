@@ -309,14 +309,17 @@ open class WindowControl @Inject constructor(
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
+        if(!switchingMaximised) {
+            windowSync.setResynchRequired(true)
+        }
+
+        windowSync.synchronizeScreens()
+
         if (switchingMaximised) {
             activeWindow = window
             if (!activeWindow.initialized)
                 PassageChangeMediator.getInstance().forcePageUpdate()
         }
-
-        windowSync.setResynchRequired(true)
-        windowSync.synchronizeScreens()
     }
 
     fun synchroniseCurrentWindow() {
