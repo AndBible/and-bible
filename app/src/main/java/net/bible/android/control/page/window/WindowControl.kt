@@ -169,6 +169,7 @@ open class WindowControl @Inject constructor(
 
         // redisplay the current page
         if (!linksWindowWasVisible) {
+            linksWindow.justRestored = true
             linksWindow.windowLayout.state = WindowState.SPLIT
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
         }
