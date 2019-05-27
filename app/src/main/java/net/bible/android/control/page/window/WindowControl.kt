@@ -308,10 +308,7 @@ open class WindowControl @Inject constructor(
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-
-        if(!switchingMaximised) {
-            windowSync.setResynchRequired(true)
-        }
+        windowSync.setResynchRequired(true)
 
         windowSync.synchronizeScreens()
 
