@@ -53,7 +53,7 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
 
     var isSynchronised = true
     var initialized = false
-    var wasMinimized = false
+    var wasMinimised = false
 
     private val logger = Logger(this.javaClass.name)
 
@@ -86,6 +86,7 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
             val obj = JSONObject().apply {
                 put("screenNo", screenNo)
                 put("isSynchronised", isSynchronised)
+                put("wasMinimised", wasMinimised)
                 put("windowLayout", windowLayout.stateJson)
                 put("pageManager", pageManager.stateJson)
             }
@@ -104,10 +105,11 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     @Throws(JSONException::class)
     fun restoreState(jsonObject: JSONObject) {
         try {
-            this.screenNo = jsonObject.getInt("screenNo")
-            this.isSynchronised = jsonObject.getBoolean("isSynchronised")
-            this.windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"))
-            this.pageManager.restoreState(jsonObject.getJSONObject("pageManager"))
+            screenNo = jsonObject.getInt("screenNo")
+            isSynchronised = jsonObject.getBoolean("isSynchronised")
+            wasMinimised = jsonObject.optBoolean("wasMinimised")
+            windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"))
+            pageManager.restoreState(jsonObject.getJSONObject("pageManager"))
         } catch (e: Exception) {
             logger.warn("Window state restore error:" + e.message, e)
         }
