@@ -504,7 +504,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         input.inputType = InputType.TYPE_CLASS_TEXT
         input.text = SpannableStringBuilder(windowControl.windowRepository.name)
         AlertDialog.Builder(this)
-            .setTitle(getString(R.string.rename_tab_title))
+            .setTitle(getString(R.string.rename_workspace_title))
             .setView(input)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.okay) { dialog, _ ->
@@ -524,7 +524,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var text = windowControl.windowRepository.name
 
         if(text.isEmpty())
-            text = getString(R.string.tab_number, currentTab + 1)
+            text = getString(R.string.workspace_number, currentTab + 1)
         ABEventBus.getDefault().post(ToastEvent(text))
 
         invalidateOptionsMenu()
@@ -579,16 +579,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
             BookName.setFullBookName(true)
             val text = if(!name.isEmpty())
-                getString(R.string.tab_name_contents, name, keyTitle.joinToString(", "))
+                getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
             else
-                getString(R.string.tab_num_contents, idx + 1, keyTitle.joinToString(", "))
+                getString(R.string.workspace_num_contents, idx + 1, keyTitle.joinToString(", "))
 
             tabTitles.add(text)
         }
 
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, tabTitles)
         AlertDialog.Builder(this)
-            .setTitle(getString(R.string.choose_tab_to_open))
+            .setTitle(getString(R.string.choose_workspace_to_open))
             .setAdapter(adapter) {_, which ->
                 if(currentTab != which) {
                     currentTab = which

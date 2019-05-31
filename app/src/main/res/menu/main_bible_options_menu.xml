@@ -7,22 +7,22 @@
 	>
     <item
 		android:id="@+id/tabsSubMenu"
-        android:title="@string/tabs">
+        android:title="@string/workspaces">
         <menu>
             <item android:id="@+id/switchToTab"
-                android:title="@string/switch_to_tab"
+                android:title="@string/switch_to_workspace"
 				/>
 			<item android:id="@+id/newTab"
-                android:title="@string/new_tab"
+                android:title="@string/new_workspace"
 				/>
 			<item android:id="@+id/cloneTab"
-                android:title="@string/new_copied_tab"
+                android:title="@string/new_copied_workspace"
 				/>
 			<item android:id="@+id/closeTab"
-                android:title="@string/close_tab"
+                android:title="@string/close_workspace"
 				/>
 			<item android:id="@+id/renameTab"
-                android:title="@string/rename_tab"
+                android:title="@string/rename_workspace"
 				/>
         </menu>
     </item>
