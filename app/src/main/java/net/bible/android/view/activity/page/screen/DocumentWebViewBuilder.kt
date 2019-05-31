@@ -164,7 +164,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 val bibleView = getCleanView(window)
 
                 // trigger recalc of verse positions in case width changes e.g. minimize/restore web view
-                bibleView.setVersePositionRecalcRequired(true)
+                bibleView.isVersePositionRecalcRequired = true
 
                 val windowWeight = max(window.windowLayout.weight, 0.05F)
                 val lp = if (isSplitHorizontally)

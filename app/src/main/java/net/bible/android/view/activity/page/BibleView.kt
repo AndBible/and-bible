@@ -79,10 +79,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
-    private var mJumpToChapterVerse = ChapterVerse.NOT_SET
-    private var mJumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
+    private var jumpToChapterVerse = ChapterVerse.NOT_SET
+    private var jumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
 
-    private var mIsVersePositionRecalcRequired = true
+    var isVersePositionRecalcRequired = true
 
     private lateinit var mPageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -227,7 +227,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
         html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
-        mJumpToYOffsetRatio = jumpToYOffsetRatio
+        this.jumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
         html = enableSelection(html)
@@ -272,15 +272,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Trigger jump to correct offset
      */
     private fun invokeJumpToOffsetIfRequired(delay: Long) {
-        if (ChapterVerse.isSet(mJumpToChapterVerse) || mJumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
+        if (ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
             postDelayed({ jumpToOffset() }, delay)
         }
     }
 
     private fun jumpToOffset() {
         if (contentHeight > 0) {
-            if (mIsVersePositionRecalcRequired) {
-                mIsVersePositionRecalcRequired = false
+            if (isVersePositionRecalcRequired) {
+                isVersePositionRecalcRequired = false
                 executeJavascript("registerVersePositions()")
             }
 
@@ -293,19 +293,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             // go to any specified verse or offset
-            if (ChapterVerse.isSet(mJumpToChapterVerse)) {
-                // must clear mJumpToChapterVerse because setting location causes another onPageFinished
-                val jumpToChapterVerse = mJumpToChapterVerse
-                mJumpToChapterVerse = ChapterVerse.NOT_SET
+            if (ChapterVerse.isSet(jumpToChapterVerse)) {
+                // must clear jumpToChapterVerse because setting location causes another onPageFinished
+                val jumpToChapterVerse = jumpToChapterVerse
+                this.jumpToChapterVerse = ChapterVerse.NOT_SET
 
                 scrollOrJumpToVerse(jumpToChapterVerse)
 
-            } else if (mJumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
+            } else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
                 val contentHeight = contentHeight
-                val y = (contentHeight.toFloat() * mJumpToYOffsetRatio).toInt()
+                val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
 
-                // must zero mJumpToYOffsetRatio because setting location causes another onPageFinished
-                mJumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
+                // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
+                jumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
 
                 // Top of the screen is handled by scrollToVerse in the page loading.
                 // We want to take care of only to go to specific point in commentary/generalbook page
@@ -491,19 +491,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "window size changed")
         val isScreenVerse = event.isVerseNoSet(window)
         if (isScreenVerse) {
-            this.maintainMovingChapterVerse = event.getChapterVerse(window)
+            maintainMovingChapterVerse = event.getChapterVerse(window)
         }
 
         // when move finished the verse positions will have changed if in Landscape so recalc positions
         val isMoveFinished = event.isFinished
         if (isMoveFinished && isScreenVerse && !mainBibleActivity.isSplitVertically) {
             val chapterVerse = event.getChapterVerse(window)
-            setJumpToVerse(chapterVerse)
+            jumpToChapterVerse = chapterVerse
 
             val handler = handler
             handler?.postDelayed({
                 // clear jump value if still set
-                this@BibleView.maintainMovingChapterVerse = ChapterVerse.NOT_SET
+                maintainMovingChapterVerse = ChapterVerse.NOT_SET
 
                 // ensure we are in the correct place after screen settles
                 scrollOrJumpToVerse(chapterVerse)
@@ -533,17 +533,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
-            setJumpToVerse(event.getChapterVerse(window))
+            jumpToChapterVerse = event.getChapterVerse(window)
         }
         executeJavascript("setToolbarOffset($toolbarOffset);");
-    }
-
-    fun setVersePositionRecalcRequired(mIsVersePositionRecalcRequired: Boolean) {
-        this.mIsVersePositionRecalcRequired = mIsVersePositionRecalcRequired
-    }
-
-    private fun setJumpToVerse(chapterVerse: ChapterVerse) {
-        mJumpToChapterVerse = chapterVerse
     }
 
     /** move the view so the selected verse is at the top or at least visible
