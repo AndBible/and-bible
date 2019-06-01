@@ -30,7 +30,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -42,13 +41,7 @@ import javax.inject.Inject
 @MainBibleActivityScope
 class BibleContentManager @Inject
 constructor(private val documentViewManager: DocumentViewManager?, private val windowControl: WindowControl) {
-
-    // previous document and verse (currently displayed on the screen)
-    private var previousDocument: Book? = null
-    private var previousVerse: Key? = null
-
     init {
-
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
 
@@ -57,19 +50,22 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
     }
 
     fun updateText(forceUpdate: Boolean, window_: Window?) {
-        val prevVerse = previousVerse
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
         val key = currentPage.key
         val verse = window.pageManager.currentVersePage.currentBibleVerse.chapterVerse
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
+        val previousDocument = window.displayedBook
+        val prevVerse = window.displayedKey
 
-        // check for duplicate screen update requests
-        if(!forceUpdate && previousDocument == document && document.bookCategory == BookCategory.BIBLE &&
-                prevVerse is VerseRange &&
-                prevVerse.start?.book == book &&
-                prevVerse.start?.chapter == verse.chapter) {
+        if(!forceUpdate
+            && previousDocument == document
+            && document.bookCategory == BookCategory.BIBLE
+            && prevVerse is VerseRange
+            && prevVerse.start?.book == book
+            && prevVerse.start?.chapter == verse.chapter)
+        {
             window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
@@ -77,8 +73,8 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
             UpdateMainTextTask().execute(window)
         }
 
-        previousDocument = document
-        previousVerse = key
+        window.displayedBook = document
+        window.displayedKey = key
     }
 
     private inner class UpdateMainTextTask : UpdateTextTask() {

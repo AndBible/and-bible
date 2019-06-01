@@ -22,6 +22,8 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.Logger
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.Key
 
 import org.json.JSONException
 import org.json.JSONObject
@@ -36,6 +38,9 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     init {
         pageManager.window = this
     }
+
+    var displayedKey: Key? = null
+    var displayedBook: Book? = null
 
     private var _justRestored = false
 
