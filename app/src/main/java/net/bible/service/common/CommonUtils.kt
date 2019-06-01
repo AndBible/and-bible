@@ -34,6 +34,8 @@ import android.util.Log
 import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
+import net.bible.android.activity.BuildConfig.BuildDate
+import net.bible.android.activity.BuildConfig.GitHash
 
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -74,7 +76,7 @@ object CommonUtils {
             try {
                 val manager = BibleApplication.application.packageManager
                 val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
-                versionName = info.versionName
+                versionName = "${info.versionName}#$GitHash (built $BuildDate)"
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionName = "Error"

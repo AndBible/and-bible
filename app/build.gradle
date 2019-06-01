@@ -4,6 +4,15 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -19,6 +28,8 @@ android {
         targetSdkVersion 28
 		vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
+        buildConfigField "String", "GitHash", "\"${getGitHash()}\""
+        buildConfigField "String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\""
     }
 
     buildTypes {
