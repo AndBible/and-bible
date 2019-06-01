@@ -76,13 +76,13 @@ object CommonUtils {
             try {
                 val manager = BibleApplication.application.packageManager
                 val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
-                versionName = "${info.versionName}#$GitHash (built $BuildDate)"
+                versionName = info.versionName
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionName = "Error"
             }
 
-            return versionName
+            return "$versionName#$GitHash (built $BuildDate)"
         }
     val applicationVersionNumber: Int
         get() {
