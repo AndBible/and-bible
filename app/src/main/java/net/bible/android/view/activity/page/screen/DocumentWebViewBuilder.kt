@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.text.TextUtils
@@ -290,7 +291,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private val windowButtons: MutableList<Button> = ArrayList()
-    private val restoreButtons: MutableList<Button> = ArrayList()
+    private val restoreButtons: MutableList<RestoreButton> = ArrayList()
     private lateinit var minimisedWindowsFrameContainer: LinearLayout
     private lateinit var bibleReferenceOverlay: TextView
 
@@ -299,7 +300,10 @@ class DocumentWebViewBuilder @Inject constructor(
         resetTouchTimer()
     }
 
-    fun onEvent(event: CurrentVerseChangedEvent) = updateBibleReference()
+    fun onEvent(event: CurrentVerseChangedEvent) {
+        updateBibleReference()
+        if (event.window != null) updateMinimizedButtonLetter(event.window)
+    }
 
     private fun updateBibleReference() {
         if(!::bibleReferenceOverlay.isInitialized) return
@@ -311,6 +315,10 @@ class DocumentWebViewBuilder @Inject constructor(
                 Log.e(TAG, "Key is null, can't update", e)
             }
         }
+    }
+
+    private fun updateMinimizedButtonLetter(w: Window) {
+        restoreButtons.find { it.screenNo == w.screenNo }?.text = getDocumentInitial(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -518,7 +526,7 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createUnMaximizeButton(window: Window): Button {
+    private fun createUnMaximizeButton(window: Window): RestoreButton {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
@@ -535,11 +543,11 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createRestoreButton(window: Window): Button {
+    private fun createRestoreButton(window: Window): RestoreButton {
         return createTextButton(getDocumentInitial(window),
             { windowControl.restoreWindow(window) },
             { windowControl.restoreWindow(window); true },
-            window.isMaximised
+            window
         )
     }
 
@@ -557,8 +565,8 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 maximisedWindow: Boolean = false): Button {
-        return Button(mainBibleActivity).apply {
+                                 window: Window? = null): RestoreButton {
+        return RestoreButton(mainBibleActivity, window?.screenNo).apply {
             this.text = text
             width = BUTTON_SIZE_PX
             height = BUTTON_SIZE_PX
@@ -569,7 +577,7 @@ class DocumentWebViewBuilder @Inject constructor(
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                setBackgroundResource(if (maximisedWindow) R.drawable.window_button_active
+                setBackgroundResource(if (window?.isMaximised ?: false) R.drawable.window_button_active
                 else R.drawable.window_button)
             }
         }
@@ -618,6 +626,8 @@ class DocumentWebViewBuilder @Inject constructor(
         val tag = parent.tag
         return tag != null && tag == TAG
     }
+
+    private class RestoreButton(context: Context, val screenNo: Int?): Button(context)
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"
