@@ -38,6 +38,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatButton
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -627,7 +628,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return tag != null && tag == TAG
     }
 
-    private class RestoreButton(context: Context, val screenNo: Int?): Button(context)
+    private class RestoreButton(context: Context, val screenNo: Int?): AppCompatButton(context)
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"
