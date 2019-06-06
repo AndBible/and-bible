@@ -928,6 +928,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text1, endsWith("Tulet tietämään, että minä olen Jahve."))
     }
 
+    @Ignore("Until ESV comes back")
     @Config(qualifiers="en")
     @Test
     fun textProgressionESV() {
