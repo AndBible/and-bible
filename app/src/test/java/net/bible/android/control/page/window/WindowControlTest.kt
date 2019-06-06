@@ -42,6 +42,7 @@ import org.hamcrest.Matchers.hasItem
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.isA
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
@@ -116,6 +117,7 @@ class WindowControlTest {
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testShowLinkUsingDefaultBible() {
@@ -140,6 +142,7 @@ class WindowControlTest {
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testAddNewWindow() {

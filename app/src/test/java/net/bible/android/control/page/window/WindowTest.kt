@@ -23,6 +23,7 @@ import robolectric.MyRobolectricTestRunner
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 import org.mockito.Mockito.mock
 
 @RunWith(MyRobolectricTestRunner::class)
@@ -40,6 +41,7 @@ class WindowTest {
         DatabaseResetter.resetDatabase()
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testGetRestoreStateJson() {

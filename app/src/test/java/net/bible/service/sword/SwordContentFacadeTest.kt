@@ -25,6 +25,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 
 @RunWith(MyRobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
@@ -43,6 +44,7 @@ class SwordContentFacadeTest {
         DatabaseResetter.resetDatabase()
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testReadFragment() {
@@ -53,6 +55,7 @@ class SwordContentFacadeTest {
         assertThat(html, not(containsString("<html")))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testReadWordsOfChrist() {
@@ -63,6 +66,7 @@ class SwordContentFacadeTest {
         assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testReadCanonicalText() {
@@ -78,6 +82,7 @@ class SwordContentFacadeTest {
         return verse.getVerseAt(0)
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     fun testReadEsvIssue141a() {
         val esv = getBook("ESV2011")
@@ -91,6 +96,7 @@ class SwordContentFacadeTest {
         assertThat(html, not(equalTo("broken")))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     fun testReadEsvIssue141b_18_11() {
         val esv = getBook("ESV2011")
@@ -105,6 +111,7 @@ class SwordContentFacadeTest {
         assertThat(html, not(equalTo("broken")))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     fun testReadEsvIssue141b() {
         val esv = getBook("ESV2011")
