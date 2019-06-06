@@ -345,6 +345,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(11))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     fun testTitleEsv() {
         book = Books.installed().getBook("ESV2011") as SwordBook
@@ -395,6 +396,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(3))
     }
 
+    @Ignore("Until ESV comes back")
     @Test
     fun testParagraphChangeESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
@@ -941,6 +943,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range1, equalTo("Ezek.34.27"))
     }
 
+    @Ignore("Until ESV comes back")
     @Config(qualifiers="en")
     @Test
     fun textProgression2ESV() {
@@ -952,6 +955,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text1, startsWith("Thus says the Lord Yahweh: Because the enemy said of you, Aha! and, The ancient heights have become our possession,"))
     }
 
+    @Ignore("Until ESV comes back")
     @Config(qualifiers="en")
     @Test
     fun textProgression3ESV() {
@@ -963,6 +967,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text1, startsWith("The Yahweh's Concern for His Holy Name"))
     }
 
+    @Ignore("Until ESV comes back")
     @Config(qualifiers="en")
     @Test
     fun textProgressionAndRepeatPassageESV() {
