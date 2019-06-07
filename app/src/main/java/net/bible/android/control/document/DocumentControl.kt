@@ -22,8 +22,10 @@ import android.util.Log
 
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.ConvertibleVerse
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
@@ -47,7 +49,8 @@ import javax.inject.Inject
 @ApplicationScope
 class DocumentControl @Inject constructor(
         private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-        private val swordDocumentFacade: SwordDocumentFacade)
+        private val swordDocumentFacade: SwordDocumentFacade,
+        private val windowControl: WindowControl)
 {
 
     /**
@@ -155,6 +158,15 @@ class DocumentControl @Inject constructor(
      */
     fun changeDocument(newDocument: Book) {
         activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocument(newDocument)
+    }
+
+    fun checkIfAnyPageDocumentsDeleted() {
+        windowControl.windowRepository.windows.filter {
+            !it.pageManager.currentBible.checkCurrentDocumentStillInstalled()
+        }.forEach {
+            it.pageManager.currentBible.currentDocument
+            PassageChangeMediator.getInstance().onCurrentPageChanged(it)
+        }
     }
 
     fun enableManualInstallFolder() {

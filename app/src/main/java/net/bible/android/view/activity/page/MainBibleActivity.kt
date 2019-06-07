@@ -292,7 +292,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
 
             override fun onLongPress(e: MotionEvent?) {
-                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), ActivityBase.STD_REQUEST_CODE)
+                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             }
 
             override fun onSingleTapUp(e: MotionEvent?): Boolean {
@@ -1096,7 +1096,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
-                // return from download documents. Do nothing
+                documentControl.checkIfAnyPageDocumentsDeleted()
                 return
             }
             else -> throw RuntimeException("Unhandled request code $requestCode")

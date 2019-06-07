@@ -106,7 +106,7 @@ constructor(private val callingActivity: MainBibleActivity,
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
                     val intent = Intent(callingActivity, ChooseDocument::class.java)
-                    callingActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                    callingActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
                 }
                 R.id.rateButton -> {
                     val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
