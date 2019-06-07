@@ -164,7 +164,6 @@ class DocumentControl @Inject constructor(
         windowControl.windowRepository.windows.filter {
             !it.pageManager.currentBible.checkCurrentDocumentStillInstalled()
         }.forEach {
-            it.pageManager.currentBible.currentDocument
             PassageChangeMediator.getInstance().onCurrentPageChanged(it)
         }
     }
