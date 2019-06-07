@@ -119,7 +119,7 @@ constructor(private val windowControl: WindowControl) {
                 if(window != null) {
                     val stack = Stack<HistoryItem>()
                     for (itm in historyItems) {
-                        val doc = Books.installed().getBook(itm.document) as Book
+                        val doc = Books.installed().getBook(itm.document) ?: continue
                         val key = doc.getKey(itm.key)
                         stack.add(KeyHistoryItem(doc, key, itm.yOffsetRatio, window))
                     }
