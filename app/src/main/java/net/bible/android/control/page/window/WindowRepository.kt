@@ -182,7 +182,7 @@ open class WindowRepository @Inject constructor(
                 activeWindow = lastScreen
             }
         }
-        if (!wasMaximized && !window.isVisible) activeWindow = getDefaultActiveWindow()
+        if (!wasMaximized) activeWindow = getDefaultActiveWindow()
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
