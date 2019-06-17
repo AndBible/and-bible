@@ -59,6 +59,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.xml.sax.ContentHandler;
@@ -243,17 +244,15 @@ public class SwordContentFacade {
     	}
     }
 
-	public String getTextWithVerseNumbers(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+	public String getTextWithVerseNumbers(Book book, VerseRange verseRange) throws NoSuchKeyException, BookException, ParseException {
 		try {
-			BookData data = new BookData(book, key);
+			BookData data = new BookData(book, verseRange);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 
-			ContentHandler osisHandler =
-					new OsisToCopyTextSaxHandler(
-							key.getOsisID().trim().contains(" ") &&
-									CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_verseno_pref", true)
-					);
+			boolean showVerseNumbers = verseRange.toVerseArray().length > 1 &&
+					CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_verseno_pref", true);
 
+			ContentHandler osisHandler = new OsisToCopyTextSaxHandler(showVerseNumbers);
 			osissep.provideSAXEvents(osisHandler);
 
 			return osisHandler.toString();
