@@ -30,6 +30,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
@@ -383,7 +384,7 @@ open class WindowControl @Inject constructor(
         this.isSeparatorMoving = isSeparatorMoving
 
         val isMoveFinished = !isSeparatorMoving
-        if (isMoveFinished) {
+        if (isMoveFinished && !CommonUtils.isSplitVertically) {
             windowSync.setResynchRequired(true)
         }
 
