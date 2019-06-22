@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager.NameNotFoundException
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
@@ -101,6 +102,13 @@ object CommonUtils {
 
     val isNougatPlus: Boolean
         get() = Build.VERSION.SDK_INT >= 24
+
+    val isSplitVertically: Boolean get() {
+        val reverse = sharedPreferences.getBoolean("reverse_split_mode_pref", false)
+        return if(reverse) !isPortrait else isPortrait
+    }
+
+    val isPortrait get() = BibleApplication.application.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
     val sdCardMegsFree: Long
         get() {

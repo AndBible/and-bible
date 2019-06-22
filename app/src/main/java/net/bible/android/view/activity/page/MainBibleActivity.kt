@@ -138,7 +138,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var transportBarHeight = 0.0F
 
     private var hasHwKeys: Boolean = false
-    private val bottomNavBarVisible get() = isPortrait && !hasHwKeys
+    private val bottomNavBarVisible get() = CommonUtils.isPortrait && !hasHwKeys
     private val rightNavBarVisible get() = false
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
@@ -162,7 +162,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     // Bottom offset with only navigation bar
     val bottomOffset1 get() =
-            if (isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
+            if (CommonUtils.isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
@@ -906,7 +906,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             or View.SYSTEM_UI_FLAG_FULLSCREEN)
 
         // only hide navigation bar in portrait mode
-        if (isPortrait)
+        if (CommonUtils.isPortrait)
             uiFlags = (uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
 
@@ -917,7 +917,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
         // only need to un-hide navigation bar in portrait mode
-        if (isPortrait)
+        if (CommonUtils.isPortrait)
             uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 
         window.decorView.systemUiVisibility = uiFlags
@@ -1036,11 +1036,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             hideSystemUI()
         else
             showSystemUI()
-    }
-
-    val isSplitVertically: Boolean get() {
-        val reverse = CommonUtils.sharedPreferences.getBoolean("reverse_split_mode_pref", false)
-        return if(reverse) !isPortrait else isPortrait
     }
 
     class ConfigurationChanged

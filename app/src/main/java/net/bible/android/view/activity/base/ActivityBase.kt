@@ -58,7 +58,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     protected open var nightTheme = R.style.AppThemeNight
     protected open var dayTheme = R.style.AppThemeDay
-    val isPortrait get() = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
 
     /** Called when the activity is first created.  */
