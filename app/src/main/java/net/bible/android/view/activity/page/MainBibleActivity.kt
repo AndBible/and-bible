@@ -572,12 +572,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             val windows = windowRepositoryState.getJSONArray("windowState")
             val name = windowRepositoryState.optString("name")
             val keyTitle = ArrayList<String>()
+            val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
                 keyTitle.add(pageManager.currentPage.singleKey.name)
             }
-            BookName.setFullBookName(true)
+            BookName.setFullBookName(prevFullBookNameValue)
             val text = if(!name.isEmpty())
                 getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
             else
