@@ -36,6 +36,7 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
@@ -261,7 +262,14 @@ class DocumentWebViewBuilder @Inject constructor(
             // Display minimised screens
             restoreButtons.clear()
 
-            minimisedWindowsFrameContainer = LinearLayout(mainBibleActivity)
+            val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
+            minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
+                addView(minimisedWindowsLayout,
+                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
+                )
+            }
+
             currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
                             Gravity.BOTTOM or Gravity.RIGHT))
@@ -273,16 +281,22 @@ class DocumentWebViewBuilder @Inject constructor(
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minAndMaxScreens[i])
                 restoreButtons.add(restoreButton)
-                minimisedWindowsFrameContainer.addView(restoreButton,
+                minimisedWindowsLayout.addView(restoreButton,
                         LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
             }
             if (windowControl.windowRepository.isMaximisedState) {
                 val maximizedWindow = windowControl.windowRepository.maximisedScreens[0]
                 val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
                 restoreButtons.add(unMaximizeButton)
-                minimisedWindowsFrameContainer.addView(unMaximizeButton,
+                minimisedWindowsLayout.addView(unMaximizeButton,
                     LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
             }
+
+            // Make sure "unmaximise" button on right is visible
+            // Delay must be called for fullScroll that it gets done
+            minimisedWindowsFrameContainer.postDelayed({
+                minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+            }, 50L)
 
             previousParent = parent
             isLaidOutWithHorizontalSplit = isSplitHorizontally
@@ -294,7 +308,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private val windowButtons: MutableList<Button> = ArrayList()
     private val restoreButtons: MutableList<RestoreButton> = ArrayList()
-    private lateinit var minimisedWindowsFrameContainer: LinearLayout
+    private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
     private lateinit var bibleReferenceOverlay: TextView
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
