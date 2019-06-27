@@ -271,7 +271,7 @@ open class WindowControl @Inject constructor(
 
     fun closeWindow(window: Window) {
 
-        if (isWindowRemovable(activeWindow)) {
+        if (isWindowRemovable(window)) {
             logger.debug("Closing window " + window.screenNo)
             windowRepository.close(window)
 
