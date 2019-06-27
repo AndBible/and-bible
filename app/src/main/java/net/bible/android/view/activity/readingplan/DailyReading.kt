@@ -36,6 +36,7 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
+import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.OneDaysReadingsDto
 
 import org.crosswire.jsword.versification.BookName
@@ -94,7 +95,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             // show short book name to save space if Portrait
             val fullBookNameSave = BookName.isFullBookName()
-            BookName.setFullBookName(!isPortrait)
+            BookName.setFullBookName(!CommonUtils.isPortrait)
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
             for (i in 0 until mReadings.numReadings) {

@@ -54,6 +54,7 @@ import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import java.util.*
 
 import javax.inject.Inject
@@ -142,7 +143,7 @@ class DocumentWebViewBuilder @Inject constructor(
     fun addWebView(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
-        val isSplitHorizontally = mainBibleActivity.isSplitVertically
+        val isSplitHorizontally = CommonUtils.isSplitVertically
 
         if (!isWebView ||
                 isWindowConfigurationChanged ||
@@ -373,7 +374,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     translationY(
                         if (isSingleWindow) -mainBibleActivity.bottomOffset2
                         else (
-                            if(mainBibleActivity.isSplitVertically) {
+                            if(CommonUtils.isSplitVertically) {
                                 if(idx == 0 && !windowControl.windowRepository.isMaximisedState)
                                     mainBibleActivity.topOffset2
                                 else 0.0F

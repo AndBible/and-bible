@@ -478,7 +478,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     val isTopWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstWindow == window
+        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstWindow == window
             || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
     private val toolbarOffset
         get() =
@@ -496,7 +496,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // when move finished the verse positions will have changed if in Landscape so recalc positions
         val isMoveFinished = event.isFinished
-        if (isMoveFinished && isScreenVerse && !mainBibleActivity.isSplitVertically) {
+        if (isMoveFinished && isScreenVerse && !CommonUtils.isSplitVertically) {
             val chapterVerse = event.getChapterVerse(window)
             jumpToChapterVerse = chapterVerse
 
