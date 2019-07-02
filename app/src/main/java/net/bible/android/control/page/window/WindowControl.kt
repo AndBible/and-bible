@@ -279,6 +279,9 @@ open class WindowControl @Inject constructor(
             logger.debug("Closing window " + window.screenNo)
             windowRepository.close(window)
 
+            val visibleWindows = windowRepository.visibleWindows
+            if (visibleWindows.count() == 1) visibleWindows[0].windowLayout.weight = 1.0F
+
             // redisplay the current page
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
             if (!activeWindow.initialized)
