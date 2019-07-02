@@ -49,13 +49,13 @@ class ReadingPlanItemAdapter(_context: Context, private val resource: Int, _item
 
         // Set value for the first text field
         if (view.text1 != null) {
-            val text = item!!.code
+            val text = item!!.planName
             view.text1.text = text
         }
 
         // set value for the second text field
         if (view.text2 != null) {
-            val text = item!!.description
+            val text = item!!.planDescription
             view.text2.text = text
         }
 

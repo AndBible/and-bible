@@ -88,7 +88,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             mReadings = readingPlanControl.getDaysReading(mDay)
 
             // Populate view
-            description.text = mReadings.readingPlanInfo.description
+            description.text = mReadings.readingPlanInfo.planName
 
             // date display
             day.text = mReadings.dayDesc

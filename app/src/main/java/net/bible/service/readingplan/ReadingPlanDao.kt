@@ -22,6 +22,7 @@ import android.util.Log
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
+import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.service.common.AndRuntimeException
 
 import org.apache.commons.lang3.StringUtils
@@ -163,17 +164,21 @@ class ReadingPlanDao {
     private fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
         Log.d(TAG, "Get reading plan info:$planCode")
         val info = ReadingPlanInfoDto(planCode)
-        val id = BibleApplication.application.resources.getIdentifier("rdg_plan_$planCode", "string", "net.bible.android.activity")
-        var desc = ""
-        if (id != 0) {
-            desc = BibleApplication.application.resources.getString(id)
-        }
-        info.setTitle(desc)
 
+        info.planName = getPlanName(planCode)
+        info.planDescription = getPlanDescription(planCode)
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
         info.versification = getReadingPlanVersification(planCode)
 
         return info
+    }
+
+    private fun getPlanName(planCode: String): String {
+        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planName ?: ""
+    }
+
+    private fun getPlanDescription(planCode: String): String {
+        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription ?: ""
     }
 
     private fun getReadingPlanCodes(files: Array<String>): List<String> {
