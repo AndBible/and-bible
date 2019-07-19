@@ -76,7 +76,7 @@
   <string name="rdg_plan_title">読書計画</string>
   <string name="rdg_plan_selector_title">読書計画を選択</string>
   <string name="rdg_plan_day">%s 日</string>
-  <string name="rdg_plan_set_start_jan1">1月1日をスタート</string>
+  <string name="rdg_plan_set_start_date">1月1日をスタート</string>
   <string name="done">完了</string>
   <string name="reset">リセット</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

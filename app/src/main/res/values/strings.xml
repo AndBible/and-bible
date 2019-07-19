@@ -190,7 +190,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
-    <string name="rdg_plan_set_start_jan1">Start Jan 1</string>
+    <string name="rdg_plan_set_start_date">Set Start Date...</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
     <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->

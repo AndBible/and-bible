@@ -134,7 +134,7 @@
   <string name="rdg_plan_title">O\'qish Rejasi</string>
   <string name="rdg_plan_selector_title">O\'qish Rejasini tanlang</string>
   <string name="rdg_plan_day">Kun %s</string>
-  <string name="rdg_plan_set_start_jan1">1-Janvardan boshla</string>
+  <string name="rdg_plan_set_start_date">1-Janvardan boshla</string>
   <string name="done">Tugadi</string>
   <string name="reset">Ilk holatga qaytarish</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

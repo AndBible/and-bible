@@ -109,7 +109,7 @@
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
   <string name="rdg_plan_day">%s. Gün</string>
-  <string name="rdg_plan_set_start_jan1">1 Ocakta Başlat</string>
+  <string name="rdg_plan_set_start_date">1 Ocakta Başlat</string>
   <string name="done">Bitti</string>
   <string name="reset">Sıfırla</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

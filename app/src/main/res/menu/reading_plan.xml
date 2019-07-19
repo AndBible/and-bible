@@ -7,8 +7,8 @@
 	<item android:id="@+id/done" 
 		  android:title="@string/done"
 		  android:icon="@drawable/btn_check_buttonless_on"/>
-    <item android:id="@+id/setStartToJan1" 
-		  android:title="@string/rdg_plan_set_start_jan1"
+    <item android:id="@+id/setStartDate"
+		  android:title="@string/rdg_plan_set_start_date"
 		  android:icon="@android:drawable/ic_menu_day"/>
 	<item android:id="@+id/reset" 
 		  android:title="@string/reset"

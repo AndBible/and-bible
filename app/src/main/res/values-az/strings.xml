@@ -131,7 +131,7 @@ səhifələrdən yüklənilir</string>
   <string name="rdg_plan_title">Oxumaq planı</string>
   <string name="rdg_plan_selector_title">Oxumaq planını seçin</string>
   <string name="rdg_plan_day">%s Gün</string>
-  <string name="rdg_plan_set_start_jan1">1 Yanvardan başla</string>
+  <string name="rdg_plan_set_start_date">1 Yanvardan başla</string>
   <string name="done">Bitdi</string>
   <string name="reset">Sıfırdan başla</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

@@ -158,7 +158,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
-  <string name="rdg_plan_set_start_jan1">Pradžia Sausio 1</string>
+  <string name="rdg_plan_set_start_date">Pradžia Sausio 1</string>
   <string name="done">Atlikta</string>
   <string name="reset">Perstatyti</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

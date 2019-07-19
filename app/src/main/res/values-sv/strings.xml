@@ -107,7 +107,7 @@
   <string name="rdg_plan_title">Läsningsplan</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_jan1">Börja 1 jan</string>
+  <string name="rdg_plan_set_start_date">Börja 1 jan</string>
   <string name="done">Färdig</string>
   <string name="reset">Återställ</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
