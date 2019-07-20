@@ -20,6 +20,7 @@ package net.bible.android.view.activity.readingplan
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -42,6 +43,7 @@ import net.bible.service.readingplan.OneDaysReadingsDto
 import org.crosswire.jsword.versification.BookName
 
 import java.util.ArrayList
+import java.util.Calendar
 
 import javax.inject.Inject
 
@@ -327,15 +329,29 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 finish()
                 isHandled = true
             }
-            R.id.setStartToJan1 -> {
-                readingPlanControl.setStartToJan1(mReadings.readingPlanInfo)
+            R.id.setStartDate -> {
 
-                // refetch readings for chosen day
-                mReadings = readingPlanControl.getDaysReading(mDay)
+                val nowTime = Calendar.getInstance()
+                val planStartDate = Calendar.getInstance()
+                planStartDate.time = mReadings.readingPlanInfo.startdate ?: nowTime.time
+                val yearSet = planStartDate.get(Calendar.YEAR)
+                val monthSet = planStartDate.get(Calendar.MONTH)
+                val daySet = planStartDate.get(Calendar.DAY_OF_MONTH)
 
-                // update date and day no
-                date.text = mReadings.readingDateString
-                day.text = mReadings.dayDesc
+                val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener {
+                    _, year, month, day_ ->
+                    planStartDate.set(year, month, day_)
+                    readingPlanControl.setStartDate(mReadings.readingPlanInfo, planStartDate.time)
+
+                    // refetch readings for chosen day
+                    mReadings = readingPlanControl.getDaysReading(mDay)
+
+                    // update date and day no
+                    date.text = mReadings.readingDateString
+                    day.text = mReadings.dayDesc
+                }, yearSet, monthSet, daySet)
+                datePicker.datePicker.maxDate = nowTime.timeInMillis
+                datePicker.show()
 
                 isHandled = true
             }
