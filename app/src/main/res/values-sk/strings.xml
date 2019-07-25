@@ -156,7 +156,7 @@ Dlhé stlačenie tlačíta \"Späť\" otvorí Históriu.</string>
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>
   <string name="rdg_plan_day">Deň %s</string>
-  <string name="rdg_plan_set_start_date">Začiatok 1. Januára</string>
+  <string name="rdg_plan_set_start_jan1">Začiatok 1. Januára</string>
   <string name="done">Hotovo</string>
   <string name="reset">Znovu nastaviť</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

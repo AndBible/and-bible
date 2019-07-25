@@ -161,7 +161,7 @@
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>
   <string name="rdg_plan_day">Den %s</string>
-  <string name="rdg_plan_set_start_date">Začátek 1 Led</string>
+  <string name="rdg_plan_set_start_jan1">Začátek 1 Led</string>
   <string name="done">Hotovo</string>
   <string name="reset">Resetovat</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

@@ -155,7 +155,7 @@
   <string name="rdg_plan_title">Leesplan</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_date">Beginnen op 1 jan</string>
+  <string name="rdg_plan_set_start_jan1">Beginnen op 1 jan</string>
   <string name="done">Klaar</string>
   <string name="reset">Standaardwaarden</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

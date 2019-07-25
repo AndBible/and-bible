@@ -159,7 +159,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_date">Begin Jan 1</string>
+  <string name="rdg_plan_set_start_jan1">Begin Jan 1</string>
   <string name="done">Klaar</string>
   <string name="reset">Herstel</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

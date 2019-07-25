@@ -110,7 +110,7 @@
   <string name="rdg_plan_title">വായന പദ്ധതി</string>
   <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കുക</string>
   <string name="rdg_plan_day">ദിവസം %s</string>
-  <string name="rdg_plan_set_start_date">ജനു 1 തുടങ്ങു</string>
+  <string name="rdg_plan_set_start_jan1">ജനു 1 തുടങ്ങു</string>
   <string name="done">കഴിഞ്ഞു</string>
   <string name="reset">പുനഃരാരംഭിക്കൂ</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

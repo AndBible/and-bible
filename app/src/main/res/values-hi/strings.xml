@@ -90,7 +90,7 @@
   <string name="rdg_plan_title">पठन-योजना</string>
   <string name="rdg_plan_selector_title">एक पठन-योजना चुनें</string>
   <string name="rdg_plan_day">दिवस %s</string>
-  <string name="rdg_plan_set_start_date">आरंभ - जनवरी 1</string>
+  <string name="rdg_plan_set_start_jan1">आरंभ - जनवरी 1</string>
   <string name="done">समाप्त</string>
   <string name="reset"> पुनः तैयार करना</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

@@ -120,7 +120,7 @@
   <string name="rdg_plan_title">Mpangilio wa kusoma Biblia</string>
   <string name="rdg_plan_selector_title">Chagua mpangilio wa kusoma Biblia</string>
   <string name="rdg_plan_day">Siku ya %s</string>
-  <string name="rdg_plan_set_start_date">Anza Siku ya 1 mwezi wa 1</string>
+  <string name="rdg_plan_set_start_jan1">Anza Siku ya 1 mwezi wa 1</string>
   <string name="done">Tayari</string>
   <string name="reset">Tuweke upya</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

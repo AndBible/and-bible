@@ -91,7 +91,7 @@
   <string name="rdg_plan_title">แผนการอ่าน</string>
   <string name="rdg_plan_selector_title">เลือกแผนการอ่าน</string>
   <string name="rdg_plan_day">วันที่ %s</string>
-  <string name="rdg_plan_set_start_date">เริ่ม 1 มกราคม</string>
+  <string name="rdg_plan_set_start_jan1">เริ่ม 1 มกราคม</string>
   <string name="done">เสร็จ</string>
   <string name="reset">ค่าเริ่มต้น</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

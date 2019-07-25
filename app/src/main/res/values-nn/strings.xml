@@ -109,7 +109,7 @@
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Vel leseplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_date">Ta til 1. januar</string>
+  <string name="rdg_plan_set_start_jan1">Ta til 1. januar</string>
   <string name="done">Fullført</string>
   <string name="reset">Tilbakestill</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

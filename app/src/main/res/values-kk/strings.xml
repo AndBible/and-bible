@@ -121,7 +121,7 @@
   <string name="rdg_plan_title">Оқу жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
-  <string name="rdg_plan_set_start_date">Бастау Қантар 1</string>
+  <string name="rdg_plan_set_start_jan1">Бастау Қантар 1</string>
   <string name="done">Орындалды</string>
   <string name="reset">Қайта бастау</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

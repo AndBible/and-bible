@@ -160,7 +160,7 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="rdg_plan_title">Načrt branja</string>
   <string name="rdg_plan_selector_title">Izberite Načrt branja</string>
   <string name="rdg_plan_day">Dan %s</string>
-  <string name="rdg_plan_set_start_date">Pričetek 1. Jan</string>
+  <string name="rdg_plan_set_start_jan1">Pričetek 1. Jan</string>
   <string name="done">Končano</string>
   <string name="reset">Reset</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

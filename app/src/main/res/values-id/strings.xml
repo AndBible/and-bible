@@ -157,7 +157,7 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="rdg_plan_title">Rencana Bacaan</string>
   <string name="rdg_plan_selector_title">Pilih Rencana Bacaan</string>
   <string name="rdg_plan_day">Hari %s</string>
-  <string name="rdg_plan_set_start_date">Mulai 1 Jan</string>
+  <string name="rdg_plan_set_start_jan1">Mulai 1 Jan</string>
   <string name="done">Selesai</string>
   <string name="reset">Atur Ulang</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

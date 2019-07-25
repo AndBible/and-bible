@@ -147,7 +147,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>
   <string name="rdg_plan_day">Päivä %s</string>
-  <string name="rdg_plan_set_start_date">Aloita vuoden alusta</string>
+  <string name="rdg_plan_set_start_jan1">Aloita vuoden alusta</string>
   <string name="done">Valmis</string>
   <string name="reset">Tyhjennä</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

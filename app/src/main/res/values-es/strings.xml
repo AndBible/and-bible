@@ -144,7 +144,7 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
   <string name="rdg_plan_day">Día %s</string>
-  <string name="rdg_plan_set_start_date">Empezar 1 de Ene</string>
+  <string name="rdg_plan_set_start_jan1">Empezar 1 de Ene</string>
   <string name="done">Hecho</string>
   <string name="reset">Resetea</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

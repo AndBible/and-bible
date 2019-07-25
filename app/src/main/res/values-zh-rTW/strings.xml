@@ -158,7 +158,7 @@
   <string name="rdg_plan_title">閱讀計劃</string>
   <string name="rdg_plan_selector_title">選擇閱讀計劃</string>
   <string name="rdg_plan_day">第 %s 天</string>
-  <string name="rdg_plan_set_start_date">從1月1日開始</string>
+  <string name="rdg_plan_set_start_jan1">從1月1日開始</string>
   <string name="done">完成</string>
   <string name="reset">重設</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
