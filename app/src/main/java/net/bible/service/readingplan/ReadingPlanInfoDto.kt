@@ -30,8 +30,8 @@ import java.util.Date
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanInfoDto(var code: String) {
-    var description: String? = null
-        private set
+    var planName: String? = null
+    var planDescription: String? = null
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
 
@@ -86,11 +86,7 @@ class ReadingPlanInfoDto(var code: String) {
     }
 
     override fun toString(): String {
-        return "$description"
-    }
-
-    fun setTitle(description: String) {
-        this.description = description
+        return "$planName"
     }
 
     companion object {
