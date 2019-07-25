@@ -156,7 +156,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
-  <string name="rdg_plan_set_start_jan1">Commence le 1 Jan</string>
+  <string name="rdg_plan_set_start_date">Commence le 1 Jan</string>
   <string name="done">Fait</string>
   <string name="reset">Réinitialiser</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

@@ -155,7 +155,7 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
-  <string name="rdg_plan_set_start_jan1">Start 1. 1.</string>
+  <string name="rdg_plan_set_start_date">Start 1. 1.</string>
   <string name="done">Fertig</string>
   <string name="reset">Zurücksetzen</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

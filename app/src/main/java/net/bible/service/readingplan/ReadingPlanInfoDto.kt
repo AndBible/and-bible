@@ -54,10 +54,8 @@ class ReadingPlanInfoDto(var code: String) {
         startOn(CommonUtils.truncatedDate, false)
     }
 
-    fun setStartToJan1() {
-        val jan1 = DateUtils.truncate(Date(), Calendar.YEAR)
-
-        startOn(jan1, true)
+    fun setStartDate(startDate: Date) {
+        startOn(startDate, true)
     }
 
     private fun startOn(date: Date, force: Boolean) {

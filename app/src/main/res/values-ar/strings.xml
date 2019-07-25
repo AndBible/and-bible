@@ -90,7 +90,7 @@
   <string name="rdg_plan_title">خطة القراءة</string>
   <string name="rdg_plan_selector_title">اختيار خطة القراءة</string>
   <string name="rdg_plan_day">يوم %s</string>
-  <string name="rdg_plan_set_start_jan1">بداية من 1 يناير</string>
+  <string name="rdg_plan_set_start_date">بداية من 1 يناير</string>
   <string name="done">تم</string>
   <string name="reset">اعادة تهيئة</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

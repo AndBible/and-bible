@@ -119,7 +119,7 @@
   <string name="rdg_plan_title">Lugemiskava</string>
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
   <string name="rdg_plan_day">Päev %s</string>
-  <string name="rdg_plan_set_start_jan1">Alusta 1. jaanuariga</string>
+  <string name="rdg_plan_set_start_date">Alusta 1. jaanuariga</string>
   <string name="done">Valmis</string>
   <string name="reset">Nulli</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

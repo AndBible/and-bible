@@ -110,7 +110,7 @@
   <string name="rdg_plan_title">Плян чытаньня</string>
   <string name="rdg_plan_selector_title">Выбраць плян чытаньня</string>
   <string name="rdg_plan_day">Дзень %s</string>
-  <string name="rdg_plan_set_start_jan1">Пачатак Ян 1</string>
+  <string name="rdg_plan_set_start_date">Пачатак Ян 1</string>
   <string name="done">Скончыць</string>
   <string name="reset">Скінуць</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

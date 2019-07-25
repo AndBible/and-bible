@@ -93,7 +93,7 @@
   <string name="rdg_plan_title">చదవడానికి ప్రణాళిక</string>
   <string name="rdg_plan_selector_title">చదవడానికి ప్రణాళిక ఎంపిక చేసుకోవడం</string>
   <string name="rdg_plan_day">రోజు %s</string>
-  <string name="rdg_plan_set_start_jan1">జనవరి 1వ తేది ప్రారంభం</string>
+  <string name="rdg_plan_set_start_date">జనవరి 1వ తేది ప్రారంభం</string>
   <string name="done">పూర్తి అయింది</string>
   <string name="reset">మళ్లీ సెట్ చేయడం</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

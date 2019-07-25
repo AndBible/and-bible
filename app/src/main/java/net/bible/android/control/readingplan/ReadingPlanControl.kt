@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 
 import java.util.ArrayList
+import java.util.Date
 
 import javax.inject.Inject
 
@@ -115,11 +116,11 @@ class ReadingPlanControl @Inject constructor(
         plan.start()
     }
 
-    /** Adjust the start date to Jan 1
+    /** Adjust the plan start date
      */
-    fun setStartToJan1(plan: ReadingPlanInfoDto) {
+    fun setStartDate(plan: ReadingPlanInfoDto, startDate: Date) {
         // tell the plan to set a start date
-        plan.setStartToJan1()
+        plan.setStartDate(startDate)
     }
 
     /** change default plan

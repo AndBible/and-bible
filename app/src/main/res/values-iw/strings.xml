@@ -119,7 +119,7 @@
   <string name="rdg_plan_title">תוכנית קריאה</string>
   <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>
   <string name="rdg_plan_day">יום %s</string>
-  <string name="rdg_plan_set_start_jan1">התחל 1 בינואר</string>
+  <string name="rdg_plan_set_start_date">התחל 1 בינואר</string>
   <string name="done">סיום</string>
   <string name="reset">איפוס</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

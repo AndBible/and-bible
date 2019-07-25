@@ -156,7 +156,7 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
-  <string name="rdg_plan_set_start_jan1">Eki je jan 1-a</string>
+  <string name="rdg_plan_set_start_date">Eki je jan 1-a</string>
   <string name="done">Farita</string>
   <string name="reset">Reagordi</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->

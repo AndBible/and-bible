@@ -106,7 +106,7 @@
   <string name="rdg_plan_title">Окуу планы</string>
   <string name="rdg_plan_selector_title">Окуу планын тандоо</string>
   <string name="rdg_plan_day">%s күн</string>
-  <string name="rdg_plan_set_start_jan1">1 январдан</string>
+  <string name="rdg_plan_set_start_date">1 январдан</string>
   <string name="done">Аткарылды</string>
   <string name="reset">Планды алмаштыруу</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
