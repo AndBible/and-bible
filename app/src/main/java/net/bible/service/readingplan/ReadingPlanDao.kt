@@ -174,7 +174,7 @@ class ReadingPlanDao {
     }
 
     private fun getPlanName(planCode: String): String {
-        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planName ?: ""
+        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planName ?: planCode
     }
 
     private fun getPlanDescription(planCode: String): String {
