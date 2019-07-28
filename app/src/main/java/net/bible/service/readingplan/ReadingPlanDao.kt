@@ -32,6 +32,8 @@ import org.crosswire.jsword.versification.system.SystemKJV
 import org.crosswire.jsword.versification.system.SystemNRSVA
 import org.crosswire.jsword.versification.system.Versifications
 
+import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -43,9 +45,7 @@ import java.util.Properties
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ReadingPlanDao {
-
-    private var cachedPlanCode = ""
-    private var cachedPlanProperties: Properties? = null
+    private var cachedPlanProperties: ReadingPlanProperties? = null
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {
@@ -126,9 +126,16 @@ class ReadingPlanDao {
     /** get last day number - there may be missed days so cannot simply do props.size()
      */
     fun getNumberOfPlanDays(planCode: String): Int {
+        if (cachedPlanProperties != null && cachedPlanProperties?.planCode == planCode)
+            return cachedPlanProperties?.numberOfPlanDays ?: 0
+
+        return getNumberOfPlanDays(getPlanProperties(planCode))
+    }
+
+    private fun getNumberOfPlanDays(properties: ReadingPlanProperties): Int {
         var maxDayNo = 0
 
-        for (oDayNo in getPlanProperties(planCode).keys) {
+        for (oDayNo in properties.keys) {
             val dayNoStr = oDayNo as String
             if (StringUtils.isNumeric(dayNoStr)) {
                 val dayNo = Integer.parseInt(dayNoStr)
@@ -149,12 +156,19 @@ class ReadingPlanDao {
      * If specified Versification is not found then use NRSVA because it includes most books possible
      */
     private fun getReadingPlanVersification(planCode: String): Versification {
+        if (cachedPlanProperties != null && cachedPlanProperties?.planCode == planCode)
+            return cachedPlanProperties?.versification!!
+
+        return getReadingPlanVersification(getPlanProperties(planCode))
+    }
+
+    private fun getReadingPlanVersification(properties: ReadingPlanProperties): Versification {
         var versification: Versification
         try {
-            val versificationName = getPlanProperties(planCode).getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
+            val versificationName = properties.getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
             versification = Versifications.instance().getVersification(versificationName)
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading versification from Reading plan:$planCode")
+            Log.e(TAG, "Error loading versification from Reading plan:${properties.planCode}")
             versification = Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
         }
 
@@ -174,11 +188,13 @@ class ReadingPlanDao {
     }
 
     private fun getPlanName(planCode: String): String {
-        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planName ?: planCode
+        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode }?.planName
+            ?: getPlanProperties(planCode).planName ?: planCode
     }
 
     private fun getPlanDescription(planCode: String): String {
-        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription ?: ""
+        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription
+            ?: getPlanProperties(planCode).planDescription ?: ""
     }
 
     private fun getReadingPlanCodes(files: Array<String>): List<String> {
@@ -196,41 +212,78 @@ class ReadingPlanDao {
     /* either load reading plan info from assets/readingplan or sdcard/jsword/readingplan
 	 */
     @Synchronized
-    private fun getPlanProperties(planCode: String): Properties {
-        if (planCode != cachedPlanCode) {
+    private fun getPlanProperties(planCode: String): ReadingPlanProperties {
+        if (planCode != cachedPlanProperties?.planCode) {
             val resources = BibleApplication.application.resources
             val assetManager = resources.assets
             val filename = planCode + DOT_PROPERTIES
 
             // Read from the /assets directory
-            val properties = Properties()
-            var inputStream: InputStream? = null
+            val properties = ReadingPlanProperties()
+            var inputStreamRaw: InputStream? = null
             try {
                 // check to see if a user has created his own reading plan with this name
                 val userReadingPlanFile = File(USER_READING_PLAN_FOLDER, filename)
                 val isUserPlan = userReadingPlanFile.exists()
 
                 if (!isUserPlan) {
-                    inputStream = assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
+                    inputStreamRaw = assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
                 } else {
-                    inputStream = FileInputStream(userReadingPlanFile)
+                    inputStreamRaw = FileInputStream(userReadingPlanFile)
                 }
-                properties.load(inputStream)
+
+                val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw?.readBytes())}
+                properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
+                properties.planCode = planCode
+                properties.numberOfPlanDays = getNumberOfPlanDays(properties)
+                properties.versification = getReadingPlanVersification(properties)
+                getNameAndDescFromProperties(ByteArrayInputStream(byteArrayForReuse.toByteArray()), properties)
+
                 Log.d(TAG, "The properties are now loaded")
                 Log.d(TAG, "properties: $properties")
 
                 // cache it so we don't constantly reload the properties
-                cachedPlanCode = planCode
                 cachedPlanProperties = properties
 
             } catch (e: IOException) {
                 System.err.println("Failed to open reading plan property file")
                 e.printStackTrace()
             } finally {
-                IOUtil.close(inputStream)
+                IOUtil.close(inputStreamRaw)
             }
         }
         return cachedPlanProperties!!
+    }
+
+    private fun getNameAndDescFromProperties(inputStream: InputStream, properties: ReadingPlanProperties) {
+        var lineCount = 0
+        var loopCount = 0
+        // Get first commented lines from file for Plan Name (first line)
+        // and Description (following commented lines) up to line 5: otherwise any
+        // commented lines further down in the file will also get added to description
+        inputStream.bufferedReader().forEachLine {
+            if (it.startsWith("#") && loopCount < 5) {
+                val lineWithoutCommentMarks: String = it.trim().replaceFirst("^(\\s*#*\\s*)".toRegex(), "")
+                Log.d(TAG, lineWithoutCommentMarks)
+                if (lineCount == 0) {
+                    properties.planName = StringUtils.trim(lineWithoutCommentMarks)
+                } else {
+                    properties.planDescription = StringUtils.trim(
+                        "${properties.planDescription ?: ""} $lineWithoutCommentMarks "
+                    )
+                }
+                lineCount++
+            }
+            loopCount++
+        }
+    }
+
+    private class ReadingPlanProperties : Properties() {
+        var planCode = ""
+        var planName: String? = null
+        var planDescription: String? = null
+        var versification: Versification? = null
+        var numberOfPlanDays = 0
     }
 
     companion object {
