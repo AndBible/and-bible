@@ -1,6 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
+title: ''
+labels: 'Prio: Minor, Type: Feature'
+assignees: tuomas2
 
 ---
 
