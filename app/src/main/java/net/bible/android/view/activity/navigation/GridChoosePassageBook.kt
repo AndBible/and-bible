@@ -29,6 +29,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo
@@ -134,6 +135,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         val customTitle = intent?.extras?.getCharSequence("title")
         if(customTitle != null)
             title = customTitle
+
+        val workspaceName = SharedActivityState.getCurrentWorkspaceName()
+        title = "${title} (${workspaceName})"
 
         val navigateToVerseDefault = CommonUtils.sharedPreferences.getBoolean("navigate_to_verse_pref", false)
         navigateToVerse = intent?.extras?.getBoolean("navigateToVerse", navigateToVerseDefault)?:navigateToVerseDefault

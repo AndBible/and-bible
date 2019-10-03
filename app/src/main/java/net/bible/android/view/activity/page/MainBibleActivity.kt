@@ -23,6 +23,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
@@ -113,18 +114,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject lateinit var bibleContentManager: BibleContentManager
-    @Inject lateinit var documentViewManager: DocumentViewManager
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var speakControl: SpeakControl
+    @Inject
+    lateinit var bibleContentManager: BibleContentManager
+    @Inject
+    lateinit var documentViewManager: DocumentViewManager
+    @Inject
+    lateinit var windowControl: WindowControl
+    @Inject
+    lateinit var speakControl: SpeakControl
 
     // handle requests from main menu
-    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject lateinit var backupControl: BackupControl
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var documentControl: DocumentControl
-    @Inject lateinit var navigationControl: NavigationControl
+    @Inject
+    lateinit var mainMenuCommandHandler: MenuCommandHandler
+    @Inject
+    lateinit var bibleKeyHandler: BibleKeyHandler
+    @Inject
+    lateinit var backupControl: BackupControl
+    @Inject
+    lateinit var searchControl: SearchControl
+    @Inject
+    lateinit var documentControl: DocumentControl
+    @Inject
+    lateinit var navigationControl: NavigationControl
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
@@ -143,12 +154,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
 
-    val isMyNotes get() =
+    val isMyNotes
+        get() =
             if (::documentControl.isInitialized) {
                 documentControl.isMyNotes
             } else false
 
-    val multiWinMode get() =
+    val multiWinMode
+        get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar
@@ -161,7 +174,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
     // Bottom offset with only navigation bar
-    val bottomOffset1 get() =
+    val bottomOffset1
+        get() =
             if (CommonUtils.isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
 
     // Bottom offset with navigation bar and transport bar
@@ -261,6 +275,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateSpeakTransportVisibility()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        currentWorkspaceName
         ready = true
     }
 
@@ -269,7 +284,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
 
-        val gestureListener = object: GestureDetector.SimpleOnGestureListener() {
+        val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
             override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 Log.d(TAG, "onFling")
                 val vertical = Math.abs(e1.y - e2.y).toDouble()
@@ -382,6 +397,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val visible: Boolean
         val enabled: Boolean
         fun handle()
+        fun getTitle(title: CharSequence?): CharSequence? = title
     }
 
     abstract class MenuItemPreference(
@@ -458,7 +474,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
     }
 
-    class SubMenuMenuItemPreference(onlyBibles: Boolean) :
+    open class SubMenuMenuItemPreference(onlyBibles: Boolean) :
         MenuItemPreference("none", onlyBibles = onlyBibles, subMenu = true)
 
     class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_pref2", false) {
@@ -517,15 +533,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         workspaceStrings = t
     }
 
+    private val currentWorkspaceName: String
+        get() {
+            var text = windowControl.windowRepository.name
+
+            if(text.isEmpty())
+                text = getString(R.string.workspace_number, currentWorkspace + 1)
+            SharedActivityState.setCurrentWorkspaceName(text)
+            return text
+        }
+
+
     private fun openWorkspace(workspace: String) {
         windowControl.windowRepository.restoreState(workspace)
         documentViewManager.resetView()
         windowControl.windowSync.synchronizeAllScreens()
-        var text = windowControl.windowRepository.name
 
-        if(text.isEmpty())
-            text = getString(R.string.workspace_number, currentWorkspace + 1)
-        ABEventBus.getDefault().post(ToastEvent(text))
+        ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
 
         invalidateOptionsMenu()
         updateTitle()
@@ -554,6 +578,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         t.add(current)
         currentWorkspace = t.size - 1
         workspaceStrings = t
+        windowControl.windowRepository.name = ""
+        ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
         invalidateOptionsMenu()
     }
 
@@ -648,6 +674,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = preferences.getInt("currentTab", 0)
         set(newValue) = preferences.edit().putInt("currentTab", newValue).apply()
 
+    class WorkspacesSubmenu: SubMenuMenuItemPreference(false) {
+        override fun getTitle(title: CharSequence?): CharSequence? {
+            return "$title (${SharedActivityState.getCurrentWorkspaceName()})"
+        }
+    }
+
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
@@ -663,7 +695,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.nightMode -> NightModeMenuItemPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
-        R.id.workspacesSubMenu -> SubMenuMenuItemPreference(false)
+        R.id.workspacesSubMenu -> WorkspacesSubmenu()
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
@@ -681,6 +713,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val itmOptions = getItemOptions(item.itemId)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
+                item.title = itmOptions.getTitle(item.title)
 
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)

@@ -18,7 +18,9 @@
 
 package net.bible.android.view.activity.base;
 
-/** 
+import org.jetbrains.annotations.NotNull;
+
+/**
  * Base class for List activities.  Copied from Android source.  
  * A copy of ListActivity from Android source which also extends ActionBarActivity and the And Bible Activity base class.
  *
@@ -28,6 +30,7 @@ package net.bible.android.view.activity.base;
  */
 
 public class SharedActivityState {
+	private static String currentWorkspaceName = "";
 	// show title bar state is shared by all Activity windows
 	private boolean mFullScreen = false;
 
@@ -37,11 +40,19 @@ public class SharedActivityState {
 		return singleton;
 	}
 
-    public void toggleFullScreen() {
+	public static String getCurrentWorkspaceName() {
+		return currentWorkspaceName;
+	}
+
+	public void toggleFullScreen() {
     	mFullScreen = !mFullScreen;
     }
 	
 	public boolean isFullScreen() {
 		return mFullScreen;
+	}
+
+	public static void setCurrentWorkspaceName(@NotNull String text) {
+		currentWorkspaceName = text;
 	}
 }
