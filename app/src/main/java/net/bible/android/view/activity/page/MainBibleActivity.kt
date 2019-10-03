@@ -609,8 +609,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 keyTitle.joinToString(", ")
 
             val prefix = if(currentWorkspace == idx) {
-                "→ "
-            } else ""
+                "• ⭐ "
+            } else "• "
 
             workspaceTitles.add(prefix + text)
         }
