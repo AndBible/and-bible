@@ -40,6 +40,7 @@ import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -238,16 +239,15 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     private void bookmarkSelected(BookmarkDto bookmark) {
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
-    		if(getPageControl().getCurrentPageManager().isMyNoteShown()) {
-				Book document = getPageControl().getCurrentPageManager().getCurrentBible().getCurrentDocument();
-				getPageControl().getCurrentPageManager().setCurrentDocument(document);
-			}
-			getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
 			if(bookmarkControl.isSpeakBookmark(bookmark)) {
 				speakControl.speakFromBookmark(bookmark);
 			}
 
-			doFinish();
+			Intent resultIntent= new Intent(this, GridChoosePassageBook.class);
+			resultIntent.putExtra("verse", bookmark.getVerseRange().getOsisID());
+			setResult(Activity.RESULT_OK, resultIntent);
+
+			finish();
 		} catch (Exception e) {
     		Log.e(TAG, "Error on bookmarkSelected", e);
     		Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
@@ -297,13 +297,6 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 		return isHandled;
 	}
-
-    private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
-
 
 	@Override
 	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
