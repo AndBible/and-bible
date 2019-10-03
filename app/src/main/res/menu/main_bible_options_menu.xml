@@ -6,22 +6,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
     <item
-		android:id="@+id/tabsSubMenu"
+		android:id="@+id/workspacesSubMenu"
         android:title="@string/workspaces">
         <menu>
-            <item android:id="@+id/switchToTab"
+            <item android:id="@+id/switchToWorkspace"
                 android:title="@string/switch_to_workspace"
 				/>
-			<item android:id="@+id/newTab"
+			<item android:id="@+id/newWorkspace"
                 android:title="@string/new_workspace"
 				/>
-			<item android:id="@+id/cloneTab"
+			<item android:id="@+id/cloneWorkspace"
                 android:title="@string/new_copied_workspace"
 				/>
-			<item android:id="@+id/closeTab"
+			<item android:id="@+id/closeWorkspace"
                 android:title="@string/close_workspace"
 				/>
-			<item android:id="@+id/renameTab"
+			<item android:id="@+id/renameWorkspace"
                 android:title="@string/rename_workspace"
 				/>
         </menu>

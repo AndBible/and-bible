@@ -276,14 +276,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
                 if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
-                    chooseTab()
+                    chooseWorkspace()
                     return true
 
                 } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
                     if (e1.x > e2.x) {
-                        nextTab()
+                        nextWorkspace()
                     } else {
-                        previousTab()
+                        previousWorkspace()
                     }
                     return true
                 }
@@ -489,17 +489,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
-    private fun closeTab() {
-        val nextTab = if (currentTab > 0) currentTab - 1 else 0
-        val tabs = tabStrings
-        tabs.removeAt(currentTab)
-        val newTab = tabs[nextTab]
-        currentTab = nextTab
-        tabStrings = tabs
-        openTab(newTab)
+    private fun closeWorkspace() {
+        val nextWorkspace = if (currentWorkspace > 0) currentWorkspace - 1 else 0
+        val workspaces = workspaceStrings
+        workspaces.removeAt(currentWorkspace)
+        val newWorkspace = workspaces[nextWorkspace]
+        currentWorkspace = nextWorkspace
+        workspaceStrings = workspaces
+        openWorkspace(newWorkspace)
     }
 
-    private fun renameTab() {
+    private fun renameWorkspace() {
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_TEXT
         input.text = SpannableStringBuilder(windowControl.windowRepository.name)
@@ -512,19 +512,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 windowControl.windowRepository.name = input.text.toString()
             }
             .show()
-        val t = tabStrings
-        t[currentTab] = currentTabState
-        tabStrings = t
+        val t = workspaceStrings
+        t[currentWorkspace] = currentWorkspaceState
+        workspaceStrings = t
     }
 
-    private fun openTab(tab: String) {
-        windowControl.windowRepository.restoreState(tab)
+    private fun openWorkspace(workspace: String) {
+        windowControl.windowRepository.restoreState(workspace)
         documentViewManager.resetView()
         windowControl.windowSync.synchronizeAllScreens()
         var text = windowControl.windowRepository.name
 
         if(text.isEmpty())
-            text = getString(R.string.workspace_number, currentTab + 1)
+            text = getString(R.string.workspace_number, currentWorkspace + 1)
         ABEventBus.getDefault().post(ToastEvent(text))
 
         invalidateOptionsMenu()
@@ -532,43 +532,43 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateToolbar()
     }
 
-    private fun newTab() {
+    private fun newWorkspace() {
         val currentDocument = windowControl.activeWindowPageManager.currentPassageDocument
 
-        val t = tabStrings
-        t[currentTab] = currentTabState
-        currentTab = t.size
+        val t = workspaceStrings
+        t[currentWorkspace] = currentWorkspaceState
+        currentWorkspace = t.size
         windowControl.windowRepository.clear()
-        t.add(currentTabState)
-        tabStrings = t
+        t.add(currentWorkspaceState)
+        workspaceStrings = t
 
-        openTab(currentTabState)
+        openWorkspace(currentWorkspaceState)
         windowControl.activeWindowPageManager.setCurrentDocument(currentDocument)
 
         invalidateOptionsMenu()
     }
 
-    private fun cloneTab() {
-        val t = tabStrings
-        val current = currentTabState
-        t[currentTab] = currentTabState
+    private fun cloneWorkspace() {
+        val t = workspaceStrings
+        val current = currentWorkspaceState
+        t[currentWorkspace] = currentWorkspaceState
         t.add(current)
-        currentTab = t.size - 1
-        tabStrings = t
+        currentWorkspace = t.size - 1
+        workspaceStrings = t
         invalidateOptionsMenu()
     }
 
-    private fun chooseTab() {
-        val tabs = tabStrings
-        if(tabs.size < 2) return
+    private fun chooseWorkspace() {
+        val workspaces = workspaceStrings
+        if(workspaces.size < 2) return
 
-        tabs[currentTab] = currentTabState
-        tabStrings = tabs
+        workspaces[currentWorkspace] = currentWorkspaceState
+        workspaceStrings = workspaces
 
-        val tabTitles = ArrayList<String>()
+        val workspaceTitles = ArrayList<String>()
         val pageManager = windowControl.windowRepository.currentPageManagerProvider.get()
-        for((idx, tab) in tabs.withIndex()) {
-            val windowRepositoryState = JSONObject(tab)
+        for((idx, workspace) in workspaces.withIndex()) {
+            val windowRepositoryState = JSONObject(workspace)
             val windows = windowRepositoryState.getJSONArray("windowState")
             val name = windowRepositoryState.optString("name")
             val keyTitle = ArrayList<String>()
@@ -584,56 +584,56 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             else
                 getString(R.string.workspace_num_contents, idx + 1, keyTitle.joinToString(", "))
 
-            tabTitles.add(text)
+            workspaceTitles.add(text)
         }
 
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, tabTitles)
+        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, workspaceTitles)
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.choose_workspace_to_open))
             .setAdapter(adapter) {_, which ->
-                if(currentTab != which) {
-                    currentTab = which
-                    openTab(tabs[which])
+                if(currentWorkspace != which) {
+                    currentWorkspace = which
+                    openWorkspace(workspaces[which])
                 }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
-    private fun previousTab() {
-        val tabs = tabStrings
-        if(tabs.size < 2) return
-        tabs[currentTab] = currentTabState
-        tabStrings = tabs
-        currentTab = if(currentTab > 0) currentTab - 1 else tabs.size -1
-        openTab(tabs[currentTab])
+    private fun previousWorkspace() {
+        val workspaces = workspaceStrings
+        if(workspaces.size < 2) return
+        workspaces[currentWorkspace] = currentWorkspaceState
+        workspaceStrings = workspaces
+        currentWorkspace = if(currentWorkspace > 0) currentWorkspace - 1 else workspaces.size -1
+        openWorkspace(workspaces[currentWorkspace])
     }
 
-    private fun nextTab() {
-        val tabs = tabStrings
-        if(tabs.size < 2) return
-        tabs[currentTab] = currentTabState
-        tabStrings = tabs
-        currentTab = if(currentTab < tabs.size - 1) currentTab + 1 else 0
-        openTab(tabs[currentTab])
+    private fun nextWorkspace() {
+        val workspaces = workspaceStrings
+        if(workspaces.size < 2) return
+        workspaces[currentWorkspace] = currentWorkspaceState
+        workspaceStrings = workspaces
+        currentWorkspace = if(currentWorkspace < workspaces.size - 1) currentWorkspace + 1 else 0
+        openWorkspace(workspaces[currentWorkspace])
     }
 
-    @Serializable class TabStrings(val data: ArrayList<String>)
+    @Serializable class WorkspaceStrings(val data: ArrayList<String>)
 
-    private val currentTabState get() = windowControl.windowRepository.dumpState()
+    private val currentWorkspaceState get() = windowControl.windowRepository.dumpState()
 
-    private var tabStrings: ArrayList<String>
+    private var workspaceStrings: ArrayList<String>
         get() {
-            val tabsSerialized = preferences.getString("tabs", null) ?: return arrayListOf(currentTabState)
-            return Json(JSON_CONFIG).parse(TabStrings.serializer(), tabsSerialized).data
+            val workspaceSerialized = preferences.getString("tabs", null) ?: return arrayListOf(currentWorkspaceState)
+            return Json(JSON_CONFIG).parse(WorkspaceStrings.serializer(), workspaceSerialized).data
         }
         set(value) =
-            preferences.edit().putString("tabs", Json(JSON_CONFIG).stringify(TabStrings.serializer(), TabStrings(value))).apply()
+            preferences.edit().putString("tabs", Json(JSON_CONFIG).stringify(WorkspaceStrings.serializer(), WorkspaceStrings(value))).apply()
 
-    private val haveTabs: Boolean get() = numTabs > 1
-    private val numTabs: Int get() = tabStrings.size
+    private val haveWorkspaces: Boolean get() = numWorkspaces > 1
+    private val numWorkspaces: Int get() = workspaceStrings.size
 
-    private var currentTab: Int
+    private var currentWorkspace: Int
         get() = preferences.getInt("currentTab", 0)
         set(newValue) = preferences.edit().putInt("currentTab", newValue).apply()
 
@@ -652,12 +652,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.nightMode -> NightModeMenuItemPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
-        R.id.tabsSubMenu -> SubMenuMenuItemPreference(false)
-        R.id.newTab -> CommandItem({newTab()})
-        R.id.cloneTab -> CommandItem({cloneTab()})
-        R.id.closeTab -> CommandItem({closeTab()}, haveTabs)
-        R.id.renameTab -> CommandItem({renameTab()}, haveTabs)
-        R.id.switchToTab -> CommandItem({chooseTab()}, haveTabs)
+        R.id.workspacesSubMenu -> SubMenuMenuItemPreference(false)
+        R.id.newWorkspace -> CommandItem({newWorkspace()})
+        R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
+        R.id.closeWorkspace -> CommandItem({closeWorkspace()}, haveWorkspaces)
+        R.id.renameWorkspace -> CommandItem({renameWorkspace()}, haveWorkspaces)
+        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()}, haveWorkspaces)
         else -> throw RuntimeException("Illegal menu item")
     }
 
