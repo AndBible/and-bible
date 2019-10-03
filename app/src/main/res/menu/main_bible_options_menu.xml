@@ -18,8 +18,8 @@
 			<item android:id="@+id/cloneWorkspace"
                 android:title="@string/new_copied_workspace"
 				/>
-			<item android:id="@+id/closeWorkspace"
-                android:title="@string/close_workspace"
+			<item android:id="@+id/deleteWorkspace"
+                android:title="@string/delete_workspace"
 				/>
 			<item android:id="@+id/renameWorkspace"
                 android:title="@string/rename_workspace"

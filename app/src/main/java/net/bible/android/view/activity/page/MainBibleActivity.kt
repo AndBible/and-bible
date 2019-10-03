@@ -489,7 +489,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
     }
 
-    private fun closeWorkspace() {
+    private fun deleteWorkspace() {
         val nextWorkspace = if (currentWorkspace > 0) currentWorkspace - 1 else 0
         val workspaces = workspaceStrings
         workspaces.removeAt(currentWorkspace)
@@ -655,7 +655,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.workspacesSubMenu -> SubMenuMenuItemPreference(false)
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
-        R.id.closeWorkspace -> CommandItem({closeWorkspace()}, haveWorkspaces)
+        R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
         R.id.renameWorkspace -> CommandItem({renameWorkspace()}, haveWorkspaces)
         R.id.switchToWorkspace -> CommandItem({chooseWorkspace()}, haveWorkspaces)
         else -> throw RuntimeException("Illegal menu item")

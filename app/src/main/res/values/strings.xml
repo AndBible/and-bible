@@ -462,7 +462,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="workspaces">Workspaces</string>
     <string name="new_workspace">New workspace</string>
     <string name="switch_to_workspace">Switch to workspace…</string>
-    <string name="close_workspace">Close this workspace</string>
+    <string name="delete_workspace">Delete this workspace</string>
     <string name="choose_workspace_to_open">Choose wokspace to open</string>
     <string name="new_copied_workspace">Copy this workspace as new</string>
     <string name="workspace_number">Workspace %d</string>
