@@ -25,7 +25,6 @@ import net.bible.android.SharedConstants
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.service.common.AndRuntimeException
 
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -40,6 +39,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.ArrayList
 import java.util.Properties
+import kotlin.math.max
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -102,7 +102,7 @@ class ReadingPlanDao {
         for ((key1, value1) in properties) {
             val key = key1 as String
             val value = value1 as String
-            if (StringUtils.isNumeric(key)) {
+            if (key.toIntOrNull() != null) {
                 val day = Integer.parseInt(key)
                 val daysReading = OneDaysReadingsDto(day, value, planInfo)
                 list.add(daysReading)
@@ -118,15 +118,15 @@ class ReadingPlanDao {
     fun getReading(planName: String, dayNo: Int): OneDaysReadingsDto {
         val properties = getPlanProperties(planName)
 
-        val readings = properties[Integer.toString(dayNo)] as String?
-        Log.d(TAG, "Readings for day:" + readings)
+        val readings = properties[dayNo.toString()] as String?
+        Log.d(TAG, "Readings for day:$readings")
         return OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName))
     }
 
     /** get last day number - there may be missed days so cannot simply do props.size()
      */
     fun getNumberOfPlanDays(planCode: String): Int {
-        if (cachedPlanProperties != null && cachedPlanProperties?.planCode == planCode)
+        if (cachedPlanProperties?.planCode == planCode)
             return cachedPlanProperties?.numberOfPlanDays ?: 0
 
         return getNumberOfPlanDays(getPlanProperties(planCode))
@@ -136,13 +136,12 @@ class ReadingPlanDao {
         var maxDayNo = 0
 
         for (oDayNo in properties.keys) {
-            val dayNoStr = oDayNo as String
-            if (StringUtils.isNumeric(dayNoStr)) {
-                val dayNo = Integer.parseInt(dayNoStr)
-                maxDayNo = Math.max(maxDayNo, dayNo)
+            val dayNo = (oDayNo as String).toIntOrNull()
+            if (dayNo != null) {
+                maxDayNo = max(maxDayNo, dayNo)
             } else {
-                if (!VERSIFICATION.equals(dayNoStr, ignoreCase = true)) {
-                    Log.e(TAG, "Invalid day number:$dayNoStr")
+                if (!VERSIFICATION.equals(dayNo, ignoreCase = true)) {
+                    Log.e(TAG, "Invalid day number:$dayNo")
                 }
             }
         }
@@ -156,24 +155,20 @@ class ReadingPlanDao {
      * If specified Versification is not found then use NRSVA because it includes most books possible
      */
     private fun getReadingPlanVersification(planCode: String): Versification {
-        if (cachedPlanProperties != null && cachedPlanProperties?.planCode == planCode)
+        if (cachedPlanProperties?.planCode == planCode)
             return cachedPlanProperties?.versification!!
 
         return getReadingPlanVersification(getPlanProperties(planCode))
     }
 
-    private fun getReadingPlanVersification(properties: ReadingPlanProperties): Versification {
-        var versification: Versification
+    private fun getReadingPlanVersification(properties: ReadingPlanProperties): Versification =
         try {
             val versificationName = properties.getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
-            versification = Versifications.instance().getVersification(versificationName)
+            Versifications.instance().getVersification(versificationName)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading versification from Reading plan:${properties.planCode}")
-            versification = Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
+            Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
         }
-
-        return versification
-    }
 
     private fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
         Log.d(TAG, "Get reading plan info:$planCode")
@@ -226,10 +221,10 @@ class ReadingPlanDao {
                 val userReadingPlanFile = File(USER_READING_PLAN_FOLDER, filename)
                 val isUserPlan = userReadingPlanFile.exists()
 
-                if (!isUserPlan) {
-                    inputStreamRaw = assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
+                inputStreamRaw = if (!isUserPlan) {
+                    assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
                 } else {
-                    inputStreamRaw = FileInputStream(userReadingPlanFile)
+                    FileInputStream(userReadingPlanFile)
                 }
 
                 val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw?.readBytes())}
@@ -266,11 +261,9 @@ class ReadingPlanDao {
                 val lineWithoutCommentMarks: String = it.trim().replaceFirst("^(\\s*#*\\s*)".toRegex(), "")
                 Log.d(TAG, lineWithoutCommentMarks)
                 if (lineCount == 0) {
-                    properties.planName = StringUtils.trim(lineWithoutCommentMarks)
+                    properties.planName = lineWithoutCommentMarks.trim()
                 } else {
-                    properties.planDescription = StringUtils.trim(
-                        "${properties.planDescription ?: ""} $lineWithoutCommentMarks "
-                    )
+                    properties.planDescription = "${properties.planDescription ?: ""} $lineWithoutCommentMarks ".trim()
                 }
                 lineCount++
             }
