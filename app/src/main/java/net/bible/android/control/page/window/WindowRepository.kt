@@ -262,10 +262,11 @@ open class WindowRepository @Inject constructor(
             } catch (je: JSONException) {
                 logger.error("Error saving screen state", je)
             }
-
         }
+
         windowRepositoryStateObj.put("windowState", windowStateArray)
         windowRepositoryStateObj.put("name", name)
+        windowRepositoryStateObj.put("dedicatedLinksWindow", dedicatedLinksWindow.stateJson)
         windowRepositoryStateObj.put("history", historyManagerProvider.get().dumpString)
         return windowRepositoryStateObj.toString()
     }
@@ -281,6 +282,20 @@ open class WindowRepository @Inject constructor(
                 val windowRepositoryState = JSONObject(stateJsonString)
                 val windowState = windowRepositoryState.getJSONArray("windowState")
                 name = windowRepositoryState.optString("name")
+
+                val linksWindow = try {
+                    windowRepositoryState.getJSONObject("dedicatedLinksWindow")
+                } catch (e: JSONException) {
+                    null
+                }
+
+                if(linksWindow != null) {
+                    dedicatedLinksWindow.restoreState(linksWindow)
+                }
+                else {
+                    close(dedicatedLinksWindow)
+                }
+
                 if (windowState.length() > 0) {
 
                     // remove current (default) state before restoring
