@@ -541,7 +541,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.windowRepository.clear()
         t.add(currentWorkspaceState)
         workspaceStrings = t
-
         openWorkspace(currentWorkspaceState)
         windowControl.activeWindowPageManager.setCurrentDocument(currentDocument)
 
@@ -560,7 +559,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun chooseWorkspace() {
         val workspaces = workspaceStrings
-        if(workspaces.size < 2) return
 
         workspaces[currentWorkspace] = currentWorkspaceState
         workspaceStrings = workspaces
@@ -576,28 +574,41 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             BookName.setFullBookName(false)
             for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
-                keyTitle.add(pageManager.currentPage.singleKey.name)
+                keyTitle.add("${pageManager.currentPage.currentDocument.abbreviation} ${pageManager.currentPage.singleKey.name}")
             }
             BookName.setFullBookName(prevFullBookNameValue)
             val text = if(!name.isEmpty())
                 getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
             else
-                getString(R.string.workspace_num_contents, idx + 1, keyTitle.joinToString(", "))
+                keyTitle.joinToString(", ")
 
-            workspaceTitles.add(text)
+            val prefix = if(currentWorkspace == idx) {
+                "→ "
+            } else ""
+
+            workspaceTitles.add(prefix + text)
         }
 
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, workspaceTitles)
-        AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle(getString(R.string.choose_workspace_to_open))
+            .setPositiveButton(getString(R.string.new_workspace_from_dialog)) { _, _ ->
+                newWorkspace()
+            }
             .setAdapter(adapter) {_, which ->
                 if(currentWorkspace != which) {
                     currentWorkspace = which
                     openWorkspace(workspaces[which])
                 }
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            .setNeutralButton(R.string.cancel, null)
+
+        if(workspaces.size > 1) {
+            builder.setNegativeButton(getString(R.string.delete_workspace_from_dialog)) { _, _ ->
+                deleteWorkspace()
+            }
+        }
+        builder.show()
     }
 
     private fun previousWorkspace() {
