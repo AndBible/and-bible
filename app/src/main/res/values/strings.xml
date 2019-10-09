@@ -7,19 +7,19 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 -->
 <resources>
     <string name="app_name">And Bible</string>
+
     <!-- Startup & Help -->
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
-    <string name="help_text">Press the MENU button for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
+    <string name="help_text">Press the MENU button for actions\n\n
+        Go to the next or previous chapter by using the track-ball,
+        D-pad or swiping the screen with your finger</string>
 
     <string name="help_nav_title">Navigation</string>
-    <string name="help_nav_text">Go to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger.
-        Double-tap toggles Fullscreen on/off.
+    <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
+        Double-tap bible text to toggle full screen mode. Bible windows have menu button on the top-right corner,
+        and you can access window menu long pressing them.
     </string>
 
-    <string name="help_menu_title">Menu</string>
-    <string name="help_menu_text">Press the MENU button for actions.
-        To download more documents press Menu/Administration/Download Documents
-    </string>
     <string name="help_speech_title">Speech</string>
     <string name="help_speech_text">Press Speak to access a dialog to start or stop reading</string>
 
@@ -47,6 +47,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
 
     <!-- Main menu -->
+    <string name="menu">Menu</string>
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
@@ -54,9 +55,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
-    <string name="verse">Verse</string>
     <string name="administration">Administration</string>
-    
+
+    <string name="rate_application">Rate &amp; Review in Google Play</string>
+    <string name="chooce_document">Choose Document</string>
+
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
@@ -67,11 +70,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!--  Search -->
     <string name="search_index">Search Index</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
+    <string name="search_index_unavailable">Unfortunately index creation is only available on Android 5.0 (Lollipop) and newer.</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-    <string name="index">Index</string>
     <string name="index_download">Download</string>
     <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
+    <string name="rebuild_index">Rebuild index</string>
 
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -79,7 +83,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
 
     <!-- Search -->
-    <string name="search_results">Find Results</string>
     <string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
@@ -95,25 +98,16 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Verse numbers</string>
-    <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
-    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
-    <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
     <string name="prefs_default_bookmark_style_title">Default bookmark style</string>
     <string name="prefs_default_bookmark_style_summary">Highlight colour or icon</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
-    <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
-    <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
-    <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
-    <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
+    <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
-    <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
     <string name="prefs_section_title_title">Section titles</string>
-    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
-    <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
     <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
     <string name="prefs_night_mode_title">Night mode</string>
@@ -128,15 +122,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
-    <string name="x_minutes">%d minutes</string>
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
-    <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
-    <string name="prefs_speak_speed_title">Speak speed</string>
-    <string name="prefs_speak_speed_summary">Speak slower or faster</string>
-    <string name="speak_speed_slow">Slow</string>
-    <string name="speak_speed_normal">Normal</string>
-    <string name="speak_speed_fast">Fast</string>
 
     <string name="prefs_split_mode_vertical">Vertical</string>
     <string name="prefs_split_mode_horizontal">Horizontal</string>
@@ -148,8 +135,15 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
 
+    <string name="bible_text_options">Bible text options</string>
+    <string name="auto_fullscreen">Fullscreen by scrolling</string>
+    <string name="switch_split_mode">Switch split mode</string>
+    <string name="reversed_split_mode">Reversed split mode</string>
+    <string name="prefs_auto_night_mode_title">Automatic night mode</string>
+    <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
+
     <!-- Window -->
-    <string name="window">Window</string>
+    <string name="new_window">New window</string>
     <string name="windowClose">Close</string>
     <string name="windowMaximise">Maximise</string>
     <string name="windowMinimise">Minimise</string>
@@ -163,14 +157,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="next">Next</string>
 
     <!--  Strongs -->
-    <string name="strongs">Strong\'s Dictionary</string>
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
     <string name="all_greek_occurrences">Find all occurrences</string>
     <string name="all_hebrew_occurrences">Find all occurrences</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
-    <string name="strongs_toggle_button_on">nnnn</string>
-    <string name="strongs_toggle_button_off">nnnn</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
@@ -182,14 +173,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
-    <string name="wait_for_bible">Please wait for the Bible to finish downloading.  You will then be taken to the main screen.\n\nDownload more documents later by navigating to Menu button/Administration/Download documents.</string>
-    <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
-    <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
     
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
+    <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now...</string>
     <string name="checking_zip_file">Checking given file...</string>
@@ -201,17 +190,44 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
-    <string name="rdg_plan_set_start_jan1">Start Jan 1</string>
+    <string name="rdg_plan_set_start_date">Set Start Date...</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
-    <string name="rdg_plan_y1ntpspr">New Testament, Psalms, and Proverbs in a year</string>
-    <string name="rdg_plan_y1ot1nt1_chronological">Through the Bible chronologically in a year</string>
-    <string name="rdg_plan_y1ot1nt1_OTandNT">Through the bible in a year - OT and NT</string>
-    <string name="rdg_plan_y1ot1nt1_OTthenNT">Through the bible in a year - OT then NT</string>
-    <string name="rdg_plan_y1ot1nt2_mcheyne">Through the bible in a year (M\'Cheyne)</string>
-    <string name="rdg_plan_y2ot1ntps2">2 year plan - OT once, NT and Psalms twice</string>
-    <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->
-    
+    <string name="plan_name_y1ntpspr">NT, Psalms &amp; Proverbs in a Year</string>
+    <string name="plan_description_y1ntpspr">
+        Courtesy of HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, permission granted
+    </string>
+    <string name="plan_name_y1ot1nt1_chronological">Chronological 1-Year through Bible</string>
+    <string name="plan_description_y1ot1nt1_chronological">
+        Plan based on chronological events in the Bible.
+        The chronological time-line is approximate.
+    </string>
+    <string name="plan_name_y1ot1nt1_OTandNT">1-Year OT+NT Simultaneously</string>
+    <string name="plan_description_y1ot1nt1_OTandNT">
+        Read through the Bible in 1 year, with chapters
+        in the OT and NT every day.
+    </string>
+    <string name="plan_name_y1ot1nt1_OTthenNT">1-Year through Bible</string>
+    <string name="plan_description_y1ot1nt1_OTthenNT">
+        Read through the Bible in 1 year, starting in Genesis
+        and finishing in Revelation. The OT is first, then the NT.
+    </string>
+    <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-Year 4-chapter/day</string>
+    <string name="plan_description_y1ot1nt2_mcheyne">
+        This plan is based on the M’Cheyne reading system,
+        featuring four different readings for use in both family and personal devotions. Each day has
+        two passages from the Old Testament, one from the New Testament, and one from either the Psalms or the Gospels. In one year,
+        you read the Old Testament once and the New Testament and Psalms twice.
+    </string>
+    <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-chapter/day Reading Plan</string>
+    <string name="plan_description_y1ot6nt4_profHorner">Courtesy of Prof. Horner, permission granted</string>
+    <string name="plan_name_y2ot1ntps2">2-Year Through Bible, NT+PS twice</string>
+    <string name="plan_description_y2ot1ntps2">
+        Read through the Bible in 2 years, reading the NT and Psalms twice.
+        Courtesy of Wholesome Words,  http://www.wholesomewords.org/, permission granted
+    </string>
+
     <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="delete_index">Delete search index</string>
@@ -238,7 +254,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="delete_bookmark">Delete bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
     <string name="bookmark_date_updated">Bookmark date updated</string>
-    <string name="bookmark_exists">Bookmark already exists</string>
     <string name="bookmark_deleted">Bookmark deleted</string>
     <string name="bookmark_labels">Bookmark Labels</string>
     <string name="manage_labels">Manage Bookmark Labels</string>
@@ -246,7 +261,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
-    <string name="rename">Rename</string>
     <string name="style">Style</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
@@ -257,11 +271,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
-    <string name="dictionary_contents">Contents</string>
 
     <!-- General Book -->
     <string name="general_book">Book</string>
-    <string name="general_book_contents">Contents</string>
 
     <!-- Speak -->
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
@@ -293,12 +305,18 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_bookmarking_settings_title">Bookmarking Settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
     <string name="speak_advanced_settings">Advanced Settings</string>
-    <string name="speak_settings_activity_title">More Speak Settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
     <string name="speak_no_books_available">No books available to speak</string>
 
-    <string name="conf_speak_synchronize">Synchronize text with speech</string>
+    <string name="repeat_passage">Repeat passage</string>
+    <string name="set_repeat_passage_range">Set repeat passage range</string>
+    <string name="speak_beginning_of_passage">Choose beginning of passage</string>
+    <string name="speak_ending_of_passage">Choose ending of passage</string>
+    <string name="speak_verse_range_to_repeat">Choose verse range to repeat</string>
+    <string name="speak_ending_verse_must_be_later">Ending verse must be later than starting verse</string>
+
+    <string name="conf_speak_synchronize">Text follows speech</string>
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
     <string name="conf_save_playback_settings_to_bookmarks">Save playback settings to bookmarks</string>
     <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
@@ -306,7 +324,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_change_title">Titles</string>
     <string name="conf_speak_footnotes">Footnotes</string>
     <string name="conf_speak_sleep_timer">Set sleep timer</string>
-    <string name="conf_speak_multitranslation">Compare translations by speaking from all visible windows</string>
 
     <string name="sleep_timer_title">Sleep time in minutes</string>
     <string name="sleep_timer_set">Set sleep timer. Timer set: %d minutes</string>
@@ -378,21 +395,30 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_fourth">Fourth</string>
     <string name="speak_fifth">Fifth</string>
 
+    <string name="verse_range_mode_disabled">
+        Repeat passage mode was disabled automatically because
+        speaking was started outside of defined verse range.
+    </string>
+
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
-    <string name="mynote">My Note</string>
     <string name="mynote_add">Add My Note</string>
-    <string name="mynote_view_edit">My Note</string>
     <string name="mynote_saved">My Note saved</string>
     
     <!-- Backup and restore -->
-    <string name="backup">Backup</string>
+    <string name="backup_and_restore">Backup &amp; Restore</string>
+    <string name="backup">Backup to ...</string>
     <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
-    <string name="restore">Restore</string>
+    <string name="restore">Restore from ...</string>
     <string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string>    
-    <string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string>
+    <string name="restore_success">My Notes and Bookmarks restored successfully</string>
     <string name="error_no_backup_file">A backup file could not be found</string>
 
+    <string name="backup_email_subject">And Bible database backup</string>
+    <string name="backup_email_message">Your And Bible database containing bookmarks and notes is attached</string>
+    <string name="backup_storage">Backup to storage</string>
+    <string name="restore_storage">Restore from storage</string>
+    <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <!-- About -->
     <string name="about_copyright">Copyright: %s</string>
     <string name="about_version">Version: %s</string>
@@ -413,16 +439,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="save">Save</string>
     <string name="error">Error</string>
-    <string name="more">More</string>
-    <string name="more_dotted">More...</string>
-    <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
     <string name="default_value">@string/lang_default</string>
-    <string name="new_item">New</string>
-    <string name="close">Close</string>
     <string name="edit">Edit</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
 
@@ -433,10 +453,23 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
-    <string name="add_widget">Add widget</string>
 
     <!-- Notifications -->
-    <string name="download_documents">Downloading documents</string>
     <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
+
+    <!-- Workspaces -->
+    <string name="workspaces">Workspaces</string>
+    <string name="new_workspace">New workspace</string>
+    <string name="switch_to_workspace">Switch to workspace…</string>
+    <string name="delete_workspace">Delete this workspace</string>
+    <string name="choose_workspace_to_open">Choose workspace to open</string>
+    <string name="new_copied_workspace">Copy this workspace as new</string>
+    <string name="workspace_number">Workspace %d</string>
+    <string name="workspace_name_contents">%s: %s</string>
+    <string name="rename_workspace">Rename workspace …</string>
+    <string name="rename_workspace_title">Give a name for this workspace</string>
+    <string name="new_workspace_from_dialog">New</string>
+    <string name="delete_workspace_from_dialog">Delete current</string>
+    <string name="history_title">History (%s)</string>
 </resources>

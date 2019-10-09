@@ -40,7 +40,7 @@ public class MyNoteViewBuilder {
 	private MyNoteEditTextView myNoteText;
 	private static final int MYNOTE_TEXT_ID = 992;
 	
-	private Activity mainActivity;
+	private MainBibleActivity mainActivity;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 

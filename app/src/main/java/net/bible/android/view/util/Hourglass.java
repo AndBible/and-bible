@@ -46,7 +46,7 @@ public class Hourglass {
 				@Override
 				public void run() {
 					hourglass = new ProgressDialog(activity);
-					hourglass.setMessage(BibleApplication.getApplication().getText(R.string.please_wait));
+					hourglass.setMessage(BibleApplication.Companion.getApplication().getText(R.string.please_wait));
 					hourglass.setIndeterminate(true);
 					hourglass.setCancelable(false);
 					hourglass.show();

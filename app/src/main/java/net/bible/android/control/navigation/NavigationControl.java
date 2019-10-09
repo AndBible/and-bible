@@ -24,7 +24,6 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.service.common.CommonUtils;
 
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
@@ -135,12 +134,12 @@ public class NavigationControl {
 	}
 	
 	private BibleBookSortOrder getBibleBookSortOrder() {
-		String bibleBookSortOrderStr = CommonUtils.getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString());
+		String bibleBookSortOrderStr = CommonUtils.INSTANCE.getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString());
 		return BibleBookSortOrder.valueOf(bibleBookSortOrderStr);
 	}
 	
 	private void setBibleBookSortOrder(BibleBookSortOrder bibleBookSortOrder) {
-		CommonUtils.saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString());
+		CommonUtils.INSTANCE.saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString());
 	}
 
 	/**
@@ -148,9 +147,9 @@ public class NavigationControl {
 	 */
 	public String getBibleBookSortOrderButtonDescription() {
 		if (BibleBookSortOrder.BIBLE_BOOK.equals(getBibleBookSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_alphabetical);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_alphabetical);
 		} else {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_bible_book);
 		}
 	}
 	

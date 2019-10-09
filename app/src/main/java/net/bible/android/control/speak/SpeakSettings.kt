@@ -19,30 +19,55 @@
 package net.bible.android.control.speak
 import android.util.Log
 import kotlinx.serialization.*
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.JSON_CONFIG
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.system.Versifications
 import java.lang.IllegalArgumentException
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 const val TAG = "SpeakSettings"
 
+@Serializer(forClass = VerseRange::class)
+object VerseRangeSerializer: KSerializer<VerseRange?> {
+    override fun serialize(encoder: Encoder, obj: VerseRange?) {
+        if(obj != null) {
+            encoder.encodeString("${obj.versification.name}::${obj.osisRef}")
+        }
+        else {
+            encoder.encodeNull()
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): VerseRange? {
+        val str = decoder.decodeString()
+        val splitted = str.split("::")
+        val v11n = Versifications.instance().getVersification(splitted[0])
+        return VerseRangeFactory.fromString(v11n, splitted[1])
+    }
+}
+
 @Serializable
 data class PlaybackSettings (
-        @Optional val speakChapterChanges: Boolean = true,
-        @Optional val speakTitles: Boolean = true,
-        @Optional val speakFootnotes: Boolean = false,
-        @Optional var speed: Int = 100,
+        val speakChapterChanges: Boolean = true,
+        val speakTitles: Boolean = true,
+        val speakFootnotes: Boolean = false,
+        var speed: Int = 100,
 
         // Bookmark related metadata.
         // Restoring bookmark from widget uses this.
-        @Optional var bookId: String? = null,
-        @Optional var bookmarkWasCreated: Boolean? = null
+        var bookId: String? = null,
+        var bookmarkWasCreated: Boolean? = null,
+        @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null
 ) {
     companion object {
+
         fun fromJson(jsonString: String): PlaybackSettings {
             return try {
-                JSON(strictMode = false).parse(PlaybackSettings.serializer(), jsonString)
+                Json(JSON_CONFIG).parse(PlaybackSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 PlaybackSettings()
             } catch (ex: IllegalArgumentException) {
@@ -52,30 +77,29 @@ data class PlaybackSettings (
     }
 
     fun toJson(): String {
-        return JSON.stringify(PlaybackSettings.serializer(), this)
+        return Json(JSON_CONFIG).stringify(PlaybackSettings.serializer(), this)
     }
 }
 
 data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
 
 @Serializable
-data class SpeakSettings(@Optional var synchronize: Boolean = true,
-                         @Optional var replaceDivineName: Boolean = false,
-                         @Optional var autoBookmark: Boolean = false,
-                         @Optional var restoreSettingsFromBookmarks: Boolean = false,
-                         @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
-                         @Optional var sleepTimer: Int = 0,
-                         @Optional var lastSleepTimer: Int = 10,
-                         @Optional var multiTranslation: Boolean = false,
+data class SpeakSettings(var synchronize: Boolean = true,
+                         var replaceDivineName: Boolean = false,
+                         var autoBookmark: Boolean = false,
+                         var restoreSettingsFromBookmarks: Boolean = false,
+                         var playbackSettings: PlaybackSettings = PlaybackSettings(),
+                         var sleepTimer: Int = 0,
+                         var lastSleepTimer: Int = 10,
                          // General book speak settings
-                         @Optional var queue: Boolean = true,
-                         @Optional var repeat: Boolean = false,
-                         @Optional var numPagesToSpeakId: Int = 0
+                         var queue: Boolean = true,
+                         var repeat: Boolean = false,
+                         var numPagesToSpeakId: Int = 0
                          ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
     private fun toJson(): String {
-        return JSON.stringify(SpeakSettings.serializer(), this)
+        return Json(JSON_CONFIG).stringify(SpeakSettings.serializer(), this)
     }
 
     fun makeCopy(): SpeakSettings {
@@ -86,7 +110,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
     fun save(updateBookmark: Boolean = false) {
         if(currentSettings?.equals(this) != true) {
-            CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
+            CommonUtils.sharedPreferences.edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
             val oldSettings = currentSettings
             currentSettings = this.makeCopy()
@@ -105,7 +129,7 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
         private fun fromJson(jsonString: String): SpeakSettings {
             return try {
-                JSON(strictMode = false).parse(SpeakSettings.serializer(), jsonString)
+                Json(JSON_CONFIG).parse(SpeakSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 SpeakSettings()
             } catch (ex: IllegalArgumentException) {
@@ -115,8 +139,8 @@ data class SpeakSettings(@Optional var synchronize: Boolean = true,
 
         fun load(): SpeakSettings {
             val rv = currentSettings?.makeCopy()?: {
-                val sharedPreferences = CommonUtils.getSharedPreferences()
-                val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
+                val sharedPreferences = CommonUtils.sharedPreferences
+                val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, "")!!)
                 settings }()
             Log.d(TAG, "SpeakSettings loaded! $rv")
             return rv

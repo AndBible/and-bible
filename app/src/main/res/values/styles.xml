@@ -38,5 +38,9 @@
     <style name="SmallGreyText" parent="@android:style/TextAppearance.Small">
         <item name="android:textColor">#C0C0C0</item>
     </style>
-    
+
+    <style name="TransportButtonTheme">
+        <item name="android:tint">?attr/transportButtonColor</item>
+    </style>
+
 </resources>

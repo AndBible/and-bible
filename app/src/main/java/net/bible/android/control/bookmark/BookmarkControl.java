@@ -114,7 +114,7 @@ public class BookmarkControl {
 
 			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
 			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
-			final View currentView = currentActivity.findViewById(android.R.id.content);
+			final View currentView = currentActivity.findViewById(R.id.coordinatorLayout);
 			boolean success = false;
 			Integer message = null;
 			if (bookmarkDto == null)
@@ -136,8 +136,10 @@ public class BookmarkControl {
 			final BookmarkDto affectedBookmark = bookmarkDto;
 			if (success) {
 				// success
-				int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
-				Snackbar.make(currentView, message, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
+				int actionTextColor = CommonUtils.INSTANCE.getResourceColor(R.color.snackbar_action_text);
+				Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
+						.setActionTextColor(actionTextColor)
+						.setAction(R.string.assign_labels, new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						showBookmarkLabelsActivity(currentActivity, affectedBookmark);
@@ -200,7 +202,7 @@ public class BookmarkControl {
 			CurrentBiblePage currentBible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
 			Versification versification = currentBible.getVersification();
 			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification));
-			verseText = CommonUtils.limitTextLength(verseText);
+			verseText = CommonUtils.INSTANCE.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
 		}
@@ -449,18 +451,18 @@ public class BookmarkControl {
 	}
 
 	private BookmarkSortOrder getBookmarkSortOrder() {
-		String bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
+		String bookmarkSortOrderStr = CommonUtils.INSTANCE.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
 		return BookmarkSortOrder.valueOf(bookmarkSortOrderStr);
 	}
 	private void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder) {
-		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
+		CommonUtils.INSTANCE.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
 	}
 
 	public String getBookmarkSortOrderDescription() {
 		if (BookmarkSortOrder.BIBLE_BOOK.equals(getBookmarkSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_bible_book);
 		} else {
-			return CommonUtils.getResourceString(R.string.sort_by_date);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_date);
 		}
 	}
 

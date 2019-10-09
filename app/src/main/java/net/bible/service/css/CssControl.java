@@ -51,7 +51,7 @@ public class CssControl {
 		}
 		
 		// if it is in night mode show the nightmode stylesheet
-		if (ScreenSettings.isNightMode()) {
+		if (ScreenSettings.INSTANCE.isNightMode()) {
 			styleLinks.add(getLink(NIGHT_MODE_STYLESHEET));
 
 			// is there a user specific night mode stylesheet provided by the user

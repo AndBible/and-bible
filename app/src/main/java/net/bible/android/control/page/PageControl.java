@@ -19,9 +19,10 @@
 package net.bible.android.control.page;
 
 import android.app.Activity;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.ClipboardManager;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
@@ -33,24 +34,19 @@ import net.bible.android.control.page.window.Window;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.service.common.ABStringUtils;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.common.TitleSplitter;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -63,8 +59,6 @@ public class PageControl {
 	
 	private static final String TAG = "PageControl";
 	
-	private static final TitleSplitter titleSplitter = new TitleSplitter();
-
 	private final  SwordDocumentFacade swordDocumentFacade;
 	private final SwordContentFacade swordContentFacade;
 
@@ -86,9 +80,8 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
-			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
-			clipboard.setText(text);
+			ClipboardManager clipboard = (ClipboardManager)BibleApplication.Companion.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
+			clipboard.setPrimaryClip(ClipData.newPlainText("verseText", getCopyShareText(book, verseRange)));
 		} catch (Exception e) {
 			Log.e(TAG, "Error pasting to clipboard", e);
 			Dialogs.getInstance().showErrorMsg("Error copying to clipboard");
@@ -101,14 +94,12 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
-			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");
 
-			sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, getCopyShareText(book, verseRange));
 			// subject is used when user chooses to send verse via e-mail
-			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.getApplication().getText(R.string.share_verse_subject));
+			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.Companion.getApplication().getText(R.string.share_verse_subject));
 
 			Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
 			activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse))); 
@@ -116,6 +107,16 @@ public class PageControl {
 		} catch (Exception e) {
 			Log.e(TAG, "Error sharing verse", e);
 			Dialogs.getInstance().showErrorMsg("Error sharing verse");
+		}
+	}
+
+	private String getCopyShareText(Book book, VerseRange verseRange) {
+		try {
+			String referenceName = verseRange.getNameInLocale(null, new Locale(book.getLanguage().getCode()));
+			return referenceName + "\n" + "\n" + swordContentFacade.getTextWithVerseNumbers(book, verseRange);
+		} catch (Exception e) {
+			Log.e(TAG, "Error converting verse from OSIS to text.", e);
+			return null;
 		}
 	}
 	
@@ -144,71 +145,6 @@ public class PageControl {
 			Log.e(TAG, "Verse error");
 		}
 	}
-	/** 
-	 * Get page title including info about current doc
-	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
-	 */
-	public String[] getCurrentDocumentTitleParts() {
-	
-		String title = "";
-		CurrentPage currentPage = getCurrentPageManager().getCurrentPage();
-		if (currentPage!=null) {
-			if (currentPage.getCurrentDocument()!=null) {
-				title = currentPage.getCurrentDocument().getAbbreviation();
-			}
-		}
-		
-		String[] parts = titleSplitter.split(title);
-		if (parts.length>2) {
-			// skip first element which is often the language or book type e.g. GerNeUe, StrongsRealGreek
-			parts = ArrayUtils.subarray(parts, 1, 3);
-		}
-
-		return parts;
-	}
-
-	/** 
-	 * Get page title including info about key/verse
-	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
-	 */
-	public String[] getCurrentPageTitleParts() {
-		String[] retVal=new String[2];
-		try {
-			CurrentPage currentPage = getCurrentPageManager().getCurrentPage();
-			if (currentPage!=null) {
-				if (currentPage.getSingleKey()!=null) {
-					Key key = currentPage.getSingleKey();
-					// verses are special - show book at top and verse below
-					if (key instanceof Verse) {
-						Verse verse = (Verse)key;
-						Versification v11n = verse.getVersification();
-						retVal[0] = StringUtils.left(v11n.getShortName(verse.getBook()), 6);
-						
-						StringBuilder verseText = new StringBuilder();
-						verseText.append(verse.getChapter());
-						int verseNo = verse.getVerse();
-						if (verseNo>0) {
-							verseText.append(":").append(verseNo);
-						}
-						retVal[1] = verseText.toString();
-					} else {
-						// handle all non verse keys in a generic way
-						String title = key.getName();
-						// favour correct capitalisation because it looks better and is narrower so more fits in
-						if (ABStringUtils.isAllUpperCaseWherePossible(title)) {
-							// Books like INSTITUTES need corrected capitalisation
-							title = WordUtils.capitalizeFully(title);
-						}
-						String[] parts = titleSplitter.split(title);
-						retVal = ArrayUtils.subarray(parts, 0, 2);
-					}
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting page title", e);
-		}
-		return retVal;
-	}
 
 	public Verse getCurrentBibleVerse() {
 		return getCurrentPageManager().getCurrentBible().getSingleKey();
@@ -218,7 +154,7 @@ public class PageControl {
 	 */
 	public int getDocumentFontSize(Window window) {
 		// get base font size
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		SharedPreferences preferences = CommonUtils.INSTANCE.getSharedPreferences();
 		int fontSize = preferences.getInt("text_size_pref", 16);
 
 		// if book has a special font it may require an adjusted font size
@@ -232,7 +168,7 @@ public class PageControl {
 	/** return true if Strongs numbers are shown */
 	public boolean isStrongsShown() {
 		return isStrongsRelevant() &&
-			   CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+			   CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_strongs_pref", true);
 	}
 
 	/** return true if Strongs are relevant to this doc & screen */

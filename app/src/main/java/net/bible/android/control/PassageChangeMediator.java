@@ -95,10 +95,6 @@ public class PassageChangeMediator {
 	 */
 	public void contentChangeStarted() {
 		isPageChanging = true;
-
-		// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
-		ScreenSettings.isNightModeChanged();
-
 		ABEventBus.getDefault().post(new PassageChangeStartedEvent());
 	}
 	/** finished fetching html so should hide hourglass

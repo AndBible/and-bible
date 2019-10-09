@@ -3,8 +3,6 @@
   <string name="app_name">आन्ड बाइबल</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\nतब परमेश्वर ने कहा, “उजियाला हो” और उजियाला हो गया।\nउत्पत्ति 1:3</string>
-  <string name="help_text">अगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ\n अन्य कार्य के लिये \'मेनू\' दबाएँ</string>
-  <string name="help_text_long"><b>नेविगेशन</b>\nअगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ। \n\'फुल-स्क्रीन\' के लिये \'डबल-टैप\' कीजिए।\n \n\n<b>मेनू</b>\nअध्ययन/कार्य के लिये \'मेनू\' दबाएँ। \n \nअन्य किताबें/बाइबिल के लिए: मेनू&gt;\'अन्य किताबें डाउनलोड करें\';।\n\n<b>\'संदर्भ मेनू\'</b>\n \nवर्तमान छंद संबंधित कार्य - छंद या वाक्य, लंबे समय तक दबाएँ।\n\nकिताब संबंधित - मेनू&gt;किताबें, फिर किताब के नाम पर लंबे समय तक दबाएँ। \n\nअध्ययन-इतिहास संबंधित - \'बैक बटन\', लंबे समय तक दबाएँ। \n\n \n<b>अध्याय सुनिए</b>\nअध्याय सुनिए - एक या अधिक अध्याय जोर से सुनिए (+ विराम, दोहराना)।\n \n\n<b>मेरे टिप्पणीयां</b>\nटिप्पणी लिखने के लिए, छंद की \'संदर्भ मेनू\' चुनिए। \nटिप्पणी सूची के लिए मुख्य \'मेनू\' दबाएँ।\n \n\n<b>पुस्तक-चिन्ह</b>\nपुस्तक-चिन्ह जोड़ने के लिए, छंद की \'संदर्भ मेनू\' चुनिए। \n\'पुस्तक-चिन्ह मैनेजर\' के लिए मुख्य \'मेनू\' दबाएँ। पुस्तक-चिन्ह वर्गीकृत करने के लिए \'लेबल\' का उपयोग करें (\'पुस्तक-चिन्ह मैनेजर\' के \'संदर्भ मेनू\' में)। \n\n\n<b>खोज</b>\nखोज शब्दों में आप यह अक्षर भी शामिल कर सकते हैं: *, ?, AND, OR, NOT (अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\" गूगल में ढूंढ़ना)।</string>
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error">एक एस-डी कार्ड डालें और बाइबिल फिर से शुरू करें ।</string>
   <!--Main menu-->
@@ -15,7 +13,6 @@
   <string name="history">अध्ययन इतिहास</string>
   <string name="speak">अध्याय सुनिए</string>
   <string name="help">मदद</string>
-  <string name="verse">छंद</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">पुस्तक चुनें</string>
   <string name="choosePassageChapterName">अध्याय चुनें</string>
@@ -24,7 +21,6 @@
   <string name="search_index">खोज सूचकांक</string>
   <string name="index_creation_required">खोज के लिए सूचकांक की जरूरत है।\n\nकृपया सूचकांक इंटरनेट से डाउनलोड करें (तेज प्रक्रिया), \nया नई सूचकांक बनाऐं (धीमी प्रक्रिया, कम सुविधाओं)।</string>
   <string name="indexing_wait_msg">खोज-सूचकांक पूरा होने के बाद आपको खोज-स्क्रीन में ले जाया जाएगा</string>
-  <string name="index">सूचकांक</string>
   <string name="index_download">डाउनलोड</string>
   <string name="index_not_available_for_download">यह सूचकांक डाउनलोड करने के लिए उपलब्ध नहीं है</string>
   <string name="index_create">नई सूचकांक बनाऐं </string>
@@ -33,7 +29,6 @@
   <string name="task_kill_warning">अगर आप आन्ड बाइबिल को छोड़ जाऐं, तो लंबे कार्य अंत होने की संभावना है</string>
   <string name="no_tasks_running">कोई कार्य इस समय क्रियान्वित नही</string>
   <!--Search-->
-  <string name="search_results">खोज परिणाम</string>
   <string name="search_words_group_prompt">छंद खोज</string>
   <string name="search_all_words">सभी शब्द</string>
   <string name="search_any_word">कोई भी शब्द</string>
@@ -48,21 +43,12 @@
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">छंद संख्या</string>
-  <string name="prefs_show_verseno_summary">छंद संख्या दिखाना</string>
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
-  <string name="prefs_verse_per_line_summary">हर एक छंद, नई पंक्ति में पढ़िये</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
-  <string name="prefs_show_mynotes_summary">मेरे टिप्पणी वाले छंद में चित्र दिखाना</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
-  <string name="prefs_show_notes_summary">पाद टिप्पणी और संबंधित संदर्भ दिखाना</string>
-  <string name="prefs_show_strongs_title">\"र्स्टो्न्ग\" की संख्या दिखाना</string>
-  <string name="prefs_show_strongs_summary">यूनानी और हिब्रू परिभाषा</string>
   <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
-  <string name="prefs_show_morphology_summary">रॉबिन्सन यूनानी(ग्रीक) आकारिकी दिखाना</string>
   <string name="prefs_section_title_title">खंड शीर्षक (टाइटिल)</string>
-  <string name="prefs_section_title_summary">तमाम खंड शीर्षक (टाइटिल) दिखाना</string>
   <string name="prefs_red_letter_title">लाल अक्षर</string>
-  <string name="prefs_red_letter_summary">यीशु मसीह के शब्द, लाल रंग में</string>
   <string name="prefs_tilt_to_scroll_title">अगले पृष्ठ के लिए फ़ोन झुकना</string>
   <string name="prefs_tilt_to_scroll_summary">फ़ोन झुकना - अगला पृष्ठ देखें</string>
   <string name="prefs_night_mode_title">अंधेरे में पढ़िये</string>
@@ -73,10 +59,8 @@
   <string name="prefs_text_size_title">अक्षर का आकार</string>
   <string name="prefs_text_size_summary">अधिक / स्पष्ट रूप से देखने</string>
   <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
-  <string name="x_minutes">%d मिनट</string>
   <string name="prefs_interface_locale_title">आन्ड बाइबिल, नई भाषा में</string>
   <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
-  <string name="locale_change_warning">आपकी चुनी भाषा में, आन्ड बाइबिल पुनः आरंभ हो रहा है</string>
   <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">कोई नोट इस अध्याय में मौजूद नहीं</string>
@@ -84,14 +68,11 @@
   <string name="previous">पिछला</string>
   <string name="next">अगला</string>
   <!--Strongs-->
-  <string name="strongs">\"र्स्टो्न्ग\" शब्दकोश</string>
   <string name="strongs_not_installed">\"र्स्टो्न्ग\" की हिब्रू और यूनानी शब्दकोश डाउनलोड करें</string>
   <string name="all_greek_occurrences">सभी घटना खोजें</string>
   <string name="all_hebrew_occurrences">सभी मिसाल खोजें</string>
   <string name="no_indexed_bible_with_strongs_ref">\"र्स्टो्न्ग\" संख्या वाले बाइबिल डाउनलोड करें, फिर खोज सूचकांक डाउनलोड करें</string>
   <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' शब्दकोश, डाउनलोड करें</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">अन्य किताबें डाउनलोड करें</string>
   <string name="download_confirmation">बाइबिल डाउनलोड करें, इंटरनेट से ?</string>
@@ -102,9 +83,6 @@
   <string name="error_downloading">डाउनलोड में त्रुटि. इंटरनेट चेक करें</string>
   <string name="no_internet_connection">इंटरनेट उपलब्ध नहीं</string>
   <string name="storage_space_warning">किताब के लिए जगह कम है</string>
-  <string name="wait_for_bible">कृपया प्रतीक्षा करें, बाइबिल डाउनलोड \nहोने के बाद मुख्य स्क्रीन दिखाई देगा ।\n\nअगले किताबें/बाइबिल के लिए: मेनू&gt;\'अन्य किताबें डाउनलोड करें\'।</string>
-  <string name="wait_for_bible_not_yet">कृपया प्रतीक्षा करें,\nबाइबिल डाउनलोड हो रहा है</string>
-  <string name="download_complete_no_bibles">कोई बाइबिल उपलब्ध नहीं, कृपया \'बैक बटन\' दबाएँ</string>
   <string name="too_many_jobs">कई कार्य क्रियान्वित।  कृपया प्रतीक्षा करें।</string>
   <string name="document_not_installed">कृपया डाउनलोड करें \'%s\'</string>
   <!--Install zip file-->
@@ -115,11 +93,6 @@
   <string name="rdg_plan_set_start_jan1">आरंभ - जनवरी 1</string>
   <string name="done">समाप्त</string>
   <string name="reset"> पुनः तैयार करना</string>
-  <string name="rdg_plan_y1ntpspr">नया नियम, भजन संहिता और नीतिवचन, एक वर्ष में</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">बाइबिल एक वर्ष में: कालक्रम के अनुसार</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">बाइबिल एक वर्ष में: पुराना और नया नियम</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">बाइबिल एक वर्ष में: पुराना नियम,फिर नया नियम</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">बाइबिल एक वर्ष में (M\'Cheyne)</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">मिटाओ</string>
@@ -136,23 +109,19 @@
   <string name="bookmarks">पुस्तक-चिन्ह</string>
   <string name="add_bookmark">पुस्तक-चिन्ह लगाओ</string>
   <string name="bookmark_added">पुस्तक-चिन्ह लग गया</string>
-  <string name="bookmark_exists">यह पुस्तक-चिन्ह, पहले से ही मौजूद</string>
   <string name="bookmark_labels">पुस्तक-चिन्ह  लेबल (नाम)</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
   <string name="new_label">नया लेबल</string>
   <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
-  <string name="rename">नया नाम देना</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">\t\nदिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
   <!--Dictionary-->
   <string name="dictionary">बाइबिल शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>
-  <string name="dictionary_contents">\t\nविषय - सूची</string>
   <!--General Book-->
   <string name="general_book">पुस्तक</string>
-  <string name="general_book_contents">सामग्री</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -188,9 +157,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
-  <string name="mynote">मेरे टिप्पणी</string>
   <string name="mynote_add">टिप्पणी लिखो</string>
-  <string name="mynote_view_edit">मेरे टिप्पणी</string>
   <string name="mynote_saved">टिप्पणी सुरक्षित </string>
   <!--Backup and restore-->
   <string name="backup">बैकअप</string>
@@ -214,11 +181,7 @@
   <string name="cancel">रद्द करें</string>
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
-  <string name="save">सुरक्षित</string>
   <string name="error">त्रुटि</string>
-  <string name="more">और</string>
-  <string name="more_dotted">और...</string>
-  <string name="retry">फिर कोशिश करें</string>
   <string name="please_wait"> कृपया प्रतीक्षा करें...</string>
   <string name="all">संपूर्ण</string>
   <string name="default_value">@string/lang_default</string>

@@ -40,7 +40,13 @@ public class LegacyLocaleChanger implements LocaleChanger {
 	@Override
 	public Context changeLocale(Context context, String language) {
 		logger.debug("Update resources legacy to:"+language);
-		Locale locale = new Locale(language);
+		Locale locale = null;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+			locale = Locale.forLanguageTag(language);
+		} else {
+			locale = new Locale(language);
+		}
+
 		Locale.setDefault(locale);
 
 		Resources resources = context.getResources();

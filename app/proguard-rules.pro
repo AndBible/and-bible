@@ -18,6 +18,7 @@
 
 # we use mmseg4j instead of jsword's default SmartChineseAnalyzer
 -dontwarn org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer
+-dontwarn java.lang.management.ManagementFactory
 
 # do not use JDOM2 jaxen xpath facility
 -dontwarn org.jaxen.**
@@ -28,6 +29,8 @@
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
 
+-dontwarn javax.swing.text.**
+
 # slf4j has a lot of potential dependencies, not all of which are required
 -dontwarn org.slf4j.**
 
@@ -37,6 +40,11 @@
 -keepclassmembers class net.bible.android.view.activity.page.BibleJavascriptInterface {
    public *;
 }
+
+-keepclassmembers class org.apache.lucene.index.IndexReader {
+   public *;
+}
+
 
 # Keep all the GreenRobot event handling onEvent functions
 -keepclassmembers class ** {
@@ -70,6 +78,10 @@
 -keep class * implements org.apache.lucene.**Attribute
 # required for non-English searches
 -keep class * extends org.tartarus.snowball.SnowballProgram
+
+-keepclassmembers class * extends org.tartarus.snowball.SnowballProgram {
+    *;
+}
 
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
 #-keepattributes *Annotation*

@@ -30,7 +30,8 @@ import android.widget.ListView;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.history.HistoryItem;
+ import net.bible.android.view.activity.base.SharedActivityState;
+ import net.bible.service.history.HistoryItem;
 import net.bible.service.history.HistoryManager;
 
 import java.util.ArrayList;
@@ -61,7 +62,10 @@ public class History extends ListActivityBase {
 		buildActivityComponent().inject(this);
 
         setListAdapter(createAdapter());
-        
+
+        String name = SharedActivityState.getCurrentWorkspaceName();
+
+        setTitle(String.format("%s (%s)", getTitle(), name));
         Log.d(TAG, "Finished displaying Search view");
     }
 

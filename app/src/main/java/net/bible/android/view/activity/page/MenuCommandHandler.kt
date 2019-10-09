@@ -19,17 +19,26 @@
 package net.bible.android.view.activity.page
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -40,13 +49,19 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.download.Download
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
+import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -57,9 +72,7 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
-
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST
-import net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST
+import kotlin.concurrent.thread
 
 /** Handle requests from the main menu
  *
@@ -74,12 +87,14 @@ constructor(private val callingActivity: MainBibleActivity,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
-            private val backupControl: BackupControl
+            private val backupControl: BackupControl,
+            private val documentViewManager: DocumentViewManager
 ) {
 
     /**
      * on Click handlers
      */
+    @SuppressLint("RestrictedApi")
     fun handleMenuRequest(menuItem: MenuItem): Boolean {
         var isHandled = false
 
@@ -89,6 +104,38 @@ constructor(private val callingActivity: MainBibleActivity,
             var requestCode = ActivityBase.STD_REQUEST_CODE
             // Handle item selection
             when (menuItem.itemId) {
+                R.id.chooseDocumentButton -> {
+                    val intent = Intent(callingActivity, ChooseDocument::class.java)
+                    callingActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                }
+                R.id.rateButton -> {
+                    val uri = Uri.parse("market://details?id=" + callingActivity.packageName)
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply{
+                        // To count with Play market backstack, After pressing back button,
+                        // to taken back to our application, we need to add following flags to intent.
+                        addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                        }
+                    }
+                    try {
+                        callingActivity.startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        val httpUri = Uri.parse("http://play.google.com/store/apps/details?id=" + callingActivity.packageName)
+                        callingActivity.startActivity(Intent(Intent.ACTION_VIEW, httpUri))
+                    }
+                }
+                R.id.backupMainMenu -> {
+                    val view: View = callingActivity.findViewById(R.id.homeButton)
+                    val menu = PopupMenu(callingActivity, view).apply {
+                        menuInflater.inflate(R.menu.backup_submenu, menu)
+                        setOnMenuItemClickListener {handleMenuRequest(it)}
+                    }
+
+                    val menuHelper = MenuPopupHelper(callingActivity, menu.menu as MenuBuilder, view)
+                    menuHelper.setForceShowIcon(true)
+                    menuHelper.show()
+                }
                 R.id.searchButton -> handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument)
                 R.id.settingsButton -> {
                     handlerIntent = Intent(callingActivity, SettingsActivity::class.java)
@@ -109,10 +156,10 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.dailyReadingPlanButton ->
                     // show todays plan or allow plan selection
-                    if (readingPlanControl.isReadingPlanSelected) {
-                        handlerIntent = Intent(callingActivity, DailyReading::class.java)
+                    handlerIntent = if (readingPlanControl.isReadingPlanSelected) {
+                        Intent(callingActivity, DailyReading::class.java)
                     } else {
-                        handlerIntent = Intent(callingActivity, ReadingPlanSelectorList::class.java)
+                        Intent(callingActivity, ReadingPlanSelectorList::class.java)
                     }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
                     handlerIntent = Intent(callingActivity, Download::class.java)
@@ -120,13 +167,13 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
                 R.id.helpButton -> {
-                    val app = BibleApplication.getApplication()
-                    val versionMsg = app.getString(R.string.version_text, CommonUtils.getApplicationVersionName())
+                    val app = BibleApplication.application
+                    val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
 
-                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_menu_title, R.string.help_speech_title,
+                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_speech_title,
                             R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
                             R.string.help_contextmenus_title)
-                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_menu_text, R.string.help_speech_text,
+                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_speech_text,
                             R.string.help_mynote_text, R.string.help_bookmarks_text, R.string.help_search_text,
                             R.string.help_contextmenus_text)
 
@@ -136,7 +183,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         val helpText = app.getString(helpTexts[idx]).replace("\n", "<br>")
                         htmlMessage += "<b>${app.getString(helpTitles[idx])}</b><br>$helpText<br><br>"
                     }
-                    htmlMessage += "<i>${versionMsg}</i>"
+                    htmlMessage += "<i>$versionMsg</i>"
 
                     val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
@@ -154,6 +201,16 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
                 R.id.backup -> {
+                    backupControl.backupDatabaseViaIntent(callingActivity)
+                    isHandled = true
+                }
+                R.id.restore -> {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT)
+                    intent.type = "application/*"
+                    callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                    isHandled = true
+                }
+                R.id.backupStorage -> {
                     if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
                     } else {
@@ -161,7 +218,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
-                R.id.restore -> {
+                R.id.restoreStorage -> {
                     if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
                     } else {
@@ -169,7 +226,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
-            }//handlerIntent = new Intent(callingActivity, Help.class);
+            }
 
             if (!isHandled) {
                 isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem)
@@ -187,7 +244,7 @@ constructor(private val callingActivity: MainBibleActivity,
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {
         if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
             Log.i(TAG, "Refresh on finish")
-            if (!equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().localeOverrideAtStartUp)) {
+            if (!equals(CommonUtils.localePref ?: "", BibleApplication.application.localeOverrideAtStartUp)) {
                 // must restart to change locale
                 CommonUtils.restartApp(callingActivity)
             }
@@ -205,9 +262,9 @@ constructor(private val callingActivity: MainBibleActivity,
 
     companion object {
 
-        private val TAG = "MainMenuCommandHandler"
+        private const val TAG = "MainMenuCommandHandler"
 
-        internal fun equals(a: Any?, b: Any): Boolean {
+        internal fun equals(a: String?, b: String?): Boolean {
             return a === b || (a != null && a == b)
         }
     }

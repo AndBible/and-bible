@@ -40,6 +40,7 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.book.sword.SwordBook;
@@ -188,8 +189,17 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), key);
-			verseText = CommonUtils.limitTextLength(verseText);
+			Book doc = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument();
+			BookCategory cat = doc.getBookCategory();
+			if(cat.equals(BookCategory.BIBLE) || cat.equals(BookCategory.COMMENTARY)) {
+				verseText = swordContentFacade.getPlainText(doc, key);
+			}
+			else {
+				Book bible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
+				verseText = swordContentFacade.getPlainText(bible, key);
+			}
+
+			verseText = CommonUtils.INSTANCE.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
 		}
@@ -235,9 +245,9 @@ public class SearchControl {
 	public boolean downloadIndex(Book book) {
 		boolean ok = false;
     	try {
-        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        	if (CommonUtils.INSTANCE.getSdCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	} else if (!CommonUtils.isInternetAvailable()) {
+        	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
             	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
             	ok = false;
         	} else {

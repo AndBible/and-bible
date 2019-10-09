@@ -30,8 +30,10 @@ import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
+import net.bible.android.view.activity.page.MainBibleActivity;
 
 import org.crosswire.jsword.passage.VerseRange;
+import org.jetbrains.annotations.NotNull;
 
 /** Handle requests from the selected verse action menu
  * 
@@ -39,7 +41,7 @@ import org.crosswire.jsword.passage.VerseRange;
  */
 public class VerseMenuCommandHandler {
 
-	private final Activity mainActivity;
+	private final MainBibleActivity mainActivity;
 
 	private final PageControl pageControl;
 
@@ -51,7 +53,7 @@ public class VerseMenuCommandHandler {
 
 	private static final String TAG = "VerseMenuCommandHandler";
 
-	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
+	public VerseMenuCommandHandler(MainBibleActivity mainActivity, PageControl pageControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
 		super();
 		this.mainActivity = mainActivity;
 		this.pageControl = pageControl;
@@ -62,7 +64,7 @@ public class VerseMenuCommandHandler {
 	/**
 	 * on Click handler for Selected verse menu
 	 */
-	public boolean handleMenuRequest(int menuItemId, VerseRange verseRange) {
+	public boolean handleMenuRequest(int menuItemId, @NotNull VerseRange verseRange) {
 		boolean isHandled = false;
 
 		{
@@ -96,6 +98,7 @@ public class VerseMenuCommandHandler {
 					isHandled = true;
 					break;
 				case R.id.myNoteAddEdit:
+					mainActivity.setFullScreen(false);
 					myNoteControl.showMyNote(verseRange);
 					isHandled = true;
 					break;

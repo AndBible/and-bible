@@ -20,15 +20,18 @@ package net.bible.service.device.speak
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
-import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -41,7 +44,6 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import java.util.*
 import javax.inject.Inject
@@ -137,7 +139,7 @@ class TextToSpeechNotificationManager {
         }
 
         override fun onBind(intent: Intent?): IBinder? {
-            return null;
+            return null
         }
     }
 
@@ -177,7 +179,7 @@ class TextToSpeechNotificationManager {
     }
 
 
-    private var app = BibleApplication.getApplication()
+    private var app = BibleApplication.application
     private var currentTitle = getString(R.string.app_name)
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
@@ -193,7 +195,7 @@ class TextToSpeechNotificationManager {
     private var currentText = ""
 
     private fun getString(id: Int): String {
-        return BibleApplication.getApplication().getString(id)
+        return BibleApplication.application.getString(id)
     }
 
     init {
@@ -205,10 +207,10 @@ class TextToSpeechNotificationManager {
 
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
+                .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
 
-        val powerManager = BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE) as PowerManager
+        val powerManager = BibleApplication.application.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
@@ -269,7 +271,7 @@ class TextToSpeechNotificationManager {
                 }
             }
             else {
-                currentText = ev.speakCommand.text;
+                currentText = ev.speakCommand.text
             }
         }
         buildNotification(speakControl.isSpeaking)

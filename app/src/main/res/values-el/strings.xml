@@ -3,8 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Και ο Θεός είπε,« Γενηθήτω φως, και υπήρχε φως. \"\nΓένεσις 1:03</string>
-  <string name="help_text">Πιέστε το πλήκτρο ΜΕΝΟΥ για δράσεις\n\nΜετάβαση στο επόμενο ή στο προηγούμενο κεφάλαιο με τη χρήση της γραμμής-μπάλα, D-pad ή περνώντας την οθόνη με το δάχτυλό σας</string>
-  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n \nDouble-tap toggles Fullscreen on/off.\n \n\n<b>Menu</b>\n \nPress the MENU button for actions\n \n\nTo download more documents press Menu/Download Documents\n \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu. The list of existing notes can be accessed via the main menu.\n \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n \n\n<b>Context Menus</b>\n \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n \nLong press on a document in the document selector to delete it or view information.\n \nLong press the Back button to access the History list\n</string>
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Παρακαλώ εισάγετε μια κάρτα SD για να αρχίσει και πάλι το And Bible.</string>
   <!--Main menu-->
@@ -23,7 +21,6 @@
   <string name="search_index">Ευρετήριο αναζήτησης</string>
   <string name="index_creation_required">Ένα ευρετήριο είναι απαραίτητο για την αναζήτηση.\n\nΤα ευρετήρια μπορούν να μεταφορτωθούν από το διαδίκτυο ή να δημιουργηθούν σε τοπικό επίπεδο.\n\nΗ λήψη είναι πολύ ταχύτερη και λαμβάνονται τα ευρετήρια που έχουν τις περισσότερες δυνατότητες αναζήτησης.\n\nΜια σύνδεση με το Διαδίκτυο είναι απαραίτητη για την λήψη ευρετήριων.\n</string>
   <string name="indexing_wait_msg">Όταν η δημιουργία ευρετηρίων έχει ολοκληρωθεί, θα πρέπει να ληφθούν για την οθόνη αναζήτησης.</string>
-  <string name="index">Ευρετήριο</string>
   <string name="index_download">Λήψη</string>
   <string name="index_not_available_for_download">Το ευρετήριο αυτό δεν είναι διαθέσιμο για λήψη</string>
   <string name="index_create">Δημιουργία</string>
@@ -32,7 +29,6 @@
   <string name="task_kill_warning">Αυτές οι μακροχρόνιες εργασίες λειτουργίας μπορεί να τερματίστουν αν μεταβείτε σε μια άλλη εφαρμογή πριν τελειώσουν.</string>
   <string name="no_tasks_running">Δεν υπάρχουν εργασίες υπό εκτέλεση.</string>
   <!--Search-->
-  <string name="search_results">Εύρεση αποτελεσμάτων</string>
   <string name="search_words_group_prompt">Εύρεση στίχων</string>
   <string name="search_all_words">Όλες οι λέξεις</string>
   <string name="search_any_word">Κάθε λέξη</string>
@@ -47,21 +43,12 @@
   <string name="error_executing_search">Μη έγκυρο ερώτημα αναζήτησης</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Αριθμοί στίχου</string>
-  <string name="prefs_show_verseno_summary">Εμφάνιση αριθμών στίχου</string>
   <string name="prefs_verse_per_line_title">Ένας στίχος ανά γραμμή</string>
-  <string name="prefs_verse_per_line_summary">Εμφάνιση κάθε στίχου σε μια διαφορετική γραμμή</string>
   <string name="prefs_show_mynotes_title">Εμφάνιση εικονιδίων των σημείωσεων μου</string>
-  <string name="prefs_show_mynotes_summary">Εμφάνιση εικονιδίου στίχων με τη σημείωση μου</string>
   <string name="prefs_show_notes_title">Υποσημειώσεις και x-διαιτητές</string>
-  <string name="prefs_show_notes_summary">Εμφάνιση υποσημειώσεων και παραπομπές</string>
-  <string name="prefs_show_strongs_title">Εμφανιση ισχυρων αριθμων</string>
-  <string name="prefs_show_strongs_summary">Σύνδεσμοι προς Ελληνικους&amp; Εβραϊκους ορισμούς</string>
   <string name="prefs_show_morphology_title">Μορφολογική κώδικες</string>
-  <string name="prefs_show_morphology_summary">Εμφάνιση ελληνικής μορφολογίας του Ρόμπινσον</string>
   <string name="prefs_section_title_title">Τμήμα τίτλων</string>
-  <string name="prefs_section_title_summary">Εμφάνιση μη κανονικων τίτλων τμήματος</string>
   <string name="prefs_red_letter_title">Κόκκινο Γράμμα</string>
-  <string name="prefs_red_letter_summary">Εμφάνιση του λόγου  του Χριστού με κόκκινο χρώμα</string>
   <string name="prefs_tilt_to_scroll_title">Κλίση για κύλιση</string>
   <string name="prefs_tilt_to_scroll_summary">Γείρετε την συσκευή για να κύλισετε προς τα κάτω την σελίδα</string>
   <string name="prefs_night_mode_title">Λειτουργία νυκτός</string>
@@ -72,10 +59,8 @@
   <string name="prefs_text_size_title">Μέγεθος κειμένου</string>
   <string name="prefs_text_size_summary">Δείτε περισσότερα ή δείτε πιο καθαρά</string>
   <string name="prefs_text_size_sample_text">Δείγμα κειμένου</string>
-  <string name="x_minutes">%d λεπτά</string>
   <string name="prefs_interface_locale_title">Γλώσσα εφαρμογής</string>
   <string name="prefs_interface_locale_summary">Επιλογή προσαρμοσμένης γλώσσας διεπαφής χρήστη</string>
-  <string name="locale_change_warning">Η εφαρμογή θα πρέπει να επανεκκινηθεί ώστε να γινει η μετάβαση στην νέα γλώσσα</string>
   <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">Δεν υπάρχουν σημειώσεις σε αυτό το κεφάλαιο</string>
@@ -83,14 +68,11 @@
   <string name="previous">Προηγούμενος</string>
   <string name="next">Επόμενος</string>
   <!--Strongs-->
-  <string name="strongs">Ισχυρές λεξικό</string>
   <string name="strongs_not_installed">Παρακαλώ κατεβάστε τα Εβραϊκά και τα Ελληνικά Ισχυρές λεξικά</string>
   <string name="all_greek_occurrences">Αναζήτηση περιστατικών</string>
   <string name="all_hebrew_occurrences">Αναζήτηση περιστατικών</string>
   <string name="no_indexed_bible_with_strongs_ref">Πρέπει να κάνετε λήψη μιας βίβλου που περιέχει αριθμούς Ισχυρων και να κατεβάσετε το ευρετήριό μέσω της Αναζήτησης</string>
   <string name="morph_robinson_not_installed">Παρακαλώ κατεβάστε το λεξικό «Μορφολογική Κώδικες Ανάλυσης του Ρόμπινσον»</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Λήψη εγγράφων</string>
   <string name="download_confirmation">Λήψη μια Αγία Γραφής από το διαδίκτυο;</string>
@@ -101,9 +83,6 @@
   <string name="error_downloading">Παρουσιάστηκε σφάλμα κατά τη λήψη. Παρακαλώ ελέγξτε την σύνδεση διαδικτύου σας.</string>
   <string name="no_internet_connection">Δεν ήταν δυνατή η σύνδεση με το διαδίκτυο</string>
   <string name="storage_space_warning">Ανεπαρκής τοπικός χώρος αποθήκευσης.</string>
-  <string name="wait_for_bible">Παρακαλώ περιμένετε την Αγία Γραφή να τελειώσει το κατέβασμα. Στη συνέχεια, θα ληφθούν μέτρα για την κύρια οθόνη.\n\nΛήψη περισσοτέρων εγγράφων αργότερα με την πλοήγηση στο μενού Κουμπί / Λήψη εγγράφων.</string>
-  <string name="wait_for_bible_not_yet">Παρακαλώ περιμένετε. Η Αγία Γραφή δεν έχει ακόμη ολοκληρώσει την εγκατάσταση.</string>
-  <string name="download_complete_no_bibles">Καμία Αγία Γραφή εγκαταστάθηκε. Παρακαλούμε πατήστε Πίσω και δοκιμάστε ξανά.</string>
   <string name="too_many_jobs">Υπερβολικά πολλές εργασίες εκτέλεσης. Περιμένετε να τελειώσει κάποια και προσπαθήστε ξανά.</string>
   <string name="document_not_installed">Παρακαλώ κατεβάστε το \'%s\'</string>
   <!--Install zip file-->
@@ -114,11 +93,6 @@
   <string name="rdg_plan_set_start_jan1">Έναρξη 1η Γενάρη</string>
   <string name="done">Τελος</string>
   <string name="reset">Επαναφορά</string>
-  <string name="rdg_plan_y1ntpspr">Καινή Διαθήκη, Ψαλμοί, Παροιμίες σε ένα χρόνο</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Μέσα από την Αγία Γραφή χρονολογικά σε ένα χρόνο</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Μέσα από την Αγία Γραφή σε ένα χρόνο - OT και NT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Μέσα από την Αγία Γραφή μέσα σε ένα χρόνο - OT κατόπιν NT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Μέσα από την Αγία Γραφή σε ένα χρόνο (M\'Cheyne)</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Διαγραφή</string>
@@ -137,7 +111,6 @@
   <string name="bookmarks">Σελιδοδείκτες</string>
   <string name="add_bookmark">Προσθήκη σελιδοδείκτη</string>
   <string name="bookmark_added">Ο σελιδοδείκτης προστέθηκε</string>
-  <string name="bookmark_exists">Ο σελιδοδείκτης υπάρχει ήδη</string>
   <string name="bookmark_labels">Ετικέτες σελιδοδείκτη</string>
   <string name="assign_labels">Εκχώρηση ετικετών</string>
   <string name="new_label">Νέα ετικέτα</string>
@@ -146,10 +119,8 @@
   <!--Dictionary-->
   <string name="dictionary">Λεξικό</string>
   <string name="search_dictionary_hint">Αναζήτηση λεξικού</string>
-  <string name="dictionary_contents">Περιεχόμενα</string>
   <!--General Book-->
   <string name="general_book">Βιβλίο</string>
-  <string name="general_book_contents">Περιεχόμενα</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -185,9 +156,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Οι σημειώσεις μου</string>
-  <string name="mynote">Η σημείωση μου</string>
   <string name="mynote_add">Προσθήκη της σημείωσης μου</string>
-  <string name="mynote_view_edit">Η σημείωση μου</string>
   <string name="mynote_saved">Η σημείωση μου αποθηκεύεται</string>
   <!--Backup and restore-->
   <string name="backup">Δημιουργία αντιγράφων ασφαλείας</string>
@@ -211,10 +180,7 @@
   <string name="cancel">Ακύρωση</string>
   <string name="yes">Ναί</string>
   <string name="no">Οχι</string>
-  <string name="save">Αποθήκευση</string>
   <string name="error">Σφάλμα</string>
-  <string name="more">Περισσότερα</string>
-  <string name="retry">Δοκιμάστε ξανά</string>
   <string name="please_wait">Παρακαλώ περιμένετε...</string>
   <string name="all">Ολα</string>
   <string name="default_value">@string/lang_default</string>

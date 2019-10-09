@@ -66,7 +66,7 @@ public class PhoneCallMonitor {
 	}
 	
 	private TelephonyManager getTelephonyManager() {
-		return (TelephonyManager)BibleApplication.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
+		return (TelephonyManager)BibleApplication.Companion.getApplication().getSystemService(Context.TELEPHONY_SERVICE);
 	}
 
 }

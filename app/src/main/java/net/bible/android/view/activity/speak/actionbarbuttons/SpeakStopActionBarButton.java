@@ -42,14 +42,14 @@ public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
-		getSpeakControl().stop();
+		getSpeakControl().stop(false, false);
 
 		return true;
 	}
 
 	@Override
 	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.stop);
+		return CommonUtils.INSTANCE.getResourceString(R.string.stop);
 	}
 	
 	@Override

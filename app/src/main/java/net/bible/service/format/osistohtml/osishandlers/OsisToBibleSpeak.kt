@@ -46,9 +46,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
     init {
         val res = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            BibleApplication.getApplication().getLocalizedResources(language)
+            BibleApplication.application.getLocalizedResources(language)
         } else {
-            BibleApplication.getApplication().resources
+            BibleApplication.application.resources
         }
         divineNameOriginal = res.getStringArray(R.array.speak_divinename_original)
         divineNameReplace = res.getStringArray(R.array.speak_divinename_replace)
@@ -75,7 +75,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             anyTextWritten = false
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            if((attrs?.getValue("type")?: "").equals("study") && speakSettings.playbackSettings.speakFootnotes) {
+            if((attrs?.getValue("type")?: "") == "study" && speakSettings.playbackSettings.speakFootnotes) {
                 speakCommands.add(PreFootnoteCommand(speakSettings))
                 elementStack.push(StackEntry(true, TagType.FOOTNOTE))
             }
@@ -86,11 +86,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             elementStack.push(StackEntry(false))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.push(StackEntry(peekVisible, TagType.DIVINE_NAME))
-            divineNameLevel ++;
+            divineNameLevel ++
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TagType.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
-            titleLevel++;
+            titleLevel++
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs?.getValue("type") ?: ""
             val isVerseBeginning = attrs?.getValue("sID") != null
@@ -122,17 +122,17 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
         if(state.tagType == TagType.PARAGRAPH) {
             if(anyTextWritten) {
-                anyTextWritten = false;
+                anyTextWritten = false
             }
         }
         else if(state.tagType == TagType.TITLE) {
             if (speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
-            titleLevel--;
+            titleLevel--
         }
         else if(state.tagType == TagType.DIVINE_NAME) {
-            divineNameLevel--;
+            divineNameLevel--
         }
         else if(state.tagType == TagType.FOOTNOTE) {
             if(speakSettings.playbackSettings.speakFootnotes) {
@@ -156,11 +156,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         s = s.replace("’", "'")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            s = Html.fromHtml(s, 0).toString()
+        s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(s, 0).toString()
         }
         else {
-            s = s.replace("&quot;", "\"")
+            s.replace("&quot;", "\"")
         }
 
         if(currentState.visible) {

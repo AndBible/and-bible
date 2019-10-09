@@ -39,7 +39,7 @@ class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 
 	private Context context;
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+	private String sampleText = CommonUtils.INSTANCE.getResourceString(R.string.prefs_text_size_sample_text);
 
 	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper;
 

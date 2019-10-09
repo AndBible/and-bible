@@ -32,7 +32,7 @@ data class ChapterVerse(val chapter: Int, val verse: Int) {
     /**
      * The format used for ids in html
      */
-    fun toHtmlId(): String = chapter.toString() + "." + verse
+    fun toHtmlId(): String = "$chapter.$verse"
     fun toChapterHtmlId(): String = chapter.toString()
 
     fun after(other: ChapterVerse): Boolean =

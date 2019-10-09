@@ -26,17 +26,24 @@ import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
+import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
@@ -44,11 +51,14 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         const val TAG = "BibleSpeakActivity"
     }
 
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var navigationControl: NavigationControl
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_bible)
-        super.buildActivityComponent().inject(this)
+        buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -71,7 +81,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     override fun resetView(settings: SpeakSettings) {
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
         speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
@@ -79,32 +88,32 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_set, settings.sleepTimer) else getString(R.string.conf_speak_sleep_timer)
-        speakPauseButton.setImageResource(
-                if(speakControl.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
-        bookmarkButton.visibility = if(settings.autoBookmark) View.VISIBLE else View.GONE
+        repeatPassageCheckbox.text = settings.playbackSettings.verseRange?.name?: getString(R.string.speak_verse_range_to_repeat)
+        repeatPassageCheckbox.isChecked = settings.playbackSettings.verseRange != null
     }
 
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.speak_bible_actionbar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.advancedSettings -> {
+                startActivity(Intent(this, SpeakSettingsActivity::class.java))
+                return true
+            }
+            R.id.systemSettings -> {
+                startActivity(Intent("com.android.settings.TTS_SETTINGS"))
+                return true
+            }
+        }
+        return false
+    }
 
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        currentSettings = ev.speakSettings;
+        currentSettings = ev.speakSettings
         resetView(ev.speakSettings)
-    }
-
-    fun onEventMainThread(ev: SpeakEvent) {
-        speakPauseButton.setImageResource(
-                if(ev.isSpeaking)
-                    android.R.drawable.ic_media_pause
-                else
-                android.R.drawable.ic_media_play
-        )
     }
 
     fun onHelpButtonClick(widget: View) {
@@ -131,48 +140,74 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     fun onSettingsChange(widget: View) = updateSettings()
 
+    fun setRepeatPassage(v: View) {
+        val s = SpeakSettings.load()
+        if(s.playbackSettings.verseRange != null) {
+            s.playbackSettings.verseRange = null
+            s.save(updateBookmark = true)
+        }
+        else {
+            val intent = Intent(this, GridChoosePassageBook::class.java)
+            intent.putExtra("navigateToVerse", true)
+            intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
+            startVerse = null
+            endVerse = null
+            repeatPassageCheckbox.isChecked = false // not yet!
+            startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+        }
+    }
+
+    private var startVerse: Verse? = null
+    private var endVerse: Verse? = null
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d(TAG, "Activity result:$resultCode")
+        val verseStr = data?.extras?.getString("verse")
+        val v11n = navigationControl.versification
+        if(verseStr != null) {
+            val verse = VerseFactory.fromString(v11n, verseStr)
+            if(startVerse == null) {
+                startVerse = verse
+                val intent = Intent(this, GridChoosePassageBook::class.java)
+                intent.putExtra("navigateToVerse", true)
+                intent.putExtra("title", getString(R.string.speak_ending_of_passage))
+                startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+            }
+            else {
+                endVerse = verse
+                val settings = SpeakSettings.load()
+                if(endVerse!!.ordinal > startVerse!!.ordinal){
+                    val verseRange = VerseRange(v11n, startVerse, endVerse)
+                    settings.playbackSettings.verseRange = verseRange
+                    settings.save(updateBookmark = true)
+                }
+                else {
+                    startVerse = null
+                    endVerse = null
+                    ABEventBus.getDefault().post(ToastEvent(R.string.speak_ending_verse_must_be_later))
+                    resetView(settings)
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+
     fun updateSettings() {
-        SpeakSettings.load().apply {
+        val settings = SpeakSettings.load()
+
+        settings.apply {
             playbackSettings = PlaybackSettings(
                     speakChapterChanges = speakChapterChanges.isChecked,
                     speakTitles = speakTitles.isChecked,
                     speakFootnotes = speakFootnotes.isChecked,
-                    speed = speakSpeed.progress
+                    speed = speakSpeed.progress,
+                    verseRange = settings.playbackSettings.verseRange
             )
             sleepTimer = currentSettings.sleepTimer
             lastSleepTimer = currentSettings.lastSleepTimer
             save(updateBookmark = true)
         }
-    }
-
-    fun onButtonClick(button: View) {
-        try {
-            when (button) {
-                prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-                nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                rewindButton -> speakControl.rewind()
-                stopButton -> speakControl.stop()
-                speakPauseButton ->
-                    if (speakControl.isPaused) {
-                        speakControl.continueAfterPause()
-                    } else if (speakControl.isSpeaking) {
-                        speakControl.pause()
-                    } else {
-                        speakControl.speakBible()
-                    }
-                forwardButton -> speakControl.forward()
-            }
-        } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
-            Log.e(TAG, "Error: ", e)
-        }
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
-    }
-
-    fun openMoreSettings(button: View) {
-        startActivity(Intent(this, SpeakSettingsActivity::class.java))
-    }
-    fun openSystemSettings(button: View) {
-        startActivity(Intent("com.android.settings.TTS_SETTINGS"))
     }
 }

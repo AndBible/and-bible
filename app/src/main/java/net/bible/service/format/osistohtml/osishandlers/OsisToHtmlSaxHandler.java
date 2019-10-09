@@ -195,14 +195,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			String styleSheetTags = parameters.getCssStylesheets();
 			String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
 			write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
-					+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
+					+ "<html xmlns='http://www.w3.org/1999/xhtml' lang='" + parameters.getLanguageCode() + "' dir='" + getDirection() + "'><head>"
 					+ styleSheetTags + "\n"
 					+ customFontStyle
 					+ jQueryjs
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
 					+ "</head>"
-					+ "<body onscroll='jsonscroll()' >");
+					+ "<body onscroll='jsonscroll()'><div id='start'></div>");
 		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but
@@ -244,11 +244,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		// only put top/bottom insert positions in main/non-fragment page
 		if (!parameters.isAsFragment()) {
-			write("<div id='bottomOfBibleText'></div>");
-
-			// add padding at bottom to allow last verse to scroll to top of page
-			// and become current verse
-			write(getPaddingAtBottom() + "</body></html>");
+			write("<div id='bottomOfBibleText'></div></body></html>");
 		}
 	}
 
@@ -334,16 +330,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	private String getDirection() {
 		return parameters.isLeftToRight() ? "ltr" : "rtl";
-	}
-
-	private String getPaddingAtBottom() {
-		// the pure padding is the height of the WebView - one line height to keep one line on the screen
-		// but some books already contain padding (br) at end so I fudge by multiplying line height by 2 to try to avoid all text scrolling off screen
-		// this is not very accurate.  Some books have a <br />s at the end making the padding too large
-		// also the user can toggle full screen after the last view height calculation
-		// 1.5 is a fudge factor to try to keep a little of the text on the screen for books that end in a <br /> 
-		int paddingHeightDips = ScreenSettings.getContentViewHeightDips()-(2*ScreenSettings.getLineHeightDips());
-		return "<img height='"+paddingHeightDips+"' width='1' border='0' vspace='0' style='display:block'/>"; 
 	}
 
 	public List<Note> getNotesList() {

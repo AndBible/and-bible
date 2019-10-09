@@ -32,9 +32,12 @@ public class HtmlMessageFormatter {
 			+ SharedConstants.NIGHT_MODE_STYLESHEET
 			+ "' rel='stylesheet' type='text/css'/>";
 	
-	private static final String NIGHT_HEADER = "<html><head>"+NIGHT_STYLESHEET+"</head><body>";
+	private static final String NIGHT_HEADER = "<html><head><div id='start'></div>"+NIGHT_STYLESHEET+"</head><body>";
 	private static final String NIGHT_FOOTER = "</body></html>";
-	
+
+	private static final String DAY_HEADER = "<html><head><div id='start'></div></head><body>";
+	private static final String DAY_FOOTER = "</body></html>";
+
 	@SuppressWarnings("unused")
 	private static final String TAG = "HtmlmessageFormatter";
 	
@@ -47,7 +50,7 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(int msgId, boolean simpleHtmlOnly) {
-		String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
+		String errorMsg = BibleApplication.Companion.getApplication().getResources().getString(msgId);
 		if (simpleHtmlOnly) {
 			return errorMsg;
 		} else {
@@ -58,13 +61,13 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(String text) {
-		boolean isNightMode = ScreenSettings.isNightMode();
+		boolean isNightMode = ScreenSettings.INSTANCE.isNightMode();
 		
 		String formattedText;
 		
 		// only require special formatting for nightmode
 		if (!isNightMode) {
-			formattedText = text;
+			formattedText = DAY_HEADER + text + DAY_FOOTER;
 		} else {
 			formattedText = NIGHT_HEADER+text+NIGHT_FOOTER;
 		}

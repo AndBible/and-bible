@@ -147,7 +147,7 @@ public class MyNoteControl {
 			}
 		}
 		if (isSaved) {
-			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.Companion.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
 		}
 		return isSaved;
 	}
@@ -159,7 +159,7 @@ public class MyNoteControl {
 			if (abbreviated) {
 				//TODO allow longer lines if portrait or tablet
 				boolean singleLine = true;
-				text = CommonUtils.limitTextLength(text, 40, singleLine);
+				text = CommonUtils.INSTANCE.limitTextLength(text, 40, singleLine);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting user note text", e);
@@ -189,19 +189,19 @@ public class MyNoteControl {
 	}
 	
 	public MyNoteSortOrder getSortOrder() {
-		String sortOrderStr = CommonUtils.getSharedPreference(MYNOTE_SORT_ORDER, MyNoteSortOrder.BIBLE_BOOK.toString());
+		String sortOrderStr = CommonUtils.INSTANCE.getSharedPreference(MYNOTE_SORT_ORDER, MyNoteSortOrder.BIBLE_BOOK.toString());
 		return MyNoteSortOrder.valueOf(sortOrderStr);
 	}
 	
 	private void setSortOrder(MyNoteSortOrder sortOrder) {
-		CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
+		CommonUtils.INSTANCE.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
 	}
 
 	public String getSortOrderDescription() {
 		if (MyNoteSortOrder.BIBLE_BOOK.equals(getSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_bible_book);
 		} else {
-			return CommonUtils.getResourceString(R.string.sort_by_date);
+			return CommonUtils.INSTANCE.getResourceString(R.string.sort_by_date);
 		}
 	}
 

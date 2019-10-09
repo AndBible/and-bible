@@ -3,11 +3,28 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n«Dijo Dios: \"Haya luz\", y hubo luz.»\nGénesis 1,3</string>
-  <string name="help_text">Pulse el botón de MENÚ para acciones\n\nVaya al capítulo siguiente o anterior usando la track-ball, el D-pad o desplazando la pantalla con su dedo</string>
-  <string name="help_text_long"><b>Navegación</b>\nVaya al capítulo siguiente o anterior usando la track-ball, el D-pad o desplazando la pantalla con su dedo\n \nDoble toque alterna Pantalla completa sí/no.\n \n\n<b>Menú</b>\n \nPulse el botón MENÚ para acciones\n \n\nPara descargar más documentos pulse Menú/Descargar Documento\n \n\n<b>Lectura con voz</b>\nPulse Con voz para acceder a un diálogo para empezar o parar la lectura\n \n\n<b>Mi Nota</b>\nSe pueden agregar notas a través del elemento de menú Mi Nota en el menú contextual del versículo. La lista de las notas existentes es accesible desde el menú principal.\n \n\n<b>Marcadores</b>\nSe pueden agregar Marcadores a través del menú contextual del versículo. El gestor de marcadores es accesible desde el menú principal. El menú contextual del gestor de marcadores permite agrupar los marcadores usando etiquetas.\n \n\n<b>Búsqueda</b>\nLa búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)\n \n\n<b>Menús contextuales</b>\n \nPresione y mantenga pulsado en la vista de Biblia para abrir el menú contextual para acciones que afecten al versículo actual.\n\nPresione y mantenga en un documento en el selector de documentos para borrarlo o ver su información.\n \nPresiona y mantenga el botón Atrás para acceder al historial.\n</string>
+  <string name="help_nav_title">Navegación</string>
+  <string name="help_speech_title">Voz</string>
+  <string name="help_speech_text">Pulse \"Con voz\" para acceder a un diálogo para comenzar o terminar la lectura</string>
+  <string name="help_mynote_title">Mi nota</string>
+  <string name="help_mynote_text">Se pueden agregar notas a través del elemento de menú \"Mi nota\" en el menú de contexto del versículo.
+La lista de las notas existentes está accesible desde el menú principal.</string>
+  <string name="help_bookmarks_title">Marcadores</string>
+  <string name="help_bookmarks_text">Se pueden agregar marcadores a través del menú contextual del versículo.
+El gestor de marcadores está accesible desde el menú principal.
+El menú contextual del gestor de marcadores permite agrupar los marcadores usando etiquetas.</string>
+  <string name="help_search_title">Búsqueda</string>
+  <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
+(vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
+  <string name="help_contextmenus_title">Menús contextuales</string>
+  <string name="help_contextmenus_text">
+Realice una presión larga en la vista de la Biblia para abrir el menú contextual para acciones que afectan al versículo actual.
+Realice presión larga en un documento en el selector de documentos para eliminarlo o ver información.
+Realice presión larga en el botón \"Atrás\" para acceder el listado del historial.</string>
   <string name="version_text">Versión %s</string>
   <string name="no_sdcard_error">Por favor inserte una tarjeta SD e inicie And Bible nuevamente.</string>
   <!--Main menu-->
+  <string name="menu">Menú</string>
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Pasaje</string>
   <string name="search">Encuentra</string>
@@ -15,8 +32,9 @@
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
   <string name="help">Ayuda</string>
-  <string name="verse">Verso</string>
   <string name="administration">Administración</string>
+  <string name="rate_application">Valorar y comentar en Google Play</string>
+  <string name="chooce_document">Elegir documento</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elige Libro</string>
   <string name="choosePassageChapterName">Elige Capítulo</string>
@@ -26,17 +44,17 @@
   <!--Search-->
   <string name="search_index">Indice de búsqueda</string>
   <string name="index_creation_required">Se requiere un índice para buscar.\n\nLos índices se pueden descargar de internet o crearse localmente.\n\nDescargarlos es mucho más rápido y los índices descargados tienen más características de búsqueda.\n\nSe necesita una conexión a internet para descargar índices.\n</string>
+  <string name="search_index_unavailable">Desgraciadamente la creación de índices solo está disponible en Android 5.0 (Lollipop) o posterior.</string>
   <string name="indexing_wait_msg">Cuando la indexación se haya completado, se redireccionará a la pantalla de búsqueda.</string>
-  <string name="index">Indice</string>
   <string name="index_download">Descarga</string>
   <string name="index_not_available_for_download">Este indice no está disponible para descargar</string>
   <string name="index_create">Crear</string>
+  <string name="rebuild_index">Reconstruir el índice</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Estas tareas de larga duración pueden interrumpirse si cambia a otra aplicación antes de que terminen.</string>
   <string name="no_tasks_running">Actualmente no hay tareas siendo ejecutadas.</string>
   <!--Search-->
-  <string name="search_results">Encuentra Resultados</string>
   <string name="search_words_group_prompt">Encuentra versos</string>
   <string name="search_all_words">Todas las palabras.</string>
   <string name="search_any_word">Cualquier palabra</string>
@@ -51,25 +69,15 @@
   <string name="error_executing_search">Criterio de búsqueda inválido</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeros de verso</string>
-  <string name="prefs_show_verseno_summary">Mostrar numers de verso</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
-  <string name="prefs_verse_per_line_summary">Muestra cada verso en una linea diferente</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
-  <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
   <string name="prefs_default_bookmark_style_title">Estilo predeterminado del marcador</string>
   <string name="prefs_default_bookmark_style_summary">Color de subrayado o icono</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
-  <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
-  <string name="prefs_show_notes_summary">Mostrar pies de página y referencias cruzadas</string>
-  <string name="prefs_show_strongs_title">Mostrar números de Strong</string>
-  <string name="prefs_show_strongs_summary">Enlaces a definiciones de Griego &amp; Hebreo</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
-  <string name="prefs_show_morphology_summary">Mostrar morfología griega de Robinson</string>
   <string name="prefs_section_title_title">Títulos de sección</string>
-  <string name="prefs_section_title_summary">Muestra los títulos de sección no canónicos.</string>
   <string name="prefs_red_letter_title">Letra roja</string>
-  <string name="prefs_red_letter_summary">Muestra las palabras de Cristo en rojo</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para desplazar</string>
   <string name="prefs_tilt_to_scroll_summary">Incline el dispositivo para avanzar página abajo</string>
   <string name="prefs_night_mode_title">Modo nocturno</string>
@@ -84,15 +92,8 @@
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
   <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
-  <string name="x_minutes">%d minutos</string>
   <string name="prefs_interface_locale_title">Idioma de la aplicación</string>
   <string name="prefs_interface_locale_summary">Selecciona lenguaje de interfaz personalizado</string>
-  <string name="locale_change_warning">La aplicación será reiniciada para cambiar al nuevo lenguaje de interfaz</string>
-  <string name="prefs_speak_speed_title">Velocidad de locución</string>
-  <string name="prefs_speak_speed_summary">Locución más lenta o más rápida</string>
-  <string name="speak_speed_slow">Lenta</string>
-  <string name="speak_speed_normal">Normal</string>
-  <string name="speak_speed_fast">Rápida</string>
   <string name="prefs_split_mode_vertical">Vertical</string>
   <string name="prefs_split_mode_horizontal">Horizontal</string>
   <string name="prefs_split_mode_automatic">Automático</string>
@@ -101,7 +102,7 @@
   <string name="prefs_request_sdcard_permission_title">Existen documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Habilitar el uso de documentos instalados manualmente desde la carpeta jsword en la tarjeta SD</string>
   <!--Window-->
-  <string name="window">Ventana</string>
+  <string name="new_window">Nueva ventana</string>
   <string name="windowClose">Cerrar</string>
   <string name="windowMaximise">Maximizar</string>
   <string name="windowMinimise">Minimizar</string>
@@ -113,14 +114,11 @@
   <string name="previous">Anterior</string>
   <string name="next">Siguiente</string>
   <!--Strongs-->
-  <string name="strongs">Diccionario de Strong</string>
   <string name="strongs_not_installed">Por favor descargue los diccionarios de griego y hebreo de Strong</string>
   <string name="all_greek_occurrences">Encuentra todas las coincidencias</string>
   <string name="all_hebrew_occurrences">Encuentra todas las coincidencias</string>
   <string name="no_indexed_bible_with_strongs_ref">Debe descargar una Biblia que contenga números de Strong y descargar su índice por medio de Buscar</string>
   <string name="morph_robinson_not_installed">Por favor descargue el diccionario \'Códigos de análisis morfológicos de Robinson\'</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Descarga Documentos</string>
   <string name="download_confirmation">¿Descargar una Biblia de internet?</string>
@@ -131,13 +129,11 @@
   <string name="error_downloading">Ocurrió un error en la descarga. Por favor compruebe su conexión a internet.</string>
   <string name="no_internet_connection">No se ha podido conectar a internet</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
-  <string name="wait_for_bible">Por favor espere a que la Biblia se termine de descargar. Entonces volverá a la pantalla principal.\n\nDescargue más documentos más tarde navegando desde el botón de Menú/Descargar documentos.</string>
-  <string name="wait_for_bible_not_yet">Por favor, espere. Aún no se ha completado la instalación de la biblia.</string>
-  <string name="download_complete_no_bibles">No hay biblia instalada. Por favor pulse Atrás e inténtelo de nuevo.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Cargar documento desde zip</string>
+  <string name="install_zip_module">Instalar módulo de Biblia</string>
   <string name="install_zip_successfull">El módulo se ha instalado correctamente</string>
   <string name="extracting_zip_file">Extrayendo Zip...</string>
   <string name="checking_zip_file">Comprobando el archivo...</string>
@@ -151,12 +147,6 @@
   <string name="rdg_plan_set_start_jan1">Empezar 1 de Ene</string>
   <string name="done">Hecho</string>
   <string name="reset">Resetea</string>
-  <string name="rdg_plan_y1ntpspr">Nuevo Testamento, Salmos y Proverbios en un año</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">A través de la Biblia cronológicamente en un año</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">A través de la biblia en un año - AT y NT</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">A través de la biblia en un año - AT y luego NT</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">A través de la biblia en un año (M\'Cheyne)</string>
-  <string name="rdg_plan_y2ot1ntps2">Plan de 2 años - AT una vez, NT y Salmos dos veces</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Borrar</string>
@@ -181,7 +171,6 @@
   <string name="delete_bookmark">Eliminar marcador</string>
   <string name="bookmark_added">Marcador añadido</string>
   <string name="bookmark_date_updated">Fecha del marcador actualizada</string>
-  <string name="bookmark_exists">Ya existe el marcador</string>
   <string name="bookmark_deleted">Marcador eliminado</string>
   <string name="bookmark_labels">Etiquetas de marcador</string>
   <string name="manage_labels">Gestionar etiquetas de marcadores</string>
@@ -189,7 +178,6 @@
   <string name="new_label">Nueva etiqueta</string>
   <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
-  <string name="rename">Renombrar</string>
   <string name="style">Estilo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
@@ -198,10 +186,8 @@
   <!--Dictionary-->
   <string name="dictionary">Diccionario</string>
   <string name="search_dictionary_hint">Buscar diccionario</string>
-  <string name="dictionary_contents">Contenidos</string>
   <!--General Book-->
   <string name="general_book">Libro</string>
-  <string name="general_book_contents">Contenidos</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -224,24 +210,99 @@
   <string name="speak_queue">Cola</string>
   <string name="speak_repeat">Repetir</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Velocidad de locución</string>
+  <string name="speak_and_play_earcons_title">Voz y reproducción de sonidos para</string>
+  <string name="playback_settings_title">Ajustes de reproducción</string>
+  <string name="speak_settings_title">Ajustes generales de locución</string>
+  <string name="speak_bookmarking_settings_title">Ajustes de marcadores</string>
+  <string name="speak_bookmarks_menu_title">Voz desde marcador</string>
+  <string name="speak_advanced_settings">Ajustes avanzados</string>
+  <string name="speak_sleep_timer_title">Temporizador</string>
+  <string name="speak_no_books_available">No hay libros disponibles para voz</string>
+  <string name="repeat_passage">Repetir pasaje</string>
+  <string name="set_repeat_passage_range">Establecer el rango de repetición de pasaje</string>
+  <string name="speak_beginning_of_passage">Elegir inicio de pasaje</string>
+  <string name="speak_ending_of_passage">Elegir finalización de pasaje</string>
+  <string name="speak_verse_range_to_repeat">Elegir rango de versículos a repetir</string>
+  <string name="speak_ending_verse_must_be_later">El versículo de finalización debe estar más adelante del versículo de inicio</string>
+  <string name="conf_speak_synchronize">El texto sigue la voz</string>
+  <string name="conf_speak_auto_bookmark">Marcar automáticamente</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Guardar los ajustes de reproducción para los marcadores</string>
+  <string name="conf_replace_divinename">Reemplazar el nombre divino con Yahvé</string>
+  <string name="conf_change_chapter">Cambios de capítulo</string>
+  <string name="conf_change_title">Títulos</string>
+  <string name="conf_speak_footnotes">Notas al pie</string>
+  <string name="conf_speak_sleep_timer">Establecer temporizador</string>
+  <string name="sleep_timer_title">Tiempo de apagado en minutos</string>
+  <string name="sleep_timer_set">Establecer temporizador. Temporizador establecido a %d minutos</string>
+  <string name="sleep_timer_started">Temporizador iniciado, %d minutos</string>
+  <string name="sleep_timer_active_at">Temporizador: quedan %s minutos.</string>
+  <string name="speak_next">Siguiente</string>
+  <string name="speak_previous">Anterior</string>
+  <string name="widget_toggle_sleep_timer">Apagar o encender temporizador</string>
+  <string name="widget_bookmark_helptext">Aquí aparecerán los botones de atajo a marcadores de voz.</string>
+  <string name="speak_status_stopped">parado</string>
+  <string name="speak_autobookmarking_disabled">¡Marcadores automáticos deshabilitados!</string>
+  <string name="system_speak_settings">Abrir los ajustes del sistema de Texto a Voz</string>
+  <string name="speak_bookmark_help">Ayuda de marcadores de voz</string>
+  <string name="speak_help_auto_bookmark">
+Un marcador de voz se agregará automáticamente cuando la voz está pausada o parada.
+Los marcadores generados automáticamente se etiquetan con la etiqueta especial de \"Voz\".
+Si comienza en un marcador de voz, el marcador se moverá al versículo que pare
+o pause la próxima vez. Solo se moverán las etiquetas de voz, cualquier otra etiqueta se dejará tal cual.</string>
+  <string name="speak_help_playback_settings">
+Los ajustes especiales de reproducción (dentro de \"Ajustes de reproducción\" en la pantalla de Voz)
+se guardan para los marcadores de voz cuando se selecciona esta opción.
+Cuando reinicie el discurso desde un marcador de voz, se cargan desde marcadores
+los ajustes de reproducción guardados.</string>
+  <string name="speak_help_playback_settings_example">
+Por ejemplo, si está escuchando Génesis y Romanos
+y desea escuchar Génesis con voz rápida sin notificaciones de cambio de capítulo,
+pero Romanos más despacio con sonidos  en cambios de capítulos, entonces
+puede establecer distintos ajustes de reproducción para esos libros,
+cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Señor</item>
+    <item>Dios</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahvé</item>
+    <item>Yahvé</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Cambio de libro.</string>
+  <string name="speak_chapter_changed">Capítulo</string>
+  <string name="speak_first">Primero</string>
+  <string name="speak_second">Segundo</string>
+  <string name="speak_third">Tercero</string>
+  <string name="speak_fourth">Cuarto</string>
+  <string name="speak_fifth">Quinto</string>
+  <string name="verse_range_mode_disabled">
+        El modo de repetición de pasaje ha sido desactivado automáticamente porque
+        la reproducción por voz comenzó fuera del rango de versículos definidos.
+    </string>
   <!--User Notes-->
   <string name="mynotes">Mis Notas</string>
-  <string name="mynote">Mi Nota</string>
   <string name="mynote_add">Agrega Mi Nota</string>
-  <string name="mynote_view_edit">Mi Nota</string>
   <string name="mynote_saved">Nota guardada</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup">Copia de seguridad</string>
   <string name="backup_success">Se han guardado Mis Notas y Marcadores en %s en la tarjeta SD</string>
   <string name="restore">Resturar</string>
@@ -265,17 +326,12 @@
   <string name="cancel">Cancelar</string>
   <string name="yes">Sí</string>
   <string name="no">No\n</string>
-  <string name="save">Guarda</string>
   <string name="error">Error</string>
-  <string name="more">Más</string>
-  <string name="more_dotted">Más...</string>
-  <string name="retry">Intenta nuevamente</string>
   <string name="please_wait">Por favor espere...</string>
   <string name="all">Todo</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Nuevo</string>
-  <string name="close">Cerrar</string>
   <string name="edit">Editar</string>
+  <string name="watch_tutorial_video">Ver vídeo tutorial (Inglés)</string>
   <!--Errors-->
   <string name="report_error">Enviar informe</string>
   <string name="error_occurred">A ocurrido un error.</string>
@@ -284,5 +340,6 @@
   <string name="error_key_not_in_document">No encontrado en el documento</string>
   <string name="empty_list">No hay ítems para mostrar</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
 </resources>

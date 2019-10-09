@@ -160,8 +160,7 @@ public class PageTiltScrollControl {
 	/** start or stop tilt to scroll functionality
 	 */
 	public boolean enableTiltScroll(boolean enable) {
-		// Android 2.1 does not have Display.getRotation so disable tilt-scroll for 2.1 
-		if (!CommonUtils.getSharedPreferences().getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) || 
+		if (!CommonUtils.INSTANCE.getSharedPreferences().getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) ||
 			!isTiltSensingPossible()) {
 			return false;
 		} else if (mIsTiltScrollEnabled != enable) {
@@ -267,16 +266,16 @@ public class PageTiltScrollControl {
 	 */
 	
 	private void connectListeners() {
-		mDisplay = ((WindowManager) BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		mDisplay = ((WindowManager) BibleApplication.Companion.getApplication().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		
-		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+		SensorManager sm = (SensorManager) BibleApplication.Companion.getApplication().getSystemService(Context.SENSOR_SERVICE);
 		Sensor oSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
 		sm.registerListener(myOrientationListener, oSensor, SensorManager.SENSOR_DELAY_UI);
 	}
     private void disconnectListeners() {
     	try {
-			SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+			SensorManager sm = (SensorManager) BibleApplication.Companion.getApplication().getSystemService(Context.SENSOR_SERVICE);
 	    	sm.unregisterListener(myOrientationListener);
     	} catch (IllegalArgumentException e) {
     		// Prevent occasional: IllegalArgumentException: Receiver not registered: android.hardware.SystemSensorManager
@@ -310,7 +309,7 @@ public class PageTiltScrollControl {
      */
     public static boolean isOrientationSensor() {
         if (mIsOrientationSensor == null) {
-       		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+       		SensorManager sm = (SensorManager) BibleApplication.Companion.getApplication().getSystemService(Context.SENSOR_SERVICE);
             if (sm != null) {
                 List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ORIENTATION);
                 mIsOrientationSensor = Boolean.valueOf(sensors.size() > 0);

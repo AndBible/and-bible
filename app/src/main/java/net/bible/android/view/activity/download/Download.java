@@ -65,7 +65,6 @@ public class Download extends DocumentSelectionBase {
 	private static final long MILLISECS_IN_DAY = 1000*60*60*24;
 	
 	public static final int DOWNLOAD_FINISH = 1;
-	private boolean downloadConfirmationShown = false;
 
 	private static final String TAG = "Download";
 
@@ -114,14 +113,14 @@ public class Download extends DocumentSelectionBase {
      * @return
      */
     private boolean isRepoBookListOld() {
-    	long repoRefreshDate = CommonUtils.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
+    	long repoRefreshDate = CommonUtils.INSTANCE.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
     	Date today = new Date();
     	return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
     }
     
     private void updateLastRepoRefreshDate() {
 	 	Date today = new Date();
-		CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+		CommonUtils.INSTANCE.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
     }
     
     @Override
@@ -180,25 +179,20 @@ public class Download extends DocumentSelectionBase {
 
     protected void manageDownload(final Book documentToDownload) {
     	if (documentToDownload!=null) {
-			if (downloadConfirmationShown) {
-				doDownload(documentToDownload);
-			} else {
-				new AlertDialog.Builder(this)
-						.setMessage(getText(R.string.download_document_confirm_prefix) + " " + documentToDownload.getName())
-						.setCancelable(false)
-						.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								downloadConfirmationShown = true;
-								doDownload(documentToDownload);
-							}
-						})
-						.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-							}
-						}).create().show();
-			}
-    	}
-    }
+			new AlertDialog.Builder(this)
+					.setMessage(getText(R.string.download_document_confirm_prefix) + " " + documentToDownload.getName())
+					.setCancelable(false)
+					.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							doDownload(documentToDownload);
+						}
+					})
+					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+						}
+					}).create().show();
+		}
+	}
 
 	private void doDownload(Book document) {
     	try {

@@ -46,7 +46,9 @@ class CrosswireRepoIT {
 
     @Test
     fun downloadDocumentsRequiredForTests() {
-        val testBooks = arrayOf("KJV", "ISV", "ESV2011", "FinRK", "FinPR", "FinSTLK2017")
+        // Let's remove ESV until it comes back to crosswire's repository
+        //val testBooks = arrayOf("KJV", "ISV", "ESV2011", "FinRK", "FinPR", "FinSTLK2017")
+        val testBooks = arrayOf("KJV", "ISV", "FinRK", "FinPR", "FinSTLK2017")
         crosswireRepo.getRepoBooks(false)
                 .filter {testBooks.contains(it.initials)}
                 .filter {Books.installed().getBook(it.initials) == null}

@@ -21,20 +21,15 @@ package net.bible.android.view.activity.settings;
 import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 /** show settings
  * 
@@ -49,7 +44,7 @@ public class SettingsActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// change theme according to light sensor
-		UiUtils.applyTheme(this);
+		UiUtils.INSTANCE.applyTheme(this, false, true);
 
 		super.onCreate(savedInstanceState);
 
@@ -63,15 +58,13 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		    //If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.getUnusedNightModePreferenceKey());
-			getPreferenceScreen().removePreference(unusedNightModePreference);
-			
-			// if no tilt sensor then remove tilt-to-scroll setting
-			if (!PageTiltScrollControl.isTiltSensingPossible()) {
-				Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
-				getPreferenceScreen().removePreference(tiltToScrollPreference);
+
+			if(!ScreenSettings.INSTANCE.getAutoModeAvailable()) {
+				ListPreference pref = (ListPreference) getPreferenceScreen().findPreference("night_mode_pref2");
+				pref.setEntries(R.array.prefs_night_mode_descriptions_noauto);
+				pref.setEntryValues(R.array.prefs_night_mode_values_noauto);
 			}
-			
+
 			// if locale is overridden then have to force title to be translated here
 			LocaleHelper.translateTitle(this);
 

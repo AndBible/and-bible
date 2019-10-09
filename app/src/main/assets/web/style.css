@@ -5,9 +5,13 @@ body {
 	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
 	margin: auto;
+	padding-bottom: 100vh;
 	padding-left: 2vw;
 	padding-right: 2vw;
 	max-width: 17cm;
+	/*hyphens: auto;
+	-webkit-hyphens: auto; */
+	/*text-align: justify;*/
 }
 
 h1, .heading1 {

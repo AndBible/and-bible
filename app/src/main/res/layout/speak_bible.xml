@@ -1,289 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-        >
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
     <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/transportWidget"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="0dp">
+
+        <LinearLayout
+            android:id="@+id/panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_above="@id/buttonsLayout"
-            >
-        <LinearLayout
-                android:id="@+id/panel"
+            android:divider="@drawable/divider"
+            android:dividerPadding="@dimen/row_divider_padding"
+            android:orientation="vertical"
+            android:padding="5dip"
+            android:showDividers="middle">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:divider="@drawable/divider"
                 android:dividerPadding="@dimen/row_divider_padding"
-                android:padding="5dip"
-                android:showDividers="middle"
-                >
-            <LinearLayout
+                android:orientation="vertical"
+                android:showDividers="middle">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:showDividers="middle"
-                    android:dividerPadding="@dimen/row_divider_padding"
-                    >
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
+
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        >
+                        android:orientation="horizontal">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/speak_titles_text_size"
                             android:padding="@dimen/speak_title_padding"
-                            android:textStyle="bold"
                             android:text="@string/playback_settings_title"
-                            />
+                            android:textSize="@dimen/speak_titles_text_size"
+                            android:textStyle="bold" />
 
                         <ImageButton
                             android:id="@+id/bookmarkHelpButton"
-                            android:src="@android:drawable/ic_menu_help"
-                            android:contentDescription="@string/speak_bookmark_help"
+                            style="@style/Widget.Design.FloatingActionButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
                             android:layout_alignParentBottom="true"
+                            android:contentDescription="@string/speak_bookmark_help"
                             android:onClick="onHelpButtonClick"
-                            style="@style/Widget.Design.FloatingActionButton"
-                            android:layout_alignParentRight="true" />
+                            android:src="@android:drawable/ic_menu_help" />
                     </RelativeLayout>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:padding="@dimen/speak_subtitle_padding"
                         android:text="@string/speak_and_play_earcons_title"
-                        />
+                        android:textStyle="bold" />
 
                     <LinearLayout
-                            android:layout_width="match_parent"
-                            android:padding="@dimen/speak_row_padding"
-                            android:layout_height="wrap_content">
-
-                        <CheckBox
-                                android:text="@string/conf_change_chapter"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/speakChapterChanges"
-                                android:onClick="onSettingsChange"/>
-
-                        <CheckBox
-                                android:text="@string/conf_change_title"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/speakTitles"
-                                android:onClick="onSettingsChange"/>
-
-                        <CheckBox
-                                android:text="@string/conf_speak_footnotes"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/speakFootnotes"
-                                android:onClick="onSettingsChange"/>
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
+                        android:padding="@dimen/speak_row_padding">
+
+                        <CheckBox
+                            android:id="@+id/speakChapterChanges"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:onClick="onSettingsChange"
+                            android:text="@string/conf_change_chapter" />
+
+                        <CheckBox
+                            android:id="@+id/speakTitles"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:onClick="onSettingsChange"
+                            android:text="@string/conf_change_title" />
+
+                        <CheckBox
+                            android:id="@+id/speakFootnotes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:onClick="onSettingsChange"
+                            android:text="@string/conf_speak_footnotes" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
                     <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/speak_subtitle_padding"
+                            android:text="@string/speak_speed_title"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/speedStatus"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            >
-
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:padding="@dimen/speak_subtitle_padding"
-                                android:textStyle="bold"
-                                android:text="@string/speak_speed_title"/>
-
-                        <TextView
-                                android:text="SPEED"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/speedStatus"
-                                android:gravity="end"
-                                />
+                            android:gravity="end"
+                            android:text="SPEED" />
                     </LinearLayout>
+
                     <SeekBar
+                        android:id="@+id/speakSpeed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="@dimen/speak_row_padding"
-                        android:id="@+id/speakSpeed"
                         android:max="300"
-                        android:progress="100"
-                        />
+                        android:padding="@dimen/speak_row_padding"
+                        android:progress="100" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/speak_subtitle_padding"
+                    android:text="@string/repeat_passage"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:id="@+id/repeatPassageCheckbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/speak_row_padding"
+                    android:layout_marginLeft="@dimen/speak_row_padding"
+                    android:onClick="setRepeatPassage"
+                    android:text="@string/set_repeat_passage_range" />
+
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="15dip"/>
+                    android:layout_height="15dip" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="15dip"/>
+                    android:layout_height="15dip" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/speak_titles_text_size"
                     android:padding="@dimen/speak_title_padding"
-                    android:textStyle="bold"
                     android:text="@string/speak_sleep_timer_title"
-                    />
-                <CheckBox
-                    android:layout_marginStart="@dimen/speak_row_padding"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/conf_speak_sleep_timer"
-                    android:id="@+id/sleepTimer"
-                    android:onClick="setSleepTime"
-                    android:layout_marginLeft="@dimen/speak_row_padding" />
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="30dip"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <View
-                        android:layout_width="0dip"
-                        android:layout_height="fill_parent"
-                        android:layout_weight="1"/>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <Button
-                            android:id="@+id/speakSettings"
-                            android:contentDescription="@string/bookmarks"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="@string/speak_advanced_settings"
-                            android:onClick="openMoreSettings"/>
-                        <Button
-                            android:id="@+id/systemSpeakSettings"
-                            android:contentDescription="@string/bookmarks"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="@string/system_speak_settings"
-                            android:onClick="openSystemSettings"/>
-                    </LinearLayout>
+                    android:textSize="@dimen/speak_titles_text_size"
+                    android:textStyle="bold" />
 
-                    <View
-                        android:layout_width="0dip"
-                        android:layout_height="fill_parent"
-                        android:layout_weight="1"/>
-                </LinearLayout>
+                <CheckBox
+                    android:id="@+id/sleepTimer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/speak_row_padding"
+                    android:layout_marginLeft="@dimen/speak_row_padding"
+                    android:onClick="setSleepTime"
+                    android:text="@string/conf_speak_sleep_timer" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <LinearLayout
-            android:id="@+id/buttonsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentBottom="true"
-            >
-
-
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dip"
-                android:paddingBottom="5dip"
-                android:paddingStart="@dimen/speak_row_padding"
-                android:id="@+id/statusText"
-                android:background="@color/speak_status_background"
-                android:text="*Gen.1.1*"
-                android:paddingLeft="@dimen/speak_row_padding" />
-
-        <!-- Button bar with OK button -->
-        <LinearLayout
-                android:id="@+id/button_panel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-            <ImageButton
-                    android:id="@+id/bookmarkButton"
-                    app:srcCompat="@drawable/ic_bookmark_24dp"
-                    android:contentDescription="@string/bookmarks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:onClick="onBookmarkButtonClick"/>
-            <ImageButton
-                    android:id="@+id/rewindButton"
-                    android:src="@android:drawable/ic_media_rew"
-                    android:contentDescription="@string/rewind"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
-                    android:id="@+id/prevButton"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"
-                    android:contentDescription="@string/speak_previous"
-                    />
-            <ImageButton
-                    android:id="@+id/stopButton"
-                    android:src="@drawable/ic_media_stop"
-                    android:contentDescription="@string/stop"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
-                    android:id="@+id/speakPauseButton"
-                    android:src="@android:drawable/ic_media_play"
-                    android:contentDescription="@string/speak"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-            <ImageButton
-                    android:id="@+id/nextButton"
-                    android:src="@android:drawable/ic_media_next"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"
-                    android:contentDescription="@string/speak_next"/>
-            <ImageButton
-                    android:id="@+id/forwardButton"
-                    android:src="@android:drawable/ic_media_ff"
-                    android:contentDescription="@string/forward"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-        </LinearLayout>
-    </LinearLayout>
+    <net.bible.android.view.util.widget.SpeakTransportWidget
+        android:id="@+id/transportWidget"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </RelativeLayout>
+

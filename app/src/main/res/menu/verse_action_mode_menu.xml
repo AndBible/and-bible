@@ -4,33 +4,40 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+	  xmlns:app="http://schemas.android.com/apk/res-auto"
+	>
 
    	<item android:id="@+id/myNoteAddEdit"
 		  android:title="@string/mynote_add"
 		  android:icon="@drawable/ic_pen_24dp"
-		  appcompat:showAsAction="always"/>
+		  app:showAsAction="always"
+		/>
 
 	<!-- Either add or delete bookmark will be hidden -->
 	<item android:id="@+id/add_bookmark"
 		  android:title="@string/add_bookmark"
 		  android:icon="@drawable/ic_bookmark_24dp"
-		  appcompat:showAsAction="always"/>
+			app:showAsAction="always"
+
+		/>
 
 	<item android:id="@+id/delete_bookmark"
 		  android:title="@string/delete_bookmark"
 		  android:icon="@drawable/ic_bookmark_delete_24dp"
-		  appcompat:showAsAction="always"/>
+		  app:showAsAction="always"
+		/>
 
 	<item android:id="@+id/compareTranslations"
 		  android:title="@string/compare_translations"
 		  android:icon="@drawable/ic_compare_24dp"
-		  appcompat:showAsAction="always"/>
+		  app:showAsAction="always"
+		/>
 
 	<item android:id="@+id/shareVerse"
 		  android:title="@string/share_verse"
 		  android:icon="@drawable/ic_share_24dp"
-		  appcompat:showAsAction="ifRoom"/>
+		  app:showAsAction="ifRoom"
+		/>
 
 	<item android:id="@+id/edit_bookmark_labels"
 		  android:title="@string/bookmark_labels"

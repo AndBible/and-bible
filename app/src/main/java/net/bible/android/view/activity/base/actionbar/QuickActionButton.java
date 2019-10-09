@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.base.actionbar;
 
-import androidx.core.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -60,7 +59,7 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	public void addToMenu(Menu menu) {
 		if (menuItem==null || (menu.findItem(thisItemId) == null)) {
 			menuItem = menu.add(Menu.NONE, thisItemId, Menu.NONE, "");
-			MenuItemCompat.setShowAsAction(menuItem, showAsActionFlags);
+			menuItem.setShowAsAction(showAsActionFlags);
 			menuItem.setOnMenuItemClickListener(this);
 			update(menuItem);
 		}
@@ -109,7 +108,7 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	}
 	
 	protected boolean isWide() {
-		return 4<CommonUtils.getResourceInteger(R.integer.number_of_quick_buttons);
+		return 4< CommonUtils.INSTANCE.getResourceInteger(R.integer.number_of_quick_buttons);
 	}
 	
 	protected boolean isSpeakMode() {

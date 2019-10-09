@@ -18,8 +18,7 @@
 
 package net.bible.android.control.event
 
-class ToastEvent(val message: String, val duration: Int? = null) {
-    constructor(message: String) : this(message, null) {
-
-    }
+class ToastEvent(val message: String = "", val duration: Int? = null, val messageId: Int? = null) {
+    constructor(message: String) : this(message, null)
+    constructor(messageId: Int) : this("", null, messageId)
 }

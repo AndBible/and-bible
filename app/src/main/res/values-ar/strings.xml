@@ -3,9 +3,6 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\\"و قال الله ليكن نور فكان نور.\\"\nتكوين 1:3</string>
-  <string name="help_text">إضغط على زر \\"القائمة\\" \nتستطيع التنقل بين الإصحاحات (التالي أو السابق) عن طريق التراك بول، دي باد، بلمس الشاشة باصبعك يمينا او يسارا</string>
-  <string name="help_text_long"><b>الذهاب</b>\nاذهب إلى القادم أو السابق باستخدام كرة الذهاب الدي باد أو تحريك اصبعك على الشاشة\n \nاضغط ضغطا مزدوجا لتفعيل أو إيقاف خاصية الشاشة الكاملة.\n \n\n<b>القائمة</b>\n \nاضغط على زر القائمة للوصول إلى الاجراءات المتاحة.\n \n\nلتنزيل المزيد من المستندات اضغط القائمةد/تنزيل المستندات\n \n\n<b>Speech</b>\n
-Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu. The list of existing notes can be accessed via the main menu.\n \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n \n\n<b>Context Menus</b>\n \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n \nLong press on a document in the document selector to delete it or view information.\n \nLong press the Back button to access the History list\n</string>
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة و إعادة تشغيل البرنامج</string>
   <!--Main menu-->
@@ -24,7 +21,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="search_index">بحث الفهرس</string>
   <string name="index_creation_required">الفهرسة ضرورية لعملية البحث.\n\nتستطيع تحميل الفهرس عن طريق الانترنت أو انشاءه على جهازك.\n\nتحميل الفهرس أسرع طريقة و تحوي العديد المزايا.\n\nيجب عليك الاتصال بشبكة الانترنت لتحميل الفهرس.\n</string>
   <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
-  <string name="index">فهرس</string>
   <string name="index_download">تحميل</string>
   <string name="index_not_available_for_download">الفهرس غير متاح للتحميل</string>
   <string name="index_create">إنشاء</string>
@@ -33,7 +29,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
   <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
   <!--Search-->
-  <string name="search_results">بحث النتائج</string>
   <string name="search_words_group_prompt">بحث الآيات</string>
   <string name="search_all_words">كل الكلمات</string>
   <string name="search_any_word">أي كلمة</string>
@@ -48,21 +43,12 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">رقم الآية</string>
-  <string name="prefs_show_verseno_summary">أظهر رقم الآية</string>
   <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
-  <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
   <string name="prefs_show_mynotes_title">إظهار علامة ملاحظاتي</string>
-  <string name="prefs_show_mynotes_summary">إظهار علامة ملاحظاتي في الآيات </string>
   <string name="prefs_show_notes_title">التذييل و x-ref</string>
-  <string name="prefs_show_notes_summary">اظهر التذييل و المراجع </string>
-  <string name="prefs_show_strongs_title">أظهر أرقام القوة</string>
-  <string name="prefs_show_strongs_summary">روابط وصل للتعريفات اليونانية و العبرية</string>
   <string name="prefs_show_morphology_title">رموز التشكيل (المورفولوجية)</string>
-  <string name="prefs_show_morphology_summary">أظهر رموز روبنسون اليونانية</string>
   <string name="prefs_section_title_title">عناوين المقاطع</string>
-  <string name="prefs_section_title_summary">أظهر عناوين المقاطع الغير قانونية</string>
   <string name="prefs_red_letter_title">حروف حمراء</string>
-  <string name="prefs_red_letter_summary">اظهار كلةم السيد المسيح بخط احمر</string>
   <string name="prefs_tilt_to_scroll_title">امل الهاتف للف الصفحة</string>
   <string name="prefs_tilt_to_scroll_summary">امل الهاتف للف الصفحة لاسفل</string>
   <string name="prefs_night_mode_title">الوضع الليلي</string>
@@ -73,10 +59,8 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="prefs_text_size_title">حجم الجط</string>
   <string name="prefs_text_size_summary">انظر المزيد او المزيد بشكل افضل</string>
   <string name="prefs_text_size_sample_text">نموذج من الكتابة</string>
-  <string name="x_minutes">%d دقيقة</string>
   <string name="prefs_interface_locale_title">لغة التطبيق (البرنامج)</string>
   <string name="prefs_interface_locale_summary">اختر اللغة لواجهة الاستخدام في البرنامج</string>
-  <string name="locale_change_warning">سيتم اعادة فتح البرنامج لتفعيل اللغة المختارة لواجهة المستخدم</string>
   <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">لا يوجد ملاحظات في الاصحاح</string>
@@ -84,14 +68,11 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="previous">السابق</string>
   <string name="next">التالي</string>
   <!--Strongs-->
-  <string name="strongs">معجم المفهرس للقوة (غير متاح في النسخ العربية)</string>
   <string name="strongs_not_installed">تحميل معجم القوة للغة العبرية و اليونانية</string>
   <string name="all_greek_occurrences">ايجاد كل التواجد</string>
   <string name="all_hebrew_occurrences">ايجاد كل التواجد</string>
   <string name="no_indexed_bible_with_strongs_ref">يجب تحميل كتاب مقدس بفهرس ارقام القوة و تحميل فهرسة البحث</string>
   <string name="morph_robinson_not_installed">برجاء تحميل فهرس روبنسون التحليلي.</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">تحميل المستندات</string>
   <string name="download_confirmation">تحميل الكتاب المقدس من الانترنت</string>
@@ -102,9 +83,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="error_downloading">حدث خطأ اتناء التحميل، من فضلك تأكد من اتصالك بشبكة الانترنت</string>
   <string name="no_internet_connection">تعذر الاتصال بشبكة الانترنت</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
-  <string name="wait_for_bible">برجاء الانتظار حتى يتم الانتهاء من تحميل الكتاب المقدس. سيتم تحميلك للقائمة الرئيسية.</string>
-  <string name="wait_for_bible_not_yet">برجاء الانتظار. لم يتم الانتهاء من اعداد الكتاب المقدس.</string>
-  <string name="download_complete_no_bibles">لا يوجد كتاب مقدس معد على الجهاز. اضغط على السابق و جرب مرة أخرى.</string>
   <string name="too_many_jobs">يوجد العديد من المهام تنفذ. برجاء انتظارها حتى تنتهى ثم حاول مرة أخرى.</string>
   <string name="document_not_installed">برجاء تحميل \'%s\'</string>
   <!--Install zip file-->
@@ -115,11 +93,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="rdg_plan_set_start_jan1">بداية من 1 يناير</string>
   <string name="done">تم</string>
   <string name="reset">اعادة تهيئة</string>
-  <string name="rdg_plan_y1ntpspr">العهد الجديد، المزامير و الامثال في سنة.</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">الكتاب المقدس خلال العام.</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">الكتاب المقدس العهد الجديد و القديم خلال عام.</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">الكتاب المقدس العهد القديم ثم العهد الجديد خلال عام.</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">الكتاب المقدس خلال عام، (م.شاين)</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">الغاء (حذف)</string>
@@ -138,7 +111,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="bookmarks">شارات الرجوع</string>
   <string name="add_bookmark">اضف شارة رجوع</string>
   <string name="bookmark_added">تم اضافة شارة رجوع</string>
-  <string name="bookmark_exists">شارة الرجوع موجودة مسبقا</string>
   <string name="bookmark_labels">كلمات دالة على شارات الرجوع</string>
   <string name="assign_labels">تحديد كلمات دالة</string>
   <string name="new_label">كلمة دالة جديدة</string>
@@ -148,10 +120,8 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <!--Dictionary-->
   <string name="dictionary">القاموس</string>
   <string name="search_dictionary_hint">إبحث في القاموس</string>
-  <string name="dictionary_contents">محتوى القاموس</string>
   <!--General Book-->
   <string name="general_book">سفر</string>
-  <string name="general_book_contents">المحتوى</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -187,9 +157,7 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">ملاحظاتي</string>
-  <string name="mynote">ملاحظتي</string>
   <string name="mynote_add">أضف ملاحظة </string>
-  <string name="mynote_view_edit">ملاحظتي</string>
   <string name="mynote_saved">تم حفظ ملاحظتي</string>
   <!--Backup and restore-->
   <string name="backup">عمل نسخة احتياطية للرجوع</string>
@@ -213,10 +181,7 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="cancel">تجاهل</string>
   <string name="yes">نعم</string>
   <string name="no">لا</string>
-  <string name="save">حفظ</string>
   <string name="error">خطأ</string>
-  <string name="more">المزيد</string>
-  <string name="retry">حاول مرة أخرى</string>
   <string name="please_wait">برجاء الإنتظار</string>
   <string name="all">الكل</string>
   <string name="default_value">@string/lang_default</string>

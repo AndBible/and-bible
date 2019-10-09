@@ -88,7 +88,7 @@ public class LabelDto implements Comparable<LabelDto> {
 	}
 	public String getName() {
 		if(bookmarkStyle == BookmarkStyle.SPEAK) {
-			return BibleApplication.getApplication().getString(R.string.speak);
+			return BibleApplication.Companion.getApplication().getString(R.string.speak);
 		}
 		return name;
 	}

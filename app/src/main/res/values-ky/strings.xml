@@ -3,8 +3,6 @@
   <string name="app_name">Ыйык китеп</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ошондо Кудай: \'Жарык болсун!” – деди.\' Жарык пайда болду.\"\nБашталыш 1:3</string>
-  <string name="help_text">Тууралоого жана иштемге кирүү үчүн Иштизмеге кириңиз. Кийинки же мурунку бөлүмгө өтүү үчүн трэкболду тегеретиңиз же бармагыңызды экрандын бетине тийгизип, оңго жана солго жылдырыңыз.</string>
-  <string name="help_text_long"><b>Багыт тандоо</b>\nКийинки же мурунку бөлүмгө өтүү үчүн трэкболду тегеретиңиз же бармагыңызды экрандын бетине тийгизип, оңго жана солго жылдырыңыз.\n \nТолук экрандан көрүүнү өчүрүү/күйгүзүү үчүн бармагыңызды экрандын бетине эки ирет тийгизин коюңуз.\n \n\n<b>Иштизме</b>\n \nТууралоого жана иштемге кирүү үчүн Иштизмеге кириңиз.\n \nБиблияларды жана/же башка ресурстарды жүктөп алуу үчүн Иштизмени басыңыз. / Жөндөө / Ресурстарды жүктөп алуу \n \n\n<b>Үндү бийиктетип угуу</b>\n \nУгууну баштоо же токтотуу үчүн Иштизмени басыңыз / Дагы/ Үндү бийиктетип угуу\n \n\n<b>Жеке байкоолорум</b>\n \nЖеке байкоолорумду кошумчалоо үчүн, аяттын контексттик иштизмегиндеги Жеке белгилериме кириңиз. Бар болгон чөпкаттарды карап чыгуу үчүн Иштизмекке кириңиз / Жеке байкоолорум.\n \n\n<b>Чөпкаттар</b>\n \nЧөпкаттарды кошумчалоо үчүн, аяттын контексттик иштизмегине кириңиз. Бар болгон чөпкаттарды карап чыгуу үчүн, Иштизмеге кириңиз. / Чөпкаттар. Иштизмеде чөпкаттарты жарлыктар (түркүмдөр) аркылуу топторго бөлсө болот.\n \n\n<b>Издөө</b>\n \n Издөөдө *, ?, AND, OR, NOT чоң тамга сыяктуу символдор болушу мүмкүн. Кененирээк маалымат алуу үчүн интернеттен \"Apache Lucene - Query Parser Syntaх\" караңыз.\n \n\n<b>Контексттик иштизме</b>\n \nКонтексттик иштизмени ачуу үчүн экранды узак убакыт басыңыз. Библиянын текстин узак убакыт бассаңыз аяттын контексттик иштизмеги ачылат.\n \nРесурс тизмесин узак убакыт басуу менен Ресурсту өчүрүп салууга же анын булагын карап көрүүгө болот.\n \nИшбаянды карап көрүү үчүн Артка деген басмакты узак убакыт басыңыз</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салып, Библияны кайрадан ачыңыз.</string>
   <!--Main menu-->
@@ -15,7 +13,6 @@
   <string name="history">Ишбаян</string>
   <string name="speak">Угуу</string>
   <string name="help">Жардам</string>
-  <string name="verse">Аят</string>
   <string name="administration">Жөндөө</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Китепти тандоо</string>
@@ -27,7 +24,6 @@
   <string name="search_index">Издөө индекси</string>
   <string name="index_creation_required">Издөө үчүн индекс керек \nИндексти Интернеттен жүктөп алууга же колдо түзүп алууга болот.\nЖүктөп алуу ылдам болот, ошондой эле жүктөп алынган индекстердин издөө иштеми көбүрөөк болот. \nИндекстерди жүктөп алуу үчүн, Интернетке кошулуңуз.</string>
   <string name="indexing_wait_msg">Сөздөрдү табуу Индекстерди түзүү аяктаганда издөө экраны пайда болот.</string>
-  <string name="index">Индекс</string>
   <string name="index_download">Жүктөө</string>
   <string name="index_not_available_for_download">Бул индексти жүктөп алуу мүмкүн эмес.</string>
   <string name="index_create">Түзүү</string>
@@ -36,7 +32,6 @@
   <string name="task_kill_warning">Тапшырмалар аткарылып бүткөнчө башка программага өтсөңүз, тапшырмалар аткарылбай калышы мүмкүн.</string>
   <string name="no_tasks_running">Азыр эч кандай тапшырма аткарылып жаткан жок.</string>
   <!--Search-->
-  <string name="search_results">Жыйынтыктарды көрсөтүү</string>
   <string name="search_words_group_prompt">Сөздөрдү табуу</string>
   <string name="search_all_words">Бардыгын</string>
   <string name="search_any_word">Ар кайсы</string>
@@ -51,21 +46,12 @@
   <string name="error_executing_search">Туура эмес сурам</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Аяттарды номердөө</string>
-  <string name="prefs_show_verseno_summary">Аяттардын номерделишин көрсөтүү.</string>
   <string name="prefs_verse_per_line_title">Абзацсыз көрсөтүү</string>
-  <string name="prefs_verse_per_line_summary">Ар бир аятты жаңы сапка жайгаштыруу.</string>
   <string name="prefs_show_mynotes_title">Жеке байкоомдун жарлыгы</string>
-  <string name="prefs_show_mynotes_summary">Аяттарга карата жеке байкоолорумдун белгилери.</string>
   <string name="prefs_show_notes_title">Түшүрмө</string>
-  <string name="prefs_show_notes_summary">Документ ичиндеги түшүрмөнү көрсөтүү.</string>
-  <string name="prefs_show_strongs_title">Стронгдун номерлерин көрсөтүү</string>
-  <string name="prefs_show_strongs_summary">Грек жана байыркы эврей тилиндеги аныктамаларга жарлыктарды көрсөтүү.</string>
   <string name="prefs_show_morphology_title">Морфологиялык белгилер</string>
-  <string name="prefs_show_morphology_summary">Грек тилинин морфологиясын (грамматикасын) Робинсон боюнча белгисин көрсөтүү.</string>
   <string name="prefs_section_title_title">Бөлүмчөнүн аталыштары</string>
-  <string name="prefs_section_title_summary">Канондук эмес бөлүмчөнүн аталыштарын көрсөтүү.</string>
   <string name="prefs_red_letter_title">Кызыл арип</string>
-  <string name="prefs_red_letter_summary">Ыйсанын сөздөрүн кызыл түс менен көрсөтүү.</string>
   <string name="prefs_tilt_to_scroll_title">Текстти жылдыруу</string>
   <string name="prefs_tilt_to_scroll_summary">Аппаратты эңкейткениңизде экрандагы текст өзү жылат.</string>
   <string name="prefs_night_mode_title">Түнкү шарттам</string>
@@ -78,12 +64,9 @@
   <string name="prefs_text_size_title">Ариптин көлөмү</string>
   <string name="prefs_text_size_summary">Текстти чоң тамгалар менен көрсөтүү.</string>
   <string name="prefs_text_size_sample_text">Тексттин үлгүсү</string>
-  <string name="x_minutes">%d мүнөт</string>
   <string name="prefs_interface_locale_title">Тил</string>
   <string name="prefs_interface_locale_summary">Интерфейстин тилин тандоо.</string>
-  <string name="locale_change_warning">Интерфейстин жаңы тилине өтүү үчүн кайрадан жүктөө тиркемеси.</string>
   <!--Window-->
-  <string name="window">Терезе</string>
   <string name="windowClose">Жабуу</string>
   <string name="windowMaximise">Толук ачуу</string>
   <string name="windowMinimise">Жыйнап коюу</string>
@@ -95,14 +78,11 @@
   <string name="previous">Артка</string>
   <string name="next">Алдыга</string>
   <!--Strongs-->
-  <string name="strongs">Стронг Сөздүгү </string>
   <string name="strongs_not_installed">Алгач Грек жана байыркы эврей тилиндеги Стронг сөздүгүн жүктөп алышыңыз зарыл.</string>
   <string name="all_greek_occurrences">Бардык учурларды көрсөтүү</string>
   <string name="all_hebrew_occurrences">Бардык учурларды көрсөтүү</string>
   <string name="no_indexed_bible_with_strongs_ref">Библияны Стронг номерлери менен жүктөө жана Издөө аркылуу индексти жүктөө.</string>
   <string name="morph_robinson_not_installed">\'Robinsons Morphological Analysis Codes\' деп аталган Робинсондун сөздүгүн жүктөңүз.</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Ресурстарды жүктөө</string>
   <string name="download_confirmation">Библияны Интернеттен жүктөйсүзбү?</string>
@@ -113,9 +93,6 @@
   <string name="error_downloading">Ката кетти. Интернетке туташууну текшериңиз.</string>
   <string name="no_internet_connection">Интернетке туташпай калды.</string>
   <string name="storage_space_warning">Сактоо үчүн орун жетпейт.</string>
-  <string name="wait_for_bible">Күтө туруңуз, Библия толук жүктөлүп бүтө элек. Андан кийин негизги иштизме пайда болот.</string>
-  <string name="wait_for_bible_not_yet">Күтө туруңуз. Библия орнотулуп бүтө элек.</string>
-  <string name="download_complete_no_bibles">Библия орнотулбай калды. Артка дегенди басып, кайрадан аракеттенип көрүңүз.</string>
   <string name="too_many_jobs">Өтө эле көп тапшырма аткарылып жатат. Бир аз күтө туруп, анан кайрадан аракеттенип көрүңүз.</string>
   <string name="document_not_installed">\'%s\' жүктөп алыңыз.</string>
   <!--Install zip file-->
@@ -132,12 +109,6 @@
   <string name="rdg_plan_set_start_jan1">1 январдан</string>
   <string name="done">Аткарылды</string>
   <string name="reset">Планды алмаштыруу</string>
-  <string name="rdg_plan_y1ntpspr">Жаңы Келишимди, Забурду жана Накыл сөздөрдү бир жылда окуп чыгуу.</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Библияны хронологиялык тартипте бир жылда толугу менен окуп чыгуу.</string>
-  <string name="rdg_plan_y1ot1nt1_OTandNT">Библияны толугу менен – БК жана ЖК бир жылда окуп чыгуу.</string>
-  <string name="rdg_plan_y1ot1nt1_OTthenNT">Библияны толугу менен – алгач БК анан ЖК бир жылда окуп чыгуу.</string>
-  <string name="rdg_plan_y1ot1nt2_mcheyne">Библияны толугу менен (Мак Шейн боюнча).</string>
-  <string name="rdg_plan_y2ot1ntps2">2 жылдык план - БК бир ирет, ЖК жана Забурду эки иреттен окуу.</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Өчүрүү</string>
@@ -156,13 +127,11 @@
   <string name="bookmarks">Чөпкаттар</string>
   <string name="add_bookmark">Чөпкатты кошуу</string>
   <string name="bookmark_added">Чөпкат кошулду</string>
-  <string name="bookmark_exists">Чөпкат бар</string>
   <string name="bookmark_labels">Жарлыктар</string>
   <string name="assign_labels">Жарлыкты бекитүү</string>
   <string name="new_label">Жаңы жарлык</string>
   <string name="label_name_prompt">Аталыш</string>
   <string name="label_unlabelled">Жарлык өчүрүлдү</string>
-  <string name="rename">Аталышты өзгөртүү</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Дата боюнча</string>
   <string name="sort_by_bible_book">Библиялык китептердин ирээти боюнча</string>
@@ -170,10 +139,8 @@
   <!--Dictionary-->
   <string name="dictionary">Сөздүк</string>
   <string name="search_dictionary_hint">Сөздүктөн издөө</string>
-  <string name="dictionary_contents">Мазмуну</string>
   <!--General Book-->
   <string name="general_book">Китеп</string>
-  <string name="general_book_contents">Мазмуну</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
@@ -209,9 +176,7 @@
          in speak settings.-->
   <!--User Notes-->
   <string name="mynotes">Жеке байкоом</string>
-  <string name="mynote">Жеке байкоолорум</string>
   <string name="mynote_add">Жеке байкоомду кошуу</string>
-  <string name="mynote_view_edit">Жеке байкоом</string>
   <string name="mynote_saved">Сакталды</string>
   <!--Backup and restore-->
   <string name="backup">Резервдин көчүрмөсү</string>
@@ -236,16 +201,10 @@
   <string name="cancel">Баш тартуу</string>
   <string name="yes">Ооба</string>
   <string name="no">Жок</string>
-  <string name="save">Сактоо</string>
   <string name="error">Ката кетти</string>
-  <string name="more">Дагы</string>
-  <string name="more_dotted">Дагы...</string>
-  <string name="retry">Кайрадан аракет кылыңыз</string>
   <string name="please_wait">Күтө туруңуз...</string>
   <string name="all">Баары</string>
   <string name="default_value">Жалпы туралоо боюнча </string>
-  <string name="new_item">Кошуу</string>
-  <string name="close">Жабуу</string>
   <!--Errors-->
   <string name="report_error">Кабар жөнөтүү</string>
   <string name="error_occurred">Ката кетти</string>

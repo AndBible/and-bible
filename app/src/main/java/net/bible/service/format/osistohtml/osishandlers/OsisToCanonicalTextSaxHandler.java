@@ -39,8 +39,8 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     @SuppressWarnings("unused")
 	private int currentVerseNo;
 
-    private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
-	private enum CONTENT_STATE {WRITE, IGNORE}
+    protected Stack<CONTENT_STATE> writeContentStack = new Stack<>();
+	protected enum CONTENT_STATE {WRITE, IGNORE}
 
 	// Avoid space at the start and, extra space between words
 	private boolean spaceJustWritten = true;
@@ -162,7 +162,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		// reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
 		if (!StringUtils.isWhitespace(s)) {
 			super.write(s);
-			spaceJustWritten = false;
+			spaceJustWritten = Character.isWhitespace(s.charAt(s.length() - 1));
 		} else if (!spaceJustWritten) {
 			super.write(" ");
 			spaceJustWritten = true;

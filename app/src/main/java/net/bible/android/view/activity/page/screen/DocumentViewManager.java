@@ -55,7 +55,7 @@ public class DocumentViewManager {
 		this.mainBibleActivity = mainBibleActivity;
 		this.documentWebViewBuilder = documentWebViewBuilder;
 		this.myNoteViewBuilder = myNoteViewBuilder;
-		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
+		this.parent = mainBibleActivity.findViewById(R.id.mainBibleView);
 		this.windowControl = windowControl;
 
 		ABEventBus.getDefault().register(this);
@@ -65,8 +65,26 @@ public class DocumentViewManager {
 		buildView();
 	}
 
+	public synchronized void resetView() {
+		myNoteViewBuilder.removeMyNoteView(parent);
+		documentWebViewBuilder.removeWebView(parent);
+
+		if (myNoteViewBuilder.isMyNoteViewType()) {
+    		mainBibleActivity.resetSystemUi();
+    		myNoteViewBuilder.addMyNoteView(parent);
+    	} else {
+    		documentWebViewBuilder.addWebView(parent);
+    	}
+
+		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
+		for(Window window: windows) {
+			mainBibleActivity.registerForContextMenu((View) getDocumentView(window));
+		}
+	}
+
 	public synchronized void buildView() {
     	if (myNoteViewBuilder.isMyNoteViewType()) {
+    		mainBibleActivity.resetSystemUi();
     		documentWebViewBuilder.removeWebView(parent);
     		myNoteViewBuilder.addMyNoteView(parent);
     	} else {

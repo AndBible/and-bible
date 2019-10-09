@@ -60,7 +60,7 @@ class SpeakWidgetManager {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
 
-    private val app = BibleApplication.getApplication()
+    private val app = BibleApplication.application
     private val resetTitle = app.getString(R.string.app_name)
     private var currentTitle = resetTitle
     private var currentText = ""
@@ -71,7 +71,7 @@ class SpeakWidgetManager {
         }
         instance = this
         DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.getApplication().applicationComponent)
+                .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
         ABEventBus.getDefault().register(this)
     }
@@ -172,7 +172,7 @@ class SpeakWidgetManager {
         fun addButton(name: String, osisRef: String) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
-            if(osisRef.length > 0) {
+            if(osisRef.isNotEmpty()) {
                 val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
                     data = Uri.parse("bible://$osisRef")
@@ -184,14 +184,15 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        val labelDto = bookmarkControl.orCreateSpeakLabel
         if(!SpeakSettings.load().autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
         }
 
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
-            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})", b.verseRange.start.osisRef)
+            val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
+            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b.verseRange.start.osisRef)
             Log.d(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
@@ -327,13 +328,13 @@ class SpeakWidgetManager {
         }
 
         private fun toggleSleepTimer() {
-            val settings = SpeakSettings.load();
+            val settings = SpeakSettings.load()
             if (settings.sleepTimer > 0) {
                 settings.sleepTimer = 0
             } else {
                 settings.sleepTimer = settings.lastSleepTimer
             }
-            settings.save();
+            settings.save()
         }
     }
 
@@ -349,7 +350,7 @@ class SpeakWidgetManager {
                 val osisRef = intent.data.host
                 Log.d(TAG, "onReceive osisRef $osisRef")
                 val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
-                speakControl.speakFromBookmark(dto);
+                speakControl.speakFromBookmark(dto)
             }
         }
 

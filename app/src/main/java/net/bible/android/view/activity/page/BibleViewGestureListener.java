@@ -18,13 +18,7 @@
 
 package net.bible.android.view.activity.page;
 
-import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
-import android.view.ViewConfiguration;
-
-import net.bible.android.view.util.TouchOwner;
-import net.bible.service.common.CommonUtils;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 

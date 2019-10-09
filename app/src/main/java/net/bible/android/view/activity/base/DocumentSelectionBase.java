@@ -482,7 +482,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			copyrightMerged += distributionLicense+"\n";
 		}
 		if (StringUtils.isNotBlank(copyrightMerged)) {
-	        String copyrightMsg = BibleApplication.getApplication().getString(R.string.about_copyright, copyrightMerged);
+	        String copyrightMsg = BibleApplication.Companion.getApplication().getString(R.string.about_copyright, copyrightMerged);
 			about += "\n\n"+copyrightMsg;
 		}
 		
@@ -490,14 +490,14 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 		final String version = document.getBookMetaData().getProperty("Version");
 		if (version!=null) {
 			Version versionObj = new Version(version);
-	        String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
+	        String versionMsg = BibleApplication.Companion.getApplication().getString(R.string.about_version, versionObj.toString());
 			about += "\n\n"+versionMsg;
 		}
 
 		// add versification
 		if (document instanceof SwordBook) {
 			Versification versification = ((SwordBook)document).getVersification();
-	        String versificationMsg = BibleApplication.getApplication().getString(R.string.about_versification, versification.getName());
+	        String versificationMsg = BibleApplication.Companion.getApplication().getString(R.string.about_versification, versification.getName());
 			about += "\n\n"+versificationMsg;
 		}
 

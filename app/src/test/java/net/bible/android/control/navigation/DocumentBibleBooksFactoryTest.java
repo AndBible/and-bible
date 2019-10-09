@@ -5,6 +5,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertThat;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@Ignore("Until ESV comes back")
 public class DocumentBibleBooksFactoryTest {
 
 	private DocumentBibleBooksFactory documentBibleBooksFactory;

@@ -63,7 +63,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.speak);
+		return CommonUtils.INSTANCE.getResourceString(R.string.speak);
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 		} else if (getSpeakControl().isPaused()) {
 			return android.R.drawable.ic_media_play;
 		} else {
-			return android.R.drawable.ic_media_play;
+			return R.drawable.ic_hearing_24dp;
 		}
 	}
 

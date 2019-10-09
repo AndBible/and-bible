@@ -32,7 +32,8 @@ import org.jetbrains.anko.doAsync
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleInfiniteScrollPopulator(private val bibleViewtextInserter: BibleViewTextInserter, private val currentPageManager: CurrentPageManager) : AnkoLogger {
+class BibleInfiniteScrollPopulator(private val bibleViewtextInserter: BibleViewTextInserter,
+                                   private val currentPageManager: CurrentPageManager) : AnkoLogger {
 
     fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {
         debug("requestMoreTextAtTop")

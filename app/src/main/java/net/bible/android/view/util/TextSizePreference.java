@@ -39,7 +39,7 @@ public class TextSizePreference extends SeekBarPreference {
 		super(context, attrs);
 		
 		setMin(MIN_TEXT_SIZE);
-		setDialogMessage(CommonUtils.getResourceString(R.string.prefs_text_size_sample_text));
+		setDialogMessage(CommonUtils.INSTANCE.getResourceString(R.string.prefs_text_size_sample_text));
 	}
 	
     protected void updateScreenValue(int value) {

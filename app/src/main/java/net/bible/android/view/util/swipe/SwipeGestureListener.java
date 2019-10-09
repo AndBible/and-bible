@@ -43,8 +43,8 @@ public class SwipeGestureListener extends SimpleOnGestureListener {
 	public SwipeGestureListener(SwipeGestureEventHandler compareTranslationActivity) {
 		super();
 		this.eventHandler = compareTranslationActivity;
-		scaledDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
-    	minScaledVelocity = ViewConfiguration.get(BibleApplication.getApplication()).getScaledMinimumFlingVelocity();
+		scaledDistance = CommonUtils.INSTANCE.convertDipsToPx(DISTANCE_DIP);
+    	minScaledVelocity = ViewConfiguration.get(BibleApplication.Companion.getApplication()).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}

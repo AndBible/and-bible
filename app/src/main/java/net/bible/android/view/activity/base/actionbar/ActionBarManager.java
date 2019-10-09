@@ -27,8 +27,8 @@ import android.view.Menu;
  */
 public interface ActionBarManager {
 
-	public abstract void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar);
+	void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar);
 
-	public abstract void updateButtons();
+	void updateButtons();
 
 }

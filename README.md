@@ -13,7 +13,7 @@ For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the
 ## Developers
 
 Use Android Studio or IntelliJ IDEA to build And Bible.
-Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Code-contributions)
+Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation)
 in wiki.
 
 ## Translators
@@ -21,11 +21,14 @@ in wiki.
 Everyone is welcome to help translating And Bible to different languages via
 easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
 
-## Credits
+## Project responsibilities
 
-Original developer: [Martin Denham](http://github.com/mjdenham)
+- Project Lead (development etc.): [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
+- Quality Assurance Lead: [Ben Vahedy](http://github.com/bvahedy) (Since 1/2019)
 
-Package maintainer: [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
+## Acknowledgements
+
+And Bible was originally developed by [Martin Denham](http://github.com/mjdenham) (2010-2018)
 
 ## Licence
 

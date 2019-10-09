@@ -42,7 +42,7 @@ public class NougatPlusLocaleChanger implements LocaleChanger {
 	public Context changeLocale(Context context, String language) {
 		logger.debug("Update resources N plus");
 
-		Locale locale = new Locale(language);
+		Locale locale = Locale.forLanguageTag(language);
 		Locale.setDefault(locale);
 
 		Configuration configuration = context.getResources().getConfiguration();

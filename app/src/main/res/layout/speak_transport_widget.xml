@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/buttonsLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/speakTransportBackground"
+    android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/speak_status_background"
+            android:paddingStart="@dimen/speak_row_padding"
+            android:paddingEnd="@dimen/speak_row_padding"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            />
+
+        <LinearLayout
+            android:id="@+id/button_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/bookmarkButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/bookmarks"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_bookmark_24dp" />
+
+                <ImageButton
+                    android:id="@+id/rewindButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/rewind"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_fast_rewind_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/prevButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/speak_previous"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/stopButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/stop"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_stop_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/speakPauseButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/speak"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/nextButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/speak_next"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_skip_next_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/forwardButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/forward"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_fast_forward_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/configButton"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/forward"
+                    android:theme="@style/TransportButtonTheme"
+                    app:srcCompat="@drawable/ic_settings_black_24dp" />
+        </LinearLayout>
+</LinearLayout>

@@ -326,7 +326,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	 */
 	public void persistState() {
 		if (mTextToSpeak.size()>0) {
-			CommonUtils.getSharedPreferences()
+			CommonUtils.INSTANCE.getSharedPreferences()
 						.edit()
 						.putString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR))
 						.putInt(PERSIST_NEXT_TEXT, nextTextToSpeak)
@@ -341,7 +341,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	 */
 	public boolean restoreState() {
 		boolean isRestored = false;
-		SharedPreferences sharedPreferences = CommonUtils.getSharedPreferences();
+		SharedPreferences sharedPreferences = CommonUtils.INSTANCE.getSharedPreferences();
 		if (sharedPreferences.contains(PERSIST_SPEAK_TEXT)) {
 			mTextToSpeak = new ArrayList<String>(Arrays.asList(sharedPreferences.getString(PERSIST_SPEAK_TEXT, "").split(PERSIST_SPEAK_TEXT_SEPARATOR)));
 			nextTextToSpeak = sharedPreferences.getInt(PERSIST_NEXT_TEXT, 0);
@@ -353,7 +353,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return isRestored;
 	}
 	public void clearPersistedState() {
-		CommonUtils.getSharedPreferences().edit().remove(PERSIST_SPEAK_TEXT)
+		CommonUtils.INSTANCE.getSharedPreferences().edit().remove(PERSIST_SPEAK_TEXT)
 												.remove(PERSIST_NEXT_TEXT)
 												.remove(PERSIST_FRACTION_SPOKEN)
 												.commit();

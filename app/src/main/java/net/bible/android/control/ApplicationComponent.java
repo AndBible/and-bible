@@ -41,10 +41,6 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.activity.navigation.biblebookactionbar.SortActionBarButton;
 import net.bible.android.view.activity.page.BibleKeyHandler;
-import net.bible.android.view.activity.page.actionbar.BibleActionBarButton;
-import net.bible.android.view.activity.page.actionbar.CommentaryActionBarButton;
-import net.bible.android.view.activity.page.actionbar.DictionaryActionBarButton;
-import net.bible.android.view.activity.page.actionbar.StrongsActionBarButton;
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
 import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton;
@@ -98,10 +94,6 @@ public interface ApplicationComponent {
 
 	SpeakControl speakControl();
 
-	BibleActionBarButton bibleActionBarButton();
-	CommentaryActionBarButton commentaryActionBarButton();
-	DictionaryActionBarButton dictionaryActionBarButton();
-	StrongsActionBarButton strongsActionBarButton();
 	SortActionBarButton sortActionBarButton();
 	SpeakActionBarButton speakActionBarButton();
 	SpeakStopActionBarButton speakStopActionBarButton();

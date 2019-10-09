@@ -59,6 +59,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.xml.sax.ContentHandler;
@@ -109,7 +110,7 @@ public class SwordContentFacade {
 			retVal = "";
 		} else if (Books.installed().getBook(book.getInitials())==null) {
 			Log.w(TAG, "Book may have been uninstalled:"+book);
-			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
+			String errorMsg = BibleApplication.Companion.getApplication().getString(R.string.document_not_installed, book.getInitials());
 			retVal = HtmlMessageFormatter.format(errorMsg);
 		} else if (!bookContainsAnyOf(book, key)) {
 			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
@@ -231,7 +232,7 @@ public class SwordContentFacade {
     	try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
-		
+
 			ContentHandler osisHandler = new OsisToCanonicalTextSaxHandler();
 
 			osissep.provideSAXEvents(osisHandler);
@@ -239,9 +240,27 @@ public class SwordContentFacade {
 			return osisHandler.toString();
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    		return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
     	}
     }
+
+	public String getTextWithVerseNumbers(Book book, VerseRange verseRange) throws NoSuchKeyException, BookException, ParseException {
+		try {
+			BookData data = new BookData(book, verseRange);
+			SAXEventProvider osissep = data.getSAXEventProvider();
+
+			boolean showVerseNumbers = verseRange.toVerseArray().length > 1 &&
+					CommonUtils.INSTANCE.getSharedPreferences().getBoolean("show_verseno_pref", true);
+
+			ContentHandler osisHandler = new OsisToCopyTextSaxHandler(showVerseNumbers);
+			osissep.provideSAXEvents(osisHandler);
+
+			return osisHandler.toString();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
+		}
+	}
 
 	private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
 		try {
@@ -295,7 +314,7 @@ public class SwordContentFacade {
 			return osisHandler.toString();
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    		return BibleApplication.Companion.getApplication().getString(R.string.error_occurred);
     	}
     }
 
@@ -388,7 +407,7 @@ public class SwordContentFacade {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));
 	    	
-			SharedPreferences preferences = CommonUtils.getSharedPreferences();
+			SharedPreferences preferences = CommonUtils.INSTANCE.getSharedPreferences();
 			if (preferences!=null) {
 				// prefs applying to any doc type
 				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", false));
@@ -415,14 +434,14 @@ public class SwordContentFacade {
 				if (BookCategory.DICTIONARY.equals(bookCategory)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link
-						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
+						String prompt = BibleApplication.Companion.getApplication().getString(R.string.all_hebrew_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 
 						//convert text refs to links
 						osisToHtmlParameters.setConvertStrongsRefsToLinks(true);
 					} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
 						//add allGreek refs link
-						String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
+						String prompt = BibleApplication.Companion.getApplication().getString(R.string.all_greek_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 
 						//convert text refs to links
@@ -435,7 +454,7 @@ public class SwordContentFacade {
 				osisToHtmlParameters.setCssClassForCustomFont(FontControl.getInstance().getCssClassForCustomFont(book));
 				
 				// indent depth - larger screens have a greater indent
-				osisToHtmlParameters.setIndentDepth(CommonUtils.getResourceInteger(R.integer.poetry_indent_chars));
+				osisToHtmlParameters.setIndentDepth(CommonUtils.INSTANCE.getResourceInteger(R.integer.poetry_indent_chars));
 			}
 		}
 		return new OsisToHtmlSaxHandler(osisToHtmlParameters);

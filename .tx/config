@@ -7,3 +7,12 @@ lang_map = az@latin: az, zh_TW: zh-rTW, en_GB: en
 source_file = app/src/main/res/values/strings.xml
 source_lang = en
 
+[andbible.playstoremaintexttxt]
+file_filter = PlayStore/<lang>/PlayStoreMainText.txt
+source_file = PlayStore/en/PlayStoreMainText.txt
+source_lang = en
+
+[andbible.playstoreshorttexttxt]
+file_filter = PlayStore/<lang>/PlayStoreShortText.txt
+source_file = PlayStore/en/PlayStoreShortText.txt
+source_lang = en

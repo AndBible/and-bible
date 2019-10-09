@@ -30,8 +30,8 @@ class NumPagesToSpeakDefinition(var numPages: Int, private val resourceId: Int, 
 
     fun getPrompt() =
             if (isPlural) {
-                BibleApplication.getApplication().resources.getQuantityString(resourceId, numPages, numPages)
+                BibleApplication.application.resources.getQuantityString(resourceId, numPages, numPages)
             } else {
-                BibleApplication.getApplication().resources.getString(resourceId)
+                BibleApplication.application.resources.getString(resourceId)
             }
 }

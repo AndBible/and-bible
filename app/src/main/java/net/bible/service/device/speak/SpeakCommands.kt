@@ -25,7 +25,7 @@ import android.util.Log
 import net.bible.android.control.speak.SpeakSettings
 import java.util.*
 
-val TAG = "SpeakCommands"
+const val TAG = "SpeakCommands"
 
 interface SpeakCommand {
     fun speak(tts: TextToSpeech, utteranceId: String)
@@ -41,17 +41,17 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
         }
         else {
             val params = HashMap<String, String>()
-            params.set(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-            tts.speak(text, TextToSpeech.QUEUE_ADD, params);
+            params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
+            tts.speak(text, TextToSpeech.QUEUE_ADD, params)
         }
     }
 
     override fun toString(): String {
-        return "${super.toString()} $text";
+        return "${super.toString()} $text"
     }
 }
 
-abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCommand {
+abstract class EarconCommand(private val earcon: String, val enabled: Boolean): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
@@ -126,7 +126,9 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
         }
 
     override fun add(index: Int, element: SpeakCommand) {
-        val currentCmd = try {this.get(index)} catch (e: IndexOutOfBoundsException) {null}
+        val currentCmd = try {
+            this[index]
+        } catch (e: IndexOutOfBoundsException) {null}
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return
@@ -157,20 +159,19 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return false
-            if(lastCommand is TextCommand) {
+            return if(lastCommand is TextCommand) {
                 val newText = if(startsWithDelimeter.matches(element.text))
                     "${lastCommand.text}${element.text}"
                 else
                     "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
-                    return super.add(element)
+                    super.add(element)
                 else {
                     this[this.size-1] = TextCommand(newText, lastCommand.type)
-                    return true
+                    true
                 }
-            }
-            else {
-                return super.add(element)
+            } else {
+                super.add(element)
             }
         }
         else if(element is SilenceCommand && lastCommand is SilenceCommand) {
@@ -195,6 +196,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
 
     fun addUntilSentenceBreak(commands: ArrayList<SpeakCommand>, rest: ArrayList<SpeakCommand>) {
         var sentenceBreakFound = false
+        var textContinuation = false
         for(cmd in commands) {
             if(sentenceBreakFound) {
                 rest.add(cmd)
@@ -210,10 +212,17 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                 }
                 else {
                     this.add(cmd)
+                    textContinuation = true
                 }
             }
+            // if there's some other command than TextCommand, we will intepret this as a sentence break too.
             else {
-                this.add(cmd)
+                if(textContinuation) {
+                    this.add(cmd)
+                    sentenceBreakFound = true
+                } else {
+                    this.add(cmd)
+                }
             }
         }
     }

@@ -26,6 +26,7 @@ import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.SharedActivityState;
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 
 import org.crosswire.jsword.passage.Verse;
@@ -39,6 +40,7 @@ import org.json.JSONObject;
  */
 public class BibleJavascriptInterface {
 
+	private final BibleView bibleView;
 	private boolean notificationsEnabled = false;
 
 	private boolean addingContentAtTop = false;
@@ -57,12 +59,13 @@ public class BibleJavascriptInterface {
 
 	private static final String TAG = "BibleJavascriptIntrfc";
 
-	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, CurrentPageManager currentPageManager, BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator) {
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, CurrentPageManager currentPageManager, BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator, BibleView bibleView) {
 		this.verseActionModeMediator = verseActionModeMediator;
 		this.windowControl = windowControl;
 		this.verseCalculator = verseCalculator;
 		this.currentPageManager = currentPageManager;
 		this.bibleInfiniteScrollPopulator = bibleInfiniteScrollPopulator;
+		this.bibleView = bibleView;
 	}
 
 	@JavascriptInterface
@@ -77,6 +80,12 @@ public class BibleJavascriptInterface {
 			if (currentPageManager.isBibleShown()) {
 				// All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
 				// I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
+
+				// if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
+				if(!SharedActivityState.getInstance().isFullScreen() && bibleView.isTopWindow())
+				{
+					newYPos += (bibleView.getMainBibleActivity().getTopOffset2()) / bibleView.getResources().getDisplayMetrics().density;
+				}
 				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);
 				if (currentChapterVerse != prevCurrentChapterVerse) {
 					currentPageManager.getCurrentBible().setCurrentChapterVerse(currentChapterVerse);

@@ -70,7 +70,7 @@ public class FootnoteAndRefControl {
 		boolean wasFullBookname = BookName.isFullBookName();
 		BookName.setFullBookName(false);
 		
-		stringBuilder.append(BibleApplication.getApplication().getString(R.string.notes))
+		stringBuilder.append(BibleApplication.Companion.getApplication().getString(R.string.notes))
 					 .append(": ")
 					 .append(verseRange.getName());
 		
