@@ -66,6 +66,23 @@ class ReadingPlanControl @Inject constructor(
     val readingPlanList: List<ReadingPlanInfoDto>
         get() = readingPlanDao.readingPlanList
 
+    /**
+     * Check if any user plans in jsword/readingplan have same file
+     * name as one of the default plans
+     */
+    val readingPlanUserDuplicates: Boolean
+    get() {
+        val userPlanList = readingPlanDao.userPlanCodes(false)
+        userPlanList ?: return false
+
+        val internalPlanList = readingPlanDao.internalPlanCodes
+        userPlanList.forEach { userPlan ->
+            if (internalPlanList.find { internalPlan -> internalPlan == userPlan } != null)
+                return true
+        }
+        return false
+    }
+
     /** get list of days and readings for a plan so user can see the plan in advance
      */
     val currentPlansReadingList: List<OneDaysReadingsDto>
