@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="313"
+    android:versionCode="314"
     android:versionName="3.1.314-beta">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
