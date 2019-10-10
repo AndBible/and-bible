@@ -569,6 +569,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .setPositiveButton(R.string.okay) { dialog, _ ->
                 dialog.dismiss()
                 windowControl.windowRepository.name = input.text.toString()
+                ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+                invalidateOptionsMenu()
             }
             .show()
         val t = workspaceStrings
