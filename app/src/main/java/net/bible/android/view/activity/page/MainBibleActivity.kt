@@ -21,15 +21,15 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.text.InputType
 import android.text.SpannableStringBuilder
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
 import android.view.ContextMenu
@@ -46,6 +46,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.PopupMenu
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
@@ -277,6 +279,47 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         currentWorkspaceName
         ready = true
+        showBetaNotice()
+    }
+
+    private fun showBetaNotice() {
+        val ver = CommonUtils.applicationVersionName.split("#")[0]
+
+        if(!ver.endsWith("-beta")) return
+
+        val displayedVer = preferences.getString("beta-notice-displayed", "")
+
+        if(displayedVer != ver) {
+
+            val par1 = getString(R.string.beta_notice_content_1)
+            val par2 = getString(R.string.beta_notice_content_2,
+                 " <a href=\"https://github.com/AndBible/and-bible/issues\">"
+                    + "${getString(R.string.beta_notice_github_issues)}</a>"
+            )
+            val par3 = getString(R.string.beta_notice_content_3,
+                " <a href=\"https://github.com/AndBible/and-bible\">"
+                    + "${getString(R.string.beta_notice_github)}</a>"
+
+            )
+            val htmlMessage = "$par1<br><br> $par2<br><br> $par3"
+
+            val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+            } else {
+                Html.fromHtml(htmlMessage)
+            }
+
+            val d = AlertDialog.Builder(this)
+                .setTitle(getString(R.string.beta_notice_title))
+                .setMessage(spanned)
+                .setNeutralButton(getString(R.string.beta_notice_dismiss), null)
+                .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
+                    preferences.edit().putString("beta-notice-displayed", ver).apply()
+                }
+                .create()
+            d.show()
+            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        }
     }
 
     private fun setupToolbarFlingDetection() {

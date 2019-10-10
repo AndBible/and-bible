@@ -472,4 +472,23 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_workspace_from_dialog">New</string>
     <string name="delete_workspace_from_dialog">Delete current</string>
     <string name="history_title">History (%s)</string>
+
+    <!-- Beta notice -->
+    <string name="beta_notice_title">This is beta version!</string>
+    <string name="beta_notice_content_1">
+        In beta version, there are new features that are not yet properly tested,
+        and thus using beta might introduce unexpected behavior, i.e. bugs.
+        It is recommended that ordinary Bible readers use stable version instead.
+    </string>
+
+    <string name="beta_notice_content_2">
+        Beta users are encouraged to report bugs via Google Play or
+        (preferably) via %s.
+    </string>
+    <string name="beta_notice_content_3">If you are programmer, please consider contributing bug
+        fixes via %s yourself. :-)</string>
+    <string name="beta_notice_github_issues">Github issues</string>
+    <string name="beta_notice_github">Github</string>
+    <string name="beta_notice_dismiss">Dismiss</string>
+    <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
 </resources>
