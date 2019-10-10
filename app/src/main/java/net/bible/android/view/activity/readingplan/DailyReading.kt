@@ -254,6 +254,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** I don't think this is used because of hte finish() in onSearch()
      */
+    @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             returnToPreviousScreen()

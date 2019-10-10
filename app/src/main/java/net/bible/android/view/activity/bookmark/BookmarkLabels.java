@@ -213,6 +213,7 @@ public class BookmarkLabels extends ListActivityBase {
 		return isHandled;
 	}
 
+	@SuppressLint("MissingSuperCall")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Restoring state after return from label editing");

@@ -157,7 +157,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	}
 	}
 
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Restoring state after return from label editing");
     	// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label

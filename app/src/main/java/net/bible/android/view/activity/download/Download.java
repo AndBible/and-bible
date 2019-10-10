@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.download;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -209,7 +210,8 @@ public class Download extends DocumentSelectionBase {
 
     }
     
-    @Override 
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	Log.d(TAG, "onActivityResult:"+resultCode);
     	if (resultCode==DOWNLOAD_FINISH) {

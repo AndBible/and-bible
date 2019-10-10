@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -200,6 +201,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
     }
 
+    @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             setResult(Activity.RESULT_OK, data)
