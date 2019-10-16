@@ -221,12 +221,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        val offset = if(!SharedActivityState.getInstance().isFullScreen && isTopWindow) {
-            mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density
-        }  else 0.0F
-
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true, $offset);})</script></body>")
+        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})</script></body>")
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -474,12 +470,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        executeJavascript("setToolbarOffset($toolbarOffset);");
+        executeJavascript("setToolbarOffset($toolbarOffset);")
     }
 
     val isTopWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstWindow == window
             || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
+
     private val toolbarOffset
         get() =
             if(isTopWindow)
@@ -535,7 +532,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
         }
-        executeJavascript("setToolbarOffset($toolbarOffset);");
+        executeJavascript("setToolbarOffset($toolbarOffset, true);");
     }
 
     /** move the view so the selected verse is at the top or at least visible
@@ -553,12 +550,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // jump to correct verse
             // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
             val now = if(window.justRestored) "true" else "false"
-            if(!SharedActivityState.getInstance().isFullScreen && isTopWindow) {
-                val delta = (mainBibleActivity.topOffset2) / mainBibleActivity.resources.displayMetrics.density
-                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $delta)")
-            } else {
-                executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now)")
-            }
+            executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now)")
         }
     }
 

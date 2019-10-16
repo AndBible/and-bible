@@ -62,6 +62,7 @@ var currentAnimation = null;
 var stopAnimation = false;
 
 function doScrolling(elementY, duration) {
+    console.log("doScrolling", elementY, duration);
     stopAnimation = false;
     var startingY = window.pageYOffset;
     var diff = elementY - startingY;
@@ -91,8 +92,9 @@ function doScrolling(elementY, duration) {
 }
 
 function scrollToVerse(toId, now, deltaParam) {
+    console.log("scrollToVerse", toId, now, deltaParam);
     stopAnimation = true;
-    var delta = 0;
+    var delta = toolbarOffset;
     if(deltaParam !== undefined) {
         delta = deltaParam;
     }
@@ -195,9 +197,13 @@ function selected($elem) {
 
 var toolbarOffset = 0;
 
- function setToolbarOffset(value) {
+function setToolbarOffset(value, refresh) {
     toolbarOffset = value;
+    if(refresh) {
+        scrollToVerse("-1", true)
+    }
 }
+
 function highlightVerse(chapterVerse, start) {
     var $verseSpan = $('#'+escapeSelector(chapterVerse));
     if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
