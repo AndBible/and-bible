@@ -430,7 +430,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
         bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
         commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
-        bookmarkButton.setOnClickListener { startActivity(Intent(this, Bookmarks::class.java)) }
+        bookmarkButton.setOnClickListener { startActivityForResult(Intent(this, Bookmarks::class.java), STD_REQUEST_CODE) }
         dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
@@ -1175,7 +1175,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
             }
             STD_REQUEST_CODE -> {
-                if (GridChoosePassageBook::class.java.name == data?.component?.className) {
+                val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
+                if (classes.contains(data?.component?.className)) {
                     val verseStr = data?.extras!!.getString("verse")
                     val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
                     if (pageControl.currentPageManager.isMyNoteShown) {
