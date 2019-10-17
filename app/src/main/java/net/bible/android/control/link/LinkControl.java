@@ -295,7 +295,7 @@ public class LinkControl {
 	private void showLink(Book document, Key key) {
 		// ask window controller to open link in desired window
 		CurrentPageManager currentPageManager = getCurrentPageManager();
-		Window firstWindow = windowControl.getWindowRepository().getFirstWindow();
+		Window firstWindow = windowControl.getWindowRepository().getFirstVisibleWindow();
 		Book defaultDocument = currentPageManager.getCurrentBible().getCurrentDocument();
 
 		if(windowMode.equals(WINDOW_MODE_MAIN)) {

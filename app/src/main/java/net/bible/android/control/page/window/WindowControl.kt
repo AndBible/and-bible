@@ -150,7 +150,7 @@ open class WindowControl @Inject constructor(
         defaultBible = if (currentBiblePage.isCurrentDocumentSet) {
             currentBiblePage.currentDocument
         } else {
-            windowRepository.firstWindow.pageManager.currentBible.currentDocument
+            windowRepository.firstVisibleWindow.pageManager.currentBible.currentDocument
         }
 
         showLink(defaultBible, key)

@@ -178,7 +178,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
 
         // Check that altering playback settigns are saved to bookmark when paused and we have moved away
-        windowControl.windowRepository.firstWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+        windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(206)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
@@ -198,7 +198,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
 
         // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
-        windowControl.windowRepository.firstWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+        windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))

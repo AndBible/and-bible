@@ -112,7 +112,7 @@ open class WindowRepository @Inject constructor(
 
     private val defaultState get() = WindowState.SPLIT
 
-    val firstWindow get() = windowList[0]
+    val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
 
     /**
      * Return window no larger than any windows created during this session and larger than 0

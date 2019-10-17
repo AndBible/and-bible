@@ -496,7 +496,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     val isTopWindow
-        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstWindow == window
+        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
             || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
 
     private val toolbarOffset
