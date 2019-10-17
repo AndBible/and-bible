@@ -244,7 +244,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 			}
 
 			Intent resultIntent= new Intent(this, Bookmarks.class);
-			resultIntent.putExtra("verse", bookmark.getVerseRange().getOsisID());
+			resultIntent.putExtra("verse", bookmark.getVerseRange().getStart().getOsisID());
 			setResult(Activity.RESULT_OK, resultIntent);
 
 			finish();
