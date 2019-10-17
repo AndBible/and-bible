@@ -473,13 +473,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascript("setToolbarOffset($toolbarOffset);")
     }
 
+    fun onEvent(event: MainBibleActivity.FullScreenEvent) {
+        if(isTopWindow)
+            executeJavascript("setToolbarOffset($toolbarOffset, true);")
+    }
+
     val isTopWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstWindow == window
             || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
 
     private val toolbarOffset
         get() =
-            if(isTopWindow)
+            if(isTopWindow && !SharedActivityState.getInstance().isFullScreen)
                 (mainBibleActivity.topOffsetWithActionBarAndStatusBar
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
@@ -529,10 +534,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
+        var refresh = true
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
+            refresh = false
         }
-        executeJavascript("setToolbarOffset($toolbarOffset, true);");
+        executeJavascript("setToolbarOffset($toolbarOffset, $refresh);");
     }
 
     /** move the view so the selected verse is at the top or at least visible
