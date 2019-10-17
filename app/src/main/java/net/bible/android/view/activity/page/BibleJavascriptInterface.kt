@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page
 
 import android.util.Log
 import android.webkit.JavascriptInterface
-
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
@@ -28,8 +27,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Callback
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-
-import org.crosswire.jsword.passage.Verse
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -46,23 +43,23 @@ class BibleJavascriptInterface(private val verseActionModeMediator: VerseActionM
     private var prevCurrentChapterVerse = ChapterVerse(0, 0)
 
     // Create Json Object using Facebook Data
-    val chapterInfo: String
-        @JavascriptInterface
-        get() {
-            val verse = currentPageManager.currentBible.singleKey
+	@JavascriptInterface
+	fun getChapterInfo(): String
+	{
+		val verse = currentPageManager.currentBible.singleKey
 
-            val jsonObject = JSONObject()
-            try {
-                jsonObject.put("infinite_scroll", currentPageManager.isBibleShown)
-                jsonObject.put("chapter", verse.chapter)
-                jsonObject.put("first_chapter", 1)
-                jsonObject.put("last_chapter", verse.versification.getLastChapter(verse.book))
-            } catch (e: JSONException) {
-                Log.e(TAG, "JSON error fetching chapter info", e)
-            }
+		val jsonObject = JSONObject()
+		try {
+			jsonObject.put("infinite_scroll", currentPageManager.isBibleShown)
+			jsonObject.put("chapter", verse.chapter)
+			jsonObject.put("first_chapter", 1)
+			jsonObject.put("last_chapter", verse.versification.getLastChapter(verse.book))
+		} catch (e: JSONException) {
+			Log.e(TAG, "JSON error fetching chapter info", e)
+		}
 
-            return jsonObject.toString()
-        }
+		return jsonObject.toString()
+	}
 
     @JavascriptInterface
     fun onLoad() {
@@ -136,8 +133,5 @@ class BibleJavascriptInterface(private val verseActionModeMediator: VerseActionM
         this.notificationsEnabled = notificationsEnabled
     }
 
-    companion object {
-
-        private val TAG = "BibleJavascriptIntrfc"
-    }
+	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
 }
