@@ -595,6 +595,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.windowRepository.restoreState(workspace)
         documentViewManager.resetView()
         windowControl.windowSync.synchronizeAllScreens()
+        windowControl.windowRepository.saveState()
 
         ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
 
@@ -610,6 +611,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         t[currentWorkspace] = currentWorkspaceState
         currentWorkspace = t.size
         windowControl.windowRepository.clear()
+        windowControl.windowRepository.setDefaultActiveWindow()
         t.add(currentWorkspaceState)
         workspaceStrings = t
         openWorkspace(currentWorkspaceState)

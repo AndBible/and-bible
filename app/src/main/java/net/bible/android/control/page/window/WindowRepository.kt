@@ -120,6 +120,9 @@ open class WindowRepository @Inject constructor(
     private val nextWindowNo get() = maxWindowNoUsed + 1
 
     private fun getDefaultActiveWindow() = windows.find { it.isVisible } ?: addNewWindow(nextWindowNo)
+    fun setDefaultActiveWindow() {
+        activeWindow = getDefaultActiveWindow()
+    }
 
     private fun addLinksWindowIfVisible(windows: MutableList<Window>) {
         if (dedicatedLinksWindow.isVisible) {
@@ -172,11 +175,7 @@ open class WindowRepository @Inject constructor(
 
         // links window is just closed not deleted
         if (!window.isLinksWindow) {
-            window.bibleView?.destroy()
-            if (!windowList.remove(window)) {
-                logger.error("Failed to close window " + window.screenNo)
-            }
-
+            destroy(window)
             if(wasMaximized) {
                 val lastScreen = minimisedScreens.last()
                 lastScreen.isMaximised = true
@@ -184,6 +183,13 @@ open class WindowRepository @Inject constructor(
             }
         }
         if (!wasMaximized) activeWindow = getDefaultActiveWindow()
+    }
+
+    private fun destroy(window: Window) {
+        window.bibleView?.destroy()
+        if (!windowList.remove(window)) {
+            logger.error("Failed to remove window " + window.screenNo)
+        }
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
@@ -240,7 +246,7 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    private fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
+    fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
         logger.info("save state")
         try {
             val editor = outState.edit()
@@ -279,6 +285,7 @@ open class WindowRepository @Inject constructor(
     fun restoreState(stateJsonString: String) {
         logger.info("restore state")
         if (StringUtils.isNotEmpty(stateJsonString)) {
+            clear()
             try {
                 val windowRepositoryState = JSONObject(stateJsonString)
                 val windowState = windowRepositoryState.getJSONArray("windowState")
@@ -300,7 +307,6 @@ open class WindowRepository @Inject constructor(
                 if (windowState.length() > 0) {
 
                     // remove current (default) state before restoring
-                    windowList.clear()
 
                     for (i in 0 until windowState.length()) {
                         try {
@@ -324,8 +330,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear() {
-        windowList.clear()
+        windowList.toList().forEach { w -> destroy(w)}
         name = ""
-        activeWindow = getDefaultActiveWindow()
     }
 }
