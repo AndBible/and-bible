@@ -198,9 +198,11 @@ function selected($elem) {
 var toolbarOffset = 0;
 
 function setToolbarOffset(value, refresh) {
+    var diff = toolbarOffset - value;
     toolbarOffset = value;
-    if(refresh) {
-        scrollToVerse("-1", true)
+
+    if(refresh && diff != 0) {
+        doScrolling(window.pageYOffset + diff, 500)
     }
 }
 
