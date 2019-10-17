@@ -475,7 +475,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow)
-            executeJavascript("setToolbarOffset($toolbarOffset, true);")
+            executeJavascript("setToolbarOffset($toolbarOffset);")
     }
 
     val isTopWindow
@@ -534,12 +534,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
-        var refresh = true
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
-            refresh = false
         }
-        executeJavascript("setToolbarOffset($toolbarOffset, $refresh);");
+        executeJavascript("setToolbarOffset($toolbarOffset);");
     }
 
     /** move the view so the selected verse is at the top or at least visible

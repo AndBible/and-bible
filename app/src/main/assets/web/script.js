@@ -197,11 +197,11 @@ function selected($elem) {
 
 var toolbarOffset = 0;
 
-function setToolbarOffset(value, refresh) {
+function setToolbarOffset(value) {
     var diff = toolbarOffset - value;
     toolbarOffset = value;
 
-    if(refresh && diff != 0) {
+    if(diff != 0) {
         doScrolling(window.pageYOffset + diff, 500)
     }
 }
