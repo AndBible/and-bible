@@ -649,7 +649,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             BookName.setFullBookName(false)
             for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
-                keyTitle.add("${pageManager.currentPage.currentDocument.abbreviation} ${pageManager.currentPage.singleKey.name}")
+                keyTitle.add("${pageManager.currentPage.singleKey.name} (${pageManager.currentPage.currentDocument.abbreviation})")
             }
             BookName.setFullBookName(prevFullBookNameValue)
             val text = if(!name.isEmpty())
