@@ -1,0 +1,21 @@
+@startuml
+header Fullscreen toggling
+actor User
+control JVM
+control Activity
+control JS
+User -> JVM: Doubletap action
+note right
+    toggleFullScreen,
+    FullScreenEvent
+end note
+JVM -> Activity: Window buttons
+JVM -> JS: setToolbarOffset
+JS -> JS: Adjust to offset
+note left
+    If offset changed, move up or down
+    amount of offset difference
+
+end note
+@enduml
+
