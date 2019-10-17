@@ -193,6 +193,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_set_start_date">Set Start Date...</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
+    <string name="plan_duplicate_user_plan">
+        There is a user reading plan in sdcard
+        jsword/readingplan with the same name as an internal plan. It can not be listed here.
+        Please rename the file to something else, leaving it\'s file extension as .properties
+    </string>
     <string name="plan_name_y1ntpspr">NT, Psalms &amp; Proverbs in a Year</string>
     <string name="plan_description_y1ntpspr">
         Courtesy of HEARTLIGHT Internet Magazine,

@@ -59,6 +59,8 @@ class ReadingPlanSelectorList : ListActivityBase() {
         buildActivityComponent().inject(this)
         try {
             mReadingPlanList = readingPlanControl.readingPlanList
+            if (readingPlanControl.readingPlanUserDuplicates)
+                Dialogs.getInstance().showErrorMsg(getString(R.string.plan_duplicate_user_plan))
 
             mPlanArrayAdapter = ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList)
             listAdapter = mPlanArrayAdapter

@@ -72,22 +72,43 @@ class ReadingPlanDao {
         @Throws(IOException::class)
         get() {
 
-            val resources = BibleApplication.application.resources
-            val assetManager = resources.assets
-
             val allCodes = ArrayList<String>()
 
-            val internalPlans = assetManager.list(READING_PLAN_FOLDER)
+            val internalPlans = internalPlanCodes
 			if(internalPlans != null) {
-				allCodes.addAll(getReadingPlanCodes(internalPlans))
+				allCodes.addAll(internalPlans)
 			}
 
-            val userPlans = USER_READING_PLAN_FOLDER.list()
+            val userPlans = userPlanCodes()
             if(userPlans != null) {
-                allCodes.addAll(getReadingPlanCodes(userPlans))
+                allCodes.addAll(userPlans)
             }
 
             return allCodes
+        }
+
+    val internalPlanCodes: List<String>
+        @Throws(IOException::class)
+        get() {
+            val resources = BibleApplication.application.resources
+            val assetManager = resources.assets
+            val internalPlans = assetManager.list(READING_PLAN_FOLDER)
+            return getReadingPlanCodes(internalPlans!!)
+        }
+
+    fun userPlanCodes(filterDuplicates: Boolean = true): List<String>? {
+            val userPlans = USER_READING_PLAN_FOLDER.list()
+            return if (userPlans != null) {
+                if (filterDuplicates) {
+                    getReadingPlanCodes(userPlans).filter { userPlan ->
+                        userPlan != internalPlanCodes.find { internalPlan -> internalPlan == userPlan }
+                    }
+                } else {
+                    getReadingPlanCodes(userPlans)
+                }
+            } else {
+                null
+            }
         }
 
     /** get a list of all days readings in a plan
