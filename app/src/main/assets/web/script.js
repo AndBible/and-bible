@@ -71,6 +71,11 @@ function doScrolling(elementY, duration) {
         window.cancelAnimationFrame(currentAnimation);
     }
 
+    if(duration === 0) {
+        window.scrollTo(0, elementY);
+        return;
+    }
+
     // Bootstrap our animation - it will get called right before next frame shall be rendered.
     currentAnimation = window.requestAnimationFrame(function step(timestamp) {
         if (!start) start = timestamp;
@@ -197,12 +202,18 @@ function selected($elem) {
 
 var toolbarOffset = 0;
 
-function setToolbarOffset(value, doNotScroll) {
+function setToolbarOffset(value, options) {
+    console.log("setToolbarOffset", value, options)
+    var opts = options || {};
     var diff = toolbarOffset - value;
     toolbarOffset = value;
+    var delay = 500;
+    if(opts.immediate) {
+        delay = 0;
+    }
 
-    if(diff != 0 && !doNotScroll) {
-        doScrolling(window.pageYOffset + diff, 500)
+    if(diff != 0 && !opts.doNotScroll) {
+        doScrolling(window.pageYOffset + diff, delay)
     }
 }
 

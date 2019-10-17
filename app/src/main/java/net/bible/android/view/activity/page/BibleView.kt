@@ -229,7 +229,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset, true); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})</script></body>")
+        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset, {doNotScroll: true}); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})</script></body>")
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -544,7 +544,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
         }
-        executeJavascript("setToolbarOffset($toolbarOffset);");
+        executeJavascript("setToolbarOffset($toolbarOffset, {immediate: true});");
     }
 
     /** move the view so the selected verse is at the top or at least visible
