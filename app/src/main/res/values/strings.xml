@@ -445,6 +445,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="default_value">@string/lang_default</string>
     <string name="edit">Edit</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
+    <string name="verse_not_found">Verse not found</string>
 
     <!-- Errors -->
     <string name="report_error">Send Report</string>

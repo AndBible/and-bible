@@ -98,6 +98,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
@@ -1178,7 +1179,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
                 if (classes.contains(data?.component?.className)) {
                     val verseStr = data?.extras!!.getString("verse")
-                    val verse = VerseFactory.fromString(navigationControl.versification, verseStr)
+                    val verse = try {
+                        VerseFactory.fromString(navigationControl.versification, verseStr)
+                    } catch (e: NoSuchVerseException) {
+                        ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
+                        return
+                    }
                     if (pageControl.currentPageManager.isMyNoteShown) {
                         val doc = pageControl.currentPageManager.currentBible.currentDocument
                         pageControl.currentPageManager.setCurrentDocument(doc)
