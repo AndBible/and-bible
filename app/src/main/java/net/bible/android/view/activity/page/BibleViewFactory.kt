@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.util.Log
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.mynote.MyNoteControl
@@ -46,19 +47,19 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
     private val screenBibleViewMap: MutableMap<Window, BibleView>
 
     init {
-
-        screenBibleViewMap = WeakHashMap()
+        screenBibleViewMap = WeakHashMap<Window, BibleView>()
     }
 
     fun createBibleView(window: Window): BibleView {
+		Log.d(TAG, "createBibleView. Now in screenBibleViewMap ${screenBibleViewMap.size} items.")
         var bibleView = screenBibleViewMap[window]
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl)
 
-            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
+            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, WeakReference(bibleView), pageControl, VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
 
-            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView, window.pageManager)
+            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(WeakReference(bibleView), window.pageManager)
 
             val verseCalculator = VerseCalculator()
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.pageManager, bibleInfiniteScrollPopulator, WeakReference(bibleView))
@@ -74,5 +75,6 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
     companion object {
 
         private val BIBLE_WEB_VIEW_ID_BASE = 990
+		private val TAG = "BibleViewFactory"
     }
 }

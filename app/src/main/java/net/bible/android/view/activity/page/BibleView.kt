@@ -51,6 +51,7 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.apache.commons.lang3.StringUtils
+import java.lang.ref.WeakReference
 
 /** The WebView component that shows the main bible and commentary text
  *
@@ -63,7 +64,7 @@ import org.apache.commons.lang3.StringUtils
  */
 
 class BibleView(val mainBibleActivity: MainBibleActivity,
-                val window: Window,
+                private val windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -84,7 +85,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var isVersePositionRecalcRequired = true
 
-    private lateinit var mPageTiltScroller: PageTiltScroller
+    private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
 
     private var wasAtRightEdge: Boolean = false
@@ -105,6 +106,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
+
+    var toBeDestroyed = false
+
+    val window: Window get() = windowRef.get()!!
 
     class BibleViewTouched(val onlyTouch: Boolean = false)
 
@@ -174,8 +179,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         applyPreferenceSettings()
 
-        mPageTiltScroller = PageTiltScroller(this, pageTiltScrollControl)
-        mPageTiltScroller.enableTiltScroll(true)
+        pageTiltScroller = PageTiltScroller(WeakReference(this), pageTiltScrollControl)
+        pageTiltScroller.enableTiltScroll(true)
 
         // if this webview becomes (in)active then must start/stop auto-scroll
         ABEventBus.getDefault().register(this)
@@ -185,9 +190,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     override fun destroy() {
+        toBeDestroyed = true
+    }
+
+    private fun doDestroy() {
         Log.d(TAG, "Destroying Bibleview")
         ABEventBus.getDefault().unregister(this)
+        pageTiltScroller.destroy()
         removeJavascriptInterface("jsInterface")
+        bibleJavascriptInterface.destroy()
+        windowRef.clear()
         super.destroy()
     }
 
@@ -362,14 +374,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun pauseTiltScroll() {
         Log.d(TAG, "Pausing tilt to scroll $window")
-        mPageTiltScroller.enableTiltScroll(false)
+        pageTiltScroller.enableTiltScroll(false)
     }
 
     private fun resumeTiltScroll() {
         // but if multiple windows then only if the current active window
         if (windowControl.isActiveWindow(window)) {
             Log.d(TAG, "Resuming tilt to scroll $window")
-            mPageTiltScroller.enableTiltScroll(true)
+            pageTiltScroller.enableTiltScroll(true)
         }
     }
 
@@ -390,7 +402,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val handled = super.onTouchEvent(event)
 
         // Allow user to redefine viewing angle by touching screen
-        mPageTiltScroller.recalculateViewingPosition()
+        pageTiltScroller.recalculateViewingPosition()
 
         return handled
     }
@@ -527,6 +539,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // prevent random verse changes while layout is being rebuild because of window changes
         bibleJavascriptInterface.setNotificationsEnabled(false)
         pauseTiltScroll()
+        if(toBeDestroyed) {
+            doDestroy()
+        }
     }
 
     override fun onAttachedToWindow() {

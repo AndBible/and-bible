@@ -27,16 +27,20 @@ import org.crosswire.jsword.passage.Key
 
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 
-open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageManager, var screenNo: Int) {
-
+open class Window (
+    val windowLayout: WindowLayout,
+    val pageManager: CurrentPageManager,
+    var screenNo: Int)
+{
     constructor (currentPageManager: CurrentPageManager) :
             this(WindowLayout(WindowState.SPLIT), currentPageManager, 0)
     constructor(screenNo: Int, windowState: WindowState, currentPageManager: CurrentPageManager) :
             this(WindowLayout(windowState), currentPageManager, screenNo)
 
     init {
-        pageManager.window = this
+        pageManager.windowRef = WeakReference(this)
     }
 
     var displayedKey: Key? = null
@@ -101,7 +105,14 @@ open class Window (var windowLayout: WindowLayout, var pageManager: CurrentPageM
     open val isLinksWindow: Boolean
         get() = false
 
-    var bibleView: BibleView? = null
+    var bibleViewRef: WeakReference<BibleView>? = null
+    val bibleView get() = bibleViewRef!!.get()!!
+
+    fun destroy() {
+        bibleViewRef?.get()?.destroy()
+        bibleViewRef?.clear()
+        pageManager.destroy()
+    }
 
     enum class WindowOperation {
         MAXIMISE, MINIMISE, RESTORE, CLOSE

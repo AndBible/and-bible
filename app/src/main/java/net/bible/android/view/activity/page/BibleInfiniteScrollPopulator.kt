@@ -26,14 +26,23 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.debug
 import org.jetbrains.anko.doAsync
+import java.lang.ref.WeakReference
 
 /**
  * Get next or previous page for insertion at the top or bottom of the current webview.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleInfiniteScrollPopulator(private val bibleViewtextInserter: BibleViewTextInserter,
-                                   private val currentPageManager: CurrentPageManager) : AnkoLogger {
+class BibleInfiniteScrollPopulator(
+    private val bibleViewtextInserterRef: WeakReference<BibleViewTextInserter>,
+    private val currentPageManager: CurrentPageManager) : AnkoLogger
+{
+
+    fun destroy() {
+        bibleViewtextInserterRef.clear()
+    }
+
+    val bibleViewtextInserter get() = bibleViewtextInserterRef.get()!!
 
     fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {
         debug("requestMoreTextAtTop")

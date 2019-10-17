@@ -20,6 +20,7 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import java.lang.ref.WeakReference
 
 /**
  * Window used when user selects a link
@@ -32,7 +33,7 @@ class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManag
 
     init {
         isSynchronised = false
-        currentPageManager.window = this
+        currentPageManager.windowRef = WeakReference(this)
     }
 
     /**

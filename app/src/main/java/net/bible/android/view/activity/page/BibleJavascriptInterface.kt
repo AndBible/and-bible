@@ -29,18 +29,34 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 
 /**
  * Interface allowing javascript to call java methods in app
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleJavascriptInterface(private val verseActionModeMediator: VerseActionModeMediator, private val windowControl: WindowControl, private val verseCalculator: VerseCalculator, private val currentPageManager: CurrentPageManager, private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator, private val bibleView: BibleView) {
+class BibleJavascriptInterface(
+	private val verseActionModeMediator: VerseActionModeMediator,
+	private val windowControl: WindowControl,
+	private val verseCalculator: VerseCalculator,
+	private val currentPageManager: CurrentPageManager,
+	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
+	private val bibleViewRef: WeakReference<BibleView>
+) {
     private var notificationsEnabled = false
 
     private var addingContentAtTop = false
 
     private var prevCurrentChapterVerse = ChapterVerse(0, 0)
+
+	val bibleView: BibleView get() = bibleViewRef.get()!!
+
+	fun destroy() {
+		verseActionModeMediator.destroy()
+		bibleInfiniteScrollPopulator.destroy()
+		bibleViewRef.clear()
+	}
 
     // Create Json Object using Facebook Data
 	@JavascriptInterface

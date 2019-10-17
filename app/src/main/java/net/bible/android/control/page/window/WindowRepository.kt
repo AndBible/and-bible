@@ -186,10 +186,10 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun destroy(window: Window) {
-        window.bibleView?.destroy()
         if (!windowList.remove(window)) {
             logger.error("Failed to remove window " + window.screenNo)
         }
+        window.destroy()
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {

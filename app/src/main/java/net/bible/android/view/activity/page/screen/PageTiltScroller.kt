@@ -34,15 +34,22 @@ import java.lang.ref.WeakReference
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class PageTiltScroller(
-	private val webView: WeakReference<BibleView>,
+	private val webViewRef: WeakReference<BibleView>,
 	private val pageTiltScrollControl: PageTiltScrollControl
 ) {
 
-    private var mScrollTriggerThread: Thread? = null
-    private var mIsScrolling: Boolean = false
-    private val mScrollMsgHandler = ScrollMsgHandler(this)
+    private var scrollTriggerThread: Thread? = null
+    private var isScrolling: Boolean = false
+    private val scrollMsgHandler = ScrollMsgHandler(this)
 
-    private val mScrollTrigger = ScrollTrigger()
+    private val scrollTrigger = ScrollTrigger()
+
+	private val webView get() = webViewRef.get()!!
+
+	fun destroy() {
+		stopScrollThread()
+		webViewRef.clear()
+	}
 
     /** start or stop tilt to scroll functionality
      */
@@ -69,19 +76,19 @@ class PageTiltScroller(
     /** start scrolling handler
      */
     private fun kickOffScrollThread() {
-        if (mScrollTriggerThread == null) {
-            mScrollTrigger.enable()
-            mScrollTriggerThread = Thread(mScrollTrigger)
-            mScrollTriggerThread!!.start()
+        if (scrollTriggerThread == null) {
+            scrollTrigger.enable()
+            scrollTriggerThread = Thread(scrollTrigger)
+            scrollTriggerThread!!.start()
         }
     }
 
     /** start scrolling handler
      */
     private fun stopScrollThread() {
-        if (mScrollTriggerThread != null) {
-            mScrollTrigger.stop()
-            mScrollTriggerThread = null
+        if (scrollTriggerThread != null) {
+            scrollTrigger.stop()
+            scrollTriggerThread = null
         }
     }
 
@@ -108,11 +115,11 @@ class PageTiltScroller(
                         b.putInt(SCROLL_PIXELS_KEY, tiltScrollInfo.scrollPixels)
                         b.putBoolean(FORWARD_KEY, tiltScrollInfo.forward)
                         msg.data = b
-                        mScrollMsgHandler.sendMessageAtFrontOfQueue(msg)
+                        scrollMsgHandler.sendMessageAtFrontOfQueue(msg)
                     }
 
                     if (pageTiltScrollControl.isTiltScrollEnabled) {
-                        val delay = (if (mIsScrolling) tiltScrollInfo.delayToNextScroll else TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING).toLong()
+                        val delay = (if (isScrolling) tiltScrollInfo.delayToNextScroll else TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING).toLong()
                         Thread.sleep(delay)
                     } else {
                         isContinue = false
@@ -146,7 +153,7 @@ class PageTiltScroller(
 
             val pageTiltScroller = pageTiltScrollerRef.get()
             if (pageTiltScroller != null) {
-                pageTiltScroller.mIsScrolling = pageTiltScroller.webView.scroll(forward, scrollPixels)
+                pageTiltScroller.isScrolling = pageTiltScroller.webView.scroll(forward, scrollPixels)
             }
         }
     }

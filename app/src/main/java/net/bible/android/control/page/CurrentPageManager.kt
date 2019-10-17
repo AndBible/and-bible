@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import org.json.JSONObject
 import java.lang.RuntimeException
+import java.lang.ref.WeakReference
 
 import javax.inject.Inject
 
@@ -59,7 +60,13 @@ open class CurrentPageManager @Inject constructor(
     val currentGeneralBook: CurrentGeneralBookPage
     val currentMap: CurrentMapPage
     val currentMyNotePage: CurrentMyNotePage
-    var window: Window? = null
+    var windowRef: WeakReference<Window>? = null
+
+    val window get() = windowRef!!.get()!!
+
+    fun destroy() {
+        windowRef?.clear()
+    }
 
     var currentPage: CurrentPage
         private set

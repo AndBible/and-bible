@@ -35,6 +35,7 @@ import net.bible.android.view.activity.page.ChapterVerseRange
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import java.lang.ref.WeakReference
 
 /**
  * Control the verse selection action mode
@@ -43,7 +44,7 @@ import org.crosswire.jsword.passage.VerseRange
  */
 class VerseActionModeMediator(
         private val mainBibleActivity: ActionModeMenuDisplay,
-        private val bibleView: VerseHighlightControl,
+        private val bibleViewRef: WeakReference<VerseHighlightControl>,
         private val pageControl: PageControl,
         private val verseMenuCommandHandler: VerseMenuCommandHandler,
         private val bookmarkControl: BookmarkControl)
@@ -55,6 +56,12 @@ class VerseActionModeMediator(
 
     val isActionMode: Boolean
         get() = actionMode != null
+
+    fun destroy() {
+        bibleViewRef.clear()
+    }
+
+    val bibleView get () = bibleViewRef.get()!!
 
     private val startVerse: Verse?
         get() {
