@@ -23,6 +23,7 @@ import org.junit.Test
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import java.lang.ref.WeakReference
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -54,7 +55,7 @@ class VerseActionModeMediatorTest {
 
         val bookmarkControl =  mock<BookmarkControl>()
 
-        verseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, verseMenuCommandHandler, bookmarkControl)
+        verseActionModeMediator = VerseActionModeMediator(mainBibleActivity, WeakReference(bibleView), pageControl, verseMenuCommandHandler, bookmarkControl)
 
     }
 
