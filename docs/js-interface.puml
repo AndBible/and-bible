@@ -19,3 +19,19 @@ note left
 end note
 @enduml
 
+@startuml
+header New window
+actor User
+control JVM
+control Activity
+control JS0
+control JS1
+User -> JVM: Click NW button
+JVM -> JS0: setToolbarOffset(80)
+JVM -> JS1: Show()
+JVM -> JS0: registerVersePositions()
+JS0 -> JVM: registerVersePosition...
+JVM -> JS0: scrollToVerse(9, false)
+@enduml
+
+
