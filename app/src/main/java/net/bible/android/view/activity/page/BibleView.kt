@@ -672,6 +672,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
+    private val TAG get() = "BibleView[${window.screenNo}]"
+
     companion object {
 
         // struggling to ensure correct initial positioning of pages, giving the page a unique history
@@ -681,7 +683,5 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
         // no scrollOrJumpToVerse will occur
         private const val TOP_OF_SCREEN = 1
-
-        private const val TAG = "BibleView"
     }
 }
