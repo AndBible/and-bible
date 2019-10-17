@@ -172,6 +172,7 @@ open class WindowRepository @Inject constructor(
 
         // links window is just closed not deleted
         if (!window.isLinksWindow) {
+            window.bibleView?.destroy()
             if (!windowList.remove(window)) {
                 logger.error("Failed to close window " + window.screenNo)
             }

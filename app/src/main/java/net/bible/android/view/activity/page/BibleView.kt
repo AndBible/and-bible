@@ -184,6 +184,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         onEvent(CurrentWindowChangedEvent(windowControl.activeWindow))
     }
 
+    override fun destroy() {
+        Log.d(TAG, "Destroying Bibleview")
+        ABEventBus.getDefault().unregister(this)
+        removeJavascriptInterface("jsInterface")
+        super.destroy()
+    }
+
     /** apply settings set by the user using Preferences
      */
     override fun applyPreferenceSettings() {
