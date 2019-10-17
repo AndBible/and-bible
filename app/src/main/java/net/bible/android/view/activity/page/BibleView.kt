@@ -198,8 +198,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         ABEventBus.getDefault().unregister(this)
         pageTiltScroller.destroy()
         removeJavascriptInterface("jsInterface")
-        bibleJavascriptInterface.destroy()
-        windowRef.clear()
         super.destroy()
     }
 

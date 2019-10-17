@@ -48,7 +48,6 @@ class PageTiltScroller(
 
 	fun destroy() {
 		stopScrollThread()
-		webViewRef.clear()
 	}
 
     /** start or stop tilt to scroll functionality

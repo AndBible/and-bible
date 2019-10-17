@@ -37,11 +37,6 @@ class BibleInfiniteScrollPopulator(
     private val bibleViewtextInserterRef: WeakReference<BibleViewTextInserter>,
     private val currentPageManager: CurrentPageManager) : AnkoLogger
 {
-
-    fun destroy() {
-        bibleViewtextInserterRef.clear()
-    }
-
     val bibleViewtextInserter get() = bibleViewtextInserterRef.get()!!
 
     fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {

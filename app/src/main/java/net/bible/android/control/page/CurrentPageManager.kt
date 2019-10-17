@@ -64,10 +64,6 @@ open class CurrentPageManager @Inject constructor(
 
     val window get() = windowRef!!.get()!!
 
-    fun destroy() {
-        windowRef?.clear()
-    }
-
     var currentPage: CurrentPage
         private set
 

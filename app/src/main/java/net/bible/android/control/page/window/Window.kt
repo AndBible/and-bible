@@ -110,8 +110,6 @@ open class Window (
 
     fun destroy() {
         bibleViewRef?.get()?.destroy()
-        bibleViewRef?.clear()
-        pageManager.destroy()
     }
 
     enum class WindowOperation {

@@ -52,12 +52,6 @@ class BibleJavascriptInterface(
 
 	val bibleView: BibleView get() = bibleViewRef.get()!!
 
-	fun destroy() {
-		verseActionModeMediator.destroy()
-		bibleInfiniteScrollPopulator.destroy()
-		bibleViewRef.clear()
-	}
-
     // Create Json Object using Facebook Data
 	@JavascriptInterface
 	fun getChapterInfo(): String

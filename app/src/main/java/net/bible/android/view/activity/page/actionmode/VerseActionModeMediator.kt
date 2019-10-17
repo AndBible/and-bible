@@ -57,10 +57,6 @@ class VerseActionModeMediator(
     val isActionMode: Boolean
         get() = actionMode != null
 
-    fun destroy() {
-        bibleViewRef.clear()
-    }
-
     val bibleView get () = bibleViewRef.get()!!
 
     private val startVerse: Verse?
