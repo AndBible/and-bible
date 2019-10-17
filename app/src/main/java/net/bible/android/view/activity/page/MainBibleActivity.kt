@@ -283,7 +283,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun showBetaNotice() {
-        val ver = CommonUtils.applicationVersionName.split("#")[0]
+        val verFull = CommonUtils.applicationVersionName
+        val ver = verFull.split("#")[0]
 
         if(!ver.endsWith("-beta")) return
 
@@ -301,7 +302,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val htmlMessage = "$par1<br><br> $par2<br><br> $par3"
+            val htmlMessage = "$par1<br><br> $par2<br><br> $par3 <br><br> <i>Version: $verFull</i>"
 
             val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
