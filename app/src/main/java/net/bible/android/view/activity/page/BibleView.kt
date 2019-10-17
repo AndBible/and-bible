@@ -239,7 +239,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>$(document).ready(function() {setToolbarOffset($toolbarOffset, {doNotScroll: true}); scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})</script></body>")
+        html = html.replace("</body>", "<script>" +
+            "$(document).ready(function() {" +
+                "setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
+                "scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
+            "</script></body>")
+
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
 
         // either enable verse selection or the default text selection
@@ -250,10 +255,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
 
-        // ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
-        // don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
-        // 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
+        // ensure jumpToOffset is eventually called during initialisation.
+        // It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen
+        // then press back. Don't set this value too low or it may trigger before a proper upcoming
+        // computeVerticalScrollEvent 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a
+        // reflection of processor speed and adjust appropriately.
+
         invokeJumpToOffsetIfRequired((if (CommonUtils.isSlowDevice) 500 else 350).toLong())
+
         window.initialized = true
     }
 
@@ -281,11 +290,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result
     }
 
+    private var jumpToOffsetPending = false
+
     /**
      * Trigger jump to correct offset
      */
     private fun invokeJumpToOffsetIfRequired(delay: Long) {
-        if (ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
+        if (!jumpToOffsetPending && (ChapterVerse.isSet(jumpToChapterVerse) ||
+                jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
+            // Prevent further invokations before this call is done.
+            jumpToOffsetPending = true
             postDelayed({ jumpToOffset() }, delay)
         }
     }
@@ -313,7 +327,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
                 scrollOrJumpToVerse(jumpToChapterVerse)
 
-            } else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
+            }
+
+            else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
                 val contentHeight = contentHeight
                 val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
 
@@ -328,6 +344,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
             }
         }
+        jumpToOffsetPending = false
     }
 
     /** prevent swipe right if the user is scrolling the page right  */
