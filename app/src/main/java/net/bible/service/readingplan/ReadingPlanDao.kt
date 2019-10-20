@@ -121,13 +121,11 @@ class ReadingPlanDao {
 
         val list = ArrayList<OneDaysReadingsDto>()
         for ((key1, value1) in properties) {
-            val key = key1 as String
-            val value = value1 as String
-            if (key.toIntOrNull() != null) {
-                val day = Integer.parseInt(key)
-                val daysReading = OneDaysReadingsDto(day, value, planInfo)
-                list.add(daysReading)
-            }
+            val dayNumber = (key1 as String).toIntOrNull() ?: continue
+            val readingString = value1 as String
+
+            val daysReading = OneDaysReadingsDto(dayNumber, readingString, planInfo)
+            list.add(daysReading)
         }
         list.sort()
 

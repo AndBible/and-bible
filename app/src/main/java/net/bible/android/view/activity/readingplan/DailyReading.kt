@@ -190,7 +190,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
      */
     fun onSpeakAll(view: View?) {
         Log.i(TAG, "Speak all")
-        readingPlanControl.speak(mDay, mReadings.readingKeys)
+        readingPlanControl.speak(mDay, mReadings.getReadingKeys)
 
         updateTicksAndDone()
     }
