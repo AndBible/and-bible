@@ -19,6 +19,7 @@
 package net.bible.service.readingplan
 
 import android.annotation.SuppressLint
+import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 
@@ -37,15 +38,24 @@ class OneDaysReadingsDto(val day: Int,
                          val readingPlanInfo: ReadingPlanInfoDto) :
 		Comparable<OneDaysReadingsDto>
 {
+
+    @SuppressLint("SimpleDateFormat")
+    private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
+    @SuppressLint("SimpleDateFormat")
+    private val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
+
     private var readingKeys: List<Key>? = null
     /** reading date for date-based plan, else null
      */
     var readingDate: Date? = null
 
+    init {
+        checkKeysGenerated()
+    }
+
     val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, Integer.toString(day))
     val isDateBasedPlan: Boolean
         get() {
-            checkKeysGenerated()
             return readingDate != null
         }
 
@@ -53,7 +63,6 @@ class OneDaysReadingsDto(val day: Int,
      */
     val readingDateString: String
         get() {
-            checkKeysGenerated()
             return if (readingDate != null) {
                 SimpleDateFormat.getDateInstance().format(readingDate)
             } else {
@@ -71,7 +80,6 @@ class OneDaysReadingsDto(val day: Int,
 
     val readingsDesc: String
         get() {
-            checkKeysGenerated()
             val readingsBldr = StringBuilder()
             for (i in readingKeys!!.indices) {
                 if (i > 0) {
@@ -83,13 +91,11 @@ class OneDaysReadingsDto(val day: Int,
         }
     val numReadings: Int
         get() {
-            checkKeysGenerated()
             return readingKeys!!.size
         }
 
     val getReadingKeys: List<Key>
         get() {
-            checkKeysGenerated()
             return readingKeys!!
         }
 
@@ -102,7 +108,6 @@ class OneDaysReadingsDto(val day: Int,
     }
 
     fun getReadingKey(no: Int): Key {
-        checkKeysGenerated()
         return readingKeys!![no]
     }
 
@@ -134,16 +139,12 @@ class OneDaysReadingsDto(val day: Int,
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
-    private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
-    @SuppressLint("SimpleDateFormat")
-    private val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
-
     /**
      * @param dateString Must be in this format: Feb-1, Mar-22, Dec-11, etc
      */
     private fun dateFormatterPlanStringToDate(dateString: String): Date {
-        return dateBasedFormatWithYear.parse(dateString + "/" + Calendar.getInstance().get(Calendar.YEAR))
+        val calYear = Calendar.getInstance().get(Calendar.YEAR)
+        return dateBasedFormatWithYear.parse("$dateString/$calYear")
     }
 
     /**

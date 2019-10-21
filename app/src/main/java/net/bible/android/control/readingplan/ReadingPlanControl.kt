@@ -37,9 +37,12 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 
 import java.util.ArrayList
+import java.util.Calendar
 import java.util.Date
 
 import javax.inject.Inject
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 
 /** Control status of reading plans
@@ -90,10 +93,23 @@ class ReadingPlanControl @Inject constructor(
         get() {
             val planCode = currentPlanCode
             val prefs = CommonUtils.sharedPreferences
-            return prefs.getInt(planCode + READING_PLAN_DAY_EXT, 1)
+            return if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) {
+                val todayDate = Calendar.getInstance()
+                todayDate.set(Calendar.HOUR_OF_DAY, 0)
+                todayDate.set(Calendar.MINUTE, 0)
+                todayDate.set(Calendar.SECOND, 0)
+                todayDate.set(Calendar.MILLISECOND, 0)
+                readingPlanDao.getReadingList(planCode).find {
+                    it.readingDate == todayDate.time
+                }?.day ?: 1
+            } else {
+                prefs.getInt(planCode + READING_PLAN_DAY_EXT, 1)
+            }
         }
         private set(day) {
             val planCode = currentPlanCode
+            if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) return
+
             val prefs = CommonUtils.sharedPreferences
             prefs.edit()
                     .putInt(planCode + READING_PLAN_DAY_EXT, day)
@@ -158,10 +174,10 @@ class ReadingPlanControl @Inject constructor(
                 readingStatus.day != day) {
             val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
-            if (day < currentPlanDay) {
-                readingStatus = HistoricReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+            readingStatus = if (day < currentPlanDay) {
+                HistoricReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
             } else {
-                readingStatus = ReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+                ReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
             }
 			this.readingStatus = readingStatus
         }
@@ -177,7 +193,7 @@ class ReadingPlanControl @Inject constructor(
         // later found that rounding is necessary (due to DST I think) because
         // when the clocks went forward the difference became 88.95833 but should have been 89
         val diffInDays = (today.time - startDate.time) / (1000.0 * 60.0 * 60.0 * 24.0)
-        val diffInWholeDays = Math.round(diffInDays)
+        val diffInWholeDays = diffInDays.roundToLong()
         Log.d(TAG, "Days diff between today and start:$diffInWholeDays")
 
         // if diff is zero then we are on day 1 so add 1

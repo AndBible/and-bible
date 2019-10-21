@@ -46,6 +46,7 @@ import kotlin.math.max
  */
 class ReadingPlanDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
+    private var cachedReadingList: List<OneDaysReadingsDto>? = null
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {
@@ -113,23 +114,26 @@ class ReadingPlanDao {
 
     /** get a list of all days readings in a plan
      */
-    fun getReadingList(planName: String): List<OneDaysReadingsDto> {
+    fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
 
-        val planInfo = getReadingPlanInfoDto(planName)
+        var list: ArrayList<OneDaysReadingsDto>? = null
+        if (planCode != cachedPlanProperties?.planCode || cachedReadingList == null) {
+            list = ArrayList()
+            val planInfo = getReadingPlanInfoDto(planCode)
+            val properties = getPlanProperties(planCode)
 
-        val properties = getPlanProperties(planName)
+            for ((key1, value1) in properties) {
+                val dayNumber = (key1 as String).toIntOrNull() ?: continue
+                val readingString = value1 as String
 
-        val list = ArrayList<OneDaysReadingsDto>()
-        for ((key1, value1) in properties) {
-            val dayNumber = (key1 as String).toIntOrNull() ?: continue
-            val readingString = value1 as String
-
-            val daysReading = OneDaysReadingsDto(dayNumber, readingString, planInfo)
-            list.add(daysReading)
+                val daysReading = OneDaysReadingsDto(dayNumber, readingString, planInfo)
+                list.add(daysReading)
+            }
+            list.sort()
+            cachedReadingList = list
         }
-        list.sort()
 
-        return list
+        return list ?: cachedReadingList!!
     }
 
     /** get readings for one day
