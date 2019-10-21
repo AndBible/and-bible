@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TwoLineListItem
+import java.text.SimpleDateFormat
 
 /**
  * Retain similar style to TwoLineListView but for single TextView on each line
@@ -46,16 +47,20 @@ class DailyReadingItemAdapter(_context: Context, private val resource: Int, _ite
         } else {
             view = convertView as TwoLineListItem
         }
+        item ?: return view
 
         // Set value for the first text field
         if (view.text1 != null) {
-            val line1 = item!!.dayDesc
-            view.text1.text = line1
+            view.text1.text = if (item.isDateBasedPlan) {
+                SimpleDateFormat.getDateInstance().format(item.readingDate)
+            } else {
+                item.dayDesc
+            }
         }
 
         // set value for the second text field
         if (view.text2 != null) {
-            val line2 = item!!.readingsDesc
+            val line2 = item.readingsDesc
             view.text2.text = line2
         }
 

@@ -40,10 +40,14 @@ class OneDaysReadingsDto(val day: Int,
     private var readingKeys: List<Key>? = null
     /** reading date for date-based plan, else null
      */
-    private var readingDate: Date? = null
+    var readingDate: Date? = null
 
     val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, Integer.toString(day))
-    val isDateBasedPlan: Boolean get() = (readingDate != null)
+    val isDateBasedPlan: Boolean
+        get() {
+            checkKeysGenerated()
+            return readingDate != null
+        }
 
     /** get a string representing the date this reading is planned for
      */
