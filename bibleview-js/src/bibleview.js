@@ -3,7 +3,7 @@
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-var lineHeight = 0;
+let lineHeight = 0;
 $(window).load(
     function() {
         jsInterface.log("JS onload");
@@ -24,8 +24,8 @@ export function jsonscroll() {
 export function registerVersePositions() {
     console.log("Registering verse positions", lineHeight);
     jsInterface.clearVersePositionCache();
-    
-    var verseTags = getVerseElements();
+
+    const verseTags = getVerseElements();
     jsInterface.log("Num verses found:"+verseTags.length);
     for (let i=0; i<verseTags.length; i++) {
         const verseTag = verseTags[i];
@@ -44,29 +44,29 @@ function getVerseElements() {
 function getElementsByClass( searchClass, domNode, tagName) {
     if (domNode == null) domNode = document;
     if (tagName == null) tagName = '*';
-    var matches = [];
-    
-    var tagMatches = domNode.getElementsByTagName(tagName);
+    const matches = [];
+
+    const tagMatches = domNode.getElementsByTagName(tagName);
     jsInterface.log("Num spans found:"+tagMatches.length);
 
-    var searchClassPlusSpace = " "+searchClass+" ";
+    const searchClassPlusSpace = " " + searchClass + " ";
     for(let i=0; i<tagMatches.length; i++) {
-        var tagClassPlusSpace = " " + tagMatches[i].className + " ";
+        const tagClassPlusSpace = " " + tagMatches[i].className + " ";
         if (tagClassPlusSpace.indexOf(searchClassPlusSpace) !== -1)
             matches.push(tagMatches[i]);
     } 
     return matches;
 }
 
-var currentAnimation = null;
+let currentAnimation = null;
 var stopAnimation = false;
 
 function doScrolling(elementY, duration) {
     console.log("doScrolling", elementY, duration);
     stopAnimation = false;
-    var startingY = window.pageYOffset;
-    var diff = elementY - startingY;
-    var start;
+    const startingY = window.pageYOffset;
+    const diff = elementY - startingY;
+    let start;
     if(currentAnimation) {
         window.cancelAnimationFrame(currentAnimation);
     }
@@ -80,9 +80,9 @@ function doScrolling(elementY, duration) {
     currentAnimation = window.requestAnimationFrame(function step(timestamp) {
         if (!start) start = timestamp;
         // Elapsed milliseconds since start of scrolling.
-        var time = timestamp - start;
+        const time = timestamp - start;
         // Get percent of completion in range [0, 1].
-        var percent = Math.min(time / duration, 1);
+        const percent = Math.min(time / duration, 1);
 
         window.scrollTo(0, startingY + diff * percent);
 
@@ -99,15 +99,15 @@ function doScrolling(elementY, duration) {
 export function scrollToVerse(toId, now, deltaParam) {
     console.log("scrollToVerse", toId, now, deltaParam);
     stopAnimation = true;
-    var delta = toolbarOffset;
+    let delta = toolbarOffset;
     if(deltaParam !== undefined) {
         delta = deltaParam;
     }
 
-    var toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
+    const toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
 
     if (toElement != null) {
-        var diff = toElement.offsetTop - window.pageYOffset;
+        const diff = toElement.offsetTop - window.pageYOffset;
         if(Math.abs(diff) > 800 / window.devicePixelRatio) {
             now = true;
         }
@@ -123,14 +123,14 @@ export function scrollToVerse(toId, now, deltaParam) {
 
 function doScrollToSlowly(element, elementPosition, to) {
     // 25 pixels/100ms is the standard speed
-    var speed = 25; 
-    var difference = to - elementPosition;
+    const speed = 25;
+    const difference = to - elementPosition;
     if (difference === 0) return;
-    var perTick = Math.max(Math.min(speed, difference),-speed);
-    
+    const perTick = Math.max(Math.min(speed, difference), -speed);
+
     setTimeout(function() {
         // scrolling is sometimes delayed so keep track of scrollTop rather than calling element.scrollTop
-        var newElementScrollTop = elementPosition + perTick;
+        const newElementScrollTop = elementPosition + perTick;
         element.scrollTop = newElementScrollTop;
         doScrollTo(element, newElementScrollTop, to);
     }, 100);
@@ -160,13 +160,13 @@ export function disableVerseTouchSelection() {
 
 /** Handle taphold to start verse selection */
 var tapholdHandler = function(event) {
-    var $target = $(event.target);
+    const $target = $(event.target);
     if ($target.hasClass("verse")) {
         selected($target);
     } else {
-        var point = {'x': event.pageX, 'y': event.pageY};
-        var $elemSet = $('.verse');
-        var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+        const point = {'x': event.pageX, 'y': event.pageY};
+        const $elemSet = $('.verse');
+        const $closestToPoint = $.nearest(point, $elemSet).filter(":first");
 
         selected($closestToPoint)
     }
@@ -174,23 +174,23 @@ var tapholdHandler = function(event) {
 
 /** Handle touch to extend verse selection */
 var touchHandler = function(event) {
-    var $target = $(event.target);
+    let $target = $(event.target);
     if (!$target.hasClass("verse")) {
-        var point = {'x': event.pageX, 'y': event.pageY};
-        var $elemSet = $('.verse');
-        var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+        const point = {'x': event.pageX, 'y': event.pageY};
+        const $elemSet = $('.verse');
+        const $closestToPoint = $.nearest(point, $elemSet).filter(":first");
 
         $target = $closestToPoint
     }
 
-    var chapterVerse = $target.attr('id');
+    const chapterVerse = $target.attr('id');
     jsInterface.verseTouch(chapterVerse);
 };
 
 
 function selected($elem) {
     if ($elem.hasClass("verse")) {
-        var chapterVerse = $elem.attr('id');
+        const chapterVerse = $elem.attr('id');
         jsInterface.verseLongPress(chapterVerse);
     }
 }
@@ -204,21 +204,21 @@ var toolbarOffset = 0;
 
 export function setToolbarOffset(value, options) {
     console.log("setToolbarOffset", value, options)
-    var opts = options || {};
-    var diff = toolbarOffset - value;
+    const opts = options || {};
+    const diff = toolbarOffset - value;
     toolbarOffset = value;
-    var delay = 500;
+    let delay = 500;
     if(opts.immediate) {
         delay = 0;
     }
 
-    if(diff != 0 && !opts.doNotScroll) {
+    if(diff !== 0 && !opts.doNotScroll) {
         doScrolling(window.pageYOffset + diff, delay)
     }
 }
 
 export function highlightVerse(chapterVerse, start) {
-    var $verseSpan = $('#'+escapeSelector(chapterVerse));
+    const $verseSpan = $('#' + escapeSelector(chapterVerse));
     if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
         doScrolling($verseSpan[0].offsetTop - toolbarOffset, 250);
     }
@@ -229,7 +229,7 @@ export function highlightVerse(chapterVerse, start) {
  * Called by VerseActionModelMediator to unhighlight a verse
  */
 export function unhighlightVerse(chapterVerse) {
-    var $verseSpan = $('#'+escapeSelector(chapterVerse));
+    const $verseSpan = $('#' + escapeSelector(chapterVerse));
     $verseSpan.removeClass("selected")
 }
 
@@ -237,7 +237,7 @@ export function unhighlightVerse(chapterVerse) {
  * Called by VerseActionModelMediator to unhighlight a verse
  */
 export function clearVerseHighlight() {
-    var $verseSpan = $('.selected');
+    const $verseSpan = $('.selected');
     $verseSpan.removeClass("selected")
 }
 
