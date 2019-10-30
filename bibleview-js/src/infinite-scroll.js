@@ -9,25 +9,25 @@ import {registerVersePositions} from "./bibleview";
     $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
                                  insertAfterAtTop, insertBeforeAtBottom) {
         // up is very hard when still scrolling so make the margin tiny to cause scroll to stop before pre-filling up
-        var UP_MARGIN = 2;
-        var DOWN_MARGIN = 200;
-        var currentPos = scrollPosition();
+        const UP_MARGIN = 2;
+        const DOWN_MARGIN = 200;
+        let currentPos = scrollPosition();
 
-        var topId = initialId;
-        var endId = initialId;
+        let topId = initialId;
+        let endId = initialId;
 
-        var lastAddMoreTime = 0;
-        var addMoreAtTopOnTouchUp = false;
+        let lastAddMoreTime = 0;
+        let addMoreAtTopOnTouchUp = false;
 
-        var scrollHandler = function() {
+        const scrollHandler = function () {
             const previousPos = currentPos;
             currentPos = scrollPosition();
-            var scrollingUp = currentPos < previousPos;
-            var scrollingDown = currentPos > previousPos;
-            if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now()>lastAddMoreTime+1000) {
+            const scrollingUp = currentPos < previousPos;
+            const scrollingDown = currentPos > previousPos;
+            if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now() > lastAddMoreTime + 1000) {
                 lastAddMoreTime = Date.now();
                 addMoreAtEnd();
-            } else if (scrollingUp && currentPos < UP_MARGIN && Date.now()>lastAddMoreTime+1000) {
+            } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
                 lastAddMoreTime = Date.now();
                 addMoreAtTop();
             }
@@ -44,10 +44,10 @@ import {registerVersePositions} from "./bibleview";
         function addMoreAtEnd() {
             if (endId<maxId && !stillLoading) {
                 stillLoading = true;
-                var id = ++endId;
-                var textId = 'insertedText' + id;
+                const id = ++endId;
+                const textId = 'insertedText' + id;
                 // place marker for text which may take longer to load
-                var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+                const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
                 $(insertBeforeAtBottom).before(placeMarker);
 
                 fnLoadTextAtEnd(id, textId);
@@ -60,10 +60,10 @@ import {registerVersePositions} from "./bibleview";
                 addMoreAtTopOnTouchUp = true;
             } else if (topId>minId && !stillLoading) {
                 stillLoading = true;
-                var id = --topId;
-                var textId = 'insertedText' + id;
+                const id = --topId;
+                const textId = 'insertedText' + id;
                 // place marker for text which may take longer to load
-                var placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+                const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
                 insertAtTop($(insertAfterAtTop), placeMarker);
 
                 fnLoadTextAtTop(id, textId);
@@ -71,10 +71,10 @@ import {registerVersePositions} from "./bibleview";
         }
 
         function insertAtTop($afterComponent, text) {
-            var priorHeight = bodyHeight();
+            const priorHeight = bodyHeight();
             $afterComponent.after(text);
-            var changeInHeight = bodyHeight() - priorHeight;
-            var adjustedPosition =  currentPos + changeInHeight;
+            const changeInHeight = bodyHeight() - priorHeight;
+            const adjustedPosition = currentPos + changeInHeight;
             setScrollPosition(adjustedPosition);
         }
 
@@ -84,8 +84,8 @@ import {registerVersePositions} from "./bibleview";
         function touchendListener(event){
             touchDown = false;
             if (textToBeInsertedAtTop && idToInsertTextAt) {
-                var text = textToBeInsertedAtTop;
-                var id = idToInsertTextAt;
+                const text = textToBeInsertedAtTop;
+                const id = idToInsertTextAt;
                 textToBeInsertedAtTop = null;
                 idToInsertTextAt = null;
                 insertThisTextAtTop(id, text);
@@ -104,7 +104,7 @@ var textToBeInsertedAtTop = null;
 var idToInsertTextAt = null;
 
 $(document).ready(function() {
-    var chapterInfo = JSON.parse(jsInterface.getChapterInfo());
+    const chapterInfo = JSON.parse(jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
         $.fn.infiniScroll(
             loadTextAtTop,
@@ -151,14 +151,14 @@ export function insertThisTextAtTop(textId, text) {
         textToBeInsertedAtTop = text;
         idToInsertTextAt = textId;
     } else {
-        var priorHeight = bodyHeight();
-        var origPosition = scrollPosition();
+        const priorHeight = bodyHeight();
+        const origPosition = scrollPosition();
 
-        var $divToInsertInto = $('#' + textId);
+        const $divToInsertInto = $('#' + textId);
         $divToInsertInto.html(text);
 
         // do no try to get scrollPosition here becasue it has not settled
-        var adjustedTop = origPosition - priorHeight + bodyHeight();
+        const adjustedTop = origPosition - priorHeight + bodyHeight();
         setScrollPosition(adjustedTop);
 
         registerVersePositions();
