@@ -6,8 +6,8 @@
 var lineHeight = 0;
 $(window).load(
     function() {
-        window.jsInterface.log("JS onload");
-        window.jsInterface.onLoad();
+        jsInterface.log("JS onload");
+        jsInterface.onLoad();
         lineHeight = parseFloat(window.getComputedStyle(document.body)
             .getPropertyValue('line-height'));
         registerVersePositions();
@@ -17,40 +17,40 @@ $(window).load(
     }
 );
 
-function jsonscroll() {
-    window.jsInterface.onScroll(window.pageYOffset);
+export function jsonscroll() {
+    jsInterface.onScroll(window.pageYOffset);
 }
 
-function registerVersePositions() {
+export function registerVersePositions() {
     console.log("Registering verse positions", lineHeight);
-    window.jsInterface.clearVersePositionCache();
+    jsInterface.clearVersePositionCache();
     
     var verseTags = getVerseElements();
-    window.jsInterface.log("Num verses found:"+verseTags.length);
-    for (i=0; i<verseTags.length; i++) {
-        verseTag = verseTags[i];
+    jsInterface.log("Num verses found:"+verseTags.length);
+    for (let i=0; i<verseTags.length; i++) {
+        const verseTag = verseTags[i];
         // send position of each verse to java to allow calculation of current verse after each scroll
-        window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop
+        jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop
             + Math.max(0, verseTag.offsetHeight - 2*lineHeight));
     }
-//    window.jsInterface.log("Register document height:"+document.height);
-//    window.jsInterface.setDocumentHeightWhenVersePositionsRegistered(document.height);
+//    jsInterface.log("Register document height:"+document.height);
+//    jsInterface.setDocumentHeightWhenVersePositionsRegistered(document.height);
 }
 
 function getVerseElements() {
     return getElementsByClass("verse", document.body, "span")
 }
 
-function getElementsByClass( searchClass, domNode, tagName) { 
+function getElementsByClass( searchClass, domNode, tagName) {
     if (domNode == null) domNode = document;
     if (tagName == null) tagName = '*';
     var matches = [];
     
     var tagMatches = domNode.getElementsByTagName(tagName);
-    window.jsInterface.log("Num spans found:"+tagMatches.length);
+    jsInterface.log("Num spans found:"+tagMatches.length);
 
     var searchClassPlusSpace = " "+searchClass+" ";
-    for(i=0; i<tagMatches.length; i++) { 
+    for(let i=0; i<tagMatches.length; i++) {
         var tagClassPlusSpace = " " + tagMatches[i].className + " ";
         if (tagClassPlusSpace.indexOf(searchClassPlusSpace) !== -1)
             matches.push(tagMatches[i]);
@@ -96,7 +96,7 @@ function doScrolling(elementY, duration) {
     })
 }
 
-function scrollToVerse(toId, now, deltaParam) {
+export function scrollToVerse(toId, now, deltaParam) {
     console.log("scrollToVerse", toId, now, deltaParam);
     stopAnimation = true;
     var delta = toolbarOffset;
@@ -139,27 +139,27 @@ function doScrollToSlowly(element, elementPosition, to) {
 /**
  * Monitor verse selection via long press
  */
-function enableVerseLongTouchSelectionMode() {
-    window.jsInterface.log("Enabling verse long touch selection mode");
+export function enableVerseLongTouchSelectionMode() {
+    jsInterface.log("Enabling verse long touch selection mode");
     // Enable special selection for Bibles
     $(document).longpress( tapholdHandler );
 }
 
-function enableVerseTouchSelection() {
-    window.jsInterface.log("Enabling verse touch selection");
+export function enableVerseTouchSelection() {
+    jsInterface.log("Enabling verse touch selection");
     // Enable special selection for Bibles
     $(document).bind("touchstart", touchHandler );
 
 }
 
-function disableVerseTouchSelection() {
-    window.jsInterface.log("Disabling verse touch selection");
+export function disableVerseTouchSelection() {
+    jsInterface.log("Disabling verse touch selection");
 
     $(document).unbind("touchstart", touchHandler );
 }
 
 /** Handle taphold to start verse selection */
-tapholdHandler = function(event) {
+var tapholdHandler = function(event) {
     var $target = $(event.target);
     if ($target.hasClass("verse")) {
         selected($target);
@@ -184,14 +184,14 @@ var touchHandler = function(event) {
     }
 
     var chapterVerse = $target.attr('id');
-    window.jsInterface.verseTouch(chapterVerse);
+    jsInterface.verseTouch(chapterVerse);
 };
 
 
 function selected($elem) {
     if ($elem.hasClass("verse")) {
         var chapterVerse = $elem.attr('id');
-        window.jsInterface.verseLongPress(chapterVerse);
+        jsInterface.verseLongPress(chapterVerse);
     }
 }
 
@@ -202,7 +202,7 @@ function selected($elem) {
 
 var toolbarOffset = 0;
 
-function setToolbarOffset(value, options) {
+export function setToolbarOffset(value, options) {
     console.log("setToolbarOffset", value, options)
     var opts = options || {};
     var diff = toolbarOffset - value;
@@ -217,7 +217,7 @@ function setToolbarOffset(value, options) {
     }
 }
 
-function highlightVerse(chapterVerse, start) {
+export function highlightVerse(chapterVerse, start) {
     var $verseSpan = $('#'+escapeSelector(chapterVerse));
     if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
         doScrolling($verseSpan[0].offsetTop - toolbarOffset, 250);
@@ -228,7 +228,7 @@ function highlightVerse(chapterVerse, start) {
 /**
  * Called by VerseActionModelMediator to unhighlight a verse
  */
-function unhighlightVerse(chapterVerse) {
+export function unhighlightVerse(chapterVerse) {
     var $verseSpan = $('#'+escapeSelector(chapterVerse));
     $verseSpan.removeClass("selected")
 }
@@ -236,7 +236,7 @@ function unhighlightVerse(chapterVerse) {
 /**
  * Called by VerseActionModelMediator to unhighlight a verse
  */
-function clearVerseHighlight() {
+export function clearVerseHighlight() {
     var $verseSpan = $('.selected');
     $verseSpan.removeClass("selected")
 }

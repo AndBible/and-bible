@@ -50,7 +50,7 @@ class BibleJavascriptInterface(
 
     private var prevCurrentChapterVerse = ChapterVerse(0, 0)
 
-	val bibleView: BibleView get() = bibleViewRef.get()!!
+	private val bibleView: BibleView get() = bibleViewRef.get()!!
 
     // Create Json Object using Facebook Data
 	@JavascriptInterface

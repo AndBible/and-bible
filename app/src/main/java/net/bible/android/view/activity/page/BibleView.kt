@@ -241,8 +241,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
         html = html.replace("</body>", "<script>" +
             "$(document).ready(function() {" +
-                "setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
-                "scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
+                "andbible.setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
+                "andbible.scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
             "</script></body>")
 
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
@@ -632,7 +632,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             isLongClickable = false
 
             // need to enable verse selection after page load, but not always so can't use onload
-            html += "<script>enableVerseLongTouchSelectionMode();</script>"
+            html += "<script>andbible.enableVerseLongTouchSelectionMode();</script>"
 
         } else {
             // reset handling of long press
@@ -698,7 +698,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun executeJavascript(javascript: String) {
         Log.d(TAG, "Executing JS:" + StringUtils.abbreviate(javascript, 100))
-        evaluateJavascript("$javascript;", null)
+        evaluateJavascript("andbible.$javascript;", null)
     }
 
     override fun insertTextAtTop(textId: String, text: String) {
