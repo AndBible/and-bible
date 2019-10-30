@@ -105,12 +105,11 @@ open class Window (
     open val isLinksWindow: Boolean
         get() = false
 
-    lateinit var bibleView: BibleView
+    var bibleViewRef: WeakReference<BibleView>? = null
+    val bibleView get() = bibleViewRef!!.get()!!
 
     fun destroy() {
-        if(::bibleView.isInitialized) {
-            bibleView.destroy()
-        }
+        bibleViewRef?.get()?.destroy()
     }
 
     enum class WindowOperation {
