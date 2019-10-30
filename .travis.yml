@@ -16,4 +16,4 @@ before_install:
 before_script:
   - ./gradlew testReleaseUnitTest --tests net.bible.service.download.CrosswireRepoIT
 
-script: ./gradlew --stacktrace --console plain build
+script: ./gradlew --console plain build

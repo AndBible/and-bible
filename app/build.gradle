@@ -61,6 +61,12 @@ android {
         unitTests {
             returnDefaultValues = true
             includeAndroidResources = true
+            all {
+                testLogging {
+                    events "passed", "skipped", "failed"
+                    exceptionFormat "full"
+                }
+            }
         }
 
     }
