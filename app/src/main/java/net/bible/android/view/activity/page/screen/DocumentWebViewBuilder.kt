@@ -242,7 +242,7 @@ class DocumentWebViewBuilder @Inject constructor(
                                 Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
                 }
-                window.bibleViewRef = WeakReference(bibleView)
+                window.bibleView = bibleView
             }
 
             bibleReferenceOverlay = TextView(mainBibleActivity).apply {
