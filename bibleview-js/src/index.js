@@ -1,7 +1,7 @@
 import * as infinite from "infinite-scroll";
-import * as andbible from "script.js";
+import * as bibleview from "bibleview";
 
 window.andbible = {
-    ...andbible,
+    ...bibleview,
     ...infinite
 };
