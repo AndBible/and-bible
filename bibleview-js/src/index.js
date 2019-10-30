@@ -1,7 +1,36 @@
-import * as infinite from "infinite-scroll";
-import * as bibleview from "bibleview";
+import {jsonscroll, scrollToVerse, setToolbarOffset} from "./scroll";
+import {insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
+import {
+    registerVersePositions,
+} from "./bibleview";
+import {
+    clearVerseHighlight, disableVerseTouchSelection,
+    enableVerseLongTouchSelectionMode,
+    enableVerseTouchSelection,
+    highlightVerse,
+    unhighlightVerse
+} from "./highlighting";
 
 window.andbible = {
-    ...bibleview,
-    ...infinite
+    //bibleview
+    registerVersePositions,
+
+    // infinit scroll
+    insertThisTextAtEnd,
+    insertThisTextAtTop,
+
+    // highlighting
+    highlightVerse,
+    unhighlightVerse,
+    clearVerseHighlight,
+    enableVerseLongTouchSelectionMode,
+    enableVerseTouchSelection,
+    disableVerseTouchSelection,
+
+    // scroll
+    setToolbarOffset,
+    jsonscroll,
+    scrollToVerse,
+
+
 };

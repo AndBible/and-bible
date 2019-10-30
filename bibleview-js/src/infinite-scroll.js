@@ -98,10 +98,10 @@ import {registerVersePositions} from "./bibleview";
     };
 })(jQuery);
 
-var stillLoading = false;
-var touchDown = false;
-var textToBeInsertedAtTop = null;
-var idToInsertTextAt = null;
+let stillLoading = false;
+let touchDown = false;
+let textToBeInsertedAtTop = null;
+let idToInsertTextAt = null;
 
 $(document).ready(function() {
     const chapterInfo = JSON.parse(jsInterface.getChapterInfo());
