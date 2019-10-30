@@ -12,14 +12,11 @@ import {
 } from "./highlighting";
 
 window.andbible = {
-    //bibleview
     registerVersePositions,
 
-    // infinit scroll
     insertThisTextAtEnd,
     insertThisTextAtTop,
 
-    // highlighting
     highlightVerse,
     unhighlightVerse,
     clearVerseHighlight,
@@ -27,10 +24,7 @@ window.andbible = {
     enableVerseTouchSelection,
     disableVerseTouchSelection,
 
-    // scroll
     setToolbarOffset,
     jsonscroll,
     scrollToVerse,
-
-
 };

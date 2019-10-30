@@ -5,98 +5,96 @@
  */
 import {registerVersePositions} from "./bibleview";
 
-(function($) {
-    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
-                                 insertAfterAtTop, insertBeforeAtBottom) {
-        // up is very hard when still scrolling so make the margin tiny to cause scroll to stop before pre-filling up
-        const UP_MARGIN = 2;
-        const DOWN_MARGIN = 200;
-        let currentPos = scrollPosition();
+function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
+                      insertAfterAtTop, insertBeforeAtBottom) {
+    // up is very hard when still scrolling so make the margin tiny to cause scroll to stop before pre-filling up
+    const UP_MARGIN = 2;
+    const DOWN_MARGIN = 200;
+    let currentPos = scrollPosition();
 
-        let topId = initialId;
-        let endId = initialId;
+    let topId = initialId;
+    let endId = initialId;
 
-        let lastAddMoreTime = 0;
-        let addMoreAtTopOnTouchUp = false;
+    let lastAddMoreTime = 0;
+    let addMoreAtTopOnTouchUp = false;
 
-        const scrollHandler = function () {
-            const previousPos = currentPos;
-            currentPos = scrollPosition();
-            const scrollingUp = currentPos < previousPos;
-            const scrollingDown = currentPos > previousPos;
-            if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now() > lastAddMoreTime + 1000) {
-                lastAddMoreTime = Date.now();
-                addMoreAtEnd();
-            } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
-                lastAddMoreTime = Date.now();
-                addMoreAtTop();
-            }
-            currentPos = scrollPosition();
-        };
-
-        // Could add start() and stop() methods
-        $(window).scroll(scrollHandler);
-        //$(window).unbind("scroll", scrollHandler);
-        window.addEventListener('touchstart', touchstartListener, false);
-        window.addEventListener('touchend', touchendListener, false);
-        window.addEventListener("touchcancel", touchendListener, false);
-
-        function addMoreAtEnd() {
-            if (endId<maxId && !stillLoading) {
-                stillLoading = true;
-                const id = ++endId;
-                const textId = 'insertedText' + id;
-                // place marker for text which may take longer to load
-                const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
-                $(insertBeforeAtBottom).before(placeMarker);
-
-                fnLoadTextAtEnd(id, textId);
-            }
+    const scrollHandler = function () {
+        const previousPos = currentPos;
+        currentPos = scrollPosition();
+        const scrollingUp = currentPos < previousPos;
+        const scrollingDown = currentPos > previousPos;
+        if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now() > lastAddMoreTime + 1000) {
+            lastAddMoreTime = Date.now();
+            addMoreAtEnd();
+        } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
+            lastAddMoreTime = Date.now();
+            addMoreAtTop();
         }
-
-        function addMoreAtTop() {
-            if (touchDown) {
-                // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
-                addMoreAtTopOnTouchUp = true;
-            } else if (topId>minId && !stillLoading) {
-                stillLoading = true;
-                const id = --topId;
-                const textId = 'insertedText' + id;
-                // place marker for text which may take longer to load
-                const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
-                insertAtTop($(insertAfterAtTop), placeMarker);
-
-                fnLoadTextAtTop(id, textId);
-            }
-        }
-
-        function insertAtTop($afterComponent, text) {
-            const priorHeight = bodyHeight();
-            $afterComponent.after(text);
-            const changeInHeight = bodyHeight() - priorHeight;
-            const adjustedPosition = currentPos + changeInHeight;
-            setScrollPosition(adjustedPosition);
-        }
-
-        function touchstartListener(event){
-            touchDown = true;
-        }
-        function touchendListener(event){
-            touchDown = false;
-            if (textToBeInsertedAtTop && idToInsertTextAt) {
-                const text = textToBeInsertedAtTop;
-                const id = idToInsertTextAt;
-                textToBeInsertedAtTop = null;
-                idToInsertTextAt = null;
-                insertThisTextAtTop(id, text);
-            }
-            if (addMoreAtTopOnTouchUp) {
-                addMoreAtTopOnTouchUp = false;
-                addMoreAtTop()
-            }
-        }
+        currentPos = scrollPosition();
     };
-})(jQuery);
+
+    // Could add start() and stop() methods
+    $(window).scroll(scrollHandler);
+    //$(window).unbind("scroll", scrollHandler);
+    window.addEventListener('touchstart', touchstartListener, false);
+    window.addEventListener('touchend', touchendListener, false);
+    window.addEventListener("touchcancel", touchendListener, false);
+
+    function addMoreAtEnd() {
+        if (endId<maxId && !stillLoading) {
+            stillLoading = true;
+            const id = ++endId;
+            const textId = 'insertedText' + id;
+            // place marker for text which may take longer to load
+            const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+            $(insertBeforeAtBottom).before(placeMarker);
+
+            fnLoadTextAtEnd(id, textId);
+        }
+    }
+
+    function addMoreAtTop() {
+        if (touchDown) {
+            // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
+            addMoreAtTopOnTouchUp = true;
+        } else if (topId>minId && !stillLoading) {
+            stillLoading = true;
+            const id = --topId;
+            const textId = 'insertedText' + id;
+            // place marker for text which may take longer to load
+            const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+            insertAtTop($(insertAfterAtTop), placeMarker);
+
+            fnLoadTextAtTop(id, textId);
+        }
+    }
+
+    function insertAtTop($afterComponent, text) {
+        const priorHeight = bodyHeight();
+        $afterComponent.after(text);
+        const changeInHeight = bodyHeight() - priorHeight;
+        const adjustedPosition = currentPos + changeInHeight;
+        setScrollPosition(adjustedPosition);
+    }
+
+    function touchstartListener(event){
+        touchDown = true;
+    }
+    function touchendListener(event){
+        touchDown = false;
+        if (textToBeInsertedAtTop && idToInsertTextAt) {
+            const text = textToBeInsertedAtTop;
+            const id = idToInsertTextAt;
+            textToBeInsertedAtTop = null;
+            idToInsertTextAt = null;
+            insertThisTextAtTop(id, text);
+        }
+        if (addMoreAtTopOnTouchUp) {
+            addMoreAtTopOnTouchUp = false;
+            addMoreAtTop()
+        }
+    }
+}
 
 let stillLoading = false;
 let touchDown = false;
@@ -106,7 +104,7 @@ let idToInsertTextAt = null;
 $(document).ready(function() {
     const chapterInfo = JSON.parse(jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
-        $.fn.infiniScroll(
+        infiniScroll(
             loadTextAtTop,
             loadTextAtEnd,
             chapterInfo.chapter,
