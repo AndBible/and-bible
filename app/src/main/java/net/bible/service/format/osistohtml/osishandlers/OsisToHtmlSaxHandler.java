@@ -190,8 +190,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.4.js'></script>\n" +
 					"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n" +
 					"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
-			String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n" +
-					"<script type='text/javascript' src='file:///android_asset/web/infinite-scroll.js'></script>\n";
+			String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/loader.js'></script>\n";
+			//jsTag += "\n<script type='text/javascript' src='file:///android_asset/web/loader.js.map'></script>\n";
 			String styleSheetTags = parameters.getCssStylesheets();
 			String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
 			write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
@@ -202,7 +202,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
 					+ "</head>"
-					+ "<body onscroll='jsonscroll()'><div id='start'></div>");
+					+ "<body onscroll='andbible.jsonscroll()'><div id='start'></div>");
 		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but

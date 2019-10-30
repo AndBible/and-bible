@@ -3,6 +3,8 @@
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+import {registerVersePositions} from "./bibleview";
+
 (function($) {
     $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
                                  insertAfterAtTop, insertBeforeAtBottom) {
@@ -18,7 +20,7 @@
         var addMoreAtTopOnTouchUp = false;
 
         var scrollHandler = function() {
-            previousPos = currentPos;
+            const previousPos = currentPos;
             currentPos = scrollPosition();
             var scrollingUp = currentPos < previousPos;
             var scrollingDown = currentPos > previousPos;
@@ -102,7 +104,7 @@ var textToBeInsertedAtTop = null;
 var idToInsertTextAt = null;
 
 $(document).ready(function() {
-    var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
+    var chapterInfo = JSON.parse(jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
         $.fn.infiniScroll(
             loadTextAtTop,
@@ -132,19 +134,19 @@ function setScrollPosition(offset) {
  * Ask java to get more text to be loaded into page
  */
 function loadTextAtTop(chapter, textId) {
-    window.jsInterface.log("js:loadTextAtTop");
-    window.jsInterface.requestMoreTextAtTop(chapter, textId);
+    jsInterface.log("js:loadTextAtTop");
+    jsInterface.requestMoreTextAtTop(chapter, textId);
 }
 
 function loadTextAtEnd(chapter, textId) {
-    window.jsInterface.log("js:loadTextAtEnd");
-    window.jsInterface.requestMoreTextAtEnd(chapter, textId);
+    jsInterface.log("js:loadTextAtEnd");
+    jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 
 /**
  * called from java after actual text has been retrieved to request text is inserted
  */
-function insertThisTextAtTop(textId, text) {
+export function insertThisTextAtTop(textId, text) {
     if (touchDown) {
         textToBeInsertedAtTop = text;
         idToInsertTextAt = textId;
@@ -164,8 +166,8 @@ function insertThisTextAtTop(textId, text) {
     }
 }
 
-function insertThisTextAtEnd(textId, text) {
-    window.jsInterface.log("js:insertThisTextAtEnd into:"+textId);
+export function insertThisTextAtEnd(textId, text) {
+    jsInterface.log("js:insertThisTextAtEnd into:"+textId);
     $('#' + textId).html(text);
 
     registerVersePositions();
