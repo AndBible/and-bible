@@ -44,7 +44,7 @@ class BibleJavascriptInterface(
 	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
 	private val bibleViewRef: WeakReference<BibleView>
 ) {
-    private var notificationsEnabled = false
+    var notificationsEnabled = false
 
     private var addingContentAtTop = false
 
@@ -137,10 +137,6 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun log(msg: String) {
         Log.d(TAG, msg)
-    }
-
-    fun setNotificationsEnabled(notificationsEnabled: Boolean) {
-        this.notificationsEnabled = notificationsEnabled
     }
 
 	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"

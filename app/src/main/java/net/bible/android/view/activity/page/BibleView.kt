@@ -296,8 +296,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Trigger jump to correct offset
      */
     private fun invokeJumpToOffsetIfRequired(delay: Long) {
-        if (!jumpToOffsetPending && (ChapterVerse.isSet(jumpToChapterVerse) ||
-                jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
+        if (!jumpToOffsetPending &&
+            (ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
             // Prevent further invokations before this call is done.
             jumpToOffsetPending = true
             postDelayed({ jumpToOffset() }, delay)
@@ -306,12 +306,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun jumpToOffset() {
         if (contentHeight > 0) {
+
             if (isVersePositionRecalcRequired) {
                 isVersePositionRecalcRequired = false
                 executeJavascript("registerVersePositions()")
             }
 
-            bibleJavascriptInterface.setNotificationsEnabled(windowControl.isActiveWindow(window))
+            bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
             // screen is changing shape/size so constantly maintain the current verse position
             // main difference from jumpToVerse is that this is not cleared after jump
@@ -330,7 +331,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
-                val contentHeight = contentHeight
                 val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
 
                 // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
@@ -482,10 +482,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: CurrentWindowChangedEvent) {
         if (window == event.activeWindow) {
-            bibleJavascriptInterface.setNotificationsEnabled(true)
+            bibleJavascriptInterface.notificationsEnabled = true
             resumeTiltScroll()
         } else {
-            bibleJavascriptInterface.setNotificationsEnabled(false)
+            bibleJavascriptInterface.notificationsEnabled = false
             pauseTiltScroll()
         }
     }
@@ -552,7 +552,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         super.onDetachedFromWindow()
         Log.d(TAG, "Detached from window")
         // prevent random verse changes while layout is being rebuild because of window changes
-        bibleJavascriptInterface.setNotificationsEnabled(false)
+        bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
         if(toBeDestroyed) {
             doDestroy()
@@ -563,7 +563,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         super.onAttachedToWindow()
         Log.d(TAG, "Attached to window")
         if (windowControl.isActiveWindow(window)) {
-            bibleJavascriptInterface.setNotificationsEnabled(true)
+            bibleJavascriptInterface.notificationsEnabled = true
 
             // may have returned from MyNote view
             resumeTiltScroll()
