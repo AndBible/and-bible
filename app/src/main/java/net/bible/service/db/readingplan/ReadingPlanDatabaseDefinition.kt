@@ -49,7 +49,7 @@ class ReadingPlanDatabaseOperations {
                 $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_PLAN_CODE TEXT NOT NULL,
                 $COLUMN_PLAN_DAY INTEGER NOT NULL,
-                $COLUMN_READING_STATUS TEXT
+                $COLUMN_READING_STATUS TEXT NOT NULL
             );
             CREATE INDEX code_day ON $TABLE_NAME($COLUMN_PLAN_CODE,$COLUMN_PLAN_DAY);
         """
