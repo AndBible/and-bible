@@ -45,7 +45,6 @@ function getElementsByClass( searchClass, domNode, tagName) {
 $(window).load(
     function() {
         console.log("JS onload");
-        jsInterface.onLoad();
         lineHeight = parseFloat(window.getComputedStyle(document.body)
             .getPropertyValue('line-height'));
         registerVersePositions();

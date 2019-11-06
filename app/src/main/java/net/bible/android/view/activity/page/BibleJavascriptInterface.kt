@@ -72,11 +72,6 @@ class BibleJavascriptInterface(
 	}
 
     @JavascriptInterface
-    fun onLoad() {
-        Log.d(TAG, "onLoad from js")
-    }
-
-    @JavascriptInterface
     fun onScroll(newYPos: Int) {
         var newYPos = newYPos
         // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
