@@ -63,10 +63,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
         return true
     }
 
-    /**
-     * Called whenever something like strong preferences have been changed by the user.  Should refresh the screen
-     */
-    protected open fun preferenceSettingsChanged() {}
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)

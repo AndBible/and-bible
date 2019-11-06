@@ -70,7 +70,6 @@ import net.bible.android.control.event.passage.*
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.PageTiltScrollControl.isTiltSensingPossible
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -437,118 +436,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class AutoFullScreenChanged(val newValue: Boolean)
 
-    interface OptionsMenuItemInterface {
-        var value: Boolean
-        val visible: Boolean
-        val enabled: Boolean
-        fun handle()
-        fun getTitle(title: CharSequence?): CharSequence? = title
-    }
 
-    abstract class MenuItemPreference(
-        private val preferenceName: String,
-        private val default: Boolean = false,
-        private val onlyBibles: Boolean = false,
-        private val isBoolean: Boolean = true,
-
-        // If we are handling non-boolean value
-        private val trueValue: String = "true",
-        private val falseValue: String = "false",
-        private val automaticValue: String = "automatic",
-        private val defaultString: String = automaticValue,
-
-        val subMenu: Boolean = false
-    ) : OptionsMenuItemInterface {
-        private val preferences = mainBibleActivity.preferences
-        override var value: Boolean
-            get() = if (isBoolean) {
-                preferences.getBoolean(preferenceName, default)
-            } else {
-                preferences.getString(preferenceName, defaultString) == trueValue
-            }
-            set(value) = if (isBoolean) {
-                preferences.edit().putBoolean(preferenceName, value).apply()
-            } else {
-                preferences.edit().putString(preferenceName, if (value) trueValue else falseValue).apply()
-            }
-
-        protected val automatic: Boolean
-            get() = if (isBoolean) {
-                false
-            } else {
-                preferences.getString(preferenceName, defaultString) == automaticValue
-            }
-
-        override val visible: Boolean
-            get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
-
-        override val enabled: Boolean
-            get() = true
-
-        override fun handle() {}
-    }
-
-    abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
-                                                  trueValue: String = "true", falseValue: String = "false") :
-        MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
-
-    open class TextContentMenuItemPreference(name: String, default: Boolean) :
-        MenuItemPreference(name, default, true) {
-        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
-    }
-
-    class AutoFullscreenMenuItemPreference :
-        MenuItemPreference("auto_fullscreen_pref", true, false) {
-        override fun handle() = ABEventBus.getDefault().post(AutoFullScreenChanged(value))
-    }
-
-    class TiltToScrollMenuItemPreference :
-        MenuItemPreference("tilt_to_scroll_pref", false, false) {
-        override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-        override val visible: Boolean get() = super.visible && isTiltSensingPossible()
-    }
-
-    class CommandItem(
-        val command: () -> Unit,
-        override val enabled: Boolean = true,
-        override var value: Boolean = true,
-        override val visible: Boolean = true
-    ) : OptionsMenuItemInterface {
-        override fun handle() {
-            command()
-        }
-    }
-
-    open class SubMenuMenuItemPreference(onlyBibles: Boolean) :
-        MenuItemPreference("none", onlyBibles = onlyBibles, subMenu = true)
-
-    class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_pref2", false) {
-        override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-        override val visible: Boolean get() = super.visible && !automatic
-    }
-
-    class StrongsMenuItemPreference : TextContentMenuItemPreference("show_strongs_pref", true) {
-        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
-    }
-
-    class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphology_pref", false) {
-        override val enabled: Boolean
-            get() = StrongsMenuItemPreference().value
-        override var value: Boolean
-            get() = if (enabled) super.value else false
-            set(value) {
-                super.value = value
-            }
-
-        override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
-    }
-
-    class SplitModeMenuItemPreference :
-        MenuItemPreference("reverse_split_mode_pref", false) {
-        override fun handle() = mainBibleActivity.windowControl.windowSizesChanged()
-
-        override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
-    }
 
     private fun deleteWorkspace() {
         val nextWorkspace = if (currentWorkspace > 0) currentWorkspace - 1 else 0
@@ -723,13 +611,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = preferences.getInt("currentTab", 0)
         set(newValue) = preferences.edit().putInt("currentTab", newValue).apply()
 
-    class WorkspacesSubmenu: SubMenuMenuItemPreference(false) {
-        override fun getTitle(title: CharSequence?): CharSequence? {
-            return "$title (${SharedActivityState.getCurrentWorkspaceName()})"
-        }
-    }
-
-    private fun getItemOptions(itemId: Int) =  when(itemId) {
+   private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
         R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
@@ -1238,7 +1120,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun preferenceSettingsChanged() {
+    fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
@@ -1354,7 +1236,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
 
     companion object {
-        private lateinit var mainBibleActivity: MainBibleActivity
+        lateinit var mainBibleActivity: MainBibleActivity
         internal const val BACKUP_SAVE_REQUEST = 0
         internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
