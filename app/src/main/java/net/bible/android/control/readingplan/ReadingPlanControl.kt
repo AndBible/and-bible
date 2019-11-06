@@ -41,7 +41,6 @@ import java.util.Calendar
 import java.util.Date
 
 import javax.inject.Inject
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 
@@ -174,7 +173,7 @@ class ReadingPlanControl @Inject constructor(
                 readingStatus.day != day) {
             val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
-            readingStatus = if (day < currentPlanDay) {
+            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay) {
                 HistoricReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
             } else {
                 ReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
