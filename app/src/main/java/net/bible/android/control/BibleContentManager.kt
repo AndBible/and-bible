@@ -70,14 +70,14 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {
-            UpdateMainTextTask().execute(window)
+            UpdateMainTextTask(documentViewManager).execute(window)
         }
 
         window.displayedBook = document
         window.displayedKey = key
     }
 
-    private inner class UpdateMainTextTask : UpdateTextTask() {
+    private class UpdateMainTextTask(val documentViewManager: DocumentViewManager?) : UpdateTextTask() {
         override fun onPreExecute() {
             super.onPreExecute()
             PassageChangeMediator.getInstance().contentChangeStarted()
