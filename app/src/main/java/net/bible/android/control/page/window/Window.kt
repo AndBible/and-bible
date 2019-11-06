@@ -106,7 +106,7 @@ open class Window (
         get() = false
 
     var bibleViewRef: WeakReference<BibleView>? = null
-    val bibleView get() = bibleViewRef!!.get()!!
+    val bibleView get() = bibleViewRef?.get()
 
     fun destroy() {
         bibleViewRef?.get()?.destroy()
