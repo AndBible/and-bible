@@ -1169,7 +1169,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      */
     fun onEventMainThread(event: PassageChangedEvent) {
         updateActions()
-    }
+   }
 
     override fun onResume() {
         super.onResume()
