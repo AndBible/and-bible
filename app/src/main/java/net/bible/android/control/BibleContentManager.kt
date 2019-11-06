@@ -27,9 +27,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 
 import javax.inject.Inject
@@ -40,7 +38,7 @@ import javax.inject.Inject
  */
 @MainBibleActivityScope
 class BibleContentManager @Inject
-constructor(private val documentViewManager: DocumentViewManager?, private val windowControl: WindowControl) {
+constructor(private val documentViewManager: DocumentViewManager, private val windowControl: WindowControl) {
     init {
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
@@ -77,7 +75,7 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
         window.displayedKey = key
     }
 
-    private class UpdateMainTextTask(val documentViewManager: DocumentViewManager?) : UpdateTextTask() {
+    private class UpdateMainTextTask(val documentViewManager: DocumentViewManager) : UpdateTextTask() {
         override fun onPreExecute() {
             super.onPreExecute()
             PassageChangeMediator.getInstance().contentChangeStarted()
@@ -90,12 +88,8 @@ constructor(private val documentViewManager: DocumentViewManager?, private val w
 
         /** callback from base class when result is ready  */
         override fun showText(text: String, window: Window, chapterVerse: ChapterVerse, yOffsetRatio: Float) {
-            if (documentViewManager != null) {
-                val view = documentViewManager.getDocumentView(window)
-                view.show(text, chapterVerse, yOffsetRatio)
-            } else {
-                Log.w(TAG, "Document view not yet registered")
-            }
+            val view = documentViewManager.getDocumentView(window)
+            view.show(text, chapterVerse, yOffsetRatio)
         }
     }
 
