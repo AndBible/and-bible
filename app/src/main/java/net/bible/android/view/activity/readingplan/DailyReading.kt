@@ -78,12 +78,10 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             mDay = readingPlanControl.currentPlanDay
             val extras = intent.extras
             if (extras != null) {
-                if (extras.containsKey(PLAN)) {
-                    readingPlanControl.setReadingPlan(extras.getString(PLAN))
-                }
-                if (extras.containsKey(DAY)) {
-                    mDay = extras.getInt(DAY, mDay)
-                }
+
+                val plan = extras.getString(PLAN)
+                if(plan != null) readingPlanControl.setReadingPlan(plan)
+                mDay = extras.getInt(DAY, mDay)
             }
 
             // get readings for chosen day

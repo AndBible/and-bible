@@ -1,6 +1,5 @@
 package net.bible.android.control.page.window
 
-import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.mynote.MyNoteDAO
@@ -15,20 +14,15 @@ import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 import javax.inject.Provider
 
-import robolectric.MyRobolectricTestRunner
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
 import org.mockito.Mockito.mock
 
-@RunWith(MyRobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class)
 class WindowSynchronisationTest {
 
     private var eventManager: EventManager? = null

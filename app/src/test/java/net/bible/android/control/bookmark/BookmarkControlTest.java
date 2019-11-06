@@ -18,16 +18,15 @@ import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.*;
 
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
@@ -39,8 +38,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MyRobolectricTestRunner.class)
-@Config(application = TestBibleApplication.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(application = TestBibleApplication.class, sdk = {28})
 public class BookmarkControlTest {
 
 	// keep changing the test verse

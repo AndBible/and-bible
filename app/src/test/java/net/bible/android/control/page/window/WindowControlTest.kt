@@ -24,14 +24,11 @@ import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 import org.robolectric.fakes.RoboMenu
 
 import javax.inject.Provider
 
-import robolectric.MyRobolectricTestRunner
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.`is`
@@ -50,8 +47,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.hamcrest.MockitoHamcrest.argThat
 
-@RunWith(MyRobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class)
 class WindowControlTest {
 
     private var eventManager: EventManager? = null

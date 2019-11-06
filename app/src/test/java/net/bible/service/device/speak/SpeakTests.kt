@@ -38,12 +38,12 @@ import org.junit.After
 import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
-import robolectric.MyRobolectricTestRunner
 
 
-@Config(qualifiers="fi", application = TestBibleApplication::class)
+@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[28])
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -74,7 +74,7 @@ open class SpeakIntegrationTestBase {
     }
 }
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
     fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
@@ -101,7 +101,7 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     }
 }
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     lateinit var mainActivityController: ActivityController<MainBibleActivity>
 
@@ -207,7 +207,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers = "fi", application = TestBibleApplication::class)
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [28])
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
@@ -255,7 +255,7 @@ open class AbstractSpeakTests {
     }
 }
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     private lateinit var s: SpeakSettings
     @Before
@@ -463,7 +463,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
 
 }
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
@@ -499,7 +499,7 @@ class TestPersistence : AbstractSpeakTests() {
     }
 }
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
@@ -831,7 +831,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 }
 
 
-@RunWith(MyRobolectricTestRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {

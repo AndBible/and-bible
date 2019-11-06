@@ -56,7 +56,6 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
-import java.lang.ref.WeakReference
 import java.util.*
 
 import javax.inject.Inject

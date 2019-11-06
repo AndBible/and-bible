@@ -4,8 +4,9 @@ import net.bible.test.DatabaseResetter;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowStatFs;
-import robolectric.MyRobolectricTestRunner;
 
 import java.io.File;
 
@@ -15,7 +16,8 @@ import static junit.framework.Assert.assertTrue;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@RunWith(MyRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk={28})
 public class FileManagerTest {
 	private final String folder = "src/test/resources/net/bible/service/common".replace("/", File.separator);
 

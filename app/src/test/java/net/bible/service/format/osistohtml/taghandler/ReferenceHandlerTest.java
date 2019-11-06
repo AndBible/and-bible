@@ -1,6 +1,5 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import net.bible.android.TestBibleApplication;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
@@ -14,9 +13,9 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.xml.sax.helpers.AttributesImpl;
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -29,8 +28,8 @@ import static org.junit.Assert.assertThat;
  * http://www.crosswire.org/wiki/OSIS_Bibles#Continuation_quotation_marks
  */
 
-@RunWith(MyRobolectricTestRunner.class)
-@Config(application = TestBibleApplication.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(qualifiers = "en", sdk={28})
 public class ReferenceHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;

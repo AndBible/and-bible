@@ -4,13 +4,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@RunWith(MyRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk={28})
 public class CssControlTest {
 
 	private CssControl cssControl;

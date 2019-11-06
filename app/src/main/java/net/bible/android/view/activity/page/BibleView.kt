@@ -241,8 +241,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
         html = html.replace("</body>", "<script>" +
             "$(document).ready(function() {" +
-                "setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
-                "scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
+                "andbible.setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
+                "andbible.scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
             "</script></body>")
 
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
@@ -254,14 +254,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
         loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
-
-        // ensure jumpToOffset is eventually called during initialisation.
-        // It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen
-        // then press back. Don't set this value too low or it may trigger before a proper upcoming
-        // computeVerticalScrollEvent 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a
-        // reflection of processor speed and adjust appropriately.
-
-        invokeJumpToOffsetIfRequired((if (CommonUtils.isSlowDevice) 500 else 350).toLong())
 
         window.initialized = true
     }
@@ -278,29 +270,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         settings.useWideViewPort = isMap
     }
 
-    /**
-     * This is called fairly late in initialisation so override to invoke jump to offset position
-     */
-    override fun computeVerticalScrollExtent(): Int {
-        val result = super.computeVerticalScrollExtent()
-
-        // trigger jump to appropriate verse or offset into a book or commentary page...
-        invokeJumpToOffsetIfRequired(0)
-
-        return result
-    }
-
-    private var jumpToOffsetPending = false
 
     /**
      * Trigger jump to correct offset
      */
-    private fun invokeJumpToOffsetIfRequired(delay: Long) {
-        if (!jumpToOffsetPending && (ChapterVerse.isSet(jumpToChapterVerse) ||
-                jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
+    fun invokeJumpToOffsetIfRequired() {
+        if ((ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
             // Prevent further invokations before this call is done.
-            jumpToOffsetPending = true
-            postDelayed({ jumpToOffset() }, delay)
+            postDelayed({ jumpToOffset() }, 0)
         }
     }
 
@@ -311,7 +288,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 executeJavascript("registerVersePositions()")
             }
 
-            bibleJavascriptInterface.setNotificationsEnabled(windowControl.isActiveWindow(window))
+            bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
             // screen is changing shape/size so constantly maintain the current verse position
             // main difference from jumpToVerse is that this is not cleared after jump
@@ -330,7 +307,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
-                val contentHeight = contentHeight
                 val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
 
                 // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
@@ -344,7 +320,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
             }
         }
-        jumpToOffsetPending = false
     }
 
     /** prevent swipe right if the user is scrolling the page right  */
@@ -482,10 +457,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: CurrentWindowChangedEvent) {
         if (window == event.activeWindow) {
-            bibleJavascriptInterface.setNotificationsEnabled(true)
+            bibleJavascriptInterface.notificationsEnabled = true
             resumeTiltScroll()
         } else {
-            bibleJavascriptInterface.setNotificationsEnabled(false)
+            bibleJavascriptInterface.notificationsEnabled = false
             pauseTiltScroll()
         }
     }
@@ -552,7 +527,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         super.onDetachedFromWindow()
         Log.d(TAG, "Detached from window")
         // prevent random verse changes while layout is being rebuild because of window changes
-        bibleJavascriptInterface.setNotificationsEnabled(false)
+        bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
         if(toBeDestroyed) {
             doDestroy()
@@ -563,7 +538,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         super.onAttachedToWindow()
         Log.d(TAG, "Attached to window")
         if (windowControl.isActiveWindow(window)) {
-            bibleJavascriptInterface.setNotificationsEnabled(true)
+            bibleJavascriptInterface.notificationsEnabled = true
 
             // may have returned from MyNote view
             resumeTiltScroll()
@@ -632,7 +607,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             isLongClickable = false
 
             // need to enable verse selection after page load, but not always so can't use onload
-            html += "<script>enableVerseLongTouchSelectionMode();</script>"
+            html += "<script>andbible.enableVerseLongTouchSelectionMode();</script>"
 
         } else {
             // reset handling of long press
@@ -698,7 +673,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun executeJavascript(javascript: String) {
         Log.d(TAG, "Executing JS:" + StringUtils.abbreviate(javascript, 100))
-        evaluateJavascript("$javascript;", null)
+        evaluateJavascript("andbible.$javascript;", null)
     }
 
     override fun insertTextAtTop(textId: String, text: String) {

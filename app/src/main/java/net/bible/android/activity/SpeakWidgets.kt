@@ -347,7 +347,7 @@ class SpeakWidgetManager {
             super.onReceive(context, intent)
             Log.d(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
-                val osisRef = intent.data.host
+                val osisRef = intent.data!!.host
                 Log.d(TAG, "onReceive osisRef $osisRef")
                 val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
                 speakControl.speakFromBookmark(dto)
