@@ -23,12 +23,11 @@ task npmInstall(type: Exec) {
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
-    inputs.dir "bibleview-js"
+    inputs.dir "bibleview-js/src"
     outputs.file "src/main/assets/web/loader.js"
 
     workingDir "bibleview-js"
     commandLine "node_modules/.bin/webpack"
-
 }
 
 preBuild.dependsOn webpack
