@@ -8,19 +8,16 @@ import org.crosswire.jsword.book.Book;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
-@RunWith(MyRobolectricTestRunner.class)
 public class RelevantLanguageSorterTest {
 
 	private RelevantLanguageSorter relevantLanguageSorter;

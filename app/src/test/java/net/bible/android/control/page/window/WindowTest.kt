@@ -2,7 +2,6 @@ package net.bible.android.control.page.window
 
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.mynote.MyNoteDAO
-import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
@@ -12,22 +11,20 @@ import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
 import org.crosswire.jsword.book.Book
 
-import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-import robolectric.MyRobolectricTestRunner
-
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Ignore
 import org.mockito.Mockito.mock
+import org.robolectric.RobolectricTestRunner
 
-@RunWith(MyRobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [28])
 class WindowTest {
 
     @Before

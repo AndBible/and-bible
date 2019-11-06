@@ -1,18 +1,12 @@
 package net.bible.service.download
 
-import net.bible.android.TestBibleApplication
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
-import robolectric.MyRobolectricTestRunner
 
-@RunWith(MyRobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class)
 class CrosswireRepoIT {
 
     private lateinit var crosswireRepo: CrosswireRepo

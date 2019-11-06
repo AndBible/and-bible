@@ -4,7 +4,6 @@
 package net.bible.service.format;
 
 import net.bible.service.common.ParseException;
-import net.bible.service.device.ScreenSettings;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
@@ -26,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.xml.sax.ContentHandler;
 
 import java.io.BufferedReader;
@@ -35,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -46,7 +43,6 @@ import static org.junit.Assert.fail;
  * @author denha1m
  *
  */
-@RunWith(MyRobolectricTestRunner.class)
 public class OSISInputStreamTest {
 
 	private Book[] books;

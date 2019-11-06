@@ -20,8 +20,8 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(qualifiers="en")
+@RunWith(RobolectricTestRunner.class) // because of english qualifiers
+@Config(qualifiers = "en", sdk={28})
 public class NoteHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;

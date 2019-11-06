@@ -1,6 +1,5 @@
 package net.bible.android.control.page.window
 
-import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.EventManagerStub
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.CurrentPageManager
@@ -13,11 +12,9 @@ import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import javax.inject.Provider
 
-import robolectric.MyRobolectricTestRunner
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
@@ -25,7 +22,6 @@ import org.hamcrest.Matchers.contains
 import org.junit.Assert.assertThat
 import org.mockito.Mockito.mock
 
-@RunWith(MyRobolectricTestRunner::class)
 class WindowRepositoryTest {
     private var windowRepository: WindowRepository? = null
     private var windowControl: WindowControl? = null

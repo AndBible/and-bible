@@ -14,13 +14,16 @@ import net.bible.test.DatabaseResetter;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-import robolectric.MyRobolectricTestRunner;
+import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,7 +31,8 @@ import static org.hamcrest.Matchers.is;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@RunWith(MyRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk={28})
 public class DocumentDownloadProgressCacheTest {
 
 	private DocumentDownloadProgressCache documentDownloadProgressCache;
@@ -42,7 +46,7 @@ public class DocumentDownloadProgressCacheTest {
 	}
 
 	@Test
-	public void sendEventOnProgress() throws Exception {
+	public void sendEventOnProgress() throws InterruptedException {
 
 		EventReceiver eventReceiver = new EventReceiver();
 		ABEventBus.getDefault().register(eventReceiver);
@@ -80,16 +84,19 @@ public class DocumentDownloadProgressCacheTest {
 		{
 			try {
 				document = FakeSwordBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "");
-				progress.setTotalWork(100);
-				progress.setWork(33);
-
-				Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-				documentDownloadListItem = (DocumentDownloadListItem) LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null);
-				documentDownloadListItem.setDocument(document);
-				progressBar = documentDownloadListItem.getProgressBar();
-			} catch (Exception e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (BookException e) {
 				e.printStackTrace();
 			}
+			progress.setTotalWork(100);
+			progress.setWork(33);
+
+			Activity activity = Robolectric.buildActivity(Activity.class).create().get();
+			documentDownloadListItem = (DocumentDownloadListItem) LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null);
+			documentDownloadListItem.setDocument(document);
+			progressBar = documentDownloadListItem.getProgressBar();
+
 		}
 	}
 }

@@ -1,13 +1,15 @@
 package net.bible.android.control.report;
 
+import net.bible.android.TestBibleApplication;
 import net.bible.android.common.resource.ResourceProvider;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -15,7 +17,8 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MyRobolectricTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(application = TestBibleApplication.class, sdk = {28})
 public class ErrorReportControlTest {
 	@Mock
 	private EmailerStub emailer = new EmailerStub();

@@ -19,16 +19,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-import robolectric.MyRobolectricTestRunner
-
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
 import org.junit.Ignore
+import org.robolectric.RobolectricTestRunner
 
-@RunWith(MyRobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk=[28])
 class SwordContentFacadeTest {
 
     private lateinit var swordContentFacade: SwordContentFacade
