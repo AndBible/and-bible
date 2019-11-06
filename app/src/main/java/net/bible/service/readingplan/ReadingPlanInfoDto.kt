@@ -40,7 +40,7 @@ class ReadingPlanInfoDto(var code: String) {
      */
     val startdate: Date?
         get() {
-            val startDate = CommonUtils.sharedPreferences.getLong(code + READING_PLAN_START_EXT, 0) as Long
+            val startDate = CommonUtils.sharedPreferences.getLong(code + READING_PLAN_START_EXT, 0)
             return if (startDate == 0L) {
                 null
             } else {

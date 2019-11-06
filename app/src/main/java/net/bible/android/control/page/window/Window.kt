@@ -34,13 +34,14 @@ open class Window (
     val pageManager: CurrentPageManager,
     var screenNo: Int)
 {
-    constructor (currentPageManager: CurrentPageManager) :
+    constructor (currentPageManager: CurrentPageManager):
             this(WindowLayout(WindowState.SPLIT), currentPageManager, 0)
-    constructor(screenNo: Int, windowState: WindowState, currentPageManager: CurrentPageManager) :
+    constructor(screenNo: Int, windowState: WindowState, currentPageManager: CurrentPageManager):
             this(WindowLayout(windowState), currentPageManager, screenNo)
 
     init {
-        pageManager.windowRef = WeakReference(this)
+        @Suppress("LeakingThis")
+        pageManager.window = this
     }
 
     var displayedKey: Key? = null

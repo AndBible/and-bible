@@ -248,7 +248,7 @@ class ReadingPlanDao {
                     FileInputStream(userReadingPlanFile)
                 }
 
-                val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw?.readBytes())}
+                val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw.readBytes())}
                 properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)

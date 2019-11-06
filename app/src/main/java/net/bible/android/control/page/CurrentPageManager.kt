@@ -60,9 +60,13 @@ open class CurrentPageManager @Inject constructor(
     val currentGeneralBook: CurrentGeneralBookPage
     val currentMap: CurrentMapPage
     val currentMyNotePage: CurrentMyNotePage
-    var windowRef: WeakReference<Window>? = null
+    private var windowRef: WeakReference<Window>? = null
 
-    val window get() = windowRef!!.get()!!
+    var window
+        get() = windowRef!!.get()!!
+        set(value) {
+            windowRef = WeakReference(value)
+        }
 
     var currentPage: CurrentPage
         private set

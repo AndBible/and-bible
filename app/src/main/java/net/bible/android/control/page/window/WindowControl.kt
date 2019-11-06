@@ -91,7 +91,6 @@ open class WindowControl @Inject constructor(
         }
 
     init {
-
         eventManager.register(this)
     }
 

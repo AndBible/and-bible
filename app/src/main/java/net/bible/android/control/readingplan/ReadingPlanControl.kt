@@ -90,13 +90,13 @@ class ReadingPlanControl @Inject constructor(
         get() {
             val planCode = currentPlanCode
             val prefs = CommonUtils.sharedPreferences
-            return prefs.getInt(planCode!! + READING_PLAN_DAY_EXT, 1)
+            return prefs.getInt(planCode + READING_PLAN_DAY_EXT, 1)
         }
         private set(day) {
             val planCode = currentPlanCode
             val prefs = CommonUtils.sharedPreferences
             prefs.edit()
-                    .putInt(planCode!! + READING_PLAN_DAY_EXT, day)
+                    .putInt(planCode + READING_PLAN_DAY_EXT, day)
                     .apply()
         }
 

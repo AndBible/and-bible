@@ -385,6 +385,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pauseTiltScroll()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         //Log.d(TAG, "BibleView onTouchEvent");
         windowControl.activeWindow = window

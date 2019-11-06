@@ -18,7 +18,6 @@
 
 package net.bible.service.history
 
-import android.app.Activity
 import android.content.Intent
 import android.util.Log
 
@@ -30,19 +29,23 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class IntentHistoryItem(override val description: CharSequence, private val intent: Intent, window: Window)// prevent re-add of intent to history if reverted to
+// prevent re-add of intent to history if reverted to
 //		intent.putExtra(HISTORY_INTENT, true);
-    : HistoryItemBase(window) {
+class IntentHistoryItem(
+    override val description: CharSequence,
+    private val intent: Intent,
+    window: Window
+) : HistoryItemBase(window) {
 
-    override fun equals(o: Any?): Boolean {
-        if (o == null || o !is IntentHistoryItem) {
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is IntentHistoryItem) {
             return false
         }
-        if (o === this) {
+        if (other === this) {
             return true
         }
 
-        val oihs = o as IntentHistoryItem?
+        val oihs = other as IntentHistoryItem?
         // assumes intent exists
         return intent == oihs!!.intent
     }
@@ -54,6 +57,10 @@ class IntentHistoryItem(override val description: CharSequence, private val inte
 
         // start activity chosen from activity
         currentActivity.startActivity(intent)
+    }
+
+    override fun hashCode(): Int {
+        return intent.hashCode()
     }
 
     companion object {

@@ -66,7 +66,7 @@ class KeyHistoryItem(
         val prime = 31
         var result = 1
         result = prime * result + (document.initials?.hashCode() ?: 0)
-        result = prime * result + (key.hashCode() ?: 0)
+        result = prime * result + key.hashCode()
         return result
     }
 

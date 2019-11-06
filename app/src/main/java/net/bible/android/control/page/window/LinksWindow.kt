@@ -33,7 +33,6 @@ class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManag
 
     init {
         isSynchronised = false
-        currentPageManager.windowRef = WeakReference(this)
     }
 
     /**
