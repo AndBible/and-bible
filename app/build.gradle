@@ -17,7 +17,6 @@ def getGitHash = { ->
 task npmInstall(type: Exec) {
     inputs.file "bibleview-js/package.json"
     outputs.dir "bibleview-js/node_modules"
-    outputs.file "bibleview-js/package-lock.json"
 
     workingDir "bibleview-js"
     commandLine "/usr/bin/env", "npm", "install"
