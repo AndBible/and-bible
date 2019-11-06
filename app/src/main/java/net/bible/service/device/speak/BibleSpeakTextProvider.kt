@@ -582,7 +582,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
         }
         if(sharedPreferences.contains(PERSIST_VERSE)) {
-            val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
+            val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")!!
             startVerse = osisIdToVerse(verseStr)?: return false
             endVerse = startVerse
             currentVerse = startVerse
