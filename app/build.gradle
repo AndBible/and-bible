@@ -15,19 +15,19 @@ def getGitHash = { ->
 
 
 task npmInstall(type: Exec) {
-    inputs.file "../bibleview-js/package.json"
-    outputs.dir "../bibleview-js/node_modules"
-    outputs.file "../bibleview-js/package-lock.json"
+    inputs.file "bibleview-js/package.json"
+    outputs.dir "bibleview-js/node_modules"
+    outputs.file "bibleview-js/package-lock.json"
 
-    workingDir "../bibleview-js"
+    workingDir "bibleview-js"
     commandLine "/usr/bin/npm", "install"
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
-    inputs.dir "../bibleview-js"
+    inputs.dir "bibleview-js"
     outputs.file "src/main/assets/web/loader.js"
 
-    workingDir "../bibleview-js"
+    workingDir "bibleview-js"
     commandLine "node_modules/.bin/webpack"
 
 }

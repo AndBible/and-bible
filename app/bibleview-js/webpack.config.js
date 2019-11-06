@@ -50,7 +50,7 @@ let options = {
     context: path.resolve('./'),
     output: {
         publicPath: '',
-        path: path.resolve('../app/src/main/assets/web'),
+        path: path.resolve('../src/main/assets/web'),
         filename: '[name].js',
         chunkFilename: 'modules/[name]/[chunkhash].js',
     },

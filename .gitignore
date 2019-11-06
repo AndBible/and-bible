@@ -6,7 +6,7 @@
 /captures
 /.idea
 /app/release
-/bibleview-js/node_modules/
-/bibleview-js/.idea/
+/app/bibleview-js/node_modules/
+/app/bibleview-js/.idea/
 /app/src/main/assets/web/.idea/
 /app/src/main/assets/web/.sourcemaps/
