@@ -44,11 +44,12 @@ function getElementsByClass( searchClass, domNode, tagName) {
 
 $(window).load(
     function() {
-        console.log("JS onload");
+        console.log("JS onLoad start");
         lineHeight = parseFloat(window.getComputedStyle(document.body)
             .getPropertyValue('line-height'));
         registerVersePositions();
         $(document).bind("touchstart", event => stopScrolling());
+        console.log("JS onload finish");
     }
 );
 
