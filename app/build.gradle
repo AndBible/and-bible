@@ -13,6 +13,28 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
+
+task npmInstall(type: Exec) {
+    inputs.file "../bibleview-js/package.json"
+    outputs.dir "../bibleview-js/node_modules"
+    outputs.file "../bibleview-js/package-lock.json"
+
+    workingDir "../bibleview-js"
+    commandLine "/usr/bin/npm", "install"
+}
+
+task webpack(type: Exec, dependsOn: npmInstall) {
+    inputs.dir "../bibleview-js"
+    outputs.file "src/main/assets/web/loader.js"
+
+    workingDir "../bibleview-js"
+    commandLine "node_modules/.bin/webpack"
+
+}
+
+preBuild.dependsOn webpack
+
+
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
