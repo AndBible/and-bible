@@ -20,7 +20,7 @@ task npmInstall(type: Exec) {
     outputs.file "bibleview-js/package-lock.json"
 
     workingDir "bibleview-js"
-    commandLine "/usr/bin/npm", "install"
+    commandLine "/usr/bin/env", "npm", "install"
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {

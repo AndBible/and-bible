@@ -1,5 +1,5 @@
 language: android
-# node_js: 10
+
 android:
   components:
     - build-tools-28.0.3
@@ -12,6 +12,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.android/build-cache
+
 before_install:
   - nvm install 10
   - yes | sdkmanager "platforms;android-28"
