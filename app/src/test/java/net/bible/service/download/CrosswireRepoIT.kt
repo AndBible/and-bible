@@ -6,7 +6,12 @@ import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk=[28])
 class CrosswireRepoIT {
 
     private lateinit var crosswireRepo: CrosswireRepo
