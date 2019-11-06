@@ -162,7 +162,7 @@ let options = {
         }),
         extractSass,
         new webpack.SourceMapDevToolPlugin({
-            filename: '[file].map',
+            filename: '.sourcemaps/[file].map',
             publicPath: 'http://localhost:63341/bibleview-js/'
             //publicPath: 'file://android_asset/web/'
         }),
