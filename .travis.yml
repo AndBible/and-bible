@@ -1,4 +1,6 @@
 language: android
+node_js:
+  - 10
 android:
   components:
     - build-tools-28.0.3
