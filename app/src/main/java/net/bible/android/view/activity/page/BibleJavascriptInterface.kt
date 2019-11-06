@@ -134,10 +134,5 @@ class BibleJavascriptInterface(
         bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
     }
 
-    @JavascriptInterface
-    fun log(msg: String) {
-        Log.d(TAG, msg)
-    }
-
 	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
 }

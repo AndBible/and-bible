@@ -132,12 +132,12 @@ function setScrollPosition(offset) {
  * Ask java to get more text to be loaded into page
  */
 function loadTextAtTop(chapter, textId) {
-    jsInterface.log("js:loadTextAtTop");
+    console.log("js:loadTextAtTop");
     jsInterface.requestMoreTextAtTop(chapter, textId);
 }
 
 function loadTextAtEnd(chapter, textId) {
-    jsInterface.log("js:loadTextAtEnd");
+    console.log("js:loadTextAtEnd");
     jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 
@@ -165,7 +165,7 @@ export function insertThisTextAtTop(textId, text) {
 }
 
 export function insertThisTextAtEnd(textId, text) {
-    jsInterface.log("js:insertThisTextAtEnd into:"+textId);
+    console.log("js:insertThisTextAtEnd into:"+textId);
     $('#' + textId).html(text);
 
     registerVersePositions();

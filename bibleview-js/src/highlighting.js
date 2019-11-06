@@ -1,11 +1,10 @@
 import {doScrolling, toolbarOffset} from "./scroll";
 
-
 /**
  * Monitor verse selection via long press
  */
 export function enableVerseLongTouchSelectionMode() {
-    jsInterface.log("Enabling verse long touch selection mode");
+    console.log("Enabling verse long touch selection mode");
     // Enable special selection for Bibles
     $(document).longpress( tapholdHandler );
 }
@@ -41,13 +40,13 @@ function touchHandler(event) {
 
 
 export function enableVerseTouchSelection() {
-    jsInterface.log("Enabling verse touch selection");
+    console.log("Enabling verse touch selection");
     // Enable special selection for Bibles
     $(document).bind("touchstart", touchHandler );
 }
 
 export function disableVerseTouchSelection() {
-    jsInterface.log("Disabling verse touch selection");
+    console.log("Disabling verse touch selection");
     $(document).unbind("touchstart", touchHandler );
 }
 

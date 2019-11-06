@@ -12,7 +12,7 @@ export function registerVersePositions() {
     jsInterface.clearVersePositionCache();
 
     const verseTags = getVerseElements();
-    jsInterface.log("Num verses found:"+verseTags.length);
+    console.log("Num verses found:"+verseTags.length);
     for (let i=0; i<verseTags.length; i++) {
         const verseTag = verseTags[i];
         // send position of each verse to java to allow calculation of current verse after each scroll
@@ -31,7 +31,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
     const matches = [];
 
     const tagMatches = domNode.getElementsByTagName(tagName);
-    jsInterface.log("Num spans found:"+tagMatches.length);
+    console.log("Num spans found:"+tagMatches.length);
 
     const searchClassPlusSpace = " " + searchClass + " ";
     for(let i=0; i<tagMatches.length; i++) {
@@ -44,7 +44,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 
 $(window).load(
     function() {
-        jsInterface.log("JS onload");
+        console.log("JS onload");
         jsInterface.onLoad();
         lineHeight = parseFloat(window.getComputedStyle(document.body)
             .getPropertyValue('line-height'));
