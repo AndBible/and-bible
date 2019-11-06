@@ -129,5 +129,10 @@ class BibleJavascriptInterface(
         bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
     }
 
+    @JavascriptInterface
+    fun triggerJumpToOffset() {
+        bibleView.invokeJumpToOffsetIfRequired()
+    }
+
 	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
 }

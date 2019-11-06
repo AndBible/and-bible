@@ -255,14 +255,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
 
-        // ensure jumpToOffset is eventually called during initialisation.
-        // It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen
-        // then press back. Don't set this value too low or it may trigger before a proper upcoming
-        // computeVerticalScrollEvent 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a
-        // reflection of processor speed and adjust appropriately.
-
-        invokeJumpToOffsetIfRequired((if (CommonUtils.isSlowDevice) 500 else 350).toLong())
-
         window.initialized = true
     }
 
@@ -278,35 +270,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         settings.useWideViewPort = isMap
     }
 
-    /**
-     * This is called fairly late in initialisation so override to invoke jump to offset position
-     */
-    override fun computeVerticalScrollExtent(): Int {
-        val result = super.computeVerticalScrollExtent()
-
-        // trigger jump to appropriate verse or offset into a book or commentary page...
-        invokeJumpToOffsetIfRequired(0)
-
-        return result
-    }
-
-    private var jumpToOffsetPending = false
 
     /**
      * Trigger jump to correct offset
      */
-    private fun invokeJumpToOffsetIfRequired(delay: Long) {
-        if (!jumpToOffsetPending &&
-            (ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
+    fun invokeJumpToOffsetIfRequired() {
+        if ((ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
             // Prevent further invokations before this call is done.
-            jumpToOffsetPending = true
-            postDelayed({ jumpToOffset() }, delay)
+            postDelayed({ jumpToOffset() }, 0)
         }
     }
 
     private fun jumpToOffset() {
         if (contentHeight > 0) {
-
             if (isVersePositionRecalcRequired) {
                 isVersePositionRecalcRequired = false
                 executeJavascript("registerVersePositions()")
@@ -344,7 +320,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
             }
         }
-        jumpToOffsetPending = false
     }
 
     /** prevent swipe right if the user is scrolling the page right  */

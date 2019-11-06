@@ -50,6 +50,7 @@ $(window).load(
         registerVersePositions();
         $(document).bind("touchstart", event => stopScrolling());
         console.log("JS onload finish");
+        jsInterface.triggerJumpToOffset();
     }
 );
 
