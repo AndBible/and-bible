@@ -174,9 +174,9 @@ class ReadingPlanControl @Inject constructor(
             val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
             readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay) {
-                HistoricReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+                HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             } else {
-                ReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+                ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             }
 			this.readingStatus = readingStatus
         }
