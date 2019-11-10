@@ -32,6 +32,7 @@ class ReadingPlanDbAdapter {
     }
 
     private val db = CommonDatabaseHelper.getInstance().readableDatabase
+    private val readingPlanDef = ReadingPlanDatabaseDefinition.ReadingPlan
     private val statusDef = ReadingPlanDatabaseDefinition.ReadingPlanStatus
 
     fun getReadingPlanStatus(planCode: String, dayNo: Int): String? {
@@ -69,4 +70,31 @@ class ReadingPlanDbAdapter {
             }
         }
     }
+
+    fun getReadingStartDate(planCode: String): Long? {
+        val selection = "${readingPlanDef.COLUMN_PLAN_CODE}=?"
+        val selectionArgs = arrayOf(planCode)
+        val q = db.query(readingPlanDef.TABLE_NAME,
+            arrayOf(readingPlanDef.COLUMN_PLAN_START_DATE),
+            selection,
+            selectionArgs,
+            null, null, null)
+        if (q.moveToFirst()) return q.getLong(0)
+        return null
+    }
+
+    fun setReadingStartDate(planCode: String, startDate: Long) {
+        val values = ContentValues()
+        values.put(readingPlanDef.COLUMN_PLAN_START_DATE, startDate)
+        val rows = db.update(readingPlanDef.TABLE_NAME,
+            values,
+            "${readingPlanDef.COLUMN_PLAN_CODE}=?",
+            arrayOf(planCode))
+
+        if (rows < 1) {
+            values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
+            db.insert(readingPlanDef.TABLE_NAME,null, values)
+        }
+    }
+
 }
