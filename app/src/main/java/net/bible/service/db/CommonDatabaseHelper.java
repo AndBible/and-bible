@@ -77,6 +77,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		BookmarkDatabaseDefinition.getInstance().onCreate(db);
 		MyNoteDatabaseDefinition.getInstance().onCreate(db);
+		ReadingPlanDatabaseOperations.Companion.getInstance().onCreate(db);
 	}
 	
 	@Override
