@@ -27,6 +27,18 @@ import java.lang.Exception
  */
 object ReadingPlanDatabaseDefinition {
 
+    /** Table to keep track of plan start date and current day progress
+     */
+    object ReadingPlan : BaseColumns {
+        const val TABLE_NAME = "readingplan"
+        const val COLUMN_ID = BaseColumns._ID
+        const val COLUMN_PLAN_CODE = "plan_code"
+        const val COLUMN_PLAN_START_DATE = "plan_start_date"
+        const val COLUMN_PLAN_CURRENT_DAY = "plan_current_day"
+    }
+
+    /** Table to keep track of which chapters have been read
+     */
     object ReadingPlanStatus : BaseColumns {
         const val TABLE_NAME = "readingplan_status"
         const val COLUMN_ID = BaseColumns._ID
@@ -42,6 +54,19 @@ class ReadingPlanDatabaseOperations {
     }
 
     private val TAG = "ReadingPlanDbOps"
+
+    private val readingPlan = ReadingPlanDatabaseDefinition.ReadingPlan
+    private val SQL_CREATE_READING_PLAN = readingPlan.run {
+        """
+            CREATE TABLE $TABLE_NAME (
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_PLAN_CODE TEXT NOT NULL,
+                $COLUMN_PLAN_START_DATE INTEGER NOT NULL,
+                $COLUMN_PLAN_CURRENT_DAY INTEGER NOT NULL DEFAULT 1
+            );
+        """
+    }
+
     private val readingPlanStatus = ReadingPlanDatabaseDefinition.ReadingPlanStatus
     private val SQL_CREATE_READING_PLAN_STATUS = readingPlanStatus.run {
         """
@@ -56,8 +81,16 @@ class ReadingPlanDatabaseOperations {
     }
 
     fun onCreate(db: SQLiteDatabase) {
-        Log.i(TAG, "Creating table ${readingPlanStatus.TABLE_NAME}")
+
         try {
+            Log.i(TAG, "Creating table ${readingPlan.TABLE_NAME}")
+            db.execSQL(SQL_CREATE_READING_PLAN)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creating table ${readingPlan.TABLE_NAME}")
+        }
+
+        try {
+            Log.i(TAG, "Creating table ${readingPlanStatus.TABLE_NAME}")
             db.execSQL(SQL_CREATE_READING_PLAN_STATUS)
         } catch (e: Exception) {
             Log.e(TAG, "Error creating table ${readingPlanStatus.TABLE_NAME}")
