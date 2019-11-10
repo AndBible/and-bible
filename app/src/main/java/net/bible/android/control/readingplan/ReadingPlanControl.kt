@@ -92,7 +92,6 @@ class ReadingPlanControl @Inject constructor(
     var currentPlanDay: Int
         get() {
             val planCode = currentPlanCode
-            val prefs = CommonUtils.sharedPreferences
             return if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) {
                 val todayDate = Calendar.getInstance()
                 todayDate.set(Calendar.HOUR_OF_DAY, 0)
@@ -103,17 +102,14 @@ class ReadingPlanControl @Inject constructor(
                     it.readingDate == todayDate.time
                 }?.day ?: 1
             } else {
-                prefs.getInt(planCode + READING_PLAN_DAY_EXT, 1)
+                rAdapter.getReadingCurrentDay(planCode)
             }
         }
         private set(day) {
             val planCode = currentPlanCode
             if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) return
 
-            val prefs = CommonUtils.sharedPreferences
-            prefs.edit()
-                    .putInt(planCode + READING_PLAN_DAY_EXT, day)
-                    .apply()
+            rAdapter.setReadingCurrentDay(planCode, day)
         }
 
     val shortTitle: String

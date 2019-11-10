@@ -21,6 +21,8 @@ package net.bible.service.db.readingplan
 import android.content.ContentValues
 import android.util.Log
 import net.bible.service.db.CommonDatabaseHelper
+import java.lang.Exception
+import kotlin.math.max
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 22, 2019)
  */
@@ -94,6 +96,40 @@ class ReadingPlanDbAdapter {
         if (rows < 1) {
             values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
             db.insert(readingPlanDef.TABLE_NAME,null, values)
+        }
+    }
+
+    fun getReadingCurrentDay(planCode: String): Int {
+        val selection = "${readingPlanDef.COLUMN_PLAN_CODE}=?"
+        val selectionArgs = arrayOf(planCode)
+        var currentDay = 0
+        val q = db.query(readingPlanDef.TABLE_NAME,
+            arrayOf(readingPlanDef.COLUMN_PLAN_CURRENT_DAY),
+            selection,
+            selectionArgs,
+            null, null, null)
+        if (q.moveToFirst()) currentDay = q.getInt(0)
+        return max(1, currentDay)
+    }
+
+    fun setReadingCurrentDay(planCode: String, dayNo: Int) {
+        val values = ContentValues()
+        values.put(readingPlanDef.COLUMN_PLAN_CURRENT_DAY, dayNo)
+        var rows: Int = 0
+        try {
+            rows = db.update(readingPlanDef.TABLE_NAME,
+                values,
+                "${readingPlanDef.COLUMN_PLAN_CODE}=?",
+                arrayOf(planCode))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error trying to update db current day $dayNo for plan $planCode", e)
+        }
+
+        if (rows < 1) {
+            values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
+            if (db.insert(readingPlanDef.TABLE_NAME,null, values) < 0) {
+                Log.e(TAG, "Error trying to insert db current day $dayNo for plan $planCode")
+            }
         }
     }
 
