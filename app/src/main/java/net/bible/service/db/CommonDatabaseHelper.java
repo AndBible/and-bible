@@ -107,6 +107,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 			}
 			if (oldVersion == 5) {
 				ReadingPlanDatabaseOperations.Companion.getInstance().onCreate(db);
+				ReadingPlanDatabaseOperations.Companion.getInstance().importPrefsToDatabase(db);
 				oldVersion += 1;
 			}
 		} catch (SQLiteException e) {

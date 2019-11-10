@@ -18,10 +18,15 @@
 
 package net.bible.service.db.readingplan
 
+import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import android.util.Log
+import net.bible.service.common.CommonUtils
+import net.bible.service.readingplan.ReadingPlanDao
 import java.lang.Exception
+import java.util.*
+import kotlin.collections.ArrayList
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
  */
@@ -94,6 +99,31 @@ class ReadingPlanDatabaseOperations {
             db.execSQL(SQL_CREATE_READING_PLAN_STATUS)
         } catch (e: Exception) {
             Log.e(TAG, "Error creating table ${readingPlanStatus.TABLE_NAME}")
+        }
+    }
+
+    fun importPrefsToDatabase(db: SQLiteDatabase) {
+        val READING_PLAN_DAY_EXT = "_day"
+        val READING_PLAN_START_EXT = "_start"
+        val readingPlanDao = ReadingPlanDao()
+
+        val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
+        val userPlans = readingPlanDao.userPlanCodes()
+        userPlans ?: readingPlans.addAll(userPlans!!.toTypedArray())
+
+        val prefs = CommonUtils.sharedPreferences
+        for (planCode in readingPlans) {
+            val start = prefs.getLong(planCode + READING_PLAN_START_EXT, 0)
+            val day = prefs.getInt(planCode + READING_PLAN_DAY_EXT, 0)
+            val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
+            if (start > 0L) values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
+            if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
+
+            if (start > 0L || day > 0)
+                if (db.insert(readingPlan.TABLE_NAME,null, values) < 0)
+                    Log.e(TAG, "")
+
+            
         }
     }
 }
