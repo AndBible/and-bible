@@ -95,7 +95,9 @@ class ReadingPlanDbAdapter {
 
         if (rows < 1) {
             values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
-            db.insert(readingPlanDef.TABLE_NAME,null, values)
+            if (db.insert(readingPlanDef.TABLE_NAME,null, values) < 0) {
+                Log.e(TAG, "Error occurred while trying to insert startDate $startDate into db for plan $planCode")
+            }
         }
     }
 
@@ -134,6 +136,7 @@ class ReadingPlanDbAdapter {
     }
 
     fun resetPlan(planCode: String) {
+        Log.i(TAG, "Now resetting plan $planCode in database. Removing start date, current day, and read statuses")
         // delete reading statuses
         db.delete(statusDef.TABLE_NAME,
             "${statusDef.COLUMN_PLAN_CODE}=?",
