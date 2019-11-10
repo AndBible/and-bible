@@ -29,7 +29,7 @@ import java.util.Date
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanInfoDto(var code: String) {
+class ReadingPlanInfoDto(var planCode: String) {
     var planName: String? = null
     var planDescription: String? = null
     var versification: Versification? = null
@@ -40,7 +40,7 @@ class ReadingPlanInfoDto(var code: String) {
      */
     val startdate: Date?
         get() {
-            val startDate = CommonUtils.sharedPreferences.getLong(code + READING_PLAN_START_EXT, 0)
+            val startDate = CommonUtils.sharedPreferences.getLong(planCode + READING_PLAN_START_EXT, 0)
             return if (startDate == 0L) {
                 null
             } else {
@@ -65,7 +65,7 @@ class ReadingPlanInfoDto(var code: String) {
 
             CommonUtils.sharedPreferences
                     .edit()
-                    .putLong(code + READING_PLAN_START_EXT, date.time)
+                    .putLong(planCode + READING_PLAN_START_EXT, date.time)
                     .apply()
         }
     }
@@ -78,7 +78,7 @@ class ReadingPlanInfoDto(var code: String) {
         if (startdate == null) {
             CommonUtils.sharedPreferences
                     .edit()
-                    .remove(code + READING_PLAN_START_EXT)
+                    .remove(planCode + READING_PLAN_START_EXT)
                     .apply()
         }
     }

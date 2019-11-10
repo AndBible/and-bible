@@ -102,7 +102,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         super.onContextItemSelected(item)
         val menuInfo = item.menuInfo as AdapterContextMenuInfo
         val plan = mReadingPlanList[menuInfo.position]
-        Log.d(TAG, "Selected " + plan.code)
+        Log.d(TAG, "Selected " + plan.planCode)
 		when (item.itemId) {
 			R.id.reset -> {
 				readingPlanControl.reset(plan)

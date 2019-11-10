@@ -140,7 +140,7 @@ class ReadingPlanControl @Inject constructor(
      */
     fun startReadingPlan(plan: ReadingPlanInfoDto) {
         // set default plan
-        setReadingPlan(plan.code)
+        setReadingPlan(plan.planCode)
 
         // tell the plan to set a start date
         plan.start()
@@ -334,7 +334,7 @@ class ReadingPlanControl @Inject constructor(
         val prefsEditor = prefs.edit()
 
         // if resetting default plan then remove default
-        if (plan.code == currentPlanCode) {
+        if (plan.planCode == currentPlanCode) {
             prefsEditor.remove(READING_PLAN)
         }
 

@@ -243,7 +243,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     override fun getIntentForHistoryList(): Intent {
         val intent = intent
 
-        intent.putExtra(DailyReading.PLAN, mReadings.readingPlanInfo.code)
+        intent.putExtra(DailyReading.PLAN, mReadings.readingPlanInfo.planCode)
         intent.putExtra(DailyReading.DAY, mReadings.day)
 
         return intent
