@@ -97,4 +97,15 @@ class ReadingPlanDbAdapter {
         }
     }
 
+    fun resetPlan(planCode: String) {
+        // delete reading statuses
+        db.delete(statusDef.TABLE_NAME,
+            "${statusDef.COLUMN_PLAN_CODE}=?",
+            arrayOf(planCode))
+
+        // delete reading start date and current day
+        db.delete(readingPlanDef.TABLE_NAME,
+            "${readingPlanDef.COLUMN_PLAN_CODE}=?",
+            arrayOf(planCode))
+    }
 }

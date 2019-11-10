@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.readingplan.ReadingPlanDbAdapter
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.readingplan.ReadingPlanDao
 import net.bible.service.readingplan.ReadingPlanInfoDto
@@ -55,7 +56,7 @@ class ReadingPlanControl @Inject constructor(
 {
 
     private val readingPlanDao = ReadingPlanDao()
-
+    private val rAdapter = ReadingPlanDbAdapter.instance
     private var readingStatus: ReadingStatus? = null
 
     /** allow front end to determine if a plan needs has been selected
@@ -325,23 +326,17 @@ class ReadingPlanControl @Inject constructor(
         }
     }
 
-    /** User has chosen to start a plan
-     */
     fun reset(plan: ReadingPlanInfoDto) {
-        plan.reset()
-
         val prefs = CommonUtils.sharedPreferences
         val prefsEditor = prefs.edit()
 
         // if resetting default plan then remove default
         if (plan.planCode == currentPlanCode) {
             prefsEditor.remove(READING_PLAN)
+            prefsEditor.apply()
         }
 
-        prefsEditor.remove(plan.code + ReadingPlanInfoDto.READING_PLAN_START_EXT)
-        prefsEditor.remove(plan.code + READING_PLAN_DAY_EXT)
-
-        prefsEditor.apply()
+        rAdapter.resetPlan(plan.planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {
@@ -358,7 +353,6 @@ class ReadingPlanControl @Inject constructor(
     companion object {
 
         private const val READING_PLAN = "reading_plan"
-        private const val READING_PLAN_DAY_EXT = "_day"
 
         private const val TAG = "ReadingPlanControl"
     }
