@@ -18,6 +18,7 @@
 
 package net.bible.android.control.readingplan
 
+import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -31,9 +32,7 @@ open class ReadingStatus(
 		val day: Int,
 		private val numReadings: Int) {
 
-    companion object {
-        val rAdapter = ReadingPlanDbAdapter.instance
-    }
+    private val rAdapter: ReadingPlanDbAdapter get() { return ReadingPlanDbAdapter.instance }
 
     @Serializable
     private data class ChapterRead(val readingNumber: Int,
@@ -55,17 +54,13 @@ open class ReadingStatus(
     private var status = ReadingStatus(ArrayList())
     val isAllRead: Boolean
         get() {
-            for (i in 0 until numReadings) {
+            for (i in 1..numReadings) {
                 if (!isRead(i)) {
                     return false
                 }
             }
             return true
         }
-
-    init {
-        reloadStatus()
-    }
 
     open fun setRead(readingNo: Int) {
         setStatus(readingNo, true)
@@ -75,7 +70,7 @@ open class ReadingStatus(
         setStatus(readingNo, false)
     }
 
-    private fun setStatus(readingNo: Int, read: Boolean) {
+    fun setStatus(readingNo: Int, read: Boolean, saveStatus: Boolean = true) {
         val chapterRead = status.chapterReadArray.find { it.readingNumber == readingNo }
         if (chapterRead == null) {
             status.chapterReadArray.add(ChapterRead(readingNo, read))
@@ -85,7 +80,7 @@ open class ReadingStatus(
         }
         status.chapterReadArray.sortBy { it.readingNumber }
 
-        saveStatus()
+        if (saveStatus) saveStatus()
     }
 
     open fun isRead(readingNo: Int): Boolean {
@@ -93,7 +88,7 @@ open class ReadingStatus(
     }
 
     fun setAllRead() {
-        for (i in 0 until numReadings) {
+        for (i in 1..numReadings) {
             setRead(i)
         }
     }
@@ -111,5 +106,9 @@ open class ReadingStatus(
 
     private fun saveStatus() {
         rAdapter.setReadingPlanStatus(planCode, day, status.toString())
+    }
+
+    override fun toString(): String {
+        return status.toString()
     }
 }

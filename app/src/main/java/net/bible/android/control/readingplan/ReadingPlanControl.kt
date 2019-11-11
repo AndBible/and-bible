@@ -56,7 +56,6 @@ class ReadingPlanControl @Inject constructor(
 {
 
     private val readingPlanDao = ReadingPlanDao()
-    private val rAdapter = ReadingPlanDbAdapter.instance
     private var readingStatus: ReadingStatus? = null
 
     /** allow front end to determine if a plan needs has been selected
@@ -102,14 +101,15 @@ class ReadingPlanControl @Inject constructor(
                     it.readingDate == todayDate.time
                 }?.day ?: 1
             } else {
-                rAdapter.getReadingCurrentDay(planCode)
+                readingPlanDao.getReadingPlanInfoDto(planCode)
+                    .rAdapter.getReadingCurrentDay(planCode)
             }
         }
         private set(day) {
             val planCode = currentPlanCode
             if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) return
-
-            rAdapter.setReadingCurrentDay(planCode, day)
+            readingPlanDao.getReadingPlanInfoDto(planCode)
+                .rAdapter.setReadingCurrentDay(planCode, day)
         }
 
     val shortTitle: String
@@ -175,7 +175,7 @@ class ReadingPlanControl @Inject constructor(
             } else {
                 ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             }
-			this.readingStatus = readingStatus
+			this.readingStatus = readingStatus.apply { reloadStatus() }
         }
         return readingStatus
     }
@@ -332,7 +332,7 @@ class ReadingPlanControl @Inject constructor(
             prefsEditor.apply()
         }
 
-        rAdapter.resetPlan(plan.planCode)
+        plan.rAdapter.resetPlan(plan.planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {

@@ -193,7 +193,7 @@ class ReadingPlanDao {
             Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
         }
 
-    private fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
+    fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
         Log.d(TAG, "Get reading plan info:$planCode")
         val info = ReadingPlanInfoDto(planCode)
 

@@ -99,7 +99,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             BookName.setFullBookName(!CommonUtils.isPortrait)
 
             val layout = findViewById<View>(R.id.reading_container) as TableLayout
-            for (i in 0 until mReadings.numReadings) {
+            for (i in 1..mReadings.numReadings) {
                 val child = layoutInflater.inflate(R.layout.reading_plan_one_reading, null)
 
                 // Ticks
@@ -129,7 +129,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                 val speakBtn = child.findViewById<View>(R.id.speakButton) as Button
                 speakBtn.setOnClickListener { onSpeak(i) }
 
-                layout.addView(child, i)
+                layout.addView(child, i-1)
             }
 
             // restore full book name setting
@@ -272,7 +272,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
         for (i in mImageTickList.indices) {
             val imageTick = mImageTickList[i]
-            if (status.isRead(i)) {
+            if (status.isRead(i+1)) {
                 imageTick.setImageResource(R.drawable.btn_check_buttonless_on)
             } else {
                 imageTick.setImageResource(R.drawable.btn_check_buttonless_off)

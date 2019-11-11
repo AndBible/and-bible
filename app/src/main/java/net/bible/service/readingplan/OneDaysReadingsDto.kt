@@ -19,7 +19,6 @@
 package net.bible.service.readingplan
 
 import android.annotation.SuppressLint
-import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 
@@ -107,8 +106,11 @@ class OneDaysReadingsDto(val day: Int,
         return day - other.day
     }
 
-    fun getReadingKey(no: Int): Key {
-        return readingKeys!![no]
+    /**
+     * @param readingNo 1-based reading number
+     */
+    fun getReadingKey(readingNo: Int): Key {
+        return readingKeys!![readingNo-1]
     }
 
     @Synchronized

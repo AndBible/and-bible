@@ -27,6 +27,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanDao
 import java.lang.Exception
 import kotlin.collections.ArrayList
+import kotlin.math.max
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
  */
@@ -103,25 +104,30 @@ class ReadingPlanDatabaseOperations {
     }
 
     fun importPrefsToDatabase(db: SQLiteDatabase) {
+        Log.i(TAG, "Now importing reading plan preferences from shared preferences to database")
         val DAY_EXT = "_day"
         val START_EXT = "_start"
         val readingPlanDao = ReadingPlanDao()
 
         val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
         val userPlans = readingPlanDao.userPlanCodes()
-        userPlans ?: readingPlans.addAll(userPlans!!.toTypedArray())
+        if (userPlans != null) readingPlans.addAll(userPlans.toTypedArray())
 
         val prefs = CommonUtils.sharedPreferences
         for (planCode in readingPlans) {
+            Log.i(TAG, "Importing status for plan $planCode")
             val start = prefs.getLong(planCode + START_EXT, 0)
-            val day = prefs.getInt(planCode + DAY_EXT, 0)
+            var day = prefs.getInt(planCode + DAY_EXT, 0)
             val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
-            if (start > 0L) values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
+            if (start > 0L) {
+                values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
+                day = max(day,1)
+            }
             if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
 
             if (start > 0L || day > 0)
                 if (db.insert(readingPlan.TABLE_NAME,null, values) < 0)
-                    Log.e(TAG, "")
+                    Log.e(TAG, "Error inserting start date and current day to db for plan $planCode")
 
             val prefKey = "${planCode}_$day"
             if (prefs.contains(prefKey)) {
@@ -129,8 +135,17 @@ class ReadingPlanDatabaseOperations {
                 if (!prefDayStatus.isNullOrEmpty()) {
                     val status = ReadingStatus(planCode, day, prefDayStatus.length)
                     for (i in prefDayStatus.indices) {
-                        if (prefDayStatus[i].toInt().toBoolean()) status.setRead(i+1) else status.setUnread(i+1)
+                        val isRead = prefDayStatus[i].toString().toInt().toBoolean()
+                        status.setStatus(i+1, isRead,false
+                        )
                     }
+                    val statusValues = ContentValues().apply {
+                        put(readingPlanStatus.COLUMN_READING_STATUS, status.toString())
+                        put(readingPlanStatus.COLUMN_PLAN_DAY, day)
+                        put(readingPlanStatus.COLUMN_PLAN_CODE, planCode)
+                    }
+                    if (db.insert(readingPlanStatus.TABLE_NAME, null, statusValues) < 0)
+                        Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
                 }
             }
 
