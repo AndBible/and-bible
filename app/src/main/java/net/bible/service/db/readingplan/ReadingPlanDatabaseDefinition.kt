@@ -22,10 +22,10 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import android.util.Log
+import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanDao
 import java.lang.Exception
-import java.util.*
 import kotlin.collections.ArrayList
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
@@ -103,8 +103,8 @@ class ReadingPlanDatabaseOperations {
     }
 
     fun importPrefsToDatabase(db: SQLiteDatabase) {
-        val READING_PLAN_DAY_EXT = "_day"
-        val READING_PLAN_START_EXT = "_start"
+        val DAY_EXT = "_day"
+        val START_EXT = "_start"
         val readingPlanDao = ReadingPlanDao()
 
         val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
@@ -113,8 +113,8 @@ class ReadingPlanDatabaseOperations {
 
         val prefs = CommonUtils.sharedPreferences
         for (planCode in readingPlans) {
-            val start = prefs.getLong(planCode + READING_PLAN_START_EXT, 0)
-            val day = prefs.getInt(planCode + READING_PLAN_DAY_EXT, 0)
+            val start = prefs.getLong(planCode + START_EXT, 0)
+            val day = prefs.getInt(planCode + DAY_EXT, 0)
             val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
             if (start > 0L) values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
             if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
@@ -123,7 +123,24 @@ class ReadingPlanDatabaseOperations {
                 if (db.insert(readingPlan.TABLE_NAME,null, values) < 0)
                     Log.e(TAG, "")
 
-            
+            val prefKey = "${planCode}_$day"
+            if (prefs.contains(prefKey)) {
+                val prefDayStatus = prefs.getString(prefKey,"")
+                if (!prefDayStatus.isNullOrEmpty()) {
+                    val status = ReadingStatus(planCode, day, prefDayStatus.length)
+                    for (i in prefDayStatus.indices) {
+                        if (prefDayStatus[i].toInt().toBoolean()) status.setRead(i+1) else status.setUnread(i+1)
+                    }
+                }
+            }
+
+            prefs.edit()
+                .remove(planCode + START_EXT)
+                .remove(planCode + DAY_EXT)
+                .remove(prefKey)
+                .apply()
         }
     }
+
+    private fun Int.toBoolean() = this > 0
 }
