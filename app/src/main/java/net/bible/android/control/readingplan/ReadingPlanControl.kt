@@ -215,7 +215,7 @@ class ReadingPlanControl @Inject constructor(
         // was this the next reading plan day due whether on schedule or not
         if (currentPlanDay == day) {
             // do not leave prefs for historic days - we show all historic readings as 'read'
-            getReadingStatus(day).delete()
+            getReadingStatus(day).delete(planInfo)
 
             // was this the last day in the plan
             if (readingPlanDao.getNumberOfPlanDays(currentPlanCode) == day) {

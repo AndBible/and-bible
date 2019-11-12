@@ -21,6 +21,8 @@ package net.bible.service.db.readingplan
 import android.content.ContentValues
 import android.util.Log
 import net.bible.service.db.CommonDatabaseHelper
+import net.bible.service.readingplan.OneDaysReadingsDto
+import net.bible.service.readingplan.ReadingPlanInfoDto
 import java.lang.Exception
 import kotlin.math.max
 
@@ -29,7 +31,6 @@ import kotlin.math.max
 class ReadingPlanDbAdapter {
     companion object {
         val instance = ReadingPlanDbAdapter()
-
         private const val TAG = "ReadingPlanDBAdapter"
     }
 
@@ -132,6 +133,19 @@ class ReadingPlanDbAdapter {
             if (db.insert(readingPlanDef.TABLE_NAME,null, values) < 0) {
                 Log.e(TAG, "Error trying to insert db current day $dayNo for plan $planCode")
             }
+        }
+    }
+
+    /**
+     * All reading statuses will be deleted that are before the [dayNo] parameter given.
+     * Date-based plan statuses are never deleted
+     * @param dayNo The current day, all day statuses before this day will be deleted
+     */
+    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) {
+        if (!planInfo.isDateBasedPlan) {
+            db.delete(statusDef.TABLE_NAME,
+                "${statusDef.COLUMN_PLAN_CODE}=? AND ${statusDef.COLUMN_PLAN_DAY}<?",
+                arrayOf(planInfo.planCode, day.toString()))
         }
     }
 

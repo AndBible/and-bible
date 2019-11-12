@@ -23,6 +23,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import net.bible.service.db.readingplan.ReadingPlanDbAdapter
+import net.bible.service.readingplan.OneDaysReadingsDto
+import net.bible.service.readingplan.ReadingPlanInfoDto
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -95,8 +97,8 @@ open class ReadingStatus(
 
     /** do not leave prefs around for historic days
      */
-    open fun delete() {
-        // do nothing for now
+    open fun delete(planInfo: ReadingPlanInfoDto) {
+        rAdapter.deleteOldStatuses(planInfo, day)
     }
 
     open fun reloadStatus() {
