@@ -325,8 +325,11 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             }
             R.id.reset -> {
-                readingPlanControl.reset(mReadings.readingPlanInfo)
-                finish()
+                Dialogs.getInstance().showMsg(R.string.reset_plan_question, true)
+                {
+                    readingPlanControl.reset(mReadings.readingPlanInfo)
+                    finish()
+                }
                 isHandled = true
             }
             R.id.setStartDate -> {
