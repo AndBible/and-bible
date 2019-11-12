@@ -133,19 +133,7 @@ class ReadingPlanDatabaseOperations {
             if (prefs.contains(prefKey)) {
                 val prefDayStatus = prefs.getString(prefKey,"")
                 if (!prefDayStatus.isNullOrEmpty()) {
-                    val status = ReadingStatus(planCode, day, prefDayStatus.length)
-                    for (i in prefDayStatus.indices) {
-                        val isRead = prefDayStatus[i].toString().toInt().toBoolean()
-                        status.setStatus(i+1, isRead,false
-                        )
-                    }
-                    val statusValues = ContentValues().apply {
-                        put(readingPlanStatus.COLUMN_READING_STATUS, status.toString())
-                        put(readingPlanStatus.COLUMN_PLAN_DAY, day)
-                        put(readingPlanStatus.COLUMN_PLAN_CODE, planCode)
-                    }
-                    if (db.insert(readingPlanStatus.TABLE_NAME, null, statusValues) < 0)
-                        Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
+                    enterStatusToDb(prefDayStatus, planCode, day, db)
                 }
             }
 
@@ -154,7 +142,38 @@ class ReadingPlanDatabaseOperations {
                 .remove(planCode + DAY_EXT)
                 .remove(prefKey)
                 .apply()
+
+            // find other days that have reading status in shared preferences
+            for ((key, value) in prefs.all) {
+                if (key.contains(".*_[0-9]*$".toRegex()) && value.toString().contains("^[0-1]*$".toRegex())) {
+                    val day = "(?<=_)[0-9]*\$".toRegex().find(key).toString().toIntOrNull()
+                    day ?: continue
+                    enterStatusToDb(value.toString(), planCode, day, db)
+
+                    prefs.edit()
+                        .remove(key)
+                        .apply()
+                }
+            }
+
+
         }
+    }
+
+    private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SQLiteDatabase) {
+        val status = ReadingStatus(planCode, day, prefDayStatus.length)
+        for (i in prefDayStatus.indices) {
+            val isRead = prefDayStatus[i].toString().toInt().toBoolean()
+            status.setStatus(i+1, isRead,false
+            )
+        }
+        val statusValues = ContentValues().apply {
+            put(readingPlanStatus.COLUMN_READING_STATUS, status.toString())
+            put(readingPlanStatus.COLUMN_PLAN_DAY, day)
+            put(readingPlanStatus.COLUMN_PLAN_CODE, planCode)
+        }
+        if (db.insert(readingPlanStatus.TABLE_NAME, null, statusValues) < 0)
+            Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
     }
 
     private fun Int.toBoolean() = this > 0
