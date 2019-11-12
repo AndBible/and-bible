@@ -33,6 +33,7 @@ class ReadingPlanInfoDto(var planCode: String) {
     var planDescription: String? = null
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
+    var isDateBasedPlan: Boolean = false
     val rAdapter = ReadingPlanDbAdapter.instance
 
     /** a persistent start date
