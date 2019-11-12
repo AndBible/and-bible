@@ -115,9 +115,9 @@ class ReadingPlanDao {
     /** get a list of all days readings in a plan
      */
     fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
-
         var list: ArrayList<OneDaysReadingsDto>? = null
-        if (planCode != cachedPlanProperties?.planCode || cachedReadingList == null) {
+        if (cachedReadingList == null || planCode != cachedReadingList!![0].readingPlanInfo.planCode) {
+            Log.i(TAG,"Getting List of days readings for plan $planCode")
             list = ArrayList()
             val planInfo = getReadingPlanInfoDto(planCode)
             val properties = getPlanProperties(planCode)
