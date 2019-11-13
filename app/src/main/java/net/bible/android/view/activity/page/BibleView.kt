@@ -144,7 +144,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         /* WebViewClient must be set BEFORE calling loadUrl! */
         webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
                 // load Strongs refs when a user clicks on a link
                 val loaded = linkControl.loadApplicationUrl(url)
 
