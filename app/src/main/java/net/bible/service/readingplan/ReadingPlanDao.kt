@@ -256,7 +256,7 @@ class ReadingPlanDao {
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)
                 properties.versification = getReadingPlanVersification(properties)
-                properties.isDateBasedPlan = properties[1].toString().contains("^([a-z]|[A-Z]){3}-([0-9]{1,2});".toRegex())
+                properties.isDateBasedPlan = properties["1"].toString().contains("^([a-z]|[A-Z]){3}-([0-9]{1,2});".toRegex())
                 getNameAndDescFromProperties(ByteArrayInputStream(byteArrayForReuse.toByteArray()), properties)
 
                 Log.d(TAG, "The properties are now loaded")
