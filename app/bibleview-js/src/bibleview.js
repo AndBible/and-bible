@@ -5,9 +5,9 @@
  */
 
 import {jsonscroll, stopScrolling} from "./scroll";
-let lineHeight = 0;
 
 export function registerVersePositions() {
+    const lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
     console.log("Registering verse positions", lineHeight);
     jsInterface.clearVersePositionCache();
 
@@ -43,12 +43,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 }
 
 export function initialize() {
-    console.log("JS onLoad start");
-    lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
-    registerVersePositions();
     $(document).bind("touchstart", event => stopScrolling());
     window.addEventListener("scroll", event => jsonscroll());
-    console.log("JS onload finish");
-    jsInterface.triggerJumpToOffset();
 }
 

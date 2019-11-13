@@ -20,10 +20,11 @@ const isReady = new Deferred();
 addWaiter(isReady);
 
 $(document).ready( async () => {
+    registerVersePositions();
     initialize();
     initializeInfiniScroll();
     setToolbarOffset(jsInterface.getToolbarOffset(), {doNotScroll: true});
-    await scrollToVerse(jsInterface.getCurrentChapterVerseId(), true);
+    jsInterface.triggerJumpToOffset();
     isReady.resolve();
 });
 

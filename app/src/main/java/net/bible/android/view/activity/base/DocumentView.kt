@@ -16,41 +16,42 @@
  *
  */
 
-package net.bible.android.view.activity.base;
+package net.bible.android.view.activity.base
 
-import android.view.View;
+import android.view.View
 
-import net.bible.android.control.page.ChapterVerse;
+import net.bible.android.control.page.ChapterVerse
 
 /**
  * Base class for boble and My Note document views
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface DocumentView {
+interface DocumentView {
 
-	void show(String html, float jumpToYOffsetRatio);
+    /** prevent swipe right if the user is scrolling the page right  */
+    val isPageNextOkay: Boolean
 
-	void applyPreferenceSettings();
+    /** prevent swipe left if the user is scrolling the page left  */
+    val isPagePreviousOkay: Boolean
 
-	/** may need updating depending on environmental brightness
-	 */
-	void changeBackgroundColour();
-	
-	// allow stop/start of autoscroll
-	void onScreenTurnedOn();
-	void onScreenTurnedOff();
-	
-	boolean pageDown(boolean toBottom);
-	
-	/** prevent swipe right if the user is scrolling the page right */
-	boolean isPageNextOkay();
-	
-	/** prevent swipe left if the user is scrolling the page left */
-	boolean isPagePreviousOkay();
-	
-    float getCurrentPosition();
-    
-    /** same as this but of type View */
-    View asView();
+    val currentPosition: Float
+
+    fun show(html: String, updateLocation: Boolean = false)
+
+    fun applyPreferenceSettings()
+
+    /** may need updating depending on environmental brightness
+     */
+    fun changeBackgroundColour()
+
+    // allow stop/start of autoscroll
+    fun onScreenTurnedOn()
+
+    fun onScreenTurnedOff()
+
+    fun pageDown(toBottom: Boolean): Boolean
+
+    /** same as this but of type View  */
+    fun asView(): View
 }

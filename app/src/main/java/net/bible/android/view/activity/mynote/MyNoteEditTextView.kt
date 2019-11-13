@@ -95,7 +95,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         myNoteControl.saveMyNoteText(text!!.toString())
     }
 
-    override fun show(html: String, jumpToYOffsetRatio: Float) {
+    override fun show(html: String, updateLocation: Boolean) {
         applyPreferenceSettings()
         setText(html)
         updatePadding()
@@ -119,21 +119,15 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         }
     }
 
-    override fun isPageNextOkay(): Boolean {
-        return false
-    }
+    override val isPageNextOkay = false
 
-    override fun isPagePreviousOkay(): Boolean {
-        return false
-    }
+    override val isPagePreviousOkay = false
 
     override fun pageDown(toBottom: Boolean): Boolean {
         return false
     }
 
-    override fun getCurrentPosition(): Float {
-        return 0f
-    }
+    override val currentPosition = 0f
 
     override fun asView(): View {
         return this

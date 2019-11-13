@@ -33,12 +33,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
 import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.*
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.ChapterVerse
+import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
@@ -86,6 +86,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     // screen is changing shape/size so constantly maintain the current verse position
     // main difference from jumpToVerse is that this is not cleared after jump
     private var maintainMovingChapterVerse: ChapterVerse? = null
+
+    var isVersePositionRecalcRequired: Boolean = false
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -227,9 +229,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
 
-    override fun show(origHtml: String, jumpToYOffsetRatio: Float) {
-        var html = origHtml
-        Log.d(TAG, "Show(html,$jumpToYOffsetRatio) Window:$window")
+    override fun show(html: String, updateLocation: Boolean) {
+        var finalHtml = html
         // set background colour if necessary
         changeBackgroundColour()
 
@@ -237,17 +238,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         applyFontSize()
 
         val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
-        html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
+        finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        this.jumpToYOffsetRatio = jumpToYOffsetRatio
+        val currentPage = window.pageManager.currentPage
+
+        if(!window.initialized || updateLocation) {
+            if (currentPage !is CurrentBiblePage) {
+                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
+            } else {
+                jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+            }
+        }
+        Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
 
         // either enable verse selection or the default text selection
-        html = enableSelection(html)
+        finalHtml = enableSelection(finalHtml)
 
         // allow zooming if map
         enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
-        loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
+        loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
 
         window.initialized = true
     }
@@ -269,7 +279,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Trigger jump to correct offset
      */
     fun invokeJumpToOffsetIfRequired() {
-        //jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
         if ((jumpToChapterVerse!=null) || jumpToYOffsetRatio != null) {
             // Prevent further invokations before this call is done.
             postDelayed({ jumpToOffset() }, 0)
@@ -279,6 +288,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun jumpToOffset() {
         bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
+        if(isVersePositionRecalcRequired) {
+            executeJavascript("registerVersePositions()")
+        }
 
         val maintainMovingChapterVerse = maintainMovingChapterVerse
         val jumpToYOffsetRatio = jumpToYOffsetRatio
@@ -315,7 +327,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     /** prevent swipe right if the user is scrolling the page right  */
-    override fun isPageNextOkay(): Boolean {
+    override val isPageNextOkay: Boolean get () {
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
@@ -330,7 +342,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     /** prevent swipe left if the user is scrolling the page left  */
-    override fun isPagePreviousOkay(): Boolean {
+    override val isPagePreviousOkay: Boolean get () {
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
@@ -390,7 +402,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return handled
     }
 
-    override fun getCurrentPosition(): Float {
+    override val currentPosition: Float get () {
         // see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
         val contentHeight = contentHeight
         val scrollY = scrollY
@@ -460,8 +472,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: UpdateSecondaryWindowEvent) {
         if (window == event.updateScreen) {
+            if(event.yOffsetRatio != null) {
+                jumpToYOffsetRatio = event.yOffsetRatio
+            }
+            if(event.chapterVerse != null) {
+                jumpToChapterVerse = event.chapterVerse
+            }
+
             changeBackgroundColour()
-            show(event.html, SharedConstants.NO_VALUE.toFloat())
+            show(event.html)
         }
     }
 
@@ -510,8 +529,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 maintainMovingChapterVerse = null
 
                 // ensure we are in the correct place after screen settles
-                scrollOrJumpToVerse(chapterVerse)
                 executeJavascript("registerVersePositions()")
+                scrollOrJumpToVerse(chapterVerse)
             }, (WindowControl.SCREEN_SETTLE_TIME_MILLIS / 2).toLong())
         }
     }
@@ -542,7 +561,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
         }
-        executeJavascript("setToolbarOffset($toolbarOffset, {immediate: true});");
     }
 
     /** move the view so the selected verse is at the top or at least visible
