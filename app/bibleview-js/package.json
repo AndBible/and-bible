@@ -6,7 +6,7 @@
   "repository": "https://github.com/AndBible/and-bible/",
   "license": "GPL",
   "dependencies": {
-    "jquery": "~2.2.4",
+    "jquery": "~3.4.0",
     "jquery-nearest": "~1.4.0"
   },
   "scripts": {
