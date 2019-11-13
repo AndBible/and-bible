@@ -99,8 +99,8 @@ public class ChapterVerseRangeTest {
 		chapterVerseRange = getChapterVerseRange(3, 3);
 		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3));
 		assertThat(chapterVerseRange.isEmpty(), equalTo(true));
-		assertThat(chapterVerseRange.getStart(), equalTo(ChapterVerse.Companion.getNOT_SET()));
-		assertThat(chapterVerseRange.getEnd(), equalTo(ChapterVerse.Companion.getNOT_SET()));
+		assertThat(chapterVerseRange.getStart(), equalTo(null));
+		assertThat(chapterVerseRange.getEnd(), equalTo(null));
 	}
 
 	@Test
