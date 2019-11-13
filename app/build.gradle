@@ -136,7 +136,8 @@ dependencies {
 
     implementation 'de.greenrobot:eventbus:2.4.1'
 
-    implementation 'org.apache.commons:commons-lang3:3.9'
+    // 3.9 contains java8 bytecode, thus staying in 3.8
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 
     // We are using our custom-built jsword.jar (see https://github.com/AndBible/jsword-tweaks)
     implementation files('libs/jsword.jar')
