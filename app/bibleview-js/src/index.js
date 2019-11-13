@@ -14,21 +14,16 @@ import {
     highlightVerse,
     unhighlightVerse
 } from "./highlighting";
+import {addWaiter, Deferred, whenReady} from "./utils";
 
-import {Deferred} from "./utils";
 const isReady = new Deferred();
-
-async function whenReady(fnc){
-    await isReady.wait();
-    fnc();
-}
+addWaiter(isReady);
 
 $(document).ready( () => {
-        initialize();
-        initializeInfiniScroll();
-        isReady.resolve();
-    }
-);
+    initialize();
+    initializeInfiniScroll();
+    isReady.resolve();
+});
 
 window.andbible = {
     registerVersePositions,
@@ -46,5 +41,5 @@ window.andbible = {
     setToolbarOffset,
     jsonscroll,
     scrollToVerse,
-    whenReady
+    whenReady,
 };

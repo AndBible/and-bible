@@ -1,3 +1,5 @@
+import {waitForWaiters} from "./utils";
+
 let currentAnimation = null;
 let stopAnimation = false;
 export let toolbarOffset = 0;
@@ -57,22 +59,9 @@ export function doScrolling(elementY, duration) {
     })
 }
 
-export function doScrollToSlowly(element, elementPosition, to) {
-    // 25 pixels/100ms is the standard speed
-    const speed = 25;
-    const difference = to - elementPosition;
-    if (difference === 0) return;
-    const perTick = Math.max(Math.min(speed, difference), -speed);
+export async function scrollToVerse(toId, now, deltaParam) {
+    await waitForWaiters();
 
-    setTimeout(function() {
-        // scrolling is sometimes delayed so keep track of scrollTop rather than calling element.scrollTop
-        const newElementScrollTop = elementPosition + perTick;
-        element.scrollTop = newElementScrollTop;
-        doScrollTo(element, newElementScrollTop, to);
-    }, 100);
-}
-
-export function scrollToVerse(toId, now, deltaParam) {
     console.log("scrollToVerse", toId, now, deltaParam);
     stopAnimation = true;
     let delta = toolbarOffset;

@@ -4,7 +4,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {stopScrolling} from "./scroll";
+import {jsonscroll, stopScrolling} from "./scroll";
 let lineHeight = 0;
 
 export function registerVersePositions() {
@@ -47,6 +47,7 @@ export function initialize() {
     lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
     registerVersePositions();
     $(document).bind("touchstart", event => stopScrolling());
+    window.addEventListener("scroll", event => jsonscroll());
     console.log("JS onload finish");
     jsInterface.triggerJumpToOffset();
 }

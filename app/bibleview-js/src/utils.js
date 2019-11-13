@@ -36,11 +36,11 @@ export class Deferred {
         }
     }
 
-    isWaiting() {
+    get isWaiting() {
         return this._waiting;
     }
 
-    isRunning() {
+    get isRunning() {
         return this.promise !== null;
     }
 
@@ -51,4 +51,20 @@ export class Deferred {
     reject(...args) {
         this._reject(...args);
     }
+}
+
+let waiters = [];
+
+export function addWaiter(deferred) {
+    waiters.push(deferred);
+}
+
+export async function waitForWaiters() {
+    await Promise.all(waiters.map(w => w.promise));
+    waiters = waiters.filter(w => !w.isReady);
+}
+
+export async function whenReady(fnc){
+    await waitForWaiters();
+    fnc();
 }
