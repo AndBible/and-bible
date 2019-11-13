@@ -329,6 +329,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(!contentVisible) {
             executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}})")
             contentVisible = true
+            window.updateOngoing = false
         }
     }
 

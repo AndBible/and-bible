@@ -142,11 +142,11 @@ open class Window (
         return "Window [screenNo=$screenNo]"
     }
 
-    private var asyncTask: AsyncTask<Window, Int, String>? = null
+    var updateOngoing = false
 
     fun updateText() {
-        if(asyncTask == null || asyncTask?.status == AsyncTask.Status.FINISHED) {
-            asyncTask = UpdateInactiveScreenTextTask().execute(this)
-        }
+        if(updateOngoing) return;
+        updateOngoing = true;
+        UpdateInactiveScreenTextTask().execute(this)
     }
 }
