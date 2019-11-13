@@ -5,7 +5,10 @@
   "description": "BibleView JS",
   "repository": "https://github.com/AndBible/and-bible/",
   "license": "GPL",
-  "dependencies": {},
+  "dependencies": {
+    "jquery": "~3.4.1",
+    "jquery-nearest": "~1.4.0"
+  },
   "scripts": {
     "build": "webpack"
   },

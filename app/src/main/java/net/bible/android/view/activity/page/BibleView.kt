@@ -240,7 +240,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
         html = html.replace("</body>", "<script>" +
-            "$(document).ready(function() {" +
+            "andbible.whenReady(function() {" +
                 "andbible.setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
                 "andbible.scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
             "</script></body>")

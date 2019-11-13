@@ -101,7 +101,7 @@ let touchDown = false;
 let textToBeInsertedAtTop = null;
 let idToInsertTextAt = null;
 
-$(document).ready(function() {
+export function initializeInfiniScroll() {
     const chapterInfo = JSON.parse(jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
         infiniScroll(
@@ -113,7 +113,7 @@ $(document).ready(function() {
             "#topOfBibleText",
             "#bottomOfBibleText");
     }
-});
+}
 
 function bodyHeight() {
     return document.body.scrollHeight;

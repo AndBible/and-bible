@@ -42,15 +42,12 @@ function getElementsByClass( searchClass, domNode, tagName) {
     return matches;
 }
 
-$(window).load(
-    function() {
-        console.log("JS onLoad start");
-        lineHeight = parseFloat(window.getComputedStyle(document.body)
-            .getPropertyValue('line-height'));
-        registerVersePositions();
-        $(document).bind("touchstart", event => stopScrolling());
-        console.log("JS onload finish");
-        jsInterface.triggerJumpToOffset();
-    }
-);
+export function initialize() {
+    console.log("JS onLoad start");
+    lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
+    registerVersePositions();
+    $(document).bind("touchstart", event => stopScrolling());
+    console.log("JS onload finish");
+    jsInterface.triggerJumpToOffset();
+}
 

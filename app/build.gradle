@@ -24,13 +24,19 @@ task npmInstall(type: Exec) {
 
 task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.dir "bibleview-js/src"
-    outputs.file "src/main/assets/web/loader.js"
+    inputs.file "bibleview-js/webpack.config.js"
+    outputs.file "bibleview-js/dist/loader.js"
 
     workingDir "bibleview-js"
     commandLine "node_modules/.bin/webpack"
 }
 
-preBuild.dependsOn webpack
+task buildLoaderJs(type: Copy, dependsOn: webpack) {
+    from("bibleview-js/dist/loader.js")
+    into("src/main/assets/web")
+}
+
+preBuild.dependsOn buildLoaderJs
 
 
 android {

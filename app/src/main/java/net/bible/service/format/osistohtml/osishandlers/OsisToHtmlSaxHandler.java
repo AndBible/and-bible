@@ -187,9 +187,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public void startDocument()  {
 		// if not fragment then add head section
 		if (!parameters.isAsFragment()) {
-			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.4.js'></script>\n" +
-					"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n" +
-					"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
 			String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/loader.js'></script>\n";
 			//jsTag += "\n<script type='text/javascript' src='file:///android_asset/web/loader.js.map'></script>\n";
 			String styleSheetTags = parameters.getCssStylesheets();
@@ -198,7 +195,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 					+ "<html xmlns='http://www.w3.org/1999/xhtml' lang='" + parameters.getLanguageCode() + "' dir='" + getDirection() + "'><head>"
 					+ styleSheetTags + "\n"
 					+ customFontStyle
-					+ jQueryjs
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
 					+ "</head>"

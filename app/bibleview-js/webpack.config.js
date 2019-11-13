@@ -50,7 +50,7 @@ let options = {
     context: path.resolve('./'),
     output: {
         publicPath: '',
-        path: path.resolve('../src/main/assets/web'),
+        path: path.resolve('dist'),
         filename: '[name].js',
         chunkFilename: 'modules/[name]/[chunkhash].js',
     },
@@ -162,10 +162,14 @@ let options = {
         }),
         extractSass,
         new webpack.SourceMapDevToolPlugin({
-            filename: '.sourcemaps/[file].map',
-            publicPath: 'http://localhost:63341/bibleview-js/'
+            filename: '[file].map',
+            publicPath: 'http://localhost:63341/bibleview-js/dist/'
             //publicPath: 'file://android_asset/web/'
         }),
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery"
+        })
     ],
 };
 

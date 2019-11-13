@@ -1,7 +1,11 @@
+import "libs/jquery.longpress"
+import "jquery-nearest"
+
 import {jsonscroll, scrollToVerse, setToolbarOffset} from "./scroll";
-import {insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
+import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
 import {
     registerVersePositions,
+    initialize
 } from "./bibleview";
 import {
     clearVerseHighlight, disableVerseTouchSelection,
@@ -10,6 +14,21 @@ import {
     highlightVerse,
     unhighlightVerse
 } from "./highlighting";
+
+import {Deferred} from "./utils";
+const isReady = new Deferred();
+
+async function whenReady(fnc){
+    await isReady.wait();
+    fnc();
+}
+
+$(document).ready( () => {
+        initialize();
+        initializeInfiniScroll();
+        isReady.resolve();
+    }
+);
 
 window.andbible = {
     registerVersePositions,
@@ -27,4 +46,5 @@ window.andbible = {
     setToolbarOffset,
     jsonscroll,
     scrollToVerse,
+    whenReady
 };
