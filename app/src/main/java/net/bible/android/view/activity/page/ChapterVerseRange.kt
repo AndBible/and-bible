@@ -46,11 +46,11 @@ data class ChapterVerseRange(
         } else if (verse.after(start)) {
             // inc/dec are tricky when we don't know how many verses in chapters
             newEnd =
-                    if (verse.verse > 1) {
-                        ChapterVerse(verse.chapter, verse.verse - 1)
-                    } else {
-                        verse
-                    }
+                if (verse.verse > 1) {
+                    ChapterVerse(verse.chapter, verse.verse - 1)
+                } else {
+                    verse
+                }
         } else if (verse == start && start == end) {
             newStart = null
             newEnd = null
@@ -71,7 +71,7 @@ data class ChapterVerseRange(
         val otherVerses = otherVerseRange?.toVerseArray() ?: arrayOf()
 
         return otherVerses
-                .filterNot { verseRange?.contains(it) != null }
+                .filterNot { verseRange?.contains(it) ?: false }
                 .map { ChapterVerse(it.chapter, it.verse) }
                 .toSet()
     }
