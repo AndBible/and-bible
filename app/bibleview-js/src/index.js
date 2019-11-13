@@ -5,7 +5,7 @@ import {jsonscroll, scrollToVerse, setToolbarOffset} from "./scroll";
 import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
 import {
     registerVersePositions,
-    initialize
+    initializeListeners
 } from "./bibleview";
 import {
     clearVerseHighlight, disableVerseTouchSelection,
@@ -21,7 +21,7 @@ addWaiter(isReady);
 
 $(document).ready( async () => {
     registerVersePositions();
-    initialize();
+    initializeListeners();
     initializeInfiniScroll();
     setToolbarOffset(jsInterface.getToolbarOffset(), {doNotScroll: true});
     jsInterface.triggerJumpToOffset();

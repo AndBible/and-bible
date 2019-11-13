@@ -42,7 +42,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
     return matches;
 }
 
-export function initialize() {
+export function initializeListeners() {
     $(document).bind("touchstart", event => stopScrolling());
     window.addEventListener("scroll", event => jsonscroll());
 }

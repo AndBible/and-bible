@@ -85,6 +85,7 @@ export async function scrollToVerse(toId, now, deltaParam) {
             doScrolling(toElement.offsetTop - delta, 1000);
         }
     }
+    $("#content").css('visibility', 'visible');
 }
 
 export function stopScrolling() {

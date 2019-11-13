@@ -693,6 +693,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
+    fun clear() {
+        Log.d(TAG, "Clearing!")
+        loadUrl("file:///android_asset/web/empty.html")
+    }
+
     private val TAG get() = "BibleView[${window.screenNo}]"
 
     companion object {

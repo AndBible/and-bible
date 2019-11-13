@@ -225,6 +225,7 @@ open class WindowControl @Inject constructor(
 
     fun minimiseWindow(window: Window) {
         if (isWindowMinimisable(window)) {
+            window.bibleView?.clear()
             windowRepository.minimise(window)
 
             // redisplay the current page
@@ -237,7 +238,10 @@ open class WindowControl @Inject constructor(
             it.wasMinimised = true
         }
         windowRepository.visibleWindows.forEach {
-            if (it != window) it.windowLayout.state = WindowState.MINIMISED
+            if (it != window) {
+                it.windowLayout.state = WindowState.MINIMISED
+                it.bibleView?.clear()
+            }
         }
 
         window.isMaximised = true
@@ -310,6 +314,7 @@ open class WindowControl @Inject constructor(
         windowRepository.maximisedScreens.forEach {
             switchingMaximised = true
             it.windowLayout.state = WindowState.MINIMISED
+            it.bibleView?.clear()
         }
 
         window.isMaximised = switchingMaximised

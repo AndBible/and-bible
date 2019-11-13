@@ -197,7 +197,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 					+ customFontStyle
 					+ jsTag
 					+ "<meta charset='utf-8'/>"
-					+ "</head><body><div id='start'></div>");
+					+ "</head><body><div id='start'></div><div id='content' style='visibility: hidden;'>");
 		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but
@@ -239,7 +239,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		// only put top/bottom insert positions in main/non-fragment page
 		if (!parameters.isAsFragment()) {
-			write("<div id='bottomOfBibleText'></div></body></html>");
+			write("</div><div id='bottomOfBibleText'></div></body></html>");
 		}
 	}
 
