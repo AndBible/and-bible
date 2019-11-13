@@ -9,6 +9,9 @@ export function enableVerseLongTouchSelectionMode() {
     $(document).longpress( tapholdHandler );
 }
 
+// Let's monkeypatch this so that jquery.nearest does not crash
+window.document.getClientRects = () => [];
+
 /** Handle taphold to start verse selection */
 function tapholdHandler(event) {
     const $target = $(event.target);

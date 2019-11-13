@@ -23,6 +23,7 @@ task npmInstall(type: Exec) {
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
+    inputs.file "bibleview-js/package.json"
     inputs.dir "bibleview-js/src"
     inputs.file "bibleview-js/webpack.config.js"
     outputs.file "bibleview-js/dist/loader.js"
