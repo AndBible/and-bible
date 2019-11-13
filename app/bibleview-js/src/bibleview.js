@@ -17,7 +17,7 @@ export function registerVersePositions() {
         const verseTag = verseTags[i];
         // send position of each verse to java to allow calculation of current verse after each scroll
         jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop
-            + Math.max(0, verseTag.offsetHeight - 2*lineHeight));
+            + Math.max(0, verseTag.offsetHeight - 2 * lineHeight));
     }
 }
 

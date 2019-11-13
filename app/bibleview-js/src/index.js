@@ -16,8 +16,16 @@ import {
 } from "./highlighting";
 import {whenReady} from "./utils";
 
-$(window).on( "load", async () => {
-    console.log("js-side load!");
+let loaded = false;
+console.error("IMPORT LEVEL", performance.now());
+window.addEventListener("DOMContentLoaded",  (event) => {
+    console.log("js-side load!", event.timeStamp, event);
+    if(!loaded) {
+        loaded = true;
+    } else {
+        console.error("Already loaded??!");
+        return;
+    }
     registerVersePositions();
     initializeListeners();
     initializeInfiniScroll();

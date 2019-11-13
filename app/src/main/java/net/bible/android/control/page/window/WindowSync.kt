@@ -61,7 +61,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     fun synchronizeAllScreens() {
         for (window in windowRepository.visibleWindows) {
-            UpdateInactiveScreenTextTask().execute(window)
+            window.updateText()
         }
     }
 
@@ -162,7 +162,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                 // Do not update! Updating would reset page position.
             } else {
-                UpdateInactiveScreenTextTask().execute(inactiveWindow)
+                // synchronized commentary
+                inactiveWindow.updateText()
             }
         }
     }
@@ -193,7 +194,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 }
 
-private class UpdateInactiveScreenTextTask() : UpdateTextTask() {
+class UpdateInactiveScreenTextTask() : UpdateTextTask() {
     /** callback from base class when result is ready  */
     override fun showText(text: String, screenToUpdate: Window) {
         ABEventBus.getDefault().post(

@@ -18,12 +18,14 @@
 
 package net.bible.android.control.page.window
 
+import android.os.AsyncTask
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.service.common.Logger
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.jetbrains.anko.custom.async
 
 import org.json.JSONException
 import org.json.JSONObject
@@ -138,5 +140,13 @@ open class Window (
 
     override fun toString(): String {
         return "Window [screenNo=$screenNo]"
+    }
+
+    private var asyncTask: AsyncTask<Window, Int, String>? = null
+
+    fun updateText() {
+        if(asyncTask == null || asyncTask?.status == AsyncTask.Status.FINISHED) {
+            asyncTask = UpdateInactiveScreenTextTask().execute(this)
+        }
     }
 }

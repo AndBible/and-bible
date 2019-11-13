@@ -166,10 +166,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
 
                 val bibleView = getCleanView(window)
-
-                // trigger recalc of verse positions in case width changes e.g. minimize/restore web view
-                bibleView.isVersePositionRecalcRequired = true
-
                 val windowWeight = max(window.windowLayout.weight, 0.1F)
                 val lp = if (isSplitHorizontally)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)

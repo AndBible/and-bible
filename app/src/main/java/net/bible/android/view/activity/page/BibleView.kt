@@ -29,7 +29,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
@@ -51,7 +50,6 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.apache.commons.lang3.StringUtils
 import java.lang.ref.WeakReference
 
 /** The WebView component that shows the main bible and commentary text
@@ -87,8 +85,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     // screen is changing shape/size so constantly maintain the current verse position
     // main difference from jumpToVerse is that this is not cleared after jump
     private var maintainMovingChapterVerse: ChapterVerse? = null
-
-    var isVersePositionRecalcRequired: Boolean = false
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -291,11 +287,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun jumpToOffset() {
         bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
-
-        if(isVersePositionRecalcRequired) {
-            executeJavascript("registerVersePositions()")
-            isVersePositionRecalcRequired = false
-        }
 
         val maintainMovingChapterVerse = maintainMovingChapterVerse
         val jumpToYOffsetRatio = jumpToYOffsetRatio
@@ -597,7 +588,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse) {
         Log.d(TAG, "Scroll or jump to:$chapterVerse")
-        val now = if(window.justRestored) "true" else "false"
+        val now = if(window.justRestored || !contentVisible) "true" else "false"
         executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $toolbarOffset)")
     }
 

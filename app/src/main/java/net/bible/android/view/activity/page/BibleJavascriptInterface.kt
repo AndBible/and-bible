@@ -131,6 +131,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun triggerJumpToOffset() {
+        Log.d(TAG, "triggerJumpToOffset!")
         bibleView.invokeJumpToOffsetIfRequired(true)
     }
 
