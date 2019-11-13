@@ -132,13 +132,13 @@ abstract class CurrentPageBase implements CurrentPage {
 			String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
 
 			if (StringUtils.isEmpty(htmlText)) {
-				htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
+				htmlText = HtmlMessageFormatter.Companion.format(R.string.error_no_content);
 			}
 
 			return htmlText;
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting bible text", e);
-			return HtmlMessageFormatter.format(R.string.error_occurred, asFragment);
+			return HtmlMessageFormatter.Companion.format(R.string.error_occurred, asFragment);
 		}
 	}
 

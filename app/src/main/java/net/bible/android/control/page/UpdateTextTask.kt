@@ -74,6 +74,7 @@ abstract class UpdateTextTask: AsyncTask<Window, Int, String>() {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
             text = HtmlMessageFormatter.format(R.string.error_page_too_large)
+			window?.updateOngoing = false
         }
 
         return text

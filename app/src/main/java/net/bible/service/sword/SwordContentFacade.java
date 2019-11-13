@@ -111,10 +111,10 @@ public class SwordContentFacade {
 		} else if (Books.installed().getBook(book.getInitials())==null) {
 			Log.w(TAG, "Book may have been uninstalled:"+book);
 			String errorMsg = BibleApplication.Companion.getApplication().getString(R.string.document_not_installed, book.getInitials());
-			retVal = HtmlMessageFormatter.format(errorMsg);
+			retVal = HtmlMessageFormatter.Companion.format(errorMsg);
 		} else if (!bookContainsAnyOf(book, key)) {
 			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
-			retVal = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
+			retVal = HtmlMessageFormatter.Companion.format(R.string.error_key_not_in_document);
 		} else {
 
 			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags 
