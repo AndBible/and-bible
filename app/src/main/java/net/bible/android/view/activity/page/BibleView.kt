@@ -253,13 +253,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
 
         // either enable verse selection or the default text selection
-        finalHtml = enableSelection(finalHtml)
+        enableSelection()
 
         // allow zooming if map
         enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
         loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
 
+        contentVisible = false
         window.initialized = true
     }
 
@@ -282,15 +283,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun invokeJumpToOffsetIfRequired(force: Boolean = false) {
         if (force || jumpToChapterVerse!=null || jumpToYOffsetRatio != null) {
             // Prevent further invokations before this call is done.
-            jumpToOffset()
+            postDelayed({jumpToOffset()}, 0)
         }
     }
+
+    private var contentVisible = false
 
     private fun jumpToOffset() {
         bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
         if(isVersePositionRecalcRequired) {
             executeJavascript("registerVersePositions()")
+            isVersePositionRecalcRequired = false
         }
 
         val maintainMovingChapterVerse = maintainMovingChapterVerse
@@ -326,8 +330,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
         }
         else {
-            Log.e(TAG, "Jump to offset does not know where to jump!")
+            Log.e(TAG, "Jump to offset does not know where to jump! But jumping anyway.")
+            val loc = window.pageManager.currentBible.currentChapterVerse
+            scrollOrJumpToVerse(loc)
         }
+
+        if(!contentVisible) {
+            setupContent()
+            contentVisible = true
+        }
+    }
+
+    private fun setupContent() {
+        executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}})")
+
     }
 
     /** prevent swipe right if the user is scrolling the page right  */
@@ -495,12 +511,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        executeJavascript("setToolbarOffset($toolbarOffset);")
-        executeJavascript("registerVersePositions()")
+        if(contentVisible) {
+            executeJavascript("setToolbarOffset($toolbarOffset);")
+            executeJavascript("registerVersePositions()")
+        }
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if(isTopWindow)
+        if(isTopWindow && contentVisible)
             executeJavascript("setToolbarOffset($toolbarOffset);")
     }
 
@@ -517,6 +535,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
+        if(!contentVisible) return
+
         val isScreenVerse = event.isVerseNoSet(window)
         if (isScreenVerse) {
             maintainMovingChapterVerse = event.getChapterVerse(window)
@@ -613,22 +633,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * Either enable verse selection or the default text selection
      */
-    private fun enableSelection(origHtml: String): String {
-        var html = origHtml
+    private fun enableSelection() {
         if (window.pageManager.isBibleShown) {
             // handle long click ourselves and prevent webview showing text selection automatically
             setOnLongClickListener(BibleViewLongClickListener(true))
             isLongClickable = false
-
-            // need to enable verse selection after page load, but not always so can't use onload
-            html += "<script>andbible.enableVerseLongTouchSelectionMode();</script>"
-
         } else {
             // reset handling of long press
             setOnLongClickListener(BibleViewLongClickListener(false))
         }
-
-        return html
     }
 
     private fun setContextMenuInfo(target: String) {
@@ -686,7 +699,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascript(javascript: String) {
-        Log.d(TAG, "Executing JS:" + StringUtils.abbreviate(javascript, 100))
+        Log.d(TAG, "Executing JS: $javascript")
         postDelayed({
             evaluateJavascript("andbible.$javascript;", null)
         }, 0)

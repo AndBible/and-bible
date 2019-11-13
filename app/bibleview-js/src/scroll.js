@@ -1,20 +1,17 @@
-import {waitForWaiters} from "./utils";
+import {addWaiter, Deferred, waitForWaiters} from "./utils";
+import {enableVerseLongTouchSelectionMode} from "./highlighting";
 
 let currentAnimation = null;
 let stopAnimation = false;
 export let toolbarOffset = 0;
 
-export function setToolbarOffset(value, options) {
-    console.log("setToolbarOffset", value, options);
-    const opts = options || {};
+export function setToolbarOffset(value, {doNotScroll = false, immediate = false} = {}) {
+    console.log("setToolbarOffset", value, doNotScroll, immediate);
     const diff = toolbarOffset - value;
     toolbarOffset = value;
-    let delay = 500;
-    if(opts.immediate) {
-        delay = 0;
-    }
+    const delay = immediate ? 0 : 500;
 
-    if(diff !== 0 && !opts.doNotScroll) {
+    if(diff !== 0 && !doNotScroll) {
         doScrolling(window.pageYOffset + diff, delay)
     }
 }
@@ -64,6 +61,7 @@ export function doScrolling(elementY, duration) {
 
 export async function scrollToVerse(toId, now, deltaParam) {
     console.log("scrollToVerse", toId, now, deltaParam);
+    await waitForWaiters();
     stopAnimation = true;
     let delta = toolbarOffset;
     if(deltaParam !== undefined) {
@@ -85,7 +83,19 @@ export async function scrollToVerse(toId, now, deltaParam) {
             doScrolling(toElement.offsetTop - delta, 1000);
         }
     }
+}
+
+export const isReady = new Deferred();
+addWaiter(isReady);
+
+export function setupContent({isBible = false} = {}) {
     $("#content").css('visibility', 'visible');
+    setToolbarOffset(jsInterface.getToolbarOffset(), {immediate: true});
+    if(isBible) {
+        enableVerseLongTouchSelectionMode();
+    }
+    isReady.resolve();
+    console.log("setVisible OK");
 }
 
 export function stopScrolling() {
