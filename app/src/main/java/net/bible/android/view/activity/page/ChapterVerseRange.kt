@@ -29,7 +29,12 @@ import org.crosswire.jsword.versification.Versification
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-data class ChapterVerseRange(private val v11n: Versification, private val bibleBook: BibleBook, val start: ChapterVerse, val end: ChapterVerse) {
+data class ChapterVerseRange(
+    private val v11n: Versification,
+    private val bibleBook: BibleBook,
+    val start: ChapterVerse?,
+    val end: ChapterVerse?
+) {
 
     fun toggleVerse(verse: ChapterVerse): ChapterVerseRange {
         var newStart = start
@@ -47,8 +52,8 @@ data class ChapterVerseRange(private val v11n: Versification, private val bibleB
                         verse
                     }
         } else if (verse == start && start == end) {
-            newStart = ChapterVerse.NOT_SET
-            newEnd = ChapterVerse.NOT_SET
+            newStart = null
+            newEnd = null
         } else if (verse == start) {
             // Inc/dec are tricky when we don't know how many verses in chapters.
             // So there is a flaw in that the first verse cannot be deselected if selection spans multiple chapters
@@ -63,10 +68,10 @@ data class ChapterVerseRange(private val v11n: Versification, private val bibleB
     fun getExtrasIn(other: ChapterVerseRange): Set<ChapterVerse> {
         val verseRange = createVerseRange()
         val otherVerseRange = other.createVerseRange()
-        val otherVerses = otherVerseRange.toVerseArray()
+        val otherVerses = otherVerseRange?.toVerseArray() ?: arrayOf()
 
         return otherVerses
-                .filterNot { verseRange.contains(it) }
+                .filterNot { verseRange?.contains(it) != null }
                 .map { ChapterVerse(it.chapter, it.verse) }
                 .toSet()
     }
@@ -77,11 +82,13 @@ data class ChapterVerseRange(private val v11n: Versification, private val bibleB
             (verse.after(start) && verse.before(end))
 
     private fun createVerseRange() =
+        if(start != null && end != null) {
             VerseRange(
-                    v11n,
-                    Verse(v11n, bibleBook, start.chapter, start.verse),
-                    Verse(v11n, bibleBook, end.chapter, end.verse)
+                v11n,
+                Verse(v11n, bibleBook, start.chapter, start.verse),
+                Verse(v11n, bibleBook, end.chapter, end.verse)
             )
+        } else null
 
-    fun isEmpty() = !ChapterVerse.isSet(start) || !ChapterVerse.isSet(end)
+    fun isEmpty() = start == null || end == null
 }

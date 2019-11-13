@@ -62,7 +62,7 @@ class VerseActionModeMediator(
     private val startVerse: Verse?
         get() {
             val chapVer = chapterVerseRange
-            return if (chapVer == null) {
+            return if (chapVer?.start == null) {
                 null
             } else {
                 val mainVerse = pageControl.currentBibleVerse
@@ -75,7 +75,7 @@ class VerseActionModeMediator(
         get() {
             val startVerse = startVerse
             val chapVer = chapterVerseRange
-            return if (startVerse == null || chapVer == null) {
+            return if (startVerse == null || chapVer?.end == null) {
                 null
             } else {
                 val v11n = startVerse.versification

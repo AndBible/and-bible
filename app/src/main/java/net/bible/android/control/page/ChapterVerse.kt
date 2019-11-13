@@ -35,21 +35,16 @@ data class ChapterVerse(val chapter: Int, val verse: Int) {
     fun toHtmlId(): String = "$chapter.$verse"
     fun toChapterHtmlId(): String = chapter.toString()
 
-    fun after(other: ChapterVerse): Boolean =
-            chapter > other.chapter || (chapter == other.chapter && verse > other.verse)
+    fun after(other: ChapterVerse?): Boolean =
+            other != null && (chapter > other.chapter || (chapter == other.chapter && verse > other.verse))
 
-    fun before(other: ChapterVerse): Boolean =
-            chapter < other.chapter || (chapter == other.chapter && verse < other.verse)
+    fun before(other: ChapterVerse?): Boolean =
+            other != null && (chapter < other.chapter || (chapter == other.chapter && verse < other.verse))
 
-    fun sameChapter(other: ChapterVerse): Boolean =
-            chapter == other.chapter
+    fun sameChapter(other: ChapterVerse?): Boolean =
+            other != null && (chapter == other.chapter)
 
     companion object {
-
-        val NOT_SET = ChapterVerse(SharedConstants.NO_VALUE, SharedConstants.NO_VALUE)
-
-        @JvmStatic fun isSet(chapterVerse: ChapterVerse?) = chapterVerse!=null && chapterVerse!=NOT_SET
-
         @JvmStatic fun fromHtmlId(chapterDotVerse: String): ChapterVerse {
             val strings = chapterDotVerse.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val chapter = Integer.parseInt(strings[0])

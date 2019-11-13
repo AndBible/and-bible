@@ -80,10 +80,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
-    private var jumpToChapterVerse = ChapterVerse.NOT_SET
-    private var jumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
+    private var jumpToYOffsetRatio : Float? = null
+    private var jumpToChapterVerse: ChapterVerse? = null
 
-    var isVersePositionRecalcRequired = true
+    // screen is changing shape/size so constantly maintain the current verse position
+    // main difference from jumpToVerse is that this is not cleared after jump
+    private var maintainMovingChapterVerse: ChapterVerse? = null
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -91,7 +93,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
 
-    private var maintainMovingChapterVerse = ChapterVerse.NOT_SET
 
     private var gestureDetector: GestureDetectorCompat
 
@@ -268,49 +269,47 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Trigger jump to correct offset
      */
     fun invokeJumpToOffsetIfRequired() {
-        if ((ChapterVerse.isSet(jumpToChapterVerse) || jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat())) {
+        //jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+        if ((jumpToChapterVerse!=null) || jumpToYOffsetRatio != null) {
             // Prevent further invokations before this call is done.
             postDelayed({ jumpToOffset() }, 0)
         }
     }
 
     private fun jumpToOffset() {
-        if (contentHeight > 0) {
-            if (isVersePositionRecalcRequired) {
-                isVersePositionRecalcRequired = false
-                executeJavascript("registerVersePositions()")
-            }
+        bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
-            bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
-            // screen is changing shape/size so constantly maintain the current verse position
-            // main difference from jumpToVerse is that this is not cleared after jump
-            if (ChapterVerse.isSet(maintainMovingChapterVerse)) {
-                scrollOrJumpToVerse(maintainMovingChapterVerse)
-            }
+        val maintainMovingChapterVerse = maintainMovingChapterVerse
+        val jumpToYOffsetRatio = jumpToYOffsetRatio
+        val jumpToChapterVerse = jumpToChapterVerse
 
-            // go to any specified verse or offset
-            if (ChapterVerse.isSet(jumpToChapterVerse)) {
-                // must clear jumpToChapterVerse because setting location causes another onPageFinished
-                val jumpToChapterVerse = jumpToChapterVerse
-                this.jumpToChapterVerse = ChapterVerse.NOT_SET
+        // screen is changing shape/size so constantly maintain the current verse position
+        // main difference from jumpToVerse is that this is not cleared after jump
+        if (maintainMovingChapterVerse!=null) {
+            scrollOrJumpToVerse(maintainMovingChapterVerse)
+        }
 
-                scrollOrJumpToVerse(jumpToChapterVerse)
+        // go to any specified verse or offset
+        if (jumpToChapterVerse!=null) {
+            // must clear jumpToChapterVerse because setting location causes another onPageFinished
+            this.jumpToChapterVerse = null
 
-            }
+            scrollOrJumpToVerse(jumpToChapterVerse)
 
-            else if (jumpToYOffsetRatio != SharedConstants.NO_VALUE.toFloat()) {
-                val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
+        }
 
-                // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
-                jumpToYOffsetRatio = SharedConstants.NO_VALUE.toFloat()
+        else if (jumpToYOffsetRatio != null) {
+            val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
 
-                // Top of the screen is handled by scrollToVerse in the page loading.
-                // We want to take care of only to go to specific point in commentary/generalbook page
-                // when pressing back button.
-                if(y > TOP_OF_SCREEN) {
-                    scrollTo(0, y)
-                }
+            // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
+            this.jumpToYOffsetRatio = null
+
+            // Top of the screen is handled by scrollToVerse in the page loading.
+            // We want to take care of only to go to specific point in commentary/generalbook page
+            // when pressing back button.
+            if(y > TOP_OF_SCREEN) {
+                scrollTo(0, y)
             }
         }
     }
@@ -508,7 +507,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val handler = handler
             handler?.postDelayed({
                 // clear jump value if still set
-                maintainMovingChapterVerse = ChapterVerse.NOT_SET
+                maintainMovingChapterVerse = null
 
                 // ensure we are in the correct place after screen settles
                 scrollOrJumpToVerse(chapterVerse)
@@ -557,12 +556,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse) {
         Log.d(TAG, "Scroll or jump to:$chapterVerse")
-        if (ChapterVerse.isSet(chapterVerse)) {
-            // jump to correct verse
-            // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-            val now = if(window.justRestored) "true" else "false"
-            executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now)")
-        }
+        // jump to correct verse
+        // required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
+        val now = if(window.justRestored) "true" else "false"
+        executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now)")
     }
 
     internal inner class BibleViewLongClickListener(private var defaultValue: Boolean) : View.OnLongClickListener {
