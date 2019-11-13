@@ -21,7 +21,9 @@ export function setToolbarOffset(value, options) {
 
 
 export function jsonscroll() {
-    jsInterface.onScroll(window.pageYOffset);
+    if(currentAnimation == null) {
+        jsInterface.onScroll(window.pageYOffset);
+    }
 }
 
 export function doScrolling(elementY, duration) {
@@ -55,6 +57,7 @@ export function doScrolling(elementY, duration) {
         }
         else {
             currentAnimation = null;
+            jsonscroll();
         }
     })
 }
