@@ -87,9 +87,9 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         }
 
         /** callback from base class when result is ready  */
-        override fun showText(text: String, window: Window, chapterVerse: ChapterVerse, yOffsetRatio: Float) {
+        override fun showText(text: String, window: Window, yOffsetRatio: Float) {
             val view = documentViewManager.getDocumentView(window)
-            view.show(text, chapterVerse, yOffsetRatio)
+            view.show(text, yOffsetRatio)
         }
     }
 

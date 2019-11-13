@@ -35,13 +35,12 @@ import org.crosswire.jsword.passage.Key;
 abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> {
 
 	private Window window;
-	private ChapterVerse chapterVerse = ChapterVerse.Companion.getNOT_SET();
 	private float yScreenOffsetRatio = SharedConstants.NO_VALUE;
 	
 	private static final String TAG = "UpdateTextTask";
 	
     /** callbacks from base class when result is ready */
-	abstract protected void showText(String text, Window screenToUpdate, ChapterVerse chapterVerse, float yOffsetRatio);
+	abstract protected void showText(String text, Window screenToUpdate, float yOffsetRatio);
 	
 	@Override
 	protected void onPreExecute() {
@@ -59,9 +58,7 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
     		// if bible show whole chapter
     		Key key = currentPage.getKey();
     		// but allow for jump to specific verse e.g. after search result
-    		if (currentPage instanceof CurrentBiblePage) {
-    			chapterVerse = ((CurrentBiblePage)currentPage).getCurrentChapterVerse();
-    		} else {
+    		if (!(currentPage instanceof CurrentBiblePage)) {
     			yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
     		}
 
@@ -79,6 +76,6 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
 
     protected void onPostExecute(String htmlFromDoInBackground) {
         Log.d(TAG, "Got html length "+htmlFromDoInBackground.length());
-        showText(htmlFromDoInBackground, window, chapterVerse, yScreenOffsetRatio);
+        showText(htmlFromDoInBackground, window, yScreenOffsetRatio);
     }
 }

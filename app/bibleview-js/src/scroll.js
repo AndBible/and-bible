@@ -63,8 +63,6 @@ export function doScrolling(elementY, duration) {
 }
 
 export async function scrollToVerse(toId, now, deltaParam) {
-    await waitForWaiters();
-
     console.log("scrollToVerse", toId, now, deltaParam);
     stopAnimation = true;
     let delta = toolbarOffset;

@@ -18,7 +18,6 @@
 
 package net.bible.android.control.event.window;
 
-import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.window.Window;
 
 /**
@@ -28,12 +27,10 @@ public class UpdateSecondaryWindowEvent implements WindowEvent {
 
 	private final Window updateScreen;
 	private final String html;
-	private final ChapterVerse chapterVerse;
-	
-	public UpdateSecondaryWindowEvent(Window updateScreen, String html, ChapterVerse chapterVerse) {
+
+	public UpdateSecondaryWindowEvent(Window updateScreen, String html) {
 		this.updateScreen = updateScreen;
 		this.html = html;
-		this.chapterVerse = chapterVerse;
 	}
 
 	public Window getUpdateScreen() {
@@ -42,9 +39,5 @@ public class UpdateSecondaryWindowEvent implements WindowEvent {
 
 	public String getHtml() {
 		return html;
-	}
-
-	public ChapterVerse getChapterVerse() {
-		return chapterVerse;
 	}
 }

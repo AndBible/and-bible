@@ -183,12 +183,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
         return result
     }
 
-    private inner class UpdateInactiveScreenTextTask : UpdateTextTask() {
-        /** callback from base class when result is ready  */
-        override fun showText(text: String, window: Window, chapterVerse: ChapterVerse, yOffsetRatio: Float) {
-            ABEventBus.getDefault().post(UpdateSecondaryWindowEvent(window, text, chapterVerse))
-        }
-    }
 
     fun setResynchRequired(resynchRequired: Boolean) {
         this.resynchRequired = resynchRequired
@@ -198,3 +192,11 @@ class WindowSync(private val windowRepository: WindowRepository) {
         this.screenPreferencesChanged = screenPreferencesChanged
     }
 }
+
+private class UpdateInactiveScreenTextTask : UpdateTextTask() {
+    /** callback from base class when result is ready  */
+    override fun showText(text: String, window: Window, yOffsetRatio: Float) {
+        ABEventBus.getDefault().post(UpdateSecondaryWindowEvent(window, text));
+    }
+}
+

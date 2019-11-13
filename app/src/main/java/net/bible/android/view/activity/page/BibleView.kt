@@ -226,9 +226,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
 
-    override fun show(origHtml: String, chapterVerse: ChapterVerse, jumpToYOffsetRatio: Float) {
+    override fun show(origHtml: String, jumpToYOffsetRatio: Float) {
         var html = origHtml
-        Log.d(TAG, "Show(html,$chapterVerse,$jumpToYOffsetRatio) Window:$window")
+        Log.d(TAG, "Show(html,$jumpToYOffsetRatio) Window:$window")
         // set background colour if necessary
         changeBackgroundColour()
 
@@ -237,13 +237,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
         html = html.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
-
-        // If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-        html = html.replace("</body>", "<script>" +
-            "andbible.whenReady(function() {" +
-                "andbible.setToolbarOffset($toolbarOffset, {doNotScroll: true}); " +
-                "andbible.scrollToVerse('${getIdToJumpTo(chapterVerse)}', true);})" +
-            "</script></body>")
 
         this.jumpToYOffsetRatio = jumpToYOffsetRatio
 
@@ -469,7 +462,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: UpdateSecondaryWindowEvent) {
         if (window == event.updateScreen) {
             changeBackgroundColour()
-            show(event.html, event.chapterVerse, SharedConstants.NO_VALUE.toFloat())
+            show(event.html, SharedConstants.NO_VALUE.toFloat())
         }
     }
 
@@ -492,7 +485,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
             || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
 
-    private val toolbarOffset
+    val toolbarOffset
         get() =
             if(isTopWindow && !SharedActivityState.getInstance().isFullScreen)
                 (mainBibleActivity.topOffsetWithActionBarAndStatusBar
@@ -589,7 +582,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * if verse 1 then jump to just after chapter divider at top of screen
      */
-    private fun getIdToJumpTo(chapterVerse: ChapterVerse): String {
+    fun getIdToJumpTo(chapterVerse: ChapterVerse): String {
         return if (chapterVerse.verse > 1) {
             chapterVerse.toHtmlId()
         } else {

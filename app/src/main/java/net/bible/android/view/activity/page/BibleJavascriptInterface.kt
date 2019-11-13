@@ -134,5 +134,16 @@ class BibleJavascriptInterface(
         bibleView.invokeJumpToOffsetIfRequired()
     }
 
+    @JavascriptInterface
+    fun getToolbarOffset(): Float {
+        return bibleView.toolbarOffset
+    }
+
+    @JavascriptInterface
+    fun getCurrentChapterVerseId(): String {
+        return bibleView.getIdToJumpTo(bibleView.window.pageManager.currentBible.currentChapterVerse)
+    }
+
+
 	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
 }

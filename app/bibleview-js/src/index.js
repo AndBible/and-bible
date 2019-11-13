@@ -19,9 +19,11 @@ import {addWaiter, Deferred, whenReady} from "./utils";
 const isReady = new Deferred();
 addWaiter(isReady);
 
-$(document).ready( () => {
+$(document).ready( async () => {
     initialize();
     initializeInfiniScroll();
+    setToolbarOffset(jsInterface.getToolbarOffset(), {doNotScroll: true});
+    await scrollToVerse(jsInterface.getCurrentChapterVerseId(), true);
     isReady.resolve();
 });
 

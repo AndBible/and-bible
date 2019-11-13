@@ -29,7 +29,7 @@ import net.bible.android.control.page.ChapterVerse;
  */
 public interface DocumentView {
 
-	void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio);
+	void show(String html, float jumpToYOffsetRatio);
 
 	void applyPreferenceSettings();
 

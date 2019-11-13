@@ -95,7 +95,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         myNoteControl.saveMyNoteText(text!!.toString())
     }
 
-    override fun show(html: String, chapterVerse: ChapterVerse, jumpToYOffsetRatio: Float) {
+    override fun show(html: String, jumpToYOffsetRatio: Float) {
         applyPreferenceSettings()
         setText(html)
         updatePadding()
