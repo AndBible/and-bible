@@ -19,7 +19,7 @@ import {addWaiter, Deferred, whenReady} from "./utils";
 const isReady = new Deferred();
 addWaiter(isReady);
 
-$(document).ready( async () => {
+$(window).on( "load", async () => {
     registerVersePositions();
     initializeListeners();
     initializeInfiniScroll();

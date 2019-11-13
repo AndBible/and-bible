@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.view.activity.base.SharedActivityState
@@ -132,7 +133,10 @@ class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphol
 
 class SplitModeMenuItemPreference :
     MenuItemPreference("reverse_split_mode_pref", false) {
-    override fun handle() = mainBibleActivity.windowControl.windowSizesChanged()
+    override fun handle() {
+        mainBibleActivity.windowControl.windowSizesChanged()
+        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged())
+    }
 
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }

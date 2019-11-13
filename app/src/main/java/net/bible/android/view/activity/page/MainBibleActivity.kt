@@ -633,7 +633,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.renameWorkspace -> CommandItem({renameWorkspace()}, haveWorkspaces)
         R.id.switchToWorkspace -> CommandItem({chooseWorkspace()}, haveWorkspaces)
         else -> throw RuntimeException("Illegal menu item")
-    }
+   }
 
     private val preferences = CommonUtils.sharedPreferences
 

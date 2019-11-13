@@ -29,6 +29,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
@@ -143,7 +144,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         /* WebViewClient must be set BEFORE calling loadUrl! */
         webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+            override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
                 // load Strongs refs when a user clicks on a link
                 val loaded = linkControl.loadApplicationUrl(url)
 
@@ -278,10 +279,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * Trigger jump to correct offset
      */
-    fun invokeJumpToOffsetIfRequired() {
-        if ((jumpToChapterVerse!=null) || jumpToYOffsetRatio != null) {
+    fun invokeJumpToOffsetIfRequired(force: Boolean = false) {
+        if (force || jumpToChapterVerse!=null || jumpToYOffsetRatio != null) {
             // Prevent further invokations before this call is done.
-            postDelayed({ jumpToOffset() }, 0)
+            jumpToOffset()
         }
     }
 
@@ -323,6 +324,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(y > TOP_OF_SCREEN) {
                 scrollTo(0, y)
             }
+        }
+        else {
+            Log.e(TAG, "Jump to offset does not know where to jump!")
         }
     }
 
@@ -492,6 +496,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         executeJavascript("setToolbarOffset($toolbarOffset);")
+        executeJavascript("registerVersePositions()")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -531,7 +536,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // ensure we are in the correct place after screen settles
                 executeJavascript("registerVersePositions()")
                 scrollOrJumpToVerse(chapterVerse)
-            }, (WindowControl.SCREEN_SETTLE_TIME_MILLIS / 2).toLong())
+            }, 0);
         }
     }
 
@@ -682,7 +687,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun executeJavascript(javascript: String) {
         Log.d(TAG, "Executing JS:" + StringUtils.abbreviate(javascript, 100))
-        evaluateJavascript("andbible.$javascript;", null)
+        postDelayed({
+            evaluateJavascript("andbible.$javascript;", null)
+        }, 0)
     }
 
     override fun insertTextAtTop(textId: String, text: String) {
