@@ -59,13 +59,11 @@ export function doScrolling(elementY, duration) {
     })
 }
 
-export async function scrollToVerse(toId, now, deltaParam) {
-    console.log("scrollToVerse", toId, now, deltaParam);
-    await waitForWaiters();
+export async function scrollToVerse(toId, now, delta = toolbarOffset) {
+    console.log("scrollToVerse", toId, now, delta);
     stopAnimation = true;
-    let delta = toolbarOffset;
-    if(deltaParam !== undefined) {
-        delta = deltaParam;
+    if(delta !== toolbarOffset) {
+        toolbarOffset = delta;
     }
 
     const toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");

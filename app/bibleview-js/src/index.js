@@ -22,6 +22,7 @@ $(window).on( "load", async () => {
     initializeListeners();
     initializeInfiniScroll();
     jsInterface.triggerJumpToOffset();
+    // this will eventually call back setupContent
 });
 
 window.andbible = {
