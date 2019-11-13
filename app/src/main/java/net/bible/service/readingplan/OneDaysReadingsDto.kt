@@ -55,7 +55,7 @@ class OneDaysReadingsDto(val day: Int,
     val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, Integer.toString(day))
     val isDateBasedPlan: Boolean
         get() {
-            return readingDate != null
+            return readingPlanInfo.isDateBasedPlan
         }
 
     /** get a string representing the date this reading is planned for
