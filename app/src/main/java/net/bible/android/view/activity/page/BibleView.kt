@@ -583,9 +583,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
+        if(!contentVisible) return
+
         if (visibility == View.VISIBLE && event.isVerseNoSet(window)) {
             jumpToChapterVerse = event.getChapterVerse(window)
         }
+        executeJavascript("setToolbarOffset($toolbarOffset, {immediate: true});")
     }
 
     /** move the view so the selected verse is at the top or at least visible

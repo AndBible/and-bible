@@ -93,6 +93,8 @@ export function setupContent({isBible = false} = {}) {
     setToolbarOffset(jsInterface.getToolbarOffset(), {immediate: true});
     if(isBible) {
         enableVerseLongTouchSelectionMode();
+    } else {
+        scrollToVerse(null, true);
     }
     isReady.resolve();
     console.log("setVisible OK");
