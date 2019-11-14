@@ -97,6 +97,10 @@ export function setupContent({isBible = false} = {}) {
     isReady.resolve();
     console.log("setVisible OK");
 }
+export function hideContent() {
+    $("#content").css('visibility', 'hidden');
+}
+
 
 export function stopScrolling() {
     stopAnimation = true;
