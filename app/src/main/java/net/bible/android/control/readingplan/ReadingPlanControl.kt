@@ -28,7 +28,6 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.readingplan.ReadingPlanDbAdapter
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.readingplan.ReadingPlanDao
 import net.bible.service.readingplan.ReadingPlanInfoDto

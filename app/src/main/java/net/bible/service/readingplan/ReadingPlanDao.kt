@@ -251,7 +251,7 @@ class ReadingPlanDao {
                     FileInputStream(userReadingPlanFile)
                 }
 
-                val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw.readBytes())}
+                val byteArrayForReuse = ByteArrayOutputStream().apply { write(inputStreamRaw?.readBytes()) }
                 properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)
@@ -307,13 +307,13 @@ class ReadingPlanDao {
 
     companion object {
 
-        private val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
         private val USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR
-        private val DOT_PROPERTIES = ".properties"
-        private val VERSIFICATION = "Versification"
-        private val DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME
-        private val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
+        private const val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
+        private const val DOT_PROPERTIES = ".properties"
+        private const val VERSIFICATION = "Versification"
+        private const val DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME
+        private const val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
 
-        private val TAG = "ReadingPlanDao"
+        private const val TAG = "ReadingPlanDao"
     }
 }

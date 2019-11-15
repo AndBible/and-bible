@@ -52,7 +52,7 @@ class OneDaysReadingsDto(val day: Int,
         checkKeysGenerated()
     }
 
-    val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, Integer.toString(day))
+    val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, day.toString())
     val isDateBasedPlan: Boolean
         get() {
             return readingPlanInfo.isDateBasedPlan
@@ -147,12 +147,5 @@ class OneDaysReadingsDto(val day: Int,
     private fun dateFormatterPlanStringToDate(dateString: String): Date {
         val calYear = Calendar.getInstance().get(Calendar.YEAR)
         return dateBasedFormatWithYear.parse("$dateString/$calYear")
-    }
-
-    /**
-     * @return Will return string in this format: Feb-1, Mar-22, Dec-11, etc
-     */
-    private fun dateFormatterPlanDateToString(date: Date): String {
-        return dateBasedFormatMonthDay.format(date).toString()
     }
 }

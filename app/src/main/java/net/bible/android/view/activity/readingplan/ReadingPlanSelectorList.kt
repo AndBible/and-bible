@@ -113,8 +113,8 @@ class ReadingPlanSelectorList : ListActivityBase() {
     }
 
     companion object {
-        private val TAG = "ReadingPlanList"
+        private const val TAG = "ReadingPlanList"
 
-        private val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
+        private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
     }
 }

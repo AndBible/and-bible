@@ -41,11 +41,11 @@ class DailyReadingItemAdapter(_context: Context, private val resource: Int, _ite
 
         // Pick up the TwoLineListItem defined in the xml file
         val view: TwoLineListItem
-        if (convertView == null) {
+        view = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            view = inflater.inflate(resource, parent, false) as TwoLineListItem
+            inflater.inflate(resource, parent, false) as TwoLineListItem
         } else {
-            view = convertView as TwoLineListItem
+            convertView as TwoLineListItem
         }
         item ?: return view
 

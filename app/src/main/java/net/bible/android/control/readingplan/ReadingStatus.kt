@@ -18,12 +18,10 @@
 
 package net.bible.android.control.readingplan
 
-import kotlinx.serialization.PrimitiveKind
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import net.bible.service.db.readingplan.ReadingPlanDbAdapter
-import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 /**

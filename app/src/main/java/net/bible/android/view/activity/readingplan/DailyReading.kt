@@ -168,7 +168,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed read button by 1 reading
      */
-    fun onRead(readingNo: Int) {
+    private fun onRead(readingNo: Int) {
         Log.i(TAG, "Read $readingNo")
         val readingKey = mReadings.getReadingKey(readingNo)
         readingPlanControl.read(mDay, readingNo, readingKey)
@@ -178,7 +178,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed speak button by 1 reading
      */
-    fun onSpeak(readingNo: Int) {
+    private fun onSpeak(readingNo: Int) {
         Log.i(TAG, "Speak $readingNo")
         val readingKey = mReadings.getReadingKey(readingNo)
         readingPlanControl.speak(mDay, readingNo, readingKey)
@@ -188,7 +188,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     /** user pressed speak button by All
      */
-    fun onSpeakAll(view: View?) {
+    private fun onSpeakAll(view: View?) {
         Log.i(TAG, "Speak all")
         readingPlanControl.speak(mDay, mReadings.getReadingKeys)
 
@@ -243,8 +243,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     override fun getIntentForHistoryList(): Intent {
         val intent = intent
 
-        intent.putExtra(DailyReading.PLAN, mReadings.readingPlanInfo.planCode)
-        intent.putExtra(DailyReading.DAY, mReadings.day)
+        intent.putExtra(PLAN, mReadings.readingPlanInfo.planCode)
+        intent.putExtra(DAY, mReadings.day)
 
         return intent
     }
