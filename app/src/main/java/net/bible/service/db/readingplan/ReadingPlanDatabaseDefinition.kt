@@ -146,7 +146,7 @@ class ReadingPlanDatabaseOperations {
             // find other days that have reading status in shared preferences
             for ((key, value) in prefs.all) {
                 if (key.contains((planCode + "_[0-9]{1,3}$").toRegex()) && value.toString().contains("^[0-1]*$".toRegex())) {
-                    val day = "(?<=_)[0-9]*\$".toRegex().find(key).toString().toIntOrNull()
+                    val day = "(?<=_)[0-9]{1,3}$".toRegex().find(key)?.value?.toIntOrNull()
                     day ?: continue
                     enterStatusToDb(value.toString(), planCode, day, db)
 
