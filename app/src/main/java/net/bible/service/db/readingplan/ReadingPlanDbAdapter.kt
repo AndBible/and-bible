@@ -46,8 +46,10 @@ class ReadingPlanDbAdapter {
             selection,
             selectionArgs,
             null, null, null)
-        if (q.moveToFirst()) return q.getString(0)
-        return null
+        var returnValue: String? = null
+        if (q.moveToFirst()) returnValue = q.getString(0)
+        q.close()
+        return returnValue
     }
 
     fun setReadingPlanStatus(planCode: String, dayNo: Int, status: String) {
@@ -82,8 +84,10 @@ class ReadingPlanDbAdapter {
             selection,
             selectionArgs,
             null, null, null)
-        if (q.moveToFirst()) return q.getLong(0)
-        return null
+        var returnValue: Long? = null
+        if (q.moveToFirst()) returnValue = q.getLong(0)
+        q.close()
+        return returnValue
     }
 
     fun setReadingStartDate(planCode: String, startDate: Long) {
@@ -105,14 +109,15 @@ class ReadingPlanDbAdapter {
     fun getReadingCurrentDay(planCode: String): Int {
         val selection = "${readingPlanDef.COLUMN_PLAN_CODE}=?"
         val selectionArgs = arrayOf(planCode)
-        var currentDay = 0
         val q = db.query(readingPlanDef.TABLE_NAME,
             arrayOf(readingPlanDef.COLUMN_PLAN_CURRENT_DAY),
             selection,
             selectionArgs,
             null, null, null)
-        if (q.moveToFirst()) currentDay = q.getInt(0)
-        return max(1, currentDay)
+        var returnValue = 0
+        if (q.moveToFirst()) returnValue = q.getInt(0)
+        q.close()
+        return max(1, returnValue)
     }
 
     fun setReadingCurrentDay(planCode: String, dayNo: Int) {
