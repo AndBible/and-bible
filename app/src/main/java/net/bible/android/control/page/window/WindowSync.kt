@@ -193,12 +193,3 @@ class WindowSync(private val windowRepository: WindowRepository) {
         this.screenPreferencesChanged = screenPreferencesChanged
     }
 }
-
-class UpdateInactiveScreenTextTask() : UpdateTextTask() {
-    /** callback from base class when result is ready  */
-    override fun showText(text: String, screenToUpdate: Window) {
-        ABEventBus.getDefault().post(
-            UpdateSecondaryWindowEvent(screenToUpdate, text, chapterVerse, yOffsetRatio));
-    }
-}
-

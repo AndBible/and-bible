@@ -18,14 +18,18 @@
 
 package net.bible.android.control.page.window
 
-import android.os.AsyncTask
+import android.util.Log
+import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.Logger
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.jetbrains.anko.custom.async
 
 import org.json.JSONException
 import org.json.JSONObject
@@ -144,9 +148,51 @@ open class Window (
 
     var updateOngoing = false
 
-    fun updateText() {
-        if(updateOngoing) return;
-        updateOngoing = true;
-        UpdateInactiveScreenTextTask().execute(this)
+    fun updateText(documentViewManager: DocumentViewManager? = null) {
+        val stackMessage = Log.getStackTraceString(Exception())
+        val updateOngoing = updateOngoing
+        val isVisible = isVisible
+
+        Log.d(TAG, "updateText, updateOngoing: $updateOngoing isVisible: $isVisible, stack: $stackMessage")
+
+        if(updateOngoing || !isVisible) return
+
+        this.updateOngoing = true;
+        if(documentViewManager != null) {
+            UpdateMainTextTask(documentViewManager).execute(this)
+
+        } else {
+            UpdateInactiveScreenTextTask().execute(this)
+        }
+    }
+
+    private val TAG get() = "BibleView[${screenNo}] WIN"
+}
+
+class UpdateInactiveScreenTextTask() : UpdateTextTask() {
+    /** callback from base class when result is ready  */
+    override fun showText(text: String, screenToUpdate: Window) {
+        ABEventBus.getDefault().post(
+            UpdateSecondaryWindowEvent(screenToUpdate, text, chapterVerse, yOffsetRatio));
+    }
+}
+
+
+class UpdateMainTextTask(val documentViewManager: DocumentViewManager) : UpdateTextTask() {
+
+    override fun onPreExecute() {
+        super.onPreExecute()
+        PassageChangeMediator.getInstance().contentChangeStarted()
+    }
+
+    override fun onPostExecute(htmlFromDoInBackground: String) {
+        super.onPostExecute(htmlFromDoInBackground)
+        PassageChangeMediator.getInstance().contentChangeFinished()
+    }
+
+    /** callback from base class when result is ready  */
+    override fun showText(text: String, screenToUpdate: Window) {
+        val view = documentViewManager.getDocumentView(screenToUpdate)
+        view.show(text, true)
     }
 }
