@@ -103,60 +103,61 @@ class ReadingPlanDatabaseOperations {
         }
     }
 
-    fun importPrefsToDatabase(db: SQLiteDatabase) {
+    fun migratePrefsToDatabase(db: SQLiteDatabase) {
         Log.i(TAG, "Now importing reading plan preferences from shared preferences to database")
-        val DAY_EXT = "_day"
-        val START_EXT = "_start"
-        val readingPlanDao = ReadingPlanDao()
+        try {
+            val DAY_EXT = "_day"
+            val START_EXT = "_start"
+            val readingPlanDao = ReadingPlanDao()
 
-        val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
-        val userPlans = readingPlanDao.userPlanCodes()
-        if (userPlans != null) readingPlans.addAll(userPlans.toTypedArray())
+            val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
+            val userPlans = readingPlanDao.userPlanCodes()
+            if (userPlans != null) readingPlans.addAll(userPlans.toTypedArray())
 
-        val prefs = CommonUtils.sharedPreferences
-        for (planCode in readingPlans) {
-            Log.i(TAG, "Importing status for plan $planCode")
-            val start = prefs.getLong(planCode + START_EXT, 0)
-            var day = prefs.getInt(planCode + DAY_EXT, 0)
-            val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
-            if (start > 0L) {
-                values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
-                day = max(day,1)
-            }
-            if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
+            val prefs = CommonUtils.sharedPreferences
+            for (planCode in readingPlans) {
+                Log.i(TAG, "Importing status for plan $planCode")
+                val start = prefs.getLong(planCode + START_EXT, 0)
+                var day = prefs.getInt(planCode + DAY_EXT, 0)
+                val values = ContentValues().apply { put(readingPlan.COLUMN_PLAN_CODE, planCode) }
+                if (start > 0L) {
+                    values.put(readingPlan.COLUMN_PLAN_START_DATE, start)
+                    day = max(day, 1)
+                }
+                if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
 
-            if (start > 0L || day > 0)
-                if (db.insert(readingPlan.TABLE_NAME,null, values) < 0)
+                if ((start > 0L || day > 0) && db.insert(readingPlan.TABLE_NAME, null, values) < 0)
                     Log.e(TAG, "Error inserting start date and current day to db for plan $planCode")
 
-            val prefKey = "${planCode}_$day"
-            if (prefs.contains(prefKey)) {
-                val prefDayStatus = prefs.getString(prefKey,"")
-                if (!prefDayStatus.isNullOrEmpty()) {
-                    enterStatusToDb(prefDayStatus, planCode, day, db)
+                val prefKey = "${planCode}_$day"
+                if (prefs.contains(prefKey)) {
+                    val prefDayStatus = prefs.getString(prefKey, "")
+                    if (!prefDayStatus.isNullOrEmpty()) {
+                        enterStatusToDb(prefDayStatus, planCode, day, db)
+                    }
+                }
+
+                prefs.edit()
+                    .remove(planCode + START_EXT)
+                    .remove(planCode + DAY_EXT)
+                    .remove(prefKey)
+                    .apply()
+
+                // find other days that have reading status in shared preferences
+                for ((key, value) in prefs.all) {
+                    if (key.contains((planCode + "_[0-9]{1,3}$").toRegex()) && value.toString().contains("^[0-1]*$".toRegex())) {
+                        val day = "(?<=_)[0-9]{1,3}$".toRegex().find(key)?.value?.toIntOrNull()
+                        day ?: continue
+                        enterStatusToDb(value.toString(), planCode, day, db)
+
+                        prefs.edit()
+                            .remove(key)
+                            .apply()
+                    }
                 }
             }
-
-            prefs.edit()
-                .remove(planCode + START_EXT)
-                .remove(planCode + DAY_EXT)
-                .remove(prefKey)
-                .apply()
-
-            // find other days that have reading status in shared preferences
-            for ((key, value) in prefs.all) {
-                if (key.contains((planCode + "_[0-9]{1,3}$").toRegex()) && value.toString().contains("^[0-1]*$".toRegex())) {
-                    val day = "(?<=_)[0-9]{1,3}$".toRegex().find(key)?.value?.toIntOrNull()
-                    day ?: continue
-                    enterStatusToDb(value.toString(), planCode, day, db)
-
-                    prefs.edit()
-                        .remove(key)
-                        .apply()
-                }
-            }
-
-
+        } catch (e: Exception) {
+            Log.e(TAG, "Error migrating readingplans from preferences to database!")
         }
     }
 

@@ -20,34 +20,31 @@ package net.bible.android.control.readingplan
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
+import net.bible.service.common.CommonUtils.JSON_CONFIG
 import net.bible.service.db.readingplan.ReadingPlanDbAdapter
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class ReadingStatus(
-		val planCode: String,
-		val day: Int,
-		private val numReadings: Int) {
+open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
 
-    private val rAdapter: ReadingPlanDbAdapter get() { return ReadingPlanDbAdapter.instance }
+    private val rAdapter: ReadingPlanDbAdapter get() = ReadingPlanDbAdapter.instance
 
     @Serializable
-    private data class ChapterRead(val readingNumber: Int,
-                           var isRead: Boolean = false)
+    private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)
+
     @Serializable
     private data class ReadingStatus(var chapterReadArray: ArrayList<ChapterRead>) {
-        constructor(statusString: String) : this(toArrayList(statusString))
+        constructor(jsonString: String) : this(toArrayList(jsonString))
         companion object {
-            private fun toArrayList(readingStatus: String): ArrayList<ChapterRead> {
-                return Json(JsonConfiguration(strictMode = false)).parse(serializer(), readingStatus).chapterReadArray
+            private fun toArrayList(jsonString: String): ArrayList<ChapterRead> {
+                return Json(JSON_CONFIG).parse(serializer(), jsonString).chapterReadArray
             }
         }
 
         override fun toString(): String {
-            return Json.stringify(serializer(), this)
+            return Json(JSON_CONFIG).stringify(serializer(), this)
         }
     }
 

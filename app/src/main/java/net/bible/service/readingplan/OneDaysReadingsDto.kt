@@ -32,14 +32,9 @@ import java.util.Date
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OneDaysReadingsDto(val day: Int,
-                         private val readingsString: String?,
-                         val readingPlanInfo: ReadingPlanInfoDto) :
-		Comparable<OneDaysReadingsDto>
+class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto)
+    : Comparable<OneDaysReadingsDto>
 {
-
-    @SuppressLint("SimpleDateFormat")
-    private val dateBasedFormatMonthDay = SimpleDateFormat("MMM-d")
     @SuppressLint("SimpleDateFormat")
     private val dateBasedFormatWithYear = SimpleDateFormat("MMM-d/yyyy")
 
@@ -53,15 +48,13 @@ class OneDaysReadingsDto(val day: Int,
     }
 
     val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, day.toString())
-    val isDateBasedPlan: Boolean
-        get() {
-            return readingPlanInfo.isDateBasedPlan
-        }
+    val isDateBasedPlan: Boolean get() = readingPlanInfo.isDateBasedPlan
 
     /** get a string representing the date this reading is planned for
      */
     val readingDateString: String
         get() {
+            val readingDate = readingDate
             return if (readingDate != null) {
                 SimpleDateFormat.getDateInstance().format(readingDate)
             } else {

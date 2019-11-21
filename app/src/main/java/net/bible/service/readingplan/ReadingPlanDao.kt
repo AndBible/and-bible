@@ -75,10 +75,7 @@ class ReadingPlanDao {
 
             val allCodes = ArrayList<String>()
 
-            val internalPlans = internalPlanCodes
-			if(internalPlans != null) {
-				allCodes.addAll(internalPlans)
-			}
+            allCodes.addAll(internalPlanCodes)
 
             val userPlans = userPlanCodes()
             if(userPlans != null) {
@@ -116,7 +113,8 @@ class ReadingPlanDao {
      */
     fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
         var list: ArrayList<OneDaysReadingsDto>? = null
-        if (cachedReadingList == null || planCode != cachedReadingList!![0].readingPlanInfo.planCode) {
+        val cachedReadingList = cachedReadingList
+        if (cachedReadingList == null || planCode != cachedReadingList[0].readingPlanInfo.planCode) {
             Log.i(TAG,"Getting List of days readings for plan $planCode")
             list = ArrayList()
             val planInfo = getReadingPlanInfoDto(planCode)
@@ -126,11 +124,10 @@ class ReadingPlanDao {
                 val dayNumber = (key1 as String).toIntOrNull() ?: continue
                 val readingString = value1 as String
 
-                val daysReading = OneDaysReadingsDto(dayNumber, readingString, planInfo)
-                list.add(daysReading)
+                list.add(OneDaysReadingsDto(dayNumber, readingString, planInfo))
             }
             list.sort()
-            cachedReadingList = list
+            this.cachedReadingList = list
         }
 
         return list ?: cachedReadingList!!
@@ -251,7 +248,7 @@ class ReadingPlanDao {
                     FileInputStream(userReadingPlanFile)
                 }
 
-                val byteArrayForReuse = ByteArrayOutputStream().apply { write(inputStreamRaw?.readBytes()) }
+                val byteArrayForReuse = ByteArrayOutputStream().apply { write(inputStreamRaw.readBytes()) }
                 properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)

@@ -91,11 +91,12 @@ class ReadingPlanControl @Inject constructor(
         get() {
             val planCode = currentPlanCode
             return if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) {
-                val todayDate = Calendar.getInstance()
-                todayDate.set(Calendar.HOUR_OF_DAY, 0)
-                todayDate.set(Calendar.MINUTE, 0)
-                todayDate.set(Calendar.SECOND, 0)
-                todayDate.set(Calendar.MILLISECOND, 0)
+                val todayDate = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
                 readingPlanDao.getReadingList(planCode).find {
                     it.readingDate == todayDate.time
                 }?.day ?: 1
@@ -163,10 +164,8 @@ class ReadingPlanControl @Inject constructor(
      */
     fun getReadingStatus(day: Int): ReadingStatus {
         val planCode = currentPlanCode
-		var readingStatus = readingStatus
-        if (readingStatus == null ||
-                readingStatus.planCode != planCode ||
-                readingStatus.day != day) {
+        var readingStatus = readingStatus
+        if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
             val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
             readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay) {
@@ -322,13 +321,9 @@ class ReadingPlanControl @Inject constructor(
     }
 
     fun reset(plan: ReadingPlanInfoDto) {
-        val prefs = CommonUtils.sharedPreferences
-        val prefsEditor = prefs.edit()
-
         // if resetting default plan then remove default
         if (plan.planCode == currentPlanCode) {
-            prefsEditor.remove(READING_PLAN)
-            prefsEditor.apply()
+            CommonUtils.sharedPreferences.edit().remove(READING_PLAN).apply()
         }
 
         plan.rAdapter.resetPlan(plan.planCode)
