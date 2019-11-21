@@ -22,7 +22,9 @@ import android.content.Intent
 import android.util.Log
 
 import net.bible.android.control.page.window.Window
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.IntentHelper
 
 /**
  * Any item in the History list that is not related to the main bible activity view e.g. search results etc
@@ -56,7 +58,7 @@ class IntentHistoryItem(
         val currentActivity = CurrentActivityHolder.getInstance().currentActivity
 
         // start activity chosen from activity
-        currentActivity.startActivity(intent)
+        currentActivity.startActivityForResult(intent, STD_REQUEST_CODE)
     }
 
     override fun hashCode(): Int {
