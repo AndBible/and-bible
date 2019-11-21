@@ -153,7 +153,7 @@ open class Window (
         }
 
     fun updateText(documentViewManager: DocumentViewManager? = null) {
-        val stackMessage = Log.getStackTraceString(Exception())
+        val stackMessage: String? = Log.getStackTraceString(Exception())
         val updateOngoing = updateOngoing
         val isVisible = isVisible
 
