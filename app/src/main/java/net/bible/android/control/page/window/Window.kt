@@ -147,6 +147,10 @@ open class Window (
     }
 
     var updateOngoing = false
+        set(value) {
+            field = value
+            Log.d(TAG, "updateOngoing set to $value")
+        }
 
     fun updateText(documentViewManager: DocumentViewManager? = null) {
         val stackMessage = Log.getStackTraceString(Exception())

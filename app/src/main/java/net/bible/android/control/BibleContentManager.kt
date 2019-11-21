@@ -67,7 +67,6 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {
-            window.updateOngoing = true
             window.updateText(documentViewManager)
         }
 
