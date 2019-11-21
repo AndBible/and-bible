@@ -18,6 +18,7 @@
 
 package net.bible.android.control
 
+import android.util.Log
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.Window
@@ -66,8 +67,7 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {
-            window.updateOngoing = true
-            UpdateMainTextTask(documentViewManager).execute(window)
+            window.updateText(documentViewManager)
         }
 
         window.displayedBook = document
@@ -77,24 +77,5 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
     companion object {
 
         private val TAG = "BibleContentManager"
-    }
-}
-
-private class UpdateMainTextTask(val documentViewManager: DocumentViewManager) : UpdateTextTask() {
-
-    override fun onPreExecute() {
-        super.onPreExecute()
-        PassageChangeMediator.getInstance().contentChangeStarted()
-    }
-
-    override fun onPostExecute(htmlFromDoInBackground: String) {
-        super.onPostExecute(htmlFromDoInBackground)
-        PassageChangeMediator.getInstance().contentChangeFinished()
-    }
-
-    /** callback from base class when result is ready  */
-    override fun showText(text: String, screenToUpdate: Window) {
-        val view = documentViewManager.getDocumentView(screenToUpdate)
-        view.show(text, true)
     }
 }

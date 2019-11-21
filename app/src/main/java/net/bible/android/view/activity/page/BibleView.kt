@@ -227,6 +227,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     override fun show(html: String, updateLocation: Boolean) {
+
         var finalHtml = html
         // set background colour if necessary
         changeBackgroundColour()
