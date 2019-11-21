@@ -46,6 +46,7 @@ import kotlin.math.max
  */
 class ReadingPlanDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
+    private var cachedReadingList: List<OneDaysReadingsDto>? = null
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {
@@ -74,10 +75,7 @@ class ReadingPlanDao {
 
             val allCodes = ArrayList<String>()
 
-            val internalPlans = internalPlanCodes
-			if(internalPlans != null) {
-				allCodes.addAll(internalPlans)
-			}
+            allCodes.addAll(internalPlanCodes)
 
             val userPlans = userPlanCodes()
             if(userPlans != null) {
@@ -113,25 +111,26 @@ class ReadingPlanDao {
 
     /** get a list of all days readings in a plan
      */
-    fun getReadingList(planName: String): List<OneDaysReadingsDto> {
+    fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
+        var list: ArrayList<OneDaysReadingsDto>? = null
+        val cachedReadingList = cachedReadingList
+        if (cachedReadingList == null || planCode != cachedReadingList[0].readingPlanInfo.planCode) {
+            Log.i(TAG,"Getting List of days readings for plan $planCode")
+            list = ArrayList()
+            val planInfo = getReadingPlanInfoDto(planCode)
+            val properties = getPlanProperties(planCode)
 
-        val planInfo = getReadingPlanInfoDto(planName)
+            for ((key1, value1) in properties) {
+                val dayNumber = (key1 as String).toIntOrNull() ?: continue
+                val readingString = value1 as String
 
-        val properties = getPlanProperties(planName)
-
-        val list = ArrayList<OneDaysReadingsDto>()
-        for ((key1, value1) in properties) {
-            val key = key1 as String
-            val value = value1 as String
-            if (key.toIntOrNull() != null) {
-                val day = Integer.parseInt(key)
-                val daysReading = OneDaysReadingsDto(day, value, planInfo)
-                list.add(daysReading)
+                list.add(OneDaysReadingsDto(dayNumber, readingString, planInfo))
             }
+            list.sort()
+            this.cachedReadingList = list
         }
-        list.sort()
 
-        return list
+        return list ?: cachedReadingList!!
     }
 
     /** get readings for one day
@@ -191,7 +190,7 @@ class ReadingPlanDao {
             Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
         }
 
-    private fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
+    fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
         Log.d(TAG, "Get reading plan info:$planCode")
         val info = ReadingPlanInfoDto(planCode)
 
@@ -199,6 +198,7 @@ class ReadingPlanDao {
         info.planDescription = getPlanDescription(planCode)
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
         info.versification = getReadingPlanVersification(planCode)
+        info.isDateBasedPlan = getPlanProperties(planCode).isDateBasedPlan
 
         return info
     }
@@ -248,11 +248,12 @@ class ReadingPlanDao {
                     FileInputStream(userReadingPlanFile)
                 }
 
-                val byteArrayForReuse = ByteArrayOutputStream().apply {write(inputStreamRaw.readBytes())}
+                val byteArrayForReuse = ByteArrayOutputStream().apply { write(inputStreamRaw.readBytes()) }
                 properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)
                 properties.versification = getReadingPlanVersification(properties)
+                properties.isDateBasedPlan = properties["1"].toString().contains("^([a-z]|[A-Z]){3}-([0-9]{1,2});".toRegex())
                 getNameAndDescFromProperties(ByteArrayInputStream(byteArrayForReuse.toByteArray()), properties)
 
                 Log.d(TAG, "The properties are now loaded")
@@ -298,17 +299,18 @@ class ReadingPlanDao {
         var planDescription: String? = null
         var versification: Versification? = null
         var numberOfPlanDays = 0
+        var isDateBasedPlan = false
     }
 
     companion object {
 
-        private val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
         private val USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR
-        private val DOT_PROPERTIES = ".properties"
-        private val VERSIFICATION = "Versification"
-        private val DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME
-        private val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
+        private const val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
+        private const val DOT_PROPERTIES = ".properties"
+        private const val VERSIFICATION = "Versification"
+        private const val DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME
+        private const val INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME
 
-        private val TAG = "ReadingPlanDao"
+        private const val TAG = "ReadingPlanDao"
     }
 }

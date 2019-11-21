@@ -37,9 +37,11 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 
 import java.util.ArrayList
+import java.util.Calendar
 import java.util.Date
 
 import javax.inject.Inject
+import kotlin.math.roundToLong
 
 
 /** Control status of reading plans
@@ -53,7 +55,6 @@ class ReadingPlanControl @Inject constructor(
 {
 
     private val readingPlanDao = ReadingPlanDao()
-
     private var readingStatus: ReadingStatus? = null
 
     /** allow front end to determine if a plan needs has been selected
@@ -89,15 +90,26 @@ class ReadingPlanControl @Inject constructor(
     var currentPlanDay: Int
         get() {
             val planCode = currentPlanCode
-            val prefs = CommonUtils.sharedPreferences
-            return prefs.getInt(planCode + READING_PLAN_DAY_EXT, 1)
+            return if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) {
+                val todayDate = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                readingPlanDao.getReadingList(planCode).find {
+                    it.readingDate == todayDate.time
+                }?.day ?: 1
+            } else {
+                readingPlanDao.getReadingPlanInfoDto(planCode)
+                    .rAdapter.getReadingCurrentDay(planCode)
+            }
         }
         private set(day) {
             val planCode = currentPlanCode
-            val prefs = CommonUtils.sharedPreferences
-            prefs.edit()
-                    .putInt(planCode + READING_PLAN_DAY_EXT, day)
-                    .apply()
+            if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) return
+            readingPlanDao.getReadingPlanInfoDto(planCode)
+                .rAdapter.setReadingCurrentDay(planCode, day)
         }
 
     val shortTitle: String
@@ -125,7 +137,7 @@ class ReadingPlanControl @Inject constructor(
      */
     fun startReadingPlan(plan: ReadingPlanInfoDto) {
         // set default plan
-        setReadingPlan(plan.code)
+        setReadingPlan(plan.planCode)
 
         // tell the plan to set a start date
         plan.start()
@@ -152,18 +164,16 @@ class ReadingPlanControl @Inject constructor(
      */
     fun getReadingStatus(day: Int): ReadingStatus {
         val planCode = currentPlanCode
-		var readingStatus = readingStatus
-        if (readingStatus == null ||
-                readingStatus.planCode != planCode ||
-                readingStatus.day != day) {
+        var readingStatus = readingStatus
+        if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
             val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
-            if (day < currentPlanDay) {
-                readingStatus = HistoricReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+            readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay) {
+                HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             } else {
-                readingStatus = ReadingStatus(currentPlanCode, day, oneDaysReadingsDto.numReadings)
+                ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
             }
-			this.readingStatus = readingStatus
+			this.readingStatus = readingStatus.apply { reloadStatus() }
         }
         return readingStatus
     }
@@ -177,7 +187,7 @@ class ReadingPlanControl @Inject constructor(
         // later found that rounding is necessary (due to DST I think) because
         // when the clocks went forward the difference became 88.95833 but should have been 89
         val diffInDays = (today.time - startDate.time) / (1000.0 * 60.0 * 60.0 * 24.0)
-        val diffInWholeDays = Math.round(diffInDays)
+        val diffInWholeDays = diffInDays.roundToLong()
         Log.d(TAG, "Days diff between today and start:$diffInWholeDays")
 
         // if diff is zero then we are on day 1 so add 1
@@ -203,7 +213,7 @@ class ReadingPlanControl @Inject constructor(
         // was this the next reading plan day due whether on schedule or not
         if (currentPlanDay == day) {
             // do not leave prefs for historic days - we show all historic readings as 'read'
-            getReadingStatus(day).delete()
+            getReadingStatus(day).delete(planInfo)
 
             // was this the last day in the plan
             if (readingPlanDao.getNumberOfPlanDays(currentPlanCode) == day) {
@@ -310,23 +320,13 @@ class ReadingPlanControl @Inject constructor(
         }
     }
 
-    /** User has chosen to start a plan
-     */
     fun reset(plan: ReadingPlanInfoDto) {
-        plan.reset()
-
-        val prefs = CommonUtils.sharedPreferences
-        val prefsEditor = prefs.edit()
-
         // if resetting default plan then remove default
-        if (plan.code == currentPlanCode) {
-            prefsEditor.remove(READING_PLAN)
+        if (plan.planCode == currentPlanCode) {
+            CommonUtils.sharedPreferences.edit().remove(READING_PLAN).apply()
         }
 
-        prefsEditor.remove(plan.code + ReadingPlanInfoDto.READING_PLAN_START_EXT)
-        prefsEditor.remove(plan.code + READING_PLAN_DAY_EXT)
-
-        prefsEditor.apply()
+        plan.rAdapter.resetPlan(plan.planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {
@@ -343,7 +343,6 @@ class ReadingPlanControl @Inject constructor(
     companion object {
 
         private const val READING_PLAN = "reading_plan"
-        private const val READING_PLAN_DAY_EXT = "_day"
 
         private const val TAG = "ReadingPlanControl"
     }

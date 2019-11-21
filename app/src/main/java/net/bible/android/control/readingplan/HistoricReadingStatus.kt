@@ -18,6 +18,8 @@
 
 package net.bible.android.control.readingplan
 
+import net.bible.service.readingplan.ReadingPlanInfoDto
+
 /** return isRead' for all historical readings
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -37,7 +39,7 @@ class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int) : Read
         return true
     }
 
-    override fun delete() {
+    override fun delete(planInfo: ReadingPlanInfoDto) {
         // do nothing
     }
 

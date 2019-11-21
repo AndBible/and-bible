@@ -18,24 +18,40 @@
 
 package net.bible.android.control.readingplan
 
-import java.util.BitSet
-
-import net.bible.service.common.CommonUtils
-import android.content.SharedPreferences
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import net.bible.service.common.CommonUtils.JSON_CONFIG
+import net.bible.service.db.readingplan.ReadingPlanDbAdapter
+import net.bible.service.readingplan.ReadingPlanInfoDto
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class ReadingStatus(
-		val planCode: String,
-		val day: Int,
-		private val numReadings: Int) {
+open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
 
-    // there won't be any more than 10 readings per day in any plan
-    private val status = BitSet(4)
+    private val rAdapter: ReadingPlanDbAdapter get() = ReadingPlanDbAdapter.instance
+
+    @Serializable
+    private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)
+
+    @Serializable
+    private data class ReadingStatus(var chapterReadArray: ArrayList<ChapterRead>) {
+        constructor(jsonString: String) : this(toArrayList(jsonString))
+        companion object {
+            private fun toArrayList(jsonString: String): ArrayList<ChapterRead> {
+                return Json(JSON_CONFIG).parse(serializer(), jsonString).chapterReadArray
+            }
+        }
+
+        override fun toString(): String {
+            return Json(JSON_CONFIG).stringify(serializer(), this)
+        }
+    }
+
+    private var status = ReadingStatus(ArrayList())
     val isAllRead: Boolean
         get() {
-            for (i in 0 until numReadings) {
+            for (i in 1..numReadings) {
                 if (!isRead(i)) {
                     return false
                 }
@@ -43,79 +59,53 @@ open class ReadingStatus(
             return true
         }
 
-    private val prefsKey: String
-        get() = planCode + "_" + day
-
-    init {
-        reloadStatus()
-    }
-
     open fun setRead(readingNo: Int) {
-        status.set(readingNo)
-        saveStatus()
+        setStatus(readingNo, true)
     }
 
     open fun setUnread(readingNo: Int) {
-        status.set(readingNo, false)
-        saveStatus()
+        setStatus(readingNo, false)
+    }
+
+    fun setStatus(readingNo: Int, read: Boolean, saveStatus: Boolean = true) {
+        val chapterRead = status.chapterReadArray.find { it.readingNumber == readingNo }
+        if (chapterRead == null) {
+            status.chapterReadArray.add(ChapterRead(readingNo, read))
+        } else {
+            chapterRead.isRead = read
+            status.chapterReadArray.add(chapterRead)
+        }
+        status.chapterReadArray.sortBy { it.readingNumber }
+
+        if (saveStatus) saveStatus()
     }
 
     open fun isRead(readingNo: Int): Boolean {
-        return status.get(readingNo)
+        return status.chapterReadArray.find { it.readingNumber == readingNo }?.isRead ?: false
     }
 
     fun setAllRead() {
-        for (i in 0 until numReadings) {
+        for (i in 1..numReadings) {
             setRead(i)
         }
-        saveStatus()
     }
 
     /** do not leave prefs around for historic days
      */
-    open fun delete() {
-        val prefs = CommonUtils.sharedPreferences
-        if (prefs.contains(prefsKey)) {
-            prefs.edit()
-                    .remove(prefsKey)
-                    .commit()
-        }
+    open fun delete(planInfo: ReadingPlanInfoDto) {
+        rAdapter.deleteOldStatuses(planInfo, day)
     }
 
-    /** read status from prefs string
-     */
     open fun reloadStatus() {
-        val prefs = CommonUtils.sharedPreferences
-        val gotStatus = prefs.getString(prefsKey, "")
-        for (i in 0 until gotStatus!!.length) {
-            if (gotStatus[i] == ONE) {
-                status.set(i)
-            } else {
-                status.clear(i)
-            }
-        }
+        val status: String? = rAdapter.getReadingPlanStatus(planCode, day)
+        status?.let { this.status = ReadingStatus(status) }
     }
 
-    /** serialize read status to prefs in a string
-     */
     private fun saveStatus() {
-        val strStatus = StringBuffer()
-        for (i in 0 until status.length()) {
-            if (status.get(i)) {
-                strStatus.append(ONE)
-            } else {
-                strStatus.append(ZERO)
-            }
-        }
-        val prefs = CommonUtils.sharedPreferences
-        prefs.edit()
-                .putString(prefsKey, strStatus.toString())
-                .commit()
+        rAdapter.setReadingPlanStatus(planCode, day, status.toString())
     }
 
-    companion object {
-        private val ONE = '1'
-        private val ZERO = '0'
+    override fun toString(): String {
+        return status.toString()
     }
-
 }

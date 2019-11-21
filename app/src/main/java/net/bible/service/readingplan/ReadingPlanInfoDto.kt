@@ -19,33 +19,31 @@
 package net.bible.service.readingplan
 
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.readingplan.ReadingPlanDbAdapter
 
-import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.jsword.versification.Versification
 
-import java.util.Calendar
 import java.util.Date
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanInfoDto(var code: String) {
+class ReadingPlanInfoDto(var planCode: String) {
     var planName: String? = null
     var planDescription: String? = null
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
+    var isDateBasedPlan: Boolean = false
+    val rAdapter = ReadingPlanDbAdapter.instance
 
     /** a persistent start date
      * return the date the plan was started or null if not started
      */
     val startdate: Date?
         get() {
-            val startDate = CommonUtils.sharedPreferences.getLong(code + READING_PLAN_START_EXT, 0)
-            return if (startDate == 0L) {
-                null
-            } else {
-                Date(startDate)
-            }
+            val startDate = rAdapter.getReadingStartDate(planCode)
+            startDate ?: return null
+            return Date(startDate)
         }
 
     /** set a persistent start date
@@ -61,34 +59,12 @@ class ReadingPlanInfoDto(var code: String) {
     private fun startOn(date: Date, force: Boolean) {
 
         // if changing plan
-        if (startdate == null || force) {
-
-            CommonUtils.sharedPreferences
-                    .edit()
-                    .putLong(code + READING_PLAN_START_EXT, date.time)
-                    .apply()
-        }
-    }
-
-    /** set a persistent start date
-     */
-    fun reset() {
-
-        // if changing plan
-        if (startdate == null) {
-            CommonUtils.sharedPreferences
-                    .edit()
-                    .remove(code + READING_PLAN_START_EXT)
-                    .apply()
-        }
+        if (startdate == null || force)
+            rAdapter.setReadingStartDate(planCode, date.time)
     }
 
     override fun toString(): String {
         return "$planName"
     }
 
-    companion object {
-
-        val READING_PLAN_START_EXT = "_start"
-    }
 }

@@ -102,7 +102,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         super.onContextItemSelected(item)
         val menuInfo = item.menuInfo as AdapterContextMenuInfo
         val plan = mReadingPlanList[menuInfo.position]
-        Log.d(TAG, "Selected " + plan.code)
+        Log.d(TAG, "Selected " + plan.planCode)
 		when (item.itemId) {
 			R.id.reset -> {
 				readingPlanControl.reset(plan)
@@ -113,8 +113,8 @@ class ReadingPlanSelectorList : ListActivityBase() {
     }
 
     companion object {
-        private val TAG = "ReadingPlanList"
+        private const val TAG = "ReadingPlanList"
 
-        private val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
+        private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
     }
 }
