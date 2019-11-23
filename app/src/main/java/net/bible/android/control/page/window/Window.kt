@@ -53,20 +53,6 @@ open class Window (
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
-    private var _justRestored = false
-
-    var justRestored: Boolean
-        get() {
-            if(_justRestored) {
-                justRestored = false
-                return true
-            }
-            return false
-        }
-        set(value) {
-            _justRestored = value
-        }
-
     var isSynchronised = true
     var initialized = false
     var wasMinimised = false

@@ -165,12 +165,15 @@ open class WindowControl @Inject constructor(
         // window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.activeWindow = linksWindow
 
-        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         // redisplay the current page
         if (!linksWindowWasVisible) {
-            linksWindow.justRestored = true
             linksWindow.windowLayout.state = WindowState.SPLIT
+        }
+
+        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
+
+        if (!linksWindowWasVisible) {
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
         }
     }
@@ -308,7 +311,6 @@ open class WindowControl @Inject constructor(
 
     fun restoreWindow(window: Window) {
         if (window == activeWindow) return
-        window.justRestored = true
 
         var switchingMaximised = false
         windowRepository.maximisedScreens.forEach {

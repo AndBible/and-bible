@@ -593,7 +593,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse) {
         Log.d(TAG, "Scroll or jump to:$chapterVerse")
-        val now = if(window.justRestored || !contentVisible) "true" else "false"
+        val now = if(!contentVisible) "true" else "false"
         executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $toolbarOffset)")
     }
 
