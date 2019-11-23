@@ -159,7 +159,7 @@ open class Window (
 
         Log.d(TAG, "updateText, updateOngoing: $updateOngoing isVisible: $isVisible, stack: $stackMessage")
 
-        if(initialized && (updateOngoing || !isVisible)) return
+        if(updateOngoing || (initialized && !isVisible)) return
 
         this.updateOngoing = true;
         if(documentViewManager != null) {
