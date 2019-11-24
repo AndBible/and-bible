@@ -601,7 +601,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onLongClick(v: View): Boolean {
             val result = hitTestResult
-            return if (result.type == WebView.HitTestResult.SRC_ANCHOR_TYPE) {
+            return if (result.type == HitTestResult.SRC_ANCHOR_TYPE) {
                 setContextMenuInfo(result.extra!!)
                 v.showContextMenu()
             } else {
@@ -683,7 +683,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {
-        runOnUiThread({ executeJavascript(javascript) })
+        runOnUiThread { executeJavascript(javascript) }
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
