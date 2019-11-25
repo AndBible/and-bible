@@ -50,6 +50,7 @@ open class Window (
         pageManager.window = this
     }
 
+    var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 

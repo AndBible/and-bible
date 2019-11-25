@@ -586,14 +586,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * @param verse
      */
     fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
-        runOnUiThread({ scrollOrJumpToVerse(verse) })
+        val restoreOngoing = window.restoreOngoing
+        runOnUiThread({ scrollOrJumpToVerse(verse, restoreOngoing) })
     }
 
     /** move the view so the selected verse is at the top or at least visible
      */
-    private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse) {
+    private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse, restoreOngoing: Boolean = false) {
         Log.d(TAG, "Scroll or jump to:$chapterVerse")
-        val now = if(!contentVisible) "true" else "false"
+        val now = if(!contentVisible || restoreOngoing) "true" else "false"
         executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $toolbarOffset)")
     }
 

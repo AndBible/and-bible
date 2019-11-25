@@ -308,7 +308,7 @@ open class WindowControl @Inject constructor(
 
     fun restoreWindow(window: Window) {
         if (window == activeWindow) return
-
+        window.restoreOngoing = true
         var switchingMaximised = false
         windowRepository.maximisedScreens.forEach {
             switchingMaximised = true
@@ -328,6 +328,7 @@ open class WindowControl @Inject constructor(
             if (!activeWindow.initialized)
                 PassageChangeMediator.getInstance().forcePageUpdate()
         }
+        window.restoreOngoing = false
     }
 
     fun synchroniseCurrentWindow() {
