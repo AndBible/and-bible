@@ -704,11 +704,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
-    fun clear() {
-        Log.d(TAG, "Clearing!")
-        //executeJavascript("hideContent()")
-    }
-
     private val TAG get() = "BibleView[${window.screenNo}]"
 
     companion object {

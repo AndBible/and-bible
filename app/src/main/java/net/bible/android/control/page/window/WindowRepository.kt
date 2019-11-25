@@ -174,9 +174,7 @@ open class WindowRepository @Inject constructor(
         window.windowLayout.state = WindowState.CLOSED
 
         // links window is just closed not deleted
-        if (window.isLinksWindow) {
-            window.bibleView?.clear()
-        } else {
+        if (!window.isLinksWindow) {
             destroy(window)
             if(wasMaximized) {
                 val lastScreen = minimisedScreens.last()
