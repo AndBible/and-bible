@@ -157,6 +157,7 @@ open class WindowControl @Inject constructor(
 
     fun showLink(document: Book, key: Key) {
         val linksWindow = windowRepository.dedicatedLinksWindow
+        linksWindow.restoreOngoing = true
         val linksWindowWasVisible = linksWindow.isVisible
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
@@ -176,6 +177,7 @@ open class WindowControl @Inject constructor(
         if (!linksWindowWasVisible) {
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
         }
+        linksWindow.restoreOngoing = false
     }
 
 

@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
@@ -587,7 +588,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
         val restoreOngoing = window.restoreOngoing
-        runOnUiThread({ scrollOrJumpToVerse(verse, restoreOngoing) })
+        runOnUiThread {
+            scrollOrJumpToVerse(verse, restoreOngoing)
+        }
     }
 
     /** move the view so the selected verse is at the top or at least visible
@@ -688,7 +691,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
-        handler?.post(runnable)
+        if(Looper.myLooper() == Looper.getMainLooper()) {
+            runnable()
+        } else {
+            handler?.post(runnable)
+        }
     }
 
     private fun executeJavascript(javascript: String) {
