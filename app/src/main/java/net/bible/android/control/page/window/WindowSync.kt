@@ -93,8 +93,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                     // prevent infinite loop as each screen update causes a synchronise by comparing last key
                     // only update pages if empty or synchronised
-                    if (isFirstTimeInit || resynchRequired ||
-                            targetActiveWindowKey != lastSynchdInactiveWindowKey) {
+                    if (isFirstTimeInit || resynchRequired || !inactiveWindow.initialized ||
+                            targetActiveWindowKey != lastSynchdInactiveWindowKey || inactiveWindow.restoreOngoing) {
                         updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
                                 lastSynchdInactiveWindowKey, isTotalRefreshRequired)
                         inactiveUpdated = true
@@ -150,7 +150,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
-            if (!forceRefresh &&
+            if (!forceRefresh && inactiveWindow.initialized &&
                     BookCategory.BIBLE == inactivePage.currentDocument.bookCategory &&
                     currentVerse != null && targetVerse != null && targetV11n!!.isSameChapter(targetVerse, currentVerse)) {
                 ABEventBus.getDefault().post(
