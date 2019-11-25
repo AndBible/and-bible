@@ -194,7 +194,7 @@ open class WindowControl @Inject constructor(
             }
         }
 
-        windowSync.setResynchRequired(true)
+        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
 
         // redisplay the current page
@@ -209,7 +209,7 @@ open class WindowControl @Inject constructor(
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        windowSync.setResynchRequired(true)
+        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
 
         // redisplay the current page
@@ -271,7 +271,7 @@ open class WindowControl @Inject constructor(
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
-        windowSync.setResynchRequired(true)
+        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
     }
 
@@ -323,7 +323,7 @@ open class WindowControl @Inject constructor(
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-        windowSync.setResynchRequired(true)
+        windowSync.resynchRequired = true
 
         windowSync.synchronizeScreens()
 
@@ -337,7 +337,7 @@ open class WindowControl @Inject constructor(
     fun synchroniseCurrentWindow() {
         activeWindow.isSynchronised = true
 
-        windowSync.setResynchRequired(true)
+        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
     }
 
@@ -372,7 +372,7 @@ open class WindowControl @Inject constructor(
         if (event.syncAll) {
             windowSync.synchronizeAllScreens()
         } else {
-            windowSync.setResynchRequired(true)
+            windowSync.resynchRequired = true
             windowSync.synchronizeScreens()
         }
     }
@@ -398,7 +398,7 @@ open class WindowControl @Inject constructor(
 
         val isMoveFinished = !isSeparatorMoving
         if (isMoveFinished && !CommonUtils.isSplitVertically) {
-            windowSync.setResynchRequired(true)
+            windowSync.resynchRequired = true
         }
 
         eventManager.post(WindowSizeChangedEvent(isMoveFinished, windowChapterVerseMap))

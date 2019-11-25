@@ -22,10 +22,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
-import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPage
-import net.bible.android.control.page.UpdateTextTask
 import net.bible.service.device.ScreenSettings
 
 import org.crosswire.jsword.book.BookCategory
@@ -37,8 +35,8 @@ import org.crosswire.jsword.versification.Versification
 class WindowSync(private val windowRepository: WindowRepository) {
 
     private var isFirstTimeInit = true
-    private var resynchRequired = false
-    private var screenPreferencesChanged = false
+    var resynchRequired = false
+    var screenPreferencesChanged = false
 
     private var lastSynchdInactiveWindowKey: Key? = null
     private var lastSynchWasInNightMode: Boolean = false
@@ -182,14 +180,5 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
         }
         return result
-    }
-
-
-    fun setResynchRequired(resynchRequired: Boolean) {
-        this.resynchRequired = resynchRequired
-    }
-
-    fun setScreenPreferencesChanged(screenPreferencesChanged: Boolean) {
-        this.screenPreferencesChanged = screenPreferencesChanged
     }
 }

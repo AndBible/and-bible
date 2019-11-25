@@ -705,7 +705,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun clear() {
         Log.d(TAG, "Clearing!")
-        executeJavascript("hideContent()")
+        //executeJavascript("hideContent()")
     }
 
     private val TAG get() = "BibleView[${window.screenNo}]"
