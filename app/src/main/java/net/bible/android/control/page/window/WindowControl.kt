@@ -194,7 +194,6 @@ open class WindowControl @Inject constructor(
             }
         }
 
-        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
 
         // redisplay the current page
@@ -209,7 +208,6 @@ open class WindowControl @Inject constructor(
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
 
         // redisplay the current page
@@ -271,7 +269,6 @@ open class WindowControl @Inject constructor(
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
-        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
     }
 
@@ -323,7 +320,6 @@ open class WindowControl @Inject constructor(
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-        windowSync.resynchRequired = true
 
         windowSync.synchronizeScreens()
 
@@ -337,7 +333,6 @@ open class WindowControl @Inject constructor(
     fun synchroniseCurrentWindow() {
         activeWindow.isSynchronised = true
 
-        windowSync.resynchRequired = true
         windowSync.synchronizeScreens()
     }
 
@@ -397,9 +392,6 @@ open class WindowControl @Inject constructor(
         this.isSeparatorMoving = isSeparatorMoving
 
         val isMoveFinished = !isSeparatorMoving
-        if (isMoveFinished && !CommonUtils.isSplitVertically) {
-            windowSync.resynchRequired = true
-        }
 
         eventManager.post(WindowSizeChangedEvent(isMoveFinished, windowChapterVerseMap))
     }
