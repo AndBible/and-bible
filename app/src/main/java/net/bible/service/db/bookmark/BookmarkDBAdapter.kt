@@ -138,17 +138,15 @@ class BookmarkDBAdapter {
         get() {
             val allBookmarks: MutableList<BookmarkDto> = ArrayList()
             val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, null, null, null, null, null)
-            try {
-                if (c.moveToFirst()) {
-                    while (!c.isAfterLast) {
-                        val bookmark = getBookmarkDto(c)
-                        allBookmarks.add(bookmark)
-                        c.moveToNext()
-                    }
-                }
-            } finally {
-                c.close()
-            }
+			c.use { c ->
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast) {
+						val bookmark = getBookmarkDto(c)
+						allBookmarks.add(bookmark)
+						c.moveToNext()
+					}
+				}
+			}
             return allBookmarks
         }
 
@@ -156,17 +154,15 @@ class BookmarkDBAdapter {
         Log.d(TAG, "about to getBookmarksInPassage:" + book.osis)
         val bookmarkList: MutableList<BookmarkDto> = ArrayList()
         val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + " LIKE ?", arrayOf(book.osis + ".%"), null, null, null)
-        try {
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast) {
-                    val bookmark = getBookmarkDto(c)
-                    bookmarkList.add(bookmark)
-                    c.moveToNext()
-                }
-            }
-        } finally {
-            c.close()
-        }
+		c.use { c ->
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast) {
+					val bookmark = getBookmarkDto(c)
+					bookmarkList.add(bookmark)
+					c.moveToNext()
+				}
+			}
+		}
         Log.d(TAG, "bookmarksInPassage set to " + bookmarkList.size + " item long list")
         return bookmarkList
     }
@@ -180,17 +176,15 @@ class BookmarkDBAdapter {
         val allBookmarks: MutableList<BookmarkDto> = ArrayList()
         val args = arrayOf(label.id.toString())
         val c = db!!.rawQuery(sql, args)
-        try {
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast) {
-                    val bookmark = getBookmarkDto(c)
-                    allBookmarks.add(bookmark)
-                    c.moveToNext()
-                }
-            }
-        } finally {
-            c.close()
-        }
+		c.use { c ->
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast) {
+					val bookmark = getBookmarkDto(c)
+					allBookmarks.add(bookmark)
+					c.moveToNext()
+				}
+			}
+		}
         return allBookmarks
     }
 
@@ -201,17 +195,15 @@ class BookmarkDBAdapter {
                 " WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)"
             val bookmarks: MutableList<BookmarkDto> = ArrayList()
             val c = db!!.rawQuery(sql, null)
-            try {
-                if (c.moveToFirst()) {
-                    while (!c.isAfterLast) {
-                        val bookmark = getBookmarkDto(c)
-                        bookmarks.add(bookmark)
-                        c.moveToNext()
-                    }
-                }
-            } finally {
-                c.close()
-            }
+			c.use { c ->
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast) {
+						val bookmark = getBookmarkDto(c)
+						bookmarks.add(bookmark)
+						c.moveToNext()
+					}
+				}
+			}
             return bookmarks
         }
 
@@ -219,17 +211,15 @@ class BookmarkDBAdapter {
         get() {
             val allLabels: MutableList<LabelDto> = ArrayList()
             val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, LabelColumn.NAME)
-            try {
-                if (c.moveToFirst()) {
-                    while (!c.isAfterLast) {
-                        val bookmark = getLabelDto(c)
-                        allLabels.add(bookmark)
-                        c.moveToNext()
-                    }
-                }
-            } finally {
-                c.close()
-            }
+			c.use { c ->
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast) {
+						val bookmark = getLabelDto(c)
+						allLabels.add(bookmark)
+						c.moveToNext()
+					}
+				}
+			}
             return allLabels
         }
 
@@ -242,17 +232,15 @@ class BookmarkDBAdapter {
         val labels: MutableList<LabelDto> = ArrayList()
         val args = arrayOf(bookmark.id.toString())
         val c = db!!.rawQuery(sql, args)
-        try {
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast) {
-                    val label = getLabelDto(c)
-                    labels.add(label)
-                    c.moveToNext()
-                }
-            }
-        } finally {
-            c.close()
-        }
+		c.use { c ->
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast) {
+					val label = getLabelDto(c)
+					labels.add(label)
+					c.moveToNext()
+				}
+			}
+		}
         return labels
     }
 
@@ -267,13 +255,11 @@ class BookmarkDBAdapter {
     fun getBookmarkDto(id: Long): BookmarkDto? {
         var bookmark: BookmarkDto? = null
         val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
-        try {
-            if (c.moveToFirst()) {
-                bookmark = getBookmarkDto(c)
-            }
-        } finally {
-            c.close()
-        }
+		c.use { c ->
+			if (c.moveToFirst()) {
+				bookmark = getBookmarkDto(c)
+			}
+		}
         return bookmark
     }
 
@@ -334,14 +320,13 @@ class BookmarkDBAdapter {
 
     private fun getLabelDto(id: Long): LabelDto? {
         var label: LabelDto? = null
-        val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
-        try {
-            if (c.moveToFirst()) {
-                label = getLabelDto(c)
-            }
-        } finally {
-            c.close()
-        }
+        val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn._ID + "=?",
+			arrayOf(id.toString()), null, null, null)
+		c.use { c ->
+			if (c.moveToFirst()) {
+				label = getLabelDto(c)
+			}
+		}
         return label
     }
 
@@ -361,18 +346,18 @@ class BookmarkDBAdapter {
     val orCreateSpeakLabel: LabelDto
         get() {
             var label: LabelDto? = null
-            val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn.BOOKMARK_STYLE + "=?", arrayOf(BookmarkStyle.SPEAK.toString()), null, null, null)
-            try {
-                if (c.moveToFirst()) {
-                    label = getLabelDto(c)
-                }
-            } finally {
-                c.close()
-            }
+            val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn.BOOKMARK_STYLE + "=?",
+				arrayOf(BookmarkStyle.SPEAK.toString()), null, null, null)
+			c.use { c ->
+				if (c.moveToFirst()) {
+					label = getLabelDto(c)
+				}
+			}
             if (label == null) {
-                label = LabelDto()
-                label.bookmarkStyle = BookmarkStyle.SPEAK
-                label = insertLabel(label)
+                label = LabelDto().apply {
+					bookmarkStyle = BookmarkStyle.SPEAK
+				}
+                label = insertLabel(label!!)
             }
             return label!!
         }
@@ -380,7 +365,10 @@ class BookmarkDBAdapter {
     private interface BookmarkQuery {
         companion object {
             const val TABLE = BookmarkDatabaseDefinition.Table.BOOKMARK
-            val COLUMNS = arrayOf(BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS)
+            val COLUMNS = arrayOf(
+				BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION,
+				BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS
+			)
             const val ID = 0
             const val KEY = 1
             const val VERSIFICATION = 2

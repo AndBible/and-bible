@@ -34,8 +34,8 @@ class LabelDto : Comparable<LabelDto> {
 
     var bookmarkStyle: BookmarkStyle? = null
 
-    constructor() {}
-    constructor(id: Long?, name: String?, bookmarkStyle: BookmarkStyle?) {
+    constructor()
+	constructor(id: Long?, name: String?, bookmarkStyle: BookmarkStyle?) {
         this.id = id
         this.name = name
         this.bookmarkStyle = bookmarkStyle
