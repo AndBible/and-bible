@@ -47,7 +47,7 @@ import java.util.*
  */
 class MyNoteDBAdapter {
     // Variable to hold the database instance
-    var db: SupportSQLiteDatabase = DatabaseContainer.db.openHelper.readableDatabase
+	private val db: SupportSQLiteDatabase = DatabaseContainer.db.openHelper.readableDatabase
 
     fun insertMyNote(mynote: MyNoteDto): MyNoteDto? { // Create a new row of values to insert.
         Log.d(TAG, "about to insertMyNote: " + mynote.verseRange)

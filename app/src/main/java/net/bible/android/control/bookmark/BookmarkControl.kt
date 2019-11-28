@@ -54,8 +54,7 @@ import javax.inject.Inject
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
 	private val swordContentFacade: SwordContentFacade,
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-	resourceProvider: ResourceProvider)
+	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
 {
     private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
 	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)

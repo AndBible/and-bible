@@ -43,7 +43,7 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkDBAdapter {
-	val db = DatabaseContainer.db.openHelper.readableDatabase
+	private val db = DatabaseContainer.db.openHelper.readableDatabase
 
     fun insertOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto { // Create a new row of values to insert.
         val newValues = ContentValues()
