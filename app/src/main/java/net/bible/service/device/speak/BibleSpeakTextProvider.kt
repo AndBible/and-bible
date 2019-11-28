@@ -383,7 +383,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun removeBookmark() {
         var bookmarkDto: BookmarkDto = this.bookmarkDto ?: return
 
-        val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
+        val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto).toMutableList()
         val speakLabel = bookmarkControl.orCreateSpeakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 

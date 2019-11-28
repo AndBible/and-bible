@@ -65,7 +65,7 @@ class BookmarkDBAdapter {
 // db.close();
     }
 
-    fun insertOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto? { // Create a new row of values to insert.
+    fun insertOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto { // Create a new row of values to insert.
         val newValues = ContentValues()
         val key = bookmark.verseRange
         // must save a Key's versification along with the key!
@@ -86,7 +86,7 @@ class BookmarkDBAdapter {
             bookmark
         } else {
             val newId = db!!.insert(BookmarkDatabaseDefinition.Table.BOOKMARK, null, newValues)
-            getBookmarkDto(newId)
+            getBookmarkDto(newId)!!
         }
     }
 
