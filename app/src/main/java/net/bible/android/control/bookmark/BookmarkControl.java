@@ -300,7 +300,7 @@ public class BookmarkControl {
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteBookmark(BookmarkDto bookmark) {
 		boolean bOk = false;
-		if (bookmark!=null && bookmark.getId()!=null) {
+		if (bookmark!=null && bookmark.getId() !=null) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter();
 			try {
 				db.open();
@@ -392,7 +392,7 @@ public class BookmarkControl {
 		LabelDto retLabel = null;
 		try {
 			db.open();
-			if (label.getId()==null) {
+			if (label.getId() ==null) {
 				retLabel = db.insertLabel(label);
 			} else {
 				retLabel = db.updateLabel(label);
@@ -406,7 +406,7 @@ public class BookmarkControl {
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteLabel(LabelDto label) {
 		boolean bOk = false;
-		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label) && !LABEL_UNLABELLED.equals(label)) {
+		if (label!=null && label.getId() !=null && !LABEL_ALL.equals(label) && !LABEL_UNLABELLED.equals(label)) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter();
 			try {
 				db.open();
