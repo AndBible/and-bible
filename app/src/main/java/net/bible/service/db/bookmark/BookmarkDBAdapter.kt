@@ -114,20 +114,20 @@ class BookmarkDBAdapter {
         return db!!.delete(BookmarkDatabaseDefinition.Table.LABEL, LabelColumn._ID + "=" + label.id, null) > 0
     }
 
-    fun insertLabel(label: LabelDto): LabelDto? { // Create a new row of values to insert.
+    fun insertLabel(label: LabelDto): LabelDto { // Create a new row of values to insert.
         val newValues = ContentValues()
         newValues.put(LabelColumn.NAME, label.name)
         newValues.put(LabelColumn.BOOKMARK_STYLE, label.bookmarkStyleAsString)
         val newId = db!!.insert(BookmarkDatabaseDefinition.Table.LABEL, null, newValues)
-        return getLabelDto(newId)
+        return getLabelDto(newId)!!
     }
 
-    fun updateLabel(label: LabelDto): LabelDto? { // Create a new row of values to insert.
+    fun updateLabel(label: LabelDto): LabelDto { // Create a new row of values to insert.
         val newValues = ContentValues()
         newValues.put(LabelColumn.NAME, label.name)
         newValues.put(LabelColumn.BOOKMARK_STYLE, label.bookmarkStyleAsString)
         val newId = db!!.update(BookmarkDatabaseDefinition.Table.LABEL, newValues, "_id=?", arrayOf(label.id.toString())).toLong()
-        return getLabelDto(newId)
+        return getLabelDto(newId)!!
     }
 
     fun removeBookmarkLabelJoin(bookmark: BookmarkDto, label: LabelDto): Boolean {

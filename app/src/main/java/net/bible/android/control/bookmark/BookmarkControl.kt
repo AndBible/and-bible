@@ -52,7 +52,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BookmarkControl @Inject constructor(
+open class BookmarkControl @Inject constructor(
 	private val swordContentFacade: SwordContentFacade,
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
 	resourceProvider: ResourceProvider)
@@ -165,10 +165,10 @@ class BookmarkControl @Inject constructor(
     }
     // pure bookmark methods
     /** get all bookmarks  */
-    val allBookmarks: List<BookmarkDto>?
+    val allBookmarks: List<BookmarkDto>
         get() {
             val db = BookmarkDBAdapter()
-            var bookmarkList: List<BookmarkDto>? = null
+            var bookmarkList: List<BookmarkDto>
             try {
                 db.open()
                 bookmarkList = db.allBookmarks
@@ -296,7 +296,8 @@ class BookmarkControl @Inject constructor(
     }
 
     /** label the bookmark with these and only these labels  */
-    fun setBookmarkLabels(bookmark: BookmarkDto?, labels: MutableList<LabelDto>) { // never save LABEL_ALL
+    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>) { // never save LABEL_ALL
+		val labels = labels_.toMutableList()
         labels.remove(LABEL_ALL)
         labels.remove(LABEL_UNLABELLED)
         val db = BookmarkDBAdapter()
@@ -321,10 +322,9 @@ class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
     }
 
-    fun saveOrUpdateLabel(label: LabelDto): LabelDto? {
+    fun saveOrUpdateLabel(label: LabelDto): LabelDto {
         val db = BookmarkDBAdapter()
-        var retLabel: LabelDto? = null
-        retLabel = try {
+        return try {
             db.open()
             if (label.id == null) {
                 db.insertLabel(label)
@@ -334,7 +334,6 @@ class BookmarkControl @Inject constructor(
         } finally {
             db.close()
         }
-        return retLabel
     }
 
     /** delete this bookmark (and any links to labels)  */

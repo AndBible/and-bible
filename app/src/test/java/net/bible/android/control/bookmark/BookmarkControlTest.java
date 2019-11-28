@@ -86,7 +86,7 @@ public class BookmarkControlTest {
 		try {
 			BookmarkDto newDto = addTestVerse();
 			assertEquals("New Bookmark key incorrect.  Test:"+currentTestVerse+" was:"+newDto.getVerseRange().getName(), newDto.getVerseRange().getName(), currentTestVerse);
-			assertTrue("New Bookmark id incorrect", newDto.id >-1);
+			assertTrue("New Bookmark id incorrect", newDto.getId() >-1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Exception:"+e.getMessage());
@@ -118,7 +118,7 @@ public class BookmarkControlTest {
 		
 		bookmarks = bookmarkControl.getAllBookmarks();
 		for (BookmarkDto bookmark : bookmarks) {
-			assertFalse("delete failed", bookmark.id.equals(toDelete.id));
+			assertFalse("delete failed", bookmark.getId().equals(toDelete.getId()));
 		}
 		
 	}
@@ -128,7 +128,7 @@ public class BookmarkControlTest {
 		try {
 			LabelDto newDto = addTestLabel();
 			assertEquals("New Label name incorrect.  Test:"+currentTestLabel+" was:"+newDto.getName(), newDto.getName(), currentTestLabel);
-			assertTrue("New Label id incorrect", newDto.id >-1);
+			assertTrue("New Label id incorrect", newDto.getId() >-1);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Exception:"+e.getMessage());
@@ -218,7 +218,7 @@ public class BookmarkControlTest {
 		final BookmarkDto bookmarkDto = addBookmark("ps.17.1-ps.17.2");
 		LabelDto greenLabelDto = new LabelDto();
 		greenLabelDto.setName("G");
-		greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT;
+		greenLabelDto.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
 		greenLabelDto = bookmarkControl.saveOrUpdateLabel(greenLabelDto);
 		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenLabelDto));
 
@@ -247,12 +247,12 @@ public class BookmarkControlTest {
 
 		LabelDto greenLabelDto = new LabelDto();
 		greenLabelDto.setName("G");
-		greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT;
+		greenLabelDto.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
 		greenLabelDto = bookmarkControl.saveOrUpdateLabel(greenLabelDto);
 
 		LabelDto stargLabelDto = new LabelDto();
 		stargLabelDto.setName("S");
-		stargLabelDto.bookmarkStyle = BookmarkStyle.YELLOW_STAR;
+		stargLabelDto.setBookmarkStyle(BookmarkStyle.YELLOW_STAR);
 		stargLabelDto = bookmarkControl.saveOrUpdateLabel(stargLabelDto);
 
 		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenLabelDto));
@@ -278,12 +278,12 @@ public class BookmarkControlTest {
 
 		LabelDto label1 = new LabelDto();
 		label1.setName("S");
-		label1.bookmarkStyle = BookmarkStyle.YELLOW_STAR;
+		label1.setBookmarkStyle(BookmarkStyle.YELLOW_STAR);
 		label1 = bookmarkControl.saveOrUpdateLabel(label1);
 
 		LabelDto label2 = new LabelDto();
 		label2.setName("G");
-		label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT;
+		label2.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
 		label2 = bookmarkControl.saveOrUpdateLabel(label2);
 
 		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(label1));
@@ -310,7 +310,7 @@ public class BookmarkControlTest {
 
 		LabelDto label2 = new LabelDto();
 		label2.setName("G");
-		label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT;
+		label2.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
 		label2 = bookmarkControl.saveOrUpdateLabel(label2);
 
 		bookmarkControl.setBookmarkLabels(bookmarkDto2, Collections.singletonList(label2));
