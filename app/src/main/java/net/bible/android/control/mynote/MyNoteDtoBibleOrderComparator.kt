@@ -15,10 +15,22 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.mynote
 
-package net.bible.android.control.mynote;
+import net.bible.android.control.versification.sort.ConvertibleVerseRangeComparator
+import net.bible.service.db.mynote.MyNoteDto
+import java.util.*
 
-public enum MyNoteSortOrder {
-	BIBLE_BOOK,
-	DATE_CREATED
+/**
+ * Complex comparison of dtos ensuring the best v11n is used for each comparison.
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+class MyNoteDtoBibleOrderComparator(myNoteDtos: List<MyNoteDto>?) : Comparator<MyNoteDto> {
+    private val convertibleVerseRangeComparator: ConvertibleVerseRangeComparator
+		= ConvertibleVerseRangeComparator.Builder().withMyNotes(myNoteDtos).build()
+	override fun compare(o1: MyNoteDto, o2: MyNoteDto): Int {
+        return convertibleVerseRangeComparator.compare(o1, o2)
+    }
+
 }

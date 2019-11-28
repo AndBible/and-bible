@@ -15,26 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.mynote
 
-package net.bible.android.control.mynote;
-
-import androidx.annotation.NonNull;
-
-import net.bible.service.db.mynote.MyNoteDto;
-
-import java.util.Comparator;
+import net.bible.service.db.mynote.MyNoteDto
+import java.util.*
 
 /**
  * Sort MyNotes by create date, most recent first
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public class MyNoteCreationDateComparator implements Comparator<MyNoteDto> {
-
-	public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
-		// descending order
-		return myNote2.getCreatedOn().compareTo(myNote1.getCreatedOn());
-	}
-
+class MyNoteCreationDateComparator : Comparator<MyNoteDto> {
+    override fun compare(myNote1: MyNoteDto, myNote2: MyNoteDto): Int { // descending order
+        return myNote2.createdOn!!.compareTo(myNote1.createdOn)
+    }
 }
