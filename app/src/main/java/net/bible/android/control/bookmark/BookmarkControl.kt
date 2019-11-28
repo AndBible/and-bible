@@ -398,11 +398,9 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
         }
 
     private fun getSortedBookmarks(bookmarkList: List<BookmarkDto>): List<BookmarkDto> {
-        val comparator: Comparator<BookmarkDto>
-        comparator = when (bookmarkSortOrder) {
+        val comparator: Comparator<BookmarkDto> = when (bookmarkSortOrder) {
             BookmarkSortOrder.DATE_CREATED -> BookmarkCreationDateComparator()
             BookmarkSortOrder.BIBLE_BOOK -> BookmarkDtoBibleOrderComparator(bookmarkList)
-            else -> BookmarkDtoBibleOrderComparator(bookmarkList)
         }
         // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
         try {

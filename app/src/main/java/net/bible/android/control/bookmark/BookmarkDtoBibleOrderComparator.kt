@@ -15,26 +15,23 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.bookmark
 
-package net.bible.android.control.bookmark;
-
-import androidx.annotation.NonNull;
-
-import net.bible.service.db.bookmark.BookmarkDto;
-
-import java.util.Comparator;
+import net.bible.android.control.versification.sort.ConvertibleVerseRangeComparator
+import net.bible.service.db.bookmark.BookmarkDto
+import java.util.*
 
 /**
- * Sort bookmarks by create date, most recent first
+ * Complex comparison of dtos ensuring the best v11n is used for each comparison.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-public class BookmarkCreationDateComparator implements Comparator<BookmarkDto> {
-
-	public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
-		// descending order
-		return bookmark2.getCreatedOn().compareTo(bookmark1.getCreatedOn());
-	}
+class BookmarkDtoBibleOrderComparator(bookmarkDtos: List<BookmarkDto>) : Comparator<BookmarkDto> {
+    private val convertibleVerseRangeComparator
+		= ConvertibleVerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build()
+	override fun compare(o1: BookmarkDto, o2: BookmarkDto): Int {
+        return convertibleVerseRangeComparator.compare(o1, o2)
+    }
 
 }

@@ -15,13 +15,23 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.bookmark
 
-package net.bible.android.control.bookmark;
+import android.graphics.Color
 
 /**
+ * How to represent bookmarks
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public enum BookmarkSortOrder {
-	BIBLE_BOOK,
-	DATE_CREATED
+enum class BookmarkStyle(val backgroundColor: Int) {
+    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
+	RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
+	YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
+	GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
+	BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
+	// Special hard-coded style for Speak bookmarks. This must be last one here.
+    // This is removed from the style lists.
+    SPEAK(Color.argb(0, 255, 255, 255));
+
 }

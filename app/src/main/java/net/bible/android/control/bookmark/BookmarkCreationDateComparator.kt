@@ -15,34 +15,18 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.bookmark
 
-package net.bible.android.control.bookmark;
-
-import android.graphics.Color;
+import net.bible.service.db.bookmark.BookmarkDto
+import java.util.*
 
 /**
- * How to represent bookmarks
+ * Sort bookmarks by create date, most recent first
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public enum BookmarkStyle {
-	YELLOW_STAR(Color.argb(0, 255, 255, 255)),
-	RED_HIGHLIGHT(Color.argb((int)(255*0.28), 213, 0, 0)),
-	YELLOW_HIGHLIGHT(Color.argb((int)(255*0.33), 255, 255, 0)),
-	GREEN_HIGHLIGHT(Color.argb((int)(255*0.33), 0, 255, 0)),
-	BLUE_HIGHLIGHT(Color.argb((int)(255*0.33), 145, 167, 255)),
-
-	// Special hard-coded style for Speak bookmarks. This must be last one here.
-	// This is removed from the style lists.
-	SPEAK(Color.argb(0, 255, 255, 255));
-
-	private final int backgroundColor;
-
-	BookmarkStyle(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
+class BookmarkCreationDateComparator : Comparator<BookmarkDto> {
+    override fun compare(bookmark1: BookmarkDto, bookmark2: BookmarkDto): Int { // descending order
+        return bookmark2.createdOn!!.compareTo(bookmark1.createdOn)
+    }
 }
