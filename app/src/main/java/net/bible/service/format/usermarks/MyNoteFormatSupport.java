@@ -54,11 +54,8 @@ public class MyNoteFormatSupport {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		List<MyNoteDto> myNoteList = null;
 		try {
-			db.open();
 			myNoteList = db.getMyNotesInBook(book);
-		} finally {
-			db.close();
-		}
+		} finally {}
 
 		// convert to required versification and check verse is in passage
 		List<Verse> versesInPassage = new ArrayList<>();

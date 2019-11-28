@@ -50,12 +50,9 @@ open class MyNoteDAO @Inject constructor() {
         val db = MyNoteDBAdapter()
         var myNoteList: List<MyNoteDto>
         try {
-            db.open()
             myNoteList = db.allMyNotes
             myNoteList = getSortedMyNotes(myNoteList, sortOrder)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return myNoteList
     }
 
@@ -67,11 +64,8 @@ open class MyNoteDAO @Inject constructor() {
         val db = MyNoteDBAdapter()
         var myNote: MyNoteDto? = null
         myNote = try {
-            db.open()
             db.getMyNoteByStartVerse(startVerse.osisRef)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return myNote
     }
 
@@ -83,11 +77,8 @@ open class MyNoteDAO @Inject constructor() {
         if (myNote != null && myNote.id != null) {
             val db = MyNoteDBAdapter()
             bOk = try {
-                db.open()
                 db.removeMyNote(myNote)
-            } finally {
-                db.close()
-            }
+            } finally {}
         }
         return bOk
     }
@@ -99,11 +90,8 @@ open class MyNoteDAO @Inject constructor() {
         val db = MyNoteDBAdapter()
         var newMyNote: MyNoteDto? = null
         newMyNote = try {
-            db.open()
             db.insertMyNote(myNote!!)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return newMyNote
     }
 
@@ -114,20 +102,16 @@ open class MyNoteDAO @Inject constructor() {
         val db = MyNoteDBAdapter()
         var updatedMyNote: MyNoteDto? = null
         updatedMyNote = try {
-            db.open()
             db.updateMyNote(myNote!!)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return updatedMyNote
     }
 
     private fun getSortedMyNotes(myNoteList: List<MyNoteDto>, sortOrder: MyNoteSortOrder): List<MyNoteDto> {
-        val comparator: Comparator<MyNoteDto>
-        comparator = when (sortOrder) {
-            MyNoteSortOrder.DATE_CREATED -> MyNoteCreationDateComparator()
-            MyNoteSortOrder.BIBLE_BOOK -> MyNoteDtoBibleOrderComparator(myNoteList)
-        }
+		val comparator = when (sortOrder) {
+			MyNoteSortOrder.DATE_CREATED -> MyNoteCreationDateComparator()
+			MyNoteSortOrder.BIBLE_BOOK -> MyNoteDtoBibleOrderComparator(myNoteList)
+		}
         // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing notes
         try {
             Collections.sort(myNoteList, comparator)

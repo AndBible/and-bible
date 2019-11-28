@@ -19,14 +19,12 @@ package net.bible.service.db.bookmark
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.database.SQLException
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteException
-import android.database.sqlite.SQLiteOpenHelper
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
+import androidx.sqlite.db.SupportSQLiteQueryBuilder.builder
 import net.bible.android.control.bookmark.BookmarkStyle
 import net.bible.android.control.speak.PlaybackSettings.Companion.fromJson
-import net.bible.service.db.CommonDatabaseHelper
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.SQLHelper
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelColumn
@@ -45,25 +43,7 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkDBAdapter {
-    // Variable to hold the database instance
-    private var db: SQLiteDatabase? = null
-    // Database open/upgrade helper
-    private val dbHelper: SQLiteOpenHelper
-
-    @Throws(SQLException::class)
-    fun open(): BookmarkDBAdapter {
-        db = try {
-            dbHelper.writableDatabase
-        } catch (ex: SQLiteException) {
-            dbHelper.readableDatabase
-        }
-        return this
-    }
-
-    fun close() { //TODO remove totally or call on app stop
-// apparently we are now supposed to leave the database open and allow Android to close it when appropriate
-// db.close();
-    }
+	val db = DatabaseContainer.db.openHelper.readableDatabase
 
     fun insertOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto { // Create a new row of values to insert.
         val newValues = ContentValues()
@@ -82,17 +62,17 @@ class BookmarkDBAdapter {
             newValues.putNull(BookmarkColumn.PLAYBACK_SETTINGS)
         }
         return if (bookmark.id != null) {
-            db!!.update(BookmarkDatabaseDefinition.Table.BOOKMARK, newValues, BookmarkColumn._ID + "=" + bookmark.id, null)
+            db.update(BookmarkDatabaseDefinition.Table.BOOKMARK, CONFLICT_FAIL, newValues, BookmarkColumn._ID + "=" + bookmark.id, null)
             bookmark
         } else {
-            val newId = db!!.insert(BookmarkDatabaseDefinition.Table.BOOKMARK, null, newValues)
+            val newId = db.insert(BookmarkDatabaseDefinition.Table.BOOKMARK, CONFLICT_FAIL, newValues)
             getBookmarkDto(newId)!!
         }
     }
 
     fun removeBookmark(bookmark: BookmarkDto): Boolean {
         Log.d(TAG, "Removing bookmark:" + bookmark.verseRange)
-        return db!!.delete(BookmarkDatabaseDefinition.Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.id, null) > 0
+        return db.delete(BookmarkDatabaseDefinition.Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.id, null) > 0
     }
 
     fun updateBookmarkDate(bookmark: BookmarkDto): BookmarkDto? { // Create a new row of values to insert.
@@ -105,20 +85,20 @@ class BookmarkDBAdapter {
         // Gets the current system time in milliseconds
         val now = System.currentTimeMillis()
         newValues.put(BookmarkColumn.CREATED_ON, now)
-        db!!.update(BookmarkDatabaseDefinition.Table.BOOKMARK, newValues, BookmarkColumn._ID + "=" + bookmarkId, null)
+        db.update(BookmarkDatabaseDefinition.Table.BOOKMARK, CONFLICT_FAIL, newValues, BookmarkColumn._ID + "=" + bookmarkId, null)
         return getBookmarkDto(bookmarkId)
     }
 
     fun removeLabel(label: LabelDto): Boolean {
         Log.d(TAG, "Removing label:" + label.name)
-        return db!!.delete(BookmarkDatabaseDefinition.Table.LABEL, LabelColumn._ID + "=" + label.id, null) > 0
+        return db.delete(BookmarkDatabaseDefinition.Table.LABEL, LabelColumn._ID + "=" + label.id, null) > 0
     }
 
     fun insertLabel(label: LabelDto): LabelDto { // Create a new row of values to insert.
         val newValues = ContentValues()
         newValues.put(LabelColumn.NAME, label.name)
         newValues.put(LabelColumn.BOOKMARK_STYLE, label.bookmarkStyleAsString)
-        val newId = db!!.insert(BookmarkDatabaseDefinition.Table.LABEL, null, newValues)
+        val newId = db.insert(BookmarkDatabaseDefinition.Table.LABEL, CONFLICT_FAIL, newValues)
         return getLabelDto(newId)!!
     }
 
@@ -126,18 +106,18 @@ class BookmarkDBAdapter {
         val newValues = ContentValues()
         newValues.put(LabelColumn.NAME, label.name)
         newValues.put(LabelColumn.BOOKMARK_STYLE, label.bookmarkStyleAsString)
-        val newId = db!!.update(BookmarkDatabaseDefinition.Table.LABEL, newValues, "_id=?", arrayOf(label.id.toString())).toLong()
+        val newId = db.update(BookmarkDatabaseDefinition.Table.LABEL, CONFLICT_FAIL, newValues, "_id=?", arrayOf(label.id.toString())).toLong()
         return getLabelDto(newId)!!
     }
 
     fun removeBookmarkLabelJoin(bookmark: BookmarkDto, label: LabelDto): Boolean {
-        return db!!.delete(BookmarkDatabaseDefinition.Table.BOOKMARK_LABEL, BookmarkLabelColumn.BOOKMARK_ID + "=" + bookmark.id + " AND " + BookmarkLabelColumn.LABEL_ID + "=" + label.id, null) > 0
+        return db.delete(BookmarkDatabaseDefinition.Table.BOOKMARK_LABEL, BookmarkLabelColumn.BOOKMARK_ID + "=" + bookmark.id + " AND " + BookmarkLabelColumn.LABEL_ID + "=" + label.id, null) > 0
     }
 
     val allBookmarks: List<BookmarkDto>
         get() {
             val allBookmarks: MutableList<BookmarkDto> = ArrayList()
-            val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, null, null, null, null, null)
+			val c = db.query(builder(BookmarkQuery.TABLE).columns(BookmarkQuery.COLUMNS).create())
 			c.use { c ->
 				if (c.moveToFirst()) {
 					while (!c.isAfterLast) {
@@ -153,7 +133,7 @@ class BookmarkDBAdapter {
     fun getBookmarksInBook(book: BibleBook): List<BookmarkDto> {
         Log.d(TAG, "about to getBookmarksInPassage:" + book.osis)
         val bookmarkList: MutableList<BookmarkDto> = ArrayList()
-        val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + " LIKE ?", arrayOf(book.osis + ".%"), null, null, null)
+		val c = db.query(builder(BookmarkQuery.TABLE).columns(BookmarkQuery.COLUMNS).selection(BookmarkColumn.KEY + " LIKE ?", arrayOf(book.osis + ".%")).create())
 		c.use { c ->
 			if (c.moveToFirst()) {
 				while (!c.isAfterLast) {
@@ -175,7 +155,7 @@ class BookmarkDBAdapter {
             "WHERE label._id = ? "
         val allBookmarks: MutableList<BookmarkDto> = ArrayList()
         val args = arrayOf(label.id.toString())
-        val c = db!!.rawQuery(sql, args)
+        val c = db.query(sql, args)
 		c.use { c ->
 			if (c.moveToFirst()) {
 				while (!c.isAfterLast) {
@@ -194,7 +174,7 @@ class BookmarkDBAdapter {
                 " FROM bookmark " +
                 " WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)"
             val bookmarks: MutableList<BookmarkDto> = ArrayList()
-            val c = db!!.rawQuery(sql, null)
+            val c = db.query(sql, null)
 			c.use { c ->
 				if (c.moveToFirst()) {
 					while (!c.isAfterLast) {
@@ -210,7 +190,7 @@ class BookmarkDBAdapter {
     val allLabels: List<LabelDto>
         get() {
             val allLabels: MutableList<LabelDto> = ArrayList()
-            val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, LabelColumn.NAME)
+			val c = db.query(builder(LabelQuery.TABLE).columns(LabelQuery.COLUMNS).orderBy(LabelColumn.NAME).create())
 			c.use { c ->
 				if (c.moveToFirst()) {
 					while (!c.isAfterLast) {
@@ -231,7 +211,7 @@ class BookmarkDBAdapter {
             "WHERE bookmark._id = ?"
         val labels: MutableList<LabelDto> = ArrayList()
         val args = arrayOf(bookmark.id.toString())
-        val c = db!!.rawQuery(sql, args)
+        val c = db.query(sql, args)
 		c.use { c ->
 			if (c.moveToFirst()) {
 				while (!c.isAfterLast) {
@@ -249,12 +229,13 @@ class BookmarkDBAdapter {
         newValues.put(BookmarkLabelColumn.BOOKMARK_ID, bookmark.id)
         newValues.put(BookmarkLabelColumn.LABEL_ID, label.id)
         //long newId =
-        db!!.insert(BookmarkDatabaseDefinition.Table.BOOKMARK_LABEL, null, newValues)
+        db.insert(BookmarkDatabaseDefinition.Table.BOOKMARK_LABEL, CONFLICT_FAIL, newValues)
     }
 
     fun getBookmarkDto(id: Long): BookmarkDto? {
         var bookmark: BookmarkDto? = null
-        val c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
+		//val c = db2.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
+		val c = db.query(builder(BookmarkQuery.TABLE).columns(BookmarkQuery.COLUMNS).selection(BookmarkColumn._ID + "=?", arrayOf(id.toString())).create())
 		c.use { c ->
 			if (c.moveToFirst()) {
 				bookmark = getBookmarkDto(c)
@@ -271,9 +252,9 @@ class BookmarkDBAdapter {
         var bookmark: BookmarkDto? = null
         var c: Cursor? = null
         try { // exact match
-            c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + "=?", arrayOf(key), null, null, null)
+			c = db.query(builder(BookmarkQuery.TABLE).columns(BookmarkQuery.COLUMNS).selection(BookmarkColumn.KEY + "=?", arrayOf(key)).create())
             if (!c.moveToFirst()) { // start of verse range
-                c = db!!.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + " LIKE ?", arrayOf("$key-%"), null, null, null)
+				c = db.query(builder(BookmarkQuery.TABLE).columns(BookmarkQuery.COLUMNS).selection(BookmarkColumn.KEY + " LIKE ?", arrayOf("$key-%")).create())
                 if (!c.moveToFirst()) {
                     return null
                 }
@@ -320,8 +301,7 @@ class BookmarkDBAdapter {
 
     private fun getLabelDto(id: Long): LabelDto? {
         var label: LabelDto? = null
-        val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn._ID + "=?",
-			arrayOf(id.toString()), null, null, null)
+		val c = db.query(builder(LabelQuery.TABLE).columns(LabelQuery.COLUMNS).selection(LabelColumn._ID + "=?", arrayOf(id.toString())).create())
 		c.use { c ->
 			if (c.moveToFirst()) {
 				label = getLabelDto(c)
@@ -346,8 +326,7 @@ class BookmarkDBAdapter {
     val orCreateSpeakLabel: LabelDto
         get() {
             var label: LabelDto? = null
-            val c = db!!.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn.BOOKMARK_STYLE + "=?",
-				arrayOf(BookmarkStyle.SPEAK.toString()), null, null, null)
+			val c = db.query(builder(LabelQuery.TABLE).columns(LabelQuery.COLUMNS).selection(LabelColumn.BOOKMARK_STYLE + "=?", arrayOf(BookmarkStyle.SPEAK.toString())).create())
 			c.use { c ->
 				if (c.moveToFirst()) {
 					label = getLabelDto(c)
@@ -389,9 +368,5 @@ class BookmarkDBAdapter {
 
     companion object {
         private const val TAG = "BookmarkDBAdapter"
-    }
-
-    init {
-        dbHelper = CommonDatabaseHelper.instance
     }
 }

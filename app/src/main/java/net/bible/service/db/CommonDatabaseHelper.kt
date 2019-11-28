@@ -17,12 +17,15 @@
  */
 package net.bible.service.db
 
-import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteException
-import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
-import net.bible.android.BibleApplication.Companion.application
+import androidx.room.ColumnInfo
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import net.bible.android.BibleApplication
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
@@ -34,83 +37,91 @@ import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-/**
- * Private constructor, callers except unit tests should obtain an instance through
- * [.getInstance] instead.
- */
-class CommonDatabaseHelper internal constructor(context: Context?)
-	: SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    /** Called when no database exists in disk and the helper class needs
-     * to create a new one.
-     */
-    override fun onCreate(db: SQLiteDatabase) {
-        BookmarkDatabaseDefinition.instance.onCreate(db)
-        MyNoteDatabaseDefinition.instance.onCreate(db)
-        ReadingPlanDatabaseOperations.instance.onCreate(db)
-    }
+const val DATABASE_VERSION = 6
+const val DATABASE_NAME = "andBibleDatabase.db"
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        var oldVersion = oldVersion
-        Log.i(TAG, "Upgrading DB from version $oldVersion to $newVersion")
-        try {
-            if (oldVersion < 1) {
-                BookmarkDatabaseDefinition.instance.onCreate(db)
-                oldVersion = 1
-            }
-            if (oldVersion == 1) {
-                MyNoteDatabaseDefinition.instance.onCreate(db)
-                oldVersion += 1
-            }
-            if (oldVersion == 2) {
-                BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
-                MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
-                oldVersion += 1
-            }
-            if (oldVersion == 3) {
-                BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
-                oldVersion += 1
-            }
-            if (oldVersion == 4) {
-                BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
-                oldVersion += 1
-            }
-            if (oldVersion == 5) {
-                ReadingPlanDatabaseOperations.instance.onCreate(db)
-                ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
-                oldVersion += 1
-            }
-        } catch (e: SQLiteException) {
-            Log.e(TAG, "onUpgrade: SQLiteException. $e")
-            //TODO allow complete recreation if error - too scared to do this!
-//			Log.e(TAG, "onUpgrade: SQLiteException, recreating db. " + e);
-//			dropTables(db);
-//			bootstrapDB(db);
-        }
-    }
+object DatabaseContainer {
+	private var instance: AppDatabase? = null
 
-    companion object {
-        private const val TAG = "CommonDatabaseHelper"
-        const val DATABASE_VERSION = 6
-        const val DATABASE_NAME = "andBibleDatabase.db"
-        private var sSingleton: CommonDatabaseHelper? = null
-        @get:Synchronized
-        val instance: CommonDatabaseHelper
-            get() {
-                if (sSingleton == null) {
-                    sSingleton = CommonDatabaseHelper(application.applicationContext)
-                }
-                return sSingleton!!
-            }
-
-        fun sync() { // Sync all data so far into database file
-            val cur = instance.writableDatabase
-                .rawQuery("PRAGMA wal_checkpoint(FULL)", null)
-            cur.moveToFirst()
-            cur.close()
-        }
-
-        fun reset() {
-            sSingleton = null
-        }
-    }
+	val db: AppDatabase
+		get () {
+			if(instance == null) {
+				instance = Room.databaseBuilder(BibleApplication.application, AppDatabase::class.java, DATABASE_NAME)
+					.addMigrations(
+						AppDatabase.MIGRATION_0_1,
+						AppDatabase.MIGRATION_1_2,
+						AppDatabase.MIGRATION_2_3,
+						AppDatabase.MIGRATION_3_4,
+						AppDatabase.MIGRATION_4_5,
+						AppDatabase.MIGRATION_5_6
+					).build()
+			}
+			return instance!!
+		}
+	fun reset() {
+		instance = null
+	}
 }
+
+@Entity(tableName = "bookmark")
+data class Bookmarks(
+	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+	@ColumnInfo(name = "created_on") val createdOn: Int?,
+	val key: String,
+	val versification: String?,
+	@ColumnInfo(name = "speak_settings") val speakSettings: String?
+)
+
+@Database(entities = [Bookmarks::class], version = DATABASE_VERSION)
+abstract class AppDatabase: RoomDatabase() {
+	fun sync() { // Sync all data so far into database file
+		val cur = openHelper.writableDatabase
+			.query("PRAGMA wal_checkpoint(FULL)")
+		cur.moveToFirst()
+		cur.close()
+	}
+
+	fun reset() {
+		DatabaseContainer.reset()
+	}
+
+	companion object {
+		val MIGRATION_0_1 = object : Migration(0, 1) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				BookmarkDatabaseDefinition.instance.onCreate(db)
+			}
+		}
+
+		val MIGRATION_1_2 = object : Migration(1, 2) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				MyNoteDatabaseDefinition.instance.onCreate(db)
+			}
+		}
+
+		val MIGRATION_2_3 = object : Migration(2, 3) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
+				MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
+			}
+		}
+		val MIGRATION_3_4 = object : Migration(3, 4) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
+
+			}
+		}
+		val MIGRATION_4_5 = object : Migration(4, 5) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
+
+			}
+		}
+		val MIGRATION_5_6 = object : Migration(5, 6) {
+			override fun migrate(db: SupportSQLiteDatabase) {
+				ReadingPlanDatabaseOperations.instance.onCreate(db)
+				ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
+			}
+		}
+	}
+}
+

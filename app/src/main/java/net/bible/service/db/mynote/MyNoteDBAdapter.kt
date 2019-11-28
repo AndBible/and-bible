@@ -22,12 +22,11 @@ package net.bible.service.db.mynote
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.database.SQLException
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteException
-import android.database.sqlite.SQLiteOpenHelper
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
-import net.bible.service.db.CommonDatabaseHelper
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteQueryBuilder.builder
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.MyNoteColumn
 import org.apache.commons.lang3.StringUtils
@@ -48,26 +47,7 @@ import java.util.*
  */
 class MyNoteDBAdapter {
     // Variable to hold the database instance
-    private var db: SQLiteDatabase? = null
-    // Database open/upgrade helper
-    private val dbHelper: SQLiteOpenHelper
-
-    @Throws(SQLException::class)
-    fun open(): MyNoteDBAdapter {
-        db = try {
-            Log.d(TAG, "about to getWritableDatabase")
-            dbHelper.writableDatabase
-        } catch (ex: SQLiteException) {
-            Log.d(TAG, "about to getReadableDatabase")
-            dbHelper.readableDatabase
-        }
-        return this
-    }
-
-    fun close() { //TODO remove totally or call on app stop
-// apparently we are now supposed to leave the database open and allow Android to close it when appropriate
-// db.close();
-    }
+    var db: SupportSQLiteDatabase = DatabaseContainer.db.openHelper.readableDatabase
 
     fun insertMyNote(mynote: MyNoteDto): MyNoteDto? { // Create a new row of values to insert.
         Log.d(TAG, "about to insertMyNote: " + mynote.verseRange)
@@ -81,7 +61,7 @@ class MyNoteDBAdapter {
         newValues.put(MyNoteColumn.MYNOTE, mynote.noteText)
         newValues.put(MyNoteColumn.LAST_UPDATED_ON, now)
         newValues.put(MyNoteColumn.CREATED_ON, now)
-        val newId = db!!.insert(MyNoteDatabaseDefinition.Table.MYNOTE, null, newValues)
+        val newId = db.insert(MyNoteDatabaseDefinition.Table.MYNOTE, CONFLICT_FAIL, newValues)
         return getMyNoteDto(newId)
     }
 
@@ -108,32 +88,30 @@ class MyNoteDBAdapter {
         newValues.put(MyNoteColumn.VERSIFICATION, v11nName)
         newValues.put(MyNoteColumn.MYNOTE, mynote.noteText)
         newValues.put(MyNoteColumn.LAST_UPDATED_ON, now)
-        val rowsUpdated = db!!.update(MyNoteDatabaseDefinition.Table.MYNOTE, newValues, "_id=?", arrayOf(mynote.id.toString())).toLong()
+        val rowsUpdated = db.update(MyNoteDatabaseDefinition.Table.MYNOTE, CONFLICT_FAIL, newValues, "_id=?", arrayOf(mynote.id.toString())).toLong()
         Log.d(TAG, "Rows updated:$rowsUpdated")
         return getMyNoteDto(mynote.id!!)
     }
 
     fun removeMyNote(mynote: MyNoteDto): Boolean {
         Log.d(TAG, "Removing my note:" + mynote.verseRange)
-        return db!!.delete(MyNoteDatabaseDefinition.Table.MYNOTE, MyNoteColumn._ID + "=" + mynote.id, null) > 0
+        return db.delete(MyNoteDatabaseDefinition.Table.MYNOTE, MyNoteColumn._ID + "=" + mynote.id, null) > 0
     }
 
     val allMyNotes: List<MyNoteDto>
         get() {
             Log.d(TAG, "about to getAllMyNotes")
             val allMyNotes: MutableList<MyNoteDto> = ArrayList()
-            val c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, null, null, null, null, null)
-            try {
-                if (c.moveToFirst()) {
-                    while (!c.isAfterLast) {
-                        val mynote = getMyNoteDto(c)
-                        allMyNotes.add(mynote)
-                        c.moveToNext()
-                    }
-                }
-            } finally {
-                c.close()
-            }
+            val c = db.query(builder(MyNoteQuery.TABLE).columns(MyNoteQuery.COLUMNS).create())
+			c.use { c ->
+				if (c.moveToFirst()) {
+					while (!c.isAfterLast) {
+						val mynote = getMyNoteDto(c)
+						allMyNotes.add(mynote)
+						c.moveToNext()
+					}
+				}
+			}
             Log.d(TAG, "allMyNotes set to " + allMyNotes.size + " item long list")
             return allMyNotes
         }
@@ -141,32 +119,28 @@ class MyNoteDBAdapter {
     fun getMyNotesInBook(book: BibleBook): List<MyNoteDto> {
         Log.d(TAG, "about to getMyNotesInPassage:" + book.osis)
         val notesList: MutableList<MyNoteDto> = ArrayList()
-        val c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY + " LIKE ?", arrayOf(book.osis + ".%"), null, null, null)
-        try {
-            if (c.moveToFirst()) {
-                while (!c.isAfterLast) {
-                    val mynote = getMyNoteDto(c)
-                    notesList.add(mynote)
-                    c.moveToNext()
-                }
-            }
-        } finally {
-            c.close()
-        }
+        val c = db.query(builder(MyNoteQuery.TABLE).columns(MyNoteQuery.COLUMNS).selection(MyNoteColumn.KEY + " LIKE ?", arrayOf(book.osis + ".%")).create())
+		c.use { c ->
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast) {
+					val mynote = getMyNoteDto(c)
+					notesList.add(mynote)
+					c.moveToNext()
+				}
+			}
+		}
         Log.d(TAG, "myNotesInPassage set to " + notesList.size + " item long list")
         return notesList
     }
 
     private fun getMyNoteDto(id: Long): MyNoteDto? {
         var mynote: MyNoteDto? = null
-        val c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
-        try {
-            if (c.moveToFirst()) {
-                mynote = getMyNoteDto(c)
-            }
-        } finally {
-            c.close()
-        }
+        val c = db.query(builder(MyNoteQuery.TABLE).columns(MyNoteQuery.COLUMNS).selection(MyNoteColumn._ID + "=?", arrayOf(id.toString())).create())
+		c.use { c ->
+			if (c.moveToFirst()) {
+				mynote = getMyNoteDto(c)
+			}
+		}
         return mynote
     }
 
@@ -178,9 +152,9 @@ class MyNoteDBAdapter {
         var mynote: MyNoteDto? = null
         var c: Cursor? = null
         try { // exact match
-            c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY + "=?", arrayOf(startVerse), null, null, null)
+            c = db.query(builder(MyNoteQuery.TABLE).columns(MyNoteQuery.COLUMNS).selection(MyNoteColumn.KEY + "=?", arrayOf(startVerse)).create())
             if (!c.moveToFirst()) { // start of verse range
-                c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY + " LIKE ?", arrayOf("$startVerse-%"), null, null, null)
+                c = db.query(builder(MyNoteQuery.TABLE).columns(MyNoteQuery.COLUMNS).selection(MyNoteColumn.KEY + " LIKE ?", arrayOf("$startVerse-%")).create())
                 if (!c.moveToFirst()) {
                     return null
                 }
@@ -256,9 +230,5 @@ class MyNoteDBAdapter {
 
     companion object {
         private const val TAG = "MyNoteDBAdapter"
-    }
-
-    init {
-        dbHelper = CommonDatabaseHelper.instance
     }
 }
