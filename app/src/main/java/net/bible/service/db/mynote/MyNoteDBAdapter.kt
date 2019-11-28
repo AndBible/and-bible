@@ -157,7 +157,7 @@ class MyNoteDBAdapter {
         return notesList
     }
 
-    fun getMyNoteDto(id: Long): MyNoteDto? {
+    private fun getMyNoteDto(id: Long): MyNoteDto? {
         var mynote: MyNoteDto? = null
         val c = db!!.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn._ID + "=?", arrayOf(id.toString()), null, null, null)
         try {

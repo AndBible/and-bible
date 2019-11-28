@@ -128,12 +128,12 @@ class BookmarkDatabaseDefinition {
         private var sSingleton: BookmarkDatabaseDefinition? = null
         @JvmStatic
 		@get:Synchronized
-        val instance: BookmarkDatabaseDefinition?
+        val instance: BookmarkDatabaseDefinition
             get() {
                 if (sSingleton == null) {
                     sSingleton = BookmarkDatabaseDefinition()
                 }
-                return sSingleton
+                return sSingleton!!
             }
     }
 }

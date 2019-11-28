@@ -44,8 +44,8 @@ class CommonDatabaseHelper internal constructor(context: Context?)
      * to create a new one.
      */
     override fun onCreate(db: SQLiteDatabase) {
-        BookmarkDatabaseDefinition.instance!!.onCreate(db)
-        MyNoteDatabaseDefinition.instance!!.onCreate(db)
+        BookmarkDatabaseDefinition.instance.onCreate(db)
+        MyNoteDatabaseDefinition.instance.onCreate(db)
         ReadingPlanDatabaseOperations.instance.onCreate(db)
     }
 
@@ -54,24 +54,24 @@ class CommonDatabaseHelper internal constructor(context: Context?)
         Log.i(TAG, "Upgrading DB from version $oldVersion to $newVersion")
         try {
             if (oldVersion < 1) {
-                BookmarkDatabaseDefinition.instance!!.onCreate(db)
+                BookmarkDatabaseDefinition.instance.onCreate(db)
                 oldVersion = 1
             }
             if (oldVersion == 1) {
-                MyNoteDatabaseDefinition.instance!!.onCreate(db)
+                MyNoteDatabaseDefinition.instance.onCreate(db)
                 oldVersion += 1
             }
             if (oldVersion == 2) {
-                BookmarkDatabaseDefinition.instance!!.upgradeToVersion3(db)
-                MyNoteDatabaseDefinition.instance!!.upgradeToVersion3(db)
+                BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
+                MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
                 oldVersion += 1
             }
             if (oldVersion == 3) {
-                BookmarkDatabaseDefinition.instance!!.upgradeToVersion4(db)
+                BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
                 oldVersion += 1
             }
             if (oldVersion == 4) {
-                BookmarkDatabaseDefinition.instance!!.upgradeToVersion5(db)
+                BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
                 oldVersion += 1
             }
             if (oldVersion == 5) {

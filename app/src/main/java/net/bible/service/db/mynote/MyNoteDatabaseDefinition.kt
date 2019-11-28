@@ -95,12 +95,12 @@ private constructor() {
         private var sSingleton: MyNoteDatabaseDefinition? = null
         @JvmStatic
 		@get:Synchronized
-        val instance: MyNoteDatabaseDefinition?
+        val instance: MyNoteDatabaseDefinition
             get() {
                 if (sSingleton == null) {
                     sSingleton = MyNoteDatabaseDefinition()
                 }
-                return sSingleton
+                return sSingleton!!
             }
     }
 }
