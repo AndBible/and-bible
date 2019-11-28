@@ -52,10 +52,15 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BookmarkControl @Inject constructor(private val swordContentFacade: SwordContentFacade, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider) {
-    private val LABEL_ALL: LabelDto
-    private val LABEL_UNLABELLED: LabelDto
-    fun updateBookmarkSettings(settings: PlaybackSettings) {
+class BookmarkControl @Inject constructor(
+	private val swordContentFacade: SwordContentFacade,
+	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+	resourceProvider: ResourceProvider)
+{
+    private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
+	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
+
+	fun updateBookmarkSettings(settings: PlaybackSettings) {
         if (activeWindowPageManagerProvider.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE) {
             updateBookmarkSettings(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey, settings)
         }
@@ -67,7 +72,7 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
             v = Verse(v.versification, v.book, v.chapter, 1)
         }
         val bookmarkDto = getBookmarkByKey(v)
-        if (bookmarkDto != null && bookmarkDto.playbackSettings != null) {
+        if (bookmarkDto?.playbackSettings != null) {
             bookmarkDto.playbackSettings = settings
             addOrUpdateBookmark(bookmarkDto)
             Log.d("SpeakBookmark", "Updated bookmark settings " + bookmarkDto + settings.speed)
@@ -188,7 +193,7 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
     }
 
     /** update bookmark date  */
-    fun refreshBookmarkDate(bookmark: BookmarkDto?): BookmarkDto? {
+	private fun refreshBookmarkDate(bookmark: BookmarkDto?): BookmarkDto? {
         val db = BookmarkDBAdapter()
         var updatedBookmark: BookmarkDto? = null
         updatedBookmark = try {
@@ -243,7 +248,7 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
     /** delete this bookmark (and any links to labels)  */
     fun deleteBookmark(bookmark: BookmarkDto?): Boolean {
         var bOk = false
-        if (bookmark != null && bookmark.id != null) {
+        if (bookmark?.id != null) {
             val db = BookmarkDBAdapter()
             bOk = try {
                 db.open()
@@ -262,13 +267,11 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
 		var bookmarkList: List<BookmarkDto>
 		try {
             db.open()
-            bookmarkList = if (LABEL_ALL.equals(label)) {
-                db.allBookmarks
-            } else if (LABEL_UNLABELLED.equals(label)) {
-                db.unlabelledBookmarks
-            } else {
-                db.getBookmarksWithLabel(label!!)
-            }
+            bookmarkList = when {
+				LABEL_ALL == label -> db.allBookmarks
+				LABEL_UNLABELLED == label -> db.unlabelledBookmarks
+				else -> db.getBookmarksWithLabel(label!!)
+			}
             bookmarkList = getSortedBookmarks(bookmarkList)
         } finally {
             db.close()
@@ -337,7 +340,7 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
     /** delete this bookmark (and any links to labels)  */
     fun deleteLabel(label: LabelDto?): Boolean {
         var bOk = false
-        if (label != null && label.id != null && !LABEL_ALL.equals(label) && !LABEL_UNLABELLED.equals(label)) {
+        if (label?.id != null && LABEL_ALL != label && LABEL_UNLABELLED != label) {
             val db = BookmarkDBAdapter()
             bOk = try {
                 db.open()
@@ -369,7 +372,7 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
             } finally {
                 db.close()
             }
-            Collections.sort(labelList)
+			labelList.sort()
             return labelList
         }
 
@@ -447,8 +450,4 @@ class BookmarkControl @Inject constructor(private val swordContentFacade: SwordC
         private const val TAG = "BookmarkControl"
     }
 
-    init {
-        LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
-        LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
-    }
 }
