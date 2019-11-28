@@ -33,7 +33,7 @@ class ReadingPlanDbAdapter {
         private const val TAG = "ReadingPlanDBAdapter"
     }
 
-    private val db = CommonDatabaseHelper.getInstance().readableDatabase
+    private val db = CommonDatabaseHelper.instance.readableDatabase
     private val readingPlanDef = ReadingPlanDatabaseDefinition.ReadingPlan
     private val statusDef = ReadingPlanDatabaseDefinition.ReadingPlanStatus
 

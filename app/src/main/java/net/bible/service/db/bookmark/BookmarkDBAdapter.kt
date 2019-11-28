@@ -392,6 +392,6 @@ class BookmarkDBAdapter {
     }
 
     init {
-        dbHelper = CommonDatabaseHelper.getInstance()
+        dbHelper = CommonDatabaseHelper.instance
     }
 }

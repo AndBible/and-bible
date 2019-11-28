@@ -15,28 +15,24 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.service.db;
+package net.bible.service.db
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class SQLHelper {
-
-	/**
-	 * Get a comma separated list of columns preceded by the table name for use in a query
-	 * 
-	 * @return column list
-	 */
-	public static String getColumnsForQuery(String table, String[] columns) {
-		StringBuilder returnColumns = new StringBuilder();
-		
-		for (String column : columns) {
-			returnColumns.append(table).append(".").append(column).append(",");
-		}
-		// remove the extra final comma
-		returnColumns.deleteCharAt(returnColumns.lastIndexOf(","));
-		
-		return returnColumns.toString();
-	}
+object SQLHelper {
+    /**
+     * Get a comma separated list of columns preceded by the table name for use in a query
+     *
+     * @return column list
+     */
+    fun getColumnsForQuery(table: String, columns: Array<String>): String {
+        val returnColumns = StringBuilder()
+        for (column in columns) {
+            returnColumns.append(table).append(".").append(column).append(",")
+        }
+        // remove the extra final comma
+        returnColumns.deleteCharAt(returnColumns.lastIndexOf(","))
+        return returnColumns.toString()
+    }
 }
