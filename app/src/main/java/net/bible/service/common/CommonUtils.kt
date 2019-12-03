@@ -121,7 +121,7 @@ object CommonUtils {
     val isInternetAvailable: Boolean
         get() {
             val testUrl = "http://www.crosswire.org/ftpmirror/pub/sword/packages/"
-            return CommonUtils.isHttpUrlAvailable(testUrl)
+            return isHttpUrlAvailable(testUrl)
         }
 
     val localePref: String?
