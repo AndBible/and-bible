@@ -21,6 +21,7 @@ import android.app.Activity
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -35,7 +36,7 @@ class CurrentDictionaryPage internal constructor(
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage
 {
-	override val bookCategory = BookCategory.DICTIONARY
+    override val bookCategory = BookCategory.DICTIONARY
 
     override val keyChooserActivity: Class<out Activity?>?
         get() = ChooseDictionaryWord::class.java

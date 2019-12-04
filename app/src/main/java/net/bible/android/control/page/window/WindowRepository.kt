@@ -248,29 +248,20 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    //fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
-    //    logger.info("save state")
-    //    try {
-    //        val editor = outState.edit()
-    //        editor.putString("windowRepositoryState", dumpState())
-    //        editor.apply()
-    //    } catch (je: JSONException) {
-    //        logger.error("Saving window state", je)
-    //    }
-    //}
+    fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
+        logger.info("save state")
+        try {
+            val editor = outState.edit()
+            editor.putString("windowRepositoryState", dumpState())
+            editor.apply()
+        } catch (je: JSONException) {
+            logger.error("Saving window state", je)
+        }
+    }
 
     var id: Long = 0
 
-    fun saveState() {
-        val dao = DatabaseContainer.db.workspaceDao()
-        id = dao.insertWorkspace(WorkspaceEntities.Workspace(id, name))
-
-        val windows = windowList.map {
-            it.entity.apply {
-                workspaceId = id
-            }
-        }
-
+    fun dumpState(): String {
         val windowRepositoryStateObj = JSONObject()
         val windowStateArray = JSONArray()
         for (window in windowList) {
@@ -288,6 +279,19 @@ open class WindowRepository @Inject constructor(
         windowRepositoryStateObj.put("dedicatedLinksWindow", dedicatedLinksWindow.stateJson)
         windowRepositoryStateObj.put("history", historyManagerProvider.get().dumpString)
         return windowRepositoryStateObj.toString()
+    }
+
+    fun saveIntoDb() {
+        val dao = DatabaseContainer.db.workspaceDao()
+        id = dao.insertWorkspace(WorkspaceEntities.Workspace(id, name))
+
+        val windows = windowList.mapIndexed { i, it ->
+            it.entity.apply {
+                workspaceId = id
+                orderNumber = i
+            }
+        }
+        val ids = dao.insertWindows(windows)
     }
 
     /** called during app start-up to restore previous state

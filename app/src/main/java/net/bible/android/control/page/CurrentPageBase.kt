@@ -22,6 +22,7 @@ import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.format.HtmlMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.sword.SwordContentFacade
@@ -42,6 +43,12 @@ abstract class CurrentPageBase protected constructor(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : CurrentPage {
+
+    val pageEntity get() = WorkspaceEntities.Page(
+        currentDocument!!.initials,
+        key?.osisID
+    )
+
     override var isInhibitChangeNotifications: Boolean = false
 
 	override var _key: Key? = null

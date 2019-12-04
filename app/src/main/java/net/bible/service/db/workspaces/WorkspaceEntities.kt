@@ -30,7 +30,7 @@ import java.util.*
 class WorkspaceEntities {
     data class Page(
         val document: String,
-        val key: String
+        val key: String?
     )
 
     data class Verse(
@@ -73,7 +73,7 @@ class WorkspaceEntities {
     ])
     data class HistoryItem(
         @PrimaryKey(autoGenerate = true) val id: Long,
-        val windowId: Int,
+        val windowId: Long,
         val createdAt: Date = Date(System.currentTimeMillis()),
         val document: String,
         val key: String,
@@ -85,11 +85,11 @@ class WorkspaceEntities {
     ])
     data class Window(
         @PrimaryKey(autoGenerate = true) val id: Long,
-        val workspaceId: Int,
+        var workspaceId: Long,
         val screenNo: Int,
         val isSynchronized: Boolean,
         val wasMinimised: Boolean,
-        val orderNumber: Int,
+        var orderNumber: Int,
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout") val windowLayout: WindowLayout,
         @Embedded(prefix="page_manager") val pageManager: PageManager

@@ -34,6 +34,9 @@ interface WorkspaceDao {
     fun insertWindows(vararg windows: WorkspaceEntities.Window)
 
     @Insert
+    fun insertWindows(windows: List<WorkspaceEntities.Window>): Array<Long>
+
+    @Insert
     fun insertHistoryItems(vararg historyItems: WorkspaceEntities.HistoryItem)
 
     @Update

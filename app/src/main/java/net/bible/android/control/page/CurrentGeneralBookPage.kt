@@ -21,6 +21,7 @@ import android.app.Activity
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -34,7 +35,6 @@ class CurrentGeneralBookPage internal constructor(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage {
-
 
     override val bookCategory = BookCategory.GENERAL_BOOK
 

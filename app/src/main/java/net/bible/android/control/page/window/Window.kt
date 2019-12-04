@@ -51,7 +51,7 @@ open class Window (
         pageManager.window = this
     }
 
-    val entity: WorkspaceEntities.Window get () =
+    val entity get () =
         WorkspaceEntities.Window(0, 0, screenNo, isSynchronised, wasMinimised,
             -1, isLinksWindow,
             WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight),

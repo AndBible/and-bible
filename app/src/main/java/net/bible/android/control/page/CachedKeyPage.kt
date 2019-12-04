@@ -20,6 +20,7 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils

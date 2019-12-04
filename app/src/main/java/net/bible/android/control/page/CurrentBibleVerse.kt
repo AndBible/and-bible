@@ -29,7 +29,11 @@ import org.json.JSONObject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentBibleVerse {
-    private val verseVersificationSelected = ConvertibleVerse(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1)
+    val entity get() = verseVersificationSelected.entity
+    private val verseVersificationSelected = ConvertibleVerse(
+        Versifications.instance().getVersification(Versifications.DEFAULT_V11N),
+        BibleBook.GEN, 1, 1
+    )
     val currentBibleBookNo: Int
         get() = verseVersificationSelected.book.ordinal
 

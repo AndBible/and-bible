@@ -22,6 +22,7 @@ import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
@@ -44,6 +45,7 @@ class CurrentBiblePage(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage {
+
     override val bookCategory = BookCategory.BIBLE
 
     override val keyChooserActivity: Class<out Activity?>?
@@ -179,6 +181,8 @@ class CurrentBiblePage(
     private val verseSelected: Verse get() = currentBibleVerse.getVerseSelected(versification)
 
     override val isSingleKey = false
+
+    val entity get() = WorkspaceEntities.BiblePage(currentDocument!!.initials, currentBibleVerse.entity)
 
     var currentChapterVerse: ChapterVerse
         get() = currentBibleVerse.chapterVerse

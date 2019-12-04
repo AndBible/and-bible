@@ -53,13 +53,13 @@ open class CurrentPageManager @Inject constructor(
         bibleTraverser: BibleTraverser,
         myNoteDAO: MyNoteDAO)
 {
-    val entity: WorkspaceEntities.PageManager get() =
+    val entity get() =
         WorkspaceEntities.PageManager(
             currentBible.entity,
             currentCommentary.entity,
-            currentDictionary.entity,
-            currentGeneralBook.entity,
-            currentMap.entity
+            currentDictionary.pageEntity,
+            currentGeneralBook.pageEntity,
+            currentMap.pageEntity
         )
 
     // use the same verse in the commentary and bible to keep them in sync
