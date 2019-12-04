@@ -56,7 +56,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     @Inject lateinit var searchControl: SearchControl
 
-    private val documentToSearch: Book
+    private val documentToSearch: Book?
         get() = pageControl.currentPageManager.currentPage.currentDocument
 
     /** get all, any, phrase query limitation
@@ -187,7 +187,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
-            val currentDocInitials = documentToSearch.initials
+            val currentDocInitials = documentToSearch?.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
             startActivityForResult(intent, 1)

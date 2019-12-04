@@ -176,7 +176,7 @@ class UpdateInactiveScreenTextTask() : UpdateTextTask() {
 }
 
 
-class UpdateMainTextTask(val documentViewManager: DocumentViewManager) : UpdateTextTask() {
+class UpdateMainTextTask(private val documentViewManager: DocumentViewManager) : UpdateTextTask() {
 
     override fun onPreExecute() {
         super.onPreExecute()

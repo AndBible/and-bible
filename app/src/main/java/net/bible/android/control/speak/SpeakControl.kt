@@ -83,8 +83,8 @@ class SpeakControl @Inject constructor(
     val isCurrentDocSpeakAvailable: Boolean
         get() {
             return try {
-                val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument.language.code
-                textToSpeechServiceManager.get().isLanguageAvailable(docLangCode)
+                val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument?.language?.code
+                if(docLangCode == null) return true else textToSpeechServiceManager.get().isLanguageAvailable(docLangCode)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking TTS lang available")
                 false
@@ -100,7 +100,7 @@ class SpeakControl @Inject constructor(
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
 
-    private val currentBook: Book
+    private val currentBook: Book?
         get() = activeWindowPageManagerProvider
                 .activeWindowPageManager
                 .currentPage
@@ -132,7 +132,7 @@ class SpeakControl @Inject constructor(
         val settings = SpeakSettings.load()
         if (settings.synchronize) {
             val book = speakPageManager.currentPage.currentDocument
-            if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book.bookCategory)) {
+            if(setOf(BookCategory.BIBLE, BookCategory.COMMENTARY).contains(book?.bookCategory)) {
                 speakPageManager.setCurrentDocumentAndKey(book, event.key, false)
             }
         }
@@ -144,7 +144,7 @@ class SpeakControl @Inject constructor(
         val definitions: Array<NumPagesToSpeakDefinition>
 
         val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
-        val bookCategory = currentPage.currentDocument.bookCategory
+        val bookCategory = currentPage.currentDocument?.bookCategory
         if (BookCategory.BIBLE == bookCategory) {
             val v11n = (currentPage.currentDocument as SwordBook).versification
             val verse = KeyUtil.getVerse(currentPage.singleKey)
@@ -214,7 +214,7 @@ class SpeakControl @Inject constructor(
             try {
                 val page = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
                 val fromBook = page.currentDocument
-                if (fromBook.bookCategory == BookCategory.BIBLE) {
+                if (fromBook?.bookCategory == BookCategory.BIBLE) {
                     resetPassageRepeatIfOutsideRange()
                     speakBible()
                 } else {
@@ -261,7 +261,10 @@ class SpeakControl @Inject constructor(
                     keyList.add(key)
                 }
             }
-
+            if(fromBook == null) {
+                Log.e(TAG, "currentdocument is null! Can't speak")
+                return
+            }
             textToSpeechServiceManager.get().speakText(fromBook, keyList, settings.queue, settings.repeat)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)

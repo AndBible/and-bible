@@ -74,7 +74,7 @@ class MyNoteControl @Inject constructor(private val activeWindowPageManagerProvi
 
     fun saveMyNoteText(myNote: String?): Boolean {
         val dto = currentMyNoteDto
-        dto.noteText = myNote
+        dto.noteText = myNote?: ""
         return saveMyNote(dto)
     }
 

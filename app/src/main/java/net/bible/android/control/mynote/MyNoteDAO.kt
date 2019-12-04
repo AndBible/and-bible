@@ -32,10 +32,10 @@ import javax.inject.Inject
  */
 @ApplicationScope
 open class MyNoteDAO @Inject constructor() {
-    fun getMyNoteTextByKey(verseRange: Key?): String? { // get a dto
+    fun getMyNoteTextByKey(verseRange: Key): String { // get a dto
         val myNote = getMyNoteByStartVerse(verseRange)
         // return an empty note dto
-        var noteText: String? = ""
+        var noteText: String = ""
         if (myNote != null) {
             noteText = myNote.noteText
         }

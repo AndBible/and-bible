@@ -61,7 +61,7 @@ class DocumentControl @Inject constructor(
         get() {
             return try {
                 val currentBook = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-                currentBook.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
+                currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking for strongs Numbers in book", e)
                 false
@@ -100,15 +100,15 @@ class DocumentControl @Inject constructor(
         get () = currentPage.isMyNoteShown
 
     val isBibleBook: Boolean
-        get () = currentDocument.bookCategory == BookCategory.BIBLE
+        get () = currentDocument?.bookCategory == BookCategory.BIBLE
 
     val isCommentary: Boolean
-        get () = currentDocument.bookCategory == BookCategory.COMMENTARY
+        get () = currentDocument?.bookCategory == BookCategory.COMMENTARY
 
     val currentPage: CurrentPageManager
         get () = activeWindowPageManagerProvider.activeWindowPageManager
 
-    val currentDocument: Book
+    val currentDocument: Book?
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
 
     val suggestedBible: Book?

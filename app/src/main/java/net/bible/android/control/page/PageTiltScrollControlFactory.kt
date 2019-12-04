@@ -15,16 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.page
 
-package net.bible.android.control.page;
-
-import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.page.window.Window;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
+import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.window.Window
+import java.util.*
+import javax.inject.Inject
 
 /**
  * Retain the link between a window and its associated PageTiltScrollControl.
@@ -32,25 +28,15 @@ import javax.inject.Inject;
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-public class PageTiltScrollControlFactory {
-
-	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
-
-	@Inject
-	public PageTiltScrollControlFactory() {
-	}
-
-	public PageTiltScrollControl getPageTiltScrollControl(Window window) {
-		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-		if (pageTiltScrollControl==null) {
+class PageTiltScrollControlFactory @Inject constructor() {
+    private val screenPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = HashMap()
+    fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
+        return screenPageTiltScrollControlMap[window] ?: synchronized(screenPageTiltScrollControlMap) {
 			synchronized(screenPageTiltScrollControlMap) {
-				pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-				if (pageTiltScrollControl==null) {
-					pageTiltScrollControl = new PageTiltScrollControl();
-					screenPageTiltScrollControlMap.put(window, pageTiltScrollControl);
-				}
+				screenPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
+			}.also {
+				screenPageTiltScrollControlMap[window] = it
 			}
 		}
-		return pageTiltScrollControl;
-	}
+    }
 }
