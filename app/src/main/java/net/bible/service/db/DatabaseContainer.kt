@@ -20,9 +20,12 @@ package net.bible.service.db
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
+import net.bible.android.control.page.window.WindowLayout
 import net.bible.service.db.bookmark.Bookmark
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.bookmark.BookmarkToLabel
@@ -35,6 +38,8 @@ import net.bible.service.db.readingplan.ReadingPlanStatus
 import net.bible.service.db.workspaces.HistoryItem
 import net.bible.service.db.workspaces.Window
 import net.bible.service.db.workspaces.Workspace
+import net.bible.service.db.workspaces.WorkspaceDao
+import java.util.*
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -89,13 +94,24 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
 
             // Create workspace related tables
-            execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `links_windowid` INTEGER NOT NULL, `links_windowworkspaceId` INTEGER NOT NULL, `links_windowscreenNo` INTEGER NOT NULL, `links_windowisSynchronized` INTEGER NOT NULL, `links_windowwasMinimised` INTEGER NOT NULL, `links_windowwindow_layoutstate` TEXT NOT NULL, `links_windowwindow_layoutweight` REAL NOT NULL, `links_windowpage_managerbibledocument` TEXT NOT NULL, `links_windowpage_managerbibleverseversification` TEXT NOT NULL, `links_windowpage_managerbibleversebibleBook` INTEGER NOT NULL, `links_windowpage_managerbibleversechapterNo` INTEGER NOT NULL, `links_windowpage_managerbibleverseverseNo` INTEGER NOT NULL, `links_windowpage_managercommentarydocument` TEXT NOT NULL, `links_windowpage_managerdictionarydocument` TEXT NOT NULL, `links_windowpage_managerdictionarykey` TEXT NOT NULL, `links_windowpage_managergeneral_bookdocument` TEXT NOT NULL, `links_windowpage_managergeneral_bookkey` TEXT NOT NULL, `links_windowpage_managermapdocument` TEXT NOT NULL, `links_windowpage_managermapkey` TEXT NOT NULL, PRIMARY KEY(`id`))")
-            execSQL("CREATE TABLE IF NOT EXISTS `Window` (`id` INTEGER NOT NULL, `workspaceId` INTEGER NOT NULL, `screenNo` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `wasMinimised` INTEGER NOT NULL, `window_layoutstate` TEXT NOT NULL, `window_layoutweight` REAL NOT NULL, `page_managerbibledocument` TEXT NOT NULL, `page_managerbibleverseversification` TEXT NOT NULL, `page_managerbibleversebibleBook` INTEGER NOT NULL, `page_managerbibleversechapterNo` INTEGER NOT NULL, `page_managerbibleverseverseNo` INTEGER NOT NULL, `page_managercommentarydocument` TEXT NOT NULL, `page_managerdictionarydocument` TEXT NOT NULL, `page_managerdictionarykey` TEXT NOT NULL, `page_managergeneral_bookdocument` TEXT NOT NULL, `page_managergeneral_bookkey` TEXT NOT NULL, `page_managermapdocument` TEXT NOT NULL, `page_managermapkey` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-            execSQL("CREATE TABLE IF NOT EXISTS `HistoryItem` (`id` INTEGER NOT NULL, `windowId` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `yOffsetRatio` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+            // TODO: DO it here!
         }
     }
 }
 
+class Converters {
+    @TypeConverter
+    fun fromTimestamp(value: Long): Date = Date(value)
+
+    @TypeConverter
+    fun dateToTimestamp(date: Date): Long = date.time
+
+    @TypeConverter
+    fun windowStateToString(windowState: WindowLayout.WindowState): String = windowState.toString()
+
+    @TypeConverter
+    fun stringToWindowState(str: String): WindowLayout.WindowState = WindowLayout.WindowState.valueOf(str)
+}
 
 @Database(
     entities = [
@@ -111,7 +127,10 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
     ],
     version = DATABASE_VERSION
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
+    abstract fun workspaceDao(): WorkspaceDao
+
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase
             .query("PRAGMA wal_checkpoint(FULL)")

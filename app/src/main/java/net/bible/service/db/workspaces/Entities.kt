@@ -18,18 +18,14 @@
 
 package net.bible.service.db.workspaces
 
-import androidx.room.ColumnInfo
+import net.bible.android.control.page.window.WindowLayout.WindowState
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
-@Entity
-data class Workspace(
-    @PrimaryKey val id: Int,
-    val name: String,
-    @Embedded(prefix="links_window") val dedicatedLinksWindow: Window
-)
+import java.util.*
 
 data class Page(
     val document: String,
@@ -61,23 +57,30 @@ data class PageManager(
 )
 
 data class WindowLayout(
-    val state: String,
+    val state: WindowState,
     val weight: Float = 1.0f
 )
 
+@Entity
+data class Workspace(
+    @PrimaryKey val id: Int,
+    val name: String
+)
+
 @Entity(foreignKeys = [
-    ForeignKey(entity = Window::class, parentColumns = ["id"], childColumns = ["windowId"])
+    ForeignKey(entity = Window::class, parentColumns = ["id"], childColumns = ["windowId"], onDelete = CASCADE)
 ])
 data class HistoryItem(
     @PrimaryKey val id: Int,
     val windowId: Int,
+    val createdAt: Date = Date(System.currentTimeMillis()),
     val document: String,
     val key: String,
     val yOffsetRatio: Float
 )
 
 @Entity(foreignKeys = [
-    ForeignKey(entity = Workspace::class, parentColumns = ["id"], childColumns = ["workspaceId"])
+    ForeignKey(entity = Workspace::class, parentColumns = ["id"], childColumns = ["workspaceId"], onDelete = CASCADE)
 ])
 data class Window(
     @PrimaryKey val id: Int,
@@ -85,6 +88,8 @@ data class Window(
     val screenNo: Int,
     val isSynchronized: Boolean,
     val wasMinimised: Boolean,
+    val orderNumber: Int,
+    val isLinksWindow: Boolean,
     @Embedded(prefix="window_layout") val windowLayout: WindowLayout,
     @Embedded(prefix="page_manager") val pageManager: PageManager
 )
