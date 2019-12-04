@@ -77,13 +77,10 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("CREATE TABLE `bookmark_label_new` (`bookmark_id` INTEGER NOT NULL, `label_id` INTEGER NOT NULL, PRIMARY KEY(`bookmark_id`, `label_id`), FOREIGN KEY(`bookmark_id`) REFERENCES `bookmark`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`label_id`) REFERENCES `label`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE );");
             execSQL("CREATE TABLE `readingplan_status_new` (`_id` INTEGER, `plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, PRIMARY KEY(`_id`), FOREIGN KEY(`plan_code`) REFERENCES `readingplan`(`plan_code`) ON UPDATE NO ACTION ON DELETE CASCADE )")
             execSQL("INSERT INTO bookmark_label_new SELECT * from bookmark_label;")
-            execSQL("INSERT INTO readingplan_status_new SELECT * from readingplan_status;")
             execSQL("DROP TABLE bookmark_label;")
-            execSQL("DROP TABLE readingplan_status;")
-            execSQL("ALTER TABLE readingplan_status_new RENAME TO readingplan_status;")
             execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
             execSQL("CREATE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)")
-            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
         }
     }
 }
