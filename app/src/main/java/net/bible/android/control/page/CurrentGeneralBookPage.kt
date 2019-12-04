@@ -70,7 +70,7 @@ class CurrentGeneralBookPage internal constructor(
     }
 
     override val isSingleKey = true
-	override val key: Key? = _key
+	override val key: Key? get() = _key
 
 	/** can we enable the main menu search button
      */

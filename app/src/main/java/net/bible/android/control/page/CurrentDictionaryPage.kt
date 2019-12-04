@@ -40,10 +40,6 @@ class CurrentDictionaryPage internal constructor(
     override val keyChooserActivity: Class<out Activity?>?
         get() = ChooseDictionaryWord::class.java
 
-    /** set key without notification
-     *
-     * @param key
-     */
     override fun doSetKey(key: Key?) {
         this._key = key
     }
@@ -65,12 +61,11 @@ class CurrentDictionaryPage internal constructor(
     }
 
     override val isSingleKey = true
-	override val key: Key? = _key
+	override val key: Key? get() = _key
 
 	/** can we enable the main menu search button
      */
-    override val isSearchable: Boolean
-        get() = false
+    override val isSearchable = false
 
     companion object {
         private const val TAG = "CurrentDictionaryPage"
