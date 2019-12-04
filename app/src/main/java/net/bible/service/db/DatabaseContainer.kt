@@ -75,7 +75,6 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("DROP TRIGGER IF EXISTS bookmark_cleanup;")
             execSQL("DROP TRIGGER IF EXISTS label_cleanup;")
             execSQL("CREATE TABLE `bookmark_label_new` (`bookmark_id` INTEGER NOT NULL, `label_id` INTEGER NOT NULL, PRIMARY KEY(`bookmark_id`, `label_id`), FOREIGN KEY(`bookmark_id`) REFERENCES `bookmark`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`label_id`) REFERENCES `label`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE );");
-            execSQL("CREATE TABLE `readingplan_status_new` (`_id` INTEGER, `plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, PRIMARY KEY(`_id`), FOREIGN KEY(`plan_code`) REFERENCES `readingplan`(`plan_code`) ON UPDATE NO ACTION ON DELETE CASCADE )")
             execSQL("INSERT INTO bookmark_label_new SELECT * from bookmark_label;")
             execSQL("DROP TABLE bookmark_label;")
             execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
