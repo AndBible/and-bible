@@ -46,8 +46,8 @@ import org.json.JSONObject;
 public class CurrentBiblePage extends VersePage implements CurrentPage {
 	
 	private static final String TAG = "CurrentBiblePage";
-	
-	
+
+
 	public CurrentBiblePage(CurrentBibleVerse currentBibleVerse, BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
 		super(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade);
 	}

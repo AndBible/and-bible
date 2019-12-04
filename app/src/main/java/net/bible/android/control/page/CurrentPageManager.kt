@@ -27,6 +27,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.Logger
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
@@ -52,6 +53,15 @@ open class CurrentPageManager @Inject constructor(
         bibleTraverser: BibleTraverser,
         myNoteDAO: MyNoteDAO)
 {
+    val entity: WorkspaceEntities.PageManager get() =
+        WorkspaceEntities.PageManager(
+            currentBible.entity,
+            currentCommentary.entity,
+            currentDictionary.entity,
+            currentGeneralBook.entity,
+            currentMap.entity
+        )
+
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
     val currentBible: CurrentBiblePage

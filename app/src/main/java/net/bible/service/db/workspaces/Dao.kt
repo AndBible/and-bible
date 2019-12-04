@@ -21,38 +21,39 @@ package net.bible.service.db.workspaces
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import androidx.room.Update
 
 @Dao
 interface WorkspaceDao {
-    @Insert
-    fun insertWorkspaces(vararg workspaces: Workspace)
+    @Insert(onConflict = REPLACE)
+    fun insertWorkspace(workspace: WorkspaceEntities.Workspace): Long
 
     @Insert
-    fun insertWindows(vararg windows: Window)
+    fun insertWindows(vararg windows: WorkspaceEntities.Window)
 
     @Insert
-    fun insertHistoryItems(vararg historyItems: HistoryItem)
+    fun insertHistoryItems(vararg historyItems: WorkspaceEntities.HistoryItem)
 
     @Update
-    fun updateWindows(vararg windows: Window)
+    fun updateWindows(vararg windows: WorkspaceEntities.Window)
 
     @Delete
-    fun deleteWorkspaces(vararg workspaces: Workspace)
+    fun deleteWorkspaces(vararg workspaces: WorkspaceEntities.Workspace)
 
     @Delete
-    fun deleteWindows(vararg window: Window)
+    fun deleteWindows(vararg window: WorkspaceEntities.Window)
 
     @Query("SELECT * from Workspace")
-    fun allWorkspaces(): Array<Workspace>
+    fun allWorkspaces(): Array<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
-    fun windows(workspaceId: Int): Array<Window>
+    fun windows(workspaceId: Int): Array<WorkspaceEntities.Window>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
-    fun linksWindow(workspaceId: Int): Window
+    fun linksWindow(workspaceId: Int): WorkspaceEntities.Window
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: Int): Array<HistoryItem>
+    fun historyItems(windowId: Int): Array<WorkspaceEntities.HistoryItem>
 }

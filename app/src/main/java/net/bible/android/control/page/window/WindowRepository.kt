@@ -28,6 +28,8 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.history.HistoryManager
 
 import org.apache.commons.lang3.StringUtils
@@ -246,19 +248,29 @@ open class WindowRepository @Inject constructor(
      *
      * @param outState
      */
-    fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
-        logger.info("save state")
-        try {
-            val editor = outState.edit()
-            editor.putString("windowRepositoryState", dumpState())
-            editor.apply()
-        } catch (je: JSONException) {
-            logger.error("Saving window state", je)
+    //fun saveState(outState: SharedPreferences = BibleApplication.application.appStateSharedPreferences) {
+    //    logger.info("save state")
+    //    try {
+    //        val editor = outState.edit()
+    //        editor.putString("windowRepositoryState", dumpState())
+    //        editor.apply()
+    //    } catch (je: JSONException) {
+    //        logger.error("Saving window state", je)
+    //    }
+    //}
+
+    var id: Long = 0
+
+    fun saveState() {
+        val dao = DatabaseContainer.db.workspaceDao()
+        id = dao.insertWorkspace(WorkspaceEntities.Workspace(id, name))
+
+        val windows = windowList.map {
+            it.entity.apply {
+                workspaceId = id
+            }
         }
 
-    }
-
-    fun dumpState(): String {
         val windowRepositoryStateObj = JSONObject()
         val windowStateArray = JSONArray()
         for (window in windowList) {

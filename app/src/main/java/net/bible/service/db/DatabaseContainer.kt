@@ -35,9 +35,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlan
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
 import net.bible.service.db.readingplan.ReadingPlanStatus
-import net.bible.service.db.workspaces.HistoryItem
-import net.bible.service.db.workspaces.Window
-import net.bible.service.db.workspaces.Workspace
+import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.db.workspaces.WorkspaceDao
 import java.util.*
 
@@ -118,9 +116,9 @@ class Converters {
         MyNote::class,
         ReadingPlan::class,
         ReadingPlanStatus::class,
-        Workspace::class,
-        Window::class,
-        HistoryItem::class
+        WorkspaceEntities.Workspace::class,
+        WorkspaceEntities.Window::class,
+        WorkspaceEntities.HistoryItem::class
     ],
     version = DATABASE_VERSION
 )

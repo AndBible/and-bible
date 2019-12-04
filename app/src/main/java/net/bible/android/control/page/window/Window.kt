@@ -28,6 +28,7 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.Logger
+import net.bible.service.db.workspaces.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -50,6 +51,12 @@ open class Window (
         pageManager.window = this
     }
 
+    val entity: WorkspaceEntities.Window get () =
+        WorkspaceEntities.Window(0, 0, screenNo, isSynchronised, wasMinimised,
+            -1, isLinksWindow,
+            WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight),
+            pageManager.entity
+        )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
