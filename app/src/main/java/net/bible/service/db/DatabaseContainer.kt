@@ -35,7 +35,7 @@ import net.bible.service.db.readingplan.ReadingPlanStatus
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
-private const val DATABASE_VERSION = 6
+private const val DATABASE_VERSION = 7
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -67,6 +67,25 @@ private val MIGRATION_5_6 = object : Migration(5, 6) {
         ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
     }
 }
+
+private val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("DROP TRIGGER IF EXISTS bookmark_cleanup;")
+            execSQL("DROP TRIGGER IF EXISTS label_cleanup;")
+            execSQL("CREATE TABLE `bookmark_label_new` (`bookmark_id` INTEGER NOT NULL, `label_id` INTEGER NOT NULL, PRIMARY KEY(`bookmark_id`, `label_id`), FOREIGN KEY(`bookmark_id`) REFERENCES `bookmark`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`label_id`) REFERENCES `label`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE );");
+            execSQL("CREATE TABLE `readingplan_status_new` (`_id` INTEGER, `plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, PRIMARY KEY(`_id`), FOREIGN KEY(`plan_code`) REFERENCES `readingplan`(`_id`) ON UPDATE NO ACTION ON DELETE CASCADE );");
+            execSQL("INSERT INTO bookmark_label_new SELECT * from bookmark_label;")
+            execSQL("INSERT INTO readingplan_status_new SELECT * from readingplan_status;")
+            execSQL("DROP TABLE bookmark_label;")
+            execSQL("DROP TABLE readingplan_status;")
+            execSQL("ALTER TABLE readingplan_status_new RENAME TO readingplan_status;")
+            execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
+            execSQL("CREATE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)")
+        }
+    }
+}
+
 
 @Database(
     entities = [
@@ -106,7 +125,8 @@ object DatabaseContainer {
                         MIGRATION_2_3,
                         MIGRATION_3_4,
                         MIGRATION_4_5,
-                        MIGRATION_5_6
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
                     )
                     .build()
                     .also { instance = it }

@@ -35,8 +35,8 @@ data class MyNote(
 	val key: String,
 	val versification: String?,
 	@ColumnInfo(name = "mynote") val myNote: String,
-	@ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int,
-	@ColumnInfo(name = "created_on") val createdOn: Int
+	@ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int?,
+	@ColumnInfo(name = "created_on") val createdOn: Int?
 )
 
 /**
