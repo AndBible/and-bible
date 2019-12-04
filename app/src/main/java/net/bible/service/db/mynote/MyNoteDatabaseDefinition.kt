@@ -22,7 +22,22 @@ package net.bible.service.db.mynote
 
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import androidx.sqlite.db.SupportSQLiteDatabase
+
+
+@Entity(tableName = "mynote", indices = [Index(name="mynote_key", value=["key"])])
+data class MyNote(
+	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+	val key: String,
+	val versification: String?,
+	@ColumnInfo(name = "mynote") val myNote: String,
+	@ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int,
+	@ColumnInfo(name = "created_on") val createdOn: Int
+)
 
 /**
  * MyNote database definitions

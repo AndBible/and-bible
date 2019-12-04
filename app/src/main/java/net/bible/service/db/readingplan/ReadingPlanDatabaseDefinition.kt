@@ -22,6 +22,11 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.service.common.CommonUtils
@@ -32,6 +37,30 @@ import kotlin.math.max
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
  */
+
+
+@Entity(tableName = "readingplan")
+data class ReadingPlan(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    @ColumnInfo(name = "plan_code") val planCode: String,
+    @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
+    @ColumnInfo(name = "plan_current_day") val planCurrentDay: Int = 1
+)
+
+@Entity(tableName = "readingplan_status",
+    indices = [Index(name="code_day", value = ["plan_code", "plan_day"])],
+    foreignKeys = [
+        ForeignKey(entity = ReadingPlan::class, parentColumns = ["_id"], childColumns = ["plan_code"], onDelete = ForeignKey.CASCADE)
+    ]
+)
+data class ReadingPlanStatus(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    @ColumnInfo(name = "plan_code") val planCode: String,
+    @ColumnInfo(name = "plan_day") val planDay: Int,
+    @ColumnInfo(name = "reading_status") val readingStatus: String
+)
+
+
 object ReadingPlanDatabaseDefinition {
 
     /** Table to keep track of plan start date and current day progress
