@@ -39,7 +39,7 @@ import kotlin.math.max
  */
 
 
-@Entity(tableName = "readingplan")
+@Entity(tableName = "readingplan", indices = [Index(value=["plan_code"], unique = true)])
 data class ReadingPlan(
     @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
     @ColumnInfo(name = "plan_code") val planCode: String,
@@ -50,7 +50,7 @@ data class ReadingPlan(
 @Entity(tableName = "readingplan_status",
     indices = [Index(name="code_day", value = ["plan_code", "plan_day"])],
     foreignKeys = [
-        ForeignKey(entity = ReadingPlan::class, parentColumns = ["_id"], childColumns = ["plan_code"], onDelete = ForeignKey.CASCADE)
+        ForeignKey(entity = ReadingPlan::class, parentColumns = ["plan_code"], childColumns = ["plan_code"], onDelete = ForeignKey.CASCADE)
     ]
 )
 data class ReadingPlanStatus(
