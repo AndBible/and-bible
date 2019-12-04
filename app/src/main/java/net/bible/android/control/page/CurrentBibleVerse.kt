@@ -44,7 +44,7 @@ class CurrentBibleVerse {
         verseVersificationSelected.setVerse(versification, verseSelected)
     }
 
-    var chapterVerse: ChapterVerse?
+    var chapterVerse: ChapterVerse
         get() = verseVersificationSelected.chapterVerse
         set(chapterVerse) {
             verseVersificationSelected.chapterVerse = chapterVerse

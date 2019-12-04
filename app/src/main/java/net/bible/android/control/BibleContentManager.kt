@@ -58,7 +58,7 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
 
         if(!forceUpdate
             && previousDocument == document
-            && document.bookCategory == BookCategory.BIBLE
+            && document?.bookCategory == BookCategory.BIBLE
             && prevVerse is VerseRange
             && prevVerse.start?.book == book
             && prevVerse.start?.chapter == verse.chapter)

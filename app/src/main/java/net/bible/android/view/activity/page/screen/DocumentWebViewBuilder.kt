@@ -568,7 +568,8 @@ class DocumentWebViewBuilder @Inject constructor(
      */
     private fun getDocumentInitial(window: Window): String {
         return try {
-            window.pageManager.currentPage.currentDocument.abbreviation.substring(0, 1)
+            val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
+            if(abbrv == null) "" else abbrv.substring(0, 1)
         } catch (e: Exception) {
             " "
         }

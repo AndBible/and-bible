@@ -84,7 +84,8 @@ class PageControl @Inject constructor(
         }
     }
 
-    private fun getCopyShareText(book: Book, verseRange: VerseRange): String? {
+    private fun getCopyShareText(book: Book?, verseRange: VerseRange): String? {
+ 		if(book == null) return null
         return try {
             val referenceName = verseRange.getNameInLocale(null, Locale(book.language.code))
             referenceName + "\n" + "\n" + swordContentFacade.getTextWithVerseNumbers(book, verseRange)
@@ -109,7 +110,7 @@ class PageControl @Inject constructor(
                 val bible = bibles[0]
                 for (verse in defaultVerses) {
                     if (bible.contains(verse)) {
-                        currentPageManager.currentBible.key = verse
+                        currentPageManager.currentBible.setKey(verse)
                         return
                     }
                 }
