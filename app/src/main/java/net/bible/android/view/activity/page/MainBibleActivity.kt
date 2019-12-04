@@ -537,7 +537,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             BookName.setFullBookName(false)
             for(i in 0 until windows.length()) {
                 pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
-                keyTitle.add("${pageManager.currentPage.singleKey.name} (${pageManager.currentPage.currentDocument.abbreviation})")
+                keyTitle.add("${pageManager.currentPage.singleKey?.name} (${pageManager.currentPage.currentDocument?.abbreviation})")
             }
             BookName.setFullBookName(prevFullBookNameValue)
             val text = if(!name.isEmpty())
@@ -676,7 +676,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private val documentTitleText: String
-        get() = pageControl.currentPageManager.currentPage.currentDocument.name
+        get() = pageControl.currentPageManager.currentPage.currentDocument?.name?:""
 
     class KeyIsNull: Exception()
 
@@ -684,7 +684,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
             var key = pageControl.currentPageManager.currentPage.key
-            if(doc.bookCategory == BookCategory.BIBLE) {
+            if(doc?.bookCategory == BookCategory.BIBLE) {
                 key = pageControl.currentBibleVerse
                 if(key.verse == 0) {
                     key = Verse(key.versification, key.book, key.chapter, 1)
@@ -695,7 +695,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     val bibleOverlayText: String
         get() {
-            val bookName = pageControl.currentPageManager.currentPage.currentDocument.abbreviation
+            val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
             BookName.setFullBookName(false)
             val text = pageTitleText
             BookName.setFullBookName(true)
@@ -1074,7 +1074,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         pageControl.currentPageManager.setCurrentDocument(doc)
                     }
 
-                    windowControl.activeWindowPageManager.currentPage.key = verse
+                    windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
                 }
             }

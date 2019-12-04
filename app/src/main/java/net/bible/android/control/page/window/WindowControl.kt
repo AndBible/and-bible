@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
@@ -143,7 +144,7 @@ open class WindowControl @Inject constructor(
 
         val currentBiblePage = linksWindow.pageManager.currentBible
 
-        val defaultBible: Book
+        val defaultBible: Book?
 
         // default either to links window bible or if closed then active window bible
         defaultBible = if (currentBiblePage.isCurrentDocumentSet) {
@@ -151,7 +152,10 @@ open class WindowControl @Inject constructor(
         } else {
             windowRepository.firstVisibleWindow.pageManager.currentBible.currentDocument
         }
-
+        if(defaultBible == null) {
+            Log.e(TAG, "Default bible is null! Can't show link.")
+            return
+        }
         showLink(defaultBible, key)
     }
 
@@ -411,5 +415,6 @@ open class WindowControl @Inject constructor(
 
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
+        const val TAG = "WindowControl"
     }
 }

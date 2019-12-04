@@ -122,7 +122,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
      * shown so if it is shown then it is correct
      */
-    private fun updateInactiveBibleKey(inactiveWindow: Window, activeWindowKey: Key) {
+    private fun updateInactiveBibleKey(inactiveWindow: Window, activeWindowKey: Key?) {
         inactiveWindow.pageManager.currentBible.doSetKey(activeWindowKey)
     }
 
@@ -141,9 +141,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
 
             var currentVerse: Verse? = null
-            val isGeneralBook = BookCategory.GENERAL_BOOK == inactivePage.currentDocument.bookCategory
+            val isGeneralBook = BookCategory.GENERAL_BOOK == inactivePage.currentDocument?.bookCategory
             val isUnsynchronizedCommentary = !inactiveWindow.isSynchronised
-                    && BookCategory.COMMENTARY == inactivePage.currentDocument.bookCategory
+                    && BookCategory.COMMENTARY == inactivePage.currentDocument?.bookCategory
 
             if (inactiveWindowKey != null && inactiveWindowKey is Verse) {
                 currentVerse = KeyUtil.getVerse(inactiveWindowKey)
@@ -151,7 +151,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
             if (!forceRefresh && inactiveWindow.initialized &&
-                    BookCategory.BIBLE == inactivePage.currentDocument.bookCategory &&
+                    BookCategory.BIBLE == inactivePage.currentDocument?.bookCategory &&
                     currentVerse != null && targetVerse != null && targetV11n!!.isSameChapter(targetVerse, currentVerse)) {
                 ABEventBus.getDefault().post(
                         ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse))

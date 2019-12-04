@@ -174,13 +174,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val books = ArrayList<SwordBook>()
         val firstBook = windowRepository.activeWindow.pageManager.currentPage.currentDocument
 
-        if(firstBook.bookCategory == BookCategory.BIBLE) {
+        if(firstBook?.bookCategory == BookCategory.BIBLE) {
             books.add(firstBook as SwordBook)
         }
 
         for (w in windowRepository.visibleWindows) {
             val book = w.pageManager.currentPage.currentDocument
-            if (book !== firstBook && book.bookCategory == BookCategory.BIBLE) {
+            if (book !== firstBook && book?.bookCategory == BookCategory.BIBLE) {
                 books.add(book as SwordBook)
             }
         }

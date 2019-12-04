@@ -76,8 +76,7 @@ open class CurrentPageManager @Inject constructor(
     /**
      * When navigating books and chapters there should always be a current Passage based book
      */
-    val currentPassageDocument: AbstractPassageBook
-        get() = currentVersePage.currentPassageBook
+    val currentPassageDocument: AbstractPassageBook get() = currentVersePage.currentPassageBook
 
     /**
      * Get current Passage based page or just return the Bible page
@@ -149,7 +148,7 @@ open class CurrentPageManager @Inject constructor(
             val sameDoc = nextDocument == prevDocInPage
 
             // must be in this order because History needs to grab the current doc before change
-            nextPage.currentDocument = nextDocument
+            nextPage.setCurrentDocument(nextDocument)
             currentPage = nextPage
 
             // page will change due to above
@@ -179,23 +178,23 @@ open class CurrentPageManager @Inject constructor(
     }
 
     @JvmOverloads
-    fun setCurrentDocumentAndKey(currentBook: Book, key: Key, updateHistory: Boolean = true): CurrentPage? {
+    fun setCurrentDocumentAndKey(currentBook: Book?, key: Key, updateHistory: Boolean = true): CurrentPage? {
         return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE.toFloat(), updateHistory)
     }
 
-    fun setCurrentDocumentAndKeyAndOffset(currentBook: Book, key: Key, yOffsetRatio: Float): CurrentPage? {
+    fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float): CurrentPage? {
         return setCurrentDocumentAndKeyAndOffset(currentBook, key, yOffsetRatio, true)
     }
 
-    private fun setCurrentDocumentAndKeyAndOffset(currentBook: Book, key: Key, yOffsetRatio: Float, updateHistory: Boolean): CurrentPage? {
+    private fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float, updateHistory: Boolean): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
         val nextPage = getBookPage(currentBook)
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
-                nextPage.currentDocument = currentBook
-                nextPage.key = key
+                nextPage.setCurrentDocument(currentBook)
+                nextPage.setKey(key)
                 nextPage.currentYOffsetRatio = yOffsetRatio
                 currentPage = nextPage
             } finally {

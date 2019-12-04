@@ -33,7 +33,7 @@ import java.util.*
 class MyNoteDto : ConvertibleVerseRangeUser {
     var id: Long? = null
     private var convertibleVerseRange: ConvertibleVerseRange? = null
-    var noteText: String? = null
+    var noteText: String = ""
     var lastUpdatedOn: Date? = null
     var createdOn: Date? = null
     /** was this dto retrieved from the db

@@ -65,8 +65,8 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    private fun updateBookmarkSettings(key: Key, settings: PlaybackSettings) {
-        var v = key as Verse
+    private fun updateBookmarkSettings(v: Verse, settings: PlaybackSettings) {
+        var v = v
         if (v.verse == 0) {
             v = Verse(v.versification, v.book, v.chapter, 1)
         }

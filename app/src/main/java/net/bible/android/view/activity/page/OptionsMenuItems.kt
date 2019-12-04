@@ -93,7 +93,7 @@ class AutoFullscreenMenuItemPreference :
 class TiltToScrollMenuItemPreference :
     MenuItemPreference("tilt_to_scroll_pref", false, false) {
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-    override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible()
+    override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
 }
 
 class CommandItem(

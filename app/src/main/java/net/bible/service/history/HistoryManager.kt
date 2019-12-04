@@ -170,7 +170,8 @@ constructor(private val windowControl: WindowControl) {
 
             val key = currentPage.singleKey
             val yOffsetRatio = currentPage.currentYOffsetRatio
-            historyItem = KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow)
+            if(doc == null) return null
+            historyItem = if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow) else null
         } else if (currentActivity is AndBibleActivity) {
             val andBibleActivity = currentActivity as AndBibleActivity
             if (andBibleActivity.isIntegrateWithHistoryManager) {
