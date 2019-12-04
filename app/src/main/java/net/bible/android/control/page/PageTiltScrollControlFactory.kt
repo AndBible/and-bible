@@ -30,17 +30,13 @@ import javax.inject.Inject
 @ApplicationScope
 class PageTiltScrollControlFactory @Inject constructor() {
     private val screenPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = HashMap()
-    fun getPageTiltScrollControl(window: Window): PageTiltScrollControl? {
-        var pageTiltScrollControl = screenPageTiltScrollControlMap[window]
-        if (pageTiltScrollControl == null) {
-            synchronized(screenPageTiltScrollControlMap) {
-                pageTiltScrollControl = screenPageTiltScrollControlMap[window]
-                if (pageTiltScrollControl == null) {
-                    pageTiltScrollControl = PageTiltScrollControl()
-                    screenPageTiltScrollControlMap[window] = pageTiltScrollControl!!
-                }
-            }
-        }
-        return pageTiltScrollControl
+    fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
+        return screenPageTiltScrollControlMap[window] ?: synchronized(screenPageTiltScrollControlMap) {
+			synchronized(screenPageTiltScrollControlMap) {
+				screenPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
+			}.also {
+				screenPageTiltScrollControlMap[window] = it
+			}
+		}
     }
 }
