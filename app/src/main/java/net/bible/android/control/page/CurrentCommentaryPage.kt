@@ -104,8 +104,10 @@ internal constructor(
      * @param key
      */
     override fun doSetKey(key: Key?) {
-		val verse = KeyUtil.getVerse(key)
-		currentBibleVerse.setVerseSelected(versification, verse)
+        if(key != null) {
+            val verse = KeyUtil.getVerse(key)
+            currentBibleVerse.setVerseSelected(versification, verse)
+        }
     }
 
     /* (non-Javadoc)

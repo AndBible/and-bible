@@ -93,7 +93,7 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    override val singleKey: Key? get () = _key
+    override val singleKey: Key? get () = key
 
 	override fun setKey(key: Key) {
 		beforePageChange()
