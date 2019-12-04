@@ -47,7 +47,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class PageControl @Inject constructor(
+open class PageControl @Inject constructor(
 	private val swordDocumentFacade: SwordDocumentFacade,
 	private val swordContentFacade: SwordContentFacade,
 	private val documentControl: DocumentControl,
@@ -120,7 +120,7 @@ class PageControl @Inject constructor(
         }
     }
 
-    val currentBibleVerse: Verse
+    open val currentBibleVerse: Verse
         get() = currentPageManager.currentBible.singleKey
 
     /** font size may be adjusted for certain fonts e.g. SBLGNT
