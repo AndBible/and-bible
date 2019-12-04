@@ -83,19 +83,6 @@ open class Window (
             else -> WindowOperation.MINIMISE
         }
 
-    val stateJson: JSONObject
-        @Throws(JSONException::class)
-        get() {
-            val obj = JSONObject().apply {
-                put("screenNo", screenNo)
-                put("isSynchronised", isSynchronised)
-                put("wasMinimised", wasMinimised)
-                put("windowLayout", windowLayout.stateJson)
-                put("pageManager", pageManager.stateJson)
-            }
-            return obj
-        }
-
     open val isLinksWindow: Boolean
         get() = false
 
@@ -114,6 +101,19 @@ open class Window (
     enum class WindowOperation {
         MAXIMISE, MINIMISE, RESTORE, CLOSE
     }
+
+    val stateJson: JSONObject
+        @Throws(JSONException::class)
+        get() {
+            val obj = JSONObject().apply {
+                put("screenNo", screenNo)
+                put("isSynchronised", isSynchronised)
+                put("wasMinimised", wasMinimised)
+                put("windowLayout", windowLayout.stateJson)
+                put("pageManager", pageManager.stateJson)
+            }
+            return obj
+        }
 
     @Throws(JSONException::class)
     fun restoreState(jsonObject: JSONObject) {

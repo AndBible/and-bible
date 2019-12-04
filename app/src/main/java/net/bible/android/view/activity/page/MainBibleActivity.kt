@@ -436,8 +436,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class AutoFullScreenChanged(val newValue: Boolean)
 
-
-
     private fun deleteWorkspace() {
         val nextWorkspace = if (currentWorkspace > 0) currentWorkspace - 1 else 0
         val workspaces = workspaceStrings

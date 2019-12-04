@@ -32,6 +32,9 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlan
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
 import net.bible.service.db.readingplan.ReadingPlanStatus
+import net.bible.service.db.workspaces.HistoryItem
+import net.bible.service.db.workspaces.Window
+import net.bible.service.db.workspaces.Workspace
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -84,6 +87,11 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
             execSQL("CREATE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)")
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
+
+            // Create workspace related tables
+            execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `links_windowid` INTEGER NOT NULL, `links_windowworkspaceId` INTEGER NOT NULL, `links_windowscreenNo` INTEGER NOT NULL, `links_windowisSynchronized` INTEGER NOT NULL, `links_windowwasMinimised` INTEGER NOT NULL, `links_windowwindow_layoutstate` TEXT NOT NULL, `links_windowwindow_layoutweight` REAL NOT NULL, `links_windowpage_managerbibledocument` TEXT NOT NULL, `links_windowpage_managerbibleverseversification` TEXT NOT NULL, `links_windowpage_managerbibleversebibleBook` INTEGER NOT NULL, `links_windowpage_managerbibleversechapterNo` INTEGER NOT NULL, `links_windowpage_managerbibleverseverseNo` INTEGER NOT NULL, `links_windowpage_managercommentarydocument` TEXT NOT NULL, `links_windowpage_managerdictionarydocument` TEXT NOT NULL, `links_windowpage_managerdictionarykey` TEXT NOT NULL, `links_windowpage_managergeneral_bookdocument` TEXT NOT NULL, `links_windowpage_managergeneral_bookkey` TEXT NOT NULL, `links_windowpage_managermapdocument` TEXT NOT NULL, `links_windowpage_managermapkey` TEXT NOT NULL, PRIMARY KEY(`id`))")
+            execSQL("CREATE TABLE IF NOT EXISTS `Window` (`id` INTEGER NOT NULL, `workspaceId` INTEGER NOT NULL, `screenNo` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `wasMinimised` INTEGER NOT NULL, `window_layoutstate` TEXT NOT NULL, `window_layoutweight` REAL NOT NULL, `page_managerbibledocument` TEXT NOT NULL, `page_managerbibleverseversification` TEXT NOT NULL, `page_managerbibleversebibleBook` INTEGER NOT NULL, `page_managerbibleversechapterNo` INTEGER NOT NULL, `page_managerbibleverseverseNo` INTEGER NOT NULL, `page_managercommentarydocument` TEXT NOT NULL, `page_managerdictionarydocument` TEXT NOT NULL, `page_managerdictionarykey` TEXT NOT NULL, `page_managergeneral_bookdocument` TEXT NOT NULL, `page_managergeneral_bookkey` TEXT NOT NULL, `page_managermapdocument` TEXT NOT NULL, `page_managermapkey` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+            execSQL("CREATE TABLE IF NOT EXISTS `HistoryItem` (`id` INTEGER NOT NULL, `windowId` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `yOffsetRatio` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
         }
     }
 }
@@ -96,7 +104,10 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
         BookmarkToLabel::class,
         MyNote::class,
         ReadingPlan::class,
-        ReadingPlanStatus::class
+        ReadingPlanStatus::class,
+        Workspace::class,
+        Window::class,
+        HistoryItem::class
     ],
     version = DATABASE_VERSION
 )

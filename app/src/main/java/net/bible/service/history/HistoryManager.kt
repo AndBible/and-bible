@@ -30,7 +30,6 @@ import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.JSON_CONFIG
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 
 
