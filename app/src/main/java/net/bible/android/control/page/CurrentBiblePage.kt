@@ -182,7 +182,22 @@ class CurrentBiblePage(
 
     override val isSingleKey = false
 
-    val entity get() = WorkspaceEntities.BiblePage(currentDocument!!.initials, currentBibleVerse.entity)
+    val entity get() =
+        WorkspaceEntities.BiblePage(currentDocument!!.initials, currentBibleVerse.entity)
+
+    fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
+        val document = entity.document
+        if (StringUtils.isNotEmpty(document)) {
+            Log.d(TAG, "State document:$document")
+            val book = swordDocumentFacade.getDocumentByInitials(document)
+            if (book != null) {
+                Log.d(TAG, "Restored document:" + book.name)
+                // bypass setter to avoid automatic notifications
+                localSetCurrentDocument(book)
+                currentBibleVerse.restoreFrom(entity.verse)
+            }
+        }
+    }
 
     var currentChapterVerse: ChapterVerse
         get() = currentBibleVerse.chapterVerse

@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.service.db.workspaces.WorkspaceEntities
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -50,5 +51,10 @@ class WindowLayout(windowState: WindowState) {
     fun restoreState(jsonObject: JSONObject) {
         this.state = WindowState.valueOf(jsonObject.getString("state"))
         this.weight = jsonObject.getDouble("weight").toFloat()
+    }
+
+    fun restoreFrom(windowLayoutEntity: WorkspaceEntities.WindowLayout) {
+        state = windowLayoutEntity.state
+        weight = windowLayoutEntity.weight
     }
 }

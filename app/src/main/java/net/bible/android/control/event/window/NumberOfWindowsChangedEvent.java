@@ -28,17 +28,17 @@ import net.bible.android.control.page.window.Window;
  */
 public class NumberOfWindowsChangedEvent implements WindowEvent {
 	
-	private Map<Window, ChapterVerse> screenChapterVerseMap;
+	private Map<Window, ChapterVerse> windowChapterVerseMap;
 
-	public NumberOfWindowsChangedEvent(Map<Window, ChapterVerse> screenChapterVerseMap) {
-		this.screenChapterVerseMap = screenChapterVerseMap;
+	public NumberOfWindowsChangedEvent(Map<Window, ChapterVerse> windowChapterVerseMap) {
+		this.windowChapterVerseMap = windowChapterVerseMap;
 	}
 
 	public boolean isVerseNoSet(Window window) {
-		return screenChapterVerseMap.containsKey(window);
+		return windowChapterVerseMap.containsKey(window);
 	}
 
 	public ChapterVerse getChapterVerse(Window window) {
-		return screenChapterVerseMap.get(window);
+		return windowChapterVerseMap.get(window);
 	}
 }

@@ -117,6 +117,14 @@ class ConvertibleVerse(
         }
     }
 
+    fun restoreFrom(entity: WorkspaceEntities.Verse) {
+        val v11n = Versifications.instance().getVersification(entity.versification)
+        val bibleBookNo = entity.bibleBook
+        val chapterNo = entity.chapterNo
+        val verseNo = entity.verseNo
+        verse = Verse(v11n, BibleBook.values()[bibleBookNo], chapterNo, verseNo, true)
+    }
+
     companion object {
         private val versificationConverter = VersificationConverter()
     }

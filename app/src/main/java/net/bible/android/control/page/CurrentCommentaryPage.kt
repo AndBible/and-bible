@@ -125,7 +125,8 @@ internal constructor(
      */
     override val isSearchable = true
 
-    val entity get() = WorkspaceEntities.CommentaryPage(currentDocument!!.initials)
+    val entity get() =
+        WorkspaceEntities.CommentaryPage(currentDocument!!.initials)
 
     /** called during app close down to save state
      */
@@ -160,6 +161,19 @@ internal constructor(
                         // allow Bible page to restore shared verse
                     }
                 }
+            }
+        }
+    }
+
+    fun restoreFrom(entity: WorkspaceEntities.CommentaryPage) {
+        val document = entity.document
+        if (StringUtils.isNotEmpty(document)) {
+            val book = swordDocumentFacade.getDocumentByInitials(document)
+            if (book != null) {
+                Log.d(TAG, "Restored document:" + book.name)
+                // bypass setter to avoid automatic notifications
+                localSetCurrentDocument(book)
+                // allow Bible page to restore shared verse
             }
         }
     }

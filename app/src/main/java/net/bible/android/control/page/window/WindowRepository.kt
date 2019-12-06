@@ -123,7 +123,8 @@ open class WindowRepository @Inject constructor(
 
     val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
 
-    private fun getDefaultActiveWindow() = windows.find { it.isVisible } ?: createNewWindow()
+    private fun getDefaultActiveWindow() =
+        windows.find { it.isVisible } ?: createNewWindow()
     fun setDefaultActiveWindow() {
         activeWindow = getDefaultActiveWindow()
     }
@@ -193,6 +194,7 @@ open class WindowRepository @Inject constructor(
         if (!windowList.remove(window)) {
             logger.error("Failed to remove window " + window.id)
         }
+        dao.deleteWindow(window.id)
         window.destroy()
     }
 
@@ -288,20 +290,47 @@ open class WindowRepository @Inject constructor(
     }
 
     fun saveIntoDb() {
-        id = dao.insertWorkspace(WorkspaceEntities.Workspace(name, id))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id))
 
+        val historyManager = historyManagerProvider.get()
         val windows = windowList.mapIndexed { i, it ->
+            dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
             it.entity.apply {
                 orderNumber = i
             }
         }
-        val ids = dao.insertWindows(windows)
+        val pageManagers = windowList.map {
+            it.pageManager.entity
+        }
+
+        dao.updateWindows(windows)
+        dao.updatePageManagers(pageManagers)
     }
 
     /** called during app start-up to restore previous state
      *
      * @param inState
      */
+
+    fun loadFromDb(workspaceId: Long) {
+        val entity = dao.workspace(workspaceId)
+        id = entity.id
+        name = entity.name
+        clear()
+        val linksWindowEntity = dao.linksWindow(id)
+        val linksPageManager = dao.pageManager(linksWindowEntity.id)
+        dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManager)
+        val historyManager = historyManagerProvider.get()
+        dao.windows(id).forEach {
+            val pageManager = currentPageManagerProvider.get()
+            pageManager.restoreFrom(dao.pageManager(it.id))
+            val window = Window(it, pageManager)
+            windowList.add(window)
+            historyManager.restoreFrom(window, dao.historyItems(it.id))
+        }
+        activeWindow = getDefaultActiveWindow()
+    }
+
     fun restoreState(stateJsonString: String) {
 //        logger.info("restore state")
 //        if (StringUtils.isNotEmpty(stateJsonString)) {

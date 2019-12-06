@@ -264,4 +264,12 @@ open class CurrentPageManager @Inject constructor(
         }
 
     }
+
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager) {
+        currentBible.restoreFrom(pageManagerEntity.biblePage)
+        currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+        currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
+        currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
+        currentMap.restoreFrom(pageManagerEntity.mapPage)
+    }
 }

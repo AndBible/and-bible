@@ -330,7 +330,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateMinimizedButtonLetter(w: Window) {
-        restoreButtons.find { it.screenNo == w.id }?.text = getDocumentInitial(w)
+        restoreButtons.find { it.windowId == w.id }?.text = getDocumentInitial(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -640,7 +640,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return tag != null && tag == TAG
     }
 
-    private class RestoreButton(context: Context, val screenNo: Long?): AppCompatButton(context)
+    private class RestoreButton(context: Context, val windowId: Long?): AppCompatButton(context)
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"

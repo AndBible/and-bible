@@ -18,6 +18,7 @@
 package net.bible.android.control.page
 
 import net.bible.android.control.versification.ConvertibleVerse
+import net.bible.service.db.workspaces.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
@@ -64,5 +65,9 @@ class CurrentBibleVerse {
     @Throws(JSONException::class)
     fun restoreState(jsonObject: JSONObject?) {
         verseVersificationSelected.restoreState(jsonObject)
+    }
+
+    fun restoreFrom(verse: WorkspaceEntities.Verse) {
+        verseVersificationSelected.restoreFrom(verse)
     }
 }

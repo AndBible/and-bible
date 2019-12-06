@@ -25,6 +25,7 @@ import net.bible.service.common.CommonUtils
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import java.util.*
 
 /**
  * A normal item in the history list that relates to a document being shown in the main activity view
@@ -35,7 +36,8 @@ class KeyHistoryItem(
     val document: Book,
     val key: Key,
     val yOffsetRatio: Float,
-    window: Window
+    window: Window,
+    override val createdAt: Date = Date(System.currentTimeMillis())
 ) : HistoryItemBase(window) {
 
     override val description: String
@@ -55,7 +57,7 @@ class KeyHistoryItem(
 	 * @see net.bible.service.history.HistoryItem#revertTo()
 	 */
     override fun revertTo() {
-        screen.pageManager.setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio)
+        window.pageManager.setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio)
     }
 
     override fun toString(): String {

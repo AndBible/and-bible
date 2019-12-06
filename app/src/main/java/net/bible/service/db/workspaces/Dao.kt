@@ -23,12 +23,16 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 
 @Dao
 interface WorkspaceDao {
-    @Insert(onConflict = REPLACE)
+    @Insert
     fun insertWorkspace(workspace: WorkspaceEntities.Workspace): Long
+
+    @Update
+    fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
     @Insert
     fun insertWindows(vararg windows: WorkspaceEntities.Window)
@@ -40,16 +44,25 @@ interface WorkspaceDao {
     fun insertWindows(windows: List<WorkspaceEntities.Window>): Array<Long>
 
     @Insert
-    fun insertHistoryItems(vararg historyItems: WorkspaceEntities.HistoryItem)
+    fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
 
     @Update
-    fun updateWindows(vararg windows: WorkspaceEntities.Window)
+    fun updateWindows(windows: List<WorkspaceEntities.Window>)
+
+    @Update
+    fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Delete
     fun deleteWorkspaces(vararg workspaces: WorkspaceEntities.Workspace)
 
-    @Delete
-    fun deleteWindows(vararg window: WorkspaceEntities.Window)
+    @Query("DELETE from Window WHERE id = :windowId")
+    fun deleteWindow(windowId: Long)
+
+    @Query("DELETE from HistoryItem WHERE windowId = :windowId")
+    fun deleteHistoryItems(windowId: Long)
+
+    @Query("SELECT * from Workspace WHERE id = :workspaceId")
+    fun workspace(workspaceId: Long): WorkspaceEntities.Workspace
 
     @Query("SELECT * from Workspace")
     fun allWorkspaces(): Array<WorkspaceEntities.Workspace>
@@ -58,11 +71,17 @@ interface WorkspaceDao {
     fun windows(workspaceId: Long): Array<WorkspaceEntities.Window>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
-    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window?
+    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
-    fun pageManager(windowId: Long): WorkspaceEntities.PageManager?
+    fun pageManager(windowId: Long): WorkspaceEntities.PageManager
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: Long): Array<WorkspaceEntities.HistoryItem>
+    fun historyItems(windowId: Long): List<WorkspaceEntities.HistoryItem>
+
+    @Transaction
+    fun updateHistoryItems(windowId: Long, entities: List<WorkspaceEntities.HistoryItem>) {
+        deleteHistoryItems(windowId)
+        insertHistoryItems(entities)
+    }
 }

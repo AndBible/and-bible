@@ -100,7 +100,7 @@ class WorkspaceEntities {
 
     data class HistoryItem(
         val windowId: Long,
-        val createdAt: Date = Date(System.currentTimeMillis()),
+        val createdAt: Date,
         val document: String,
         val key: String,
         val yOffsetRatio: Float,

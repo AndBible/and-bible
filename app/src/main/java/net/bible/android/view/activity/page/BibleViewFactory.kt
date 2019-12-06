@@ -44,15 +44,15 @@ import javax.inject.Inject
 class BibleViewFactory @Inject
 constructor(private val mainBibleActivity: MainBibleActivity, private val pageControl: PageControl, private val pageTiltScrollControlFactory: PageTiltScrollControlFactory, private val windowControl: WindowControl, private val bibleKeyHandler: BibleKeyHandler, private val linkControl: LinkControl, private val bookmarkControl: BookmarkControl, private val myNoteControl: MyNoteControl, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) {
 
-    private val screenBibleViewMap: MutableMap<Window, BibleView>
+    private val windowBibleViewMap: MutableMap<Window, BibleView>
 
     init {
-        screenBibleViewMap = WeakHashMap<Window, BibleView>()
+        windowBibleViewMap = WeakHashMap<Window, BibleView>()
     }
 
     fun createBibleView(window: Window): BibleView {
-		Log.d(TAG, "createBibleView. Now in screenBibleViewMap ${screenBibleViewMap.size} items.")
-        var bibleView = screenBibleViewMap[window]
+		Log.d(TAG, "createBibleView. Now in screenBibleViewMap ${windowBibleViewMap.size} items.")
+        var bibleView = windowBibleViewMap[window]
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl)
@@ -67,7 +67,7 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
 
-            screenBibleViewMap[window] = bibleView
+            windowBibleViewMap[window] = bibleView
         }
         return bibleView
     }

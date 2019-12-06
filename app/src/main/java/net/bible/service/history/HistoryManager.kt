@@ -25,11 +25,13 @@ import kotlinx.serialization.json.Json
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.JSON_CONFIG
+import net.bible.service.db.workspaces.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 
 
@@ -50,7 +52,7 @@ import javax.inject.Inject
 class HistoryManager @Inject
 constructor(private val windowControl: WindowControl) {
 
-    private val screenHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
+    private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
@@ -65,13 +67,13 @@ constructor(private val windowControl: WindowControl) {
     private val historyStack: Stack<HistoryItem>
         get() {
             val windowNo = windowControl.activeWindow.id
-            var historyStack = screenHistoryStackMap[windowNo]
+            var historyStack = windowHistoryStackMap[windowNo]
             if (historyStack == null) {
-                synchronized(screenHistoryStackMap) {
-                    historyStack = screenHistoryStackMap[windowNo]
+                synchronized(windowHistoryStackMap) {
+                    historyStack = windowHistoryStackMap[windowNo]
                     if (historyStack == null) {
                         historyStack = Stack()
-                        screenHistoryStackMap[windowNo] = historyStack!!
+                        windowHistoryStackMap[windowNo] = historyStack!!
                     }
                 }
             }
@@ -92,7 +94,7 @@ constructor(private val windowControl: WindowControl) {
 	var dumpString: String
         get() {
             val map = HashMap<Long, ArrayList<SerializableHistoryItem>>()
-            for((windowId, historyStack) in screenHistoryStackMap) {
+            for((windowId, historyStack) in windowHistoryStackMap) {
                 val historyItems = arrayListOf<SerializableHistoryItem>()
                 for(itm in historyStack) {
                     if(itm is KeyHistoryItem) {
@@ -109,7 +111,7 @@ constructor(private val windowControl: WindowControl) {
             return Json(JSON_CONFIG).stringify(HistorySerializer.serializer(), s)
         }
         set(newValue) {
-            screenHistoryStackMap.clear()
+            windowHistoryStackMap.clear()
             if(newValue.isEmpty()) return
 
             val map = Json(JSON_CONFIG).parse(HistorySerializer.serializer(), newValue).map
@@ -122,10 +124,30 @@ constructor(private val windowControl: WindowControl) {
                         val key = doc.getKey(itm.key)
                         stack.add(KeyHistoryItem(doc, key, itm.yOffsetRatio, window))
                     }
-                    screenHistoryStackMap[windowId] = stack
+                    windowHistoryStackMap[windowId] = stack
                 }
             }
         }
+
+    fun getEntities(windowId: Long) =
+        windowHistoryStackMap[windowId]?.mapNotNull {
+            if(it is KeyHistoryItem) {
+                WorkspaceEntities.HistoryItem(
+                    windowId, it.createdAt, it.document.initials, it.key.osisID, it.yOffsetRatio
+                )
+            }
+            null
+        } ?: emptyList()
+
+    fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
+        val stack = Stack<HistoryItem>()
+        for(entity in historyItems) {
+            val doc = Books.installed().getBook(entity.document) ?: continue
+            val key = doc.getKey(entity.key)
+            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio, window))
+        }
+        windowHistoryStackMap[window.id] = stack
+    }
 
     init {
         // register for BeforePageChangeEvent
@@ -148,7 +170,7 @@ constructor(private val windowControl: WindowControl) {
     /**
      * called when a verse is changed to allow current Activity to be saved in History list
      */
-    fun addHistoryItem() {
+    private fun addHistoryItem() {
         // if we cause the change by requesting Back then ignore it
         if (!isGoingBack) {
             val item = createHistoryItem()

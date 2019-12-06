@@ -42,4 +42,14 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
             pageManager.restoreState(activeWindow.pageManager.stateJson)
         }
     }
+
+    fun restoreFrom(windowEntity: WorkspaceEntities.Window,
+                    pageManagerEntity: WorkspaceEntities.PageManager)
+    {
+        id = windowEntity.id
+        wasMinimised = windowEntity.wasMinimised
+
+        windowLayout.restoreFrom(windowEntity.windowLayout)
+        pageManager.restoreFrom(pageManagerEntity)
+    }
 }
