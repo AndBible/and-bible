@@ -2,7 +2,6 @@ package net.bible.android.control.page.window
 
 import android.view.Menu
 
-import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -78,7 +77,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testGetActiveWindow() {
         // should always be one default window that is active by default
-        assertThat(windowControl!!.activeWindow.screenNo, equalTo(1))
+        assertThat(windowControl!!.activeWindow.id, equalTo(1))
     }
 
     @Test

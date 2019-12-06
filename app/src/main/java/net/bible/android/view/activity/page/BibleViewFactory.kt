@@ -64,7 +64,7 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
             val verseCalculator = VerseCalculator()
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.pageManager, bibleInfiniteScrollPopulator, WeakReference(bibleView))
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
-            bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.screenNo
+            bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
 
             screenBibleViewMap[window] = bibleView

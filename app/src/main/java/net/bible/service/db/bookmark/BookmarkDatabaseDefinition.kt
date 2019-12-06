@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -43,7 +44,10 @@ data class Bookmark(
 	foreignKeys = [
 		ForeignKey(entity = Bookmark::class, parentColumns = ["_id"], childColumns = ["bookmark_id"], onDelete = ForeignKey.CASCADE),
 		ForeignKey(entity = Label::class, parentColumns = ["_id"], childColumns = ["label_id"], onDelete = ForeignKey.CASCADE)
-	]
+	],
+    indices = [
+        Index("label_id")
+    ]
 )
 data class BookmarkToLabel(
 	@ColumnInfo(name="bookmark_id") val bookmarkId: Int,

@@ -67,7 +67,7 @@ class WindowTest {
         window = Window(mockCurrentPageManager)
         window.restoreState(json)
         layout = window.windowLayout
-        assertThat(window.screenNo, equalTo(2))
+        assertThat(window.id, equalTo(2))
         assertThat(layout.state, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))
         assertThat(layout.weight, equalTo(1.23456f))

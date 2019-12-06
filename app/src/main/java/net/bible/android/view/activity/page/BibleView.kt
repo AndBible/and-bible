@@ -711,7 +711,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
-    private val TAG get() = "BibleView[${window.screenNo}]"
+    private val TAG get() = "BibleView[${window.id}]"
 
     companion object {
 

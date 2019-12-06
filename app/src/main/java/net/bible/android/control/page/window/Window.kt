@@ -37,14 +37,13 @@ import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 open class Window (
-    val windowLayout: WindowLayout,
+    window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
-    var screenNo: Int)
-{
-    constructor (currentPageManager: CurrentPageManager):
-            this(WindowLayout(WindowState.SPLIT), currentPageManager, 0)
-    constructor(screenNo: Int, windowState: WindowState, currentPageManager: CurrentPageManager):
-            this(WindowLayout(windowState), currentPageManager, screenNo)
+    val windowLayout: WindowLayout = WindowLayout(WindowState.SPLIT)
+){
+
+    var id = window.id
+    private val workspaceId = window.workspaceId
 
     init {
         @Suppress("LeakingThis")
@@ -52,16 +51,14 @@ open class Window (
     }
 
     val entity get () =
-        WorkspaceEntities.Window(0, 0, screenNo, isSynchronised, wasMinimised,
-            -1, isLinksWindow,
-            WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight),
-            pageManager.entity
+        WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
+            WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight)
         )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
-    var isSynchronised = true
+    open var isSynchronised = true
     var initialized = false
     var wasMinimised = false
 
@@ -90,8 +87,7 @@ open class Window (
             else -> WindowOperation.MINIMISE
         }
 
-    open val isLinksWindow: Boolean
-        get() = false
+    open val isLinksWindow = false
 
     private var bibleViewRef: WeakReference<BibleView>? = null
 
@@ -113,7 +109,7 @@ open class Window (
         @Throws(JSONException::class)
         get() {
             val obj = JSONObject().apply {
-                put("screenNo", screenNo)
+                put("screenNo", id)
                 put("isSynchronised", isSynchronised)
                 put("wasMinimised", wasMinimised)
                 put("windowLayout", windowLayout.stateJson)
@@ -125,7 +121,7 @@ open class Window (
     @Throws(JSONException::class)
     fun restoreState(jsonObject: JSONObject) {
         try {
-            screenNo = jsonObject.getInt("screenNo")
+            id = jsonObject.getInt("screenNo").toLong()
             isSynchronised = jsonObject.getBoolean("isSynchronised")
             wasMinimised = jsonObject.optBoolean("wasMinimised")
             windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"))
@@ -137,7 +133,7 @@ open class Window (
     }
 
     override fun toString(): String {
-        return "Window [screenNo=$screenNo]"
+        return "Window [screenNo=$id]"
     }
 
     var updateOngoing = false
@@ -164,7 +160,7 @@ open class Window (
         }
     }
 
-    private val TAG get() = "BibleView[${screenNo}] WIN"
+    private val TAG get() = "BibleView[${id}] WIN"
 }
 
 class UpdateInactiveScreenTextTask() : UpdateTextTask() {

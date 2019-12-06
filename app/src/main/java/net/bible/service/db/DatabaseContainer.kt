@@ -117,7 +117,8 @@ class Converters {
         ReadingPlanStatus::class,
         WorkspaceEntities.Workspace::class,
         WorkspaceEntities.Window::class,
-        WorkspaceEntities.HistoryItem::class
+        WorkspaceEntities.HistoryItem::class,
+        WorkspaceEntities.PageManager::class
     ],
     version = DATABASE_VERSION
 )

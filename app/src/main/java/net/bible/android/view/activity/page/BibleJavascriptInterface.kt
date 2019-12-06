@@ -146,5 +146,5 @@ class BibleJavascriptInterface(
     }
 
 
-	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
+	private val TAG get() = "BibleView[${bibleView.window.id}] JSInt"
 }

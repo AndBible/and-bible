@@ -34,6 +34,9 @@ interface WorkspaceDao {
     fun insertWindows(vararg windows: WorkspaceEntities.Window)
 
     @Insert
+    fun insertWindow(window: WorkspaceEntities.Window): Long
+
+    @Insert
     fun insertWindows(windows: List<WorkspaceEntities.Window>): Array<Long>
 
     @Insert
@@ -52,11 +55,14 @@ interface WorkspaceDao {
     fun allWorkspaces(): Array<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
-    fun windows(workspaceId: Int): Array<WorkspaceEntities.Window>
+    fun windows(workspaceId: Long): Array<WorkspaceEntities.Window>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
-    fun linksWindow(workspaceId: Int): WorkspaceEntities.Window
+    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window?
+
+    @Query("SELECT * from PageManager WHERE windowId = :windowId")
+    fun pageManager(windowId: Long): WorkspaceEntities.PageManager?
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: Int): Array<WorkspaceEntities.HistoryItem>
+    fun historyItems(windowId: Long): Array<WorkspaceEntities.HistoryItem>
 }

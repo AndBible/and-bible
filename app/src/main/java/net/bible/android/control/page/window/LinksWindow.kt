@@ -20,20 +20,16 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import java.lang.ref.WeakReference
+import net.bible.service.db.workspaces.WorkspaceEntities
 
 /**
  * Window used when user selects a link
  */
-class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManager) :
-        Window(DEDICATED_LINK_WINDOW_SCREEN_NO, windowState, currentPageManager) {
-
-    override val isLinksWindow: Boolean
-        get() = true
-
-    init {
-        isSynchronised = false
-    }
+class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageManager):
+    Window(window, pageManager)
+{
+    override val isLinksWindow = true
+    override var isSynchronised = false
 
     /**
      * Page state should reflect active window when links window is being used after being closed.
@@ -45,11 +41,5 @@ class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManag
             // initialise links window documents from active window
             pageManager.restoreState(activeWindow.pageManager.stateJson)
         }
-    }
-
-    companion object {
-
-        // must be -ve so as not to interfere with incrementing window number sequence
-        private const val DEDICATED_LINK_WINDOW_SCREEN_NO = -999
     }
 }

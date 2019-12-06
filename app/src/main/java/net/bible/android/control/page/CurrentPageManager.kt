@@ -55,6 +55,7 @@ open class CurrentPageManager @Inject constructor(
 {
     val entity get() =
         WorkspaceEntities.PageManager(
+            window.id,
             currentBible.entity,
             currentCommentary.entity,
             currentDictionary.pageEntity,
@@ -93,13 +94,11 @@ open class CurrentPageManager @Inject constructor(
      */
     val currentVersePage: VersePage
         get() {
-            val page: VersePage
-            page = if (isBibleShown || isCommentaryShown) {
+            return if (isBibleShown || isCommentaryShown) {
                 currentPage as VersePage
             } else {
                 currentBible
             }
-            return page
         }
 
     val isCommentaryShown: Boolean

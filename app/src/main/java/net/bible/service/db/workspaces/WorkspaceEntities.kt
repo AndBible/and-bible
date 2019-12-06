@@ -18,11 +18,14 @@
 
 package net.bible.service.db.workspaces
 
+import androidx.room.ColumnInfo
+import androidx.room.DatabaseView
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 import java.util.*
@@ -42,19 +45,32 @@ class WorkspaceEntities {
 
     data class BiblePage(
         val document: String,
-        @Embedded(prefix="verse") val verse: Verse
+        @Embedded(prefix="verse_") val verse: Verse
     )
 
     data class CommentaryPage(
         val document: String
     )
 
+    @Entity(
+        foreignKeys = [
+            ForeignKey(
+                entity = Window::class,
+                parentColumns = ["id"],
+                childColumns = ["windowId"],
+                onDelete = CASCADE
+            )],
+        indices = [
+            Index("windowId", unique = true)
+        ]
+    )
     data class PageManager(
-        @Embedded(prefix="bible") val biblePage: BiblePage,
-        @Embedded(prefix="commentary") val commentaryPage: CommentaryPage,
-        @Embedded(prefix="dictionary") val dictionaryPage: Page,
-        @Embedded(prefix="general_book") val generalBookPage: Page,
-        @Embedded(prefix="map") val mapPage: Page
+        @PrimaryKey val windowId: Long,
+        @Embedded(prefix="bible_") val biblePage: BiblePage,
+        @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage,
+        @Embedded(prefix="dictionary_") val dictionaryPage: Page,
+        @Embedded(prefix="general_book_") val generalBookPage: Page,
+        @Embedded(prefix="map_") val mapPage: Page
     )
 
     data class WindowLayout(
@@ -64,35 +80,56 @@ class WorkspaceEntities {
 
     @Entity
     data class Workspace(
-        @PrimaryKey(autoGenerate = true) val id: Long,
-        val name: String
+        val name: String,
+
+        @PrimaryKey(autoGenerate = true) val id: Long = 0
     )
 
-    @Entity(foreignKeys = [
-        ForeignKey(entity = Window::class, parentColumns = ["id"], childColumns = ["windowId"], onDelete = CASCADE)
-    ])
+    @Entity(
+        foreignKeys = [
+            ForeignKey(
+                entity = Window::class,
+                parentColumns = ["id"],
+                childColumns = ["windowId"],
+                onDelete = CASCADE
+            )],
+        indices = [
+            Index("windowId")
+        ]
+    )
+
     data class HistoryItem(
-        @PrimaryKey(autoGenerate = true) val id: Long,
         val windowId: Long,
         val createdAt: Date = Date(System.currentTimeMillis()),
         val document: String,
         val key: String,
-        val yOffsetRatio: Float
+        val yOffsetRatio: Float,
+
+        @PrimaryKey(autoGenerate = true) val id: Long = 0
     )
 
-    @Entity(foreignKeys = [
-        ForeignKey(entity = Workspace::class, parentColumns = ["id"], childColumns = ["workspaceId"], onDelete = CASCADE)
-    ])
+    @Entity(
+        foreignKeys = [
+            ForeignKey(
+                entity = Workspace::class,
+                parentColumns = ["id"],
+                childColumns = ["workspaceId"],
+                onDelete = CASCADE
+            )],
+        indices = [
+            Index("workspaceId")
+        ]
+    )
+
     data class Window(
-        @PrimaryKey(autoGenerate = true) val id: Long,
-        var workspaceId: Long,
-        val screenNo: Int,
+        val workspaceId: Long,
         val isSynchronized: Boolean,
         val wasMinimised: Boolean,
-        var orderNumber: Int,
         val isLinksWindow: Boolean,
-        @Embedded(prefix="window_layout") val windowLayout: WindowLayout,
-        @Embedded(prefix="page_manager") val pageManager: PageManager
+        @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
+
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        var orderNumber: Int = 0
     )
 }
 

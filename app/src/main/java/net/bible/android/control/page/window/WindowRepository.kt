@@ -19,7 +19,6 @@
 package net.bible.android.control.page.window
 
 import android.content.SharedPreferences
-
 import net.bible.android.BibleApplication
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -27,18 +26,15 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.history.HistoryManager
-
-import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-
-import java.util.ArrayList
-
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -50,14 +46,12 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>
 )
 {
-
     private var windowList: MutableList<Window> = ArrayList()
-    var dedicatedLinksWindow = LinksWindow(WindowState.CLOSED, currentPageManagerProvider.get())
-        private set
 
-    private var maxWindowNoUsed = 0
-
+    var id: Long = 0
     var name = ""
+
+    val dao get() = DatabaseContainer.db.workspaceDao()
 
     private val logger = Logger(this.javaClass.name)
 
@@ -79,9 +73,22 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
-        //restoreState()
+        id = sharedPreferences.getLong("current_workspace_id", 0)
+        if(id == 0L) {
+            id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
+            sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+        }
         ABEventBus.getDefault().safelyRegister(this)
     }
+
+    var dedicatedLinksWindow =
+        LinksWindow(dao.linksWindow(id) ?: WorkspaceEntities.Window(
+            id, false, false, true,
+            WorkspaceEntities.WindowLayout(WindowState.CLOSED)
+        ).apply {
+            id = dao.insertWindow(this)
+        } , currentPageManagerProvider.get())
+        private set
 
     // links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
     // should only ever be one maximised window
@@ -112,16 +119,11 @@ open class WindowRepository @Inject constructor(
 
     val isMultiWindow get() = visibleWindows.size > 1
 
-    private val defaultState get() = WindowState.SPLIT
+    private val defaultState = WindowState.SPLIT
 
     val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
 
-    /**
-     * Return window no larger than any windows created during this session and larger than 0
-     */
-    private val nextWindowNo get() = maxWindowNoUsed + 1
-
-    private fun getDefaultActiveWindow() = windows.find { it.isVisible } ?: addNewWindow(nextWindowNo)
+    private fun getDefaultActiveWindow() = windows.find { it.isVisible } ?: createNewWindow()
     fun setDefaultActiveWindow() {
         activeWindow = getDefaultActiveWindow()
     }
@@ -134,10 +136,10 @@ open class WindowRepository @Inject constructor(
 
     private fun getWindows(state: WindowState)= windows.filter { it.windowLayout.state === state}
 
-    fun getWindow(screenNo: Int): Window? = windows.find {it.screenNo == screenNo}
+    fun getWindow(screenNo: Long): Window? = windows.find {it.id == screenNo}
 
     fun addNewWindow(): Window {
-        val newWindow = addNewWindow(nextWindowNo)
+        val newWindow = createNewWindow()
 
         if(isMaximisedState) {
             activeWindow.windowLayout.state = WindowState.MINIMISED
@@ -189,7 +191,7 @@ open class WindowRepository @Inject constructor(
 
     private fun destroy(window: Window) {
         if (!windowList.remove(window)) {
-            logger.error("Failed to remove window " + window.screenNo)
+            logger.error("Failed to remove window " + window.id)
         }
         window.destroy()
     }
@@ -211,11 +213,17 @@ open class WindowRepository @Inject constructor(
         windowList.add(position, window)
     }
 
-    private fun addNewWindow(screenNo: Int): Window {
-        val newScreen = Window(screenNo, defaultState, currentPageManagerProvider.get())
-        maxWindowNoUsed = Math.max(maxWindowNoUsed, screenNo)
-        windowList.add(newScreen)
-        return newScreen
+    private fun createNewWindow(): Window {
+        val winEntity = WorkspaceEntities.Window(
+            id, true, false, false,
+            WorkspaceEntities.WindowLayout(defaultState)
+        ).apply {
+            id = dao.insertWindow(this)
+        }
+
+        val newWindow = Window(winEntity, currentPageManagerProvider.get())
+        windowList.add(newWindow)
+        return newWindow
     }
 
     /**
@@ -259,8 +267,6 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    var id: Long = 0
-
     fun dumpState(): String {
         val windowRepositoryStateObj = JSONObject()
         val windowStateArray = JSONArray()
@@ -282,12 +288,10 @@ open class WindowRepository @Inject constructor(
     }
 
     fun saveIntoDb() {
-        val dao = DatabaseContainer.db.workspaceDao()
-        id = dao.insertWorkspace(WorkspaceEntities.Workspace(id, name))
+        id = dao.insertWorkspace(WorkspaceEntities.Workspace(name, id))
 
         val windows = windowList.mapIndexed { i, it ->
             it.entity.apply {
-                workspaceId = id
                 orderNumber = i
             }
         }
@@ -299,50 +303,50 @@ open class WindowRepository @Inject constructor(
      * @param inState
      */
     fun restoreState(stateJsonString: String) {
-        logger.info("restore state")
-        if (StringUtils.isNotEmpty(stateJsonString)) {
-            clear()
-            try {
-                val windowRepositoryState = JSONObject(stateJsonString)
-                val windowState = windowRepositoryState.getJSONArray("windowState")
-                name = windowRepositoryState.optString("name")
-
-                val linksWindow = try {
-                    windowRepositoryState.getJSONObject("dedicatedLinksWindow")
-                } catch (e: JSONException) {
-                    null
-                }
-
-                if(linksWindow != null) {
-                    dedicatedLinksWindow.restoreState(linksWindow)
-                }
-                else {
-                    close(dedicatedLinksWindow)
-                }
-
-                if (windowState.length() > 0) {
-
-                    // remove current (default) state before restoring
-
-                    for (i in 0 until windowState.length()) {
-                        try {
-                            val window = Window(currentPageManagerProvider.get())
-                            window.restoreState(windowState.getJSONObject(i))
-                            maxWindowNoUsed = Math.max(maxWindowNoUsed, window.screenNo)
-                            windowList.add(window)
-                        } catch (je: JSONException) {
-                            logger.error("Error restoring screen state", je)
-                        }
-
-                    }
-                }
-                historyManagerProvider.get().dumpString = windowRepositoryState.optString("history")
-
-            } catch (je: JSONException) {
-                logger.error("Error restoring screen state", je)
-            }
-        }
-        activeWindow = getDefaultActiveWindow()
+//        logger.info("restore state")
+//        if (StringUtils.isNotEmpty(stateJsonString)) {
+//            clear()
+//            try {
+//                val windowRepositoryState = JSONObject(stateJsonString)
+//                val windowState = windowRepositoryState.getJSONArray("windowState")
+//                name = windowRepositoryState.optString("name")
+//
+//                val linksWindow = try {
+//                    windowRepositoryState.getJSONObject("dedicatedLinksWindow")
+//                } catch (e: JSONException) {
+//                    null
+//                }
+//
+//                if(linksWindow != null) {
+//                    dedicatedLinksWindow.restoreState(linksWindow)
+//                }
+//                else {
+//                    close(dedicatedLinksWindow)
+//                }
+//
+//                if (windowState.length() > 0) {
+//
+//                    // remove current (default) state before restoring
+//
+//                    for (i in 0 until windowState.length()) {
+//                        try {
+//                            val window = Window(currentPageManagerProvider.get())
+//                            window.restoreState(windowState.getJSONObject(i))
+//                            maxWindowNoUsed = Math.max(maxWindowNoUsed, window.screenNo)
+//                            windowList.add(window)
+//                        } catch (je: JSONException) {
+//                            logger.error("Error restoring screen state", je)
+//                        }
+//
+//                    }
+//                }
+//                historyManagerProvider.get().dumpString = windowRepositoryState.optString("history")
+//
+//            } catch (je: JSONException) {
+//                logger.error("Error restoring screen state", je)
+//            }
+//        }
+//        activeWindow = getDefaultActiveWindow()
     }
 
     fun clear() {

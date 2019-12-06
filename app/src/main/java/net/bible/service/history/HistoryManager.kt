@@ -50,7 +50,7 @@ import javax.inject.Inject
 class HistoryManager @Inject
 constructor(private val windowControl: WindowControl) {
 
-    private val screenHistoryStackMap = HashMap<Int, Stack<HistoryItem>>()
+    private val screenHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
@@ -64,7 +64,7 @@ constructor(private val windowControl: WindowControl) {
 
     private val historyStack: Stack<HistoryItem>
         get() {
-            val windowNo = windowControl.activeWindow.screenNo
+            val windowNo = windowControl.activeWindow.id
             var historyStack = screenHistoryStackMap[windowNo]
             if (historyStack == null) {
                 synchronized(screenHistoryStackMap) {
@@ -87,11 +87,11 @@ constructor(private val windowControl: WindowControl) {
     )
 
     @Serializable
-	class HistorySerializer(val map: HashMap<Int, ArrayList<SerializableHistoryItem>>)
+	class HistorySerializer(val map: HashMap<Long, ArrayList<SerializableHistoryItem>>)
 
 	var dumpString: String
         get() {
-            val map = HashMap<Int, ArrayList<SerializableHistoryItem>>()
+            val map = HashMap<Long, ArrayList<SerializableHistoryItem>>()
             for((windowId, historyStack) in screenHistoryStackMap) {
                 val historyItems = arrayListOf<SerializableHistoryItem>()
                 for(itm in historyStack) {
