@@ -58,7 +58,6 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
 
         buildActivityComponent().inject(this)
 
-        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         speakPauseButton.setOnClickListener { onButtonClick(it) }
         prevButton.setOnClickListener { onButtonClick(it) }
         nextButton.setOnClickListener { onButtonClick(it) }
@@ -80,10 +79,12 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                         .getBoolean(R.styleable.SpeakTransportWidget_showConfig, false)) {
             configButton.visibility = View.GONE
         }
-
-        resetView(SpeakSettings.load())
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        resetView(SpeakSettings.load())
+    }
 
     private fun onButtonClick(button: View) {
         try {
@@ -136,6 +137,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     }
 
     private fun resetView(speakSettings: SpeakSettings? = null) {
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         speakPauseButton.setImageResource(
                 if(speakControl.isSpeaking)
                     R.drawable.ic_pause_black_24dp

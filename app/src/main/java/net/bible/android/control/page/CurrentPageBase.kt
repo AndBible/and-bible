@@ -45,7 +45,7 @@ abstract class CurrentPageBase protected constructor(
 ) : CurrentPage {
 
     val pageEntity get() = WorkspaceEntities.Page(
-        currentDocument!!.initials,
+        currentDocument?.initials,
         key?.osisID
     )
 
@@ -64,8 +64,9 @@ abstract class CurrentPageBase protected constructor(
                 if (key == null || key != keyWhenYOffsetRatioSet || currentDocument != docWhenYOffsetRatioSet) {
                     field = 0f
                 }
-            } catch (e: Exception) { // cope with occasional NPE thrown by above if statement
-// just pretend we are at the top of the page if error occurs
+            } catch (e: Exception) {
+                // cope with occasional NPE thrown by above if statement
+                // just pretend we are at the top of the page if error occurs
                 field = 0f
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
             }
@@ -261,16 +262,16 @@ abstract class CurrentPageBase protected constructor(
     @get:Throws(JSONException::class)
     override val stateJson: JSONObject
         get() {
-            val `object` = JSONObject()
+            val obj = JSONObject()
             if (currentDocument != null) {
                 Log.d(TAG, "Getting json state for " + bookCategory.getName())
-                `object`.put("document", currentDocument!!.initials)
+                obj.put("document", currentDocument!!.initials)
 				val key = key
                 if (key != null) {
-                    `object`.put("key", key.osisID)
+                    obj.put("key", key.osisID)
                 }
             }
-            return `object`
+            return obj
         }
 
     /** can we enable the main menu Speak button

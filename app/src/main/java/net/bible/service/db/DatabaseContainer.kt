@@ -40,7 +40,7 @@ import net.bible.service.db.workspaces.WorkspaceDao
 import java.util.*
 
 
-const val DATABASE_NAME = "andBibleDatabase.db"
+const val DATABASE_NAME = "andBibleDatabase-2.db"
 private const val DATABASE_VERSION = 7
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -55,18 +55,20 @@ private val MIGRATION_2_3 = object : Migration(2, 3) {
         MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
     }
 }
+
 private val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
-
     }
 }
+
 private val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
 
     }
 }
+
 private val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(db: SupportSQLiteDatabase) {
         ReadingPlanDatabaseOperations.instance.onCreate(db)
@@ -147,6 +149,7 @@ object DatabaseContainer {
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
+                    .allowMainThreadQueries()
                     .addMigrations(
                         MIGRATION_1_2,
                         MIGRATION_2_3,

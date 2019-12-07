@@ -210,7 +210,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .mainBibleActivityModule(MainBibleActivityModule(this))
             .build()
             .inject(this)
-        windowRepository.restoreState()
+        windowRepository.initialize()
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -1108,7 +1108,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
-        windowRepository.minimisedScreens.forEach {
+        windowRepository.minimisedWindows.forEach {
             it.initialized = false
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())

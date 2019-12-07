@@ -35,6 +35,9 @@ interface WorkspaceDao {
     @Transaction
     fun cloneWorkspace(workspaceId: Long): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
+            ?: return WorkspaceEntities.Workspace("").apply {
+                id = insertWorkspace(this)
+            }
         val newWorkspace = WorkspaceEntities.Workspace("")
         newWorkspace.id = insertWorkspace(newWorkspace)
 
@@ -44,8 +47,10 @@ interface WorkspaceDao {
             it.workspaceId = newWorkspace.id
             it.id = 0
             it.id = insertWindow(it)
-            pageManager.windowId = it.id
-            insertPageManager(pageManager)
+            if(pageManager != null) {
+                pageManager.windowId = it.id
+                insertPageManager(pageManager)
+            }
         }
         return newWorkspace
     }
@@ -77,7 +82,7 @@ interface WorkspaceDao {
     fun deleteHistoryItems(windowId: Long)
 
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
-    fun workspace(workspaceId: Long): WorkspaceEntities.Workspace
+    fun workspace(workspaceId: Long): WorkspaceEntities.Workspace?
 
     @Query("SELECT * from Workspace")
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
@@ -86,10 +91,10 @@ interface WorkspaceDao {
     fun windows(workspaceId: Long): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
-    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window
+    fun linksWindow(workspaceId: Long): WorkspaceEntities.Window?
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
-    fun pageManager(windowId: Long): WorkspaceEntities.PageManager
+    fun pageManager(windowId: Long): WorkspaceEntities.PageManager?
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
     fun historyItems(windowId: Long): List<WorkspaceEntities.HistoryItem>

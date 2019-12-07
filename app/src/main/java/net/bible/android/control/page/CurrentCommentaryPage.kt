@@ -126,7 +126,7 @@ internal constructor(
     override val isSearchable = true
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument!!.initials)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials)
 
     /** called during app close down to save state
      */

@@ -183,7 +183,7 @@ class CurrentBiblePage(
     override val isSingleKey = false
 
     val entity get() =
-        WorkspaceEntities.BiblePage(currentDocument!!.initials, currentBibleVerse.entity)
+        WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
         val document = entity.document

@@ -265,7 +265,8 @@ open class CurrentPageManager @Inject constructor(
 
     }
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+        if(pageManagerEntity == null) return
         currentBible.restoreFrom(pageManagerEntity.biblePage)
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)

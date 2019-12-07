@@ -32,7 +32,7 @@ import java.util.*
 
 class WorkspaceEntities {
     data class Page(
-        val document: String,
+        val document: String?,
         val key: String?
     )
 
@@ -44,12 +44,12 @@ class WorkspaceEntities {
     )
 
     data class BiblePage(
-        val document: String,
+        val document: String?,
         @Embedded(prefix="verse_") val verse: Verse
     )
 
     data class CommentaryPage(
-        val document: String
+        val document: String?
     )
 
     @Entity(

@@ -162,11 +162,11 @@ class WindowControlTest {
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
-        assertThat(windowRepository!!.minimisedScreens, contains(newWindow2))
+        assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
 
         // A window is maximized, the others should then all be minimized.
         windowControl!!.maximiseWindow(activeWindow)
-        assertThat<List<Window>>(windowRepository!!.minimisedScreens, containsInAnyOrder(newWindow1, newWindow2))
+        assertThat<List<Window>>(windowRepository!!.minimisedWindows, containsInAnyOrder(newWindow1, newWindow2))
     }
 
     @Test

@@ -68,7 +68,7 @@ open class WindowControl @Inject constructor(
     var activeWindow: Window
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
-            windowRepository.activeWindow = currentActiveWindow
+            windowRepository.setActiveWindow(currentActiveWindow)
         }
 
     /**
@@ -167,7 +167,7 @@ open class WindowControl @Inject constructor(
 
         //TODO do not set links window active -  currently need to set links window to active
         // window otherwise BibleContentMediator logic does not refresh that window
-        windowRepository.activeWindow = linksWindow
+        windowRepository.setActiveWindow(linksWindow)
 
 
         // redisplay the current page
@@ -239,7 +239,7 @@ open class WindowControl @Inject constructor(
     }
 
     fun maximiseWindow(window: Window) {
-        windowRepository.minimisedScreens.forEach {
+        windowRepository.minimisedWindows.forEach {
             it.wasMinimised = true
         }
         windowRepository.visibleWindows.forEach {
@@ -264,7 +264,7 @@ open class WindowControl @Inject constructor(
     fun unmaximiseWindow(window: Window) {
         window.isMaximised = false
 
-        windowRepository.minimisedScreens.forEach {
+        windowRepository.minimisedWindows.forEach {
             it.windowLayout.state = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
             it.wasMinimised = false
         }

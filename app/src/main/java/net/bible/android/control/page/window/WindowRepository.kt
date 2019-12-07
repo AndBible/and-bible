@@ -64,31 +64,30 @@ open class WindowRepository @Inject constructor(
         }
 
     init {
+        ABEventBus.getDefault().safelyRegister(this)
+    }
+
+    fun initialize() {
         id = sharedPreferences.getLong("current_workspace_id", 0)
         if(id == 0L) {
             id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
             sharedPreferences.edit().putLong("current_workspace_id", id).apply()
-            loadFromDb(id)
         }
-        ABEventBus.getDefault().safelyRegister(this)
+        loadFromDb(id)
     }
 
     // 1 based screen no
-    var activeWindow = getDefaultActiveWindow()
-        set(newActiveWindow) {
-            if (newActiveWindow != this.activeWindow) {
-                field = newActiveWindow
-                ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
-            }
-        }
+    lateinit var activeWindow: Window
+        private set
 
-    var dedicatedLinksWindow =
-        LinksWindow(dao.linksWindow(id) ?: WorkspaceEntities.Window(
-            id, false, false, true,
-            WorkspaceEntities.WindowLayout(WindowState.CLOSED)
-        ).apply {
-            id = dao.insertWindow(this)
-        } , currentPageManagerProvider.get())
+    fun setActiveWindow(newActiveWindow: Window) {
+        if (!::activeWindow.isInitialized || newActiveWindow != this.activeWindow) {
+            activeWindow = newActiveWindow
+            ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
+        }
+    }
+
+    lateinit var dedicatedLinksWindow: LinksWindow
         private set
 
     // links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
@@ -108,7 +107,7 @@ open class WindowRepository @Inject constructor(
 
     val maximisedScreens get() = getWindows(WindowState.MAXIMISED)
 
-    val minimisedScreens  get() = getWindows(WindowState.MINIMISED)
+    val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
 
     val minimisedAndMaximizedScreens: List<Window>
         get() = windows.filter {
@@ -126,8 +125,9 @@ open class WindowRepository @Inject constructor(
 
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow()
+
     fun setDefaultActiveWindow() {
-        activeWindow = getDefaultActiveWindow()
+        setActiveWindow(getDefaultActiveWindow())
     }
 
     private fun addLinksWindowIfVisible(windows: MutableList<Window>) {
@@ -157,7 +157,7 @@ open class WindowRepository @Inject constructor(
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
         val windows = visibleWindows
         if(isMaximisedState)
-            windows.addAll(minimisedScreens)
+            windows.addAll(minimisedWindows)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }
@@ -170,7 +170,7 @@ open class WindowRepository @Inject constructor(
 
         // has the active screen been minimised?
         if (activeWindow == window) {
-            activeWindow = getDefaultActiveWindow()
+            setDefaultActiveWindow()
         }
     }
 
@@ -183,12 +183,12 @@ open class WindowRepository @Inject constructor(
         if (!window.isLinksWindow) {
             destroy(window)
             if(wasMaximized) {
-                val lastScreen = minimisedScreens.last()
-                lastScreen.isMaximised = true
-                activeWindow = lastScreen
+                val lastWindow = minimisedWindows.last()
+                lastWindow.isMaximised = true
+                setActiveWindow(lastWindow)
             }
         }
-        if (!wasMaximized) activeWindow = getDefaultActiveWindow()
+        if (!wasMaximized) setDefaultActiveWindow()
     }
 
     private fun destroy(window: Window) {
@@ -252,7 +252,7 @@ open class WindowRepository @Inject constructor(
         } catch (e: Exception) {
             logger.error("Restore error", e)
         }
-        activeWindow = getDefaultActiveWindow()
+        setDefaultActiveWindow()
     }
 
     /** called during app close down to save state
@@ -315,11 +315,25 @@ open class WindowRepository @Inject constructor(
 
     fun loadFromDb(workspaceId: Long) {
         val entity = dao.workspace(workspaceId)
+            ?: WorkspaceEntities.Workspace("").apply{
+                id = dao.insertWorkspace(this)
+            }
         id = entity.id
         name = entity.name
         clear()
-        val linksWindowEntity = dao.linksWindow(id)
+
+        val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
+            id, false, false, true,
+            WorkspaceEntities.WindowLayout(WindowState.CLOSED)
+        ).apply {
+            id = dao.insertWindow(this)
+        }
+
         val linksPageManager = dao.pageManager(linksWindowEntity.id)
+
+        dedicatedLinksWindow = LinksWindow(linksWindowEntity, currentPageManagerProvider.get())
+
+
         dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManager)
         val historyManager = historyManagerProvider.get()
         dao.windows(id).forEach {
@@ -329,7 +343,7 @@ open class WindowRepository @Inject constructor(
             windowList.add(window)
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
-        activeWindow = getDefaultActiveWindow()
+        setDefaultActiveWindow()
     }
 
     fun restoreState(stateJsonString: String) {
