@@ -181,6 +181,7 @@ open class WindowRepository @Inject constructor(
 
         // links window is just closed not deleted
         if (!window.isLinksWindow) {
+            dao.deleteWindow(window.id)
             destroy(window)
             if(wasMaximized) {
                 val lastWindow = minimisedWindows.last()
@@ -195,7 +196,6 @@ open class WindowRepository @Inject constructor(
         if (!windowList.remove(window)) {
             logger.error("Failed to remove window " + window.id)
         }
-        dao.deleteWindow(window.id)
         window.destroy()
     }
 
@@ -318,9 +318,10 @@ open class WindowRepository @Inject constructor(
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
             }
+        clear()
+
         id = entity.id
         name = entity.name
-        clear()
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id, false, false, true,
@@ -396,6 +397,7 @@ open class WindowRepository @Inject constructor(
 
     fun clear() {
         windowList.toList().forEach { w -> destroy(w)}
+        historyManagerProvider.get().clear()
         name = ""
     }
 }

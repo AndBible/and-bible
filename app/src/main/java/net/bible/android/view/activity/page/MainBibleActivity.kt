@@ -277,7 +277,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateSpeakTransportVisibility()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        currentWorkspaceName
         ready = true
         showBetaNotice()
     }
@@ -443,7 +442,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         dao.deleteWorkspace(currentWorkspaceId)
 
         currentWorkspaceId = nextWorkspace.id
-
     }
 
     private fun renameWorkspace() {
@@ -456,34 +454,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.okay) { dialog, _ ->
                 dialog.dismiss()
-                val name = input.text.toString()
-                currentWorkspaceName = name
-                ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+                windowRepository.name = input.text.toString()
+                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
                 invalidateOptionsMenu()
             }
             .show()
     }
 
-    private var currentWorkspaceName: String
-        get() = windowRepository.name
-        set(name) {
-            var name = name
-            if(name.isEmpty())
-                name = getString(R.string.workspace_number, currentWorkspaceId + 1)
-            
-            dao.updateWorkspace(WorkspaceEntities.Workspace(name, currentWorkspaceId))
-            windowRepository.name = name
-            SharedActivityState.setCurrentWorkspaceName(name)
-        }
-    
     val windowRepository get() = windowControl.windowRepository
 
-    val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
+    private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
 
     private fun newWorkspace() {
         val currentDocument = windowControl.activeWindowPageManager.currentPassageDocument
 
         windowRepository.saveIntoDb()
+        windowRepository.clear()
 
         val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
             id = dao.insertWorkspace(this)
@@ -499,7 +485,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun cloneWorkspace() {
         val newWorkspace = dao.cloneWorkspace(currentWorkspaceId, newWorkspaceName)
         currentWorkspaceId = newWorkspace.id
-        ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+        ABEventBus.getDefault().post(ToastEvent(newWorkspace.name))
         invalidateOptionsMenu()
     }
 
@@ -524,7 +510,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
 
             BookName.setFullBookName(prevFullBookNameValue)
-            val text = if(!name.isEmpty())
+            val text = if(name.isNotEmpty())
                 getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
             else
                 keyTitle.joinToString(", ")
@@ -585,11 +571,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         set(value) {
             windowRepository.loadFromDb(value)
 
+            SharedActivityState.setCurrentWorkspaceName(windowRepository.name)
+
             documentViewManager.resetView()
             windowControl.windowSync.synchronizeAllScreens()
             windowRepository.saveState()
 
-            ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+            ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
             invalidateOptionsMenu()
             updateTitle()

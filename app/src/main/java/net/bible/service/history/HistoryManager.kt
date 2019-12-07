@@ -149,6 +149,10 @@ constructor(private val windowControl: WindowControl) {
         windowHistoryStackMap[window.id] = stack
     }
 
+    fun clear() {
+        windowHistoryStackMap.clear()
+    }
+
     init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
