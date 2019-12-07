@@ -65,7 +65,7 @@ class WorkspaceEntities {
         ]
     )
     data class PageManager(
-        @PrimaryKey val windowId: Long,
+        @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page,
@@ -82,7 +82,7 @@ class WorkspaceEntities {
     data class Workspace(
         val name: String,
 
-        @PrimaryKey(autoGenerate = true) val id: Long = 0
+        @PrimaryKey(autoGenerate = true) var id: Long = 0
     )
 
     @Entity(
@@ -122,7 +122,7 @@ class WorkspaceEntities {
     )
 
     data class Window(
-        val workspaceId: Long,
+        var workspaceId: Long,
         val isSynchronized: Boolean,
         val wasMinimised: Boolean,
         val isLinksWindow: Boolean,

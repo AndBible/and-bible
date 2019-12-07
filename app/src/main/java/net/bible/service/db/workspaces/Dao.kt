@@ -19,9 +19,7 @@
 package net.bible.service.db.workspaces
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -34,8 +32,25 @@ interface WorkspaceDao {
     @Update
     fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
+    @Transaction
+    fun cloneWorkspace(workspaceId: Long): WorkspaceEntities.Workspace {
+        val oldWorkspace = workspace(workspaceId)
+        val newWorkspace = WorkspaceEntities.Workspace("")
+        newWorkspace.id = insertWorkspace(newWorkspace)
+
+        val windows = windows(oldWorkspace.id)
+        windows.forEach {
+            val pageManager = pageManager(it.id)
+            it.workspaceId = newWorkspace.id
+            it.id = 0
+            it.id = insertWindow(it)
+            pageManager.windowId = it.id
+            insertPageManager(pageManager)
+        }
+        return newWorkspace
+    }
     @Insert
-    fun insertWindows(vararg windows: WorkspaceEntities.Window)
+    fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
 
     @Insert
     fun insertWindow(window: WorkspaceEntities.Window): Long
@@ -52,8 +67,8 @@ interface WorkspaceDao {
     @Update
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
-    @Delete
-    fun deleteWorkspaces(vararg workspaces: WorkspaceEntities.Workspace)
+    @Query("DELETE FROM Workspace WHERE id = :workspaceId")
+    fun deleteWorkspace(workspaceId: Long)
 
     @Query("DELETE from Window WHERE id = :windowId")
     fun deleteWindow(windowId: Long)
@@ -65,10 +80,10 @@ interface WorkspaceDao {
     fun workspace(workspaceId: Long): WorkspaceEntities.Workspace
 
     @Query("SELECT * from Workspace")
-    fun allWorkspaces(): Array<WorkspaceEntities.Workspace>
+    fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
-    fun windows(workspaceId: Long): Array<WorkspaceEntities.Window>
+    fun windows(workspaceId: Long): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND isLinksWindow")
     fun linksWindow(workspaceId: Long): WorkspaceEntities.Window

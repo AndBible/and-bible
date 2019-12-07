@@ -63,6 +63,16 @@ open class WindowRepository @Inject constructor(
             return windows
         }
 
+    init {
+        id = sharedPreferences.getLong("current_workspace_id", 0)
+        if(id == 0L) {
+            id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
+            sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+            loadFromDb(id)
+        }
+        ABEventBus.getDefault().safelyRegister(this)
+    }
+
     // 1 based screen no
     var activeWindow = getDefaultActiveWindow()
         set(newActiveWindow) {
@@ -71,15 +81,6 @@ open class WindowRepository @Inject constructor(
                 ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
             }
         }
-
-    init {
-        id = sharedPreferences.getLong("current_workspace_id", 0)
-        if(id == 0L) {
-            id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
-            sharedPreferences.edit().putLong("current_workspace_id", id).apply()
-        }
-        ABEventBus.getDefault().safelyRegister(this)
-    }
 
     var dedicatedLinksWindow =
         LinksWindow(dao.linksWindow(id) ?: WorkspaceEntities.Window(
