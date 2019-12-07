@@ -572,6 +572,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             windowRepository.loadFromDb(value)
 
             SharedActivityState.setCurrentWorkspaceName(windowRepository.name)
+            preferences.edit().putLong("current_workspace_id", value).apply()
 
             documentViewManager.resetView()
             windowControl.windowSync.synchronizeAllScreens()

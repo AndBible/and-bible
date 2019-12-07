@@ -38,10 +38,10 @@ import java.lang.ref.WeakReference
 
 open class Window (
     window: WorkspaceEntities.Window,
-    val pageManager: CurrentPageManager,
-    val windowLayout: WindowLayout = WindowLayout(WindowState.SPLIT)
+    val pageManager: CurrentPageManager
 ){
 
+    val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
     var id = window.id
     private val workspaceId = window.workspaceId
 
@@ -58,9 +58,9 @@ open class Window (
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
-    open var isSynchronised = true
+    open var isSynchronised = window.isSynchronized
     var initialized = false
-    var wasMinimised = false
+    var wasMinimised = window.wasMinimised
 
     private val logger = Logger(this.javaClass.name)
 

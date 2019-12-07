@@ -22,11 +22,11 @@ import net.bible.service.db.workspaces.WorkspaceEntities
 import org.json.JSONException
 import org.json.JSONObject
 
-class WindowLayout(windowState: WindowState) {
+class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
 
-    var state = WindowState.SPLIT
+    var state = entity?.state ?: WindowState.SPLIT
 
-    var weight = 1.0f
+    var weight = entity?.weight ?: 1.0f
 
 
     val stateJson: JSONObject
@@ -40,11 +40,6 @@ class WindowLayout(windowState: WindowState) {
 
     enum class WindowState {
         SPLIT, MINIMISED, MAXIMISED, CLOSED
-    }
-
-
-    init {
-        this.state = windowState
     }
 
     @Throws(JSONException::class)
