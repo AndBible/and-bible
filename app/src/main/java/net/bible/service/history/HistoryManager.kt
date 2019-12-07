@@ -135,8 +135,7 @@ constructor(private val windowControl: WindowControl) {
                 WorkspaceEntities.HistoryItem(
                     windowId, it.createdAt, it.document.initials, it.key.osisID, it.yOffsetRatio
                 )
-            }
-            null
+            } else null
         } ?: emptyList()
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
