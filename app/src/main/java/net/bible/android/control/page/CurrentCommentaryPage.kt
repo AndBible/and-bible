@@ -165,16 +165,15 @@ internal constructor(
         }
     }
 
-    fun restoreFrom(entity: WorkspaceEntities.CommentaryPage) {
+    fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
+        if(entity == null) return
         val document = entity.document
-        if (StringUtils.isNotEmpty(document)) {
-            val book = swordDocumentFacade.getDocumentByInitials(document)
-            if (book != null) {
-                Log.d(TAG, "Restored document:" + book.name)
-                // bypass setter to avoid automatic notifications
-                localSetCurrentDocument(book)
-                // allow Bible page to restore shared verse
-            }
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if (book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            // allow Bible page to restore shared verse
         }
     }
 

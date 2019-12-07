@@ -331,8 +331,9 @@ open class WindowRepository @Inject constructor(
 
         val linksPageManager = dao.pageManager(linksWindowEntity.id)
 
-        dedicatedLinksWindow = LinksWindow(linksWindowEntity, currentPageManagerProvider.get())
-
+        if(!::dedicatedLinksWindow.isInitialized) {
+            dedicatedLinksWindow = LinksWindow(linksWindowEntity, currentPageManagerProvider.get())
+        }
 
         dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManager)
         val historyManager = historyManagerProvider.get()

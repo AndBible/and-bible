@@ -18,8 +18,6 @@
 
 package net.bible.service.db.workspaces
 
-import androidx.room.ColumnInfo
-import androidx.room.DatabaseView
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -67,10 +65,10 @@ class WorkspaceEntities {
     data class PageManager(
         @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
-        @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage,
-        @Embedded(prefix="dictionary_") val dictionaryPage: Page,
-        @Embedded(prefix="general_book_") val generalBookPage: Page,
-        @Embedded(prefix="map_") val mapPage: Page
+        @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
+        @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
+        @Embedded(prefix="general_book_") val generalBookPage: Page?,
+        @Embedded(prefix="map_") val mapPage: Page?
     )
 
     data class WindowLayout(

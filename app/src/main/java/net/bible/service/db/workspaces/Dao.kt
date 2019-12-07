@@ -20,6 +20,7 @@ package net.bible.service.db.workspaces
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -33,12 +34,12 @@ interface WorkspaceDao {
     fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
     @Transaction
-    fun cloneWorkspace(workspaceId: Long): WorkspaceEntities.Workspace {
+    fun cloneWorkspace(workspaceId: Long, newName: String): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
-            ?: return WorkspaceEntities.Workspace("").apply {
+            ?: return WorkspaceEntities.Workspace(newName).apply {
                 id = insertWorkspace(this)
             }
-        val newWorkspace = WorkspaceEntities.Workspace("")
+        val newWorkspace = WorkspaceEntities.Workspace(newName)
         newWorkspace.id = insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)
@@ -69,7 +70,7 @@ interface WorkspaceDao {
     @Update
     fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
-    @Update
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")

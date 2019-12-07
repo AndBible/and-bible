@@ -235,24 +235,23 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    fun restoreFrom(entity: WorkspaceEntities.Page) {
+    fun restoreFrom(entity: WorkspaceEntities.Page?) {
+        if(entity == null) return
         val document = entity.document
-        if (StringUtils.isNotEmpty(document)) {
-            Log.d(TAG, "State document:$document")
-            val book = swordDocumentFacade.getDocumentByInitials(document)
-            if (book != null) {
-                Log.d(TAG, "Restored document:" + book.name)
-                // bypass setter to avoid automatic notifications
-                localSetCurrentDocument(book)
-                try {
-                    val keyName = entity.key
-                    if (StringUtils.isNotEmpty(keyName)) {
-                        doSetKey(book.getKey(keyName))
-                        Log.d(TAG, "Restored key:$keyName")
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
+        Log.d(TAG, "State document:$document")
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if (book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            try {
+                val keyName = entity.key
+                if (StringUtils.isNotEmpty(keyName)) {
+                    doSetKey(book.getKey(keyName))
+                    Log.d(TAG, "Restored key:$keyName")
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
             }
         }
     }

@@ -52,7 +52,7 @@ open class Window (
 
     val entity get () =
         WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
-            WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight)
+            WorkspaceEntities.WindowLayout(windowLayout.state, windowLayout.weight), id
         )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
