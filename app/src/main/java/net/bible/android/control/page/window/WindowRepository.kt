@@ -69,7 +69,7 @@ open class WindowRepository @Inject constructor(
 
     fun initialize() {
         id = sharedPreferences.getLong("current_workspace_id", 0)
-        if(id == 0L) {
+        if(id == 0L || dao.workspace(id) == null) {
             id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
             sharedPreferences.edit().putLong("current_workspace_id", id).apply()
         }

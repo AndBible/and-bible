@@ -24,7 +24,8 @@ import org.json.JSONObject
 
 class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
 
-    var state = entity?.state ?: WindowState.SPLIT
+    var state =
+        if(entity != null) WindowState.valueOf(entity.state) else WindowState.SPLIT
 
     var weight = entity?.weight ?: 1.0f
 
@@ -49,7 +50,7 @@ class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
     }
 
     fun restoreFrom(windowLayoutEntity: WorkspaceEntities.WindowLayout) {
-        state = windowLayoutEntity.state
+        state = WindowLayout.WindowState.valueOf(windowLayoutEntity.state)
         weight = windowLayoutEntity.weight
     }
 }
