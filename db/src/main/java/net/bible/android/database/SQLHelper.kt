@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-package net.bible.service.db
+package net.bible.android.database
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

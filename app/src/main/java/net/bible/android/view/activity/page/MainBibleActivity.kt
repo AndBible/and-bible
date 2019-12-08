@@ -91,7 +91,7 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.workspaces.WorkspaceEntities
+import net.bible.android.database.workspaces.WorkspaceEntities
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book

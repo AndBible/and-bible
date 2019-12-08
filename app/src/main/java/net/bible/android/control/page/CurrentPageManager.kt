@@ -27,7 +27,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.Logger
-import net.bible.service.db.workspaces.WorkspaceEntities
+import net.bible.android.database.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 

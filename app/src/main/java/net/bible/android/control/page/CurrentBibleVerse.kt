@@ -18,7 +18,7 @@
 package net.bible.android.control.page
 
 import net.bible.android.control.versification.ConvertibleVerse
-import net.bible.service.db.workspaces.WorkspaceEntities
+import net.bible.android.database.workspaces.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification

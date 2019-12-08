@@ -111,6 +111,9 @@ android {
 }
 
 dependencies {
+    //implementation project(path: ':db', configuration: "default")
+    implementation project(':db')
+
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
     implementation 'androidx.media:media:1.1.0'
@@ -128,7 +131,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
 
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
+    //kapt "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
     //annotationProcessor "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
 
     // optional - Kotlin Extensions and Coroutines support for Room

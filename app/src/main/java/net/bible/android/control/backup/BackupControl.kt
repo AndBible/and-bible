@@ -36,6 +36,7 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import net.bible.android.activity.BuildConfig
 import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
 import java.io.File
 import java.io.FileOutputStream
@@ -117,7 +118,7 @@ class BackupControl @Inject constructor() {
         }
 
         if (ok) {
-            db.reset()
+            DatabaseContainer.reset()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
             Log.d(TAG, "Restored database successfully")
             Dialogs.getInstance().showMsg(R.string.restore_success)
@@ -138,7 +139,7 @@ class BackupControl @Inject constructor() {
                 val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir)
 
                 if (ok) {
-                    db.reset()
+                    DatabaseContainer.reset()
                     ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
                     Log.d(TAG, "Copied database from SD card successfully")
                     Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.name)

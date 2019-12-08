@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -17,27 +17,14 @@
  */
 package net.bible.service.db
 
-import androidx.room.Database
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
-import net.bible.android.control.page.window.WindowLayout
-import net.bible.service.db.bookmark.Bookmark
+import net.bible.android.database.AppDatabase
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
-import net.bible.service.db.bookmark.BookmarkToLabel
-import net.bible.service.db.bookmark.Label
-import net.bible.service.db.mynote.MyNote
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
-import net.bible.service.db.readingplan.ReadingPlan
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
-import net.bible.service.db.readingplan.ReadingPlanStatus
-import net.bible.service.db.workspaces.WorkspaceDao
-import net.bible.service.db.workspaces.WorkspaceEntities
-import java.util.*
 
 
 const val DATABASE_NAME = "andBibleDatabase-6.db"
@@ -100,57 +87,13 @@ private val MIGRATION_7_8 = object : Migration(7, 8) {
     }
 }
 
-class Converters {
-    @TypeConverter
-    fun fromTimestamp(value: Long): Date = Date(value)
-
-    @TypeConverter
-    fun dateToTimestamp(date: Date): Long = date.time
-
-    @TypeConverter
-    fun windowStateToString(windowState: WindowLayout.WindowState): String = windowState.toString()
-
-    @TypeConverter
-    fun stringToWindowState(str: String): WindowLayout.WindowState = WindowLayout.WindowState.valueOf(str)
-}
-
-@Database(
-    entities = [
-        Bookmark::class,
-        Label::class,
-        BookmarkToLabel::class,
-        MyNote::class,
-        ReadingPlan::class,
-        ReadingPlanStatus::class,
-        WorkspaceEntities.Workspace::class,
-        WorkspaceEntities.Window::class,
-        WorkspaceEntities.HistoryItem::class,
-        WorkspaceEntities.PageManager::class
-    ],
-    version = DATABASE_VERSION
-)
-@TypeConverters(Converters::class)
-abstract class AppDatabase: RoomDatabase() {
-    abstract fun workspaceDao(): WorkspaceDao
-
-    fun sync() { // Sync all data so far into database file
-        val cur = openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)")
-        cur.moveToFirst()
-        cur.close()
-    }
-
-    fun reset() {
-        DatabaseContainer.reset()
-    }
-}
 
 object DatabaseContainer {
-	private var instance: AppDatabase? = null
+    private var instance: AppDatabase? = null
 
-	val db: AppDatabase
-		get () {
-			return instance ?: synchronized(this) {
+    val db: AppDatabase
+        get () {
+            return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
@@ -167,10 +110,10 @@ object DatabaseContainer {
                     .build()
                     .also { instance = it }
             }
-		}
-	fun reset() {
+        }
+    fun reset() {
         synchronized(this) {
             instance = null
         }
-	}
+    }
 }

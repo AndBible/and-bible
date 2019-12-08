@@ -21,7 +21,6 @@ import android.app.Activity
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
-import net.bible.service.db.workspaces.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -31,8 +30,7 @@ import org.crosswire.jsword.passage.Key
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class CurrentMapPage  /* default */
-internal constructor(
+class CurrentMapPage internal constructor(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage {

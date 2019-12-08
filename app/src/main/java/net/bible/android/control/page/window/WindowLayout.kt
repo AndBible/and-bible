@@ -18,7 +18,7 @@
 
 package net.bible.android.control.page.window
 
-import net.bible.service.db.workspaces.WorkspaceEntities
+import net.bible.android.database.workspaces.WorkspaceEntities
 import org.json.JSONException
 import org.json.JSONObject
 

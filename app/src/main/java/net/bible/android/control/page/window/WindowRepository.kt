@@ -29,7 +29,7 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.workspaces.WorkspaceEntities
+import net.bible.android.database.workspaces.WorkspaceEntities
 import net.bible.service.history.HistoryManager
 import org.json.JSONArray
 import org.json.JSONException
@@ -219,7 +219,7 @@ open class WindowRepository @Inject constructor(
     private fun createNewWindow(): Window {
         val winEntity = WorkspaceEntities.Window(
             id, true, false, false,
-            WorkspaceEntities.WindowLayout(defaultState)
+            WorkspaceEntities.WindowLayout(defaultState.toString())
         ).apply {
             id = dao.insertWindow(this)
         }
@@ -325,7 +325,7 @@ open class WindowRepository @Inject constructor(
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id, false, false, true,
-            WorkspaceEntities.WindowLayout(WindowState.CLOSED)
+            WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
         ).apply {
             id = dao.insertWindow(this)
         }
