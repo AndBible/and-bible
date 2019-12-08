@@ -124,27 +124,11 @@ dependencies {
 
     // To support Android 4.4
     implementation 'androidx.multidex:multidex:2.0.1'
-    
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation 'androidx.annotation:annotation:1.1.0'
 
     implementation "androidx.room:room-runtime:$room_version"
-    //kapt "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
-    //annotationProcessor "androidx.room:room-compiler:$room_version" // For Kotlin use kapt instead of annotationProcessor
-
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:$room_version"
-
-    // optional - RxJava support for Room
-    // implementation "androidx.room:room-rxjava2:$room_version"
-
-    // optional - Guava support for Room, including Optional and ListenableFuture
-    // implementation "androidx.room:room-guava:$room_version"
-
-    // Test helpers
-    // testImplementation "androidx.room:room-testing:$room_version"
-
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0"
