@@ -51,16 +51,6 @@ open class CurrentPageManager @Inject constructor(
         bibleTraverser: BibleTraverser,
         myNoteDAO: MyNoteDAO)
 {
-    val entity get() =
-        WorkspaceEntities.PageManager(
-            window.id,
-            currentBible.entity,
-            currentCommentary.entity,
-            currentDictionary.pageEntity,
-            currentGeneralBook.pageEntity,
-            currentMap.pageEntity
-        )
-
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
     val currentBible: CurrentBiblePage
@@ -227,6 +217,17 @@ open class CurrentPageManager @Inject constructor(
         PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
     }
 
+    val entity get() =
+        WorkspaceEntities.PageManager(
+            window.id,
+            currentBible.entity,
+            currentCommentary.entity,
+            currentDictionary.pageEntity,
+            currentGeneralBook.pageEntity,
+            currentMap.pageEntity,
+            currentPage.bookCategory.getName()
+        )
+
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
         if(pageManagerEntity == null) return
         currentBible.restoreFrom(pageManagerEntity.biblePage)
@@ -234,5 +235,7 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
+        val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+        currentPage = getBookPage(restoredBookCategory)
     }
 }

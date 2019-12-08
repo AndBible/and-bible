@@ -61,13 +61,15 @@ class WorkspaceEntities {
             Index("windowId", unique = true)
         ]
     )
+
     data class PageManager(
         @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
-        @Embedded(prefix="map_") val mapPage: Page?
+        @Embedded(prefix="map_") val mapPage: Page?,
+        val currentCategoryName: String
     )
 
     data class WindowLayout(
