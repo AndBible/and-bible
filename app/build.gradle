@@ -111,7 +111,6 @@ android {
 }
 
 dependencies {
-    //implementation project(path: ':db', configuration: "default")
     implementation project(':db')
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -170,6 +169,8 @@ dependencies {
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
+
+    testImplementation project(':db')
 
     // TESTS
     testImplementation 'org.robolectric:robolectric:4.3.1'
