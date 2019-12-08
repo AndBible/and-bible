@@ -24,6 +24,7 @@ import androidx.room.TypeConverters
 
 import java.util.*
 
+const val DATABASE_VERSION = 8
 
 class Converters {
     @TypeConverter
@@ -46,7 +47,7 @@ class Converters {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class
     ],
-    version = 8
+    version = DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {

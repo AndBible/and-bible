@@ -27,8 +27,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
 
 
-const val DATABASE_NAME = "andBibleDatabase-7.db"
-private const val DATABASE_VERSION = 8
+const val DATABASE_NAME = "andBibleDatabase.db"
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
