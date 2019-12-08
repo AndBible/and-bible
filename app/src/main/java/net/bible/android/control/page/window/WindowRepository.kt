@@ -295,7 +295,7 @@ open class WindowRepository @Inject constructor(
 
     fun clear() {
         windowList.toList().forEach { w -> destroy(w)}
-        //historyManagerProvider.get().clear()
+        historyManagerProvider.get().clear()
         name = ""
     }
 }
