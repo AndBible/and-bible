@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
@@ -28,6 +29,7 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import java.util.*
 import javax.inject.Inject
@@ -65,7 +67,7 @@ open class WindowRepository @Inject constructor(
     fun initialize() {
         id = sharedPreferences.getLong("current_workspace_id", 0)
         if(id == 0L || dao.workspace(id) == null) {
-            id = dao.insertWorkspace(WorkspaceEntities.Workspace(name))
+            id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
             sharedPreferences.edit().putLong("current_workspace_id", id).apply()
         }
         loadFromDb(id)

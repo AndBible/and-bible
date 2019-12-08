@@ -603,8 +603,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
-        R.id.renameWorkspace -> CommandItem({renameWorkspace()}, haveWorkspaces)
-        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()}, haveWorkspaces)
+        R.id.renameWorkspace -> CommandItem({renameWorkspace()})
+        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
         else -> throw RuntimeException("Illegal menu item")
    }
 
