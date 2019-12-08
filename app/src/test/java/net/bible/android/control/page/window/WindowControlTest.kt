@@ -77,7 +77,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testGetActiveWindow() {
         // should always be one default window that is active by default
-        assertThat(windowControl!!.activeWindow.id, equalTo(1))
+        assertThat(windowControl!!.activeWindow.id, equalTo(1L))
     }
 
     @Test

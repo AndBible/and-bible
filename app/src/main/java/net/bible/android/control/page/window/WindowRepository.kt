@@ -18,8 +18,6 @@
 
 package net.bible.android.control.page.window
 
-import android.content.SharedPreferences
-import net.bible.android.BibleApplication
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
@@ -31,9 +29,6 @@ import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.workspaces.WorkspaceEntities
 import net.bible.service.history.HistoryManager
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
@@ -138,7 +133,7 @@ open class WindowRepository @Inject constructor(
 
     private fun getWindows(state: WindowState)= windows.filter { it.windowLayout.state === state}
 
-    fun getWindow(screenNo: Long): Window? = windows.find {it.id == screenNo}
+    fun getWindow(windowId: Long): Window? = windows.find {it.id == windowId}
 
     fun addNewWindow(): Window {
         val newWindow = createNewWindow()
