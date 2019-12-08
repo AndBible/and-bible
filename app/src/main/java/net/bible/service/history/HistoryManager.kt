@@ -19,8 +19,6 @@
 package net.bible.service.history
 
 import android.util.Log
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -30,7 +28,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils.JSON_CONFIG
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 
@@ -80,54 +77,6 @@ constructor(private val windowControl: WindowControl) {
             return historyStack!!
         }
 
-
-    @Serializable
-    class SerializableHistoryItem(
-        val document: String,
-        val key: String,
-        val yOffsetRatio: Float
-    )
-
-    @Serializable
-	class HistorySerializer(val map: HashMap<Long, ArrayList<SerializableHistoryItem>>)
-
-	var dumpString: String
-        get() {
-            val map = HashMap<Long, ArrayList<SerializableHistoryItem>>()
-            for((windowId, historyStack) in windowHistoryStackMap) {
-                val historyItems = arrayListOf<SerializableHistoryItem>()
-                for(itm in historyStack) {
-                    if(itm is KeyHistoryItem) {
-                        historyItems.add(
-                            SerializableHistoryItem(itm.document.initials, itm.key.osisID, itm.yOffsetRatio)
-                        )
-                    }
-                }
-
-                map[windowId] = historyItems
-            }
-
-            val s = HistorySerializer(map)
-            return Json(JSON_CONFIG).stringify(HistorySerializer.serializer(), s)
-        }
-        set(newValue) {
-            windowHistoryStackMap.clear()
-            if(newValue.isEmpty()) return
-
-            val map = Json(JSON_CONFIG).parse(HistorySerializer.serializer(), newValue).map
-            for((windowId, historyItems) in map) {
-                val window = windowControl.windowRepository.getWindow(windowId)
-                if(window != null) {
-                    val stack = Stack<HistoryItem>()
-                    for (itm in historyItems) {
-                        val doc = Books.installed().getBook(itm.document) ?: continue
-                        val key = doc.getKey(itm.key)
-                        stack.add(KeyHistoryItem(doc, key, itm.yOffsetRatio, window))
-                    }
-                    windowHistoryStackMap[windowId] = stack
-                }
-            }
-        }
 
     fun getEntities(windowId: Long) =
         windowHistoryStackMap[windowId]?.mapNotNull {
