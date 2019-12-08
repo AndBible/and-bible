@@ -61,8 +61,9 @@ open class SpeakIntegrationTestBase {
         val appComponent = app.applicationComponent
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()
-        speakControl.setupMockedTts()
         windowControl = appComponent.windowControl()
+        windowControl.windowRepository.initialize()
+        speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook
         bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
         bibleSpeakSettingsActivityController = Robolectric.buildActivity(SpeakSettingsActivity::class.java)

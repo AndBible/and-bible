@@ -1,5 +1,6 @@
 package net.bible.android.control.page.window
 
+import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.mynote.MyNoteDAO
@@ -21,8 +22,13 @@ import javax.inject.Provider
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertThat
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [28])
 class WindowSynchronisationTest {
 
     private var eventManager: EventManager? = null
@@ -44,6 +50,7 @@ class WindowSynchronisationTest {
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
+        windowRepository!!.initialize()
     }
 
     @After
