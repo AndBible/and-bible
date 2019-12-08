@@ -74,6 +74,8 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
             execSQL("CREATE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)")
             execSQL("CREATE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `mynote_key` ON `mynote` (`key`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_bookmark_label_label_id` ON `bookmark_label` (`label_id`)")
         }
     }
 }
