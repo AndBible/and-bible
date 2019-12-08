@@ -82,7 +82,8 @@ constructor(private val windowControl: WindowControl) {
         windowHistoryStackMap[windowId]?.mapNotNull {
             if(it is KeyHistoryItem) {
                 WorkspaceEntities.HistoryItem(
-                    windowId, it.createdAt, it.document.initials, it.key.osisID, it.yOffsetRatio
+                    windowId, it.createdAt, it.document.initials, it.key.osisID,
+                    if(it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
                 )
             } else null
         } ?: emptyList()
@@ -92,7 +93,7 @@ constructor(private val windowControl: WindowControl) {
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
             val key = doc.getKey(entity.key)
-            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio, window))
+            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window))
         }
         windowHistoryStackMap[window.id] = stack
     }

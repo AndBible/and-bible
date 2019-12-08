@@ -192,13 +192,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun destroy() {
         toBeDestroyed = true
+        ABEventBus.getDefault().unregister(this)
+        pageTiltScroller.destroy()
+        removeJavascriptInterface("jsInterface")
     }
 
     private fun doDestroy() {
         Log.d(TAG, "Destroying Bibleview")
-        ABEventBus.getDefault().unregister(this)
-        pageTiltScroller.destroy()
-        removeJavascriptInterface("jsInterface")
         super.destroy()
     }
 

@@ -102,7 +102,7 @@ class WorkspaceEntities {
         val createdAt: Date,
         val document: String,
         val key: String,
-        val yOffsetRatio: Float,
+        val yOffsetRatio: Float?,
 
         @PrimaryKey(autoGenerate = true) val id: Long = 0
     )

@@ -239,17 +239,21 @@ open class WindowRepository @Inject constructor(
         dao.updateWorkspace(WorkspaceEntities.Workspace(name, id))
 
         val historyManager = historyManagerProvider.get()
-        val windows = windowList.mapIndexed { i, it ->
+        val allWindows = ArrayList(windowList)
+        allWindows.add(dedicatedLinksWindow)
+
+        val windowEntities = allWindows.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
             it.entity.apply {
                 orderNumber = i
             }
         }
+
         val pageManagers = windowList.map {
             it.pageManager.entity
         }
 
-        dao.updateWindows(windows)
+        dao.updateWindows(windowEntities)
         dao.updatePageManagers(pageManagers)
     }
 
