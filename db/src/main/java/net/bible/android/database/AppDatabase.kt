@@ -22,14 +22,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
-import net.bible.android.database.workspaces.Bookmark
-import net.bible.android.database.workspaces.BookmarkToLabel
-import net.bible.android.database.workspaces.Label
-import net.bible.android.database.workspaces.MyNote
-import net.bible.android.database.workspaces.ReadingPlan
-import net.bible.android.database.workspaces.ReadingPlanStatus
-import net.bible.android.database.workspaces.WorkspaceDao
-import net.bible.android.database.workspaces.WorkspaceEntities
 import java.util.*
 
 
@@ -43,12 +35,12 @@ class Converters {
 
 @Database(
     entities = [
-        Bookmark::class,
-        Label::class,
-        BookmarkToLabel::class,
+        BookmarkEntities.Bookmark::class,
+        BookmarkEntities.Label::class,
+        BookmarkEntities.BookmarkToLabel::class,
         MyNote::class,
-        ReadingPlan::class,
-        ReadingPlanStatus::class,
+        ReadingPlanEntities.ReadingPlan::class,
+        ReadingPlanEntities.ReadingPlanStatus::class,
         WorkspaceEntities.Workspace::class,
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,

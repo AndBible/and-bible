@@ -16,7 +16,7 @@
  *
  */
 
-package net.bible.android.database.workspaces
+package net.bible.android.database
 
 import androidx.room.Dao
 import androidx.room.Insert

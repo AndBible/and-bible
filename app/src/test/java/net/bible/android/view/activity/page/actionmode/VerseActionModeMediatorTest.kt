@@ -13,7 +13,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowLayout
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange

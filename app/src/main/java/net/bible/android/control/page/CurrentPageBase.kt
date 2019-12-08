@@ -22,7 +22,7 @@ import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.format.HtmlMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.sword.SwordContentFacade
@@ -31,8 +31,6 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Common functionality for different document page types
  *

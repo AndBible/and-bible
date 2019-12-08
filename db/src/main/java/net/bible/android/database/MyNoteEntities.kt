@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -16,22 +16,20 @@
  *
  */
 
-package net.bible.android.control.page.window
+package net.bible.android.database
 
-import net.bible.android.database.WorkspaceEntities
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
-class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
-    fun restoreFrom(entity: WorkspaceEntities.WindowLayout) {
-        this.weight = entity.weight
-        this.state = WindowState.valueOf(entity.state)
-    }
 
-    var state =
-        if(entity != null) WindowState.valueOf(entity.state) else WindowState.SPLIT
-
-    var weight = entity?.weight ?: 1.0f
-
-    enum class WindowState {
-        SPLIT, MINIMISED, MAXIMISED, CLOSED
-    }
-}
+@Entity(tableName = "mynote", indices = [Index(name="mynote_key", value=["key"])])
+data class MyNote(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    val key: String,
+    val versification: String?,
+    @ColumnInfo(name = "mynote") val myNote: String,
+    @ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int?,
+    @ColumnInfo(name = "created_on") val createdOn: Int?
+)

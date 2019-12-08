@@ -28,12 +28,10 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.Logger
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
-import org.json.JSONException
-import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 open class Window (

@@ -20,7 +20,7 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
@@ -31,9 +31,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Reference to current passage shown by viewer
  *

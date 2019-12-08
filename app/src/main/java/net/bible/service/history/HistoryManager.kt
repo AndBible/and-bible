@@ -31,7 +31,7 @@ import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.JSON_CONFIG
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 
 

@@ -64,6 +64,9 @@ class WindowControlTest {
         val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(null), bibleTraverser, myNoteDao) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
+        windowRepository!!.setDefaultActiveWindow()
+        windowRepository!!.dedicatedLinksWindow = LinksWindow(linksWindowEntity, currentPageManagerProvider.get())
+
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         reset<EventManager>(eventManager)
     }

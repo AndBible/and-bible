@@ -16,9 +16,8 @@
  *
  */
 
-package net.bible.android.database.workspaces
+package net.bible.android.database
 
-import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -27,70 +26,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 import java.util.*
-
-// Room entities
-
-@Entity(tableName = "bookmark")
-data class Bookmark(
-    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-    @ColumnInfo(name = "created_on") val createdOn: Int?,
-    val key: String,
-    val versification: String?,
-    @ColumnInfo(name = "speak_settings") val speakSettings: String?
-)
-
-
-@Entity(tableName = "readingplan", indices = [Index(value=["plan_code"])])
-data class ReadingPlan(
-    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-    @ColumnInfo(name = "plan_code") val planCode: String,
-    @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
-    @ColumnInfo(name = "plan_current_day") val planCurrentDay: Int = 1
-)
-
-@Entity(tableName = "readingplan_status",
-    indices = [Index(name="code_day", value = ["plan_code", "plan_day"])]
-)
-data class ReadingPlanStatus(
-    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-    @ColumnInfo(name = "plan_code") val planCode: String,
-    @ColumnInfo(name = "plan_day") val planDay: Int,
-    @ColumnInfo(name = "reading_status") val readingStatus: String
-)
-
-@Entity(
-    tableName = "bookmark_label",
-    primaryKeys = ["bookmark_id", "label_id"],
-    foreignKeys = [
-        ForeignKey(entity = Bookmark::class, parentColumns = ["_id"], childColumns = ["bookmark_id"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(entity = Label::class, parentColumns = ["_id"], childColumns = ["label_id"], onDelete = ForeignKey.CASCADE)
-    ],
-    indices = [
-        Index("label_id")
-    ]
-)
-data class BookmarkToLabel(
-    @ColumnInfo(name="bookmark_id") val bookmarkId: Int,
-    @ColumnInfo(name="label_id") val labelId: Int
-)
-
-@Entity(tableName = "label")
-data class Label(
-    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "bookmark_style") val bookmarkStyle: String?
-)
-
-@Entity(tableName = "mynote", indices = [Index(name="mynote_key", value=["key"])])
-data class MyNote(
-    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-    val key: String,
-    val versification: String?,
-    @ColumnInfo(name = "mynote") val myNote: String,
-    @ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int?,
-    @ColumnInfo(name = "created_on") val createdOn: Int?
-)
-
 
 class WorkspaceEntities {
     data class Page(

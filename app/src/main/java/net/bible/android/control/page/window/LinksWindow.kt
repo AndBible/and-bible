@@ -20,7 +20,7 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 
 /**
  * Window used when user selects a link

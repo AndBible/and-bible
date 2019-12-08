@@ -27,7 +27,7 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
-import net.bible.android.database.workspaces.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.history.HistoryManager
 import java.util.*
 import javax.inject.Inject
