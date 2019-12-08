@@ -23,8 +23,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Store a main verse and return it in requested versification after mapping (if map available)
  *
@@ -91,30 +89,6 @@ class ConvertibleVerse(
         val other = other as ConvertibleVerse
 		if (verse != other.verse) return false
         return true
-    }
-
-    @get:Throws(JSONException::class)
-    val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            `object`.put("versification", verse.versification.name)
-            `object`.put("bibleBook", verse.book.ordinal)
-            `object`.put("chapter", verse.chapter)
-            `object`.put("verseNo", verse.verse)
-            return `object`
-        }
-
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            if (jsonObject.has("versification") && jsonObject.has("bibleBook")) {
-                val v11n = Versifications.instance().getVersification(jsonObject.getString("versification"))
-                val bibleBookNo = jsonObject.getInt("bibleBook")
-                val chapterNo = jsonObject.getInt("chapter")
-                val verseNo = jsonObject.getInt("verseNo")
-                verse = Verse(v11n, BibleBook.values()[bibleBookNo], chapterNo, verseNo, true)
-            }
-        }
     }
 
     fun restoreFrom(entity: WorkspaceEntities.Verse) {

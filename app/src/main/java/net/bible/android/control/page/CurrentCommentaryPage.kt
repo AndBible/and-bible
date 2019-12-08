@@ -128,43 +128,6 @@ internal constructor(
     val entity get() =
         WorkspaceEntities.CommentaryPage(currentDocument?.initials)
 
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            if (currentDocument != null && currentBibleVerse != null && currentBibleVerse.getVerseSelected(versification) != null) {
-                Log.d(TAG, "Saving Commentary state for 1 window")
-                `object`.put("document", currentDocument!!.initials)
-                // allow Bible page to save shared verse
-            }
-            return `object`
-        }
-
-    /** called during app start-up to restore previous state
-     *
-     * @param jsonObject
-     */
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring Commentary page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        // allow Bible page to restore shared verse
-                    }
-                }
-            }
-        }
-    }
-
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document

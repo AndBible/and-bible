@@ -58,15 +58,6 @@ class CurrentBibleVerse {
     val versificationOfLastSelectedVerse: Versification
         get() = verseVersificationSelected.verse.versification
 
-    @get:Throws(JSONException::class)
-    val stateJson: JSONObject
-        get() = verseVersificationSelected.stateJson
-
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject?) {
-        verseVersificationSelected.restoreState(jsonObject)
-    }
-
     fun restoreFrom(verse: WorkspaceEntities.Verse) {
         verseVersificationSelected.restoreFrom(verse)
     }

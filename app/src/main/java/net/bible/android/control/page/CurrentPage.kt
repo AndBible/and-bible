@@ -77,11 +77,6 @@ interface CurrentPage {
     val currentPageFootnotesAndReferences: List<Note?>?
 
     fun updateOptionsMenu(menu: Menu)
-    @Throws(JSONException::class)
-    fun restoreState(state: JSONObject?)
-
-    @get:Throws(JSONException::class)
-    val stateJson: JSONObject
 
     var isInhibitChangeNotifications: Boolean
     val isSearchable: Boolean

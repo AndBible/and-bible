@@ -576,7 +576,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             documentViewManager.resetView()
             windowControl.windowSync.synchronizeAllScreens()
-            windowRepository.saveState()
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 

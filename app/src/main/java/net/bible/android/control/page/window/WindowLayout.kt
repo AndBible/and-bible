@@ -19,38 +19,19 @@
 package net.bible.android.control.page.window
 
 import net.bible.android.database.workspaces.WorkspaceEntities
-import org.json.JSONException
-import org.json.JSONObject
 
 class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
+    fun restoreFrom(entity: WorkspaceEntities.WindowLayout) {
+        this.weight = entity.weight
+        this.state = WindowState.valueOf(entity.state)
+    }
 
     var state =
         if(entity != null) WindowState.valueOf(entity.state) else WindowState.SPLIT
 
     var weight = entity?.weight ?: 1.0f
 
-
-    val stateJson: JSONObject
-        @Throws(JSONException::class)
-        get() {
-            val `object` = JSONObject()
-            `object`.put("state", state.toString())
-                    .put("weight", weight.toDouble())
-            return `object`
-        }
-
     enum class WindowState {
         SPLIT, MINIMISED, MAXIMISED, CLOSED
-    }
-
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject) {
-        this.state = WindowState.valueOf(jsonObject.getString("state"))
-        this.weight = jsonObject.getDouble("weight").toFloat()
-    }
-
-    fun restoreFrom(windowLayoutEntity: WorkspaceEntities.WindowLayout) {
-        state = WindowLayout.WindowState.valueOf(windowLayoutEntity.state)
-        weight = windowLayoutEntity.weight
     }
 }

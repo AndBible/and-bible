@@ -206,42 +206,7 @@ class CurrentBiblePage(
             onVerseChange()
         }
 
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            if (currentDocument != null && currentBibleVerse != null && currentBibleVerse.getVerseSelected(versification) != null) {
-                Log.d(TAG, "Saving Bible state for 1 window")
-                `object`.put("document", currentDocument!!.initials)
-                `object`.put("verse", currentBibleVerse.stateJson)
-            }
-            return `object`
-        }
-
-    /** called during app start-up to restore previous state
-     */
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring Bible page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    Log.d(TAG, "State document:$document")
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        currentBibleVerse.restoreState(jsonObject.getJSONObject("verse"))
-                    }
-                }
-            }
-        }
-    }//TODO allow japanese search - japanese bibles use smartcn which is not available
-
+    //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button
      */
     override val isSearchable: Boolean

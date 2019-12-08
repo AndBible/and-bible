@@ -190,8 +190,7 @@ open class WindowControl @Inject constructor(
         // default state to active window
         if (!isActiveWindow(window)) {
             val activeWindow = activeWindow
-            val activeWindowPageState = activeWindow.pageManager.stateJson
-            window.pageManager.restoreState(activeWindowPageState)
+            window.pageManager.restoreFrom(activeWindow.pageManager.entity)
             window.isSynchronised = activeWindow.isSynchronised
             if (windowRepository.isMaximisedState) {
                 this.activeWindow = window

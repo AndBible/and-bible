@@ -105,33 +105,6 @@ open class Window (
         MAXIMISE, MINIMISE, RESTORE, CLOSE
     }
 
-    val stateJson: JSONObject
-        @Throws(JSONException::class)
-        get() {
-            val obj = JSONObject().apply {
-                put("screenNo", id)
-                put("isSynchronised", isSynchronised)
-                put("wasMinimised", wasMinimised)
-                put("windowLayout", windowLayout.stateJson)
-                put("pageManager", pageManager.stateJson)
-            }
-            return obj
-        }
-
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject) {
-        try {
-            id = jsonObject.getInt("screenNo").toLong()
-            isSynchronised = jsonObject.getBoolean("isSynchronised")
-            wasMinimised = jsonObject.optBoolean("wasMinimised")
-            windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"))
-            pageManager.restoreState(jsonObject.getJSONObject("pageManager"))
-        } catch (e: Exception) {
-            logger.warn("Window state restore error:" + e.message, e)
-        }
-
-    }
-
     override fun toString(): String {
         return "Window [screenNo=$id]"
     }

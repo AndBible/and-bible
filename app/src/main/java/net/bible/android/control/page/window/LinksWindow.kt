@@ -39,7 +39,7 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
         // set links window state from active window if it was closed
         if (windowLayout.state == WindowState.CLOSED && !activeWindow.isLinksWindow) {
             // initialise links window documents from active window
-            pageManager.restoreState(activeWindow.pageManager.stateJson)
+            pageManager.restoreFrom(activeWindow.pageManager.entity)
         }
     }
 

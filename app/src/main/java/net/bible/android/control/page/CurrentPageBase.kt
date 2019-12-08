@@ -205,36 +205,6 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    Log.d(TAG, "State document:$document")
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        try {
-                            if (jsonObject.has("key")) {
-                                val keyName = jsonObject.getString("key")
-                                if (StringUtils.isNotEmpty(keyName)) {
-                                    doSetKey(book.getKey(keyName))
-                                    Log.d(TAG, "Restored key:$keyName")
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
@@ -255,23 +225,6 @@ abstract class CurrentPageBase protected constructor(
             }
         }
     }
-
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val obj = JSONObject()
-            if (currentDocument != null) {
-                Log.d(TAG, "Getting json state for " + bookCategory.getName())
-                obj.put("document", currentDocument!!.initials)
-				val key = key
-                if (key != null) {
-                    obj.put("key", key.osisID)
-                }
-            }
-            return obj
-        }
 
     /** can we enable the main menu Speak button
      */
