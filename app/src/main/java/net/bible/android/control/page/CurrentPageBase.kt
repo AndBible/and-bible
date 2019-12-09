@@ -188,6 +188,10 @@ abstract class CurrentPageBase protected constructor(
         _currentDocument = doc
     }
 
+    protected open fun localSetCurrentDocument(doc: Book?, isMyNote: Boolean = false) {
+        localSetCurrentDocument(doc)
+    }
+
     override fun updateOptionsMenu(menu: Menu) { // these are fine for Bible and commentary
         var menuItem = menu.findItem(R.id.searchButton)
         if (menuItem != null) {

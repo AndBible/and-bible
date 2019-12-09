@@ -100,6 +100,13 @@ class CurrentMyNotePage internal constructor(
         }
     }
 
+    /** Do not run VersePage implementation of localSetCurrentDocument
+     * because that is not for notes
+     */
+    override fun localSetCurrentDocument(doc: Book?, isMyNote: Boolean) {
+        localSetCurrentDocument(doc, true)
+    }
+
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#getKey()
 	 */
@@ -112,6 +119,7 @@ class CurrentMyNotePage internal constructor(
 
 	override fun setKey(key: Key) {
 		_key = key
+        doSetKey(key)
 	}
 
     override val numberOfVersesDisplayed: Int
