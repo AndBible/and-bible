@@ -31,11 +31,12 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.FileManager
-import net.bible.service.db.CommonDatabaseHelper
 
 import android.content.Intent
 import androidx.core.content.FileProvider
 import net.bible.android.activity.BuildConfig
+import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.DatabaseContainer.db
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -53,7 +54,7 @@ class BackupControl @Inject constructor() {
     /** return true if a backup has been done and the file is on the sd card.
      */
     private val isBackupFileExists: Boolean
-        get() = File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists()
+        get() = File(SharedConstants.BACKUP_DIR, DATABASE_NAME).exists()
 
     fun updateOptionsMenu(menu: Menu) {
         // always allow backup and restore to be attempted
@@ -62,8 +63,8 @@ class BackupControl @Inject constructor() {
     /** backup database to sd card
      */
     fun backupDatabase() {
-        CommonDatabaseHelper.sync()
-        val ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR)
+        db.sync()
+        val ok = FileManager.copyFile(DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR)
 
         if (ok) {
             Log.d(TAG, "Copied database to SD card successfully")
@@ -77,8 +78,8 @@ class BackupControl @Inject constructor() {
     /** backup database to custom target (email, drive etc.)
      */
     fun backupDatabaseViaIntent(callingActivity: Activity) {
-        CommonDatabaseHelper.sync()
-        val fileName = CommonDatabaseHelper.DATABASE_NAME
+        db.sync()
+        val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
 
@@ -100,7 +101,7 @@ class BackupControl @Inject constructor() {
     /** backup database from custom source
      */
     fun restoreDatabaseViaIntent(inputStream: InputStream) {
-        val fileName = CommonDatabaseHelper.DATABASE_NAME
+        val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
         var ok = false
@@ -111,12 +112,12 @@ class BackupControl @Inject constructor() {
             out.write(header)
             out.write(inputStream.readBytes())
             out.close()
-            BibleApplication.application.deleteDatabase(CommonDatabaseHelper.DATABASE_NAME)
+            BibleApplication.application.deleteDatabase(DATABASE_NAME)
             ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
         }
 
         if (ok) {
-            CommonDatabaseHelper.reset()
+            db.reset()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
             Log.d(TAG, "Restored database successfully")
             Dialogs.getInstance().showMsg(R.string.restore_success)
@@ -133,11 +134,11 @@ class BackupControl @Inject constructor() {
             Dialogs.getInstance().showErrorMsg(R.string.error_no_backup_file)
         } else {
             Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
-                BibleApplication.application.deleteDatabase(CommonDatabaseHelper.DATABASE_NAME)
-                val ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir)
+                BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir)
 
                 if (ok) {
-                    CommonDatabaseHelper.reset()
+                    db.reset()
                     ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
                     Log.d(TAG, "Copied database from SD card successfully")
                     Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.name)

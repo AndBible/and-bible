@@ -20,9 +20,24 @@
  */
 package net.bible.service.db.mynote
 
-import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+
+@Entity(tableName = "mynote", indices = [Index(name="mynote_key", value=["key"])])
+data class MyNote(
+	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+	val key: String,
+	val versification: String?,
+	@ColumnInfo(name = "mynote") val myNote: String,
+	@ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int?,
+	@ColumnInfo(name = "created_on") val createdOn: Int?
+)
 
 /**
  * MyNote database definitions
@@ -65,11 +80,11 @@ private constructor() {
     /** Called when no database exists in disk and the helper class needs
      * to create a new one.
      */
-    fun onCreate(db: SQLiteDatabase) {
+    fun onCreate(db: SupportSQLiteDatabase) {
         bootstrapDB(db)
     }
 
-    private fun bootstrapDB(db: SQLiteDatabase) {
+    private fun bootstrapDB(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Bootstrapping And Bible database (MyNotes)")
         db.execSQL("CREATE TABLE " + Table.MYNOTE + " (" +
             MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -85,7 +100,7 @@ private constructor() {
             ");")
     }
 
-    fun upgradeToVersion3(db: SQLiteDatabase) {
+    fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading MyNote db to version 3")
         db.execSQL("ALTER TABLE " + Table.MYNOTE + " ADD COLUMN " + MyNoteColumn.VERSIFICATION + " TEXT;")
     }

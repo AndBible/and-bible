@@ -19,9 +19,15 @@
 package net.bible.service.db.readingplan
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanDao
@@ -31,6 +37,27 @@ import kotlin.math.max
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
  */
+
+
+@Entity(tableName = "readingplan", indices = [Index(value=["plan_code"])])
+data class ReadingPlan(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    @ColumnInfo(name = "plan_code") val planCode: String,
+    @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
+    @ColumnInfo(name = "plan_current_day") val planCurrentDay: Int = 1
+)
+
+@Entity(tableName = "readingplan_status",
+    indices = [Index(name="code_day", value = ["plan_code", "plan_day"])]
+)
+data class ReadingPlanStatus(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    @ColumnInfo(name = "plan_code") val planCode: String,
+    @ColumnInfo(name = "plan_day") val planDay: Int,
+    @ColumnInfo(name = "reading_status") val readingStatus: String
+)
+
+
 object ReadingPlanDatabaseDefinition {
 
     /** Table to keep track of plan start date and current day progress
@@ -86,7 +113,7 @@ class ReadingPlanDatabaseOperations {
         """
     }
 
-    fun onCreate(db: SQLiteDatabase) {
+    fun onCreate(db: SupportSQLiteDatabase) {
 
         try {
             Log.i(TAG, "Creating table ${readingPlan.TABLE_NAME}")
@@ -103,7 +130,7 @@ class ReadingPlanDatabaseOperations {
         }
     }
 
-    fun migratePrefsToDatabase(db: SQLiteDatabase) {
+    fun migratePrefsToDatabase(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Now importing reading plan preferences from shared preferences to database")
         try {
             val DAY_EXT = "_day"
@@ -126,7 +153,7 @@ class ReadingPlanDatabaseOperations {
                 }
                 if (day > 0) values.put(readingPlan.COLUMN_PLAN_CURRENT_DAY, day)
 
-                if ((start > 0L || day > 0) && db.insert(readingPlan.TABLE_NAME, null, values) < 0)
+                if ((start > 0L || day > 0) && db.insert(readingPlan.TABLE_NAME, CONFLICT_FAIL, values) < 0)
                     Log.e(TAG, "Error inserting start date and current day to db for plan $planCode")
 
                 val prefKey = "${planCode}_$day"
@@ -161,7 +188,7 @@ class ReadingPlanDatabaseOperations {
         }
     }
 
-    private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SQLiteDatabase) {
+    private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SupportSQLiteDatabase) {
         val status = ReadingStatus(planCode, day, prefDayStatus.length)
         for (i in prefDayStatus.indices) {
             val isRead = prefDayStatus[i].toString().toInt().toBoolean()
@@ -173,7 +200,7 @@ class ReadingPlanDatabaseOperations {
             put(readingPlanStatus.COLUMN_PLAN_DAY, day)
             put(readingPlanStatus.COLUMN_PLAN_CODE, planCode)
         }
-        if (db.insert(readingPlanStatus.TABLE_NAME, null, statusValues) < 0)
+        if (db.insert(readingPlanStatus.TABLE_NAME, CONFLICT_FAIL, statusValues) < 0)
             Log.e(TAG, "Error inserting reading status to db for plan $planCode day #$day")
     }
 

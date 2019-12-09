@@ -54,8 +54,7 @@ import javax.inject.Inject
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
 	private val swordContentFacade: SwordContentFacade,
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
-	resourceProvider: ResourceProvider)
+	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
 {
     private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
 	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
@@ -168,26 +167,19 @@ open class BookmarkControl @Inject constructor(
     val allBookmarks: List<BookmarkDto>
         get() {
             val db = BookmarkDBAdapter()
-            var bookmarkList: List<BookmarkDto>
-            try {
-                db.open()
-                bookmarkList = db.allBookmarks
-                bookmarkList = getSortedBookmarks(bookmarkList)
+            return try {
+                getSortedBookmarks(db.allBookmarks)
             } finally {
-                db.close()
+                emptyList<BookmarkDto>()
             }
-            return bookmarkList
         }
 
     /** create a new bookmark  */
     fun addOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto {
         val db = BookmarkDBAdapter()
         val newBookmark = try {
-            db.open()
             db.insertOrUpdateBookmark(bookmark)
-        } finally {
-            db.close()
-        }
+        } finally {}
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
         return newBookmark
     }
@@ -197,11 +189,8 @@ open class BookmarkControl @Inject constructor(
         val db = BookmarkDBAdapter()
         var updatedBookmark: BookmarkDto? = null
         updatedBookmark = try {
-            db.open()
             db.updateBookmarkDate(bookmark!!)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return updatedBookmark
     }
 
@@ -210,16 +199,13 @@ open class BookmarkControl @Inject constructor(
         val bookmarks: MutableList<BookmarkDto> = ArrayList()
         val db = BookmarkDBAdapter()
         try {
-            db.open()
             for (id in ids) {
                 val bookmark = db.getBookmarkDto(id)
                 if (bookmark != null) {
                     bookmarks.add(bookmark)
                 }
             }
-        } finally {
-            db.close()
-        }
+        } finally {}
         return bookmarks
     }
 
@@ -237,11 +223,8 @@ open class BookmarkControl @Inject constructor(
         val db = BookmarkDBAdapter()
         var bookmark: BookmarkDto? = null
         bookmark = try {
-            db.open()
             db.getBookmarkByStartKey(osisRef!!)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return bookmark
     }
 
@@ -251,11 +234,8 @@ open class BookmarkControl @Inject constructor(
         if (bookmark?.id != null) {
             val db = BookmarkDBAdapter()
             bOk = try {
-                db.open()
                 db.removeBookmark(bookmark)
-            } finally {
-                db.close()
-            }
+            } finally { }
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
         return bOk
@@ -266,16 +246,13 @@ open class BookmarkControl @Inject constructor(
         val db = BookmarkDBAdapter()
 		var bookmarkList: List<BookmarkDto>
 		try {
-            db.open()
             bookmarkList = when {
 				LABEL_ALL == label -> db.allBookmarks
 				LABEL_UNLABELLED == label -> db.unlabelledBookmarks
 				else -> db.getBookmarksWithLabel(label!!)
 			}
             bookmarkList = getSortedBookmarks(bookmarkList)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return bookmarkList
     }
 
@@ -287,11 +264,8 @@ open class BookmarkControl @Inject constructor(
         val labels: List<LabelDto>
         val db = BookmarkDBAdapter()
         labels = try {
-            db.open()
             db.getBookmarkLabels(bookmark)
-        } finally {
-            db.close()
-        }
+        } finally {}
         return labels
     }
 
@@ -302,7 +276,6 @@ open class BookmarkControl @Inject constructor(
         labels.remove(LABEL_UNLABELLED)
         val db = BookmarkDBAdapter()
         try {
-            db.open()
             val prevLabels = db.getBookmarkLabels(bookmark!!)
             //find those which have been deleted and remove them
             val deleted: MutableSet<LabelDto> = HashSet(prevLabels)
@@ -316,24 +289,19 @@ open class BookmarkControl @Inject constructor(
             for (label in added) {
                 db.insertBookmarkLabelJoin(bookmark, label)
             }
-        } finally {
-            db.close()
-        }
+        } finally {}
         ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
     }
 
     fun saveOrUpdateLabel(label: LabelDto): LabelDto {
         val db = BookmarkDBAdapter()
         return try {
-            db.open()
             if (label.id == null) {
                 db.insertLabel(label)
             } else {
                 db.updateLabel(label)
             }
-        } finally {
-            db.close()
-        }
+        } finally {}
     }
 
     /** delete this bookmark (and any links to labels)  */
@@ -342,11 +310,8 @@ open class BookmarkControl @Inject constructor(
         if (label?.id != null && LABEL_ALL != label && LABEL_UNLABELLED != label) {
             val db = BookmarkDBAdapter()
             bOk = try {
-                db.open()
                 db.removeLabel(label)
-            } finally {
-                db.close()
-            }
+            } finally {}
         }
         return bOk
     }
@@ -366,11 +331,8 @@ open class BookmarkControl @Inject constructor(
             val db = BookmarkDBAdapter()
             val labelList: MutableList<LabelDto> = ArrayList()
             try {
-                db.open()
                 labelList.addAll(db.allLabels)
-            } finally {
-                db.close()
-            }
+            } finally {}
 			labelList.sort()
             return labelList
         }
@@ -430,11 +392,8 @@ open class BookmarkControl @Inject constructor(
             val db = BookmarkDBAdapter()
             val label: LabelDto
             label = try {
-                db.open()
                 db.orCreateSpeakLabel
-            } finally {
-                db.close()
-            }
+            } finally {}
             return label
         }
 

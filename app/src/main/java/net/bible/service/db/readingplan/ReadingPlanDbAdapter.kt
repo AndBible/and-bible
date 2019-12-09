@@ -19,8 +19,10 @@
 package net.bible.service.db.readingplan
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
-import net.bible.service.db.CommonDatabaseHelper
+import androidx.sqlite.db.SupportSQLiteQueryBuilder.builder
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import java.lang.Exception
 import kotlin.math.max
@@ -33,18 +35,16 @@ class ReadingPlanDbAdapter {
         private const val TAG = "ReadingPlanDBAdapter"
     }
 
-    private val db = CommonDatabaseHelper.instance.readableDatabase
+    private val db = DatabaseContainer.db.openHelper.readableDatabase
+
     private val readingPlanDef = ReadingPlanDatabaseDefinition.ReadingPlan
     private val statusDef = ReadingPlanDatabaseDefinition.ReadingPlanStatus
 
     fun getReadingPlanStatus(planCode: String, dayNo: Int): String? {
         val selection = "${statusDef.COLUMN_PLAN_CODE}=? AND ${statusDef.COLUMN_PLAN_DAY}=?"
         val selectionArgs = arrayOf(planCode, dayNo.toString())
-        val q = db.query(statusDef.TABLE_NAME,
-            arrayOf(statusDef.COLUMN_READING_STATUS),
-            selection,
-            selectionArgs,
-            null, null, null)
+        val q = db.query(builder(statusDef.TABLE_NAME).columns(arrayOf(statusDef.COLUMN_READING_STATUS))
+            .selection(selection, selectionArgs).create())
         var returnValue: String? = null
         if (q.moveToFirst()) returnValue = q.getString(0)
         q.close()
@@ -52,7 +52,7 @@ class ReadingPlanDbAdapter {
     }
 
     fun setReadingPlanStatus(planCode: String, dayNo: Int, status: String) {
-        if (db.update(statusDef.TABLE_NAME,
+        if (db.update(statusDef.TABLE_NAME, CONFLICT_FAIL,
                 ContentValues().apply {
                     put(statusDef.COLUMN_READING_STATUS, status)
                 },
@@ -62,7 +62,7 @@ class ReadingPlanDbAdapter {
             // if no row updated then insert new row
 
             if (db.insert(statusDef.TABLE_NAME,
-                    null,
+                    CONFLICT_FAIL,
                     ContentValues().apply {
                         put(statusDef.COLUMN_PLAN_CODE, planCode)
                         put(statusDef.COLUMN_PLAN_DAY, dayNo)
@@ -78,11 +78,11 @@ class ReadingPlanDbAdapter {
     fun getReadingStartDate(planCode: String): Long? {
         val selection = "${readingPlanDef.COLUMN_PLAN_CODE}=?"
         val selectionArgs = arrayOf(planCode)
-        val q = db.query(readingPlanDef.TABLE_NAME,
-            arrayOf(readingPlanDef.COLUMN_PLAN_START_DATE),
-            selection,
-            selectionArgs,
-            null, null, null)
+        val q = db.query(builder(readingPlanDef.TABLE_NAME)
+            .columns(arrayOf(readingPlanDef.COLUMN_PLAN_START_DATE))
+            .selection(selection, selectionArgs)
+            .create()
+        )
         var returnValue: Long? = null
         if (q.moveToFirst()) returnValue = q.getLong(0)
         q.close()
@@ -92,14 +92,14 @@ class ReadingPlanDbAdapter {
     fun setReadingStartDate(planCode: String, startDate: Long) {
         val values = ContentValues()
         values.put(readingPlanDef.COLUMN_PLAN_START_DATE, startDate)
-        val rows = db.update(readingPlanDef.TABLE_NAME,
+        val rows = db.update(readingPlanDef.TABLE_NAME, CONFLICT_FAIL,
             values,
             "${readingPlanDef.COLUMN_PLAN_CODE}=?",
             arrayOf(planCode))
 
         if (rows < 1) {
             values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
-            if (db.insert(readingPlanDef.TABLE_NAME,null, values) < 0) {
+            if (db.insert(readingPlanDef.TABLE_NAME, CONFLICT_FAIL, values) < 0) {
                 Log.e(TAG, "Error occurred while trying to insert startDate $startDate into db for plan $planCode")
             }
         }
@@ -108,11 +108,8 @@ class ReadingPlanDbAdapter {
     fun getReadingCurrentDay(planCode: String): Int {
         val selection = "${readingPlanDef.COLUMN_PLAN_CODE}=?"
         val selectionArgs = arrayOf(planCode)
-        val q = db.query(readingPlanDef.TABLE_NAME,
-            arrayOf(readingPlanDef.COLUMN_PLAN_CURRENT_DAY),
-            selection,
-            selectionArgs,
-            null, null, null)
+        val q = db.query(builder(readingPlanDef.TABLE_NAME).columns(arrayOf(readingPlanDef.COLUMN_PLAN_CURRENT_DAY))
+            .selection(selection, selectionArgs).create())
         var returnValue = 0
         if (q.moveToFirst()) returnValue = q.getInt(0)
         q.close()
@@ -124,7 +121,7 @@ class ReadingPlanDbAdapter {
         values.put(readingPlanDef.COLUMN_PLAN_CURRENT_DAY, dayNo)
         var rows = 0
         try {
-            rows = db.update(readingPlanDef.TABLE_NAME,
+            rows = db.update(readingPlanDef.TABLE_NAME, CONFLICT_FAIL,
                 values,
                 "${readingPlanDef.COLUMN_PLAN_CODE}=?",
                 arrayOf(planCode))
@@ -134,7 +131,7 @@ class ReadingPlanDbAdapter {
 
         if (rows < 1) {
             values.put(readingPlanDef.COLUMN_PLAN_CODE, planCode)
-            if (db.insert(readingPlanDef.TABLE_NAME,null, values) < 0) {
+            if (db.insert(readingPlanDef.TABLE_NAME, CONFLICT_FAIL, values) < 0) {
                 Log.e(TAG, "Error trying to insert db current day $dayNo for plan $planCode")
             }
         }

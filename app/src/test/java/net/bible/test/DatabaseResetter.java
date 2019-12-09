@@ -1,6 +1,6 @@
 package net.bible.test;
 
-import net.bible.service.db.CommonDatabaseHelper;
+import net.bible.service.db.DatabaseContainer;
 
 import java.lang.reflect.Field;
 
@@ -12,13 +12,13 @@ import java.lang.reflect.Field;
 public class DatabaseResetter {
 
 	public static void resetDatabase() {
-		resetSingleton(CommonDatabaseHelper.class, "sSingleton");
+		resetSingleton(DatabaseContainer.class, "instance");
 	}
 
-	private static void resetSingleton(Class clazz, String fieldName) {
+	private static void resetSingleton(Class class_, String fieldName) {
 		Field instance;
 		try {
-			instance = clazz.getDeclaredField(fieldName);
+			instance = class_.getDeclaredField(fieldName);
 			instance.setAccessible(true);
 			instance.set(null, null);
 		} catch (Exception e) {

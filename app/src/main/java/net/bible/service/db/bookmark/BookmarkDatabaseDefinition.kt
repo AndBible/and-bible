@@ -17,9 +17,47 @@
  */
 package net.bible.service.db.bookmark
 
-import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
 import android.util.Log
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.PrimaryKey
+import androidx.sqlite.db.SupportSQLiteDatabase
+
+
+// Room entities
+
+@Entity(tableName = "bookmark")
+data class Bookmark(
+	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+	@ColumnInfo(name = "created_on") val createdOn: Int?,
+	val key: String,
+	val versification: String?,
+	@ColumnInfo(name = "speak_settings") val speakSettings: String?
+)
+
+@Entity(
+	tableName = "bookmark_label",
+	primaryKeys = ["bookmark_id", "label_id"],
+	foreignKeys = [
+		ForeignKey(entity = Bookmark::class, parentColumns = ["_id"], childColumns = ["bookmark_id"], onDelete = ForeignKey.CASCADE),
+		ForeignKey(entity = Label::class, parentColumns = ["_id"], childColumns = ["label_id"], onDelete = ForeignKey.CASCADE)
+	]
+)
+data class BookmarkToLabel(
+	@ColumnInfo(name="bookmark_id") val bookmarkId: Int,
+	@ColumnInfo(name="label_id") val labelId: Int
+)
+
+@Entity(tableName = "label")
+data class Label(
+	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+	@ColumnInfo(name = "name") val name: String,
+	@ColumnInfo(name = "bookmark_style") val bookmarkStyle: String?
+)
+
+
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -72,27 +110,27 @@ class BookmarkDatabaseDefinition {
     /** Called when no database exists in disk and the helper class needs
      * to create a new one.
      */
-    fun onCreate(db: SQLiteDatabase) {
+    fun onCreate(db: SupportSQLiteDatabase) {
         bootstrapDB(db)
     }
 
-    fun upgradeToVersion5(db: SQLiteDatabase) {
+    fun upgradeToVersion5(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 5")
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT null;")
     }
 
-    fun upgradeToVersion4(db: SQLiteDatabase) {
+    fun upgradeToVersion4(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 4")
         db.execSQL("ALTER TABLE " + Table.LABEL + " ADD COLUMN " + LabelColumn.BOOKMARK_STYLE + " TEXT;")
     }
 
-    fun upgradeToVersion3(db: SQLiteDatabase) {
+    fun upgradeToVersion3(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Upgrading Bookmark db to version 3")
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.VERSIFICATION + " TEXT;")
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0;")
     }
 
-    private fun bootstrapDB(db: SQLiteDatabase) {
+    private fun bootstrapDB(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Bootstrapping And Bible database (Bookmarks)")
         db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
             BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
