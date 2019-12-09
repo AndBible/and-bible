@@ -300,6 +300,9 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear() {
+        windowList.forEach {
+            it.bibleView?.listenEvents = false
+        }
         windowList.clear()
         historyManagerProvider.get().clear()
         name = ""

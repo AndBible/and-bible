@@ -64,7 +64,7 @@ import java.lang.ref.WeakReference
  */
 
 class BibleView(val mainBibleActivity: MainBibleActivity,
-                private val windowRef: WeakReference<Window>,
+                private var windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -110,7 +110,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var toBeDestroyed = false
 
-    val window: Window get() = windowRef.get()!!
+    var window: Window
+        get() = windowRef.get()!!
+        set(value) {
+            windowRef = WeakReference(value)
+        }
 
     class BibleViewTouched(val onlyTouch: Boolean = false)
 
@@ -184,7 +188,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pageTiltScroller.enableTiltScroll(true)
 
         // if this webview becomes (in)active then must start/stop auto-scroll
-        ABEventBus.getDefault().register(this)
+        listenEvents = true
 
         // initialise split state related code - always screen1 is selected first
         onEvent(CurrentWindowChangedEvent(windowControl.activeWindow))
@@ -192,10 +196,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun destroy() {
         toBeDestroyed = true
-        ABEventBus.getDefault().unregister(this)
+        listenEvents = false
         pageTiltScroller.destroy()
         removeJavascriptInterface("jsInterface")
     }
+
+    var listenEvents: Boolean = false
+        set(value) {
+            if(value == field) return
+            if(value) {
+                ABEventBus.getDefault().register(this)
+            } else {
+                ABEventBus.getDefault().unregister(this)
+            }
+            field = value
+        }
 
     private fun doDestroy() {
         Log.d(TAG, "Destroying Bibleview")
@@ -227,6 +242,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
 
+    var initialized = false
+
     override fun show(html: String, updateLocation: Boolean) {
 
         var finalHtml = html
@@ -241,7 +258,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val currentPage = window.pageManager.currentPage
 
-        if(!window.initialized || updateLocation) {
+        if(!initialized || updateLocation) {
             if (currentPage !is CurrentBiblePage) {
                 jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             } else {
@@ -259,7 +276,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
 
         contentVisible = false
-        window.initialized = true
+        initialized = true
     }
 
     /**

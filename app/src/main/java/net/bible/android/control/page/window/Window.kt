@@ -57,7 +57,13 @@ open class Window (
     var displayedBook: Book? = null
 
     open var isSynchronised = window.isSynchronized
-    var initialized = false
+
+    var initialized
+        get() = bibleView?.initialized == true
+        set(value) {
+            bibleView?.initialized = value
+        }
+
     var wasMinimised = window.wasMinimised
 
     private val logger = Logger(this.javaClass.name)
