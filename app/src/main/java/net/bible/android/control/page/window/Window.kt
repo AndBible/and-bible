@@ -41,7 +41,7 @@ open class Window (
 
     val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
     var id = window.id
-    private val workspaceId = window.workspaceId
+    protected var workspaceId = window.workspaceId
 
     init {
         @Suppress("LeakingThis")
