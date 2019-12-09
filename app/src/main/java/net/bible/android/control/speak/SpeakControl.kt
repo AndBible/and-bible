@@ -70,6 +70,14 @@ class SpeakControl @Inject constructor(
     private var timerTask: TimerTask? = null
     private var _speakPageManager: CurrentPageManager? = null
 
+    private var ttsInitialized = false
+    private val ttsServiceManager: TextToSpeechServiceManager get () {
+        if(!ttsInitialized)
+            ttsInitialized = true
+        return textToSpeechServiceManager.get()
+    }
+    
+
     private val speakPageManager: CurrentPageManager
         get() {
             var pageManager = _speakPageManager
@@ -84,7 +92,7 @@ class SpeakControl @Inject constructor(
         get() {
             return try {
                 val docLangCode = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument?.language?.code
-                if(docLangCode == null) return true else textToSpeechServiceManager.get().isLanguageAvailable(docLangCode)
+                if(docLangCode == null) return true else ttsServiceManager.isLanguageAvailable(docLangCode)
             } catch (e: Exception) {
                 Log.e(TAG, "Error checking TTS lang available")
                 false
@@ -92,10 +100,10 @@ class SpeakControl @Inject constructor(
         }
 
     val isSpeaking: Boolean
-        get() = booksAvailable && textToSpeechServiceManager.get().isSpeaking
+        get() = booksAvailable && ttsInitialized && ttsServiceManager.isSpeaking
 
     val isPaused: Boolean
-        get() = booksAvailable && textToSpeechServiceManager.get().isPaused
+        get() = booksAvailable && ttsInitialized && ttsServiceManager.isPaused
 
     val isStopped: Boolean
         get() = !isSpeaking && !isPaused
@@ -113,10 +121,10 @@ class SpeakControl @Inject constructor(
             Date(timerTask!!.scheduledExecutionTime())
         }
     val currentlyPlayingBook: Book?
-        get() = if (!booksAvailable) null else textToSpeechServiceManager.get().currentlyPlayingBook
+        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingBook
 
     val currentlyPlayingVerse: Verse?
-        get() = if (!booksAvailable) null else textToSpeechServiceManager.get().currentlyPlayingVerse
+        get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingVerse
 
     init {
         ABEventBus.getDefault().register(this)
@@ -265,7 +273,7 @@ class SpeakControl @Inject constructor(
                 Log.e(TAG, "currentdocument is null! Can't speak")
                 return
             }
-            textToSpeechServiceManager.get().speakText(fromBook, keyList, settings.queue, settings.repeat)
+            ttsServiceManager.speakText(fromBook, keyList, settings.queue, settings.repeat)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
             throw AndRuntimeException("Error preparing Speech", e)
@@ -284,7 +292,7 @@ class SpeakControl @Inject constructor(
             speakPageManager.setCurrentDocumentAndKey(book, verse)
         }
         try {
-            textToSpeechServiceManager.get().speakBible(book, verse)
+            ttsServiceManager.speakBible(book, verse)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
             throw AndRuntimeException("Error preparing Speech", e)
@@ -318,14 +326,14 @@ class SpeakControl @Inject constructor(
 
         // speak current chapter or stop speech if already speaking
         Log.d(TAG, "Tell TTS to speak")
-        textToSpeechServiceManager.get().speakText(book, keyList, queue, repeat)
+        ttsServiceManager.speakText(book, keyList, queue, repeat)
     }
 
     @JvmOverloads
     fun rewind(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Rewind TTS speaking")
-            textToSpeechServiceManager.get().rewind(amount)
+            ttsServiceManager.rewind(amount)
             ABEventBus.getDefault().post(ToastEvent(R.string.rewind))
         }
     }
@@ -334,7 +342,7 @@ class SpeakControl @Inject constructor(
     fun forward(amount: SpeakSettings.RewindAmount? = null) {
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Forward TTS speaking")
-            textToSpeechServiceManager.get().forward(amount)
+            ttsServiceManager.forward(amount)
             ABEventBus.getDefault().post(ToastEvent(R.string.forward))
         }
     }
@@ -344,7 +352,7 @@ class SpeakControl @Inject constructor(
     }
 
     fun setupMockedTts() {
-        textToSpeechServiceManager.get().setupMockedTts()
+        ttsServiceManager.setupMockedTts()
     }
 
     @JvmOverloads
@@ -354,7 +362,7 @@ class SpeakControl @Inject constructor(
         }
         if (isSpeaking || isPaused) {
             Log.d(TAG, "Pause TTS speaking")
-            val tts = textToSpeechServiceManager.get()
+            val tts = ttsServiceManager
             tts.pause(willContinueAfterThis)
             var pauseToastText = CommonUtils.getResourceString(R.string.pause)
 
@@ -381,7 +389,7 @@ class SpeakControl @Inject constructor(
         if (!automated) {
             prepareForSpeaking()
         }
-        textToSpeechServiceManager.get().continueAfterPause()
+        ttsServiceManager.continueAfterPause()
     }
 
     fun stop(willContinueAfter: Boolean=false, force: Boolean=false) {
@@ -392,7 +400,7 @@ class SpeakControl @Inject constructor(
         _speakPageManager = null
 
         Log.d(TAG, "Stop TTS speaking")
-        textToSpeechServiceManager.get().shutdown(willContinueAfter)
+        ttsServiceManager.shutdown(willContinueAfter)
         stopTimer()
         if(!force) {
             ABEventBus.getDefault().post(ToastEvent(R.string.stop))
@@ -413,7 +421,7 @@ class SpeakControl @Inject constructor(
 
 
     fun onEvent(ev: SpeakSettingsChangedEvent) {
-        textToSpeechServiceManager.get().updateSettings(ev)
+        ttsServiceManager.updateSettings(ev)
         if (!isPaused && !isSpeaking) {
             // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
             if (ev.updateBookmark) {
@@ -432,7 +440,7 @@ class SpeakControl @Inject constructor(
         return if (!isSpeaking && !isPaused) {
             "- " + BibleApplication.application.getString(R.string.speak_status_stopped) + " -"
         } else {
-            textToSpeechServiceManager.get().getStatusText(showFlag)
+            ttsServiceManager.getStatusText(showFlag)
         }
     }
 

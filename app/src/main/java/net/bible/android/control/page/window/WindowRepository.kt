@@ -64,6 +64,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun initialize() {
+        if(::activeWindow.isInitialized) return
         id = sharedPreferences.getLong("current_workspace_id", 0)
         if(id == 0L || dao.workspace(id) == null) {
             id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
