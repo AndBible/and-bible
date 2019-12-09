@@ -57,9 +57,10 @@ class WindowSync(private val windowRepository: WindowRepository) {
         lastSynchdInactiveWindowKey = null
     }
 
-    fun synchronizeAllScreens() {
+    fun synchronizeAllScreens(force: Boolean = false) {
         for (window in windowRepository.visibleWindows) {
-            window.updateText()
+            if(force || !window.initialized)
+                window.updateText()
         }
     }
 
