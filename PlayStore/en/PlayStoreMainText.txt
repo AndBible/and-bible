@@ -5,7 +5,7 @@ And Bible is an open source, offline, totally free Bible application with no adv
 * Interface in Chinese, Russian, German, French, Hungarian, Czech, Polish, Hebrew, Hindi, ...
 * Various Bible reading plans
 * Totally free, no ads, no e-mails
-* Over 40 English Bibles including ESV, KJV and NET
+* Over 40 English Bibles including KJV and NET
 * 29 Bible commentaries
 * Extensive dictionary and Christian book collection
 * All documents legally distributed (the reason documents like NKJV and NIV are not available)
@@ -25,7 +25,7 @@ And Bible is an open source, offline, totally free Bible application with no adv
 
 We are all volunteers; we don't send out nagging e-mails; don't display annoying advertisements; never ask for or receive donations; don't ask for registration; And Bible does not collect any data from your mobile.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder e.g. ESV.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Notes</b>
 * Like And Bible in Facebook: https://www.facebook.com/AndBible/
