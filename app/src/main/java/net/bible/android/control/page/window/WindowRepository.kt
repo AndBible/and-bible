@@ -31,7 +31,6 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
 
