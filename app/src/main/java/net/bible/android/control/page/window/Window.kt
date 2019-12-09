@@ -104,7 +104,7 @@ open class Window (
     }
 
     override fun toString(): String {
-        return "Window [screenNo=$id]"
+        return "Window[$id]"
     }
 
     var updateOngoing = false
