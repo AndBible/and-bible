@@ -175,6 +175,7 @@ open class CurrentPageManager @Inject constructor(
      */
     fun showMyNote(verseRange: Key) {
         setCurrentDocumentAndKey(currentMyNotePage.currentDocument, verseRange)
+        this.window.updateOngoing = false
     }
 
     @JvmOverloads
