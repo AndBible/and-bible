@@ -70,8 +70,6 @@ open class CurrentPageManager @Inject constructor(
     var currentPage: CurrentPage
         private set
 
-    private val logger = Logger(this.javaClass.name)
-
     /**
      * When navigating books and chapters there should always be a current Passage based book
      */

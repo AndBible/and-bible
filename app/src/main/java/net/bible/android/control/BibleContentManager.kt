@@ -18,9 +18,7 @@
 
 package net.bible.android.control
 
-import android.util.Log
 import net.bible.android.control.page.ChapterVerse
-import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope

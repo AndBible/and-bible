@@ -22,6 +22,7 @@ import android.util.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
+import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.WindowLayout.WindowState
@@ -65,8 +66,6 @@ open class Window (
         }
 
     var wasMinimised = window.wasMinimised
-
-    private val logger = Logger(this.javaClass.name)
 
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
@@ -120,6 +119,8 @@ open class Window (
         }
 
     fun updateText(documentViewManager: DocumentViewManager? = null) {
+        if(pageManager.currentPage is CurrentMyNotePage) return
+
         val stackMessage: String? = Log.getStackTraceString(Exception())
         val updateOngoing = updateOngoing
         val isVisible = isVisible
