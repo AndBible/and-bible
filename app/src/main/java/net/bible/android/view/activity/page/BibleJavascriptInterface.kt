@@ -40,10 +40,11 @@ class BibleJavascriptInterface(
 	private val verseActionModeMediator: VerseActionModeMediator,
 	private val windowControl: WindowControl,
 	private val verseCalculator: VerseCalculator,
-	private val currentPageManager: CurrentPageManager,
 	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
 	private val bibleViewRef: WeakReference<BibleView>
 ) {
+    private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+
     var notificationsEnabled = false
 
     private var addingContentAtTop = false
@@ -85,7 +86,7 @@ class BibleJavascriptInterface(
                     newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
                 }
                 val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)
-                if (currentChapterVerse !== prevCurrentChapterVerse) {
+                if (currentChapterVerse != prevCurrentChapterVerse) {
                     currentPageManager.currentBible.currentChapterVerse = currentChapterVerse
                     prevCurrentChapterVerse = currentChapterVerse
                 }
@@ -146,5 +147,5 @@ class BibleJavascriptInterface(
     }
 
 
-	private val TAG get() = "BibleView[${bibleView.window.screenNo}] JSInt"
+	private val TAG get() = "BibleView[${bibleView.window.id}] JSInt"
 }

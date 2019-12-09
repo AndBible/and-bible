@@ -27,15 +27,14 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.Logger
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
-import org.json.JSONObject
 import java.lang.RuntimeException
 import java.lang.ref.WeakReference
 
@@ -83,13 +82,11 @@ open class CurrentPageManager @Inject constructor(
      */
     val currentVersePage: VersePage
         get() {
-            val page: VersePage
-            page = if (isBibleShown || isCommentaryShown) {
+            return if (isBibleShown || isCommentaryShown) {
                 currentPage as VersePage
             } else {
                 currentBible
             }
-            return page
         }
 
     val isCommentaryShown: Boolean
@@ -104,23 +101,6 @@ open class CurrentPageManager @Inject constructor(
         get() = currentMyNotePage === currentPage
     val isMapShown: Boolean
         get() = currentMap === currentPage
-
-    val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            try {
-                `object`.put("biblePage", currentBible.stateJson)
-                        .put("commentaryPage", currentCommentary.stateJson)
-                        .put("dictionaryPage", currentDictionary.stateJson)
-                        .put("generalBookPage", currentGeneralBook.stateJson)
-                        .put("mapPage", currentMap.stateJson)
-                        .put("currentPageCategory", currentPage.bookCategory.getName())
-            } catch (e: Exception) {
-                logger.warn("Page manager get state error")
-            }
-
-            return `object`
-        }
 
     init {
         currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
@@ -237,22 +217,25 @@ open class CurrentPageManager @Inject constructor(
         PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
     }
 
-    fun restoreState(jsonObject: JSONObject) {
-        try {
-            currentBible.restoreState(jsonObject.getJSONObject("biblePage"))
-            currentCommentary.restoreState(jsonObject.getJSONObject("commentaryPage"))
-            currentDictionary.restoreState(jsonObject.getJSONObject("dictionaryPage"))
-            currentGeneralBook.restoreState(jsonObject.getJSONObject("generalBookPage"))
-            currentMap.restoreState(jsonObject.getJSONObject("mapPage"))
+    val entity get() =
+        WorkspaceEntities.PageManager(
+            window.id,
+            currentBible.entity,
+            currentCommentary.entity,
+            currentDictionary.pageEntity,
+            currentGeneralBook.pageEntity,
+            currentMap.pageEntity,
+            currentPage.bookCategory.getName()
+        )
 
-            val restoredPageCategoryName = jsonObject.getString("currentPageCategory")
-            if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
-                val restoredBookCategory = BookCategory.fromString(restoredPageCategoryName)
-                currentPage = getBookPage(restoredBookCategory)
-            }
-        } catch (e: Exception) {
-            logger.warn("Page manager state restore error")
-        }
-
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+        pageManagerEntity ?: return
+        currentBible.restoreFrom(pageManagerEntity.biblePage)
+        currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+        currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
+        currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
+        currentMap.restoreFrom(pageManagerEntity.mapPage)
+        val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+        currentPage = getBookPage(restoredBookCategory)
     }
 }

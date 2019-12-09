@@ -20,6 +20,7 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
@@ -30,9 +31,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Reference to current passage shown by viewer
  *
@@ -44,6 +42,7 @@ class CurrentBiblePage(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage {
+
     override val bookCategory = BookCategory.BIBLE
 
     override val keyChooserActivity: Class<out Activity?>?
@@ -180,6 +179,23 @@ class CurrentBiblePage(
 
     override val isSingleKey = false
 
+    val entity get() =
+        WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
+
+    fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
+        val document = entity.document
+        if (StringUtils.isNotEmpty(document)) {
+            Log.d(TAG, "State document:$document")
+            val book = swordDocumentFacade.getDocumentByInitials(document)
+            if (book != null) {
+                Log.d(TAG, "Restored document:" + book.name)
+                // bypass setter to avoid automatic notifications
+                localSetCurrentDocument(book)
+                currentBibleVerse.restoreFrom(entity.verse)
+            }
+        }
+    }
+
     var currentChapterVerse: ChapterVerse
         get() = currentBibleVerse.chapterVerse
         set(chapterVerse) {
@@ -187,42 +203,7 @@ class CurrentBiblePage(
             onVerseChange()
         }
 
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            if (currentDocument != null && currentBibleVerse != null && currentBibleVerse.getVerseSelected(versification) != null) {
-                Log.d(TAG, "Saving Bible state for 1 window")
-                `object`.put("document", currentDocument!!.initials)
-                `object`.put("verse", currentBibleVerse.stateJson)
-            }
-            return `object`
-        }
-
-    /** called during app start-up to restore previous state
-     */
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring Bible page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    Log.d(TAG, "State document:$document")
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        currentBibleVerse.restoreState(jsonObject.getJSONObject("verse"))
-                    }
-                }
-            }
-        }
-    }//TODO allow japanese search - japanese bibles use smartcn which is not available
-
+    //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button
      */
     override val isSearchable: Boolean

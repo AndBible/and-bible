@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.page
 
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.view.activity.base.SharedActivityState
@@ -82,7 +81,7 @@ abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
 
 open class TextContentMenuItemPreference(name: String, default: Boolean) :
     MenuItemPreference(name, default, true) {
-    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
+    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens(true)
 }
 
 class AutoFullscreenMenuItemPreference :
@@ -116,7 +115,7 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 }
 
 class StrongsMenuItemPreference : TextContentMenuItemPreference("show_strongs_pref", true) {
-    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
+    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens(true)
 }
 
 class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphology_pref", false) {
@@ -128,7 +127,7 @@ class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphol
             super.value = value
         }
 
-    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens()
+    override fun handle() = mainBibleActivity.windowControl.windowSync.synchronizeAllScreens(true)
 }
 
 class SplitModeMenuItemPreference :

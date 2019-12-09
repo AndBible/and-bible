@@ -24,7 +24,7 @@ import android.util.Log
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.IntentHelper
+import java.util.*
 
 /**
  * Any item in the History list that is not related to the main bible activity view e.g. search results etc
@@ -36,7 +36,8 @@ import net.bible.android.view.activity.base.IntentHelper
 class IntentHistoryItem(
     override val description: CharSequence,
     private val intent: Intent,
-    window: Window
+    window: Window,
+    override val createdAt: Date = Date(System.currentTimeMillis())
 ) : HistoryItemBase(window) {
 
     override fun equals(other: Any?): Boolean {

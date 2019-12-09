@@ -138,7 +138,9 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    private val isSingleWindow get () = !windowControl.isMultiWindow && windowControl.windowRepository.minimisedScreens.isEmpty()
+    private val isSingleWindow get () = !windowControl.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
+
+    val windowRepository get() = windowControl.windowRepository
 
     @SuppressLint("RtlHardcoded")
     fun addWebView(parent: LinearLayout) {
@@ -151,7 +153,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 isSplitHorizontally != isLaidOutWithHorizontalSplit) {
             Log.d(TAG, "Layout web view")
 
-            val windows = windowControl.windowRepository.visibleWindows
+            val windows = windowRepository.visibleWindows
 
             // ensure we have a known starting point - could be none, 1, or 2 webviews present
             removeChildViews(previousParent)
@@ -161,7 +163,7 @@ class DocumentWebViewBuilder @Inject constructor(
             var previousSeparator: Separator? = null
             windowButtons.clear()
             for ((windowNo, window) in windows.withIndex()) {
-                Log.d(TAG, "Layout screen " + window.screenNo + " of " + windows.size)
+                Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
 
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
 
@@ -204,7 +206,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top or bottom right of each window
-                if (!windowControl.windowRepository.isMaximisedState || window.isLinksWindow) {
+                if (!windowRepository.isMaximisedState || window.isLinksWindow) {
                     val defaultWindowActionButton =
                         if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
                             createSingleWindowButton(window)
@@ -233,7 +235,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     windowButtons.add(defaultWindowActionButton)
                     currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX,
-                            if (isSingleWindow && windowControl.windowRepository.maximisedScreens.isEmpty())
+                            if (isSingleWindow && windowRepository.maximisedScreens.isEmpty())
                                 Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
                 }
@@ -272,7 +274,7 @@ class DocumentWebViewBuilder @Inject constructor(
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
             minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
 
-            val minAndMaxScreens = windowControl.windowRepository.minimisedAndMaximizedScreens
+            val minAndMaxScreens = windowRepository.minimisedAndMaximizedScreens
             for (i in minAndMaxScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minAndMaxScreens[i])
@@ -280,8 +282,8 @@ class DocumentWebViewBuilder @Inject constructor(
                 minimisedWindowsLayout.addView(restoreButton,
                         LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
             }
-            if (windowControl.windowRepository.isMaximisedState) {
-                val maximizedWindow = windowControl.windowRepository.maximisedScreens[0]
+            if (windowRepository.isMaximisedState) {
+                val maximizedWindow = windowRepository.maximisedScreens[0]
                 val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
                 restoreButtons.add(unMaximizeButton)
                 minimisedWindowsLayout.addView(unMaximizeButton,
@@ -330,7 +332,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateMinimizedButtonLetter(w: Window) {
-        restoreButtons.find { it.screenNo == w.screenNo }?.text = getDocumentInitial(w)
+        restoreButtons.find { it.windowId == w.id }?.text = getDocumentInitial(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -385,7 +387,7 @@ class DocumentWebViewBuilder @Inject constructor(
                         if (isSingleWindow) -mainBibleActivity.bottomOffset2
                         else (
                             if(CommonUtils.isSplitVertically) {
-                                if(idx == 0 && !windowControl.windowRepository.isMaximisedState)
+                                if(idx == 0 && !windowRepository.isMaximisedState)
                                     mainBibleActivity.topOffset2
                                 else 0.0F
                             }
@@ -569,7 +571,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun getDocumentInitial(window: Window): String {
         return try {
             val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
-            if(abbrv == null) "" else abbrv.substring(0, 1)
+            abbrv?.substring(0, 1) ?: ""
         } catch (e: Exception) {
             " "
         }
@@ -579,14 +581,14 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
                                  window: Window? = null): RestoreButton {
-        return RestoreButton(mainBibleActivity, window?.screenNo).apply {
+        return RestoreButton(mainBibleActivity, window?.id).apply {
             this.text = text
             width = BUTTON_SIZE_PX
             height = BUTTON_SIZE_PX
             setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
             setTypeface(null, Typeface.BOLD)
             textSize = 20.0F
-            setSingleLine(true)
+            isSingleLine = true
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
@@ -640,7 +642,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return tag != null && tag == TAG
     }
 
-    private class RestoreButton(context: Context, val screenNo: Int?): AppCompatButton(context)
+    private class RestoreButton(context: Context, val windowId: Long?): AppCompatButton(context)
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"

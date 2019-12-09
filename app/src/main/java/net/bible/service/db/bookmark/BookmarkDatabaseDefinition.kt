@@ -19,44 +19,7 @@ package net.bible.service.db.bookmark
 
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import androidx.sqlite.db.SupportSQLiteDatabase
-
-
-// Room entities
-
-@Entity(tableName = "bookmark")
-data class Bookmark(
-	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-	@ColumnInfo(name = "created_on") val createdOn: Int?,
-	val key: String,
-	val versification: String?,
-	@ColumnInfo(name = "speak_settings") val speakSettings: String?
-)
-
-@Entity(
-	tableName = "bookmark_label",
-	primaryKeys = ["bookmark_id", "label_id"],
-	foreignKeys = [
-		ForeignKey(entity = Bookmark::class, parentColumns = ["_id"], childColumns = ["bookmark_id"], onDelete = ForeignKey.CASCADE),
-		ForeignKey(entity = Label::class, parentColumns = ["_id"], childColumns = ["label_id"], onDelete = ForeignKey.CASCADE)
-	]
-)
-data class BookmarkToLabel(
-	@ColumnInfo(name="bookmark_id") val bookmarkId: Int,
-	@ColumnInfo(name="label_id") val labelId: Int
-)
-
-@Entity(tableName = "label")
-data class Label(
-	@PrimaryKey @ColumnInfo(name="_id") val id: Int?,
-	@ColumnInfo(name = "name") val name: String,
-	@ColumnInfo(name = "bookmark_style") val bookmarkStyle: String?
-)
-
 
 
 /**

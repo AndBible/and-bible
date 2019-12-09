@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -17,25 +17,17 @@
  */
 package net.bible.service.db
 
-import androidx.room.Database
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
-import net.bible.service.db.bookmark.Bookmark
+import net.bible.android.database.AppDatabase
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
-import net.bible.service.db.bookmark.BookmarkToLabel
-import net.bible.service.db.bookmark.Label
-import net.bible.service.db.mynote.MyNote
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
-import net.bible.service.db.readingplan.ReadingPlan
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
-import net.bible.service.db.readingplan.ReadingPlanStatus
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
-private const val DATABASE_VERSION = 7
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -49,18 +41,20 @@ private val MIGRATION_2_3 = object : Migration(2, 3) {
         MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
     }
 }
+
 private val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
-
     }
 }
+
 private val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
 
     }
 }
+
 private val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(db: SupportSQLiteDatabase) {
         ReadingPlanDatabaseOperations.instance.onCreate(db)
@@ -80,59 +74,53 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
             execSQL("ALTER TABLE bookmark_label_new RENAME TO bookmark_label;")
             execSQL("CREATE INDEX IF NOT EXISTS `code_day` ON `readingplan_status` (`plan_code`, `plan_day`)")
             execSQL("CREATE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `mynote_key` ON `mynote` (`key`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_bookmark_label_label_id` ON `bookmark_label` (`label_id`)")
+        }
+    }
+}
+
+private val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
+            execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `wasMinimised` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `Window` (`workspaceId`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `HistoryItem` (`windowId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `yOffsetRatio` REAL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_HistoryItem_windowId` ON `HistoryItem` (`windowId`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `dictionary_document` TEXT, `dictionary_key` TEXT, `general_book_document` TEXT, `general_book_key` TEXT, `map_document` TEXT, `map_key` TEXT, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)")
         }
     }
 }
 
 
-@Database(
-    entities = [
-        Bookmark::class,
-        Label::class,
-        BookmarkToLabel::class,
-        MyNote::class,
-        ReadingPlan::class,
-        ReadingPlanStatus::class
-    ],
-    version = DATABASE_VERSION
-)
-abstract class AppDatabase: RoomDatabase() {
-    fun sync() { // Sync all data so far into database file
-        val cur = openHelper.writableDatabase
-            .query("PRAGMA wal_checkpoint(FULL)")
-        cur.moveToFirst()
-        cur.close()
-    }
-
-    fun reset() {
-        DatabaseContainer.reset()
-    }
-}
-
 object DatabaseContainer {
-	private var instance: AppDatabase? = null
+    private var instance: AppDatabase? = null
 
-	val db: AppDatabase
-		get () {
-			return instance ?: synchronized(this) {
+    val db: AppDatabase
+        get () {
+            return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(
                     BibleApplication.application, AppDatabase::class.java, DATABASE_NAME
                 )
+                    .allowMainThreadQueries()
                     .addMigrations(
                         MIGRATION_1_2,
                         MIGRATION_2_3,
                         MIGRATION_3_4,
                         MIGRATION_4_5,
                         MIGRATION_5_6,
-                        MIGRATION_6_7
+                        MIGRATION_6_7,
+                        MIGRATION_7_8
                     )
                     .build()
                     .also { instance = it }
             }
-		}
-	fun reset() {
+        }
+    fun reset() {
         synchronized(this) {
             instance = null
         }
-	}
+    }
 }

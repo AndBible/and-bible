@@ -35,7 +35,6 @@ class CurrentGeneralBookPage internal constructor(
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage {
 
-
     override val bookCategory = BookCategory.GENERAL_BOOK
 
     override val keyChooserActivity: Class<out Activity?>?

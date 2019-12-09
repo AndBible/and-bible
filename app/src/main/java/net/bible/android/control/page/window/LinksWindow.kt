@@ -20,20 +20,16 @@ package net.bible.android.control.page.window
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import java.lang.ref.WeakReference
+import net.bible.android.database.WorkspaceEntities
 
 /**
  * Window used when user selects a link
  */
-class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManager) :
-        Window(DEDICATED_LINK_WINDOW_SCREEN_NO, windowState, currentPageManager) {
-
-    override val isLinksWindow: Boolean
-        get() = true
-
-    init {
-        isSynchronised = false
-    }
+class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageManager):
+    Window(window, pageManager)
+{
+    override val isLinksWindow = true
+    override var isSynchronised = false
 
     /**
      * Page state should reflect active window when links window is being used after being closed.
@@ -43,13 +39,18 @@ class LinksWindow(windowState: WindowState, currentPageManager: CurrentPageManag
         // set links window state from active window if it was closed
         if (windowLayout.state == WindowState.CLOSED && !activeWindow.isLinksWindow) {
             // initialise links window documents from active window
-            pageManager.restoreState(activeWindow.pageManager.stateJson)
+            pageManager.restoreFrom(activeWindow.pageManager.entity)
         }
     }
 
-    companion object {
+    fun restoreFrom(windowEntity: WorkspaceEntities.Window,
+                    pageManagerEntity: WorkspaceEntities.PageManager?)
+    {
+        id = windowEntity.id
+        wasMinimised = windowEntity.wasMinimised
+        workspaceId = windowEntity.workspaceId
 
-        // must be -ve so as not to interfere with incrementing window number sequence
-        private const val DEDICATED_LINK_WINDOW_SCREEN_NO = -999
+        windowLayout.restoreFrom(windowEntity.windowLayout)
+        pageManager.restoreFrom(pageManagerEntity)
     }
 }

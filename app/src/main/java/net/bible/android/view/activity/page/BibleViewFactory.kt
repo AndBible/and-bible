@@ -44,15 +44,19 @@ import javax.inject.Inject
 class BibleViewFactory @Inject
 constructor(private val mainBibleActivity: MainBibleActivity, private val pageControl: PageControl, private val pageTiltScrollControlFactory: PageTiltScrollControlFactory, private val windowControl: WindowControl, private val bibleKeyHandler: BibleKeyHandler, private val linkControl: LinkControl, private val bookmarkControl: BookmarkControl, private val myNoteControl: MyNoteControl, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) {
 
-    private val screenBibleViewMap: MutableMap<Window, BibleView>
+    private val windowBibleViewMap: MutableMap<Long, BibleView>
 
     init {
-        screenBibleViewMap = WeakHashMap<Window, BibleView>()
+        windowBibleViewMap = WeakHashMap<Long, BibleView>()
     }
 
     fun createBibleView(window: Window): BibleView {
-		Log.d(TAG, "createBibleView. Now in screenBibleViewMap ${screenBibleViewMap.size} items.")
-        var bibleView = screenBibleViewMap[window]
+		Log.d(TAG, "createBibleView. Now in screenBibleViewMap ${windowBibleViewMap.size} items.")
+        var bibleView = windowBibleViewMap[window.id]?.also {
+            it.window = window
+            it.listenEvents = true
+        }
+
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl)
@@ -62,12 +66,12 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
             val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(WeakReference(bibleView), window.pageManager)
 
             val verseCalculator = VerseCalculator()
-            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.pageManager, bibleInfiniteScrollPopulator, WeakReference(bibleView))
+            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, bibleInfiniteScrollPopulator, WeakReference(bibleView))
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
-            bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.screenNo
+            bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
 
-            screenBibleViewMap[window] = bibleView
+            windowBibleViewMap[window.id] = bibleView
         }
         return bibleView
     }

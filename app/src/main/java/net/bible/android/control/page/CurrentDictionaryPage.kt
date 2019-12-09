@@ -35,7 +35,7 @@ class CurrentDictionaryPage internal constructor(
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage
 {
-	override val bookCategory = BookCategory.DICTIONARY
+    override val bookCategory = BookCategory.DICTIONARY
 
     override val keyChooserActivity: Class<out Activity?>?
         get() = ChooseDictionaryWord::class.java

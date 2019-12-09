@@ -18,18 +18,21 @@
 package net.bible.android.control.page
 
 import net.bible.android.control.versification.ConvertibleVerse
+import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import org.json.JSONException
-import org.json.JSONObject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentBibleVerse {
-    private val verseVersificationSelected = ConvertibleVerse(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1)
+    val entity get() = verseVersificationSelected.entity
+    private val verseVersificationSelected = ConvertibleVerse(
+        Versifications.instance().getVersification(Versifications.DEFAULT_V11N),
+        BibleBook.GEN, 1, 1
+    )
     val currentBibleBookNo: Int
         get() = verseVersificationSelected.book.ordinal
 
@@ -53,12 +56,7 @@ class CurrentBibleVerse {
     val versificationOfLastSelectedVerse: Versification
         get() = verseVersificationSelected.verse.versification
 
-    @get:Throws(JSONException::class)
-    val stateJson: JSONObject
-        get() = verseVersificationSelected.stateJson
-
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject?) {
-        verseVersificationSelected.restoreState(jsonObject)
+    fun restoreFrom(verse: WorkspaceEntities.Verse) {
+        verseVersificationSelected.restoreFrom(verse)
     }
 }

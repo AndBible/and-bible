@@ -13,6 +13,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowLayout
+import net.bible.android.database.WorkspaceEntities
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -94,8 +95,11 @@ class VerseActionModeMediatorTest {
         // setup actionmode
         verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE)
 
+        val windowEntity = WorkspaceEntities.Window(0,true, false, false,
+            WorkspaceEntities.WindowLayout(WindowLayout.WindowState.MAXIMISED.toString()), 3)
         // publish window change event
-        ABEventBus.getDefault().post(CurrentWindowChangedEvent(Window(3, WindowLayout.WindowState.MAXIMISED, currentPageManager)))
+        ABEventBus.getDefault().post(CurrentWindowChangedEvent(
+            Window(windowEntity, currentPageManager)))
 
         assertThat(verseActionModeMediator.isActionMode, `is`(false))
     }

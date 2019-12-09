@@ -30,8 +30,7 @@ import org.crosswire.jsword.passage.Key
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class CurrentMapPage  /* default */
-internal constructor(
+class CurrentMapPage internal constructor(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage {

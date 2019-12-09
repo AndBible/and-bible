@@ -24,8 +24,6 @@ import net.bible.service.format.Note
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.json.JSONException
-import org.json.JSONObject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -76,11 +74,6 @@ interface CurrentPage {
     val currentPageFootnotesAndReferences: List<Note?>?
 
     fun updateOptionsMenu(menu: Menu)
-    @Throws(JSONException::class)
-    fun restoreState(state: JSONObject?)
-
-    @get:Throws(JSONException::class)
-    val stateJson: JSONObject
 
     var isInhibitChangeNotifications: Boolean
     val isSearchable: Boolean

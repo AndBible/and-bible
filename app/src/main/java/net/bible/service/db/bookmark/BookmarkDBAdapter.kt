@@ -24,8 +24,8 @@ import android.util.Log
 import androidx.sqlite.db.SupportSQLiteQueryBuilder.builder
 import net.bible.android.control.bookmark.BookmarkStyle
 import net.bible.android.control.speak.PlaybackSettings.Companion.fromJson
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.SQLHelper
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelColumn
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn

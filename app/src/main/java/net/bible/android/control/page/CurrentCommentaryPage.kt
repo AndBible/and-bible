@@ -21,15 +21,13 @@ import android.app.Activity
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Reference to current passage shown by viewer
  *
@@ -44,7 +42,7 @@ internal constructor(
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage
 {
 
-	override val bookCategory = BookCategory.COMMENTARY
+    override val bookCategory = BookCategory.COMMENTARY
 
     override val keyChooserActivity: Class<out Activity?>?
         get() = GridChoosePassageBook::class.java
@@ -124,40 +122,18 @@ internal constructor(
      */
     override val isSearchable = true
 
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            if (currentDocument != null && currentBibleVerse != null && currentBibleVerse.getVerseSelected(versification) != null) {
-                Log.d(TAG, "Saving Commentary state for 1 window")
-                `object`.put("document", currentDocument!!.initials)
-                // allow Bible page to save shared verse
-            }
-            return `object`
-        }
+    val entity get() =
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials)
 
-    /** called during app start-up to restore previous state
-     *
-     * @param jsonObject
-     */
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring Commentary page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        // allow Bible page to restore shared verse
-                    }
-                }
-            }
+    fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
+        if(entity == null) return
+        val document = entity.document
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if (book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            // allow Bible page to restore shared verse
         }
     }
 

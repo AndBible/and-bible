@@ -15,23 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.event.window
 
-package net.bible.android.control.page.window
+import net.bible.android.control.page.ChapterVerse
+import net.bible.android.control.page.window.Window
 
-import net.bible.android.database.WorkspaceEntities
-
-class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
-    fun restoreFrom(entity: WorkspaceEntities.WindowLayout) {
-        this.weight = entity.weight
-        this.state = WindowState.valueOf(entity.state)
-    }
-
-    var state =
-        if(entity != null) WindowState.valueOf(entity.state) else WindowState.SPLIT
-
-    var weight = entity?.weight ?: 1.0f
-
-    enum class WindowState {
-        SPLIT, MINIMISED, MAXIMISED, CLOSED
-    }
-}
+/**
+ * Correct bible page is shown but need to scroll to a different verse
+ */
+class ScrollSecondaryWindowEvent(val window: Window, val chapterVerse: ChapterVerse) : WindowEvent

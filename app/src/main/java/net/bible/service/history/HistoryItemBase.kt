@@ -23,4 +23,4 @@ import net.bible.android.control.page.window.Window
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-abstract class HistoryItemBase(override val screen: Window) : HistoryItem
+abstract class HistoryItemBase(override val window: Window) : HistoryItem

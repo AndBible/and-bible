@@ -22,6 +22,7 @@ import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.format.HtmlMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.sword.SwordContentFacade
@@ -30,8 +31,6 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.json.JSONException
-import org.json.JSONObject
 
 /** Common functionality for different document page types
  *
@@ -42,6 +41,12 @@ abstract class CurrentPageBase protected constructor(
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
 ) : CurrentPage {
+
+    val pageEntity get() = WorkspaceEntities.Page(
+        currentDocument?.initials,
+        key?.osisID
+    )
+
     override var isInhibitChangeNotifications: Boolean = false
 
 	override var _key: Key? = null
@@ -57,8 +62,9 @@ abstract class CurrentPageBase protected constructor(
                 if (key == null || key != keyWhenYOffsetRatioSet || currentDocument != docWhenYOffsetRatioSet) {
                     field = 0f
                 }
-            } catch (e: Exception) { // cope with occasional NPE thrown by above if statement
-// just pretend we are at the top of the page if error occurs
+            } catch (e: Exception) {
+                // cope with occasional NPE thrown by above if statement
+                // just pretend we are at the top of the page if error occurs
                 field = 0f
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
             }
@@ -197,52 +203,26 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    @Throws(JSONException::class)
-    override fun restoreState(jsonObject: JSONObject?) {
-        if (jsonObject != null) {
-            Log.d(TAG, "Restoring page state")
-            if (jsonObject.has("document")) {
-                val document = jsonObject.getString("document")
-                if (StringUtils.isNotEmpty(document)) {
-                    Log.d(TAG, "State document:$document")
-                    val book = swordDocumentFacade.getDocumentByInitials(document)
-                    if (book != null) {
-                        Log.d(TAG, "Restored document:" + book.name)
-                        // bypass setter to avoid automatic notifications
-                        localSetCurrentDocument(book)
-                        try {
-                            if (jsonObject.has("key")) {
-                                val keyName = jsonObject.getString("key")
-                                if (StringUtils.isNotEmpty(keyName)) {
-                                    doSetKey(book.getKey(keyName))
-                                    Log.d(TAG, "Restored key:$keyName")
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
-                        }
-                    }
+    fun restoreFrom(entity: WorkspaceEntities.Page?) {
+        if(entity == null) return
+        val document = entity.document
+        Log.d(TAG, "State document:$document")
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if (book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            try {
+                val keyName = entity.key
+                if (StringUtils.isNotEmpty(keyName)) {
+                    doSetKey(book.getKey(keyName))
+                    Log.d(TAG, "Restored key:$keyName")
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
             }
         }
     }
-
-    /** called during app close down to save state
-     */
-    @get:Throws(JSONException::class)
-    override val stateJson: JSONObject
-        get() {
-            val `object` = JSONObject()
-            if (currentDocument != null) {
-                Log.d(TAG, "Getting json state for " + bookCategory.getName())
-                `object`.put("document", currentDocument!!.initials)
-				val key = key
-                if (key != null) {
-                    `object`.put("key", key.osisID)
-                }
-            }
-            return `object`
-        }
 
     /** can we enable the main menu Speak button
      */

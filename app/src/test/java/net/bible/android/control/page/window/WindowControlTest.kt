@@ -1,7 +1,7 @@
 package net.bible.android.control.page.window
 
-import android.view.Menu
 
+import android.view.Menu
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.EventManager
@@ -15,40 +15,40 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
-
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.fakes.RoboMenu
-
-import javax.inject.Provider
-
-
-import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.isA
+import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Before
 import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.hamcrest.MockitoHamcrest.argThat
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import org.robolectric.fakes.RoboMenu
+import javax.inject.Provider
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [28])
 class WindowControlTest {
-
     private var eventManager: EventManager? = null
 
     private var windowRepository: WindowRepository? = null
@@ -66,6 +66,7 @@ class WindowControlTest {
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
+        windowRepository!!.initialize()
         reset<EventManager>(eventManager)
     }
 
@@ -78,7 +79,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testGetActiveWindow() {
         // should always be one default window that is active by default
-        assertThat(windowControl!!.activeWindow.screenNo, equalTo(1))
+        assertThat(windowControl!!.activeWindow.id, equalTo(2L))
     }
 
     @Test
@@ -163,11 +164,11 @@ class WindowControlTest {
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
-        assertThat(windowRepository!!.minimisedScreens, contains(newWindow2))
+        assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
 
         // A window is maximized, the others should then all be minimized.
         windowControl!!.maximiseWindow(activeWindow)
-        assertThat<List<Window>>(windowRepository!!.minimisedScreens, containsInAnyOrder(newWindow1, newWindow2))
+        assertThat<List<Window>>(windowRepository!!.minimisedWindows, containsInAnyOrder(newWindow1, newWindow2))
     }
 
     @Test

@@ -28,35 +28,43 @@ import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.service.common.Logger
+import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
-import org.json.JSONException
-import org.json.JSONObject
 import java.lang.ref.WeakReference
 
 open class Window (
-    val windowLayout: WindowLayout,
-    val pageManager: CurrentPageManager,
-    var screenNo: Int)
-{
-    constructor (currentPageManager: CurrentPageManager):
-            this(WindowLayout(WindowState.SPLIT), currentPageManager, 0)
-    constructor(screenNo: Int, windowState: WindowState, currentPageManager: CurrentPageManager):
-            this(WindowLayout(windowState), currentPageManager, screenNo)
+    window: WorkspaceEntities.Window,
+    val pageManager: CurrentPageManager
+){
+
+    val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    var id = window.id
+    protected var workspaceId = window.workspaceId
 
     init {
         @Suppress("LeakingThis")
         pageManager.window = this
     }
 
+    val entity get () =
+        WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
+            WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight), id
+        )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
-    var isSynchronised = true
-    var initialized = false
-    var wasMinimised = false
+    open var isSynchronised = window.isSynchronized
+
+    var initialized
+        get() = bibleView?.initialized == true
+        set(value) {
+            bibleView?.initialized = value
+        }
+
+    var wasMinimised = window.wasMinimised
 
     private val logger = Logger(this.javaClass.name)
 
@@ -83,21 +91,7 @@ open class Window (
             else -> WindowOperation.MINIMISE
         }
 
-    val stateJson: JSONObject
-        @Throws(JSONException::class)
-        get() {
-            val obj = JSONObject().apply {
-                put("screenNo", screenNo)
-                put("isSynchronised", isSynchronised)
-                put("wasMinimised", wasMinimised)
-                put("windowLayout", windowLayout.stateJson)
-                put("pageManager", pageManager.stateJson)
-            }
-            return obj
-        }
-
-    open val isLinksWindow: Boolean
-        get() = false
+    open val isLinksWindow = false
 
     private var bibleViewRef: WeakReference<BibleView>? = null
 
@@ -115,22 +109,8 @@ open class Window (
         MAXIMISE, MINIMISE, RESTORE, CLOSE
     }
 
-    @Throws(JSONException::class)
-    fun restoreState(jsonObject: JSONObject) {
-        try {
-            screenNo = jsonObject.getInt("screenNo")
-            isSynchronised = jsonObject.getBoolean("isSynchronised")
-            wasMinimised = jsonObject.optBoolean("wasMinimised")
-            windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"))
-            pageManager.restoreState(jsonObject.getJSONObject("pageManager"))
-        } catch (e: Exception) {
-            logger.warn("Window state restore error:" + e.message, e)
-        }
-
-    }
-
     override fun toString(): String {
-        return "Window [screenNo=$screenNo]"
+        return "Window[$id]"
     }
 
     var updateOngoing = false
@@ -157,7 +137,7 @@ open class Window (
         }
     }
 
-    private val TAG get() = "BibleView[${screenNo}] WIN"
+    private val TAG get() = "BibleView[${id}] WIN"
 }
 
 class UpdateInactiveScreenTextTask() : UpdateTextTask() {

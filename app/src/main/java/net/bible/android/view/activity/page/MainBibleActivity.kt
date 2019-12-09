@@ -54,8 +54,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -91,8 +89,9 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.JSON_CONFIG
 import net.bible.service.common.TitleSplitter
+import net.bible.service.db.DatabaseContainer
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
@@ -101,7 +100,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
-import org.json.JSONObject
 
 import javax.inject.Inject
 import kotlin.concurrent.thread
@@ -155,6 +153,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val rightNavBarVisible get() = false
     private val leftNavBarVisible get() = false
     private var transportBarVisible = false
+
+    val dao get() = DatabaseContainer.db.workspaceDao()
 
     val isMyNotes
         get() =
@@ -210,7 +210,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .mainBibleActivityModule(MainBibleActivityModule(this))
             .build()
             .inject(this)
-        windowControl.windowRepository.restoreState()
+        windowRepository.initialize()
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -277,7 +277,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateSpeakTransportVisibility()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        currentWorkspaceName
         ready = true
         showBetaNotice()
     }
@@ -436,116 +435,87 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     class AutoFullScreenChanged(val newValue: Boolean)
 
-
+    val workspaces get() = dao.allWorkspaces()
 
     private fun deleteWorkspace() {
-        val nextWorkspace = if (currentWorkspace > 0) currentWorkspace - 1 else 0
-        val workspaces = workspaceStrings
-        workspaces.removeAt(currentWorkspace)
-        val newWorkspace = workspaces[nextWorkspace]
-        currentWorkspace = nextWorkspace
-        workspaceStrings = workspaces
-        openWorkspace(newWorkspace)
+        val nextWorkspace = workspaces.reversed().find { it.id < currentWorkspaceId } ?: workspaces[0]
+        dao.deleteWorkspace(currentWorkspaceId)
+
+        currentWorkspaceId = nextWorkspace.id
     }
 
     private fun renameWorkspace() {
         val input = EditText(this)
         input.inputType = InputType.TYPE_CLASS_TEXT
-        input.text = SpannableStringBuilder(windowControl.windowRepository.name)
+        input.text = SpannableStringBuilder(windowRepository.name)
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.rename_workspace_title))
             .setView(input)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.okay) { dialog, _ ->
                 dialog.dismiss()
-                windowControl.windowRepository.name = input.text.toString()
-                ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+                windowRepository.name = input.text.toString()
+                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
                 invalidateOptionsMenu()
             }
             .show()
-        val t = workspaceStrings
-        t[currentWorkspace] = currentWorkspaceState
-        workspaceStrings = t
     }
 
-    private val currentWorkspaceName: String
-        get() {
-            var text = windowControl.windowRepository.name
+    val windowRepository get() = windowControl.windowRepository
 
-            if(text.isEmpty())
-                text = getString(R.string.workspace_number, currentWorkspace + 1)
-            SharedActivityState.setCurrentWorkspaceName(text)
-            return text
-        }
-
-
-    private fun openWorkspace(workspace: String) {
-        windowControl.windowRepository.restoreState(workspace)
-        documentViewManager.resetView()
-        windowControl.windowSync.synchronizeAllScreens()
-        windowControl.windowRepository.saveState()
-
-        ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
-
-        invalidateOptionsMenu()
-        updateTitle()
-        updateToolbar()
-    }
+    private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
 
     private fun newWorkspace() {
         val currentDocument = windowControl.activeWindowPageManager.currentPassageDocument
 
-        val t = workspaceStrings
-        t[currentWorkspace] = currentWorkspaceState
-        currentWorkspace = t.size
-        windowControl.windowRepository.clear()
-        windowControl.windowRepository.setDefaultActiveWindow()
-        t.add(currentWorkspaceState)
-        workspaceStrings = t
-        openWorkspace(currentWorkspaceState)
+        windowRepository.saveIntoDb()
+        windowRepository.clear()
+
+        val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
+            id = dao.insertWorkspace(this)
+        }
+
+        currentWorkspaceId = newWorkspaceEntity.id
+        windowRepository.setDefaultActiveWindow()
         windowControl.activeWindowPageManager.setCurrentDocument(currentDocument)
 
         invalidateOptionsMenu()
     }
 
     private fun cloneWorkspace() {
-        val t = workspaceStrings
-        val current = currentWorkspaceState
-        t[currentWorkspace] = currentWorkspaceState
-        t.add(current)
-        currentWorkspace = t.size - 1
-        workspaceStrings = t
-        windowControl.windowRepository.name = ""
-        ABEventBus.getDefault().post(ToastEvent(currentWorkspaceName))
+        val newWorkspace = dao.cloneWorkspace(currentWorkspaceId, newWorkspaceName)
+        currentWorkspaceId = newWorkspace.id
+        ABEventBus.getDefault().post(ToastEvent(newWorkspace.name))
         invalidateOptionsMenu()
     }
 
     private fun chooseWorkspace() {
-        val workspaces = workspaceStrings
-
-        workspaces[currentWorkspace] = currentWorkspaceState
-        workspaceStrings = workspaces
+        windowRepository.saveIntoDb()
 
         val workspaceTitles = ArrayList<String>()
-        val pageManager = windowControl.windowRepository.currentPageManagerProvider.get()
-        for((idx, workspace) in workspaces.withIndex()) {
-            val windowRepositoryState = JSONObject(workspace)
-            val windows = windowRepositoryState.getJSONArray("windowState")
-            val name = windowRepositoryState.optString("name")
+        val pageManager = windowRepository.currentPageManagerProvider.get()
+        val workspaces = workspaces
+
+        for(workspace in workspaces) {
+            val windows = dao.windows(workspace.id)
+
+            val name = workspace.name
             val keyTitle = ArrayList<String>()
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-            for(i in 0 until windows.length()) {
-                pageManager.restoreState(windows.getJSONObject(i).getJSONObject("pageManager"))
+
+            windows.forEach {
+                pageManager.restoreFrom(dao.pageManager(it.id))
                 keyTitle.add("${pageManager.currentPage.singleKey?.name} (${pageManager.currentPage.currentDocument?.abbreviation})")
             }
+
             BookName.setFullBookName(prevFullBookNameValue)
-            val text = if(!name.isEmpty())
+            val text = if(name.isNotEmpty())
                 getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
             else
                 keyTitle.joinToString(", ")
 
-            val prefix = if(currentWorkspace == idx) {
+            val prefix = if(currentWorkspaceId == workspace.id) {
                 "• ⭐ "
             } else "• "
 
@@ -559,9 +529,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 newWorkspace()
             }
             .setAdapter(adapter) {_, which ->
-                if(currentWorkspace != which) {
-                    currentWorkspace = which
-                    openWorkspace(workspaces[which])
+                val now = workspaces[which]
+                if(currentWorkspaceId != now.id) {
+                    currentWorkspaceId = now.id
                 }
             }
             .setNeutralButton(R.string.cancel, null)
@@ -575,41 +545,44 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun previousWorkspace() {
-        val workspaces = workspaceStrings
+        val workspaces = workspaces
         if(workspaces.size < 2) return
-        workspaces[currentWorkspace] = currentWorkspaceState
-        workspaceStrings = workspaces
-        currentWorkspace = if(currentWorkspace > 0) currentWorkspace - 1 else workspaces.size -1
-        openWorkspace(workspaces[currentWorkspace])
+        windowRepository.saveIntoDb()
+        val currentWorkspacePos = workspaces.indexOf(workspaces.find {it.id == currentWorkspaceId})
+
+        currentWorkspaceId = if(currentWorkspacePos > 0) workspaces[currentWorkspacePos - 1].id else workspaces[workspaces.size -1].id
     }
 
     private fun nextWorkspace() {
-        val workspaces = workspaceStrings
+        val workspaces = workspaces
         if(workspaces.size < 2) return
-        workspaces[currentWorkspace] = currentWorkspaceState
-        workspaceStrings = workspaces
-        currentWorkspace = if(currentWorkspace < workspaces.size - 1) currentWorkspace + 1 else 0
-        openWorkspace(workspaces[currentWorkspace])
+        windowRepository.saveIntoDb()
+
+        val currentWorkspacePos = workspaces.indexOf(workspaces.find {it.id == currentWorkspaceId})
+
+        currentWorkspaceId = if(currentWorkspacePos < workspaces.size - 1) workspaces[currentWorkspacePos + 1].id else workspaces[0].id
     }
 
-    @Serializable class WorkspaceStrings(val data: ArrayList<String>)
-
-    private val currentWorkspaceState get() = windowControl.windowRepository.dumpState()
-
-    private var workspaceStrings: ArrayList<String>
-        get() {
-            val workspaceSerialized = preferences.getString("tabs", null) ?: return arrayListOf(currentWorkspaceState)
-            return Json(JSON_CONFIG).parse(WorkspaceStrings.serializer(), workspaceSerialized).data
-        }
-        set(value) =
-            preferences.edit().putString("tabs", Json(JSON_CONFIG).stringify(WorkspaceStrings.serializer(), WorkspaceStrings(value))).apply()
-
     private val haveWorkspaces: Boolean get() = numWorkspaces > 1
-    private val numWorkspaces: Int get() = workspaceStrings.size
+    private val numWorkspaces: Int get() = workspaces.size
 
-    private var currentWorkspace: Int
-        get() = preferences.getInt("currentTab", 0)
-        set(newValue) = preferences.edit().putInt("currentTab", newValue).apply()
+    private var currentWorkspaceId
+        get() = windowRepository.id
+        set(value) {
+            windowRepository.loadFromDb(value)
+
+            SharedActivityState.setCurrentWorkspaceName(windowRepository.name)
+            preferences.edit().putLong("current_workspace_id", value).apply()
+
+            documentViewManager.resetView()
+            windowControl.windowSync.synchronizeAllScreens()
+
+            ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
+
+            invalidateOptionsMenu()
+            updateTitle()
+            updateToolbar()
+        }
 
    private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
@@ -630,8 +603,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
-        R.id.renameWorkspace -> CommandItem({renameWorkspace()}, haveWorkspaces)
-        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()}, haveWorkspaces)
+        R.id.renameWorkspace -> CommandItem({renameWorkspace()})
+        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
         else -> throw RuntimeException("Illegal menu item")
    }
 
@@ -1125,7 +1098,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
-        windowControl.windowRepository.minimisedScreens.forEach {
+        windowRepository.minimisedWindows.forEach {
             it.initialized = false
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())

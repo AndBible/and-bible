@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -16,29 +16,20 @@
  *
  */
 
-package net.bible.android.control.event.window;
+package net.bible.android.database
 
-import net.bible.android.control.page.ChapterVerse;
-import net.bible.android.control.page.window.Window;
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
-/**
- * Correct bible page is shown but need to scroll to a different verse
- */
-public class ScrollSecondaryWindowEvent implements WindowEvent {
 
-	private final Window window;
-	private final ChapterVerse chapterVerse;
-	
-	public ScrollSecondaryWindowEvent(Window window, ChapterVerse chapterVerse) {
-		this.window = window;
-		this.chapterVerse = chapterVerse;
-	}
-
-	public Window getWindow() {
-		return window;
-	}
-
-	public ChapterVerse getChapterVerse() {
-		return chapterVerse;
-	}
-}
+@Entity(tableName = "mynote", indices = [Index(name="mynote_key", value=["key"])])
+data class MyNote(
+    @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
+    val key: String,
+    val versification: String?,
+    @ColumnInfo(name = "mynote") val myNote: String,
+    @ColumnInfo(name = "last_updated_on") val lastUpdatedOn: Int?,
+    @ColumnInfo(name = "created_on") val createdOn: Int?
+)
