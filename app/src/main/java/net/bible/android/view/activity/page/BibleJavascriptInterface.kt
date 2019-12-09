@@ -86,7 +86,7 @@ class BibleJavascriptInterface(
                     newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
                 }
                 val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)
-                if (currentChapterVerse !== prevCurrentChapterVerse) {
+                if (currentChapterVerse != prevCurrentChapterVerse) {
                     currentPageManager.currentBible.currentChapterVerse = currentChapterVerse
                     prevCurrentChapterVerse = currentChapterVerse
                 }

@@ -18,8 +18,6 @@
 
 package net.bible.android.control.page
 
-import net.bible.android.SharedConstants
-
 import org.crosswire.jsword.passage.Verse
 
 /**
