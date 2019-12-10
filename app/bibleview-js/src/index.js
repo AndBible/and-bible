@@ -14,14 +14,14 @@ import {
     highlightVerse,
     unhighlightVerse
 } from "./highlighting";
-import {whenReady} from "./utils";
+import {sleep, whenReady} from "./utils";
 
-window.addEventListener("DOMContentLoaded",  (event) => {
+window.addEventListener("DOMContentLoaded",  async (event) => {
     console.log("js-side load!", event.timeStamp, event);
     registerVersePositions();
     initializeListeners();
     initializeInfiniScroll();
-    jsInterface.triggerJumpToOffset();
+    jsInterface.triggerJumpToOffset(document.documentElement.scrollHeight);
     // this will eventually call back setupContent
 });
 

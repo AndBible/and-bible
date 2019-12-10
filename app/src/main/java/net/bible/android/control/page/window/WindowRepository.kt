@@ -257,6 +257,7 @@ open class WindowRepository @Inject constructor(
         }
 
         val pageManagers = windowList.map {
+            it.pageManager.currentPage.currentYOffsetRatio = it.bibleView?.currentPosition ?: 0f
             it.pageManager.entity
         }
 

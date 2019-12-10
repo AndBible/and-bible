@@ -1,8 +1,9 @@
-import {addWaiter, Deferred, waitForWaiters} from "./utils";
+import {addWaiter, Deferred} from "./utils";
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 
 let currentAnimation = null;
 let stopAnimation = false;
+let contentReady = false;
 export let toolbarOffset = 0;
 
 export function setToolbarOffset(value, {doNotScroll = false, immediate = false} = {}) {
@@ -86,15 +87,23 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 export const isReady = new Deferred();
 addWaiter(isReady);
 
-export function setupContent({isBible = false} = {}) {
-    $("#content").css('visibility', 'visible');
+export function setupContent({isBible = false, doNotScroll = false} = {}) {
     setToolbarOffset(jsInterface.getToolbarOffset(), {immediate: true});
     if(isBible) {
         enableVerseLongTouchSelectionMode();
-    } else {
+    } else if(!doNotScroll) {
         scrollToVerse(null, true);
     }
     isReady.resolve();
+
+    // requestAnimationFrame should make sure that contentReady is set only after
+    // initial scrolling has been performed so that we don't get onScroll during initialization
+    // in Java side.
+    requestAnimationFrame(() => {
+        $("#content").css('visibility', 'visible');
+        contentReady = true;
+        jsInterface.setContentReady();
+    });
     console.log("setVisible OK");
 }
 export function hideContent() {

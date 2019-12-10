@@ -73,10 +73,15 @@ class BibleJavascriptInterface(
 	}
 
     @JavascriptInterface
-    fun onScroll(newYPos: Int) {
-        var newYPos = newYPos
+    fun onScroll(newYPos_: Int) {
+        var newYPos = newYPos_
         // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-        if (notificationsEnabled && !addingContentAtTop && !PassageChangeMediator.getInstance().isPageChanging && !windowControl.isSeparatorMoving()) {
+        if (notificationsEnabled
+            && !addingContentAtTop
+            && !PassageChangeMediator.getInstance().isPageChanging
+            && !windowControl.isSeparatorMoving()
+            && bibleView.contentVisible)
+        {
             if (currentPageManager.isBibleShown) {
                 // All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
                 // I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
@@ -92,6 +97,12 @@ class BibleJavascriptInterface(
                 }
             }
         }
+    }
+
+    @JavascriptInterface
+    fun setContentReady() {
+        Log.d(TAG, "set content ready")
+        bibleView.setContentReady()
     }
 
     @JavascriptInterface
@@ -131,9 +142,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun triggerJumpToOffset() {
+    fun triggerJumpToOffset(contentHeight: Int) {
         Log.d(TAG, "triggerJumpToOffset!")
-        bibleView.invokeJumpToOffsetIfRequired(true)
+        bibleView.jumpToOffset(contentHeight)
     }
 
     @JavascriptInterface

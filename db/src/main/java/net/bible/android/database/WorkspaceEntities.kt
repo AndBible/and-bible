@@ -30,7 +30,8 @@ import java.util.*
 class WorkspaceEntities {
     data class Page(
         val document: String?,
-        val key: String?
+        val key: String?,
+        val currentYOffsetRatio: Float?
     )
 
     data class Verse(
@@ -46,7 +47,8 @@ class WorkspaceEntities {
     )
 
     data class CommentaryPage(
-        val document: String?
+        val document: String?,
+        val currentYOffsetRatio: Float?
     )
 
     @Entity(

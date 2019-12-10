@@ -68,3 +68,7 @@ export async function whenReady(fnc){
     await waitForWaiters();
     fnc();
 }
+
+export async function sleep(ms) {
+    await new Promise(resolve => setTimeout(resolve, ms));
+}

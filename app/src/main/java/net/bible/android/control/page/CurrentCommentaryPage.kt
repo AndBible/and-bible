@@ -123,11 +123,12 @@ internal constructor(
     override val isSearchable = true
 
     val entity get() =
-        WorkspaceEntities.CommentaryPage(currentDocument?.initials)
+        WorkspaceEntities.CommentaryPage(currentDocument?.initials, currentYOffsetRatio)
 
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
+        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {
             Log.d(TAG, "Restored document:" + book.name)

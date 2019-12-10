@@ -189,9 +189,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
-
-        // initialise split state related code - always screen1 is selected first
-        onEvent(CurrentWindowChangedEvent(windowControl.activeWindow))
     }
 
     override fun destroy() {
@@ -273,7 +270,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // allow zooming if map
         enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
-        loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://historyUrl" + historyUrlUniquify++)
+        loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://andBibleWindow-${window.id}")
 
         contentVisible = false
         initialized = true
@@ -292,25 +289,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
 
-    /**
-     * Trigger jump to correct offset
-     */
-    fun invokeJumpToOffsetIfRequired(force: Boolean = false) {
-        if (force || jumpToChapterVerse!=null || jumpToYOffsetRatio != null) {
-            // Prevent further invokations before this call is done.
-            jumpToOffset()
-        }
-    }
+    var contentVisible = false
 
-    private var contentVisible = false
-
-    private fun jumpToOffset() {
+    fun jumpToOffset(contentHeight: Int) {
         runOnUiThread {
             bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
             val maintainMovingChapterVerse = maintainMovingChapterVerse
             val jumpToYOffsetRatio = jumpToYOffsetRatio
             val jumpToChapterVerse = jumpToChapterVerse
+            var scrolled = false
 
             // screen is changing shape/size so constantly maintain the current verse position
             // main difference from jumpToVerse is that this is not cleared after jump
@@ -338,6 +326,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // when pressing back button.
                 if(y > TOP_OF_SCREEN) {
                     scrollTo(0, y)
+                    scrolled = true
                 }
             }
             else {
@@ -347,9 +336,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             if(!contentVisible) {
-                executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}})")
-                contentVisible = true
-                window.updateOngoing = false
+                executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, doNotScroll:${scrolled}})") {
+                    //contentVisible = true;
+                    //window.updateOngoing = false
+                }
             }
         }
     }
@@ -715,9 +705,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun executeJavascript(javascript: String) {
+    private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
         Log.d(TAG, "Executing JS: $javascript")
-        evaluateJavascript("andbible.$javascript;", null)
+        evaluateJavascript("andbible.$javascript;", callBack)
     }
 
     override fun insertTextAtTop(textId: String, text: String) {
@@ -728,14 +718,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
+    fun setContentReady() {
+        contentVisible = true;
+        window.updateOngoing = false
+    }
+
     private val TAG get() = "BibleView[${window.id}]"
 
     companion object {
-
-        // struggling to ensure correct initial positioning of pages, giving the page a unique history
-        // url seemed to help - maybe it then is sure each page is unique so resets everything
-        private var historyUrlUniquify = 1
-
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
         // no scrollOrJumpToVerse will occur
         private const val TOP_OF_SCREEN = 1

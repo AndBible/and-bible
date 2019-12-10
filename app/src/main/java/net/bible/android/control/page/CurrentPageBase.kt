@@ -42,11 +42,6 @@ abstract class CurrentPageBase protected constructor(
 	swordDocumentFacade: SwordDocumentFacade
 ) : CurrentPage {
 
-    val pageEntity get() = WorkspaceEntities.Page(
-        currentDocument?.initials,
-        key?.osisID
-    )
-
     override var isInhibitChangeNotifications: Boolean = false
 
 	override var _key: Key? = null
@@ -207,9 +202,16 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
+    val pageEntity get() = WorkspaceEntities.Page(
+        currentDocument?.initials,
+        key?.osisID,
+        currentYOffsetRatio
+    )
+
     fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
+        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
         Log.d(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {

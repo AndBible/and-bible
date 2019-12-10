@@ -94,6 +94,17 @@ private val MIGRATION_7_8 = object : Migration(7, 8) {
     }
 }
 
+private val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `PageManager` ADD `commentary_currentYOffsetRatio` REAL")
+            execSQL("ALTER TABLE `PageManager` ADD `dictionary_currentYOffsetRatio` REAL")
+            execSQL("ALTER TABLE `PageManager` ADD `general_book_currentYOffsetRatio` REAL")
+            execSQL("ALTER TABLE `PageManager` ADD `map_currentYOffsetRatio` REAL")
+        }
+    }
+}
+
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -112,7 +123,8 @@ object DatabaseContainer {
                         MIGRATION_4_5,
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9
                     )
                     .build()
                     .also { instance = it }
