@@ -79,7 +79,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             var inactiveUpdated = false
             val isTotalRefreshRequired = isFirstTimeInit
                     || lastSynchWasInNightMode != ScreenSettings.isNightMode
-                    || windowPreferencesChanged || resynchRequired
+                    || windowPreferencesChanged || resynchRequired || inactiveWindow.restoreOngoing
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised
                     && inactiveWindow.isSynchronised) {
