@@ -29,6 +29,7 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import javax.inject.Inject
@@ -46,6 +47,10 @@ open class WindowRepository @Inject constructor(
 
     var id: Long = 0
     var name = ""
+        set(value) {
+            SharedActivityState.setCurrentWorkspaceName(value)
+            field = value
+        }
 
     val dao get() = DatabaseContainer.db.workspaceDao()
 
