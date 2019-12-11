@@ -211,7 +211,6 @@ abstract class CurrentPageBase protected constructor(
     fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
         val document = entity.document
-        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
         Log.d(TAG, "State document:$document")
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {
@@ -228,6 +227,7 @@ abstract class CurrentPageBase protected constructor(
                 Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
             }
         }
+        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
     }
 
     /** can we enable the main menu Speak button

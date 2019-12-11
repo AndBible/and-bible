@@ -128,7 +128,6 @@ internal constructor(
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
-        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {
             Log.d(TAG, "Restored document:" + book.name)
@@ -136,6 +135,7 @@ internal constructor(
             localSetCurrentDocument(book)
             // allow Bible page to restore shared verse
         }
+        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
     }
 
     companion object {
