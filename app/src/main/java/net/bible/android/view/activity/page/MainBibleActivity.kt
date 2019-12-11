@@ -1083,13 +1083,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
-        PassageChangeMediator.getInstance().forcePageUpdate()
         requestSdcardPermission()
         invalidateOptionsMenu()
-        windowRepository.minimisedWindows.forEach {
-            it.initialized = false
-        }
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
     }
 
     private fun requestSdcardPermission() {
