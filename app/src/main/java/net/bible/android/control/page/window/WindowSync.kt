@@ -53,6 +53,19 @@ class WindowSync(private val windowRepository: WindowRepository) {
             if(force || !window.initialized)
                 window.updateText()
         }
+        if(force)
+            unInitializeMinimised()
+    }
+
+    private fun unInitializeMinimised() {
+        windowRepository.minimisedWindows.forEach {
+            if(it.pageManager.isBibleShown) {
+                it.initialized = false
+            }
+        }
+        if(windowRepository.dedicatedLinksWindow.pageManager.isBibleShown) {
+            windowRepository.dedicatedLinksWindow.initialized = false
+        }
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
@@ -64,15 +77,16 @@ class WindowSync(private val windowRepository: WindowRepository) {
         var targetActiveWindowKey = activePage.singleKey
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
+        val needFullRefresh = isFirstTimeInit || lastSynchWasInNightMode != ScreenSettings.isNightMode
+            || windowPreferencesChanged || resynchRequired
+
         for (inactiveWindow in inactiveWindowList) {
             val inactivePage = inactiveWindow.pageManager.currentPage
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
-            val isTotalRefreshRequired = isFirstTimeInit || lastSynchWasInNightMode != ScreenSettings.isNightMode ||
-                windowPreferencesChanged || resynchRequired || !inactiveWindow.initialized
+            val isTotalRefreshRequired = needFullRefresh || !inactiveWindow.initialized
 
-            if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised
-                    && inactiveWindow.isSynchronised) {
+            if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised && inactiveWindow.isSynchronised) {
                 // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
                 // Only Bible and cmtry are synch'd and they share a Verse key
                 updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey)
@@ -101,6 +115,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 inactiveUpdated = true
             }
 
+        }
+        if(needFullRefresh) {
+            unInitializeMinimised()
         }
         lastSynchWasInNightMode = ScreenSettings.isNightMode
         windowPreferencesChanged = false
