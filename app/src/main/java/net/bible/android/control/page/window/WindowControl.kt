@@ -367,7 +367,7 @@ open class WindowControl @Inject constructor(
 
     fun onEvent(event: SynchronizeWindowsEvent) {
         if (event.syncAll) {
-            windowSync.synchronizeAllScreens()
+            windowSync.synchronizeAllScreens(true)
         } else {
             windowSync.resynchRequired = true
             windowSync.synchronizeScreens()
