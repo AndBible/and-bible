@@ -69,8 +69,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val inactivePage = inactiveWindow.pageManager.currentPage
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
-            val isTotalRefreshRequired = isFirstTimeInit
-                    || lastSynchWasInNightMode != ScreenSettings.isNightMode || windowPreferencesChanged || resynchRequired
+            val isTotalRefreshRequired = isFirstTimeInit || lastSynchWasInNightMode != ScreenSettings.isNightMode ||
+                windowPreferencesChanged || resynchRequired || !inactiveWindow.initialized
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised
                     && inactiveWindow.isSynchronised) {
@@ -154,6 +154,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 // Do not update! Updating would reset page position.
             } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                 // synchronized commentary
+                inactiveWindow.updateText()
+            } else if ( forceRefresh ) {
                 inactiveWindow.updateText()
             }
         }
