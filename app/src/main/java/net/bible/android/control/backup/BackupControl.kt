@@ -58,16 +58,15 @@ class BackupControl @Inject constructor() {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
-
 		val subject = callingActivity.getString(R.string.backup_email_subject)
 		val message = callingActivity.getString(R.string.backup_email_message)
         val f = File(internalDbBackupDir, fileName)
         val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
-		val email = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+		val email = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, message)
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(uri))
-            type = "text/*"
+            type = "application/x-sqlite3"
         }
 		val chooserIntent = Intent.createChooser(email, "Send")
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
