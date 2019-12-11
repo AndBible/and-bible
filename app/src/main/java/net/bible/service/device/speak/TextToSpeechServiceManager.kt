@@ -458,6 +458,7 @@ class TextToSpeechServiceManager @Inject constructor(
             speakNextChunk()
             isSpeaking = true
             isPaused = false
+            mSpeakTextProvider.isSpeaking = true
             fireStateChangeEvent()
         } else {
             isPaused = false

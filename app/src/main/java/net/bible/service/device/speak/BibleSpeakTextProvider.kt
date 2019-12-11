@@ -341,7 +341,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun savePosition(fractionCompleted: Float) {}
 
-    private var isSpeaking: Boolean = false
+    override var isSpeaking: Boolean = false
 
     override fun stop() {
         reset()

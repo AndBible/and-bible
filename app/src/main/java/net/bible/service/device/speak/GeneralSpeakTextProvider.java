@@ -110,6 +110,16 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return null;
 	}
 
+	@Override
+	public void setSpeaking(boolean isSpeaking) {
+
+	}
+
+	@Override
+	public boolean isSpeaking() {
+		return false;
+	}
+
 	private static class StartPos {
 		boolean found = false;
 		private int startPosition = 0;

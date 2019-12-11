@@ -24,6 +24,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
 
 interface SpeakTextProvider {
+    var isSpeaking: Boolean
     val numItemsToTts: Int
     fun getStatusText(showFlag: Int): String
     fun isMoreTextToSpeak(): Boolean
