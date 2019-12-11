@@ -38,7 +38,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
     var resynchRequired = false
     var windowPreferencesChanged = false
 
-    private var lastSynchdInactiveWindowKey: Key? = null
     private var lastSynchWasInNightMode: Boolean = false
 
     init {
@@ -49,13 +48,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
         synchronizeScreens()
     }
 
-    /**
-     * Save/restore dynamic state that is not automatically saved as Preferences
-     */
-    fun onEvent(event: AppToBackgroundEvent) {
-        // ensure nonactive screen is initialised when returning from background
-        lastSynchdInactiveWindowKey = null
-    }
 
     fun synchronizeAllScreens(force: Boolean = false) {
         for (window in windowRepository.visibleWindows) {
@@ -78,8 +70,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
             val isTotalRefreshRequired = isFirstTimeInit
-                    || lastSynchWasInNightMode != ScreenSettings.isNightMode
-                    || windowPreferencesChanged || resynchRequired || inactiveWindow.restoreOngoing
+                    || lastSynchWasInNightMode != ScreenSettings.isNightMode || windowPreferencesChanged || resynchRequired
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised
                     && inactiveWindow.isSynchronised) {
@@ -94,10 +85,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                     // prevent infinite loop as each screen update causes a synchronise by comparing last key
                     // only update pages if empty or synchronised
-                    if (isFirstTimeInit || resynchRequired || !inactiveWindow.initialized ||
-                            targetActiveWindowKey != lastSynchdInactiveWindowKey || inactiveWindow.restoreOngoing) {
+                    if (isFirstTimeInit || resynchRequired || !inactiveWindow.initialized || targetActiveWindowKey != inactiveWindowKey) {
                         updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
-                                lastSynchdInactiveWindowKey, isTotalRefreshRequired)
+                                inactiveWindowKey, isTotalRefreshRequired)
                         inactiveUpdated = true
                     }
                 }
@@ -113,7 +103,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
 
         }
-        lastSynchdInactiveWindowKey = targetActiveWindowKey
         lastSynchWasInNightMode = ScreenSettings.isNightMode
         windowPreferencesChanged = false
         resynchRequired = false
@@ -146,6 +135,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val isUnsynchronizedCommentary = !inactiveWindow.isSynchronised
                     && BookCategory.COMMENTARY == inactivePage.currentDocument?.bookCategory
 
+            val isSynchronizedCommentary = inactiveWindow.isSynchronised
+                && BookCategory.COMMENTARY == inactivePage.currentDocument?.bookCategory
+
             if (inactiveWindowKey != null && inactiveWindowKey is Verse) {
                 currentVerse = KeyUtil.getVerse(inactiveWindowKey)
             }
@@ -160,7 +152,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                 //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                 // Do not update! Updating would reset page position.
-            } else {
+            } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                 // synchronized commentary
                 inactiveWindow.updateText()
             }
