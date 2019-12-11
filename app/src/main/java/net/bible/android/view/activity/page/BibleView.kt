@@ -242,6 +242,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     var initialized = false
+    var lastUpdated = System.currentTimeMillis()
 
     override fun show(html: String, updateLocation: Boolean) {
 
@@ -276,6 +277,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         contentVisible = false
         initialized = true
+        lastUpdated = System.currentTimeMillis()
     }
 
     /**

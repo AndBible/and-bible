@@ -118,6 +118,12 @@ open class Window (
             Log.d(TAG, "updateOngoing set to $value")
         }
 
+    var lastUpdated
+        get() = bibleView?.lastUpdated ?: 0L
+        set(value) {
+            bibleView?.lastUpdated = value
+        }
+
     fun updateText(documentViewManager: DocumentViewManager? = null) {
         if(pageManager.currentPage is CurrentMyNotePage) return
 
