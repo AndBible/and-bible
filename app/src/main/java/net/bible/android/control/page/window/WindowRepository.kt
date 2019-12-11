@@ -254,7 +254,7 @@ open class WindowRepository @Inject constructor(
             }
         }
 
-        val pageManagers = windowList.map {
+        val pageManagers = allWindows.map {
             it.pageManager.currentPage.currentYOffsetRatio = it.bibleView?.currentPosition ?: 0f
             it.pageManager.entity
         }
@@ -285,12 +285,14 @@ open class WindowRepository @Inject constructor(
             id = dao.insertWindow(this)
         }
 
-        val linksPageManager = dao.pageManager(linksWindowEntity.id)
+        val linksPageManagerEntity = dao.pageManager(linksWindowEntity.id)
 
         if(!::dedicatedLinksWindow.isInitialized) {
-            dedicatedLinksWindow = LinksWindow(linksWindowEntity, currentPageManagerProvider.get())
+            val pageManager = currentPageManagerProvider.get()
+            pageManager.restoreFrom(linksPageManagerEntity)
+            dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager)
         } else {
-            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManager)
+            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity)
         }
         val historyManager = historyManagerProvider.get()
         dao.windows(id).forEach {
