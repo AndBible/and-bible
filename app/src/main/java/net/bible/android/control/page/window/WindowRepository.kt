@@ -158,8 +158,6 @@ open class WindowRepository @Inject constructor(
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
         val windows = visibleWindows
-        if(isMaximisedState)
-            windows.addAll(minimisedWindows)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }
