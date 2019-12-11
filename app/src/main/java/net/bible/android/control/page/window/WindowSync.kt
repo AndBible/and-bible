@@ -143,20 +143,22 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
-            if (!forceRefresh && inactiveWindow.initialized &&
-                    BookCategory.BIBLE == inactivePage.currentDocument?.bookCategory &&
+            if(forceRefresh) {
+                inactiveWindow.updateText()
+
+            } else {
+                if (BookCategory.BIBLE == inactivePage.currentDocument?.bookCategory &&
                     currentVerse != null && targetVerse != null && targetV11n!!.isSameChapter(targetVerse, currentVerse)) {
-                ABEventBus.getDefault().post(
+                    ABEventBus.getDefault().post(
                         ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse))
-                )
-            } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
-                //UpdateInactiveScreenTextTask().execute(inactiveWindow)
-                // Do not update! Updating would reset page position.
-            } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
-                // synchronized commentary
-                inactiveWindow.updateText()
-            } else if ( forceRefresh ) {
-                inactiveWindow.updateText()
+                    )
+                } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
+                    //UpdateInactiveScreenTextTask().execute(inactiveWindow)
+                    // Do not update! Updating would reset page position.
+                } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
+                    // synchronized commentary
+                    inactiveWindow.updateText()
+                }
             }
         }
     }
