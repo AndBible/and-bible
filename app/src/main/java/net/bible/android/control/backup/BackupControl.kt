@@ -51,31 +51,6 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class BackupControl @Inject constructor() {
-
-    /** return true if a backup has been done and the file is on the sd card.
-     */
-    private val isBackupFileExists: Boolean
-        get() = File(SharedConstants.BACKUP_DIR, DATABASE_NAME).exists()
-
-    fun updateOptionsMenu(menu: Menu) {
-        // always allow backup and restore to be attempted
-    }
-
-    /** backup database to sd card
-     */
-    fun backupDatabase() {
-        db.sync()
-        val ok = FileManager.copyFile(DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR)
-
-        if (ok) {
-            Log.d(TAG, "Copied database to SD card successfully")
-            Dialogs.getInstance().showMsg(R.string.backup_success, SharedConstants.BACKUP_DIR.name)
-        } else {
-            Log.e(TAG, "Error copying database to SD card")
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
-        }
-    }
-
     /** backup database to custom target (email, drive etc.)
      */
     fun backupDatabaseViaIntent(callingActivity: Activity) {
@@ -125,29 +100,6 @@ class BackupControl @Inject constructor() {
         } else {
             Log.e(TAG, "Error restoring database")
             Dialogs.getInstance().showErrorMsg(R.string.restore_unsuccessfull)
-        }
-    }
-
-    /** restore database from sd card
-     */
-    fun restoreDatabase() {
-        if (!isBackupFileExists) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_no_backup_file)
-        } else {
-            Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
-                BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir)
-
-                if (ok) {
-                    DatabaseContainer.reset()
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-                    Log.d(TAG, "Copied database from SD card successfully")
-                    Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.name)
-                } else {
-                    Log.e(TAG, "Error copying database from SD card")
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
-                }
-            }
         }
     }
 

@@ -1070,16 +1070,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            BACKUP_SAVE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                backupControl.backupDatabase()
-            } else {
-                Dialogs.getInstance().showMsg(R.string.error_occurred)
-            }
-            BACKUP_RESTORE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                backupControl.restoreDatabase()
-            } else {
-                Dialogs.getInstance().showMsg(R.string.error_occurred)
-            }
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     documentControl.enableManualInstallFolder()
@@ -1158,9 +1148,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // disable some options depending on document type
         windowControl.activeWindowPageManager.currentPage.updateOptionsMenu(menu)
 
-        // if there is no backup file then disable the restore menu item
-        backupControl.updateOptionsMenu(menu)
-
         // must return true for menu to be displayed
         return true
     }
@@ -1208,8 +1195,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     companion object {
         lateinit var mainBibleActivity: MainBibleActivity
-        internal const val BACKUP_SAVE_REQUEST = 0
-        internal const val BACKUP_RESTORE_REQUEST = 1
         private const val SDCARD_READ_REQUEST = 2
 
         // ActivityBase.STD_REQUEST_CODE = 1

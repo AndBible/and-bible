@@ -21,13 +21,7 @@
     <item android:id="@+id/backup"
         android:title="@string/backup"
         android:icon="@android:drawable/ic_menu_save"/>
-    <item android:id="@+id/backupStorage"
-        android:title="@string/backup_storage"
-        android:icon="@android:drawable/ic_menu_save"/>
     <item android:id="@+id/restore"
         android:title="@string/restore"
-        android:icon="@android:drawable/ic_menu_set_as"/>
-    <item android:id="@+id/restoreStorage"
-        android:title="@string/restore_storage"
         android:icon="@android:drawable/ic_menu_set_as"/>
 </menu>
