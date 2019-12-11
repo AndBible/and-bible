@@ -18,8 +18,8 @@
 
 package net.bible.android.control.page.window
 
+import android.util.Log
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.ChapterVerse
@@ -30,7 +30,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.Versification
 
 class WindowSync(private val windowRepository: WindowRepository) {
 
@@ -123,40 +122,36 @@ class WindowSync(private val windowRepository: WindowRepository) {
         // standard null checks
         if (targetKey != null && inactivePage != null) {
             // Not just bibles and commentaries get this far so NOT always fine to convert key to verse
-            var targetVerse: Verse? = null
-            var targetV11n: Versification? = null
-            if (targetKey is Verse) {
-                targetVerse = KeyUtil.getVerse(targetKey)
-                targetV11n = targetVerse!!.versification
-            }
-
-            var currentVerse: Verse? = null
-            val isGeneralBook = BookCategory.GENERAL_BOOK == inactivePage.currentDocument?.bookCategory
-            val isUnsynchronizedCommentary = !inactiveWindow.isSynchronised
-                    && BookCategory.COMMENTARY == inactivePage.currentDocument?.bookCategory
-
-            val isSynchronizedCommentary = inactiveWindow.isSynchronised
-                && BookCategory.COMMENTARY == inactivePage.currentDocument?.bookCategory
-
-            if (inactiveWindowKey != null && inactiveWindowKey is Verse) {
-                currentVerse = KeyUtil.getVerse(inactiveWindowKey)
-            }
+            val targetVerse = if (targetKey is Verse) KeyUtil.getVerse(targetKey) else null
+            val bookCategory = inactivePage.currentDocument?.bookCategory
+            val isGeneralBook = BookCategory.GENERAL_BOOK == bookCategory
+            val isBible = BookCategory.BIBLE == bookCategory
+            val isCommentary = BookCategory.COMMENTARY == bookCategory
+            val isUnsynchronizedCommentary = !inactiveWindow.isSynchronised && isCommentary
+            val isSynchronizedCommentary = inactiveWindow.isSynchronised && isCommentary
+            val currentVerse = if (inactiveWindowKey is Verse) {KeyUtil.getVerse(inactiveWindowKey)} else null
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
             if(forceRefresh) {
                 inactiveWindow.updateText()
 
             } else {
-                if (BookCategory.BIBLE == inactivePage.currentDocument?.bookCategory &&
-                    currentVerse != null && targetVerse != null && targetV11n!!.isSameChapter(targetVerse, currentVerse)) {
-                    ABEventBus.getDefault().post(
-                        ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse))
-                    )
+                if (isBible && currentVerse != null && targetVerse != null) {
+                    val targetV11n = targetVerse.versification
+                    if(targetV11n.isSameChapter(targetVerse, currentVerse)) {
+                        ABEventBus.getDefault()
+                            .post(ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)))
+                    } else if(targetVerse != currentVerse) {
+                        inactiveWindow.updateText()
+                    }
                 } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                     //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                     // Do not update! Updating would reset page position.
                 } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                     // synchronized commentary
+                    inactiveWindow.updateText()
+                } else {
+                    Log.e(TAG, "Unexpected case. Total updateText just in case. ")
                     inactiveWindow.updateText()
                 }
             }
@@ -177,5 +172,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
         }
         return result
+    }
+
+    companion object {
+        const val TAG = "WindowSync"
     }
 }
