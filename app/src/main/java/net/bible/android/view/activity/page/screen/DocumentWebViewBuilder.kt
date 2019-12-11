@@ -302,7 +302,10 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
+        ABEventBus.getDefault().post(WebViewsBuiltEvent())
     }
+
+    class WebViewsBuiltEvent
 
     private val windowButtons: MutableList<Button> = ArrayList()
     private val restoreButtons: MutableList<RestoreButton> = ArrayList()
