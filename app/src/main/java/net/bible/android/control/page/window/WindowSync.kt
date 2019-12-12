@@ -54,7 +54,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             lastForceSync = System.currentTimeMillis()
 
         for (window in windowRepository.visibleWindows) {
-            if(force || !window.initialized || lastForceSync > window.lastUpdated)
+            if(force || lastForceSync > window.lastUpdated)
                 window.updateText()
         }
     }
@@ -75,8 +75,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val inactivePage = inactiveWindow.pageManager.currentPage
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
-            val isTotalRefreshRequired = needFullRefresh || !inactiveWindow.initialized
-                || inactiveWindow.lastUpdated < lastForceSync
+            val isTotalRefreshRequired = needFullRefresh || inactiveWindow.lastUpdated < lastForceSync
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised && inactiveWindow.isSynchronised) {
                 // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
@@ -90,8 +89,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                     // prevent infinite loop as each screen update causes a synchronise by comparing last key
                     // only update pages if empty or synchronised
-                    if (isFirstTimeInit || resynchRequired || !inactiveWindow.initialized ||
-                        inactiveWindow.lastUpdated < lastForceSync
+                    if (isFirstTimeInit || resynchRequired || inactiveWindow.lastUpdated < lastForceSync
                         || targetActiveWindowKey != inactiveWindowKey)
                     {
                         updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,

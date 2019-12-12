@@ -241,8 +241,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
     }
 
-    var initialized = false
-    var lastUpdated = System.currentTimeMillis()
+    var lastUpdated = 0L
 
     override fun show(html: String, updateLocation: Boolean) {
 
@@ -258,7 +257,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val currentPage = window.pageManager.currentPage
 
-        if(!initialized || updateLocation) {
+        if(lastUpdated == 0L || updateLocation) {
             if (currentPage !is CurrentBiblePage) {
                 jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             } else {
@@ -276,7 +275,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://andBibleWindow-${window.id}")
 
         contentVisible = false
-        initialized = true
         lastUpdated = System.currentTimeMillis()
     }
 

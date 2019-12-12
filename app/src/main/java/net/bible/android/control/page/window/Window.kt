@@ -59,12 +59,6 @@ open class Window (
 
     open var isSynchronised = window.isSynchronized
 
-    var initialized
-        get() = bibleView?.initialized == true
-        set(value) {
-            bibleView?.initialized = value
-        }
-
     var wasMinimised = window.wasMinimised
 
     val isClosed: Boolean
@@ -123,6 +117,8 @@ open class Window (
         set(value) {
             bibleView?.lastUpdated = value
         }
+
+    val initialized get() = lastUpdated != 0L
 
     fun updateText(documentViewManager: DocumentViewManager? = null) {
         if(pageManager.currentPage is CurrentMyNotePage) return
