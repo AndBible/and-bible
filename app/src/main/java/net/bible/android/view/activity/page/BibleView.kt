@@ -544,14 +544,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
-        if(!separatorMoving) {
+        if(!separatorMoving && w != ow) {
             doCheckWindows()
         }
     }
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("setToolbarOffset($toolbarOffset);")
+            executeJavascript("setToolbarOffset($toolbarOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 executeJavascript("registerVersePositions()")
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentChapterVerse, true)
