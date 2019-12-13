@@ -26,7 +26,6 @@ import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.service.common.Logger
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -36,7 +35,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import java.lang.RuntimeException
-import java.lang.ref.WeakReference
 
 import javax.inject.Inject
 
@@ -59,13 +57,8 @@ open class CurrentPageManager @Inject constructor(
     val currentGeneralBook: CurrentGeneralBookPage
     val currentMap: CurrentMapPage
     val currentMyNotePage: CurrentMyNotePage
-    private var windowRef: WeakReference<Window>? = null
 
-    var window
-        get() = windowRef!!.get()!!
-        set(value) {
-            windowRef = WeakReference(value)
-        }
+    lateinit var window: Window
 
     var currentPage: CurrentPage
         private set

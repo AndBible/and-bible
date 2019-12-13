@@ -28,12 +28,10 @@ import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.service.common.Logger
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
-import java.lang.ref.WeakReference
 
 open class Window (
     window: WorkspaceEntities.Window,
@@ -86,16 +84,10 @@ open class Window (
 
     open val isLinksWindow = false
 
-    private var bibleViewRef: WeakReference<BibleView>? = null
-
-    var bibleView
-        get() = bibleViewRef?.get()
-        set(value) {
-            bibleViewRef = WeakReference(value!!)
-        }
+    var bibleView: BibleView? = null
 
     fun destroy() {
-        bibleViewRef?.get()?.destroy()
+        bibleView?.destroy()
     }
 
     enum class WindowOperation {

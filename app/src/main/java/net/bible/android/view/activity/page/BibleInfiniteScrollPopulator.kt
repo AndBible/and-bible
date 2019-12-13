@@ -34,10 +34,9 @@ import java.lang.ref.WeakReference
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BibleInfiniteScrollPopulator(
-    private val bibleViewtextInserterRef: WeakReference<BibleViewTextInserter>,
+    private val bibleViewtextInserter: BibleViewTextInserter,
     private val currentPageManager: CurrentPageManager) : AnkoLogger
 {
-    val bibleViewtextInserter get() = bibleViewtextInserterRef.get()!!
 
     fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {
         debug("requestMoreTextAtTop")

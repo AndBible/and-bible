@@ -34,7 +34,7 @@ import java.lang.ref.WeakReference
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class PageTiltScroller(
-	private val webViewRef: WeakReference<BibleView>,
+	private val webView: BibleView,
 	private val pageTiltScrollControl: PageTiltScrollControl
 ) {
 
@@ -43,8 +43,6 @@ class PageTiltScroller(
     private val scrollMsgHandler = ScrollMsgHandler(this)
 
     private val scrollTrigger = ScrollTrigger()
-
-	private val webView get() = webViewRef.get()!!
 
 	fun destroy() {
 		stopScrollThread()

@@ -186,7 +186,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         applyPreferenceSettings()
 
-        pageTiltScroller = PageTiltScroller(WeakReference(this), pageTiltScrollControl)
+        pageTiltScroller = PageTiltScroller(this, pageTiltScrollControl)
         pageTiltScroller.enableTiltScroll(true)
 
         // if this webview becomes (in)active then must start/stop auto-scroll

@@ -44,7 +44,7 @@ import java.lang.ref.WeakReference
  */
 class VerseActionModeMediator(
         private val mainBibleActivity: ActionModeMenuDisplay,
-        private val bibleViewRef: WeakReference<VerseHighlightControl>,
+        private val bibleView: VerseHighlightControl,
         private val pageControl: PageControl,
         private val verseMenuCommandHandler: VerseMenuCommandHandler,
         private val bookmarkControl: BookmarkControl)
@@ -56,8 +56,6 @@ class VerseActionModeMediator(
 
     val isActionMode: Boolean
         get() = actionMode != null
-
-    val bibleView get () = bibleViewRef.get()!!
 
     private val startVerse: Verse?
         get() {

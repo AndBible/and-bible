@@ -41,7 +41,7 @@ class BibleJavascriptInterface(
 	private val windowControl: WindowControl,
 	private val verseCalculator: VerseCalculator,
 	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
-	private val bibleViewRef: WeakReference<BibleView>
+	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
 
@@ -50,8 +50,6 @@ class BibleJavascriptInterface(
     private var addingContentAtTop = false
 
     private var prevCurrentChapterVerse = ChapterVerse(0, 0)
-
-	private val bibleView: BibleView get() = bibleViewRef.get()!!
 
     // Create Json Object using Facebook Data
 	@JavascriptInterface
