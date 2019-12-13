@@ -135,6 +135,7 @@ class DocumentWebViewBuilder @Inject constructor(
         if (isWebView) {
             parent.tag = ""
             removeChildViews(parent)
+            ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
         }
     }
 
@@ -156,7 +157,9 @@ class DocumentWebViewBuilder @Inject constructor(
             val windows = windowRepository.visibleWindows
 
             // ensure we have a known starting point - could be none, 1, or 2 webviews present
+
             removeChildViews(previousParent)
+            ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
 
             parent.orientation = if (isSplitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             var currentWindowFrameLayout: ViewGroup? = null
@@ -512,6 +515,9 @@ class DocumentWebViewBuilder @Inject constructor(
             parent.removeAllViews()
         }
     }
+
+    class AfterRemoveWebViewEvent
+
 
     /**
      * Attempt to fix occasional error: "The specified child already has a parent. You must call removeView() on the child's parent first."

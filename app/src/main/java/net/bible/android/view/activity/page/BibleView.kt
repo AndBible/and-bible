@@ -195,7 +195,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun destroy() {
         toBeDestroyed = true
-        listenEvents = false
         pageTiltScroller.destroy()
         removeJavascriptInterface("jsInterface")
     }
@@ -212,6 +211,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
     fun doDestroy() {
+        listenEvents = false
         Log.d(TAG, "Destroying Bibleview")
         super.destroy()
         onDestroy?.invoke()
@@ -565,9 +565,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // prevent random verse changes while layout is being rebuild because of window changes
         bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
-        if(toBeDestroyed) {
+    }
+
+    fun onEventMainThread(event: DocumentWebViewBuilder.AfterRemoveWebViewEvent) {
+        if(toBeDestroyed)
             doDestroy()
-        }
     }
 
     override fun onAttachedToWindow() {
