@@ -543,7 +543,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
-        if(!separatorMoving && w != ow) {
+        if(lastUpdated != 0L && !separatorMoving && w != ow) {
             doCheckWindows()
         }
     }

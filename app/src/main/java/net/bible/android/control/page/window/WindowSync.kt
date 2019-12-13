@@ -32,8 +32,6 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 
 class WindowSync(private val windowRepository: WindowRepository) {
-
-    private var isFirstTimeInit = true
     var resynchRequired = false
     var windowPreferencesChanged = false
 
@@ -68,7 +66,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         var targetActiveWindowKey = activePage.singleKey
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
-        val needFullRefresh = isFirstTimeInit || lastSynchWasInNightMode != ScreenSettings.isNightMode
+        val needFullRefresh = lastSynchWasInNightMode != ScreenSettings.isNightMode
             || windowPreferencesChanged || resynchRequired
 
         for (inactiveWindow in inactiveWindowList) {
@@ -89,7 +87,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                     // prevent infinite loop as each screen update causes a synchronise by comparing last key
                     // only update pages if empty or synchronised
-                    if (isFirstTimeInit || resynchRequired || inactiveWindow.lastUpdated < lastForceSync
+                    if (resynchRequired || inactiveWindow.lastUpdated < lastForceSync
                         || targetActiveWindowKey != inactiveWindowKey)
                     {
                         updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
@@ -115,7 +113,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
         lastSynchWasInNightMode = ScreenSettings.isNightMode
         windowPreferencesChanged = false
         resynchRequired = false
-        isFirstTimeInit = false
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
