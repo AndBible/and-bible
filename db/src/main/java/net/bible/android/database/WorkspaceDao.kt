@@ -85,6 +85,9 @@ interface WorkspaceDao {
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
     fun workspace(workspaceId: Long): WorkspaceEntities.Workspace?
 
+    @Query("SELECT * from Workspace LIMIT 1")
+    fun firstWorkspace(): WorkspaceEntities.Workspace?
+
     @Query("SELECT * from Workspace")
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 

@@ -571,7 +571,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         set(value) {
             windowRepository.loadFromDb(value)
 
-            preferences.edit().putLong("current_workspace_id", value).apply()
+            preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
             documentViewManager.resetView()
             windowControl.windowSync.synchronizeAllScreens()
 
@@ -1026,6 +1026,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             backupControl.restoreDatabaseViaIntent(inputStream!!)
+                            windowControl.windowSync.resynchRequired = true
+                            runOnUiThread{
+                                currentWorkspaceId = 0
+                            }
                         }
                     }
                 }

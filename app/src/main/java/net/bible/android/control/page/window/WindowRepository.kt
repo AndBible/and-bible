@@ -269,7 +269,7 @@ open class WindowRepository @Inject constructor(
      */
 
     fun loadFromDb(workspaceId: Long) {
-        val entity = dao.workspace(workspaceId)
+        val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
             }
