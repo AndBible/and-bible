@@ -132,6 +132,7 @@ object DatabaseContainer {
         }
     fun reset() {
         synchronized(this) {
+            db.close()
             instance = null
         }
     }

@@ -116,6 +116,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     // We need to have this here in order to initialize BibleContentManager early enough.
     @Inject
     lateinit var bibleContentManager: BibleContentManager
+
+    @Inject
+    lateinit var bibleViewFactory: BibleViewFactory
+
     @Inject
     lateinit var documentViewManager: DocumentViewManager
     @Inject
@@ -1023,10 +1027,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 if (resultCode == Activity.RESULT_OK) {
                     CurrentActivityHolder.getInstance().currentActivity = this
                     Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
+                        ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 windowControl.windowSync.resynchRequired = true
+                                bibleViewFactory.clear()
                                 runOnUiThread {
                                     currentWorkspaceId = 0
                                 }

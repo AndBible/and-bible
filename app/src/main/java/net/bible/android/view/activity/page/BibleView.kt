@@ -211,9 +211,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             field = value
         }
 
-    private fun doDestroy() {
+    fun doDestroy() {
         Log.d(TAG, "Destroying Bibleview")
         super.destroy()
+        onDestroy?.invoke()
     }
 
     /** apply settings set by the user using Preferences
@@ -712,6 +713,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         contentVisible = true;
         window.updateOngoing = false
     }
+
+    var onDestroy: (() -> Unit)? = null
 
     private val TAG get() = "BibleView[${window.id}]"
 

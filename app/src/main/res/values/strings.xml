@@ -417,12 +417,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
-    <string name="backup">Backup to ...</string>
+    <string name="backup">Backup to…</string>
     <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
-    <string name="restore">Restore from ...</string>
+    <string name="restore">Restore from…</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Reading Plans and Workspaces?</string>
     <string name="restore_success">My Notes, Bookmarks, Reading Plans and Workspaces restored successfully</string>
     <string name="error_no_backup_file">A backup file could not be found</string>
+    <string name="loading_backup">Loading database from backup…</string>
 
     <string name="backup_email_subject">And Bible database backup</string>
     <string name="backup_email_message">Your And Bible database containing bookmarks and notes is attached</string>
@@ -450,7 +451,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait…</string>
     <string name="all">All</string>
     <string name="default_value">@string/lang_default</string>
     <string name="edit">Edit</string>

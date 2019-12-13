@@ -31,7 +31,6 @@ import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.actionmode.VerseMenuCommandHandler
 import java.lang.ref.WeakReference
-import java.util.WeakHashMap
 
 import javax.inject.Inject
 
@@ -47,7 +46,7 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
     private val windowBibleViewMap: MutableMap<Long, BibleView>
 
     init {
-        windowBibleViewMap = WeakHashMap<Long, BibleView>()
+        windowBibleViewMap = HashMap()
     }
 
     fun createBibleView(window: Window): BibleView {
@@ -68,10 +67,26 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
+            bibleView.onDestroy = {
+                windowBibleViewMap.remove(window.id)
+            }
 
             windowBibleViewMap[window.id] = bibleView
         }
         return bibleView
+
+    }
+
+    fun clear() {
+        mainBibleActivity.runOnUiThread {
+            windowBibleViewMap.forEach { it ->
+                val bw = it.value
+                bw.onDestroy = null
+                bw.destroy()
+                bw.doDestroy()
+            }
+        }
+        windowBibleViewMap.clear()
     }
 
     companion object {

@@ -91,6 +91,7 @@ class BackupControl @Inject constructor() {
             out.close()
             val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
             if(sqlDb.version <= DATABASE_VERSION) {
+                DatabaseContainer.reset()
                 BibleApplication.application.deleteDatabase(DATABASE_NAME)
                 ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
             }
@@ -98,7 +99,6 @@ class BackupControl @Inject constructor() {
         }
 
         if (ok) {
-            DatabaseContainer.reset()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
             Log.d(TAG, "Restored database successfully")
             Dialogs.getInstance().showMsg(R.string.restore_success)
