@@ -1025,10 +1025,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            backupControl.restoreDatabaseViaIntent(inputStream!!)
-                            windowControl.windowSync.resynchRequired = true
-                            runOnUiThread{
-                                currentWorkspaceId = 0
+                            if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                windowControl.windowSync.resynchRequired = true
+                                runOnUiThread {
+                                    currentWorkspaceId = 0
+                                }
                             }
                         }
                     }

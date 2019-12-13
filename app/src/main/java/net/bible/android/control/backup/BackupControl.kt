@@ -33,8 +33,10 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.FileManager
 
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import androidx.core.content.FileProvider
 import net.bible.android.activity.BuildConfig
+import net.bible.android.database.DATABASE_VERSION
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
@@ -75,7 +77,7 @@ class BackupControl @Inject constructor() {
 
     /** backup database from custom source
      */
-    fun restoreDatabaseViaIntent(inputStream: InputStream) {
+    fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
@@ -87,8 +89,12 @@ class BackupControl @Inject constructor() {
             out.write(header)
             out.write(inputStream.readBytes())
             out.close()
-            BibleApplication.application.deleteDatabase(DATABASE_NAME)
-            ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+            val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
+            if(sqlDb.version <= DATABASE_VERSION) {
+                BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+            }
+            sqlDb.close()
         }
 
         if (ok) {
@@ -100,6 +106,8 @@ class BackupControl @Inject constructor() {
             Log.e(TAG, "Error restoring database")
             Dialogs.getInstance().showErrorMsg(R.string.restore_unsuccessfull)
         }
+        f.delete()
+        return ok
     }
 
     companion object {
