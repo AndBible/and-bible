@@ -68,6 +68,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        updatePadding()
 
         // register for passage change events
         ABEventBus.getDefault().register(this)
