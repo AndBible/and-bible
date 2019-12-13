@@ -22,10 +22,12 @@ import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -41,42 +43,19 @@ class CurrentBiblePage(
 	bibleTraverser: BibleTraverser,
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage {
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
+        swordDocumentFacade), CurrentPage {
 
     override val bookCategory = BookCategory.BIBLE
 
     override val keyChooserActivity: Class<out Activity?>?
         get() = GridChoosePassageBook::class.java
 
-    /* (non-Javadoc)
-	 * @see net.bible.android.control.CurrentPage#next()
-	 */
     override fun next() {
         Log.d(TAG, "Next")
         nextChapter()
     }
 
-    /* go to prev verse quietly without updates
-	 */
-    fun doPreviousVerse() {
-        Log.d(TAG, "Previous verse")
-        val versification = versification
-        val verse = currentBibleVerse.getVerseSelected(versification)
-        currentBibleVerse.setVerseSelected(versification, bibleTraverser.getPrevVerse(currentPassageBook, verse))
-    }
-
-    /* go to next verse quietly without updates
-	 */
-    fun doNextVerse() {
-        Log.d(TAG, "Next verse")
-        val versification = versification
-        val verse = currentBibleVerse.getVerseSelected(versification)
-        currentBibleVerse.setVerseSelected(versification, bibleTraverser.getNextVerse(currentPassageBook, verse))
-    }
-
-    /* (non-Javadoc)
-	 * @see net.bible.android.control.CurrentPage#previous()
-	 */
     override fun previous() {
         Log.d(TAG, "Previous")
         previousChapter()
@@ -111,7 +90,7 @@ class CurrentBiblePage(
                     nextVer = bibleTraverser.getNextChapter(currentPassageBook, nextVer)
                 }
             } else { // move to prev book if required
-// allow standard loop structure by changing num to positive
+                     // allow standard loop structure by changing num to positive
                 num = -num
                 for (i in 0 until num) {
                     nextVer = bibleTraverser.getPrevChapter(currentPassageBook, nextVer)
@@ -154,8 +133,7 @@ class CurrentBiblePage(
     private fun doGetKey(requireSingleKey: Boolean): Key {
         val verse = verseSelected
         return run {
-            val key: Key
-            key = if (!requireSingleKey) {
+            val key: Key = if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerseRange()
                 getWholeChapter(verse)

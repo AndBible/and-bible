@@ -470,20 +470,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
 
     private fun newWorkspace() {
-        val currentDocument = windowControl.activeWindowPageManager.currentPassageDocument
-
         windowRepository.saveIntoDb()
         windowRepository.clear()
 
         val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
             id = dao.insertWorkspace(this)
         }
-
+        
         currentWorkspaceId = newWorkspaceEntity.id
-        windowRepository.setDefaultActiveWindow()
-        windowControl.activeWindowPageManager.setCurrentDocument(currentDocument)
-
-        invalidateOptionsMenu()
     }
 
     private fun cloneWorkspace() {

@@ -23,6 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.format.HtmlMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.sword.SwordContentFacade
@@ -146,15 +147,25 @@ abstract class CurrentPageBase protected constructor(
 	override val currentDocument: Book?
 		get() { 
 			if (_currentDocument == null) {
-				val books = swordDocumentFacade.getBooks(bookCategory)
-				if (books.size > 0) {
-					_currentDocument = books[0]
-				}
+				_currentDocument = getDefaultBook()
 			}
 			return _currentDocument
 		}
 
-	override fun setCurrentDocument(doc: Book?) {
+    fun getDefaultBook(): Book? {
+        val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
+            CommonUtils.sharedPreferences.getString("default-${bookCategory.name}", ""))
+
+        return savedDefaultBook ?: {
+            val books = swordDocumentFacade.getBooks(bookCategory)
+            if (books.size > 0) books[0] else null
+        }()
+    }
+
+    override fun setCurrentDocument(doc: Book?) {
+        if(doc != null) {
+            CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", doc.initials).apply()
+        }
 		Log.d(TAG, "Set current doc to $doc")
 		val prevDoc = _currentDocument
 		if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
