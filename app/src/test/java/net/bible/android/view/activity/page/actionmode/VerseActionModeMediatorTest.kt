@@ -56,7 +56,7 @@ class VerseActionModeMediatorTest {
 
         val bookmarkControl =  mock<BookmarkControl>()
 
-        verseActionModeMediator = VerseActionModeMediator(mainBibleActivity, WeakReference(bibleView), pageControl, verseMenuCommandHandler, bookmarkControl)
+        verseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, verseMenuCommandHandler, bookmarkControl)
 
     }
 
