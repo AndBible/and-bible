@@ -41,7 +41,17 @@ import javax.inject.Inject
  */
 @MainBibleActivityScope
 class BibleViewFactory @Inject
-constructor(private val mainBibleActivity: MainBibleActivity, private val pageControl: PageControl, private val pageTiltScrollControlFactory: PageTiltScrollControlFactory, private val windowControl: WindowControl, private val bibleKeyHandler: BibleKeyHandler, private val linkControl: LinkControl, private val bookmarkControl: BookmarkControl, private val myNoteControl: MyNoteControl, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) {
+constructor(
+    private val mainBibleActivity: MainBibleActivity,
+    private val pageControl: PageControl,
+    private val pageTiltScrollControlFactory:
+    PageTiltScrollControlFactory,
+    private val windowControl: WindowControl,
+    private val bibleKeyHandler: BibleKeyHandler,
+    private val linkControl: LinkControl,
+    private val bookmarkControl: BookmarkControl,
+    private val myNoteControl: MyNoteControl
+) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView>
 
@@ -58,12 +68,14 @@ constructor(private val mainBibleActivity: MainBibleActivity, private val pageCo
 
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl)
-
-            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
-            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView, window.pageManager)
+            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
+                pageControl, pageTiltScrollControl, linkControl)
+            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl,
+                VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
+            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView)
             val verseCalculator = VerseCalculator()
-            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, bibleInfiniteScrollPopulator, bibleView)
+            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl,
+                verseCalculator, bibleInfiniteScrollPopulator, bibleView)
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()
