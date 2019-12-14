@@ -144,9 +144,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
-    // If the activity has been created
-    var ready = false
-
     private var statusBarHeight = 0.0F
     private var navigationBarHeight = 0.0F
     private var actionBarHeight = 0.0F
@@ -271,18 +268,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         ABEventBus.getDefault().register(this)
 
         // force all windows to be populated
-        windowControl.windowSync.synchronizeAllScreens()
+        windowControl.windowSync.synchronizeAllScreens(true)
         updateActions()
         refreshScreenKeepOn()
-        requestSdcardPermission()
+        if(!initialized)
+            requestSdcardPermission()
         setupToolbarButtons()
 
         speakTransport.visibility = View.GONE
         updateSpeakTransportVisibility()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        ready = true
-        showBetaNotice()
+        if(!initialized)
+            showBetaNotice()
+        initialized = true
     }
 
     private fun showBetaNotice() {
@@ -476,7 +475,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
             id = dao.insertWorkspace(this)
         }
-        
+
         currentWorkspaceId = newWorkspaceEntity.id
     }
 
@@ -1196,6 +1195,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     companion object {
         lateinit var mainBibleActivity: MainBibleActivity
+        var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
         // ActivityBase.STD_REQUEST_CODE = 1

@@ -18,9 +18,7 @@
 
 package net.bible.android.control.page.window
 
-import android.util.Log
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPage
@@ -43,10 +41,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     fun setResyncBiblesRequired() {
         lastForceSyncBibles = System.currentTimeMillis()
-    }
-
-    init {
-        ABEventBus.getDefault().register(this)
     }
 
     fun synchronizeAllScreens(force: Boolean = false) {

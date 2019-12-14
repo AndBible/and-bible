@@ -235,7 +235,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     override fun changeBackgroundColour() {
         // if night mode then set dark background colour
 
-        if(mainBibleActivity.ready) {
+        if(MainBibleActivity.initialized) {
             UiUtils.applyTheme(mainBibleActivity)
         }
 
