@@ -175,12 +175,14 @@ open class BookmarkControl @Inject constructor(
         }
 
     /** create a new bookmark  */
-    fun addOrUpdateBookmark(bookmark: BookmarkDto): BookmarkDto {
+    fun addOrUpdateBookmark(bookmark: BookmarkDto, doNotSync: Boolean=false): BookmarkDto {
         val db = BookmarkDBAdapter()
         val newBookmark = try {
             db.insertOrUpdateBookmark(bookmark)
         } finally {}
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        }
         return newBookmark
     }
 

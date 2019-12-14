@@ -415,13 +415,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
                 bookmarkDto.playbackSettings = playbackSettings
-                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmarkDto.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 bookmarkDto.playbackSettings = playbackSettings
-                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
             }
 
             labelList.add(bookmarkControl.orCreateSpeakLabel)
