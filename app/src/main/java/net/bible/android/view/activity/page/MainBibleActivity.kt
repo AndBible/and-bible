@@ -271,7 +271,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         ABEventBus.getDefault().register(this)
 
         // force all windows to be populated
-        windowControl.windowSync.synchronizeAllScreens(true)
+        windowControl.windowSync.synchronizeAllScreens()
         updateActions()
         refreshScreenKeepOn()
         requestSdcardPermission()

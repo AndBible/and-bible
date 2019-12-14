@@ -30,12 +30,19 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
     private var lastSynchWasInNightMode: Boolean = false
+    private var lastForceSyncAll: Long = System.currentTimeMillis()
+    private var lastForceSyncBibles: Long = System.currentTimeMillis()
 
     fun setResyncRequired() {
-        this.lastForceSync = System.currentTimeMillis()
+        lastForceSyncAll = System.currentTimeMillis()
+    }
+
+    fun setResyncBiblesRequired() {
+        lastForceSyncBibles = System.currentTimeMillis()
     }
 
     init {
@@ -46,14 +53,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
         synchronizeScreens()
     }
 
-    private var lastForceSync: Long = System.currentTimeMillis()
 
     fun synchronizeAllScreens(force: Boolean = false) {
         if(force)
-            lastForceSync = System.currentTimeMillis()
+            setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            if(force || lastForceSync > window.lastUpdated)
+            if(lastForceSyncAll > window.lastUpdated)
                 window.updateText()
         }
     }
@@ -69,7 +75,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
         if(lastSynchWasInNightMode != ScreenSettings.isNightMode) {
-            lastForceSync = System.currentTimeMillis()
+            lastForceSyncAll = System.currentTimeMillis()
         }
 
         if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
@@ -77,7 +83,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey
                 var inactiveUpdated = false
-                val isTotalRefreshRequired = inactiveWindow.lastUpdated < lastForceSync
 
                 if (inactiveWindow.isSynchronised) {
                     // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
@@ -91,10 +96,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                         // prevent infinite loop as each screen update causes a synchronise by comparing last key
                         // only update pages if empty or synchronised
-                        if (inactiveWindow.lastUpdated < lastForceSync
+                        if (inactiveWindow.lastUpdated < lastForceSyncAll
                             || targetActiveWindowKey != inactiveWindowKey) {
-                            updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
-                                inactiveWindowKey, isTotalRefreshRequired)
+                            updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey, inactiveWindowKey)
                             inactiveUpdated = true
                         }
                     }
@@ -102,10 +106,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                 // force inactive screen to display something otherwise it may be initially blank
                 // or if nightMode has changed then force an update
-                if (!inactiveUpdated && isTotalRefreshRequired) {
+                if (!inactiveUpdated && inactiveWindow.lastUpdated < max(lastForceSyncBibles, lastForceSyncAll)) {
                     // force an update of the inactive page to prevent blank screen
-                    updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey,
-                        isTotalRefreshRequired)
+                    updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey)
                 }
 
             }
@@ -123,8 +126,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     /** refresh/synch inactive screen if required
      */
-    private fun updateInactiveWindow(inactiveWindow: Window, inactivePage: CurrentPage?,
-                                     targetKey: Key?, inactiveWindowKey: Key?, forceRefresh: Boolean) {
+    private fun updateInactiveWindow(inactiveWindow: Window, inactivePage: CurrentPage?, targetKey: Key?, inactiveWindowKey: Key?) {
         // standard null checks
         if (targetKey != null && inactivePage != null) {
             // Not just bibles and commentaries get this far so NOT always fine to convert key to verse
@@ -138,7 +140,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val currentVerse = if (inactiveWindowKey is Verse) {KeyUtil.getVerse(inactiveWindowKey)} else null
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
-            if(forceRefresh) {
+            if((lastForceSyncAll > inactiveWindow.lastUpdated) || (isBible && lastForceSyncBibles > inactiveWindow.lastUpdated)) {
                 inactiveWindow.updateText()
 
             } else {

@@ -292,7 +292,7 @@ open class BookmarkControl @Inject constructor(
                 db.insertBookmarkLabelJoin(bookmark, label)
             }
         } finally {}
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent(syncAllBibles = true))
+        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
     }
 
     fun saveOrUpdateLabel(label: LabelDto): LabelDto {
