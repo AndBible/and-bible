@@ -89,7 +89,7 @@ open class BookmarkControl @Inject constructor(
             if (bookmarkDto == null) { // prepare new bookmark and add to db
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = verseRange
-                bookmarkDto = addOrUpdateBookmark(bookmarkDto)
+                bookmarkDto = addOrUpdateBookmark(bookmarkDto, true)
                 success = bookmarkDto != null
                 message = R.string.bookmark_added
             } else {
@@ -119,7 +119,7 @@ open class BookmarkControl @Inject constructor(
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(android.R.id.content)
             if (bookmarkDto != null) {
-                if (deleteBookmark(bookmarkDto)) {
+                if (deleteBookmark(bookmarkDto, true)) {
                     Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
                 } else {
                     Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
@@ -231,7 +231,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     /** delete this bookmark (and any links to labels)  */
-    fun deleteBookmark(bookmark: BookmarkDto?): Boolean {
+    fun deleteBookmark(bookmark: BookmarkDto?, doNotSync: Boolean = false): Boolean {
         var bOk = false
         if (bookmark?.id != null) {
             val db = BookmarkDBAdapter()
@@ -239,7 +239,9 @@ open class BookmarkControl @Inject constructor(
                 db.removeBookmark(bookmark)
             } finally { }
         }
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        }
         return bOk
     }
 

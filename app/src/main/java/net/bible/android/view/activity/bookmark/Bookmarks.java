@@ -205,7 +205,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 	private void delete(List<BookmarkDto> bookmarks) {
 		for (BookmarkDto bookmark : bookmarks) {
-			bookmarkControl.deleteBookmark(bookmark);
+			bookmarkControl.deleteBookmark(bookmark, false);
 		}
 		loadBookmarkList();
 	}

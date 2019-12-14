@@ -158,9 +158,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                     // synchronized commentary
                     inactiveWindow.updateText()
-                } else {
-                    Log.e(TAG, "Unexpected case. Total updateText just in case. ")
-                    inactiveWindow.updateText()
                 }
             }
         }
