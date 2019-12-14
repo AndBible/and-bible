@@ -49,11 +49,6 @@ class WindowSync(private val windowRepository: WindowRepository) {
         ABEventBus.getDefault().register(this)
     }
 
-    fun onEvent(event: PassageChangedEvent) {
-        synchronizeScreens()
-    }
-
-
     fun synchronizeAllScreens(force: Boolean = false) {
         if(force)
             setResyncRequired()
