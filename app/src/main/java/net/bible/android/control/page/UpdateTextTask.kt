@@ -21,13 +21,10 @@ package net.bible.android.control.page
 import android.os.AsyncTask
 import android.util.Log
 
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.Window
 import net.bible.service.format.HtmlMessageFormatter
 
-import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Key
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

@@ -486,7 +486,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: UpdateSecondaryWindowEvent) {
-        if (window == event.updateScreen) {
+        if (window.id == event.updateWindowId) {
             if(event.yOffsetRatio != null) {
                 jumpToYOffsetRatio = event.yOffsetRatio
             }

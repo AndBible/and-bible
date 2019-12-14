@@ -139,7 +139,7 @@ class UpdateInactiveScreenTextTask() : UpdateTextTask() {
     /** callback from base class when result is ready  */
     override fun showText(text: String, screenToUpdate: Window) {
         ABEventBus.getDefault().post(
-            UpdateSecondaryWindowEvent(screenToUpdate, text, chapterVerse, yOffsetRatio));
+            UpdateSecondaryWindowEvent(screenToUpdate.id, text, chapterVerse, yOffsetRatio));
     }
 }
 

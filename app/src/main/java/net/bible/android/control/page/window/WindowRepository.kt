@@ -313,6 +313,9 @@ open class WindowRepository @Inject constructor(
         windowList.forEach {
             it.bibleView?.listenEvents = false
         }
+        if(::dedicatedLinksWindow.isInitialized) {
+            dedicatedLinksWindow.bibleView?.listenEvents = false
+        }
         windowList.clear()
         historyManagerProvider.get().clear()
         name = ""

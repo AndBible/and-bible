@@ -19,15 +19,14 @@
 package net.bible.android.control.event.window
 
 import net.bible.android.control.page.ChapterVerse
-import net.bible.android.control.page.window.Window
 
 /**
  * Active window has changed and the windows are synchronized so need to change inactive window
  */
 class UpdateSecondaryWindowEvent(
-	val updateScreen: Window,
-	val html: String,
-	val chapterVerse: ChapterVerse?,
-	val yOffsetRatio: Float?
+    val updateWindowId: Long,
+    val html: String,
+    val chapterVerse: ChapterVerse?,
+    val yOffsetRatio: Float?
 
 	) : WindowEvent
