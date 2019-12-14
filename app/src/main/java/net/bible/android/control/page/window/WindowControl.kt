@@ -359,16 +359,14 @@ open class WindowControl @Inject constructor(
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        if(!(event.window?.isLinksWindow == true)) {
-            windowSync.synchronizeScreens(event.window)
-        }
+        windowSync.synchronizeScreens(event.window)
     }
 
     fun onEvent(event: SynchronizeWindowsEvent) {
         if (event.syncAll) {
             windowSync.synchronizeAllScreens(true)
         } else {
-            windowSync.resynchRequired = true
+            windowSync.setResyncRequired()
             windowSync.synchronizeScreens()
         }
     }

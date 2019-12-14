@@ -32,8 +32,11 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 
 class WindowSync(private val windowRepository: WindowRepository) {
-    var resynchRequired = false
     private var lastSynchWasInNightMode: Boolean = false
+
+    fun setResyncRequired() {
+        this.lastForceSync = System.currentTimeMillis()
+    }
 
     init {
         ABEventBus.getDefault().register(this)
@@ -65,51 +68,50 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if(lastSynchWasInNightMode != ScreenSettings.isNightMode || resynchRequired) {
+        if(lastSynchWasInNightMode != ScreenSettings.isNightMode) {
             lastForceSync = System.currentTimeMillis()
         }
 
-        for (inactiveWindow in inactiveWindowList) {
-            val inactivePage = inactiveWindow.pageManager.currentPage
-            val inactiveWindowKey = inactivePage.singleKey
-            var inactiveUpdated = false
-            val isTotalRefreshRequired = inactiveWindow.lastUpdated < lastForceSync
+        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
+            for (inactiveWindow in inactiveWindowList) {
+                val inactivePage = inactiveWindow.pageManager.currentPage
+                val inactiveWindowKey = inactivePage.singleKey
+                var inactiveUpdated = false
+                val isTotalRefreshRequired = inactiveWindow.lastUpdated < lastForceSync
 
-            if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised && inactiveWindow.isSynchronised) {
-                // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
-                // Only Bible and cmtry are synch'd and they share a Verse key
-                updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey)
+                if (inactiveWindow.isSynchronised) {
+                    // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
+                    // Only Bible and cmtry are synch'd and they share a Verse key
+                    updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey)
 
-                if (isSynchronizableVerseKey(inactivePage) && inactiveWindow.isVisible) {
-                    // re-get as it may have been mapped to the correct v11n
-                    // this looks odd but the inactivePage key has already been updated to the activeScreenKey
-                    targetActiveWindowKey = inactivePage.singleKey
+                    if (isSynchronizableVerseKey(inactivePage) && inactiveWindow.isVisible) {
+                        // re-get as it may have been mapped to the correct v11n
+                        // this looks odd but the inactivePage key has already been updated to the activeScreenKey
+                        targetActiveWindowKey = inactivePage.singleKey
 
-                    // prevent infinite loop as each screen update causes a synchronise by comparing last key
-                    // only update pages if empty or synchronised
-                    if (resynchRequired || inactiveWindow.lastUpdated < lastForceSync
-                        || targetActiveWindowKey != inactiveWindowKey)
-                    {
-                        updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
+                        // prevent infinite loop as each screen update causes a synchronise by comparing last key
+                        // only update pages if empty or synchronised
+                        if (inactiveWindow.lastUpdated < lastForceSync
+                            || targetActiveWindowKey != inactiveWindowKey) {
+                            updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey,
                                 inactiveWindowKey, isTotalRefreshRequired)
-                        inactiveUpdated = true
+                            inactiveUpdated = true
+                        }
                     }
                 }
-            }
 
-            // force inactive screen to display something otherwise it may be initially blank
-            // or if nightMode has changed then force an update
-            if (!inactiveUpdated && isTotalRefreshRequired) {
-                // force an update of the inactive page to prevent blank screen
-                updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey,
+                // force inactive screen to display something otherwise it may be initially blank
+                // or if nightMode has changed then force an update
+                if (!inactiveUpdated && isTotalRefreshRequired) {
+                    // force an update of the inactive page to prevent blank screen
+                    updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey,
                         isTotalRefreshRequired)
-                inactiveUpdated = true
-            }
+                }
 
+            }
         }
 
         lastSynchWasInNightMode = ScreenSettings.isNightMode
-        resynchRequired = false
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not

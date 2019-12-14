@@ -1025,7 +1025,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                                windowControl.windowSync.resynchRequired = true
+                                windowControl.windowSync.setResyncRequired()
                                 bibleViewFactory.clear()
                                 runOnUiThread {
                                     currentWorkspaceId = 0
