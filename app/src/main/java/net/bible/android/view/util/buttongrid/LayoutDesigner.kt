@@ -44,10 +44,10 @@ class LayoutDesigner(private val view: View) {
         private val BIBLE_BOOK_LAYOUT_LAND = RowColLayout()
 
         init {
-            BIBLE_BOOK_LAYOUT.rows = 11
-            BIBLE_BOOK_LAYOUT.cols = 6
-            BIBLE_BOOK_LAYOUT_LAND.rows = 6
-            BIBLE_BOOK_LAYOUT_LAND.cols = 11
+            BIBLE_BOOK_LAYOUT.rows = 66
+            BIBLE_BOOK_LAYOUT.cols = 1
+            BIBLE_BOOK_LAYOUT_LAND.rows = 1
+            BIBLE_BOOK_LAYOUT_LAND.cols = 66
         }
     }
 
