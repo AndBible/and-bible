@@ -511,6 +511,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         checkWindows = true
     }
 
+    fun onEvent(event: NumberOfWindowsChangedEvent) {
+        executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset, {immediate: true});")
+    }
+
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow && contentVisible)
             executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset);")
