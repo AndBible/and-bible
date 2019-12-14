@@ -33,8 +33,6 @@ import org.crosswire.jsword.passage.Verse
 
 class WindowSync(private val windowRepository: WindowRepository) {
     var resynchRequired = false
-    var windowPreferencesChanged = false
-
     private var lastSynchWasInNightMode: Boolean = false
 
     init {
@@ -66,14 +64,16 @@ class WindowSync(private val windowRepository: WindowRepository) {
         var targetActiveWindowKey = activePage.singleKey
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
-        val needFullRefresh = lastSynchWasInNightMode != ScreenSettings.isNightMode
-            || windowPreferencesChanged || resynchRequired
+
+        if(lastSynchWasInNightMode != ScreenSettings.isNightMode || resynchRequired) {
+            lastForceSync = System.currentTimeMillis()
+        }
 
         for (inactiveWindow in inactiveWindowList) {
             val inactivePage = inactiveWindow.pageManager.currentPage
             val inactiveWindowKey = inactivePage.singleKey
             var inactiveUpdated = false
-            val isTotalRefreshRequired = needFullRefresh || inactiveWindow.lastUpdated < lastForceSync
+            val isTotalRefreshRequired = inactiveWindow.lastUpdated < lastForceSync
 
             if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised && inactiveWindow.isSynchronised) {
                 // inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
@@ -107,11 +107,8 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
 
         }
-        if(needFullRefresh) {
-            lastForceSync = System.currentTimeMillis()
-        }
+
         lastSynchWasInNightMode = ScreenSettings.isNightMode
-        windowPreferencesChanged = false
         resynchRequired = false
     }
 
