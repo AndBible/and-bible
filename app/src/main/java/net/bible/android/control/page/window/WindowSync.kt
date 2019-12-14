@@ -48,7 +48,10 @@ class WindowSync(private val windowRepository: WindowRepository) {
             setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            if(lastForceSyncAll > window.lastUpdated)
+            val bookCategory = window.pageManager.currentPage.currentDocument?.bookCategory
+            val isBible = BookCategory.BIBLE == bookCategory
+
+            if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
                 window.updateText()
         }
     }

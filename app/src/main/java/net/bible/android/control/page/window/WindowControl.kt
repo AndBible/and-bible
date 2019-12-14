@@ -363,12 +363,12 @@ open class WindowControl @Inject constructor(
     }
 
     fun onEvent(event: SynchronizeWindowsEvent) {
-        if(event.syncAll) {
+        if(event.forceSyncAll) {
             windowSync.setResyncRequired()
         } else {
             windowSync.setResyncBiblesRequired()
         }
-        windowSync.synchronizeScreens()
+        windowSync.synchronizeAllScreens()
     }
 
     fun isSeparatorMoving(): Boolean {
