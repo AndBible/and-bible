@@ -970,7 +970,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if (ScreenSettings.isNightModeChanged) {
             // then update text if colour changed
             documentViewManager.documentView.changeBackgroundColour()
-            PassageChangeMediator.getInstance().forcePageUpdate()
         }
     }
 

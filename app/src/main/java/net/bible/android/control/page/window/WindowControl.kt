@@ -191,7 +191,6 @@ open class WindowControl @Inject constructor(
             window.isSynchronised = activeWindow.isSynchronised
             if (windowRepository.isMaximisedState) {
                 this.activeWindow = window
-                PassageChangeMediator.getInstance().forcePageUpdate()
             }
         }
 
@@ -286,8 +285,6 @@ open class WindowControl @Inject constructor(
 
             // redisplay the current page
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-            if (!activeWindow.initialized)
-                PassageChangeMediator.getInstance().forcePageUpdate()
         }
     }
 
@@ -323,8 +320,6 @@ open class WindowControl @Inject constructor(
 
         if (switchingMaximised) {
             activeWindow = window
-            if (!activeWindow.initialized)
-                PassageChangeMediator.getInstance().forcePageUpdate()
         }
         window.restoreOngoing = false
     }
@@ -399,12 +394,6 @@ open class WindowControl @Inject constructor(
         if (isMultiWindow) {
             // need to layout multiple windows differently
             orientationChange()
-        }
-        // essentially if the current page is Bible then we need to recalculate verse offsets
-        // if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
-        else if (!activeWindowPageManager.currentPage.isSingleKey) {
-            // force a recalculation of verse offsets
-            PassageChangeMediator.getInstance().forcePageUpdate()
         }
     }
 

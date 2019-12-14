@@ -75,16 +75,6 @@ public class PassageChangeMediator {
 		this.onCurrentPageChanged(null);
 	}
 
-	/** the document has changed so ask the view to refresh itself
-	 */
-	public void forcePageUpdate() {
-		if (mBibleContentManager!=null) {
-			mBibleContentManager.updateText(true, null);
-		} else {
-			Log.w(TAG, "BibleContentManager not yet registered");
-		}
-	}
-
 	/** this is triggered on scroll
 	 */
 	public void onCurrentVerseChanged() {
