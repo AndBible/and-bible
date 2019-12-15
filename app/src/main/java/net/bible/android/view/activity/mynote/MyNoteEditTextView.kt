@@ -28,6 +28,7 @@ import android.widget.LinearLayout
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -67,6 +68,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         updatePadding()
+        load()
 
         // register for passage change events
         ABEventBus.getDefault().register(this)
@@ -84,6 +86,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     fun onEvent(event: BeforeCurrentPageChangeEvent) {
         // force MyNote.save if in MyNote and suddenly change to another view
         save()
+        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
     }
 
 	fun onEvent(event: AppToBackgroundEvent) {
@@ -95,8 +98,13 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     override fun show(html: String, updateLocation: Boolean) {
+        // NO-OP. 
+    }
+
+    fun load() {
         applyPreferenceSettings()
-        setText(html)
+        val currentPage = myNoteControl.activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage
+        setText(currentPage.currentPageContent)
         updatePadding()
     }
 
