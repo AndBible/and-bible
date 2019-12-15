@@ -163,9 +163,6 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun setCurrentDocument(doc: Book?) {
-        if(doc != null) {
-            CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", doc.initials).apply()
-        }
 		Log.d(TAG, "Set current doc to $doc")
 		val prevDoc = _currentDocument
 		if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {

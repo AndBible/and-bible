@@ -800,6 +800,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun setCurrentDocument(book: Book?) {
         windowControl.activeWindow.pageManager.setCurrentDocument(book)
+        if(windowControl.activeWindow.id == windowControl.windowRepository.firstVisibleWindow.id && book != null) {
+            val bookCategory = book.bookCategory
+            CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", book.initials).apply()
+        }
     }
 
     class FullScreenEvent(val isFullScreen: Boolean)
