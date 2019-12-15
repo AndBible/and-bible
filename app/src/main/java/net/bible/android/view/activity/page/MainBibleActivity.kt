@@ -802,6 +802,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.activeWindow.pageManager.setCurrentDocument(book)
         if(windowControl.activeWindow.id == windowControl.windowRepository.firstVisibleWindow.id && book != null) {
             val bookCategory = book.bookCategory
+            // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
             CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", book.initials).apply()
         }
     }
