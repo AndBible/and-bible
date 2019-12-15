@@ -58,7 +58,6 @@ import kotlinx.android.synthetic.main.main_bible_view.*
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.BibleContentManager
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.document.DocumentControl
@@ -92,6 +91,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
@@ -1050,6 +1050,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
                     windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
+                }
+                if(data?.component?.className == MyNotes::class.java.name) {
+                    invalidateOptionsMenu()
+                    documentViewManager.resetView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
