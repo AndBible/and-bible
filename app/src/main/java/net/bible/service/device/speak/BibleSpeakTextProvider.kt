@@ -391,12 +391,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(labelList.size > 1 || bookmarkDto.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmarkDto.playbackSettings = null
-                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
                 bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
                 Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmarkDto")
             }
             else {
-                bookmarkControl.deleteBookmark(bookmarkDto)
+                bookmarkControl.deleteBookmark(bookmarkDto, true)
                 Log.d("SpeakBookmark", "Removed bookmark from $bookmarkDto")
             }
             this.bookmarkDto = null
