@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.mynote
 
-import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.appcompat.widget.AppCompatEditText
 import android.util.TypedValue
@@ -30,7 +29,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.mynote.MyNoteControl
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -47,7 +45,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
 
     init {
 
-        setSingleLine(false)
+        isSingleLine = false
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT

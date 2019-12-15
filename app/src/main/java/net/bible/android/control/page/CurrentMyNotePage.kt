@@ -130,7 +130,17 @@ class CurrentMyNotePage internal constructor(
     }
 
     companion object {
-        private const val MY_NOTE_DUMMY_CONF = "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=\nVersification="
+        private const val MY_NOTE_DUMMY_CONF = """[MyNote]
+Description=My Note
+Category=OTHER
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/mynote/
+About=
+Versification="""
         private const val TAG = "CurrentMyNotePage"
     }
 

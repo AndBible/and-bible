@@ -79,7 +79,7 @@ class MyNoteControl @Inject constructor(private val activeWindowPageManagerProvi
     }
 
     //
-    val currentMyNoteDto: MyNoteDto
+    private val currentMyNoteDto: MyNoteDto
         get() { //
             val key = currentPageManager.currentMyNotePage.key
             val verseRange: VerseRange
@@ -102,7 +102,7 @@ class MyNoteControl @Inject constructor(private val activeWindowPageManagerProvi
 
     /** save the note to the database if it is new or has been updated
      */
-    fun saveMyNote(myNoteDto: MyNoteDto): Boolean {
+    private fun saveMyNote(myNoteDto: MyNoteDto): Boolean {
         Log.d(TAG, "saveMyNote started...")
         var isSaved = false
         if (myNoteDto.isNew) {
@@ -115,7 +115,7 @@ class MyNoteControl @Inject constructor(private val activeWindowPageManagerProvi
             // delete empty notes
             if (myNoteDto.isEmpty) {
                 myNoteDAO.deleteMyNote(myNoteDto)
-            } else if (!myNoteDto.equals(oldNote)) { // update changed notes
+            } else if (myNoteDto != oldNote) { // update changed notes
                 myNoteDAO.updateMyNote(myNoteDto)
                 isSaved = true
             }
