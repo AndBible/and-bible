@@ -98,6 +98,7 @@ public class VerseMenuCommandHandler {
 				case R.id.myNoteAddEdit:
 					mainActivity.setFullScreen(false);
 					myNoteControl.showMyNote(verseRange);
+					mainActivity.invalidateOptionsMenu();
 					mainActivity.documentViewManager.resetView();
 					isHandled = true;
 					break;
