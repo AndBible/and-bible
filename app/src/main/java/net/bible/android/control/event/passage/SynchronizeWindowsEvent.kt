@@ -23,4 +23,4 @@ package net.bible.android.control.event.passage
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-data class SynchronizeWindowsEvent(val forceSyncAll: Boolean = false, val all: Boolean = false)
+data class SynchronizeWindowsEvent(val forceSyncAll: Boolean = false)
