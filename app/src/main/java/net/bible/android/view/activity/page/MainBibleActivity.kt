@@ -791,7 +791,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         menu.setOnMenuItemClickListener { item ->
-            windowControl.activeWindow.pageManager.setCurrentDocument(docs[item.itemId])
+            setCurrentDocument(docs[item.itemId])
             true
         }
         menu.show()
@@ -800,7 +800,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun setCurrentDocument(book: Book?) {
         windowControl.activeWindow.pageManager.setCurrentDocument(book)
-        if(windowControl.activeWindow.id == windowControl.windowRepository.firstVisibleWindow.id && book != null) {
+        if(book != null) {
             val bookCategory = book.bookCategory
             // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
             CommonUtils.sharedPreferences.edit().putString("default-${bookCategory.name}", book.initials).apply()
