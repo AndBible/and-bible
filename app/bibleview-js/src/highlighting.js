@@ -68,10 +68,10 @@ function escapeSelector(selectr) {
 /**
  * Called by VerseActionModelMediator to highlight a verse
  */
-export function highlightVerse(chapterVerse, start) {
+export function highlightVerse(chapterVerse, start, offset) {
     const $verseSpan = $('#' + escapeSelector(chapterVerse));
-    if(start && $verseSpan[0].offsetTop < window.pageYOffset + toolbarOffset) {
-        doScrolling($verseSpan[0].offsetTop - toolbarOffset, 250);
+    if(start && $verseSpan[0].offsetTop < window.pageYOffset + offset) {
+        doScrolling($verseSpan[0].offsetTop - offset, 250);
     }
     $verseSpan.addClass("selected")
 }

@@ -652,7 +652,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return contextMenuInfo
     }
 
-    internal inner class BibleViewContextMenuInfo(targetView: View, private var targetLink: String) : ContextMenu.ContextMenuInfo {
+    internal inner class BibleViewContextMenuInfo(targetView: View, private var targetLink: String) : ContextMenuInfo {
         private var targetView: BibleView = targetView as BibleView
 
         fun activate(itemId: Int) {
@@ -679,7 +679,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     override fun highlightVerse(chapterVerse: ChapterVerse, start: Boolean) {
-        executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "' , $start)")
+        val offset = if(isTopWindow) (mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density) else 0f
+        executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "' , $start, $offset)")
     }
 
     override fun unhighlightVerse(chapterVerse: ChapterVerse) {
