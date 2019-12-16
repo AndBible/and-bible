@@ -426,9 +426,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="loading_backup">Loading database from backup…</string>
 
     <string name="backup_email_subject">And Bible database backup</string>
-    <string name="backup_email_message">Your And Bible database containing bookmarks and notes is attached</string>
-    <string name="backup_storage">Backup to storage</string>
-    <string name="restore_storage">Restore from storage</string>
+    <string name="backup_email_message">Your And Bible database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <!-- About -->
     <string name="about_copyright">Copyright: %s</string>
