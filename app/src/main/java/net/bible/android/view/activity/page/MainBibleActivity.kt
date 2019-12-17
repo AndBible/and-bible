@@ -54,6 +54,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
+import kotlinx.android.synthetic.main.main_bible_view.view.*
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -871,8 +872,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun showSystemUI() {
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !ScreenSettings.isNightMode) {
-            uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(ScreenSettings.isNightMode) {
+                window.navigationBarColor = resources.getColor(R.color.black, theme)
+            } else {
+                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.navigationBarColor = resources.getColor(R.color.nav_bar_grey, theme)
+            }
         }
 
         // only need to un-hide navigation bar in portrait mode
