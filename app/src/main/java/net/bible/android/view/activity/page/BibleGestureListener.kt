@@ -66,7 +66,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
         ABEventBus.getDefault().register(this)
-        autoFullScreen = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", true)
+        autoFullScreen = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {

@@ -85,7 +85,7 @@ open class TextContentMenuItemPreference(name: String, default: Boolean) :
 }
 
 class AutoFullscreenMenuItemPreference :
-    MenuItemPreference("auto_fullscreen_pref", true, false) {
+    MenuItemPreference("auto_fullscreen_pref", false, false) {
     override fun handle() = ABEventBus.getDefault().post(MainBibleActivity.AutoFullScreenChanged(value))
 }
 
