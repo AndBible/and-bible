@@ -54,7 +54,6 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
-import kotlinx.android.synthetic.main.main_bible_view.view.*
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -877,7 +876,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 window.navigationBarColor = resources.getColor(R.color.black, theme)
             } else {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.navigationBarColor = resources.getColor(R.color.nav_bar_grey, theme)
+                window.navigationBarColor = resources.getColor(R.color.white, theme)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    window.navigationBarDividerColor = resources.getColor(R.color.nav_bar_divider_grey, theme)
+                }
             }
         }
 
