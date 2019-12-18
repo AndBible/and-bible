@@ -43,7 +43,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         lastForceSyncBibles = System.currentTimeMillis()
     }
 
-    fun synchronizeAllScreens(force: Boolean = false) {
+    fun reloadAllScreens(force: Boolean = false) {
         if(force)
             setResyncRequired()
 
@@ -58,7 +58,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
      */
-    @JvmOverloads
+
     fun synchronizeScreens(sourceWindow_: Window? = null) {
         val sourceWindow = sourceWindow_?: windowRepository.activeWindow
         val activePage = sourceWindow.pageManager.currentPage

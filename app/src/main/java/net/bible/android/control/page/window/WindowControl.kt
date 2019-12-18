@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -320,8 +319,8 @@ open class WindowControl @Inject constructor(
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-
         windowSync.synchronizeScreens()
+        windowSync.reloadAllScreens()
 
         if (switchingMaximised) {
             activeWindow = window
@@ -369,7 +368,7 @@ open class WindowControl @Inject constructor(
             windowSync.setResyncBiblesRequired()
         }
         if(activeWindowPageManager.isMyNoteShown) return
-        windowSync.synchronizeAllScreens()
+        windowSync.reloadAllScreens()
     }
 
     fun isSeparatorMoving(): Boolean {
