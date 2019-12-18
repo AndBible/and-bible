@@ -443,7 +443,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun deleteWorkspace() {
         val nextWorkspace = workspaces.reversed().find { it.id < currentWorkspaceId } ?: workspaces[0]
         dao.deleteWorkspace(currentWorkspaceId)
-
+        windowRepository.clear(true)
         currentWorkspaceId = nextWorkspace.id
     }
 

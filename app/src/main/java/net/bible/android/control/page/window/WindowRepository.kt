@@ -309,9 +309,11 @@ open class WindowRepository @Inject constructor(
         setDefaultActiveWindow()
     }
 
-    fun clear() {
+    fun clear(destroy: Boolean = false) {
         windowList.forEach {
             it.bibleView?.listenEvents = false
+            if(destroy)
+                it.destroy()
         }
         if(::dedicatedLinksWindow.isInitialized) {
             dedicatedLinksWindow.bibleView?.listenEvents = false
