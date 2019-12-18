@@ -151,6 +151,7 @@ open class WindowRepository @Inject constructor(
 
     fun addNewWindow(): Window {
         val newWindow = createNewWindow()
+        newWindow.windowLayout.weight = activeWindow.windowLayout.weight
 
         if(isMaximisedState) {
             activeWindow.windowLayout.state = WindowState.MINIMISED
