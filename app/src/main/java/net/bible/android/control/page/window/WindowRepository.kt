@@ -34,6 +34,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.math.min
 
 @ApplicationScope
 open class WindowRepository @Inject constructor(
@@ -186,15 +187,15 @@ open class WindowRepository @Inject constructor(
         val wasMaximized = isMaximisedState
 
         window.windowLayout.state = WindowState.CLOSED
+        val currentPos = windowList.indexOf(window)
 
         // links window is just closed not deleted
         if (!window.isLinksWindow) {
             dao.deleteWindow(window.id)
             destroy(window)
             if(wasMaximized) {
-                val lastWindow = minimisedWindows.last()
-                lastWindow.isMaximised = true
-                activeWindow = lastWindow
+                activeWindow = windowList[min(currentPos, windowList.size - 1)]
+                activeWindow.isMaximised = windowList.size > 1
             }
         }
         if (!wasMaximized) setDefaultActiveWindow()
