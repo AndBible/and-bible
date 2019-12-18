@@ -69,7 +69,7 @@ class WindowRepositoryTest {
     fun testSetActiveWindow() {
         val newWindow = windowRepository!!.addNewWindow()
         assertThat(windowRepository!!.activeWindow.id, not(equalTo(newWindow.id)))
-        windowRepository!!.setActiveWindow(newWindow)
+        windowRepository!!.activeWindow = newWindow
         assertThat(windowRepository!!.activeWindow.id, equalTo(newWindow.id))
     }
 
