@@ -69,7 +69,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun initialize() {
-        if(::activeWindow.isInitialized) return
+        if(::_activeWindow.isInitialized) return
         id = sharedPreferences.getLong("current_workspace_id", 0)
         if(id == 0L || dao.workspace(id) == null) {
             id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
@@ -78,16 +78,21 @@ open class WindowRepository @Inject constructor(
         loadFromDb(id)
     }
 
-    // 1 based screen no
-    lateinit var activeWindow: Window
-        private set
+    private lateinit var _activeWindow: Window
 
-    fun setActiveWindow(newActiveWindow: Window) {
-        if (!::activeWindow.isInitialized || newActiveWindow != this.activeWindow) {
-            activeWindow = newActiveWindow
-            ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
+    // 1 based screen no
+    var activeWindow: Window
+        get() {
+            initialize()
+            return _activeWindow
         }
-    }
+        set (newActiveWindow) {
+            if (!::_activeWindow.isInitialized || newActiveWindow != this.activeWindow) {
+                _activeWindow = newActiveWindow
+                ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
+            }
+        }
+
 
     lateinit var dedicatedLinksWindow: LinksWindow
         private set
@@ -130,7 +135,7 @@ open class WindowRepository @Inject constructor(
 
     fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
-        setActiveWindow(newWindow)
+        activeWindow = newWindow
         return newWindow
     }
 
@@ -188,7 +193,7 @@ open class WindowRepository @Inject constructor(
             if(wasMaximized) {
                 val lastWindow = minimisedWindows.last()
                 lastWindow.isMaximised = true
-                setActiveWindow(lastWindow)
+                activeWindow = lastWindow
             }
         }
         if (!wasMaximized) setDefaultActiveWindow()

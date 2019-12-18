@@ -68,7 +68,7 @@ open class WindowControl @Inject constructor(
     var activeWindow: Window
         get() = windowRepository.activeWindow
         set(currentActiveWindow) {
-            windowRepository.setActiveWindow(currentActiveWindow)
+            windowRepository.activeWindow = currentActiveWindow
         }
 
     /**
@@ -164,7 +164,7 @@ open class WindowControl @Inject constructor(
 
         //TODO do not set links window active -  currently need to set links window to active
         // window otherwise BibleContentMediator logic does not refresh that window
-        windowRepository.setActiveWindow(linksWindow)
+        windowRepository.activeWindow = linksWindow
 
 
         // redisplay the current page

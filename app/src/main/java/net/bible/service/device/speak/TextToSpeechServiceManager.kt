@@ -106,7 +106,6 @@ class TextToSpeechServiceManager @Inject constructor(
 
     init {
         Log.d(TAG, "Creating TextToSpeechServiceManager")
-        windowControl.windowRepository.initialize()
         generalSpeakTextProvider = GeneralSpeakTextProvider(swordContentFacade)
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
         val verse = windowControl.activeWindowPageManager.currentBible.singleKey
