@@ -82,7 +82,6 @@
   <string name="download_refreshing_book_list">ปรับปรุงรายการโมดูลใหม่หรือไม่?</string>
   <string name="download_refresh_book_list_menu_item">ปรับปรุงล่าสุด</string>
   <string name="error_downloading">​เกิด​ข้อ​ผิด​พลาด​ใน​การ​ดาวน์​โหลด กรุณา​ตรวจสอบ​การ​เชื่อมต่อ​อินเตอร์เน็ต</string>
-  <string name="no_internet_connection">ไม่สามารถเชื่อมต่อกับอินเตอร์เน็ต</string>
   <string name="storage_space_warning">พื้นที่จัดเก็บที่มี ไม่เพียงพอ</string>
   <string name="too_many_jobs">มีงานจำนวนมาก รอสักครู่ เพื่อให้บางงานเสร็จก่อน และลองใหม่อีกครั้ง</string>
   <string name="document_not_installed">กรุณาดาวน์โหลด \'%s\'</string>
@@ -91,10 +90,8 @@
   <string name="rdg_plan_title">แผนการอ่าน</string>
   <string name="rdg_plan_selector_title">เลือกแผนการอ่าน</string>
   <string name="rdg_plan_day">วันที่ %s</string>
-  <string name="rdg_plan_set_start_jan1">เริ่ม 1 มกราคม</string>
   <string name="done">เสร็จ</string>
   <string name="reset">ค่าเริ่มต้น</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">ลบ</string>
   <string name="delete_index">ลบดัชนีค้นหา</string>
@@ -159,11 +156,7 @@
   <string name="mynote_add">เพิ่มบันทึกส่วนตัว</string>
   <string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string>
   <!--Backup and restore-->
-  <string name="backup">สำรองข้อมูล</string>
   <string name="backup_success">บันทึกย่อและที่คั่นหน้าของฉันได้บันทึกไว้ใน %s บนการ์ด SD</string>
-  <string name="restore">เรียกข้อมูลเดิม</string>
-  <string name="restore_confirmation">ทับบันทึกย่อและที่คั่นหน้าของฉัน</string>
-  <string name="restore_success">เรียกข้อมูลบันทึกย่อและที่คั่นหน้าของฉันจาก %s บนการ์ด SD</string>
   <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">พระคัมภีร์</string>
@@ -179,7 +172,6 @@
   <string name="yes">ใช่</string>
   <string name="no">ไม่มี</string>
   <string name="error">เกิดข้อผิดพลาด</string>
-  <string name="please_wait">กรุณารอสักครู่...</string>
   <string name="all">ทั้งหมด</string>
   <!--Errors-->
   <string name="error_occurred">เกิดข้อผิดพลาด</string>
@@ -188,4 +180,6 @@
   <string name="error_key_not_in_document">ไม่พบในเอกสาร</string>
   <string name="empty_list">ไม่มีรายการที่จะแสดง</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

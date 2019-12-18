@@ -139,7 +139,6 @@ Dlhé stlačenie tlačíta \"Späť\" otvorí Históriu.</string>
   <string name="download_refreshing_book_list">Obnovujem zoznam dostupných dokumentov</string>
   <string name="download_refresh_book_list_menu_item">Obnoviť</string>
   <string name="error_downloading">Vyskytla sa chyba pri sťahovaní. Skontrolujte svoje internetové pripojenie</string>
-  <string name="no_internet_connection">Nedá sa pripojiť k internetu</string>
   <string name="storage_space_warning">Na disku je málo miesta</string>
   <string name="too_many_jobs">Príliš veľa úloh naraz. Prosím, počkajte kým sa niektoré ukončia.</string>
   <string name="document_not_installed">Prosím, stiahnete \'%s</string>
@@ -156,10 +155,8 @@ Dlhé stlačenie tlačíta \"Späť\" otvorí Históriu.</string>
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>
   <string name="rdg_plan_day">Deň %s</string>
-  <string name="rdg_plan_set_start_jan1">Začiatok 1. Januára</string>
   <string name="done">Hotovo</string>
   <string name="reset">Znovu nastaviť</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Vymazať</string>
   <string name="delete_index">Vymazať index vyhľadávania</string>
@@ -315,11 +312,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="mynote_saved">Poznámka uložená</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a obnovenie</string>
-  <string name="backup">Záloha</string>
   <string name="backup_success">Vaše poznámky a záložky boli úspešne uložené v %s na SD karte</string>
-  <string name="restore">Obnoviť</string>
-  <string name="restore_confirmation">Prepísať aktuálne poznámky a záložky</string>
-  <string name="restore_success">Vaše poznámky a záložky boli úspešne nahrané z %s na SD karte</string>
   <string name="error_no_backup_file">Súbor zálohy nenájdený</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
@@ -339,7 +332,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="yes">Áno</string>
   <string name="no">Nie</string>
   <string name="error">Chyba</string>
-  <string name="please_wait">Prosím čakajte...</string>
   <string name="all">Všetko</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Upraviť</string>
@@ -354,4 +346,6 @@ Režim opakovania bol vypnutý, pretože
   <!--Notifications-->
   <string name="notification_channel_tts_status">Prevod textu na reč</string>
   <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

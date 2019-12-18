@@ -95,7 +95,6 @@
   <string name="download_refreshing_book_list">ലഭ്യമായ ഡോക്കുമെന്റ് പട്ടിക പുതുക്കുന്നു</string>
   <string name="download_refresh_book_list_menu_item">പുതുക്കുക</string>
   <string name="error_downloading">ഡൌൺലോഡ് ചെയ്യുന്നില്ല ; ദയവായി നിങ്ങളുടെ ഇന്റർനെറ്റ് ബന്ധം പരിശോധിക്കു</string>
-  <string name="no_internet_connection">ഇന്റർനെറ്റ് ബന്ധം കിട്ടുന്നില്ല</string>
   <string name="storage_space_warning">കംപ്യൂട്ടറിൽ സ്ഥലം അപര്യാപ്തം</string>
   <string name="too_many_jobs">പല കാര്യങ്ങൾ പ്രവർത്തിക്കുന്നതുകൊണ്ട്, ദയവായി അത് പൂർത്തിയായ ശേഷം വീണ്ടും ശ്രമിക്കുക</string>
   <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
@@ -110,10 +109,8 @@
   <string name="rdg_plan_title">വായന പദ്ധതി</string>
   <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കുക</string>
   <string name="rdg_plan_day">ദിവസം %s</string>
-  <string name="rdg_plan_set_start_jan1">ജനു 1 തുടങ്ങു</string>
   <string name="done">കഴിഞ്ഞു</string>
   <string name="reset">പുനഃരാരംഭിക്കൂ</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">നീക്കി കളയുക</string>
   <string name="delete_index">അന്വേഷണപട്ടിക നീക്കി കളയുക</string>
@@ -210,11 +207,7 @@
   <string name="mynote_saved">എന്റെ കുറിപ്പ് </string>
   <!--Backup and restore-->
   <string name="backup_and_restore">ബാക്കപ്പ് &amp; പൂര്‍വ്വസ്ഥിതിയിലാക്കുക</string>
-  <string name="backup">സംരക്ഷിക്കൂ</string>
   <string name="backup_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ സൂക്ഷിച്ചിരിക്കുന്നു</string>
-  <string name="restore">പുനഃരുദ്ധരിക്കുക</string>
-  <string name="restore_confirmation"> എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും വീണ്ടും ഒന്നുകൂടി എഴുതുണമോ?</string>
-  <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ നിന്നും പുനഃരുദ്ധരിച്ചു</string>
   <string name="error_no_backup_file">ബാക്കപ്പ് ഫയൽ കാണുന്നില്ല</string>
   <!--About-->
   <string name="about_copyright">പകർപ്പവകാശ %s</string>
@@ -234,7 +227,6 @@
   <string name="yes">അതെ</string>
   <string name="no">അല്ല</string>
   <string name="error">തെറ്റ്</string>
-  <string name="please_wait">ദയവായി അല്പം കാക്കു</string>
   <string name="all">എല്ലാം</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">തിരുത്തുക</string>
@@ -248,4 +240,6 @@
   <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

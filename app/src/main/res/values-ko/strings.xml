@@ -94,7 +94,6 @@
   <string name="download_refreshing_book_list">해당 문서의 목록 새로 고침</string>
   <string name="download_refresh_book_list_menu_item">새로고침</string>
   <string name="error_downloading">다운로드 오류가 발생했습니다. 인터넷 연결을 확인하시기 바랍니다.</string>
-  <string name="no_internet_connection">인터넷에 연결할 수 없습니다</string>
   <string name="storage_space_warning">저장 공간 부족</string>
   <string name="too_many_jobs">너무 많은 작업이 실행되고 있습니다. </string>
   <string name="document_not_installed">다운로드 \'%s\' 을하세요</string>
@@ -109,10 +108,8 @@
   <string name="rdg_plan_title">읽기 계획</string>
   <string name="rdg_plan_selector_title">읽기 계획을 선택</string>
   <string name="rdg_plan_day">일 %s</string>
-  <string name="rdg_plan_set_start_jan1">시작 Jan 1</string>
   <string name="done">완료</string>
   <string name="reset">재설정</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">삭제</string>
   <string name="delete_index">검색 색인을 삭제</string>
@@ -186,11 +183,7 @@
   <string name="mynote_add">내 참고 추가</string>
   <string name="mynote_saved">내 참고 저장</string>
   <!--Backup and restore-->
-  <string name="backup">백업</string>
   <string name="backup_success">SD 카드에 %s 의 파일에 저장 내 참고들 및 즐겨찾기</string>
-  <string name="restore">복원</string>
-  <string name="restore_confirmation">내 참고들 및 즐겨찾기를 덮어 쓰시겠습니까?</string>
-  <string name="restore_success">SD 카드에 %s 에서 복원한 내 참고들 및 즐겨찾기</string>
   <!--About-->
   <string name="about_copyright">저작권: %s</string>
   <string name="about_version">버전의 %s</string>
@@ -209,7 +202,6 @@
   <string name="yes">네</string>
   <string name="no">없음</string>
   <string name="error">오류</string>
-  <string name="please_wait">기다려주십시오 ...</string>
   <string name="all">전체</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">편집하다</string>
@@ -221,4 +213,6 @@
   <string name="error_key_not_in_document">문서에서 찾을 수 없음</string>
   <string name="empty_list">표시할 항목이 없습니다</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

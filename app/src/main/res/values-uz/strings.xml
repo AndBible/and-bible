@@ -117,7 +117,6 @@
   <string name="download_refreshing_book_list">Mavjud fayllarni ko\'rish uchun yangilang</string>
   <string name="download_refresh_book_list_menu_item">Yangila</string>
   <string name="error_downloading">Yuklash jarayonida xato sodir bo\'ldi. Iltimos, tarmoq aloqasini tekshirib ko\'ring.</string>
-  <string name="no_internet_connection">Tarmoq bilan aloqa yo\'q</string>
   <string name="storage_space_warning">Xotirada yetarli joy qo\'q.</string>
   <string name="too_many_jobs">Ko\'p vasifalar bajarilmoqda. Iltimos, ba\'zilarining tugashini kuting va qayta qilib ko\'ring.</string>
   <string name="document_not_installed">Iltimos, \'%s\' yuklab oling</string>
@@ -134,10 +133,8 @@
   <string name="rdg_plan_title">O\'qish Rejasi</string>
   <string name="rdg_plan_selector_title">O\'qish Rejasini tanlang</string>
   <string name="rdg_plan_day">Kun %s</string>
-  <string name="rdg_plan_set_start_jan1">1-Janvardan boshla</string>
   <string name="done">Tugadi</string>
   <string name="reset">Ilk holatga qaytarish</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">O\'chir</string>
   <string name="delete_index">Qidiruv indeksini o\'chir</string>
@@ -269,11 +266,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="mynote_saved">Mening Eslatmam saqlandi</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Faylni saqlab qo\'yish; Qayta tiklash</string>
-  <string name="backup">Rezerv nusxa</string>
   <string name="backup_success">Eslatma va Xatcho\'plar fleshkadagi %s ga saqlandi</string>
-  <string name="restore">Qayta tikla</string>
-  <string name="restore_confirmation">Eslatma va Xatcho\'plarimning ustiga yozaymi?</string>
-  <string name="restore_success">Eslatma va Xatcho\'plar fleshkadagi %s dan qayta tiklandi</string>
   <string name="error_no_backup_file">Saqlab qo\'yilgan fayl topilmadi</string>
   <!--About-->
   <string name="about_copyright">%sMualliflik Huquqi</string>
@@ -293,7 +286,6 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="yes">Ha</string>
   <string name="no">Yo\'q</string>
   <string name="error">Xato</string>
-  <string name="please_wait">Iltimos kuting...</string>
   <string name="all">Hammasi</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Tahrirlash</string>
@@ -308,4 +300,6 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <!--Notifications-->
   <string name="notification_channel_tts_status">Matnni gapirish</string>
   <string name="notification_channel_progress_status">Faylni yuklash progresi haqida ma\'lumot va boshqalar</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

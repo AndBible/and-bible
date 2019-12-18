@@ -143,7 +143,6 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>
   <string name="error_downloading">Pri prenosu se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
-  <string name="no_internet_connection">Ne da se povezati na internet</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
   <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
@@ -160,10 +159,8 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="rdg_plan_title">Načrt branja</string>
   <string name="rdg_plan_selector_title">Izberite Načrt branja</string>
   <string name="rdg_plan_day">Dan %s</string>
-  <string name="rdg_plan_set_start_jan1">Pričetek 1. Jan</string>
   <string name="done">Končano</string>
   <string name="reset">Reset</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Izbriši</string>
   <string name="delete_index">Izbriše indeks iskanja</string>
@@ -320,11 +317,7 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="mynote_saved">Moja opomba je shranjena</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova varnostne kopije</string>
-  <string name="backup">Shrani v arhiv</string>
   <string name="backup_success">Moje opombe in Zaznamki so shranjeni v %s na SD kartici</string>
-  <string name="restore">Povrni iz arhiva</string>
-  <string name="restore_confirmation">Prepišem Moje opombe in Zaznamke?</string>
-  <string name="restore_success">Moje opombe in Zaznamki so povrnjeni iz %s na SD kartici</string>
   <string name="error_no_backup_file">Arhivske datoteke ni mogoče najti</string>
   <!--About-->
   <string name="about_copyright">Avtorske pravice: %s</string>
@@ -344,7 +337,6 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="yes">Da</string>
   <string name="no">Ne</string>
   <string name="error">Napaka</string>
-  <string name="please_wait">Prosim počakaj...</string>
   <string name="all">Vse</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Uredi</string>
@@ -359,4 +351,6 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <!--Notifications-->
   <string name="notification_channel_tts_status">Besedilo v govor</string>
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

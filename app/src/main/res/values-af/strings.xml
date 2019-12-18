@@ -142,7 +142,10 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
   <string name="error_downloading">\'n Fout met aflaai. Gaan asseblief jou internet konneksie na.</string>
-  <string name="no_internet_connection">Kan nie met die internet konnekteer nie</string>
+  <string name="no_internet_connection">
+Kon nie aan Crosswire se module-bewaarplek koppel nie. 
+Bediener is moontlik af of u het moontlik geen internetverbinding nie. 
+Probeer asseblief later weer.</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
   <string name="too_many_jobs">Te veel take oop. Wag vir \'n paar om te voltooi en probeer dan weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
@@ -159,10 +162,47 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_jan1">Begin Jan 1</string>
+  <string name="rdg_plan_set_start_date">Stel Begin Datum ...</string>
   <string name="done">Klaar</string>
   <string name="reset">Herstel</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
+  <string name="plan_duplicate_user_plan">
+Daar is \'n gebruikers leesplan in sdcard
+jsword / leesplan met dieselfde naam as \'n interne plan. Dit kan nie hier gelys word nie.
+Herbenoem die lêer na iets anders, en laat die lêer uitbreiding as. eienskappe</string>
+  <string name="plan_name_y1ntpspr">NT, Psalms &amp; Spreuke in \'n Jaar</string>
+  <string name="plan_description_y1ntpspr">
+      Met vergunning van HEARTLIGHT Internet Magazine,
+      http://www.heartlight.org, toestemming verleen</string>
+  <string name="plan_name_y1ot1nt1_chronological">Kronologiese 1-Jaar deur die Bybel</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Beplan op grond van chronologiese gebeure in die Bybel.
+Die chronologiese tydlyn is ongeveer.
+ </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1-Jaar OT + NT Gelyktydig</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Lees deur die Bybel in 1 jaar, met hoofstukke
+elke dag in die OT en NT.
+ </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1-Jaar deur die Bybel</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Lees deur die Bybel in 1 Jaar, begin in Genesis
+en eindig in Openbaring.  Die OT is eerste , dan die NT
+ </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-Jaar 4 hoofstuke / dag</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Hierdie plan is gebaseer op die M\'Cheyne-leestelsel,
+met vier verskillende voorlesings vir gesins- sowel as persoonlike toewyding. Elke dag het
+ twee gedeeltes uit die Ou Testament, een uit die Nuwe Testament en een uit óf die Psalms óf die Evangelies. Oor een jaar,
+ lees jy die Ou Testament een keer en die Nuwe Testament en Psalms twee keer.
+ </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10-hoofstuke / dag Lees plan</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Met toestemming van prof. Horner, toestemming verleen</string>
+  <string name="plan_name_y2ot1ntps2">2-Jaar deur die Bybel, NT+PS twee keer.</string>
+  <string name="plan_description_y2ot1ntps2">
+Lees deur die Bybel in 2 jaar, en lees die NT en Psalms twee keer.
+Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming verleen
+ </string>
   <!--Document context menu-->
   <string name="delete">Skrap</string>
   <string name="delete_index">Skrap soek indeks</string>
@@ -308,12 +348,17 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="mynote_saved">My Nota is geberg</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
-  <string name="backup">Rugsteun</string>
+  <string name="backup">Rugsteun na ...</string>
   <string name="backup_success">My Notas en Boekmerke word gestoor in %s op die SD-kaart</string>
-  <string name="restore">Herstel</string>
-  <string name="restore_confirmation">Vervang My Notas en Boekmerke?</string>
-  <string name="restore_success">My Notas en Boekmerke is herstel van %s op die SD-kaart</string>
+  <string name="restore">Herstel vanaf ...</string>
+  <string name="restore_confirmation">Ooskryf My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes?</string>
+  <string name="restore_success">My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes is suksesvol herstel</string>
   <string name="error_no_backup_file">\'n Rugsteunlêer kon nie gevind word nie</string>
+  <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
+  <string name="backup_email_subject">And Bible databasis rugsteun</string>
+  <string name="backup_email_message">Jou And Bible databasis met boekmerke, aantekeninge, lees planne en werkruimtes is aangeheg</string>
+  <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
+ </string>
   <!--About-->
   <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
@@ -332,11 +377,12 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="yes">Ja</string>
   <string name="no">Nee</string>
   <string name="error">Fout</string>
-  <string name="please_wait">Wag asseblief ...</string>
+  <string name="please_wait">Wag Asseblief...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Wysig</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
+  <string name="verse_not_found">Vers nie gevind</string>
   <!--Errors-->
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
@@ -347,4 +393,36 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
+  <!--Workspaces-->
+  <string name="workspaces">Werkruimtes</string>
+  <string name="new_workspace">Nuwe Werkruimete</string>
+  <string name="switch_to_workspace">Skakel oor na werkruimte ...</string>
+  <string name="delete_workspace">Verwyder Werkruimte</string>
+  <string name="choose_workspace_to_open">Kies werkruimte om oop te maak</string>
+  <string name="new_copied_workspace">Kopieer hierdie werkruimte as nuut</string>
+  <string name="workspace_number">Werkruimte %d</string>
+  <string name="workspace_name_contents">%s:%s</string>
+  <string name="rename_workspace">Hernoem Werkruimte ...</string>
+  <string name="rename_workspace_title">Gee werkruimte \'n naam</string>
+  <string name="new_workspace_from_dialog">Nuut</string>
+  <string name="delete_workspace_from_dialog">Verwyder huidige</string>
+  <string name="history_title">Geskiedenis (%s)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
+  <string name="beta_notice_content_1">
+In die beta-weergawe is daar nuwe funksies wat nog nie behoorlik getoets is nie,
+en dus gebruik van beta kan onverwagte gedrag veroorsaak, dit wil sê foute.
+Dit word aanbeveel dat gewone Bybellesers eerder \'n stabiele weergawe gebruik.
+ </string>
+  <string name="beta_notice_content_2">
+Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
+  (verkieslik) via %s
+ </string>
+  <string name="beta_notice_content_3">As u programmeerder is, oorweeg dit om fout oplossings 
+ regstellings via %s jouself. :-)
+ </string>
+  <string name="beta_notice_github_issues">Github kwessies</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Los</string>
+  <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
 </resources>

@@ -139,10 +139,11 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="download_refreshing_book_list">Aktualigado de listo de disponeblaj dokumentoj</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
-  <string name="no_internet_connection">Ne povis konekti al la interreto</string>
+  <string name="no_internet_connection">
+Ne povis konekti al la deponejo de moduloj Crosswire. La servilo povas ne funkcii aŭ vi ne havas interretan konekton. Bonvolu reprovi poste.</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
   <string name="too_many_jobs">Tro multe da taskoj estas lanĉataj. Bonvolu atendi ĝis iajn finiĝos kaj reprovu.</string>
-  <string name="document_not_installed">Bonvolu elŝuti ‘%s’</string>
+  <string name="document_not_installed">Bonvolu elŝuti “%s”</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
@@ -156,10 +157,41 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
-  <string name="rdg_plan_set_start_jan1">Eki je jan 1-a</string>
+  <string name="rdg_plan_set_start_date">Agordi daton de komenco</string>
   <string name="done">Farita</string>
   <string name="reset">Reagordi</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
+  <string name="plan_duplicate_user_plan">
+Estas uzanto leganta planon ĉe la dosierujo “jsword/readingplan” kun la samo nomo kiel interna plano. Bonvolu alinomi la dosieron kaj lasu ĝian dosiersufikson kiel “.properties”.</string>
+  <string name="plan_name_y1ntpspr">NT, Psalmaro kaj Sentencoj jare</string>
+  <string name="plan_description_y1ntpspr">
+Danke al la interreta revuo Heartlight,
+https://www.heartlight.org, laŭ ilia permeso</string>
+  <string name="plan_name_y1ot1nt1_chronological">Tra Biblio laŭtempe jare</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Plano bazita sur laŭtempa ordo de okazaĵoj en Biblio,
+tiu ĉi ordo estas proksimuma.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">MT+NT dum jaro samtempe</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Tralegi Biblion en 1 jaro,
+ĉapitroj de MT kaj NT ĉiutage.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Tra Biblio jare</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Tralegi Biblion en 1 jaro, komencante je Genezo
+kaj finante je Apokalipso. Unue la MT, sekve la NT.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Legplano de M\'Cheyne: 1 jaro, po 4 ĉapitroj tage</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+La plano bazita sur la sistemo de s-ro M\'Cheyne,
+karakterizanta per kvar diversaj legaĵoj por legi kun familio aŭ sole.
+Po du alineoj el la Malnova Testamento, po unu el la Nova Testamento kaj po unu aŭ el Psalmoj aŭ evangelio por tago.
+Dum unu jaro vi legos la Malnovan Testamenton unufoje kaj la Malnovan Testamenton kaj Psalmoj dufoje.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Legplano de Horner: po 10 ĉapitroj tage</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Danke al p-ro Horner, laŭ lia permeso</string>
+  <string name="plan_name_y2ot1ntps2">Tra Biblio 2-jare, NT k Psalmoj dufoje</string>
+  <string name="plan_description_y2ot1ntps2">
+Tralegi Biblion en 2 jaroj, tralegi la Novan Testamenton kaj Psalmojn dufoje.
+Danke al Wholesome Words, https://www.wholesomewords.org,
+laŭ ilia permeso.</string>
   <!--Document context menu-->
   <string name="delete">Forigi</string>
   <string name="delete_index">Forigi serĉ-indekson</string>
@@ -228,7 +260,7 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="speak_settings_title">Ĝeneralaj agordoj de parolo</string>
   <string name="speak_bookmarking_settings_title">Agordoj de legosignoj</string>
   <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
-  <string name="speak_advanced_settings">Spertaj agordoj</string>
+  <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
   <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
   <string name="repeat_passage">Ripeti alineon</string>
@@ -303,12 +335,15 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="mynote_saved">Mia noto konservita</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
-  <string name="backup">Fari sekurkopion</string>
+  <string name="backup">Sekurkopii al…</string>
   <string name="backup_success">Miaj notoj kaj legosignoj konservitaj en %s en SD-karto</string>
-  <string name="restore">Restarigi</string>
-  <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn kaj legosignojn?</string>
-  <string name="restore_success">Miaj notoj kaj legosignoj restarigitaj el %s de SD-karto</string>
+  <string name="restore">Restarigi el…</string>
+  <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, legplanojn kaj laborspacojn?</string>
+  <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, legplanojn kaj laborspacojn</string>
   <string name="error_no_backup_file">Ne povis trovi dosieron de sekurkopio</string>
+  <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
+  <string name="backup_email_subject">And Biblio: sekurkopio de datumbazo</string>
+  <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <!--About-->
   <string name="about_copyright">Kopirajto: %s</string>
   <string name="about_version">Versio: %s</string>
@@ -332,6 +367,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="default_value">Implicita</string>
   <string name="edit">Redakti</string>
   <string name="watch_tutorial_video">Spekti filmetan instruilon (en la angla)</string>
+  <string name="verse_not_found">Ne trovis verson</string>
   <!--Errors-->
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
@@ -342,4 +378,29 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
+  <!--Workspaces-->
+  <string name="workspaces">Laborspacoj</string>
+  <string name="new_workspace">Nova laborspaco</string>
+  <string name="switch_to_workspace">Baskuli laborspacon…</string>
+  <string name="delete_workspace">Forigi tiun ĉi laborspacon</string>
+  <string name="choose_workspace_to_open">Elektu laborspacon por malfermi</string>
+  <string name="new_copied_workspace">Duobligi tiun ĉi laborspacon</string>
+  <string name="workspace_number">Laborspaco %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Alinomi laborspacon…</string>
+  <string name="rename_workspace_title">Bonvolu enigi nomon por tiu ĉi laborspaco</string>
+  <string name="new_workspace_from_dialog">Nova</string>
+  <string name="delete_workspace_from_dialog">Forigi la nunan</string>
+  <string name="history_title">Historio (%s)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
+  <string name="beta_notice_content_1">
+En versio “beta” estas novajn eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
+  <string name="beta_notice_content_2">
+Beta-uzantoj bonvolu raporti erarojn per la Vendejo Play aŭ (prefere) per %s.</string>
+  <string name="beta_notice_content_3">Se vi estas programisto, bonvolu konsideri mem ripari erarojn per %s. :-)</string>
+  <string name="beta_notice_github_issues">erar‑spurilo ĉe GitHub</string>
+  <string name="beta_notice_github">GitHub</string>
+  <string name="beta_notice_dismiss">Ignori</string>
+  <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
 </resources>

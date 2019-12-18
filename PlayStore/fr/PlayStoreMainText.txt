@@ -5,7 +5,7 @@ And Bible est un logiciel biblique libre et gratuit, sans publicités, et foncti
 * Interface configurable en chinois, russe, allemand, anglais, hongrois, tchèque, hébreu, hindi ...
 * Différents plans de lecture de la Bible
 * Entièrement libre et gratuit, aucune publicité, aucun mail
-* Plusieurs Bibles en français, incluant les Bibles Segond, Darby, Martin, Septante...
+* Over 40 English Bibles including KJV and NET
 * Commentaires bibliques
 * Dictionnaires bibliques et livres d'étude
 * Tous les documents sont distribués de manière légale
@@ -25,7 +25,7 @@ And Bible est un logiciel biblique libre et gratuit, sans publicités, et foncti
 
 Nous sommes tous bénévoles; nous ne vous enverrons pas de mails, ni de publicités. Nous n'appelons jamais à recevoir, ni ne recevons de dons. Nous ne vous demanderons pas de vous enregistrer. And Bible ne collecte aucune information de votre mobile.
 
-La provenance de tous les documents est soigneusement vérifiée pour s'assurer que tous les documents peuvent être légalement distribués ou qu'une permission a été accordée par le détendeur des droits.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Notes</b>
 * And Bible sur Facebook: https://www.facebook.com/AndBible/

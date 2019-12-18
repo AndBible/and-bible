@@ -68,7 +68,6 @@
   <string name="download_refreshing_book_list">入手可能な文書リストは更新中</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
   <string name="error_downloading">ダウンロードエラーが発生しました。インターネットの接続を確認してください。</string>
-  <string name="no_internet_connection">インターネットに接続できませんでした</string>
   <string name="storage_space_warning">ローカルストレージ容量不足です</string>
   <string name="document_not_installed">「%s」をダウンロードして下さい</string>
   <!--Install zip file-->
@@ -76,10 +75,8 @@
   <string name="rdg_plan_title">読書計画</string>
   <string name="rdg_plan_selector_title">読書計画を選択</string>
   <string name="rdg_plan_day">%s 日</string>
-  <string name="rdg_plan_set_start_jan1">1月1日をスタート</string>
   <string name="done">完了</string>
   <string name="reset">リセット</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">削除</string>
   <string name="delete_index">索引消す</string>
@@ -135,8 +132,6 @@
   <string name="mynote_add">メモを追加</string>
   <string name="mynote_saved">マイメモが保存された</string>
   <!--Backup and restore-->
-  <string name="backup">バックアップ</string>
-  <string name="restore">リストア</string>
   <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">聖書</string>
@@ -152,7 +147,6 @@
   <string name="yes">はい</string>
   <string name="no">いいえ</string>
   <string name="error">エラー</string>
-  <string name="please_wait">お待たせください。</string>
   <string name="all">全部\n</string>
   <!--Errors-->
   <string name="error_occurred">エラーが起こりました。</string>
@@ -160,4 +154,6 @@
   <string name="error_key_not_in_document">文書から探す事ができません。</string>
   <string name="empty_list">アイテムなし</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

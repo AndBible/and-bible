@@ -121,7 +121,6 @@
   <string name="download_refreshing_book_list">Опресняване на списъка</string>
   <string name="download_refresh_book_list_menu_item">Обнови</string>
   <string name="error_downloading">Грешка. Моля проверете достъпа до интернет.</string>
-  <string name="no_internet_connection">Няма връзка с интернет.</string>
   <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
   <string name="too_many_jobs">Се изпълняват твърде много задачи. Моля изчакайте и опитайте пак.</string>
   <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
@@ -138,10 +137,8 @@
   <string name="rdg_plan_title">План за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
   <string name="rdg_plan_day">Ден %s</string>
-  <string name="rdg_plan_set_start_jan1">Започни с 1 януари</string>
   <string name="done">Готово</string>
   <string name="reset">Изчистване</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Изтрий</string>
   <string name="delete_index">Изтрий индекса за търсене</string>
@@ -231,11 +228,7 @@
   <string name="mynote_saved">Съхранено</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Резервно копие</string>
-  <string name="backup">Резервно копие</string>
   <string name="backup_success">Бележките и отметките са съхранени в %s на SD картата</string>
-  <string name="restore">Възстанови</string>
-  <string name="restore_confirmation">Презаписване на бележките и отметките?</string>
-  <string name="restore_success">Бележките и отметките са възстановени от %s на SD картата</string>
   <string name="error_no_backup_file">Не е намерено резервно копие</string>
   <!--About-->
   <string name="about_copyright">Авторско право: %s</string>
@@ -255,7 +248,6 @@
   <string name="yes">Да</string>
   <string name="no">Не</string>
   <string name="error">Грешка</string>
-  <string name="please_wait">Моля изчакайте</string>
   <string name="all">Всичко</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Редактирай</string>
@@ -268,4 +260,6 @@
   <string name="error_key_not_in_document">Не се намира в зададения ресурс</string>
   <string name="empty_list">Нищо за показване</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

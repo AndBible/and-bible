@@ -81,7 +81,6 @@
   <string name="download_refreshing_book_list">اعادة تحديث قائمة المستندات المتاحة</string>
   <string name="download_refresh_book_list_menu_item">اعادة تحديث (refresh)</string>
   <string name="error_downloading">حدث خطأ اتناء التحميل، من فضلك تأكد من اتصالك بشبكة الانترنت</string>
-  <string name="no_internet_connection">تعذر الاتصال بشبكة الانترنت</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
   <string name="too_many_jobs">يوجد العديد من المهام تنفذ. برجاء انتظارها حتى تنتهى ثم حاول مرة أخرى.</string>
   <string name="document_not_installed">برجاء تحميل \'%s\'</string>
@@ -90,10 +89,8 @@
   <string name="rdg_plan_title">خطة القراءة</string>
   <string name="rdg_plan_selector_title">اختيار خطة القراءة</string>
   <string name="rdg_plan_day">يوم %s</string>
-  <string name="rdg_plan_set_start_jan1">بداية من 1 يناير</string>
   <string name="done">تم</string>
   <string name="reset">اعادة تهيئة</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">الغاء (حذف)</string>
   <string name="delete_index">حذف  فهرس البحث.</string>
@@ -160,11 +157,7 @@
   <string name="mynote_add">أضف ملاحظة </string>
   <string name="mynote_saved">تم حفظ ملاحظتي</string>
   <!--Backup and restore-->
-  <string name="backup">عمل نسخة احتياطية للرجوع</string>
   <string name="backup_success">تم حفظ %s ملاحظاتي و شارات الرجوع على شريحة الذاكرة </string>
-  <string name="restore">إستعادة</string>
-  <string name="restore_confirmation">متأكد من الكتابة على ملاحظاتي و شارات الرجوع؟</string>
-  <string name="restore_success">تم تحميل %s ملاحظاتي و شارات الرجوع على شريحة الذاكرة </string>
   <!--About-->
   <string name="about_version">رقم الإصدار: %s</string>
   <string name="about_versification">رقم المنظومة: %s</string>
@@ -182,7 +175,6 @@
   <string name="yes">نعم</string>
   <string name="no">لا</string>
   <string name="error">خطأ</string>
-  <string name="please_wait">برجاء الإنتظار</string>
   <string name="all">الكل</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
@@ -192,4 +184,6 @@
   <string name="error_key_not_in_document">لا يوجد مستند</string>
   <string name="empty_list">لا يوجد مواد للعرض</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

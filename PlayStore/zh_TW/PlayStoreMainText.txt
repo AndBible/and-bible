@@ -5,7 +5,7 @@ And 聖經是一個開源、離線、完全免費且沒有廣告的聖經程式�
 * 介面語言有中文、俄羅斯文、德文、法文、匈牙利文、捷克文、波蘭文、希伯來文、印地文...
 * 多個聖經閱讀計劃
 * 完全免費。沒有廣告或電郵
-* 超過40本英文聖經，如ESV、KJV及NET
+* 超過40種英文譯本，包括KJV及NET
 * 29本聖經注釋
 * 豐富的字典及基督教書籍
 * 所有文件都是合法發佈（所以沒有包含NKJV或NIV等）
@@ -25,7 +25,7 @@ And 聖經是一個開源、離線、完全免費且沒有廣告的聖經程式�
 
 我們都是義務參與。我們不會發出煩人的電郵、廣告，也不會要求或接受捐款，亦不需註冊。And 聖經不會收集手機的任個資料。
 
-我們對所有文件的出處進行徹底研究，以確保所有文件可以合法分發、或者已取得版權持有人的授予許可（例ESV）。這也是為什麼And 聖經沒有包括 NIV或NJKV等文件。
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>備註</b>
 * 在Facebook上讚好And 聖經：https://www.facebook.com/AndBible/

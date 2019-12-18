@@ -141,7 +141,6 @@
   <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
   <string name="error_downloading">下載時發生錯誤。請檢查您的互聯網連接。</string>
-  <string name="no_internet_connection">無法連接網絡</string>
   <string name="storage_space_warning">SD卡儲存空間不足</string>
   <string name="too_many_jobs">正執行太多任務。 請等候一些任務完成後再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
@@ -158,10 +157,8 @@
   <string name="rdg_plan_title">閱讀計劃</string>
   <string name="rdg_plan_selector_title">選擇閱讀計劃</string>
   <string name="rdg_plan_day">第 %s 天</string>
-  <string name="rdg_plan_set_start_jan1">從1月1日開始</string>
   <string name="done">完成</string>
   <string name="reset">重設</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">刪除</string>
   <string name="delete_index">刪除索引</string>
@@ -316,11 +313,7 @@
   <string name="mynote_saved">我的筆記已儲存</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">備份及回復</string>
-  <string name="backup">備份</string>
   <string name="backup_success">我的筆記和書籤已儲存在SD卡的%s目錄中</string>
-  <string name="restore">回復</string>
-  <string name="restore_confirmation">覆寫現有我的筆記和書籤嗎？</string>
-  <string name="restore_success">我的筆記和書籤已經從SD卡目錄 %s 中的備份中回復</string>
   <string name="error_no_backup_file">找不到備份檔案</string>
   <!--About-->
   <string name="about_copyright">版權：%s</string>
@@ -340,7 +333,6 @@
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
-  <string name="please_wait">請稍等...</string>
   <string name="all">全部</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">編輯</string>
@@ -355,4 +347,6 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">文字轉語音</string>
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

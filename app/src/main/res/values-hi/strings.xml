@@ -81,7 +81,6 @@
   <string name="download_refreshing_book_list">किताब-सूची ताज़ा करें</string>
   <string name="download_refresh_book_list_menu_item">ताज़ा करें</string>
   <string name="error_downloading">डाउनलोड में त्रुटि. इंटरनेट चेक करें</string>
-  <string name="no_internet_connection">इंटरनेट उपलब्ध नहीं</string>
   <string name="storage_space_warning">किताब के लिए जगह कम है</string>
   <string name="too_many_jobs">कई कार्य क्रियान्वित।  कृपया प्रतीक्षा करें।</string>
   <string name="document_not_installed">कृपया डाउनलोड करें \'%s\'</string>
@@ -90,10 +89,8 @@
   <string name="rdg_plan_title">पठन-योजना</string>
   <string name="rdg_plan_selector_title">एक पठन-योजना चुनें</string>
   <string name="rdg_plan_day">दिवस %s</string>
-  <string name="rdg_plan_set_start_jan1">आरंभ - जनवरी 1</string>
   <string name="done">समाप्त</string>
   <string name="reset"> पुनः तैयार करना</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">मिटाओ</string>
   <string name="delete_index">खोज सूचकांक मिटाओ</string>
@@ -160,11 +157,7 @@
   <string name="mynote_add">टिप्पणी लिखो</string>
   <string name="mynote_saved">टिप्पणी सुरक्षित </string>
   <!--Backup and restore-->
-  <string name="backup">बैकअप</string>
   <string name="backup_success">टिप्पणी / पुस्तक-चिन्ह, एस-डी कार्ड में यहां सुरक्षित: %s </string>
-  <string name="restore">बैकअप से नवीकरण</string>
-  <string name="restore_confirmation">बैकअप से मेरे टिप्पणी/पुस्तक-चिन्ह लिखना ?</string>
-  <string name="restore_success">टिप्पणी / पुस्तक-चिन्ह लिए, एस-डी कार्ड से: %s </string>
   <!--About-->
   <string name="about_version">संस्करण: %s</string>
   <string name="about_versification">छंद व्यवस्था: %s</string>
@@ -182,7 +175,6 @@
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
   <string name="error">त्रुटि</string>
-  <string name="please_wait"> कृपया प्रतीक्षा करें...</string>
   <string name="all">संपूर्ण</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
@@ -192,4 +184,6 @@
   <string name="error_key_not_in_document">इस किताब में नहीं मिला</string>
   <string name="empty_list">कुछ मौजूद नहीं</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

@@ -92,7 +92,6 @@
   <string name="download_refreshing_book_list">Uppdaterar listan över tillgängliga böcker</string>
   <string name="download_refresh_book_list_menu_item">Uppdatera</string>
   <string name="error_downloading">Ett fel uppstod vid nedladdning. Kontrollera din Internet-anslutning.</string>
-  <string name="no_internet_connection">Kunde inte ansluta till Internet</string>
   <string name="storage_space_warning">Minnet på enheten är för litet.</string>
   <string name="too_many_jobs">För många aktiviteter körs. Vänligen vänta tills några är klara och försök igen.</string>
   <string name="document_not_installed">Vänligen ladda ner \'%s\'</string>
@@ -107,10 +106,8 @@
   <string name="rdg_plan_title">Läsningsplan</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_jan1">Börja 1 jan</string>
   <string name="done">Färdig</string>
   <string name="reset">Återställ</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Radera</string>
   <string name="delete_index">Radera sökindex</string>
@@ -182,11 +179,7 @@
   <string name="mynote_add">Lägg till anteckning</string>
   <string name="mynote_saved">Anteckning sparad</string>
   <!--Backup and restore-->
-  <string name="backup">Säkerhetskopia</string>
   <string name="backup_success">Anteckningar och bokmärken sparade i %s på SD-kortet</string>
-  <string name="restore">Återställ</string>
-  <string name="restore_confirmation">Skriv över anteckningar och bokmärken?</string>
-  <string name="restore_success">Anteckningar och bokmärken återställda från %s på SD-kortet</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version: %s</string>
@@ -204,7 +197,6 @@
   <string name="yes">Ja</string>
   <string name="no">Nej</string>
   <string name="error">Fel</string>
-  <string name="please_wait">Vänligen vänta...</string>
   <string name="all">Alla</string>
   <!--Errors-->
   <string name="report_error">Skicka rapport</string>
@@ -214,4 +206,6 @@
   <string name="error_key_not_in_document">Hittades inte i bok</string>
   <string name="empty_list">Inga poster att visa</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

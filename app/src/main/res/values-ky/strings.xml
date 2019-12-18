@@ -91,7 +91,6 @@
   <string name="download_refreshing_book_list">Кол жеткен китептердин тизмеси жаңыланып жатат.</string>
   <string name="download_refresh_book_list_menu_item">Жаңылоо</string>
   <string name="error_downloading">Ката кетти. Интернетке туташууну текшериңиз.</string>
-  <string name="no_internet_connection">Интернетке туташпай калды.</string>
   <string name="storage_space_warning">Сактоо үчүн орун жетпейт.</string>
   <string name="too_many_jobs">Өтө эле көп тапшырма аткарылып жатат. Бир аз күтө туруп, анан кайрадан аракеттенип көрүңүз.</string>
   <string name="document_not_installed">\'%s\' жүктөп алыңыз.</string>
@@ -106,10 +105,8 @@
   <string name="rdg_plan_title">Окуу планы</string>
   <string name="rdg_plan_selector_title">Окуу планын тандоо</string>
   <string name="rdg_plan_day">%s күн</string>
-  <string name="rdg_plan_set_start_jan1">1 январдан</string>
   <string name="done">Аткарылды</string>
   <string name="reset">Планды алмаштыруу</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Өчүрүү</string>
   <string name="delete_index">Издөө индексин өчүрүү</string>
@@ -179,11 +176,7 @@
   <string name="mynote_add">Жеке байкоомду кошуу</string>
   <string name="mynote_saved">Сакталды</string>
   <!--Backup and restore-->
-  <string name="backup">Резервдин көчүрмөсү</string>
   <string name="backup_success">Жеке байкоолор менен чөпкаттар SD картадагы %s баштыкта сакталды.</string>
-  <string name="restore">Калыбына келтирүү</string>
-  <string name="restore_confirmation">Жеке байкоолор менен чөпкаттарды алмаштырасызбы?</string>
-  <string name="restore_success">Жеке байкоолор менен чөпкаттарды SD картадагы %s баштыктан калыбына келтирилди.</string>
   <!--About-->
   <string name="about_copyright">Автордук укук %s</string>
   <string name="about_version">Версия: %s</string>
@@ -202,7 +195,6 @@
   <string name="yes">Ооба</string>
   <string name="no">Жок</string>
   <string name="error">Ката кетти</string>
-  <string name="please_wait">Күтө туруңуз...</string>
   <string name="all">Баары</string>
   <string name="default_value">Жалпы туралоо боюнча </string>
   <!--Errors-->
@@ -213,4 +205,6 @@
   <string name="error_key_not_in_document">Ресурстан табылган жок.</string>
   <string name="empty_list">Тизмеде маалымат жок.</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

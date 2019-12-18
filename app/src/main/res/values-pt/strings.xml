@@ -92,7 +92,6 @@
   <string name="download_refreshing_book_list">Atualizando a lista de documentos disponíveis</string>
   <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
-  <string name="no_internet_connection">Não foi possível conectar à internet</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
   <string name="too_many_jobs">Existem muitas tarefas sendo executadas. Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
   <string name="document_not_installed">Por favor baixe: \'%s\'</string>
@@ -107,10 +106,8 @@
   <string name="rdg_plan_title">Plano de leitura</string>
   <string name="rdg_plan_selector_title">Escolha um plano de leitura</string>
   <string name="rdg_plan_day">Dia %s</string>
-  <string name="rdg_plan_set_start_jan1">Início em 1º de Janeiro</string>
   <string name="done">Concluído</string>
   <string name="reset">Reiniciar</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Excluir</string>
   <string name="delete_index">Excluir índice de pesquisa</string>
@@ -180,11 +177,7 @@
   <string name="mynote_add">Adicionar nova anotação</string>
   <string name="mynote_saved">Anotação salva</string>
   <!--Backup and restore-->
-  <string name="backup">Backup</string>
   <string name="backup_success">As Anotações e Favoritos foram salvos em %s no cartão de memória SD</string>
-  <string name="restore">Restaurar</string>
-  <string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string>
-  <string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versão: %s</string>
@@ -203,7 +196,6 @@
   <string name="yes">Sim</string>
   <string name="no">Não</string>
   <string name="error">Erro</string>
-  <string name="please_wait">Por favor, aguarde...</string>
   <string name="all">Todos</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
@@ -214,4 +206,6 @@
   <string name="error_key_not_in_document">Não encontrado no documento</string>
   <string name="empty_list">Sem itens para exibir</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

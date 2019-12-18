@@ -138,7 +138,6 @@
   <string name="download_refreshing_book_list">Bezig met verversen van de lijst met beschikbare documenten</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
   <string name="error_downloading">Er is een fout opgetreden bij het downloaden. Controleer je internetverbinding.</string>
-  <string name="no_internet_connection">Kan geen verbinding maken met het internet</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
@@ -155,10 +154,8 @@
   <string name="rdg_plan_title">Leesplan</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_jan1">Beginnen op 1 jan</string>
   <string name="done">Klaar</string>
   <string name="reset">Standaardwaarden</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Verwijderen</string>
   <string name="delete_index">Zoekindex verwijderen</string>
@@ -314,11 +311,7 @@
   <string name="mynote_saved">Mijn notitie is opgeslagen</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Back-up en herstel</string>
-  <string name="backup">Back-up maken</string>
   <string name="backup_success">Mijn notities en Bladwijzers opslaan in %s op de SD-kaart</string>
-  <string name="restore">Herstellen</string>
-  <string name="restore_confirmation">Mijn Notities en Bladwijzers overschrijven?</string>
-  <string name="restore_success">Mijn Notities en Bladwijzers zijn hersteld van %s op de SD-kaart</string>
   <string name="error_no_backup_file">Er is geen back-upbestand aangetroffen</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
@@ -338,7 +331,6 @@
   <string name="yes">Ja</string>
   <string name="no">Nee</string>
   <string name="error">Fout</string>
-  <string name="please_wait">Even geduld...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Bewerken</string>
@@ -353,4 +345,6 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

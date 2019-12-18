@@ -138,7 +138,8 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
-  <string name="no_internet_connection">Keine Verbindung zum Internet!</string>
+  <string name="no_internet_connection">
+Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht. Bitte versuchen Sie es später noch einmal.</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
@@ -155,10 +156,16 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
-  <string name="rdg_plan_set_start_jan1">Start 1. 1.</string>
   <string name="done">Fertig</string>
   <string name="reset">Zurücksetzen</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
+  <string name="plan_duplicate_user_plan">
+Es gibt einen benutzerdefinierten Leseplan in sdcard
+jsword/readingplan, der denselben Namen wie ein vordefinierter Leseplan hat. Darum kann er hier nicht angezeigt werden. Bitte benennen Sie den Plan um, ohne die Endung .properties zu ändern.</string>
+  <string name="plan_name_y1ntpspr">NT, Psalmen &amp; Sprüche innerhalb eines Jahres</string>
+  <string name="plan_description_y1ntpspr">
+Mit freundlicher Genehmigung von HEARTLIGHT Internet Magazine,
+http://www.heartlight.org</string>
   <!--Document context menu-->
   <string name="delete">Löschen</string>
   <string name="delete_index">Suchindex löschen</string>
@@ -299,11 +306,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
-  <string name="backup">Backup</string>
   <string name="backup_success">Notizen und Lesezeichen wurden in %s auf der SD-Karte gespeichert</string>
-  <string name="restore">Wiederherstellen</string>
-  <string name="restore_confirmation">Notizen und Lesezeichen überschreiben?</string>
-  <string name="restore_success">Notizen und Lesezeichen wurden von %s auf der SD-Karte wiederhergestellt</string>
   <string name="error_no_backup_file">Eine Sicherungskopie konnte nicht gefunden werden</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
@@ -323,7 +326,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
-  <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Bearbeiten</string>
@@ -338,4 +340,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <!--Notifications-->
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

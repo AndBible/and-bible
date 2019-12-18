@@ -12,7 +12,7 @@
   <string name="help_speech_title">Мова</string>
   <string name="help_speech_text">Нажміть Озвучити, щоб відкрити діалогове вікно для запуску або припенення читання</string>
   <string name="help_mynote_title">Моя примітка</string>
-  <string name="help_mynote_text">Примітки можуть бути додані через меню \"Моя примітка\" в контекстному меню вірша. 
+  <string name="help_mynote_text">Примітки можуть бути додані через меню \"Мої примітки\" в контекстному меню вірша. 
 Список існуючих приміток доступний через головне меню.</string>
   <string name="help_bookmarks_title">Закладки</string>
   <string name="help_bookmarks_text">Закладки можна добавити через контекстне меню вірша.
@@ -139,7 +139,11 @@
   <string name="download_refreshing_book_list">Оновлення списку наявних модулів</string>
   <string name="download_refresh_book_list_menu_item">Оновити</string>
   <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
-  <string name="no_internet_connection">Не вдалося підключитися до інтернету</string>
+  <string name="no_internet_connection">
+        Не вдалося підключитися до сховища модулів Crosswire. 
+        Сервер може бути відключений або у вас не має з\'єднання з Інтернетом.
+        Будь-ласка спробуйте пізніше.
+    </string>
   <string name="storage_space_warning">Недостатньо місця на пристрої.</string>
   <string name="too_many_jobs">Занадто багато завдань виконується. Зачекайте щоб деякі із них закінчились і спробуйте ще раз.</string>
   <string name="document_not_installed">Завантажте \'%s\'</string>
@@ -156,10 +160,48 @@
   <string name="rdg_plan_title">План читання</string>
   <string name="rdg_plan_selector_title">Вибрати план читання</string>
   <string name="rdg_plan_day">День %s</string>
-  <string name="rdg_plan_set_start_jan1">Почати 1 Січ</string>
+  <string name="rdg_plan_set_start_date">Встановити Дату Початку...</string>
   <string name="done">Готово</string>
   <string name="reset">Скинути</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <string name="reset_plan_question">Ви впевнені, що хочете скинути цей план?</string>
+  <string name="plan_duplicate_user_plan">
+         SD картка містить план читання користувача
+         jsword/readingplan з тією ж назвою, що і внутрішній план. Неможливо показати тут.
+         Перейменуйте файл на щось інше, залишивши його розширення як .properties
+    </string>
+  <string name="plan_name_y1ntpspr">НЗ, Псалми &amp; Приповісті за рік</string>
+  <string name="plan_description_y1ntpspr">
+        Надано дозволом HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org.
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">Хронологічне читання Біблії за 1 рік</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        План на основі хронологічних подій у Біблії.
+        Хронологічна часова шкала є приблизна.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">За 1-рік СЗ+НЗ одночасно</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        Читання Біблії за 1 рік, розділів
+        з СЗ і НЗ на кожний день.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Читання Біблії за 1-рік</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        Прочитайте Біблію за 1 рік, починаючи з Буття
+        і кінчаючи Об\'явленням. Спочатку СЗ, а потім НЗ.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Макчейна 1-річний план читання, 4 розділа на день</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+         Цей план базується на системі читання Макчейна, із чотирма різними читаннями
+         для використання як у сімейному, так і в особистому читанні. Кожен день має два
+         уривки із Старого Завіту, один із Нового Завіту та один із Псалмів чи Євангелій. 
+         Через один рік ви читаєте Старий Завіт один раз, Новий Завіт та Псалтир двічі.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">План читання професора Хорнер, 10 розділів на день</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Надано дозволом професора Хорнера</string>
+  <string name="plan_name_y2ot1ntps2">2-річне читання Біблії, НЗ+Псалми двічі</string>
+  <string name="plan_description_y2ot1ntps2">
+        Читання Біблії за 2 роки, читання НЗ і Псалмів двічі.
+        Надано дозволом Wholesome Words,  http://www.wholesomewords.org/
+    </string>
   <!--Document context menu-->
   <string name="delete">Видалити</string>
   <string name="delete_index">Видалити індекс пошуку</string>
@@ -261,8 +303,7 @@
 Закладка буде автоматично добавлена, коли прослуховування буде (при-)зупинене.
 Закладки автоматично додані, будуть позначені міткою Озвучити.
 Якщо ви починаєте із закладки, то закладка переміститься на вірш, на якому ви 
-(при-)зупинетесь в слідуючий раз. Тількі мітки Озвучити будуть переміщені, а всі інші мітки
-будуть залишені.</string>
+(при-)зупинетесь в слідуючий раз. Тількі мітки Озвучити будуть переміщені, а всі інші мітки будуть залишені.</string>
   <string name="speak_help_playback_settings">
 Спеціальні налаштування відтворення (в розділі \"Налаштування відтворення\" на екрані \"Озвучити\")
 зберігаються в закладках \"Озвучити\" коли цей параметр вибрано.
@@ -314,12 +355,16 @@
   <string name="mynote_saved">Примітка збережена</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Резервне копіювання та відновлення</string>
-  <string name="backup">Резервна копія</string>
+  <string name="backup">Резервне копіювання в ...</string>
   <string name="backup_success">Примітки і закладки збережено в %s на SD-карті</string>
-  <string name="restore">Відновлення</string>
-  <string name="restore_confirmation">Перезаписати примітки і закладки?</string>
-  <string name="restore_success">Примітки і закладки відновлено з %s на SD-карті</string>
+  <string name="restore">Відновити з...</string>
+  <string name="restore_confirmation">Перезаписати Мої Нотатки, Закладки, Плани Читання та Робочі Області?</string>
+  <string name="restore_success">Мої Нотатки, Закладки, Плани Читання та Робочі Області успішно відновлені</string>
   <string name="error_no_backup_file">Файл резервної копії не знайдено</string>
+  <string name="loading_backup">Завантаження бази даних із резервної копії…</string>
+  <string name="backup_email_subject">Резервне копіювання бази даних Android Біблії</string>
+  <string name="backup_email_message">Ваша база даних And Біблії що містить закладки, примітки, плани читання та робочі області, вкладена.</string>
+  <string name="restore_unsuccessfull">Відновити базу даних не вдалося. Можливо, ви дали недійсний файл бази даних.</string>
   <!--About-->
   <string name="about_copyright">Авторське право: %s</string>
   <string name="about_version">Версія: %s</string>
@@ -338,11 +383,12 @@
   <string name="yes">Так</string>
   <string name="no">Ні</string>
   <string name="error">Помилка</string>
-  <string name="please_wait">Зачекайте ...</string>
+  <string name="please_wait">Будь ласка, зачекайте...</string>
   <string name="all">Всі</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Змінити</string>
   <string name="watch_tutorial_video">Дивитись навчальне відео (на англ.)</string>
+  <string name="verse_not_found">Вірш не знайдено</string>
   <!--Errors-->
   <string name="report_error">Надіслати звіт</string>
   <string name="error_occurred">Сталася помилка</string>
@@ -353,4 +399,35 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">Синтез мовлення</string>
   <string name="notification_channel_progress_status">Сповіщення про стан виконання завантаження модулів і т.д.</string>
+  <!--Workspaces-->
+  <string name="workspaces">Робочі області</string>
+  <string name="new_workspace">Нова робоча область</string>
+  <string name="switch_to_workspace">Переключитися на робочу область…</string>
+  <string name="delete_workspace">Видалити цю робочу область</string>
+  <string name="choose_workspace_to_open">Виберіть робочу область для відкриття</string>
+  <string name="new_copied_workspace">Скопіюйте цю робочу область як нову</string>
+  <string name="workspace_number">Робоча область %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Перейменувати робочу область ...</string>
+  <string name="rename_workspace_title">Укажіть назву цеї робочої області</string>
+  <string name="new_workspace_from_dialog">Нова</string>
+  <string name="delete_workspace_from_dialog">Видалити поточний</string>
+  <string name="history_title">Журнал (%s)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Це бета-версія!</string>
+  <string name="beta_notice_content_1">
+У бета-версії є нові функції, які ще не перевірені належним чином, і, тому, використання
+бета-версії може спричинити несподівану поведінку, помилки. Звичайним читачам
+Біблії рекомендується замість цього використовувати стабільну версію.
+  </string>
+  <string name="beta_notice_content_2">
+        Користувачам бета-версії рекомендується повідомляти про помилки
+        через Google Play або (бажано) через %s.
+    </string>
+  <string name="beta_notice_content_3">Якщо ви програміст, рекомендуємо внести виправлення
+        помилок через %s самим. :-)</string>
+  <string name="beta_notice_github_issues">Проблеми з Github</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Відхилити</string>
+  <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>
 </resources>

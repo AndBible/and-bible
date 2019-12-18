@@ -84,7 +84,6 @@
   <string name="download_refreshing_book_list">డాక్యుమెంట్స్‌ని పట్టికలో రిప్రెష్ చేయడం</string>
   <string name="download_refresh_book_list_menu_item">రిప్రేష్</string>
   <string name="error_downloading">డవున్ లోడ్ చేయడంలో పొరపాటు జరిగింది. దయ చేసి మీ ఇంటర్నేట్ కనెక్షన్ సరిచూసుకోండి.</string>
-  <string name="no_internet_connection">ఇంటర్నెట్‌తో కనెక్ట్ కావడం లేదు</string>
   <string name="storage_space_warning">స్థానిక నిల్వ సామర్థ్యము లేదు.</string>
   <string name="too_many_jobs">ఎక్కువ కార్యాలు అమలు జరుగుతున్నవి. దయచేసి కొంత విరామం తీసుకొని మళ్లీ ట్రై చేయండి.</string>
   <string name="document_not_installed">దయచేసి డవున్ లోడ్ చేసుకొండి \'%s\'</string>
@@ -93,10 +92,8 @@
   <string name="rdg_plan_title">చదవడానికి ప్రణాళిక</string>
   <string name="rdg_plan_selector_title">చదవడానికి ప్రణాళిక ఎంపిక చేసుకోవడం</string>
   <string name="rdg_plan_day">రోజు %s</string>
-  <string name="rdg_plan_set_start_jan1">జనవరి 1వ తేది ప్రారంభం</string>
   <string name="done">పూర్తి అయింది</string>
   <string name="reset">మళ్లీ సెట్ చేయడం</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">తొలగించు</string>
   <string name="delete_index">విషయ సూచికను తొలగించు</string>
@@ -166,11 +163,7 @@
   <string name="mynote_add">నా నోట్ చేర్చు</string>
   <string name="mynote_saved">నా నోట్ సేవ్ చయబడింది</string>
   <!--Backup and restore-->
-  <string name="backup">బ్యాకప్</string>
   <string name="backup_success">నా నోట్స్ మరియు బుక్ మార్క్‌స్ SD కార్డులో %s సేవ చేయబడినవి</string>
-  <string name="restore">పునరుద్ధరించు</string>
-  <string name="restore_confirmation">నా నోట్స్ మరియు బుక్ మార్క్‌స్‌ని సరిదిద్ది రాయి?</string>
-  <string name="restore_success">నా నోట్స్ మరియు బుక్ మార్క్‌స్‌ని %s SD కార్డు ద్వారా పునరుధ్దరించు</string>
   <!--About-->
   <string name="about_version">వర్షన్: %s</string>
   <string name="about_versification">పద్యములు చెప్పడము: %s</string>
@@ -188,7 +181,6 @@
   <string name="yes">అవును</string>
   <string name="no">కాదు</string>
   <string name="error">తప్పయింది</string>
-  <string name="please_wait">దయచేసి ఆగండి</string>
   <string name="all">అన్ని</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
@@ -198,4 +190,6 @@
   <string name="error_key_not_in_document">డాక్యుమెంటులో లేదు</string>
   <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

@@ -105,7 +105,6 @@
   <string name="download_refreshing_book_list">Қол жетімді құжаттардың тізімін жаңарту</string>
   <string name="download_refresh_book_list_menu_item">Жаңарту</string>
   <string name="error_downloading">Жүктеу кезінде қате пайда болды. Интернет байланысын тексеріңіз.</string>
-  <string name="no_internet_connection">Интернет жүйесіне қосыла алмады</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі </string>
   <string name="too_many_jobs">Тым көп тапсырма орындалуда. Кейбіреулері біткенше күтіңіз және жаңадан тырысып көріңіз. </string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
@@ -121,10 +120,8 @@
   <string name="rdg_plan_title">Оқу жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
-  <string name="rdg_plan_set_start_jan1">Бастау Қантар 1</string>
   <string name="done">Орындалды</string>
   <string name="reset">Қайта бастау</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Жою</string>
   <string name="delete_index">Іздеу индексін жою</string>
@@ -203,11 +200,7 @@
   <string name="mynote_add">Менің Жазбамды Қосу</string>
   <string name="mynote_saved">Менің Жазбам сақталды</string>
   <!--Backup and restore-->
-  <string name="backup">Резерв Көшірмесі</string>
   <string name="backup_success">Менің Жазбаларым мен Бетбелгілерім %s SD картасында сақталды</string>
-  <string name="restore">Қалпына келтіру</string>
-  <string name="restore_confirmation">Менің Жазбаларым мен Бетбелгілерін Үстінен Жазу?</string>
-  <string name="restore_success">Менің Жазбаларым мен Бетбелгілерім %s дан бастап SD картада қалпына келтірілді</string>
   <string name="error_no_backup_file">Қосымша резервтегі сақталған файл табылмай жатыр</string>
   <!--About-->
   <string name="about_copyright">Авторлық құқық: %s</string>
@@ -227,7 +220,6 @@
   <string name="yes">Иә</string>
   <string name="no">Жоқ</string>
   <string name="error">Қате</string>
-  <string name="please_wait">Күте тұрыңыз...</string>
   <string name="all">Бәрі</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Редакциялау</string>
@@ -240,4 +232,6 @@
   <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
   <!--Notifications-->
   <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты үшін хабарлама растауды дамыту</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

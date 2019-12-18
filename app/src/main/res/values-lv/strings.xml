@@ -100,7 +100,6 @@
   <string name="download_refreshing_book_list">Pieejamajiem dokumentu atsvaidzināšanas saraksts?</string>
   <string name="download_refresh_book_list_menu_item">Atjaunot</string>
   <string name="error_downloading">Kļūda lejupielādējot. Lūdzu, pārbaudiet savu interneta pieslēgumu.</string>
-  <string name="no_internet_connection">Nevarēja izveidot savienojumu ar internetu</string>
   <string name="storage_space_warning">Atmiņā nepietiekama vieta .</string>
   <string name="too_many_jobs">Pārāk daudz aktīvu uzdevumu. Lūdzu uzgaidiet kamēr daži tiek izpildīti un mēģiniet vēlreiz.</string>
   <string name="document_not_installed">Lūdzu lejuplādējiet \'%s\'.</string>
@@ -115,10 +114,8 @@
   <string name="rdg_plan_title">Lāsīšanas plāns</string>
   <string name="rdg_plan_selector_title">Izvēlies lasīšanas plānu</string>
   <string name="rdg_plan_day">%s\'. Diena</string>
-  <string name="rdg_plan_set_start_jan1">Sākt ar 1. janvāri</string>
   <string name="done">Pabeigts</string>
   <string name="reset">Salikt no jauna</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Dzēst</string>
   <string name="delete_index">Dzēst meklēšanas indeksu</string>
@@ -188,11 +185,7 @@
   <string name="mynote_add">Pievienot Manu Piezīmi</string>
   <string name="mynote_saved">Mana Piezīme saglabāta</string>
   <!--Backup and restore-->
-  <string name="backup">Dublēt</string>
   <string name="backup_success">Manas Piezīmes un grāmatzīmes saglabātas %s uz SD karters</string>
-  <string name="restore">Atjaunot</string>
-  <string name="restore_confirmation">Pārrakstīt Manas Piezīmes un Grāmatzīmes?</string>
-  <string name="restore_success">Manas Piezīmes un Grāmatzīmes atjaunotas no %s SD kartes</string>
   <!--About-->
   <string name="about_version">Versija: %s</string>
   <string name="about_versification">Pantu atšķirības: %s</string>
@@ -210,7 +203,6 @@
   <string name="yes">Jā</string>
   <string name="no">Nē</string>
   <string name="error">Kļūda</string>
-  <string name="please_wait">Lūdzu uzgaidiet ...</string>
   <string name="all">Viss</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
@@ -220,4 +212,6 @@
   <string name="error_key_not_in_document">Dokumentā nav atrasts</string>
   <string name="empty_list">Nav parādāmu vienumu</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

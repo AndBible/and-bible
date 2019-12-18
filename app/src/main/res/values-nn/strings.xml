@@ -94,7 +94,6 @@
   <string name="download_refreshing_book_list">Oppfriskar lista over tilgjengelege modular</string>
   <string name="download_refresh_book_list_menu_item">Oppfrisk</string>
   <string name="error_downloading">Kunne ikkje laste ned. Vennlegst kontrollér internettilkoblinga di.</string>
-  <string name="no_internet_connection">Kan ikkje koble til internett</string>
   <string name="storage_space_warning">Ikkje nok lokal lagringsplass.</string>
   <string name="too_many_jobs">For mange jobbar på ein gong. Vennlegst vent på at nokre fullfører før du prøver om att.</string>
   <string name="document_not_installed">Vennlegst last ned \'%s\'</string>
@@ -109,10 +108,8 @@
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Vel leseplan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_jan1">Ta til 1. januar</string>
   <string name="done">Fullført</string>
   <string name="reset">Tilbakestill</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Slett</string>
   <string name="delete_index">Slett søkjeregister</string>
@@ -186,11 +183,7 @@
   <string name="mynote_add">Legg til notat</string>
   <string name="mynote_saved">Notat lagra</string>
   <!--Backup and restore-->
-  <string name="backup">Tryggingskopi</string>
   <string name="backup_success">Notat og bokmerke er lagra på %s på minnekortet</string>
-  <string name="restore">Gjenopprette</string>
-  <string name="restore_confirmation">Skrive over notat og bokmerke?</string>
-  <string name="restore_success">Notat og bokmerke gjenoppretta frå %s på minnekortet</string>
   <!--About-->
   <string name="about_copyright">Opphavsrett: %s</string>
   <string name="about_version">Versjon: %s</string>
@@ -209,7 +202,6 @@
   <string name="yes">Ja</string>
   <string name="no">Nei</string>
   <string name="error">Feil</string>
-  <string name="please_wait">Vennlegst vent...</string>
   <string name="all">Alle</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Endre</string>
@@ -221,4 +213,6 @@
   <string name="error_key_not_in_document">Ikkje funne i modulen</string>
   <string name="empty_list">Inkje funne</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

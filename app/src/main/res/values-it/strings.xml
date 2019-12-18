@@ -82,7 +82,6 @@
   <string name="download_refreshing_book_list">Rinfresca la lista dei documenti disponibili</string>
   <string name="download_refresh_book_list_menu_item">Rinfresca</string>
   <string name="error_downloading">Trovato un errore in seguito allo scaricamento. Controlla la connessione ad Internet.</string>
-  <string name="no_internet_connection">Non sei collegato ad Internet</string>
   <string name="storage_space_warning">Non hai abbastanza spazio di memoria locale.</string>
   <string name="too_many_jobs">Troppe operazioni in corso. Aspetta e prova di nuovo.</string>
   <string name="document_not_installed">Scarica \'%s\'</string>
@@ -91,10 +90,8 @@
   <string name="rdg_plan_title">Piano di lettura</string>
   <string name="rdg_plan_selector_title">Scegli un piano di lettura</string>
   <string name="rdg_plan_day">Giorno %s</string>
-  <string name="rdg_plan_set_start_jan1">Inizia il 1 Gennaio</string>
   <string name="done">Fatto</string>
   <string name="reset">Azzera</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Cancella</string>
   <string name="delete_index">Cancella l\'indice di ricerca</string>
@@ -157,11 +154,7 @@
   <string name="mynote_add">Aggiungi il mio appunto</string>
   <string name="mynote_saved">Il mio appunto salvato</string>
   <!--Backup and restore-->
-  <string name="backup">ll backup</string>
   <string name="backup_success">I miei appunti e i miei segnalibri salvati %s sulla carta \'SD\'</string>
-  <string name="restore">Ripristina</string>
-  <string name="restore_confirmation">Modifica i miei appunti e i miei segnalibri?</string>
-  <string name="restore_success">I miei appunti e i miei segnalirbi ripristinati da %s sulla carta \'SD\'</string>
   <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">La Bibbia</string>
@@ -177,7 +170,6 @@
   <string name="yes">Si</string>
   <string name="no">No</string>
   <string name="error">Errore </string>
-  <string name="please_wait">Aspetta...</string>
   <string name="all">Tutto</string>
   <!--Errors-->
   <string name="error_occurred">Si e\' verificato un errore</string>
@@ -186,4 +178,6 @@
   <string name="error_key_not_in_document">Non si trova nel documento</string>
   <string name="empty_list">Niente da mostrare</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

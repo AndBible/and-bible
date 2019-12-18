@@ -5,7 +5,7 @@ And Bible je odprtokoden projekt, ki za običajno delovanje ne potrebuje povezav
 * Vmesnik v kitajščini, ruščini, nemščini, francoščini, madžarščini, češčini, poljščini, hebrejščini, ...
 * Različni načrti za branje Biblije
 * Popolnoma brezplačno, brez oglasov, brez e-pošte
-* Več kot 40 angleških Biblij, vključno z ESV, KJV in NET
+* Over 40 English Bibles including KJV and NET
 * 29 komentarjev iz Biblije
 * Obsežna zbirka slovarjev in krščanskih knjig
 * Vsi dokumenti so zakonito razdeljeni (razlog zakaj dokumenti NKJV in NIV niso na voljo) (in v slovenščini Chraskova Biblija do 15. marca leta 2023 ni na voljo)
@@ -25,7 +25,7 @@ And Bible je odprtokoden projekt, ki za običajno delovanje ne potrebuje povezav
 
 Vsi smo prostovoljci; ne pošiljamo motečih elektronskih sporočil; aplikacija ne prikazujte nadležnih oglasov; nikoli ne zahtevamo ali prejemamo donacij; ne prosimo za registracijo; And Biblija ne zbira podatkov iz vašega mobilnega telefona.
 
-Izvor vseh dokumentov je temeljito raziskan, da se zagotovi zakonita distribucija vseh dokumentov ali da je imetnik avtorskih pravic izdal dovoljenje, npr. ESV. To je tudi razlog, da And Biblija ne more vsebovati dokumentov, kot sta NIV in NKJV (In slovenske Charskove biblije do 15. marca 2023)
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Zaznamki</b>
 Všeč mi je in Sveto pismo na Facebooku: https://www.facebook.com/AndBible/

@@ -5,9 +5,31 @@
   <string name="splash_top_text">\n
 \"Tanrı \'işıq olsun\' dedi və işıq oldu.\"\n
 Yaradılış 1:3</string>
+  <string name="help_text">Hərəkət üçün MENYU düyməsini basın\n\n
+Növbəti və ya əvvəlki fəslə keçmək üçün  track-ball, 
+D-pad-dan istifadə edin və ya barmağınızla ekranı çəkin.  </string>
+  <string name="help_nav_title">Naviqasiya</string>
+  <string name="help_nav_text">Ekranı barmağınızla çəkməklə növbəti və ya əvvəlki səhifəyə keçin. 
+Bütöv ekrana keçmək üçün Müqəddəs Kitabın mətninə iki dəfə toxunun. Müqəddəs Kitab pəncərəsinin yuxarı sağ küncündə menyu düyməsi var. 
+Bu düyməni davamlı basmaqla pəncərənin menyusuna daxil ola bilərsiz.</string>
+  <string name="help_speech_title">Nitq</string>
+  <string name="help_speech_text">Oxumağı başlamaq və ya dayandırmaq dialoquna daxil olmaq üçün Danış-ı basın.</string>
+  <string name="help_mynote_title">Mənim qeydlərim</string>
+  <string name="help_mynote_text">Qeydləri əlavə etmək üçün ayənin məzmunu menyusunda  Mənim qeydlərim menyusundan istifadə edin. 
+Mövcud olan qeydlərin siyahısına əsas menyudan daxil olmaq mümkündür. </string>
+  <string name="help_bookmarks_title">Əlfəçinlər</string>
+  <string name="help_bookmarks_text">Əlfəçinləri ayənin məzmunu menyusu vasitəsilə əlavə etmək mümkündür. Əlfəçin Menecerinə əsas menyudan daxil olmaq mümkündür. 
+Bookmark Managerin mündəricat menyusu nişandan istiradə edərək əlfəçinləri qruplaşdırmağa imkan verir. </string>
+  <string name="help_search_title">Axtarış</string>
+  <string name="help_search_text">Axtarış edilən mətnə növbəti kimi xüsusi işarələr daxil etmək mümkündür: *, ?, VƏ, VƏ YA, YOX
+(daha çox məlumat üçün \"Apache Luchene - Query Parser Syntax\"-ə baxın). </string>
+  <string name="help_contextmenus_title">Menyuların Mündəricatı</string>
+  <string name="help_contextmenus_text">Cari ayəyə aid hərəkətlər üçün Mündəricat menyusunu açmaq üçün Müqəddəs Kitaba bax-a davamlı toxunun.
+Sənədi seç-də bir sənədə davamlı toxunaraq onu ləğv etmək və ya məlumata baxış keçirmək mümkündür.  </string>
   <string name="version_text">Versiya %s</string>
   <string name="no_sdcard_error">Zəhmət olmazsa yaddaş (SD) kartını taxıb And Bible tətbiqini 1 təzədən başladın</string>
   <!--Main menu-->
+  <string name="menu">Menyu</string>
   <string name="chooseBook">Sənəd</string>
   <string name="selectPassage">Qisim</string>
   <string name="search">Axtarış</string>
@@ -16,6 +38,8 @@ Yaradılış 1:3</string>
   <string name="speak">Səsli oxu</string>
   <string name="help">Kömək</string>
   <string name="administration">Mudiriyyət</string>
+  <string name="rate_application">Qiymətləndirmə &amp; Google Play-də yenidən baxış keçirmək.</string>
+  <string name="chooce_document">Sənədi seçin</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı seç</string>
   <string name="choosePassageChapterName">Hissəni seç</string>
@@ -32,10 +56,12 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
 \n
 İndeks yükləmək üçün internetiniz olmalıdır.
 </string>
+  <string name="search_index_unavailable">Təəsüf ki, indeksin yaradılması yalnız Android 5.0 (Lollipop) və sonrakı versiyalarda mümkündür. </string>
   <string name="indexing_wait_msg">İndeks yaradıldıqdan sonra axtarış səhifəsi açılacaq.</string>
   <string name="index_download">Yüklə</string>
   <string name="index_not_available_for_download">Bu indeks yükləmək üçün mövcud deyil.</string>
   <string name="index_create">Düzəlt</string>
+  <string name="rebuild_index">İndeki yenidən qur.</string>
   <!--Tasks-->
   <string name="progress_status">İrəliləmə</string>
   <string name="task_kill_warning">Bu əməliyyat üçün vaxt lazımdır. Əgər tətbiqi dayandırsanız əməliyyat qurtarmamış dayanacaq. Əməliyyat görən vəzifə yoxdur.</string>
@@ -61,6 +87,7 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_default_bookmark_style_summary">Seçilmişlərin rəngi</string>
   <string name="prefs_show_mynotes_title">Qeydlərin nişanlarını göstər</string>
   <string name="prefs_show_notes_title">Haşiyə</string>
+  <string name="prefs_show_strongs_title">Stronqun rəqəmləri</string>
   <string name="prefs_show_morphology_title">Morfoloji kodlar</string>
   <string name="prefs_section_title_title">Hissə başlıqları</string>
   <string name="prefs_red_letter_title">Qırmızı hərflər</string>
@@ -87,7 +114,14 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_split_mode_title">Bölüşmə rejimi</string>
   <string name="prefs_request_sdcard_permission_title">Əllə quraşdırılmış sənədlər var</string>
   <string name="prefs_request_sdcard_permission_summary">Əl ilə quraşdırılmış sənədləri SD kartdakı jsword qovluğundan istifadə et</string>
+  <string name="bible_text_options">Müqəddəs Kitab mətninin opsiyaları</string>
+  <string name="auto_fullscreen">Fırlatmaqla bütöv ekranlı rejimə keçmək</string>
+  <string name="switch_split_mode">Bölünmüş rejimi qoş</string>
+  <string name="reversed_split_mode">Bölünmüşün əks rejimi</string>
+  <string name="prefs_auto_night_mode_title">Avtomatik gecə rejimi</string>
+  <string name="prefs_auto_night_mode_summary">Sensor vasitəsilə avtomatik gecə rejiminə keç</string>
   <!--Window-->
+  <string name="new_window">Yeni pəncərə</string>
   <string name="windowClose">Bağla</string>
   <string name="windowMaximise">Böyüt</string>
   <string name="windowMinimise">Kiçilt</string>
@@ -115,12 +149,12 @@ səhifələrdən yüklənilir</string>
   <string name="download_refreshing_book_list">Mövcud sənətlərin siyahısı yenilənir</string>
   <string name="download_refresh_book_list_menu_item">Yenilən</string>
   <string name="error_downloading">Yükləyəndə bir xəta oldu. İnternetinizi yoxlayin.</string>
-  <string name="no_internet_connection">İnternetiniz bağlıdır</string>
   <string name="storage_space_warning">Yerli anbar kafi deyil</string>
   <string name="too_many_jobs">İndi daha çox iş görülür. Birinin qurtarmasını gözləyib təkrar yoxlayın.</string>
   <string name="document_not_installed">Zəhmət olmazsa \'%s\' sənədini yükləyin</string>
   <!--Install zip file-->
   <string name="install_zip">Sənədi ZIP arxivdən yüklə</string>
+  <string name="install_zip_module">Müqəddəs Kitab Modulunu instalyasiya edin</string>
   <string name="install_zip_successfull">Sənət uğurlu yüklənib</string>
   <string name="extracting_zip_file">ZIP arxivi açıram...</string>
   <string name="checking_zip_file">Yoxlayıram sənədi...</string>
@@ -131,10 +165,8 @@ səhifələrdən yüklənilir</string>
   <string name="rdg_plan_title">Oxumaq planı</string>
   <string name="rdg_plan_selector_title">Oxumaq planını seçin</string>
   <string name="rdg_plan_day">%s Gün</string>
-  <string name="rdg_plan_set_start_jan1">1 Yanvardan başla</string>
   <string name="done">Bitdi</string>
   <string name="reset">Sıfırdan başla</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Sil</string>
   <string name="delete_index">Axtarış indeksini sil</string>
@@ -197,27 +229,77 @@ səhifələrdən yüklənilir</string>
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Təkrar</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Danışıq sürəti</string>
+  <string name="speak_and_play_earcons_title">üçün earcon səslərini söyləmək və yazmaq</string>
+  <string name="playback_settings_title">Oxutma parametrləri</string>
+  <string name="speak_settings_title">Ümumi danışıq parametrləri</string>
+  <string name="speak_bookmarking_settings_title">Əlfəçinlərin parametrləri</string>
+  <string name="speak_bookmarks_menu_title">Əlfəçindən danışmaq</string>
+  <string name="speak_advanced_settings">Əlavə parametrlər</string>
+  <string name="speak_sleep_timer_title">Gözləmə taymeri</string>
+  <string name="speak_no_books_available">Danışmaq üçün kitab yoxdur</string>
+  <string name="repeat_passage">Hissəni təkrar et</string>
+  <string name="set_repeat_passage_range">Hissəni təkrar etməyin sırasının parametrlərini qur</string>
+  <string name="speak_beginning_of_passage">Hissənin əvvəlini seç</string>
+  <string name="speak_ending_of_passage">Hissənin sonunu seç</string>
+  <string name="speak_verse_range_to_repeat">Təkrar etmək üçün ayənin sırasını seç</string>
+  <string name="speak_ending_verse_must_be_later">Sonuncu ayə başlanğıc ayədən sonra olmalıdır</string>
+  <string name="conf_speak_synchronize">Danışıqdan sonra mətn gəlir</string>
+  <string name="conf_speak_auto_bookmark">Əlfəçinlərin avtomatik yerləşdirilməsi</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Əlfəçinlərdə oxutma parametrlərini saxla</string>
+  <string name="conf_replace_divinename">İlahi adı Yahve ilə əvəz et</string>
+  <string name="conf_change_chapter">Fəsildəki dəyişikliklər</string>
+  <string name="conf_change_title">Başlıqlar</string>
+  <string name="conf_speak_footnotes">Qeydlər</string>
+  <string name="conf_speak_sleep_timer">Gözləmə taymerinin parametrlərini qur</string>
+  <string name="sleep_timer_title">Gözləmə müddəti dəqiqələrlə</string>
+  <string name="sleep_timer_set">Gözləmə taymeri başlayıb, %d dəqiqə</string>
+  <string name="sleep_timer_started">Gözləmə taymeri başlayıb, %d dəqiqə</string>
+  <string name="sleep_timer_active_at">Gözləmə taymeri: %s dəqiqə qalıb</string>
+  <string name="speak_next">Növbəti</string>
+  <string name="speak_previous">Əvvəlki</string>
+  <string name="widget_toggle_sleep_timer">Gözləmə taymerinin bayrağı</string>
+  <string name="widget_bookmark_helptext">Burada danışıq əlfəçinlərinə aid pəncərənin düymələri görsənəcək</string>
+  <string name="speak_status_stopped">Dayandırılıb</string>
+  <string name="speak_autobookmarking_disabled">Əlvəçinlərin avtomatik yerləşdirilməsi dayandırılıb!</string>
+  <string name="system_speak_settings">Açıq sistemin TTS parametrləri</string>
+  <string name="speak_bookmark_help">Danışıq əlfəçinə aid yardım</string>
+  <string name="speak_help_auto_bookmark">
+Danışıq dayandırılsa pauza və ya dayanma halında danışıq əlfəçini avtomatik əlavə olunacaq. 
+Avtomatik yaranmış əlfəçinlər xüsusi Danışıq nişanı ilə qeyd olunur.
+Danışıq əlfəçinindən başlasanız, əlfəçin növbəti dəfə pauza və ya dayanma verdiyiniz ayəyə keçəcək. Yalnız Danışıq nişanları yerini dəyişəcək, digər nişanlar toxunmaz qalacaqlar. </string>
+  <string name="speak_help_playback_settings">Bu parametr seçiləndə xüsusi Oxutma parametrləri (Danışıq pəncərəsinin \"Oxutma parametrləri\"-ndə) Danışıq əlfəçinlərinə qeyd olunur. 
+Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmuş  oxutma parametrləri bu əlfəçindən yüklənir. 
+</string>
+  <string name="speak_help_playback_settings_example">Məsələn, siz Yaradılış ilə Romalılara qulaq asırsınız və fəsilin dəyişməsi barədə xəbərdarlıq almadan Yaradılışı tez , Romalıları isə yavaş, fəsil dəyişəndə eşidilən earcon səsləri ilə dinləmək istəyirsiniz. Bu halda siz həmin kitablar üçün fərqli oxutma parametrlərini təyin edə bilərsiniz. Bunun üçün bu parametrləri müvafiq əlfəçinlərə qeyd etmək gərəkdir. </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original"/>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace"/>
+  <string name="speak_book_changed">Kitab dəyişdi</string>
+  <string name="speak_chapter_changed">Fəsil</string>
+  <string name="speak_first">Birinci</string>
+  <string name="speak_second">İkinci</string>
+  <string name="speak_third">Üçüncü</string>
+  <string name="speak_fourth">Dördüncü</string>
+  <string name="speak_fifth">Beşinci</string>
+  <string name="verse_range_mode_disabled">Hissəni təkrar et modulu avtomatik söndürülüb, çünki danışıq müəyyən olunmuş ayədən kənarda başlanmışdır.</string>
   <!--User Notes-->
   <string name="mynotes">Qeydlərim</string>
   <string name="mynote_add">Qeydlərimə daxil et</string>
   <string name="mynote_saved">Qeydlərim yaddaşa vuruldu</string>
   <!--Backup and restore-->
-  <string name="backup">Kopyala</string>
+  <string name="backup_and_restore">Back up &amp; Bərpa</string>
   <string name="backup_success">Qeydlər və Əlfəcinlər yaddaş kartına yaddaşa (%s) vuruldu.</string>
-  <string name="restore">Kopyadan geri yüklə</string>
-  <string name="restore_confirmation">Mövcud olan Qeyd və Əlfəcinlərin üzərinə yazılsın?</string>
-  <string name="restore_success">Qeydlər və Əlfəcinlər yaddaş kartından (%s) ger yükləndi.</string>
   <string name="error_no_backup_file">Backup faylı tapılmadı</string>
   <!--About-->
   <string name="about_copyright">Copyright %s</string>
@@ -237,10 +319,10 @@ səhifələrdən yüklənilir</string>
   <string name="yes">Bəli</string>
   <string name="no">Xeyr</string>
   <string name="error">Xəta</string>
-  <string name="please_wait">Zəhmət olmazsa gözləyin...</string>
   <string name="all">Hamısı</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Düzəliş edin</string>
+  <string name="watch_tutorial_video">Təlim videosuna baxın (İngiliscə)</string>
   <!--Errors-->
   <string name="report_error">Reportu göndərin</string>
   <string name="error_occurred">Bir xəta oldu</string>
@@ -249,5 +331,8 @@ səhifələrdən yüklənilir</string>
   <string name="error_key_not_in_document">Sənətdə tapılmadı</string>
   <string name="empty_list">Elemenet tapılmadı</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Danışıq üçün mətn</string>
   <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

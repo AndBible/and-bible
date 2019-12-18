@@ -100,7 +100,6 @@
   <string name="download_refreshing_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael</string>
   <string name="download_refresh_book_list_menu_item">Adnewyddu</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
-  <string name="no_internet_connection">Methu cysylltu â\'r rhyngrwyd</string>
   <string name="storage_space_warning">Dim digon o le i\'w storio.</string>
   <string name="too_many_jobs">Mae gormod o dasgau\'n gweithredu. Arhoswch i rai i orffen a cheisiwch eto.</string>
   <string name="document_not_installed">Lawrlwythwch \'%s\'</string>
@@ -116,10 +115,8 @@
   <string name="rdg_plan_title">Cynllun Darllen</string>
   <string name="rdg_plan_selector_title">Dewiswch Gynllun Darllen</string>
   <string name="rdg_plan_day">Dydd %s</string>
-  <string name="rdg_plan_set_start_jan1">Dechrau Ion 1</string>
   <string name="done">Iawn</string>
   <string name="reset">Ailosod</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Dileu</string>
   <string name="delete_index">Dileu mynegai chwilio</string>
@@ -198,11 +195,7 @@
   <string name="mynote_add">Ychwanegu fy nodyn</string>
   <string name="mynote_saved">Fy Nodyn wedi ei gadw</string>
   <!--Backup and restore-->
-  <string name="backup">Cadw</string>
   <string name="backup_success">Fy Nodiadau a Nodau Llyfr wedi eu cadw yn %s ar y cerdyn SD</string>
-  <string name="restore">Adfer</string>
-  <string name="restore_confirmation">Trosysgrifo Fy Nodiadau a Nodau Llyfr?</string>
-  <string name="restore_success">Fy Nodiadau a Nodau Llyfr wedi eu hadfer o %s ar y cerdyn SD</string>
   <!--About-->
   <string name="about_copyright">Hawlfraint: %s</string>
   <string name="about_version">Fersiwn: %s</string>
@@ -221,7 +214,6 @@
   <string name="yes">Ie</string>
   <string name="no">Na</string>
   <string name="error">Gwall</string>
-  <string name="please_wait">Arhoswch ...</string>
   <string name="all">Y Cwbl</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Golygu</string>
@@ -233,4 +225,6 @@
   <string name="error_key_not_in_document">Ddim i\'w gael yn y ddogfen</string>
   <string name="empty_list">Dim eitemau i\'w dangos</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

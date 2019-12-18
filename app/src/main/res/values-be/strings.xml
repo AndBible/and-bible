@@ -95,7 +95,6 @@
   <string name="download_refreshing_book_list">Абнаўленьне сьпіса даступных дакумэнтаў</string>
   <string name="download_refresh_book_list_menu_item">Абнавіць</string>
   <string name="error_downloading">Памылка сьцягваньня. Калі ласка праверце інтэрнэт злучэньне.</string>
-  <string name="no_internet_connection">Ня ўдалося далучыцца да інтэрнэту</string>
   <string name="storage_space_warning">Не дастаткова прасторы для захаваньня.</string>
   <string name="too_many_jobs">Вельмі шмат задачаў выконваецца. Калі ласка пачакайце пакул некаторыя завершацца, а потым паўтарыце спробу.</string>
   <string name="document_not_installed">Калі ласка сьцягніце \'%s\'</string>
@@ -110,10 +109,8 @@
   <string name="rdg_plan_title">Плян чытаньня</string>
   <string name="rdg_plan_selector_title">Выбраць плян чытаньня</string>
   <string name="rdg_plan_day">Дзень %s</string>
-  <string name="rdg_plan_set_start_jan1">Пачатак Ян 1</string>
   <string name="done">Скончыць</string>
   <string name="reset">Скінуць</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Выдаліць</string>
   <string name="delete_index">Выдаліць указальнік пошуку</string>
@@ -187,11 +184,7 @@
   <string name="mynote_add">Дадаць нататку</string>
   <string name="mynote_saved">Нататка захавана</string>
   <!--Backup and restore-->
-  <string name="backup">Рэзерваваньне</string>
   <string name="backup_success">Нататкі і Закладкі захаваны у %s на SD картцы.</string>
-  <string name="restore">Аднаўленьне</string>
-  <string name="restore_confirmation">Перазапісаць Нататкі і Закладкі?</string>
-  <string name="restore_success">Нататкі і Закладкі адноўленыя з %s на SD картцы.</string>
   <!--About-->
   <string name="about_copyright">Аўтарскае права: %s</string>
   <string name="about_version">Вэрсія: %s</string>
@@ -210,7 +203,6 @@
   <string name="yes">Так</string>
   <string name="no">Не</string>
   <string name="error">Памылка</string>
-  <string name="please_wait">Калі ласка чакайце...</string>
   <string name="all">Усё</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Рэдагаваць</string>
@@ -222,4 +214,6 @@
   <string name="error_key_not_in_document">Ня знойдзена ў дакумэнце</string>
   <string name="empty_list">Няма нічога для адлюстраваньня</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

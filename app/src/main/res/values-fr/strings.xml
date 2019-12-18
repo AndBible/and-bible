@@ -22,8 +22,8 @@ Le menu du gestionnaire des signets permet de classer les signets par étiquette
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
   <string name="help_contextmenus_title">Menus contextuels</string>
   <string name="help_contextmenus_text">
-Un Appui prolongé sur un verset dans le texte biblique ouvre le menu contextuel des actions possibles sur ce verset.
-Un Appui prolongé sur un document dans le sélecteur de documents affiche le menu contextuel permettant d\'afficher les informations relatives à ce document, ou si besoin de le supprimer.
+Un Appui prolongé sur un verset dans le texte biblique ouvre le menu des interventions possibles sur ce verset.
+Un Appui prolongé sur un document dans le sélecteur de documents affiche le menu permettant d\'afficher les informations relatives à ce document, ou si besoin de le supprimer.
 Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
@@ -78,7 +78,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_default_bookmark_style_title">Style des signets</string>
   <string name="prefs_default_bookmark_style_summary">Sélectionne le style spécial d\'affichage des versets marqués d\'un signet</string>
-  <string name="prefs_show_mynotes_title">Marques des notes</string>
+  <string name="prefs_show_mynotes_title">Afficher mes notes</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
@@ -110,7 +110,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="bible_text_options">Options du texte biblique</string>
   <string name="auto_fullscreen">Plein-écran par défilement</string>
   <string name="switch_split_mode">Activer le mode partagé</string>
-  <string name="reversed_split_mode">Partage d\'écran renversé</string>
+  <string name="reversed_split_mode">Partage d\'écran pivoté</string>
   <string name="prefs_auto_night_mode_title">Mode nuit automatique</string>
   <string name="prefs_auto_night_mode_summary">Active le mode nuit sur détection automatique</string>
   <!--Window-->
@@ -139,7 +139,6 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="download_refreshing_book_list">Mise à jour de la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Merci de vérifier votre connexion internet.</string>
-  <string name="no_internet_connection">Impossible de se connecter à internet</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
   <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
@@ -156,10 +155,8 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
-  <string name="rdg_plan_set_start_jan1">Commence le 1 Jan</string>
   <string name="done">Fait</string>
   <string name="reset">Réinitialiser</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Supprimer</string>
   <string name="delete_index">Supprimer l\'index de recherche</string>
@@ -258,12 +255,12 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
   <string name="speak_bookmark_help">Aide des signets audio</string>
   <string name="speak_help_auto_bookmark">
-Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrêt. Ces signets ont pour label Lecture audio.
-Si vous avez redémarré l\'écoute à partir d\'un tel signet, celui-ci sera déplacé au verset où la Lecture audio sera mise en pause ou arrêt.
-Seuls les signets de type Lecture audio sont transposables, les autres signets restent inchangés.</string>
+Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrétée. Ces signets ont pour label Lecture audio.
+Si vous démarrez l\'écoute à partir d\'un signet audio, celui-ci sera déplacé au verset où vous interromprez ensuite la Lecture audio.
+Seuls les signets de type Lecture audio sont déplacés, les autres signets restent inchangés.</string>
   <string name="speak_help_playback_settings">
-Vos paramètres audio (section Paramètres des signets de la Lecture audio) sont enregistrés avec le signet audio, quand cette option est activée.
-Lorsque vous redémarrez la lecture à partir d\'un signet audio, les paramètres de lecture sont alors rechargés avec le signet.</string>
+Si cette option est activée, vos paramètres audio (section Paramètres des signets de la Lecture audio) sont enregistrés dans le signet audio.
+Quand vous redémarrez la lecture à partir d\'un signet audio, les paramètres de lecture sont rechargés à partir du signet.</string>
   <string name="speak_help_playback_settings_example">
 Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à bonne vitesse sans notifications de changement de chapitre mais Romains plutôt lentement avec un effet sonore en tête de chapitre, vous conserverez ces paramètres différents pour l\'écoute si ces paramètres sont enregistrés dans les signets correspondants.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -306,11 +303,7 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
-  <string name="backup">Sauvegarder</string>
   <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
-  <string name="restore">Restaurer</string>
-  <string name="restore_confirmation">Écraser Mes Notes et Signets?</string>
-  <string name="restore_success">Mes Notes et Signets ont été restaurés de la carte SD depuis %s</string>
   <string name="error_no_backup_file">Aucun fichier de sauvegarde n\'a été trouvé</string>
   <!--About-->
   <string name="about_copyright">Droits d\'auteur: %s</string>
@@ -330,7 +323,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="yes">Oui</string>
   <string name="no">Non</string>
   <string name="error">Erreur </string>
-  <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Éditer</string>
@@ -345,4 +337,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

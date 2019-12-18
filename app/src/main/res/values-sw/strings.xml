@@ -104,7 +104,6 @@
   <string name="download_refreshing_book_list">Onyesha upya orodha ya makala zinazopatikana</string>
   <string name="download_refresh_book_list_menu_item">Kuonyesha upya</string>
   <string name="error_downloading">Kupakua kumeshindikana. Tafadhali angalia kama mtandao upo.</string>
-  <string name="no_internet_connection">Imeshindikana kujiunganisha na mtandao</string>
   <string name="storage_space_warning">nafasi ya kwenye simu haitoshi.</string>
   <string name="too_many_jobs">Kuna kazi nyingi mno. Tafadhali subiri mpaka baadhi zimemalizika halafu ukajaribu tena.</string>
   <string name="document_not_installed">Tafadhali pakua \'%s\'</string>
@@ -120,10 +119,8 @@
   <string name="rdg_plan_title">Mpangilio wa kusoma Biblia</string>
   <string name="rdg_plan_selector_title">Chagua mpangilio wa kusoma Biblia</string>
   <string name="rdg_plan_day">Siku ya %s</string>
-  <string name="rdg_plan_set_start_jan1">Anza Siku ya 1 mwezi wa 1</string>
   <string name="done">Tayari</string>
   <string name="reset">Tuweke upya</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Futa</string>
   <string name="delete_index">Futa orodha ya maneno</string>
@@ -202,11 +199,7 @@
   <string name="mynote_add">Ongeza wazo</string>
   <string name="mynote_saved">Wazo limehifadhiwa</string>
   <!--Backup and restore-->
-  <string name="backup">Chelezo</string>
   <string name="backup_success">Mawazo na kumbukumbu zangu zimehifadhiwa katika faili yenye jina %skwenye SD Card</string>
-  <string name="restore">Rudisha</string>
-  <string name="restore_confirmation">Je, nifute na kuandika upya mawazo na kumbukumbu zote?</string>
-  <string name="restore_success">Mawazo na kumbukumbu zangu zimerudishwa kutoka kwenye faili %skwenye SD-Card</string>
   <string name="error_no_backup_file">Faili yenye chelezo haipatikani</string>
   <!--About-->
   <string name="about_copyright">Hakimiliki: %s</string>
@@ -226,7 +219,6 @@
   <string name="yes">Ndiyo</string>
   <string name="no">Hapana</string>
   <string name="error">Kosa</string>
-  <string name="please_wait">Subiri tafadhali</string>
   <string name="all">Vyote</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Hariri</string>
@@ -239,4 +231,6 @@
   <string name="empty_list">Hakuna la kuonyesha</string>
   <!--Notifications-->
   <string name="notification_channel_progress_status">eneo taarifa kwa maendeleo ya upakuaji n.k.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

@@ -94,7 +94,6 @@
   <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
-  <string name="no_internet_connection">İnternet bağlantısı yok</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
@@ -109,10 +108,8 @@
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
   <string name="rdg_plan_day">%s. Gün</string>
-  <string name="rdg_plan_set_start_jan1">1 Ocakta Başlat</string>
   <string name="done">Bitti</string>
   <string name="reset">Sıfırla</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Sil</string>
   <string name="delete_index">Arama dizinini sil</string>
@@ -186,11 +183,7 @@
   <string name="mynote_add">Notlarıma ekle</string>
   <string name="mynote_saved">Notlarım kaydedildi</string>
   <!--Backup and restore-->
-  <string name="backup">Yedekle</string>
   <string name="backup_success">Not ve Yer İmileri hafiz kartına %s klasörüne kaydedildi.</string>
-  <string name="restore">Yedekten geri yükle</string>
-  <string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
-  <string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
   <!--About-->
   <string name="about_copyright">Telif Hakkı: %s</string>
   <string name="about_version">Sürüm: %s</string>
@@ -209,7 +202,6 @@
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="error">Hata</string>
-  <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Düzelt</string>
@@ -221,4 +213,6 @@
   <string name="error_key_not_in_document">Belgede bulunmadı</string>
   <string name="empty_list">Öğe bulunmadı</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

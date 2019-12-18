@@ -126,7 +126,6 @@
   <string name="download_refreshing_book_list">Список доступных книг обновляется</string>
   <string name="download_refresh_book_list_menu_item">Обновить</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
-  <string name="no_internet_connection">Нет подключения к Интернету.</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
   <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
@@ -143,10 +142,8 @@
   <string name="rdg_plan_title">План чтения</string>
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>
   <string name="rdg_plan_day">День %s</string>
-  <string name="rdg_plan_set_start_jan1">Начать с 1 января</string>
   <string name="done">Готово</string>
   <string name="reset">Перезагрузить</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Удалить</string>
   <string name="delete_index">Удалить поисковой индекс?</string>
@@ -301,11 +298,7 @@
   <string name="mynote_saved">Сохранено</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
-  <string name="backup">Бэкап</string>
   <string name="backup_success">Заметки и закладки сохранены в %s на SD карте</string>
-  <string name="restore">Восстановить</string>
-  <string name="restore_confirmation">Заменить заметки и закладки?</string>
-  <string name="restore_success">Заметки и закладки восставлены из %s на SD карте</string>
   <string name="error_no_backup_file">Файл резервной копии не найден</string>
   <!--About-->
   <string name="about_copyright">Авторское право: %s</string>
@@ -325,7 +318,6 @@
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
-  <string name="please_wait">Пожалуйста подождите...</string>
   <string name="all">Все</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Правка</string>
@@ -340,4 +332,6 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

@@ -95,7 +95,6 @@
   <string name="download_refreshing_book_list">Elérhető dokumentumok listájának frissítése</string>
   <string name="download_refresh_book_list_menu_item">Frissítés</string>
   <string name="error_downloading">Hiba történt a letöltés közben. Kérlek, ellenőrizd az internetkapcsolatot.</string>
-  <string name="no_internet_connection">Nem sikerült kapcsolódni az internethez.</string>
   <string name="storage_space_warning">Nincs elég üres hely az eszközön.</string>
   <string name="too_many_jobs">Túl sok feladat fut. Kérlek, várj, amíg valamelyik befejeződik és próbáld újra.</string>
   <string name="document_not_installed">Kérlek töltsd le ezt: \'%s\'</string>
@@ -110,10 +109,8 @@
   <string name="rdg_plan_title">Olvasási terv</string>
   <string name="rdg_plan_selector_title">Olvasási terv választása</string>
   <string name="rdg_plan_day">%s. nap</string>
-  <string name="rdg_plan_set_start_jan1">Kezdés jan. 1-én</string>
   <string name="done">Kész</string>
   <string name="reset">Visszaállítás</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Törlés</string>
   <string name="delete_index">Keresési index törlése</string>
@@ -187,11 +184,7 @@
   <string name="mynote_add">Jegyzet készítése</string>
   <string name="mynote_saved">Jegyzet elmentve</string>
   <!--Backup and restore-->
-  <string name="backup">Biztonsági mentés</string>
   <string name="backup_success">A jegyzetek és a könyvjelzők le vannak mentve az SD-kártyán itt: %s</string>
-  <string name="restore">Visszaállítás</string>
-  <string name="restore_confirmation">Felülírod a jegyzeteket és könyvjelzőket?</string>
-  <string name="restore_success">A jegyzetek és a könyvjelzők vissza lettek állítva a SD-kártyáról innen: %s</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Verzió: %s</string>
@@ -210,7 +203,6 @@
   <string name="yes">Igen</string>
   <string name="no">Nem</string>
   <string name="error">Hiba </string>
-  <string name="please_wait">Kérlek, várj...</string>
   <string name="all">Mind</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Szerkesztés</string>
@@ -222,4 +214,6 @@
   <string name="error_key_not_in_document">A dokumentumban nem található.</string>
   <string name="empty_list">Nincs megtekinthető elem</string>
   <!--Notifications-->
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

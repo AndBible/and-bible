@@ -140,7 +140,6 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="download_refreshing_book_list">Refresh daftar dokumen yang tersedia</string>
   <string name="download_refresh_book_list_menu_item">Refresh</string>
   <string name="error_downloading">Terjadi kesalahan saat mengunduh. Silakan periksa koneksi internet Anda.</string>
-  <string name="no_internet_connection">Tidak dapat terhubung ke internet</string>
   <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
   <string name="too_many_jobs">Terlalu banyak tugas yang sedang berjalan. Silahkan tunggu sampai selesai dan coba lagi.</string>
   <string name="document_not_installed">Silahkan unduh \'%s\'</string>
@@ -157,10 +156,8 @@ Tekan lama pada tombol Kembali untuk mengakses daftar Histori </string>
   <string name="rdg_plan_title">Rencana Bacaan</string>
   <string name="rdg_plan_selector_title">Pilih Rencana Bacaan</string>
   <string name="rdg_plan_day">Hari %s</string>
-  <string name="rdg_plan_set_start_jan1">Mulai 1 Jan</string>
   <string name="done">Selesai</string>
   <string name="reset">Atur Ulang</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Hapus</string>
   <string name="delete_index">Hapus indeks pencarian</string>
@@ -315,11 +312,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="mynote_saved">Catatan Saya tersimpan</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Backup &amp; Pulihkan</string>
-  <string name="backup">Backup</string>
   <string name="backup_success">Catatan-catatan Saya dan Bookmark tersimpan di %s pada kartu SD</string>
-  <string name="restore">Pulihkan</string>
-  <string name="restore_confirmation">Timpa Catatan-catatan Saya dan Bookmark?</string>
-  <string name="restore_success">Catatan-catatan Saya dan Bookmark dipulihkan dari %s pada Kartu SD</string>
   <string name="error_no_backup_file">File backup tidak dapat ditemukan</string>
   <!--About-->
   <string name="about_copyright">Hak cipta: %s</string>
@@ -339,7 +332,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
   <string name="error">Salah</string>
-  <string name="please_wait">Silakan tunggu ...</string>
   <string name="all">Semua</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Edit</string>
@@ -354,4 +346,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teks ke bicara</string>
   <string name="notification_channel_progress_status">Notifikasi status perkembangan untuk pengunduhan dokumen dll.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>

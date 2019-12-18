@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n«Dijo Dios: \"Haya luz\", y hubo luz.»\nGénesis 1,3</string>
+  <string name="splash_top_text">\n\"Y dijo Dios: Sea la luz: y fué la luz.\"\nGénesis 1:3</string>
   <string name="help_nav_title">Navegación</string>
   <string name="help_speech_title">Voz</string>
   <string name="help_speech_text">Pulse \"Con voz\" para acceder a un diálogo para comenzar o terminar la lectura</string>
@@ -75,6 +75,7 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_default_bookmark_style_summary">Color de subrayado o icono</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
+  <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
   <string name="prefs_section_title_title">Títulos de sección</string>
   <string name="prefs_red_letter_title">Letra roja</string>
@@ -127,7 +128,6 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="download_refreshing_book_list">Refrescando lista de documentos disponibles.</string>
   <string name="download_refresh_book_list_menu_item">Refresca</string>
   <string name="error_downloading">Ocurrió un error en la descarga. Por favor compruebe su conexión a internet.</string>
-  <string name="no_internet_connection">No se ha podido conectar a internet</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
@@ -144,10 +144,8 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
   <string name="rdg_plan_day">Día %s</string>
-  <string name="rdg_plan_set_start_jan1">Empezar 1 de Ene</string>
   <string name="done">Hecho</string>
   <string name="reset">Resetea</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Borrar</string>
   <string name="delete_index">Borrar indice de búsqueda</string>
@@ -303,11 +301,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="mynote_saved">Nota guardada</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
-  <string name="backup">Copia de seguridad</string>
   <string name="backup_success">Se han guardado Mis Notas y Marcadores en %s en la tarjeta SD</string>
-  <string name="restore">Resturar</string>
-  <string name="restore_confirmation">¿Sobreescribir Mis Notas y Marcadores?</string>
-  <string name="restore_success">Se han restaurado Mis Notas y Marcadores desde %s en la tarjeta SD</string>
   <string name="error_no_backup_file">No se pudo encontrar una copia de seguridad</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
@@ -327,7 +321,6 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="yes">Sí</string>
   <string name="no">No\n</string>
   <string name="error">Error</string>
-  <string name="please_wait">Por favor espere...</string>
   <string name="all">Todo</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Editar</string>
@@ -342,4 +335,10 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
+  <string name="beta_notice_github_issues">Github propuestas</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Descartar</string>
+  <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
 </resources>

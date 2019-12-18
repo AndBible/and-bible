@@ -130,7 +130,9 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="download_refreshing_book_list">Päivitetään luettelo käytettävistä teoksista</string>
   <string name="download_refresh_book_list_menu_item">Päivitä</string>
   <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
-  <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
+  <string name="no_internet_connection">Crosswiren moduuliserveriin ei saatu yhteyttä. 
+Serveri voi olla huollossa tai voi olla, että sinulla ei ole toimivaa internetyhteyttä.
+Yritä myöhemmin uudelleen.</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
   <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
@@ -147,10 +149,40 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>
   <string name="rdg_plan_day">Päivä %s</string>
-  <string name="rdg_plan_set_start_jan1">Aloita vuoden alusta</string>
+  <string name="rdg_plan_set_start_date">Aseta aloituspäivämäärä...</string>
   <string name="done">Valmis</string>
   <string name="reset">Tyhjennä</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <string name="reset_plan_question">Oletko varma että haluat alustaa tämän lukusuunnitelman?</string>
+  <string name="plan_duplicate_user_plan">
+SD-kortilla on käyttäjän lukusuunnitelma 
+jsword/readingplan joka on saman niminen kuin sisäänrakennettu lukusuunnitelma. Sitä ei voida näyttää tässä. 
+Nimeä tiedosto uudelleen siten että sen tiedostotunniste on .properties.</string>
+  <string name="plan_name_y1ntpspr">UT, Psalmit &amp; Sananlaskut vuodessa</string>
+  <string name="plan_description_y1ntpspr">
+HEARTLIGHT Internet Magazinen luvalla
+http://www.heartlight.org, lupa myönnetty</string>
+  <string name="plan_name_y1ot1nt1_chronological">Kronologisesti läpi raamatun vuodessa</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Lukusuunnitelma perustuu Raamatun kronologisiin tapahtumiin.
+Kronologinen aikajana on likimääräinen
+</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">VT+UT yhtä aikaa läpi vuodessa</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Lue Raamatun läpi vuodessa, lukien päivittäin
+lukuja sekä VT:stä että UT:sta.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Vuodessa läpi Raamatun</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Lue läpi Raamatun vuodessa, aloittaen 1. Mooseksen kirjasta
+ja päättäen Ilmestyskirjaan. VT ensin, sitten UT.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne vuodessa 4 lukua päivässä</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Tämä lukusuunnitelma perustuu M’Cheyne lukujärjestelmään, jonka ominaisuutena on neljä erilaista kappaletta joita voi käyttää sekä henkilökohtaisissa että perheen hartaushetkissä. Joka päivällä on kaksi kappaletta Vanhasta Testamentista ja yksi kappale Uudesta Testamentista, ja yksi joko Psalmeista tai Evankeliumeista. Vuoden aikana luet kerran läpi Vanhan Testamentin ja Uuden Testamentin ja Psalmit kahdesti.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Hornerin 10 lukua / päivässä</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Prof. Hornerin luvalla, lupa myönnetty</string>
+  <string name="plan_name_y2ot1ntps2">2 vuodessa läpi Raamatun, UT+Psalmit kahdesti</string>
+  <string name="plan_description_y2ot1ntps2">
+Lue läpi Raamatun kahdessa vuodessa, lukien UT:n ja Psalmit kahdesti.
+Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</string>
   <!--Document context menu-->
   <string name="delete">Poista</string>
   <string name="delete_index">Poista hakuindeksi</string>
@@ -304,12 +336,16 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="mynote_saved">Oma kommentti tallennettiin</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varmuuskopioi &amp; palauta</string>
-  <string name="backup">Varmuuskopioi</string>
+  <string name="backup">Varmuuskopioi…</string>
   <string name="backup_success">Muistiinpanot ja kirjanmerkit on tallennettu kansioon %s muistikortilla.</string>
-  <string name="restore">Palauta</string>
-  <string name="restore_confirmation">Palauta muistiinpanot ja kirjanmerkit nykyisten päälle?</string>
-  <string name="restore_success">Muistiinpanot ja kirjanmerkit on palautettu %s muistikortilta</string>
+  <string name="restore">Palauta varmuuskopiosta…</string>
+  <string name="restore_confirmation">Palauta muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat nykyisten päälle?</string>
+  <string name="restore_success">Muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat on palautettu onnistuneesti</string>
   <string name="error_no_backup_file">Varmuuskopiotiedostoa ei löytynyt</string>
+  <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
+  <string name="backup_email_subject">And Bible tietokannan varmuuskopio</string>
+  <string name="backup_email_message">Liitetiedostona on And Biblen tietokantasi joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
+  <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
   <!--About-->
   <string name="about_copyright">Tekijäinoikeudet: %s</string>
   <string name="about_version">Käännös: %s</string>
@@ -328,11 +364,12 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="yes">Kyllä</string>
   <string name="no">Ei</string>
   <string name="error">Virhe</string>
-  <string name="please_wait">Odota hetki...</string>
+  <string name="please_wait">Odota…</string>
   <string name="all">Kaikki</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Muokkaa</string>
   <string name="watch_tutorial_video">Katso ohjevideo (englanninkielinen)</string>
+  <string name="verse_not_found">Jaetta ei löytynyt</string>
   <!--Errors-->
   <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>
@@ -343,4 +380,31 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Teksti puheeksi</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
+  <!--Workspaces-->
+  <string name="workspaces">Työtilat</string>
+  <string name="new_workspace">Uusi työtila</string>
+  <string name="switch_to_workspace">Vaihda työtilaan…</string>
+  <string name="delete_workspace">Poista tämä työtila</string>
+  <string name="choose_workspace_to_open">Valitse työtila jonka haluat avata</string>
+  <string name="new_copied_workspace">Kopioi tämä työtila uudeksi</string>
+  <string name="workspace_number">Työtila %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Nimeä työtila uudelleen…</string>
+  <string name="rename_workspace_title">Anna nimi tälle työtilalle</string>
+  <string name="new_workspace_from_dialog">Uusi</string>
+  <string name="delete_workspace_from_dialog">Poista nykyinen</string>
+  <string name="history_title">Historia (%s)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">Tämä on betaversio!</string>
+  <string name="beta_notice_content_1">
+Betaversiossa on uusia ominaisuuksia joita ei ole vielä kunnolla testattu,
+ja siksi betaversion käyttö voi tuoda mukanaan odotamatonta käyttäytymistä, eli bugeja. 
+On suositeltavaa että tavalliset Raamatun lukijat käyttävät vakaata versiota tämän sijaan.</string>
+  <string name="beta_notice_content_2">
+Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluummin) Githubin kautta: %s.</string>
+  <string name="beta_notice_content_3">Jos olet ohjelmoija, voisitko harkita bugien korjaamista itse Githubissa: %s. :-) </string>
+  <string name="beta_notice_github_issues">Github tiketit</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Piilota</string>
+  <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
 </resources>

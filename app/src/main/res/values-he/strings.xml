@@ -103,7 +103,6 @@
   <string name="download_refreshing_book_list">טוען רשימת טקסטים זמינים</string>
   <string name="download_refresh_book_list_menu_item">רענון</string>
   <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
-  <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
   <string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
   <string name="document_not_installed">אנא הורד \'%s\'</string>
@@ -119,10 +118,8 @@
   <string name="rdg_plan_title">תוכנית קריאה</string>
   <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>
   <string name="rdg_plan_day">יום %s</string>
-  <string name="rdg_plan_set_start_jan1">התחל 1 בינואר</string>
   <string name="done">סיום</string>
   <string name="reset">איפוס</string>
-  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">מחיקה</string>
   <string name="delete_index">מחק אינדקס חיפוש</string>
@@ -201,11 +198,7 @@
   <string name="mynote_add">הוספת הערה אישית</string>
   <string name="mynote_saved">ההערה נשמרה</string>
   <!--Backup and restore-->
-  <string name="backup">גיבוי</string>
   <string name="backup_success">ההערות והסימניות נשמרו ב %s בכרטיס הזכרון</string>
-  <string name="restore">שחזור</string>
-  <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
-  <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
   <string name="error_no_backup_file">לא ניתן למצוא קובץ גיבוי</string>
   <!--About-->
   <string name="about_copyright">זכויות יוצרים: %s</string>
@@ -225,7 +218,6 @@
   <string name="yes">כן</string>
   <string name="no">לא</string>
   <string name="error">שגיאה</string>
-  <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">עריכה</string>
@@ -238,4 +230,6 @@
   <string name="empty_list">אין פריטים</string>
   <!--Notifications-->
   <string name="notification_channel_progress_status">להציג התראות עבור תהליכים רצים, למשל הורדות</string>
+  <!--Workspaces-->
+  <!--Beta notice-->
 </resources>
