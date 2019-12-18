@@ -182,19 +182,19 @@ open class WindowControl @Inject constructor(
 
 
     fun addNewWindow(): Window {
+        val oldActiveWindow = activeWindow
         val window = windowRepository.addNewWindow()
 
         // default state to active window
         if (!isActiveWindow(window)) {
-            val activeWindow = activeWindow
-            window.pageManager.restoreFrom(activeWindow.pageManager.entity)
-            window.isSynchronised = activeWindow.isSynchronised
+            window.pageManager.restoreFrom(oldActiveWindow.pageManager.entity)
+            window.isSynchronised = oldActiveWindow.isSynchronised
             if (windowRepository.isMaximisedState) {
-                this.activeWindow = window
+                activeWindow = window
             }
         }
 
-        windowSync.synchronizeScreens()
+        windowSync.synchronizeScreens(oldActiveWindow)
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
@@ -203,12 +203,17 @@ open class WindowControl @Inject constructor(
     }
 
     fun addNewWindow(document: Book, key: Key): Window {
+        val oldActiveWindow = activeWindow
         val window = windowRepository.addNewWindow()
         val pageManager = window.pageManager
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        windowSync.synchronizeScreens()
+        if (windowRepository.isMaximisedState) {
+            activeWindow = window
+        }
+
+        windowSync.synchronizeScreens(oldActiveWindow)
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
