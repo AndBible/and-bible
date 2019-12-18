@@ -23,7 +23,6 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Looper
 import android.util.Log
-import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -512,11 +511,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
-        executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset, {immediate: true});")
+        if(window.isVisible)
+            executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset, {immediate: true});")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if(isTopWindow && contentVisible)
+        if(isTopWindow && contentVisible && window.isVisible)
             executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset);")
     }
 
