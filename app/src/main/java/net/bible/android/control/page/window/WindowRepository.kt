@@ -234,7 +234,7 @@ open class WindowRepository @Inject constructor(
 
         val newWindow = Window(winEntity, pageManager)
         dao.insertPageManager(pageManager.entity)
-        windowList.add(newWindow)
+        windowList.add(windowList.indexOf(activeWindow) + 1, newWindow)
         return newWindow
     }
 
