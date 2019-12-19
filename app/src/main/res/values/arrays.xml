@@ -31,7 +31,7 @@
 		<item>automatic</item>
 	</string-array>
 	<string-array name="prefs_night_mode_descriptions_noyes">
-		<item>@string/system</item>
+		<item>@string/prefs_night_mode_system</item>
 		<item>@string/prefs_night_mode_automatic</item>
 	</string-array>
 	<string-array name="prefs_night_mode_descriptions_noauto">
@@ -164,6 +164,4 @@
 		<item>zh</item>
 		<item>zh-Hant-TW</item>
 	</string-array>
-
-	<string name="system">System</string>
 </resources>
