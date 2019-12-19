@@ -132,7 +132,7 @@ open class WindowRepository @Inject constructor(
     val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
 
     private fun getDefaultActiveWindow() =
-        windows.find { it.isVisible } ?: createNewWindow()
+        windows.find { it.isVisible } ?: createNewWindow(true)
 
     fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
@@ -225,7 +225,7 @@ open class WindowRepository @Inject constructor(
         windowList.add(position, window)
     }
 
-    private fun createNewWindow(): Window {
+    private fun createNewWindow(first: Boolean = false): Window {
         val pageManager = currentPageManagerProvider.get()
         val winEntity = WorkspaceEntities.Window(
             id, true, false, false,
@@ -236,7 +236,7 @@ open class WindowRepository @Inject constructor(
 
         val newWindow = Window(winEntity, pageManager)
         dao.insertPageManager(pageManager.entity)
-        windowList.add(windowList.indexOf(activeWindow) + 1, newWindow)
+        windowList.add(if(first) 0 else windowList.indexOf(activeWindow) + 1, newWindow)
         return newWindow
     }
 
