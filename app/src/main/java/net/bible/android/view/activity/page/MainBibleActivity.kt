@@ -988,6 +988,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onScreenTurnedOn() {
         super.onScreenTurnedOn()
+        ScreenSettings.refreshNightMode()
         refreshIfNightModeChange()
         documentViewManager.documentView.onScreenTurnedOn()
     }
