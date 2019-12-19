@@ -35,7 +35,8 @@ import org.crosswire.jsword.passage.Key
 
 open class Window (
     window: WorkspaceEntities.Window,
-    val pageManager: CurrentPageManager
+    val pageManager: CurrentPageManager,
+    val windowRepository: WindowRepository
 ){
 
     val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
@@ -100,6 +101,7 @@ open class Window (
 
     var updateOngoing = false
         set(value) {
+            windowRepository.updateBusyCount(if(value) 1 else -1)
             field = value
             Log.d(TAG, "updateOngoing set to $value")
         }

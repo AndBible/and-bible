@@ -103,7 +103,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
-import org.jetbrains.anko.configuration
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
@@ -856,7 +855,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateToolbar()
     }
 
-    private val sharedActivityState = SharedActivityState.getInstance()
+    private val sharedActivityState = SharedActivityState.instance
 
     private fun hideSystemUI() {
         var uiFlags = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -999,7 +998,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
         val isNightMode = ScreenSettings.nightMode
-        if (currentNightMode != isNightMode) {
+        if (currentNightMode != isNightMode && !windowRepository.isBusy) {
             recreate()
             currentNightMode = isNightMode
             return true

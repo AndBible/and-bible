@@ -85,7 +85,7 @@ class BibleJavascriptInterface(
                 // I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
 
                 // if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
-                if (!SharedActivityState.getInstance().isFullScreen && bibleView.isTopWindow) {
+                if (!SharedActivityState.instance.isFullScreen && bibleView.isTopWindow) {
                     newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
                 }
                 val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)

@@ -46,10 +46,20 @@ open class WindowRepository @Inject constructor(
 {
     private var windowList: MutableList<Window> = ArrayList()
 
+    private var busyCount: Int = 0
+
+    val isBusy get() = busyCount > 0
+
+    fun updateBusyCount(value: Int) {
+        synchronized(this) {
+            busyCount += value
+        }
+    }
+
     var id: Long = 0
     var name = ""
         set(value) {
-            SharedActivityState.setCurrentWorkspaceName(value)
+            SharedActivityState.currentWorkspaceName = value
             field = value
         }
 
@@ -234,7 +244,7 @@ open class WindowRepository @Inject constructor(
             id = dao.insertWindow(this)
         }
 
-        val newWindow = Window(winEntity, pageManager)
+        val newWindow = Window(winEntity, pageManager, this)
         dao.insertPageManager(pageManager.entity)
         windowList.add(if(first) 0 else windowList.indexOf(activeWindow) + 1, newWindow)
         return newWindow
@@ -301,7 +311,7 @@ open class WindowRepository @Inject constructor(
         if(!::dedicatedLinksWindow.isInitialized) {
             val pageManager = currentPageManagerProvider.get()
             pageManager.restoreFrom(linksPageManagerEntity)
-            dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager)
+            dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager, this)
         } else {
             dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity)
         }
@@ -309,7 +319,7 @@ open class WindowRepository @Inject constructor(
         dao.windows(id).forEach {
             val pageManager = currentPageManagerProvider.get()
             pageManager.restoreFrom(dao.pageManager(it.id))
-            val window = Window(it, pageManager)
+            val window = Window(it, pageManager, this)
             windowList.add(window)
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }

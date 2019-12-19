@@ -522,7 +522,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val toolbarOffset
         get() =
-            if(isTopWindow && !SharedActivityState.getInstance().isFullScreen)
+            if(isTopWindow && !SharedActivityState.instance.isFullScreen)
                 (mainBibleActivity.topOffsetWithActionBarAndStatusBar
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F

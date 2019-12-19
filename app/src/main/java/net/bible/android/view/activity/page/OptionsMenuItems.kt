@@ -147,6 +147,6 @@ class SplitModeMenuItemPreference :
 
 class WorkspacesSubmenu: SubMenuMenuItemPreference(false) {
     override fun getTitle(title: CharSequence?): CharSequence? {
-        return "$title (${SharedActivityState.getCurrentWorkspaceName()})"
+        return "$title (${SharedActivityState.currentWorkspaceName})"
     }
 }

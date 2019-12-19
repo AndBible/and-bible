@@ -25,8 +25,8 @@ import net.bible.android.database.WorkspaceEntities
 /**
  * Window used when user selects a link
  */
-class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageManager):
-    Window(window, pageManager)
+class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageManager, windowRepository: WindowRepository):
+    Window(window, pageManager, windowRepository)
 {
     override val isLinksWindow = true
     override var isSynchronised = false

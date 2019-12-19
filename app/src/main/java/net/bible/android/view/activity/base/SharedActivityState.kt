@@ -15,44 +15,29 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.android.view.activity.base;
-
-import org.jetbrains.annotations.NotNull;
+package net.bible.android.view.activity.base
 
 /**
- * Base class for List activities.  Copied from Android source.  
+ * Base class for List activities.  Copied from Android source.
  * A copy of ListActivity from Android source which also extends ActionBarActivity and the And Bible Activity base class.
  *
  * ListActivity does not extend ActionBarActivity so when implementing ActionBar functionality I created this, which does.
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+class SharedActivityState {
+    // show title bar state is shared by all Activity windows
+    var isFullScreen = false
+        private set
 
-public class SharedActivityState {
-	private static String currentWorkspaceName = "";
-	// show title bar state is shared by all Activity windows
-	private boolean mFullScreen = false;
-
-	private static SharedActivityState singleton = new SharedActivityState();
-	
-	public static SharedActivityState getInstance() {
-		return singleton;
-	}
-
-	public static String getCurrentWorkspaceName() {
-		return currentWorkspaceName;
-	}
-
-	public void toggleFullScreen() {
-    	mFullScreen = !mFullScreen;
+    fun toggleFullScreen() {
+        isFullScreen = !isFullScreen
     }
-	
-	public boolean isFullScreen() {
-		return mFullScreen;
-	}
 
-	public static void setCurrentWorkspaceName(@NotNull String text) {
-		currentWorkspaceName = text;
-	}
+    companion object {
+        @JvmStatic
+		var currentWorkspaceName = ""
+        val instance = SharedActivityState()
+
+    }
 }
