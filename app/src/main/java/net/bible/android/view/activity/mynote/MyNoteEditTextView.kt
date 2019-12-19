@@ -117,7 +117,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     override fun changeBackgroundColour() {
-        if (ScreenSettings.isNightMode) {
+        if (ScreenSettings.nightMode) {
             setBackgroundColor(Color.BLACK)
             setTextColor(Color.WHITE)
         } else {

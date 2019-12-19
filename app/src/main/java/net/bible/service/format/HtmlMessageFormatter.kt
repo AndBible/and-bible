@@ -58,7 +58,7 @@ class HtmlMessageFormatter {
         /** wrap text with nightmode css if required
          */
         fun format(text: String): String {
-            val isNightMode = ScreenSettings.isNightMode
+            val isNightMode = ScreenSettings.nightMode
 
             val formattedText: String
 

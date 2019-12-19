@@ -206,6 +206,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // This is singleton so we can do this.
         mainBibleActivity = this
+        ScreenSettings.refreshNightMode()
+        currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState, true)
 
         setContentView(R.layout.main_bible_view)
@@ -874,8 +876,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(ScreenSettings.isNightMode) {
+            if(ScreenSettings.nightMode) {
                 window.navigationBarColor = resources.getColor(R.color.black, theme)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    window.navigationBarDividerColor = resources.getColor(R.color.grey_800, theme)
+                }
             } else {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 window.navigationBarColor = resources.getColor(R.color.white, theme)
@@ -989,13 +994,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     var currentNightMode: Boolean = false
 
-    private fun refreshIfNightModeChange() {
+    fun refreshIfNightModeChange(): Boolean {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
-        val isNightMode = ScreenSettings.isNightMode
+        val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             recreate()
             currentNightMode = isNightMode
+            return true
+        }
+        return false
+    }
+
+    fun onEvent(event: ScreenSettings.NightModeChanged) {
+        if(CurrentActivityHolder.getInstance().currentActivity == this) {
+            refreshIfNightModeChange()
         }
     }
 
@@ -1117,9 +1130,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
-        requestSdcardPermission()
-        invalidateOptionsMenu()
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+        if(!refreshIfNightModeChange()) {
+            requestSdcardPermission()
+            invalidateOptionsMenu()
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+        }
     }
 
     private fun requestSdcardPermission() {

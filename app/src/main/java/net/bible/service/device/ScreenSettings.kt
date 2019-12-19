@@ -26,6 +26,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
 import android.os.PowerManager
+import net.bible.android.control.event.ABEventBus
 import org.jetbrains.anko.configuration
 
 /** Manage screen related functions
@@ -33,23 +34,27 @@ import org.jetbrains.anko.configuration
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object ScreenSettings {
-    private val mLightSensor = LightSensor()
-    private const val MAX_DARK_READING = 30
+    private val mLightSensor: LightSensor = LightSensor { reading ->
+        if(autoNightMode) {
+            val oldValue = lastNightMode
+            if(reading <= MAX_DARK_READING) {
+                lastNightMode = true
+            } else if(reading > MIN_LIGHT_READING) {
+                lastNightMode = false
+            }
+            if(oldValue != lastNightMode) {
+                ABEventBus.getDefault().post(NightModeChanged())
+            }
+        }
+    }
 
-    var isNightMode = false
-        private set
+    class NightModeChanged()
+
+    private const val MAX_DARK_READING = 5
+    private const val DARK_READING_THRESHOLD = 15
+    private const val MIN_LIGHT_READING = 50
 
 	val preferences: SharedPreferences get() = CommonUtils.sharedPreferences
-
-    // may possible be no reading yet but need to have a screen colour
-    // If no light change has occurred then it is most likely pitch black so allow default of black,
-    // which will happen automatically because NO_READING_YET is negative
-    val isNightModeChanged: Boolean
-        get() {
-            val origNightMode = isNightMode
-			isNightMode = nightMode
-            return origNightMode != isNightMode
-        }
 
     val isScreenOn: Boolean
         get() {
@@ -57,20 +62,39 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-	private val autoNightMode	get() =
-		autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
+    val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    //val systemModeAvailable get() =
+    //    (BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) != Configuration.UI_MODE_NIGHT_UNDEFINED
 
-	val autoModeAvailable: Boolean get() = mLightSensor.isLightSensor
+    private val autoNightMode	get() =
+        !systemModeAvailable && autoModeAvailable &&
+            preferences.getString("night_mode_pref2", "false") == "automatic"
 
-	private val nightMode: Boolean get() =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                Configuration.UI_MODE_NIGHT_YES -> true
-                Configuration.UI_MODE_NIGHT_NO -> false
-                else -> false
-            }
-       } else {
-            if (autoNightMode) mLightSensor.reading <= MAX_DARK_READING
-            else preferences.getString("night_mode_pref2", "false") == "true"
-        }
+    val autoModeAvailable = mLightSensor.isLightSensor
+
+    fun refreshNightMode(): Boolean {
+        lastNightMode = if(autoNightMode) {
+            mLightSensor.reading < DARK_READING_THRESHOLD
+        } else
+            nightMode
+        return lastNightMode
+    }
+
+    private var lastNightMode: Boolean = refreshNightMode()
+
+	val nightMode: Boolean get() {
+        val newValue =
+            if(systemModeAvailable)
+                when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                    Configuration.UI_MODE_NIGHT_YES -> true
+                    Configuration.UI_MODE_NIGHT_NO -> false
+                    else -> false
+                }
+            else
+                if (autoNightMode)
+                    lastNightMode
+                else
+                    preferences.getString("night_mode_pref2", "false") == "true"
+        return newValue
+    }
 }

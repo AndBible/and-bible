@@ -66,7 +66,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if(lastSynchWasInNightMode != ScreenSettings.isNightMode) {
+        if(lastSynchWasInNightMode != ScreenSettings.nightMode) {
             lastForceSyncAll = System.currentTimeMillis()
         }
 
@@ -106,7 +106,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             }
         }
 
-        lastSynchWasInNightMode = ScreenSettings.isNightMode
+        lastSynchWasInNightMode = ScreenSettings.nightMode
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not

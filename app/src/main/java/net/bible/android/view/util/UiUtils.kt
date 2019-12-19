@@ -46,31 +46,15 @@ object UiUtils {
     private val BIBLEVIEW_TEXT_DAY = CommonUtils.getResourceColor(R.color.bible_text_day)
 
     private val backgroundColour: Int
-        get() = if (ScreenSettings.isNightMode) BIBLEVIEW_BACKGROUND_NIGHT else BIBLEVIEW_BACKGROUND_DAY
+        get() = if (ScreenSettings.nightMode) BIBLEVIEW_BACKGROUND_NIGHT else BIBLEVIEW_BACKGROUND_DAY
     private val textColour: Int
-        get() = if (ScreenSettings.isNightMode) BIBLEVIEW_TEXT_NIGHT else BIBLEVIEW_TEXT_DAY
+        get() = if (ScreenSettings.nightMode) BIBLEVIEW_TEXT_NIGHT else BIBLEVIEW_TEXT_DAY
 
-    @JvmOverloads
-    fun applyTheme(activity: Activity, recreate: Boolean = true, force: Boolean = false): Boolean {
-        val changed = ScreenSettings.isNightModeChanged
-        if (changed || force) {
-            if (ScreenSettings.isNightMode) {
-                activity.setTheme(R.style.AppThemeNight)
-            } else {
-                activity.setTheme(R.style.AppThemeDay)
-            }
-            if (recreate) {
-                activity.recreate()
-            }
-            return true
-        }
-        return false
-    }
 
     /** Change actionBar colour according to day/night state
      */
     fun setActionBarColor(actionBar: ActionBar?) {
-        val newColor = if (ScreenSettings.isNightMode) ACTIONBAR_BACKGROUND_NIGHT else ACTIONBAR_BACKGROUND_DAY
+        val newColor = if (ScreenSettings.nightMode) ACTIONBAR_BACKGROUND_NIGHT else ACTIONBAR_BACKGROUND_DAY
 
         if (actionBar != null) {
             CurrentActivityHolder.getInstance().runOnUiThread {

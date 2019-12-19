@@ -113,8 +113,8 @@ open class SubMenuMenuItemPreference(onlyBibles: Boolean) :
     MenuItemPreference("none", onlyBibles = onlyBibles, subMenu = true)
 
 class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_pref2", false) {
-    override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-    override val visible: Boolean get() = super.visible && !automatic && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+    override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
+    override val visible: Boolean get() = super.visible && !automatic && !ScreenSettings.systemModeAvailable
     override val automatic get() = super.automatic && ScreenSettings.autoModeAvailable
 
 }

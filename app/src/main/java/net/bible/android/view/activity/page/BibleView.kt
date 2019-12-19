@@ -220,8 +220,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     override fun applyPreferenceSettings() {
         applyFontSize()
-
-        changeBackgroundColour()
     }
 
     private fun applyFontSize() {
@@ -232,13 +230,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** may need updating depending on environmental brightness
      */
     override fun changeBackgroundColour() {
-        // if night mode then set dark background colour
-
-        if(MainBibleActivity.initialized) {
-            UiUtils.applyTheme(mainBibleActivity)
-        }
-
-        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.isNightMode)
+        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.nightMode)
     }
 
     var lastUpdated = 0L
