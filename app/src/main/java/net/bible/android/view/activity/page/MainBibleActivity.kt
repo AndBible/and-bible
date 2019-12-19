@@ -54,22 +54,26 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
-
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.control.event.passage.*
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.event.passage.PassageChangeStartedEvent
+import net.bible.android.control.event.passage.PassageChangedEvent
+import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -79,6 +83,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -88,10 +93,9 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
@@ -100,7 +104,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
-
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
@@ -929,6 +932,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if (menuInfo != null) {
             val inflater = menuInflater
             inflater.inflate(R.menu.link_context_menu, menu)
+            val openLinksInSpecialWindowByDefault = preferences.getBoolean("open_links_in_special_window_pref", true)
+            val item =
+                if(openLinksInSpecialWindowByDefault)
+                    menu.findItem(R.id.open_link_in_special_window)
+                else
+                    menu.findItem(R.id.open_link_in_this_window)
+            item.isVisible = false
         }
     }
 
