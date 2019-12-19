@@ -59,13 +59,18 @@ public class SettingsActivity extends PreferenceActivity {
 		    //If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
 			ListPreference pref = (ListPreference) getPreferenceScreen().findPreference("night_mode_pref2");
-			if(!ScreenSettings.INSTANCE.getSystemModeAvailable()) {
-				if (!ScreenSettings.INSTANCE.getAutoModeAvailable()) {
-					pref.setEntries(R.array.prefs_night_mode_descriptions_noauto);
-					pref.setEntryValues(R.array.prefs_night_mode_values_noauto);
+			if (!ScreenSettings.INSTANCE.getAutoModeAvailable()) {
+				pref.setEntries(R.array.prefs_night_mode_descriptions_noauto);
+				pref.setEntryValues(R.array.prefs_night_mode_values_noauto);
+			}
+
+			if (ScreenSettings.INSTANCE.getSystemModeAvailable()) {
+				if (ScreenSettings.INSTANCE.getAutoModeAvailable()) {
+					pref.setEntries(R.array.prefs_night_mode_descriptions_noyes);
+					pref.setEntryValues(R.array.prefs_night_mode_values_noyes);
+				} else {
+					getPreferenceScreen().removePreference(pref);
 				}
-			} else  {
-				getPreferenceScreen().removePreference(pref);
 			}
 
 			// if locale is overridden then have to force title to be translated here

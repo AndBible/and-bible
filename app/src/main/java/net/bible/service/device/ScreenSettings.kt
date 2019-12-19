@@ -63,12 +63,9 @@ object ScreenSettings {
         }
 
     val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-    //val systemModeAvailable get() =
-    //    (BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) != Configuration.UI_MODE_NIGHT_UNDEFINED
 
     private val autoNightMode	get() =
-        !systemModeAvailable && autoModeAvailable &&
-            preferences.getString("night_mode_pref2", "false") == "automatic"
+        autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
 
     val autoModeAvailable = mLightSensor.isLightSensor
 
@@ -82,19 +79,15 @@ object ScreenSettings {
 
     private var lastNightMode: Boolean = refreshNightMode()
 
-	val nightMode: Boolean get() {
-        val newValue =
-            if(systemModeAvailable)
-                when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
-                    Configuration.UI_MODE_NIGHT_YES -> true
-                    Configuration.UI_MODE_NIGHT_NO -> false
-                    else -> false
-                }
-            else
-                if (autoNightMode)
-                    lastNightMode
-                else
-                    preferences.getString("night_mode_pref2", "false") == "true"
-        return newValue
-    }
+	val nightMode: Boolean get() =
+        if (autoNightMode)
+            lastNightMode
+        else if(systemModeAvailable)
+            when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                Configuration.UI_MODE_NIGHT_YES -> true
+                Configuration.UI_MODE_NIGHT_NO -> false
+                else -> false
+            }
+        else
+            preferences.getString("night_mode_pref2", "false") == "true"
 }
