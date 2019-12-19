@@ -80,6 +80,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_night_mode_title">Yönäkymä</string>
   <string name="prefs_night_mode_summary">Hämärässä lukemiseen soveltuva väritys</string>
   <string name="prefs_night_mode_automatic">Automaattinen</string>
+  <string name="prefs_night_mode_system">Järjestelmä</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_open_links_in_special_window_title">Avaa linkit omaan ikkunaansa</string>

@@ -2,8 +2,15 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Y dijo Dios: Sea la luz: y fué la luz.\"\nGénesis 1:3</string>
+  <string name="splash_top_text">\n«Y dijo Dios: Sea la luz: y fué la luz.»\nGénesis 1,3</string>
+  <string name="help_text">Pulse el botón de MENÚ para acciones\n\n
+Vaya al capítulo siguiente o anterior usando la track-ball,
+ el D-pad o desplazando la pantalla con su dedo</string>
   <string name="help_nav_title">Navegación</string>
+  <string name="help_nav_text">Vaya al capítulo siguiente o anterior desplazando la pantalla con su dedo.
+Doble toque el texto de la Biblia para cambiar a modo pantalla completa. Las ventanas de la Biblia tienen un botón de menú en la esquina superior derecha,
+y puede acceder al menú de ventana haciendo una pulsación larga sobre ellas.
+</string>
   <string name="help_speech_title">Voz</string>
   <string name="help_speech_text">Pulse \"Con voz\" para acceder a un diálogo para comenzar o terminar la lectura</string>
   <string name="help_mynote_title">Mi nota</string>
@@ -102,6 +109,12 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_split_mode_title">Modo de división</string>
   <string name="prefs_request_sdcard_permission_title">Existen documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Habilitar el uso de documentos instalados manualmente desde la carpeta jsword en la tarjeta SD</string>
+  <string name="bible_text_options">Opciones de texto Bíblico</string>
+  <string name="auto_fullscreen">Pantalla completa desplazándose</string>
+  <string name="switch_split_mode">Cambiar modo dividido</string>
+  <string name="reversed_split_mode">Modo dividido invertido</string>
+  <string name="prefs_auto_night_mode_title">Modo nocturno automático</string>
+  <string name="prefs_auto_night_mode_summary">Cambiar al modo nocturno automáticamente por sensor</string>
   <!--Window-->
   <string name="new_window">Nueva ventana</string>
   <string name="windowClose">Cerrar</string>
@@ -128,6 +141,11 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="download_refreshing_book_list">Refrescando lista de documentos disponibles.</string>
   <string name="download_refresh_book_list_menu_item">Refresca</string>
   <string name="error_downloading">Ocurrió un error en la descarga. Por favor compruebe su conexión a internet.</string>
+  <string name="no_internet_connection">
+No se pudo conectar con el repositorio de módulos de Crosswire.
+El servidor puede estar inactivo o es posible que no tenga conexión a Internet.
+Por favor, inténtelo de nuevo más tarde.
+</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
@@ -144,8 +162,49 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
   <string name="rdg_plan_day">Día %s</string>
+  <string name="rdg_plan_set_start_date">Seleccione Fecha de Inicio...</string>
   <string name="done">Hecho</string>
   <string name="reset">Resetea</string>
+  <string name="reset_plan_question">¿Seguro que quiere restablecer este plan?</string>
+  <string name="plan_duplicate_user_plan">
+Hay un plan de lectura de usuario en la tarjeta SD
+jsword/readingplan con el mismo nombre que un plan interno. No se puede enumerar aquí.
+Cambie el nombre del archivo a otra cosa, dejando su extensión de archivo como .properties
+</string>
+  <string name="plan_name_y1ntpspr">NT, Salmos y Proverbios en un año</string>
+  <string name="plan_description_y1ntpspr">
+Cortesía de HEARTLIGHT Internet Magazine,
+http://www.heartlight.org, permiso otorgado
+</string>
+  <string name="plan_name_y1ot1nt1_chronological">Cronológico a través de la Biblia en 1 año</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Plan basado en eventos cronológicos en la Biblia.
+La línea de tiempo cronológica es aproximada.
+</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 año AT+NT simultáneamente</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Lea la Biblia en 1 año, con capítulos
+del AT y el NT todos los días.
+</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">A través de la Biblia en 1 año</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Lea la Biblia en 1 año, comenzando en el Génesis
+y terminando en Apocalipsis. El AT es primero, luego el NT.
+</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 año 4-capítulos/día</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Este plan se basa en el sistema de lectura M’Cheyne,
+con cuatro lecturas diferentes para usar en devociones familiares y personales. Cada día tiene
+dos pasajes del Antiguo Testamento, uno del Nuevo Testamento y uno de los Salmos o los Evangelios. En un año,
+se lee el Antiguo Testamento una vez y el Nuevo Testamento y los Salmos dos veces.
+</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Plan de lectura Prof. Horner 10-capítulos/día</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Cortesía del Prof. Horner, permiso otorgado</string>
+  <string name="plan_name_y2ot1ntps2">2 años a través de la Biblia, NT+Salmos dos veces</string>
+  <string name="plan_description_y2ot1ntps2">
+Lea la Biblia en 2 años, lea el NT y los Salmos dos veces.
+Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
+</string>
   <!--Document context menu-->
   <string name="delete">Borrar</string>
   <string name="delete_index">Borrar indice de búsqueda</string>
@@ -301,8 +360,16 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="mynote_saved">Nota guardada</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
+  <string name="backup">Guardar copia de seguridad en...</string>
   <string name="backup_success">Se han guardado Mis Notas y Marcadores en %s en la tarjeta SD</string>
+  <string name="restore">Restaurar copia de seguridad desde...</string>
+  <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Planes de Lectura y Espacios?</string>
+  <string name="restore_success">Mis notas, marcadores, planes de lectura y espacios restaurados con éxito</string>
   <string name="error_no_backup_file">No se pudo encontrar una copia de seguridad</string>
+  <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
+  <string name="backup_email_subject">Copia de seguridad de la base de datos de And Bible</string>
+  <string name="backup_email_message">Se adjunta su base de datos de And Bible que contiene marcadores, mis notas, planes de lectura y espacios</string>
+  <string name="restore_unsuccessfull">La restauración de la base de datos tuvo un error. Tal vez le dio un archivo de base de datos no válido.</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versión: %s</string>
@@ -321,10 +388,12 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="yes">Sí</string>
   <string name="no">No\n</string>
   <string name="error">Error</string>
+  <string name="please_wait">Por favor espere...</string>
   <string name="all">Todo</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Editar</string>
   <string name="watch_tutorial_video">Ver vídeo tutorial (Inglés)</string>
+  <string name="verse_not_found">Verso no encontrado</string>
   <!--Errors-->
   <string name="report_error">Enviar informe</string>
   <string name="error_occurred">A ocurrido un error.</string>
@@ -336,7 +405,31 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
   <!--Workspaces-->
+  <string name="workspaces">Espacios</string>
+  <string name="new_workspace">Nuevo espacio</string>
+  <string name="switch_to_workspace">Cambiar al espacio...</string>
+  <string name="delete_workspace">Eliminar este espacio</string>
+  <string name="choose_workspace_to_open">Elige espacio para abrir</string>
+  <string name="new_copied_workspace">Copia este espacio como nuevo</string>
+  <string name="workspace_number">Espacio %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Renombrar espacio…</string>
+  <string name="rename_workspace_title">Dale un nombre a este espacio</string>
+  <string name="new_workspace_from_dialog">Nuevo</string>
+  <string name="delete_workspace_from_dialog">Eliminar actual</string>
+  <string name="history_title">Historia (%s)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">¡Esta es la versión beta!</string>
+  <string name="beta_notice_content_1">
+En la versión beta, hay nuevas características que aún no se han probado adecuadamente
+y, por lo tanto, el uso de beta podría introducir un comportamiento inesperado, es decir, errores.
+Se recomienda que los lectores comunes de la Biblia usen una versión estable en su lugar.
+</string>
+  <string name="beta_notice_content_2">
+Se alienta a los usuarios beta a informar errores a través de Google Play o (preferiblemente) a %s.
+</string>
+  <string name="beta_notice_content_3">Si es programador, considere contribuir a solucionar los errores
+a través de %s usted mismo. :-)</string>
   <string name="beta_notice_github_issues">Github propuestas</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Descartar</string>

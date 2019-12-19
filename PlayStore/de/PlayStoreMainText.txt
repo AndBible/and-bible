@@ -5,7 +5,7 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 * Benutzeroberfläche in Chinesisch, Russisch, Deutsch, Französisch, Ungarisch, Tschechisch, Polnisch, Hebräisch, Hindi,...
 * verschiedenste Bibellesepläne
 * Absolut frei, keine Werbung, keine E-Mails
-* Over 40 English Bibles including KJV and NET
+* Über 40 englische Bibelübersetzungen, inklusive KJV und NET
 * 29 Bibelkommentare
 * Große Sammlung an Wörterbüchern und christlicher Literatur
 * Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NKJV und NIV nicht enthalten)
