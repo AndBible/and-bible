@@ -93,7 +93,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -104,6 +103,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.jetbrains.anko.configuration
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
@@ -987,15 +987,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         documentViewManager.documentView.onScreenTurnedOn()
     }
 
-    /**
-     * if using auto night mode then may need to refresh
-     */
+    var currentNightMode: Boolean = false
+
     private fun refreshIfNightModeChange() {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
-        if (ScreenSettings.isNightModeChanged) {
-            // then update text if colour changed
-            documentViewManager.documentView.changeBackgroundColour()
+        val isNightMode = ScreenSettings.isNightMode
+        if (currentNightMode != isNightMode) {
+            recreate()
+            currentNightMode = isNightMode
         }
     }
 
@@ -1013,13 +1013,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             showSystemUI()
     }
 
-    class ConfigurationChanged
+    class ConfigurationChanged(val configuration: Configuration)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateToolbar()
-        ABEventBus.getDefault().post(ConfigurationChanged())
+        ABEventBus.getDefault().post(ConfigurationChanged(newConfig))
         windowControl.windowSizesChanged()
+        refreshIfNightModeChange()
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {

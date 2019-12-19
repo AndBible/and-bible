@@ -18,11 +18,14 @@
 
 package net.bible.android.view.activity.page
 
+import android.os.Build
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
+import org.jetbrains.anko.configuration
 
 interface OptionsMenuItemInterface {
     var value: Boolean
@@ -59,7 +62,7 @@ abstract class MenuItemPreference(
             preferences.edit().putString(preferenceName, if (value) trueValue else falseValue).apply()
         }
 
-    protected val automatic: Boolean
+    protected open val automatic: Boolean
         get() = if (isBoolean) {
             false
         } else {
@@ -111,7 +114,9 @@ open class SubMenuMenuItemPreference(onlyBibles: Boolean) :
 
 class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_pref2", false) {
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-    override val visible: Boolean get() = super.visible && !automatic
+    override val visible: Boolean get() = super.visible && !automatic && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+    override val automatic get() = super.automatic && ScreenSettings.autoModeAvailable
+
 }
 
 class StrongsMenuItemPreference : TextContentMenuItemPreference("show_strongs_pref", true) {
@@ -134,7 +139,7 @@ class SplitModeMenuItemPreference :
     MenuItemPreference("reverse_split_mode_pref", false) {
     override fun handle() {
         mainBibleActivity.windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged())
+        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.configuration))
     }
 
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow

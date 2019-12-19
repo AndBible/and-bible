@@ -23,7 +23,10 @@ import net.bible.service.common.CommonUtils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.os.Build
 import android.os.PowerManager
+import org.jetbrains.anko.configuration
 
 /** Manage screen related functions
  *
@@ -31,7 +34,7 @@ import android.os.PowerManager
  */
 object ScreenSettings {
     private val mLightSensor = LightSensor()
-    private val MAX_DARK_READING = 30
+    private const val MAX_DARK_READING = 30
 
     var isNightMode = false
         private set
@@ -59,7 +62,15 @@ object ScreenSettings {
 
 	val autoModeAvailable: Boolean get() = mLightSensor.isLightSensor
 
-	private val nightMode get() =
-		if(autoNightMode) mLightSensor.reading <= MAX_DARK_READING
-		else preferences.getString("night_mode_pref2", "false") == "true"
+	private val nightMode: Boolean get() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                Configuration.UI_MODE_NIGHT_YES -> true
+                Configuration.UI_MODE_NIGHT_NO -> false
+                else -> false
+            }
+       } else {
+            if (autoNightMode) mLightSensor.reading <= MAX_DARK_READING
+            else preferences.getString("night_mode_pref2", "false") == "true"
+        }
 }
