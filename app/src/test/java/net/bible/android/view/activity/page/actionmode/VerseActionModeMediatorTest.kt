@@ -13,6 +13,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowLayout
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
 
 import org.crosswire.jsword.passage.Verse
@@ -24,7 +25,6 @@ import org.junit.Test
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
-import java.lang.ref.WeakReference
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -98,8 +98,9 @@ class VerseActionModeMediatorTest {
         val windowEntity = WorkspaceEntities.Window(0,true, false, false,
             WorkspaceEntities.WindowLayout(WindowLayout.WindowState.MAXIMISED.toString()), 3)
         // publish window change event
+        val windowRepository: WindowRepository = mock()
         ABEventBus.getDefault().post(CurrentWindowChangedEvent(
-            Window(windowEntity, currentPageManager)))
+            Window(windowEntity, currentPageManager, windowRepository)))
 
         assertThat(verseActionModeMediator.isActionMode, `is`(false))
     }

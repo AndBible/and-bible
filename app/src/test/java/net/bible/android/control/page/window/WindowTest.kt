@@ -47,6 +47,7 @@ class WindowTest {
         val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
+        val windowRepository = mock(WindowRepository::class.java)
 
         val mockCurrentPageManager = CurrentPageManager(swordContentFactory, SwordDocumentFacade(null), bibleTraverser, myNoteDao)
 
@@ -54,7 +55,8 @@ class WindowTest {
         var window = Window(
             WorkspaceEntities.Window(0,true, false, false,
                 WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()), 2),
-            mockCurrentPageManager
+            mockCurrentPageManager,
+            windowRepository
         )
         var layout = window.windowLayout
         window.isSynchronised = true
@@ -69,7 +71,7 @@ class WindowTest {
         println(entity)
 
         // recreate window from saved state
-        window = Window(entity, mockCurrentPageManager)
+        window = Window(entity, mockCurrentPageManager, windowRepository)
         layout = window.windowLayout
         assertThat(window.id, equalTo(2L))
         assertThat(layout.state, equalTo(WindowState.MINIMISED))
