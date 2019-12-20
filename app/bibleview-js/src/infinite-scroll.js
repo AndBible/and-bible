@@ -4,6 +4,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 import {registerVersePositions} from "./bibleview";
+import {stopScrolling} from "./scroll";
 
 function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
                       insertAfterAtTop, insertBeforeAtBottom) {
@@ -133,11 +134,13 @@ function setScrollPosition(offset) {
  */
 function loadTextAtTop(chapter, textId) {
     console.log("js:loadTextAtTop");
+    stopScrolling();
     jsInterface.requestMoreTextAtTop(chapter, textId);
 }
 
 function loadTextAtEnd(chapter, textId) {
     console.log("js:loadTextAtEnd");
+    stopScrolling();
     jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 

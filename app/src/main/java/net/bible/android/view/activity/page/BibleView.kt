@@ -324,7 +324,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             if(!contentVisible) {
-                executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, doNotScroll:${scrolled}})") {
+                executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, doNotScroll:${scrolled}, offset:${toolbarOffset}})") {
                     //contentVisible = true;
                     //window.updateOngoing = false
                 }

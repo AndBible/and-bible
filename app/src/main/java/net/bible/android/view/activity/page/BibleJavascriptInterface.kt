@@ -29,7 +29,6 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.ref.WeakReference
 
 /**
  * Interface allowing javascript to call java methods in app
@@ -144,17 +143,6 @@ class BibleJavascriptInterface(
         Log.d(TAG, "triggerJumpToOffset!")
         bibleView.jumpToOffset(contentHeight)
     }
-
-    @JavascriptInterface
-    fun getToolbarOffset(): Float {
-        return bibleView.toolbarOffset
-    }
-
-    @JavascriptInterface
-    fun getCurrentChapterVerseId(): String {
-        return bibleView.getIdToJumpTo(bibleView.window.pageManager.currentBible.currentChapterVerse)
-    }
-
 
 	private val TAG get() = "BibleView[${bibleView.window.id}] JSInt"
 }

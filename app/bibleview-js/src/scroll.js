@@ -17,7 +17,6 @@ export function setToolbarOffset(value, {doNotScroll = false, immediate = false}
     }
 }
 
-
 export function jsonscroll() {
     if(currentAnimation == null) {
         jsInterface.onScroll(window.pageYOffset);
@@ -30,9 +29,16 @@ export function doScrolling(elementY, duration) {
     const startingY = window.pageYOffset;
     const diff = elementY - startingY;
     let start;
-    if(currentAnimation) {
-        window.cancelAnimationFrame(currentAnimation);
+
+    function endAnimation() {
+        if(currentAnimation != null) {
+            window.cancelAnimationFrame(currentAnimation);
+            currentAnimation = null;
+            console.log("Animation ends");
+        }
     }
+
+    endAnimation();
 
     if(duration === 0) {
         window.scrollTo(0, elementY);
@@ -40,6 +46,7 @@ export function doScrolling(elementY, duration) {
     }
 
     // Bootstrap our animation - it will get called right before next frame shall be rendered.
+    console.log("Animation starts");
     currentAnimation = window.requestAnimationFrame(function step(timestamp) {
         if (!start) start = timestamp;
         // Elapsed milliseconds since start of scrolling.
@@ -54,7 +61,7 @@ export function doScrolling(elementY, duration) {
             currentAnimation = window.requestAnimationFrame(step);
         }
         else {
-            currentAnimation = null;
+            endAnimation();
             jsonscroll();
         }
     })
@@ -87,8 +94,8 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 export const isReady = new Deferred();
 addWaiter(isReady);
 
-export function setupContent({isBible = false, doNotScroll = false} = {}) {
-    setToolbarOffset(jsInterface.getToolbarOffset(), {immediate: true});
+export function setupContent({isBible = false, doNotScroll = false, offset} = {}) {
+    setToolbarOffset(offset, {immediate: true});
     if(isBible) {
         enableVerseLongTouchSelectionMode();
     } else if(!doNotScroll) {
