@@ -1000,10 +1000,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
         val isNightMode = ScreenSettings.nightMode
-        if (currentNightMode != isNightMode && !windowRepository.isBusy) {
-            recreate()
-            currentNightMode = isNightMode
-            return true
+        if (currentNightMode != isNightMode) {
+            if(!windowRepository.isBusy) {
+                recreate()
+                currentNightMode = isNightMode
+                return true
+            } else {
+                // Cancel night mode setting
+                ScreenSettings.setLastNightMode(currentNightMode)
+            }
         }
         return false
     }

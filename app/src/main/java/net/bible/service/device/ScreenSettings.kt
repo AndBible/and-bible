@@ -90,4 +90,9 @@ object ScreenSettings {
             }
         else
             preferences.getString("night_mode_pref2", "false") == "true"
+
+    fun setLastNightMode(value: Boolean) {
+        if(autoNightMode)
+            lastNightMode = value
+    }
 }
