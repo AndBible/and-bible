@@ -473,6 +473,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
 
     private fun newWorkspace() {
+        val defaultDocument = pageControl.currentPageManager.currentBible.currentDocument
         windowRepository.saveIntoDb()
 
         val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
@@ -480,6 +481,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         currentWorkspaceId = newWorkspaceEntity.id
+        pageControl.currentPageManager.currentBible.setCurrentDocument(defaultDocument)
     }
 
     private fun cloneWorkspace() {
