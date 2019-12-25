@@ -94,13 +94,22 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 export const isReady = new Deferred();
 addWaiter(isReady);
 
-export function setupContent({isBible = false, doNotScroll = false, offset} = {}) {
-    setToolbarOffset(offset, {immediate: true});
+export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset} = {}) {
+    const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
+    setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(isBible) {
         enableVerseLongTouchSelectionMode();
-    } else if(!doNotScroll) {
+    } else if(doScroll) {
+        console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
+        const
+            contentHeight = document.documentElement.scrollHeight,
+            y = contentHeight * jumpToYOffsetRatio / window.devicePixelRatio;
+        doScrolling(y, 0)
+    } else {
+        console.log("scrolling to beginning of document (now)");
         scrollToVerse(null, true);
     }
+
     isReady.resolve();
 
     // requestAnimationFrame should make sure that contentReady is set only after

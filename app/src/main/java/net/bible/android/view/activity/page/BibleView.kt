@@ -84,10 +84,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var jumpToYOffsetRatio : Float? = null
     private var jumpToChapterVerse: ChapterVerse? = null
 
-    // screen is changing shape/size so constantly maintain the current verse position
-    // main difference from jumpToVerse is that this is not cleared after jump
-    private var maintainMovingChapterVerse: ChapterVerse? = null
-
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
 
@@ -285,14 +281,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var contentVisible = false
 
-    fun jumpToOffset(contentHeight: Int) {
+    fun jumpToOffset() {
         runOnUiThread {
             bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
 
             val jumpToYOffsetRatio = jumpToYOffsetRatio
             val jumpToChapterVerse = jumpToChapterVerse
-            var scrolled = false
-
 
             // go to any specified verse or offset
             if (jumpToChapterVerse!=null) {
@@ -300,35 +294,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 this.jumpToChapterVerse = null
 
                 scrollOrJumpToVerse(jumpToChapterVerse)
-
             }
-
-            else if (jumpToYOffsetRatio != null) {
-                val y = (contentHeight.toFloat() * jumpToYOffsetRatio).toInt()
-
-                // must zero jumpToYOffsetRatio because setting location causes another onPageFinished
-                this.jumpToYOffsetRatio = null
-
-                // Top of the screen is handled by scrollToVerse in the page loading.
-                // We want to take care of only to go to specific point in commentary/generalbook page
-                // when pressing back button.
-                if(y > TOP_OF_SCREEN) {
-                    scrollTo(0, y)
-                    scrolled = true
-                }
-            }
+            else if (jumpToYOffsetRatio != null) {}
             else {
                 Log.e(TAG, "Jump to offset does not know where to jump! But jumping anyway.")
                 val loc = window.pageManager.currentBible.currentChapterVerse
                 scrollOrJumpToVerse(loc)
             }
-
-            if(!contentVisible) {
-                executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, doNotScroll:${scrolled}, offset:${toolbarOffset}})") {
-                    //contentVisible = true;
-                    //window.updateOngoing = false
-                }
+            if(contentVisible) {
+                Log.e(TAG, "Content visible already!")
             }
+            executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, " +
+                "jumpToYOffsetRatio:$jumpToYOffsetRatio, toolBarOffset:${toolbarOffset}})")
         }
     }
 
@@ -410,9 +387,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override val currentPosition: Float get () {
         // see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        val contentHeight = contentHeight
-        val scrollY = scrollY
-
         return scrollY.toFloat() / contentHeight.toFloat()
     }
 
@@ -711,6 +685,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun setContentReady() {
         contentVisible = true;
         window.updateOngoing = false
+        jumpToYOffsetRatio = null
     }
 
     var onDestroy: (() -> Unit)? = null

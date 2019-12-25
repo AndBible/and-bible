@@ -139,9 +139,9 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun triggerJumpToOffset(contentHeight: Int) {
+    fun triggerJumpToOffset() {
         Log.d(TAG, "triggerJumpToOffset!")
-        bibleView.jumpToOffset(contentHeight)
+        bibleView.jumpToOffset()
     }
 
 	private val TAG get() = "BibleView[${bibleView.window.id}] JSInt"

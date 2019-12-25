@@ -21,7 +21,7 @@ window.addEventListener("DOMContentLoaded",  async (event) => {
     registerVersePositions();
     initializeListeners();
     initializeInfiniScroll();
-    jsInterface.triggerJumpToOffset(document.documentElement.scrollHeight);
+    jsInterface.triggerJumpToOffset();
     // this will eventually call back setupContent
 });
 
