@@ -193,7 +193,7 @@ open class WindowControl @Inject constructor(
             }
         }
 
-        windowSync.synchronizeScreens(oldActiveWindow)
+        window.updateText()
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
@@ -202,7 +202,6 @@ open class WindowControl @Inject constructor(
     }
 
     fun addNewWindow(document: Book, key: Key): Window {
-        val oldActiveWindow = activeWindow
         val window = windowRepository.addNewWindow()
         val pageManager = window.pageManager
         window.isSynchronised = false
@@ -211,8 +210,6 @@ open class WindowControl @Inject constructor(
         if (windowRepository.isMaximisedState) {
             activeWindow = window
         }
-
-        windowSync.synchronizeScreens(oldActiveWindow)
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
@@ -271,7 +268,7 @@ open class WindowControl @Inject constructor(
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
-        windowSync.synchronizeScreens()
+        windowSync.synchronizeWindows()
     }
 
     fun closeCurrentWindow() {
@@ -319,8 +316,8 @@ open class WindowControl @Inject constructor(
 
         // causes BibleViews to be created and laid out
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-        windowSync.synchronizeScreens()
-        windowSync.reloadAllScreens()
+        windowSync.synchronizeWindows()
+        windowSync.reloadAllWindows()
 
         if (switchingMaximised) {
             activeWindow = window
@@ -331,7 +328,7 @@ open class WindowControl @Inject constructor(
     fun synchroniseCurrentWindow() {
         activeWindow.isSynchronised = true
 
-        windowSync.synchronizeScreens()
+        windowSync.synchronizeWindows()
     }
 
     fun unsynchroniseCurrentWindow() {
@@ -358,7 +355,7 @@ open class WindowControl @Inject constructor(
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
-        windowSync.synchronizeScreens(event.window)
+        windowSync.synchronizeWindows(event.window)
     }
 
     fun onEvent(event: SynchronizeWindowsEvent) {
@@ -368,7 +365,7 @@ open class WindowControl @Inject constructor(
             windowSync.setResyncBiblesRequired()
         }
         if(activeWindowPageManager.isMyNoteShown) return
-        windowSync.reloadAllScreens()
+        windowSync.reloadAllWindows()
     }
 
     fun isSeparatorMoving(): Boolean {

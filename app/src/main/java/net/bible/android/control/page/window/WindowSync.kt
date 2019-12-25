@@ -43,7 +43,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         lastForceSyncBibles = System.currentTimeMillis()
     }
 
-    fun reloadAllScreens(force: Boolean = false) {
+    fun reloadAllWindows(force: Boolean = false) {
         windowRepository.updateBusyCount(1)
         if(force)
             setResyncRequired()
@@ -61,7 +61,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
      */
 
-    fun synchronizeScreens(sourceWindow_: Window? = null) {
+    fun synchronizeWindows(sourceWindow_: Window? = null) {
         windowRepository.updateBusyCount(1)
         val sourceWindow = sourceWindow_?: windowRepository.activeWindow
         val activePage = sourceWindow.pageManager.currentPage
@@ -73,7 +73,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             lastForceSyncAll = System.currentTimeMillis()
         }
 
-        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
+        if(isSynchronizableVerseKey(activePage) && (sourceWindow.isSynchronised)) {
             for (inactiveWindow in inactiveWindowList) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey

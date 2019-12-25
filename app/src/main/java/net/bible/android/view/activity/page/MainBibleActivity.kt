@@ -272,7 +272,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         ABEventBus.getDefault().register(this)
 
         // force all windows to be populated
-        windowControl.windowSync.reloadAllScreens(true)
+        windowControl.windowSync.reloadAllWindows(true)
         updateActions()
         refreshScreenKeepOn()
         if(!initialized)
@@ -575,7 +575,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
             documentViewManager.resetView()
-            windowControl.windowSync.reloadAllScreens()
+            windowControl.windowSync.reloadAllWindows()
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
