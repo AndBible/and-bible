@@ -106,8 +106,8 @@ class BookmarkDBAdapter {
         val newValues = ContentValues()
         newValues.put(LabelColumn.NAME, label.name)
         newValues.put(LabelColumn.BOOKMARK_STYLE, label.bookmarkStyleAsString)
-        val newId = db.update(BookmarkDatabaseDefinition.Table.LABEL, CONFLICT_FAIL, newValues, "_id=?", arrayOf(label.id.toString())).toLong()
-        return getLabelDto(newId)!!
+        db.update(BookmarkDatabaseDefinition.Table.LABEL, CONFLICT_FAIL, newValues, "_id=?", arrayOf(label.id.toString())).toLong()
+        return label
     }
 
     fun removeBookmarkLabelJoin(bookmark: BookmarkDto, label: LabelDto): Boolean {
