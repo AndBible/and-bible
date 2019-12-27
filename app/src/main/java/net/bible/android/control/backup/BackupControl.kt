@@ -21,7 +21,6 @@ package net.bible.android.control.backup
 import android.app.Activity
 import android.os.Environment
 import android.util.Log
-import android.view.Menu
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
