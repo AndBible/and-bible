@@ -26,3 +26,7 @@ And Biblio (And Bible) estas malfermkoda, senkonekta kaj tute senpaga aplikaĵo 
 Ni ĉiuj estas volontuloj; nie ne sendas turmentajn retleterojn, ne montras tedajn reklamojn; neniam petas pri donacoj; ne patas pri registri; la programo And Biblio kolektas neniujn datumojn el via telefono.
 
 La deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj.
+
+<b>Rimarkoj:</b>
+* ŝatu na And Biblio ĉe <a href="https://facebook.com/AndBible/">Facebook</a>
+* plej oftaj demandoj (en la angla) pri And Biblio: <a href="https://github.com/AndBible/and-bible/wiki/FAQ">FAQ</a>
