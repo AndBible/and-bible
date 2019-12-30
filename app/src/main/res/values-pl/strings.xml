@@ -3,9 +3,32 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3</string>
+  <string name="help_text">Naciśnij przycisk MENU, aby wyświetlić menu główne\n\n
+Aby przejść do poprzedniego lub następnego rozdziału, użyj trackballa, pada kierunkowego lub przesuń palcem po ekranie</string>
+  <string name="help_nav_title">Nawigacja</string>
+  <string name="help_nav_text">Przesuń palcem po ekranie, aby przejść do następnego lub poprzedniego rozdziału.
+Stuknij dwukrotnie, aby przełączyć tryb pełnego ekranu. W prawym górnym rogu każdego okna Biblii znajduje się przycisk menu; przytrzymaj dłużej menu okna, aby wyświetlić menu okna.</string>
+  <string name="help_speech_title">Odtwarzaj</string>
+  <string name="help_speech_text">Wciśnij „odtwarzaj”, aby wyświetlić okno umożliwiające rozpoczęcie/wstrzymanie czytania na głos</string>
+  <string name="help_mynote_title">Moje notatki</string>
+  <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
+Lista istniejących notatek dostępna jest poprzez menu główne.</string>
+  <string name="help_bookmarks_title">Zakładki</string>
+  <string name="help_bookmarks_text">Zakładki można dodać poprzez menu kontekstowe wersetu.
+Organizator zakładek jest dostępny poprzez menu główne.
+Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
+  <string name="help_search_title">Wyszukiwanie</string>
+  <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
+(więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
+  <string name="help_contextmenus_title">Menu kontekstowe</string>
+  <string name="help_contextmenus_text">
+Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić menu kontekstowe dla czynności związanych z obecnym wersetem.
+Naciśnij i przytrzymaj dokument w widoku wybory dokumentów, aby go usunąć lub wyświetlić jego właściwości.
+Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
   <!--Main menu-->
+  <string name="menu">Menu</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Fragment</string>
   <string name="search">Znajdź</string>
@@ -14,6 +37,8 @@
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
   <string name="administration">Zarządzanie</string>
+  <string name="rate_application">Oceń w sklepie Google Play</string>
+  <string name="chooce_document">Wybór dokumentu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
   <string name="choosePassageChapterName">Wybierz rozdział</string>
@@ -23,10 +48,12 @@
   <!--Search-->
   <string name="search_index">Indeks wyszukiwania</string>
   <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połączenie z Internetem.\n</string>
+  <string name="search_index_unavailable">Tworzenie indeksu wyszukiwania dostępne jest tylko na Androidzie 5.0 (Lollipop) lub nowszym.</string>
   <string name="indexing_wait_msg">Po zakończeniu indeksowania zostaniesz przeniesiony do ekranu wyszukiwania.</string>
   <string name="index_download">Pobierz</string>
   <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
   <string name="index_create">Utwórz</string>
+  <string name="rebuild_index">Ponownie utwórz indeks</string>
   <!--Tasks-->
   <string name="progress_status">Postęp</string>
   <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
@@ -37,12 +64,12 @@
   <string name="search_any_word">dowolne słowo</string>
   <string name="search_phrase">frazę</string>
   <string name="search_result_count">%d znalezionych</string>
-  <string name="search_showing_first">Zbyt dużo wyników. Zobacz pierwsze %d</string>
+  <string name="search_showing_first">Zbyt dużo wyników. Wyświetlanie pierwszych %d</string>
   <string name="search_bible_section_group_prompt">Szukaj w</string>
-  <string name="search_all_bible">Cała Bibilia</string>
-  <string name="search_new_testament">Nowy Testament</string>
-  <string name="search_old_testament">Stary Testament</string>
-  <string name="search_current_book">Aktualnie używana księga</string>
+  <string name="search_all_bible">całej Biblii</string>
+  <string name="search_new_testament">Nowym Testamencie</string>
+  <string name="search_old_testament">Starym Testamencie</string>
+  <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numer wersetu</string>
@@ -52,6 +79,7 @@
   <string name="prefs_default_bookmark_style_summary">Kolor zaznaczenia lub ikona</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
+  <string name="prefs_show_strongs_title">Numeracja Stronga</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>
   <string name="prefs_section_title_title">Tytuły sekcji</string>
   <string name="prefs_red_letter_title">Tytuł na czerwono</string>
@@ -60,6 +88,7 @@
   <string name="prefs_night_mode_title">Tryb nocny</string>
   <string name="prefs_night_mode_summary">Ułatwia czytanie po ciemku</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
+  <string name="prefs_night_mode_system">Systemowy</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
@@ -78,7 +107,14 @@
   <string name="prefs_split_mode_title">Ułożenie okien</string>
   <string name="prefs_request_sdcard_permission_title">Korzystaj z ręcznie skopiowanych dokumentów</string>
   <string name="prefs_request_sdcard_permission_summary">Korzystaj z ręcznie zainstalowanych dokumentów w katalogu “jsword” na karcie SD</string>
+  <string name="bible_text_options">Ustawienia tekstu</string>
+  <string name="auto_fullscreen">Pełny ekran podczas przewijania</string>
+  <string name="switch_split_mode">Tryb podwójnego ekranu</string>
+  <string name="reversed_split_mode">Tryb odwróconego podwójnego ekranu</string>
+  <string name="prefs_auto_night_mode_title">Automatyczny tryb nocny</string>
+  <string name="prefs_auto_night_mode_summary">Czujnik światła aktywuje tryb nocny</string>
   <!--Window-->
+  <string name="new_window">Nowe okno</string>
   <string name="windowClose">Zamknij</string>
   <string name="windowMaximise">Maksymalizuj</string>
   <string name="windowMinimise">Minimalizuj</string>
@@ -93,7 +129,7 @@
   <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Stronga</string>
   <string name="all_greek_occurrences">Pokaż wszystkie</string>
   <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
-  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis przez \"Szukaj\"</string>
+  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis poprzez „wyszukiwanie”</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <!--Module download-->
   <string name="download">Pobierz moduł</string>
@@ -103,11 +139,16 @@
   <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>
   <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
+  <string name="no_internet_connection">
+Nie można połączyć się z repozytorium modułów Crosswire.
+Serwer może być wyłączony lub możesz nie mieć połączenia z internetem.
+Proszę spróbować ponownie później.</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
   <string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie. Proszę czekać na ich ukończenie.</string>
   <string name="document_not_installed">Proszę pobrać \'%s\'</string>
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
+  <string name="install_zip_module">Zainstaluj moduł Biblii</string>
   <string name="install_zip_successfull">Moduł został pomyślnie zainstalowany</string>
   <string name="extracting_zip_file">Rozpakowywanie pliku zip…</string>
   <string name="checking_zip_file">Sprawdzanie pliku…</string>
@@ -118,8 +159,35 @@
   <string name="rdg_plan_title">Plan czytania</string>
   <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
   <string name="rdg_plan_day">Dzień %s</string>
+  <string name="rdg_plan_set_start_date">Wybierz datę rozpoczęcia…</string>
   <string name="done">Gotowe</string>
   <string name="reset">Reset</string>
+  <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
+  <string name="plan_duplicate_user_plan">
+Istnieje plan czytania użytkownika w katalogu „jsword/readingplan” na karcie SD o tej samej nazwie co plan wewnętrzny, Nie można go tutaj wyświetlić. Prosimy zmienić nazwę pliku, pozostawiając jego rozszerzenie „.properties”.</string>
+  <string name="plan_name_y1ntpspr">NT, Psalmy i Księga Przysłów w rok</string>
+  <string name="plan_description_y1ntpspr">
+Dzięki uprzejmości magazynu internetowego Heartlight,
+https://www.heartlight.org, za ich zgodą</string>
+  <string name="plan_name_y1ot1nt1_chronological">Chronologicznie przez Biblię w rok</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Plan oparty na chronologicznych wydarzeniach w Biblii,
+kolejność zdarzeń jest oszacowana.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">ST i NT jednocześnie w rok</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Przeczytaj Biblię w rok, rozdziały ze ST i NT każdego dnia.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Przez Biblię w rok</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Przeczytaj Biblię w rok, od Księgi Rodzaju do Apokalipsy Świętego Jana. Najpierw ST, następnie NT.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Plan czytania M\'Cheyne, 1 rok, po 4 rozdziały dziennie</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Plan oparty na systemie M’Cheyne, charakteryzujący się czterema różnymi tekstami do czytania w rodzinie bądź samodzielnie. Każdego dnia są po dwa rozdziały ze Starego Testamentu, jeden z Nowego Testamentu i jeden z Psalmów bądź z ewangelii. W ciągu roku przeczytasz Stary Testament raz i Nowy Testament z Psalmami dwa razy.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Plan czytania prof. Hornera, po 10 rozdziałów dziennie</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Dzięki uprzejmości prof. Hornera, za jego zgodą</string>
+  <string name="plan_name_y2ot1ntps2">Przez Biblię w 2 lata, NT i Psalmy dwukrotnie</string>
+  <string name="plan_description_y2ot1ntps2">
+Przeczytaj Biblię w 2 lata, czytając Nowy Testament i Psalmy dwukrotnie.
+Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zgodą</string>
   <!--Document context menu-->
   <string name="delete">Usuń</string>
   <string name="delete_index">Usuń indeks wyszukiwań</string>
@@ -129,7 +197,7 @@
   <!--Verse context menu-->
   <string name="notes">Przypisy i odnośniki</string>
   <string name="copy">Skopiuj</string>
-  <string name="share_verse">Udostępnij …</string>
+  <string name="share_verse">Udostępnij…</string>
   <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Link context menu-->
@@ -182,24 +250,97 @@
   <string name="speak_queue">Kolejka</string>
   <string name="speak_repeat">Powtórz</string>
   <!--Speak - Bible-->
+  <string name="speak_speed_title">Tempo mowy</string>
+  <string name="speak_and_play_earcons_title">Czytaj i odtwarzaj dźwięki dla</string>
+  <string name="playback_settings_title">Ustawienia odtwarzania</string>
+  <string name="speak_settings_title">Ogólne ustawienia mowy</string>
+  <string name="speak_bookmarking_settings_title">Ustawienia zakładek</string>
+  <string name="speak_bookmarks_menu_title">Mów od zakładki</string>
+  <string name="speak_advanced_settings">Zaawansowane ustawienia</string>
+  <string name="speak_sleep_timer_title">Uśpienie</string>
+  <string name="speak_no_books_available">Brak dostępnych książek do czytania</string>
+  <string name="repeat_passage">Powtórz fragment</string>
+  <string name="set_repeat_passage_range">Wybierz zakres fragmentu do powtórzenia</string>
+  <string name="speak_beginning_of_passage">Wybierz początek fragmentu</string>
+  <string name="speak_ending_of_passage">Wybierz koniec fragmentu</string>
+  <string name="speak_verse_range_to_repeat">Wybierz zakres wersetu do powtórzenia</string>
+  <string name="speak_ending_verse_must_be_later">Końcowy werset musi być po początkowym wersecie</string>
+  <string name="conf_speak_synchronize">Synchronizuj tekst z mową</string>
+  <string name="conf_speak_auto_bookmark">Automatycznie twórz zakładki</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Zapisz ustawienia odtwarzania w zakładkach</string>
+  <string name="conf_replace_divinename">Zastąp imię boże słowem Jahwe</string>
+  <string name="conf_change_chapter">nowych rozdziałów</string>
+  <string name="conf_change_title">tytułów</string>
+  <string name="conf_speak_footnotes">przypisów</string>
+  <string name="conf_speak_sleep_timer">Automatyczne uśpienie</string>
+  <string name="sleep_timer_title">Czas automatycznego uśpienia (minuty)</string>
+  <string name="sleep_timer_set">Ustawiono automatyczne uśpienie: %d min</string>
+  <string name="sleep_timer_started">Ustawiono automatyczne uśpienie: %d min</string>
+  <string name="sleep_timer_active_at">Automatyczne uśpienie: pozostało %s min.</string>
+  <string name="speak_next">Następny</string>
+  <string name="speak_previous">Poprzedni</string>
+  <string name="widget_toggle_sleep_timer">Przełącz automatyczne uśpienie</string>
+  <string name="widget_bookmark_helptext">Przyciski zakładek odtwarzania pojawią się tutaj.</string>
+  <string name="speak_status_stopped">wstrzymano</string>
+  <string name="speak_autobookmarking_disabled">Wyłączono automatyczne tworzenie zakładek!</string>
+  <string name="system_speak_settings">Systemowe ustawienia syntezy mowy</string>
+  <string name="speak_bookmark_help">Pomoc zakładek czytania</string>
+  <string name="speak_help_auto_bookmark">
+Zakładki czytania są tworzone automatycznie przy wstrzymaniu/zatrzymaniu odtwarzania. Automatycznie tworzone zakładki są oznaczane specjalną etykietą. Kiedy rozpoczniesz odtwarzanie od zakładki, zakładka ta przesunie się do wersetu na którym wstrzymasz/zatrzymasz odtwarzanie. Tylko głosowe zakładki czytania ulegną przesunięciu, wszystkie inne zakładki pozostaną niezmienione.</string>
+  <string name="speak_help_playback_settings">
+Specjalne ustawienia odtwarzania (menu „ustawienia odtwarzania” ekranu odtwarzania) są zapisywane wraz z zakładkami czytania gdy ta opcja jest włączona. Kiedy kontynuujesz odtwarzanie z zakładki, ustawienia odtwarzania zostaną z niej wczytane.</string>
+  <string name="speak_help_playback_settings_example">
+Przykład: słuchasz Księgi Rodzaju i Listu do Rzymian, chcesz szybko odsłuchać Księgi Rodzaju bez powiadomień o zmianach rozdziałów ale Listu do Rzymian wolniej i z dźwiękiem przy zmianie rozdziału, możesz mieć oddzielne ustawienia odtwarzania dla tych ksiąg mając zapisane te ustawienia w oddzielnych zakładkach.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>Bóg</item>
+    <item>PAN</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Jahwe</item>
+    <item>Jahwe</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">Nowa księga.</string>
+  <string name="speak_chapter_changed">Rozdział</string>
+  <string name="speak_first">pierwszy</string>
+  <string name="speak_second">drugi</string>
+  <string name="speak_third">trzeci</string>
+  <string name="speak_fourth">czwarty</string>
+  <string name="speak_fifth">piąty</string>
+  <string name="verse_range_mode_disabled">
+Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpoczęto odtwarzanie poza zdefiniowanym zakresem wersów.</string>
   <!--User Notes-->
   <string name="mynotes">Moje notatki</string>
   <string name="mynote_add">Dodaj notatkę</string>
   <string name="mynote_saved">Moja notatka zapisana</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Kopia zapasowa</string>
+  <string name="backup">Utwórz kopię zapasową…</string>
   <string name="backup_success">Zapisz moje notatki i zakładki na karcie SD w %s</string>
+  <string name="restore">Przywróć z kopii zapasowej…</string>
+  <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki, zakładki, plany czytania i obszary robocze?</string>
+  <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, plany czytania i obszary robocze</string>
   <string name="error_no_backup_file">Nie można odnaleźć pliku kopii zapasowej</string>
+  <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
+  <string name="backup_email_subject">And Bible: kopia zapasowa</string>
+  <string name="backup_email_message">W załączniku znajduje się kopia zapasowa bazy danych aplikacji And Bible zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
+  <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
   <!--About-->
   <string name="about_copyright">Prawa autorskie: %s</string>
   <string name="about_version">Wersja: %s</string>
@@ -213,14 +354,17 @@
   <!--Languages-->
   <string name="lang_default">Domyślny</string>
   <!--General-->
-  <string name="okay">OK</string>
+  <string name="okay">Potwierdź</string>
   <string name="cancel">Anuluj</string>
   <string name="yes">Tak</string>
   <string name="no">Nie</string>
   <string name="error">Błąd</string>
+  <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
   <string name="default_value">Domyślny</string>
   <string name="edit">Edytuj</string>
+  <string name="watch_tutorial_video">Obejrzyj filmik instruktażowy (po angielsku)</string>
+  <string name="verse_not_found">Nie znaleziono wersetu</string>
   <!--Errors-->
   <string name="report_error">Wyślij raport</string>
   <string name="error_occurred">Wystąpił błąd</string>
@@ -229,7 +373,31 @@
   <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
   <string name="empty_list">Brak elementów do wyświetlenia</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Syntetyzator mowy</string>
   <string name="notification_channel_progress_status">Powiadomienie postępu stanu pobierań, itp.</string>
   <!--Workspaces-->
+  <string name="workspaces">Obszary robocze</string>
+  <string name="new_workspace">Nowy obszar roboczy</string>
+  <string name="switch_to_workspace">Przełącz obszar roboczy…</string>
+  <string name="delete_workspace">Usuń ten obszar roboczy</string>
+  <string name="choose_workspace_to_open">Wybierz obszar roboczy do otwarcia</string>
+  <string name="new_copied_workspace">Klonuj ten obszar roboczy</string>
+  <string name="workspace_number">Obszar roboczy %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Zmień nazwę obszaru roboczego…</string>
+  <string name="rename_workspace_title">Wprowadź nazwę obszaru roboczego</string>
+  <string name="new_workspace_from_dialog">Nowy</string>
+  <string name="delete_workspace_from_dialog">Usuń obecny</string>
+  <string name="history_title">Historia (%s)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">To jest wersja beta!</string>
+  <string name="beta_notice_content_1">
+Wersja beta zawiera funkcje, które nie zostały jeszcze wystarczająco przetestowane, więc podczas korzystania z niej mogą wystąpić błędy. Zaleca się, aby zwykli czytacze Pisma Świętego używali wersji stabilnej aplikacji.</string>
+  <string name="beta_notice_content_2">
+Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google Play bądź (najlepiej) przez %s.</string>
+  <string name="beta_notice_content_3">Jeżeli jesteś programistą, proszę rozważyć naprawienie błędów samemu (%s). :-)</string>
+  <string name="beta_notice_github_issues">system śledzenia błędów na GitHubie</string>
+  <string name="beta_notice_github">GitHub</string>
+  <string name="beta_notice_dismiss">Ignoruj</string>
+  <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
 </resources>

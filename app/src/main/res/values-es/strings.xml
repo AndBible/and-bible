@@ -91,6 +91,7 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_night_mode_title">Modo nocturno</string>
   <string name="prefs_night_mode_summary">Para facilitar la lectura en la oscuridad</string>
   <string name="prefs_night_mode_automatic">Automático</string>
+  <string name="prefs_night_mode_system">Sistema</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
   <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>

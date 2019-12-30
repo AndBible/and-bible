@@ -269,11 +269,11 @@ Silahkan mencoba setelah beberapa saat lagi.
   <string name="speak_advanced_settings">Pengaturan Lanjutan</string>
   <string name="speak_sleep_timer_title">Waktu tidur</string>
   <string name="speak_no_books_available">Tidak ada buku tersedia untuk bicara</string>
-  <string name="repeat_passage">Ulang bagian</string>
+  <string name="repeat_passage">Pengulangan bagian</string>
   <string name="set_repeat_passage_range">Atur panjang bagian yang berulang</string>
   <string name="speak_beginning_of_passage">Pilih permulaan dari bagian</string>
   <string name="speak_ending_of_passage">Pilih akhir dari bagian</string>
-  <string name="speak_verse_range_to_repeat">Pilih panjang bagian yang berulang</string>
+  <string name="speak_verse_range_to_repeat">Pilih bagian yang berulang</string>
   <string name="speak_ending_verse_must_be_later">Akhir ayat harus setelah awal ayat</string>
   <string name="conf_speak_synchronize">Teks mengikuti bicara</string>
   <string name="conf_speak_auto_bookmark">Penanda buku otomatis</string>
@@ -351,13 +351,13 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="mynote_add">Tambahkan Catatan Saya</string>
   <string name="mynote_saved">Catatan Saya tersimpan</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">Backup &amp; Pulihkan</string>
-  <string name="backup">Cadangan ke...</string>
+  <string name="backup_and_restore">Cadangkan &amp; Pulihkan</string>
+  <string name="backup">Cadangkan ke...</string>
   <string name="backup_success">Catatanku dan Penanda Buku tersimpan di %s pada kartu SD</string>
   <string name="restore">Pulihkan dari...</string>
   <string name="restore_confirmation">Timpa Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja</string>
   <string name="restore_success">Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja berhasil dipulihkan</string>
-  <string name="error_no_backup_file">File backup tidak dapat ditemukan</string>
+  <string name="error_no_backup_file">File cadangan tidak dapat ditemukan</string>
   <string name="loading_backup">Memuat basis data dari cadangan...</string>
   <string name="backup_email_subject">Cadangan basis data And Bible </string>
   <string name="backup_email_message">Basis data And Bible Anda beserta dengan Catatan, Penanda Buku, Rencana Bacaan, dan Ruang Kerja terlampirkan</string>

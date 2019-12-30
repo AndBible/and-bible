@@ -8,7 +8,7 @@ Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu e
   <string name="help_nav_title">Navigi</string>
   <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
 Duobla frapeto eniras/eliras plenekranon.
-Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ povas montri ĝin per frapetadi fenestron.</string>
+Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu fenestron por montri ĝian menuon.</string>
   <string name="help_speech_title">Parolo</string>
   <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
   <string name="help_mynote_title">Miaj notoj</string>
@@ -60,17 +60,17 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniuj taskoj estas lanĉataj.</string>
   <!--Search-->
-  <string name="search_words_group_prompt">Serĉi versojn</string>
-  <string name="search_all_words">Ĉiuj vortoj</string>
-  <string name="search_any_word">Iu vorto</string>
-  <string name="search_phrase">Frazo</string>
+  <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
+  <string name="search_all_words">ĉiujn vortojn</string>
+  <string name="search_any_word">iun vorton</string>
+  <string name="search_phrase">la tutan frazon</string>
   <string name="search_result_count">%d rezultoj trovitaj</string>
   <string name="search_showing_first">Tro multe da rezultoj. Montrante %d komencajn</string>
-  <string name="search_bible_section_group_prompt">Kie serĉi</string>
-  <string name="search_all_bible">Tuta Biblio</string>
+  <string name="search_bible_section_group_prompt">Serĉi en:</string>
+  <string name="search_all_bible">la tuta Biblio</string>
   <string name="search_new_testament">Nova Testamento</string>
   <string name="search_old_testament">Malnova Testamento</string>
-  <string name="search_current_book">Nuna libro</string>
+  <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Versaj numeroj</string>
@@ -89,6 +89,7 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="prefs_night_mode_title">Nokta reĝimo</string>
   <string name="prefs_night_mode_summary">Por pli facila legado mallume</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
+  <string name="prefs_night_mode_system">Sistema</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
   <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
@@ -107,7 +108,7 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="prefs_split_mode_title">Ekran-divido</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
-  <string name="bible_text_options">Tekstaj agordoj</string>
+  <string name="bible_text_options">Agordoj pri teksto</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
   <string name="switch_split_mode">Reĝimo de dividita ekrano</string>
   <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
@@ -129,8 +130,8 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; vi ankaŭ p
   <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
   <string name="all_greek_occurrences">Montri ĉiujn aperojn</string>
   <string name="all_hebrew_occurrences">Montri ĉiujn aperojn</string>
-  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per ‘Serĉi’</string>
-  <string name="morph_robinson_not_installed">Bonvolu elŝuti vortaron ‘Morfologiaj analizaj kodoj de Robinson’</string>
+  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per “serĉi”</string>
+  <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
   <string name="download_confirmation">Ĉu elŝuti Biblion el la interreto?</string>
@@ -256,26 +257,26 @@ laŭ ilia permeso.</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Parol-rapido</string>
   <string name="speak_and_play_earcons_title">Paroli kaj ludi pepajn sonojn por</string>
-  <string name="playback_settings_title">Agordoj de ludado</string>
-  <string name="speak_settings_title">Ĝeneralaj agordoj de parolo</string>
-  <string name="speak_bookmarking_settings_title">Agordoj de legosignoj</string>
+  <string name="playback_settings_title">Agordoj pri ludado</string>
+  <string name="speak_settings_title">Ĝeneralaj agordoj pri parolo</string>
+  <string name="speak_bookmarking_settings_title">Agordoj pri legosignoj</string>
   <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
   <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
   <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
-  <string name="repeat_passage">Ripeti alineon</string>
-  <string name="set_repeat_passage_range">Elekti amplekson de alineo por ripeti</string>
-  <string name="speak_beginning_of_passage">Elektu komencon de alineo</string>
-  <string name="speak_ending_of_passage">Elektu finon de alineo</string>
+  <string name="repeat_passage">Ripeti fragmenton</string>
+  <string name="set_repeat_passage_range">Elekti amplekson de fragmento por ripeti</string>
+  <string name="speak_beginning_of_passage">Elektu komencon de fragmento</string>
+  <string name="speak_ending_of_passage">Elektu finon de fragmento</string>
   <string name="speak_verse_range_to_repeat">Elektu amplekson de verso por ripeti</string>
   <string name="speak_ending_verse_must_be_later">Fina verso estu post komenca verso</string>
   <string name="conf_speak_synchronize">Samtempigi tekston kun parolo</string>
   <string name="conf_speak_auto_bookmark">Aŭtomate krei legosignojn</string>
-  <string name="conf_save_playback_settings_to_bookmarks">Konservi agordojn de ludado al legosignoj</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Konservi agordojn pri ludado al legosignoj</string>
   <string name="conf_replace_divinename">Anstataŭigi nomon de Dio per Javeo</string>
-  <string name="conf_change_chapter">Novaj ĉapitroj</string>
-  <string name="conf_change_title">Titoloj</string>
-  <string name="conf_speak_footnotes">Piednotoj</string>
+  <string name="conf_change_chapter">novaj ĉapitroj</string>
+  <string name="conf_change_title">titoloj</string>
+  <string name="conf_speak_footnotes">piednotoj</string>
   <string name="conf_speak_sleep_timer">Agordi aŭtomatan fermon</string>
   <string name="sleep_timer_title">Dormi post (en minutoj)</string>
   <string name="sleep_timer_set">Agordis aŭtomatan fermon al %d minutoj</string>
@@ -287,12 +288,12 @@ laŭ ilia permeso.</string>
   <string name="widget_bookmark_helptext">Butonoj de parolaj legosignoj aperos tie ĉi.</string>
   <string name="speak_status_stopped">haltigita</string>
   <string name="speak_autobookmarking_disabled">Aŭtomata legosignado malaktiva!</string>
-  <string name="system_speak_settings">Malfermi agordojn de parolsintezo</string>
+  <string name="system_speak_settings">Sistemaj agordoj pri parolsintezo</string>
   <string name="speak_bookmark_help">Helpo pri parola legosigno</string>
   <string name="speak_help_auto_bookmark">
 Parola legosigno estos aŭtomate kreita kiam vi paŭzigos/haltigos parolon. Aŭtomate kreitaj legosignoj estas markitaj per speciala etikedo. Kiam vi pluigos parolan legosignon, ĝi aŭtomate moviĝos al la verso kie vi paŭzigos/haltigos la venonta foje. Nur parolaj legosignoj moviĝos, ĉiuj aliaj legosignoj ne estos movitaj.</string>
   <string name="speak_help_playback_settings">
-Specialaj agordoj de ludado (ĉe “agordoj de ludado” sur parola ekrano) estos konservitaj al parolaj legosignoj kiam tiu ĉi agordo estos aktivigita. Kiam vi pluigos parolon per parola legosigno, konservitaj agordoj de ludado estos ŝargitaj el la legosigno.</string>
+Specialaj agordoj pri ludado (ĉe “agordoj pri ludado” sur parola ekrano) estos konservitaj al parolaj legosignoj kiam tiu ĉi agordo estos aktivigita. Kiam vi pluigos parolon per parola legosigno, konservitaj agordoj de ludado estos ŝargitaj el la legosigno.</string>
   <string name="speak_help_playback_settings_example">
 Ekzemple kiam vi aŭskultas Genezon kaj Romanoj kaj volas aŭskulti Genezon rapide sen sciigoj pri novaj ĉapitroj, sed volas aŭskulti Romanoj pli malrapide kun pepaj sonoj je novaj ĉapitroj, do vi povas havi malsamajn agordojn por tiuj libroj kaj tiuj agordoj estos konservataj en aparataj legosignoj.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
@@ -343,6 +344,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_no_backup_file">Ne povis trovi dosieron de sekurkopio</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_email_subject">And Biblio: sekurkopio de datumbazo</string>
+  <string name="backup_email_message">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo And Biblio en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <!--About-->
   <string name="about_copyright">Kopirajto: %s</string>
@@ -397,7 +399,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="beta_notice_content_1">
 En versio “beta” estas novajn eblaĵoj, kiuj ankoraŭ ne estis sufiĉe kontrolitaj, do dum uzi tiun ĉi version vi povas sperti neatenditan sintenon – eraroj. Estas konsilinde, por ke kutimaj legantoj de Biblio uzu la stabilan version.</string>
   <string name="beta_notice_content_2">
-Beta-uzantoj bonvolu raporti erarojn per la Vendejo Play aŭ (prefere) per %s.</string>
+Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</string>
   <string name="beta_notice_content_3">Se vi estas programisto, bonvolu konsideri mem ripari erarojn per %s. :-)</string>
   <string name="beta_notice_github_issues">erar‑spurilo ĉe GitHub</string>
   <string name="beta_notice_github">GitHub</string>
