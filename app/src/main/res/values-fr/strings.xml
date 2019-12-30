@@ -77,7 +77,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_default_bookmark_style_title">Style des signets</string>
-  <string name="prefs_default_bookmark_style_summary">Sélectionne le style spécial d\'affichage des versets marqués d\'un signet</string>
+  <string name="prefs_default_bookmark_style_summary">Sélectionne le style d\'affichage des versets marqués d\'un signet</string>
   <string name="prefs_show_mynotes_title">Afficher mes notes</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
@@ -89,6 +89,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Facilite la lecture dans la pénombre</string>
   <string name="prefs_night_mode_automatic">Automatique</string>
+  <string name="prefs_night_mode_system">Système</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
   <string name="prefs_open_links_in_special_window_title">Ouvrir les liens dans une fenêtre spéciale</string>
@@ -99,7 +100,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_screen_keep_on_title">Maintenir activé</string>
   <string name="prefs_screen_keep_on_summary">Bloque la mise en veille automatique</string>
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
-  <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface utilisateur personnalisée </string>
+  <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface personnalisée </string>
   <string name="prefs_split_mode_vertical">Vertical</string>
   <string name="prefs_split_mode_horizontal">Horizontal</string>
   <string name="prefs_split_mode_automatic">Automatique</string>
@@ -139,6 +140,10 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="download_refreshing_book_list">Mise à jour de la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Merci de vérifier votre connexion internet.</string>
+  <string name="no_internet_connection">
+Impossible de se connecter au serveur de modules de Crosswire.
+Le serveur est peut-être hors-ligne ou vous n\'avez pas de connexion internet.
+Veuillez réessayer ultérieurement.</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
   <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
@@ -155,8 +160,42 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
+  <string name="rdg_plan_set_start_date">Saisir la date de départ...</string>
   <string name="done">Fait</string>
   <string name="reset">Réinitialiser</string>
+  <string name="reset_plan_question">Êtes-vous sûrs de redémarrer ce plan?</string>
+  <string name="plan_duplicate_user_plan">
+Un plan de lecture existe sur la sdcard
+jsword/readingplan du même nom qu\'un plan interne. Il ne peut pas être listé.
+Veuillez renommer le fichier en laissant son extension .properties</string>
+  <string name="plan_name_y1ntpspr">NT, Psaumes &amp; Proverbes en un an</string>
+  <string name="plan_description_y1ntpspr">
+Avec l\'aimable autorisation de HEARTLIGHT Internet Magazine,
+http://www.heartlight.org</string>
+  <string name="plan_name_y1ot1nt1_chronological">Bible chronologique en 1 an</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Plan basé sur l\'ordre chronologique des événements dans la Bible.
+La chronologie est approximative.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1-Année AT+NT Simultanés</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Lecture de la Bible en 1 an, avec des chapitres
+dans l\'AT et le NT chaque jour.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Bible en 1 an</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Lecture de la Bible en 1 an, commence par la Genèse
+et se termine par l\'Apocalypse. L\'AT en premier, puis le NT. </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 An 4 chapitres/jour</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Ce plan est basé sur le système de lecture M\'Cheyne,
+exposant 4 passages différents à lire en famille ou individuellement.
+Chaque jour sont à lire 2 passages de l\'AT, 1 passage du NT et 1 passage des Psaumes ou des Évangiles.
+En une année, l\'AT est lu 1 fois et les Psaumes et le NT sont lus 2 fois . </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner plan de lecture 10-chapitres/jour</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Avec l\'aimable autorisation de Prof. Horner</string>
+  <string name="plan_name_y2ot1ntps2">Bible en 2 ans, NT+Psaumes 2 fois</string>
+  <string name="plan_description_y2ot1ntps2">
+Lecture de la Bible en 2 ans, le NT et les Psaumes sont lus 2 fois.
+Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/</string>
   <!--Document context menu-->
   <string name="delete">Supprimer</string>
   <string name="delete_index">Supprimer l\'index de recherche</string>
@@ -303,8 +342,17 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
+  <string name="backup">Sauvegarder sous...</string>
   <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
+  <string name="restore">Restaurer de...</string>
+  <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Contextes?</string>
+  <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Contextes ont été restaurés avec succès</string>
   <string name="error_no_backup_file">Aucun fichier de sauvegarde n\'a été trouvé</string>
+  <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
+  <string name="backup_email_subject">Sauvegarde de la base de données de And Bible</string>
+  <string name="backup_email_message">Votre base de données And Bible comprenant les Notes, Signets, Plans de lecture et les Contextes est ci-jointe.</string>
+  <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
+Le fichier est peut-être invalide.</string>
   <!--About-->
   <string name="about_copyright">Droits d\'auteur: %s</string>
   <string name="about_version">Version: %s</string>
@@ -323,10 +371,12 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="yes">Oui</string>
   <string name="no">Non</string>
   <string name="error">Erreur </string>
+  <string name="please_wait">Veuillez patienter...</string>
   <string name="all">Tout</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Éditer</string>
   <string name="watch_tutorial_video">Voir le tutoriel vidéo (en anglais)</string>
+  <string name="verse_not_found">Verset non trouvé</string>
   <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
@@ -338,5 +388,30 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
   <!--Workspaces-->
+  <string name="workspaces">Contextes</string>
+  <string name="new_workspace">Nouveau contexte</string>
+  <string name="switch_to_workspace">Changer de contexte...</string>
+  <string name="delete_workspace">Supprimer ce contexte</string>
+  <string name="choose_workspace_to_open">Sélectionner le contexte à ouvrir</string>
+  <string name="new_copied_workspace">Copier ce contexte</string>
+  <string name="workspace_number">Contexte %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Renommer le contexte...</string>
+  <string name="rename_workspace_title">Donner un nom à ce contexte</string>
+  <string name="new_workspace_from_dialog">Nouveau</string>
+  <string name="delete_workspace_from_dialog">Supprimer actuel</string>
+  <string name="history_title">Historique (%s)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Ceci est une version bêta!</string>
+  <string name="beta_notice_content_1">
+Dans une version bêta, les nouvelles fonctionnalités n\'ont pas encore été toutes entièrement testées,
+une bêta peut donc produire des bogues qui sont encore en cours d\'analyse et de correction.
+Il est recommandé d\'utiliser la version stable. </string>
+  <string name="beta_notice_content_2">
+Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou (de préférence) via %s.</string>
+  <string name="beta_notice_content_3">Si vous êtes développeur, merci d\'envisager de contribuer vous-mêmes aux corrections de bogues sur %s :)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Ignorer</string>
+  <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
 </resources>

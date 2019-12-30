@@ -83,7 +83,7 @@ Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko l
   <string name="prefs_night_mode_system">Järjestelmä</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
-  <string name="prefs_open_links_in_special_window_title">Avaa linkit omaan ikkunaansa</string>
+  <string name="prefs_open_links_in_special_window_title">Avaa linkit erikoisikkunaan</string>
   <string name="prefs_open_links_in_special_window_summary">Rinnakkaispaikkojen ja Strongin numeroinnin nopeammaksi näyttämiseksi</string>
   <string name="prefs_text_size_title">Tekstin koko</string>
   <string name="prefs_text_size_summary">Näe enemmän tai näe selvemmin</string>
@@ -197,10 +197,10 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="share_verse_subject">Raamatun jae on lähetetty And Bible -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
   <!--Link context menu-->
-  <string name="open_link_in_this_window">Avaa linkki täältä.</string>
+  <string name="open_link_in_this_window">Avaa linkki tässä ikkunassa</string>
   <string name="open_link_in_new_window">Avaa linkki uuteen ikkunaan</string>
   <string name="open_link_in_main_window">Avaa linkki pääikkunaan</string>
-  <string name="open_link_in_special_window">Avaa linkki omaan ikkunaansa</string>
+  <string name="open_link_in_special_window">Avaa linkki erikoisikkunaan</string>
   <!--Bookmarks-->
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="add_bookmark">Lisää kirjanmerkit</string>

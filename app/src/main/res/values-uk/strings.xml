@@ -89,6 +89,7 @@
   <string name="prefs_night_mode_title">Нічний режим</string>
   <string name="prefs_night_mode_summary">Для зручного читання в темряві</string>
   <string name="prefs_night_mode_automatic">Автоматично</string>
+  <string name="prefs_night_mode_system">Система</string>
   <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
   <string name="prefs_open_links_in_special_window_title">Відкрити посилання в окремому вікні</string>
