@@ -206,7 +206,7 @@ open class WindowRepository @Inject constructor(
             if(wasMaximized) {
                 activeWindow = windowList[min(currentPos, windowList.size - 1)]
                 activeWindow.isMaximised = windowList.size > 1
-            }
+            } else setDefaultActiveWindow()
         } else setDefaultActiveWindow()
     }
 
