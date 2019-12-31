@@ -25,7 +25,6 @@ import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.window.Window;
-import net.bible.service.device.ScreenSettings;
 import android.util.Log;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order

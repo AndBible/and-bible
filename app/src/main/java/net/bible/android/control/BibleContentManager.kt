@@ -40,11 +40,8 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
 
-    fun updateText(window: Window?) {
-        updateText(false, window)
-    }
-
-    fun updateText(forceUpdate: Boolean, window_: Window?) {
+    @JvmOverloads
+    fun updateText(window_: Window?, forceUpdate: Boolean = false) {
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument

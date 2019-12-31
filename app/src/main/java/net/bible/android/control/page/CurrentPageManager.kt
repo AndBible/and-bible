@@ -149,15 +149,11 @@ open class CurrentPageManager @Inject constructor(
     }
 
     @JvmOverloads
-    fun setCurrentDocumentAndKey(currentBook: Book?, key: Key, updateHistory: Boolean = true): CurrentPage? {
-        return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE.toFloat(), updateHistory)
-    }
-
-    fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float): CurrentPage? {
-        return setCurrentDocumentAndKeyAndOffset(currentBook, key, yOffsetRatio, true)
-    }
-
-    private fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float, updateHistory: Boolean): CurrentPage? {
+    fun setCurrentDocumentAndKey(currentBook: Book?,
+                                 key: Key,
+                                 updateHistory: Boolean = true,
+                                 yOffsetRatio: Float = SharedConstants.NO_VALUE.toFloat()
+    ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
         val nextPage = getBookPage(currentBook)
@@ -173,7 +169,7 @@ open class CurrentPageManager @Inject constructor(
             }
         }
         // valid key has been set so do not need to show a key chooser therefore just update main view
-        PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+        PassageChangeMediator.getInstance().onCurrentPageChanged(window)
 
         return nextPage
     }

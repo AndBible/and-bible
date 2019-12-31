@@ -50,9 +50,9 @@ open class WindowRepository @Inject constructor(
 
     val isBusy get() = busyCount > 0
 
-    fun updateBusyCount(value: Int) {
+    fun updateBusyCount(diff: Int) {
         synchronized(this) {
-            busyCount += value
+            busyCount += diff
         }
     }
 
