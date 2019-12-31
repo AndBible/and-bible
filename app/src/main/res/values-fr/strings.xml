@@ -6,10 +6,10 @@
   <string name="help_text">Ouvrez le Menu pour accéder aux différentes fonctions.\n\n
 Pour se déplacer au chapitre précédent ou au suivant, utilisez le pavé tactile, le pavé de direction ou balayez l\'écran horizontalement avec votre doigt.</string>
   <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Déplacez-vous au chapitre précédent ou au suivant en balayant l\'écran horizontalement avec votre doigt.
+  <string name="help_nav_text">Passez au chapitre précédent ou au suivant en balayant l\'écran horizontalement avec votre doigt.
 Tapotez deux fois sur le texte biblique pour activer le mode plein écran. Vous avez accès au menu des fenêtres de texte biblique par un appui prolongé sur le bouton Menu affiché dans le coin droit.</string>
   <string name="help_speech_title">Lecture audio</string>
-  <string name="help_speech_text">Sélectionner Lecture audio pour ouvrir la fenêtre permettant de démarrer ou arrêter la lecture à voix haute.</string>
+  <string name="help_speech_text">Sélectionnez Lecture audio pour ouvrir la fenêtre permettant de démarrer ou arrêter la lecture à voix haute.</string>
   <string name="help_mynote_title">Mes notes</string>
   <string name="help_mynote_text">Les notes s\'ajoutent via l\'option Mes notes du menu contextuel de chaque verset.
 La liste des notes existantes est accessible par le Menu principal.</string>
@@ -22,7 +22,7 @@ Le menu du gestionnaire des signets permet de classer les signets par étiquette
  (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
   <string name="help_contextmenus_title">Menus contextuels</string>
   <string name="help_contextmenus_text">
-Un Appui prolongé sur un verset dans le texte biblique ouvre le menu des interventions possibles sur ce verset.
+Un Appui prolongé sur un verset dans le texte biblique ouvre le menu des actions possibles sur le verset.
 Un Appui prolongé sur un document dans le sélecteur de documents affiche le menu permettant d\'afficher les informations relatives à ce document, ou si besoin de le supprimer.
 Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
@@ -176,21 +176,20 @@ http://www.heartlight.org</string>
   <string name="plan_description_y1ot1nt1_chronological">
 Plan basé sur l\'ordre chronologique des événements dans la Bible.
 La chronologie est approximative.</string>
-  <string name="plan_name_y1ot1nt1_OTandNT">1-Année AT+NT Simultanés</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">Bible en 1 an, AT et NT simultanément</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
 Lecture de la Bible en 1 an, avec des chapitres
 dans l\'AT et le NT chaque jour.</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">Bible en 1 an</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
 Lecture de la Bible en 1 an, commence par la Genèse
-et se termine par l\'Apocalypse. L\'AT en premier, puis le NT. </string>
-  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 An 4 chapitres/jour</string>
+et se termine par l\'Apocalypse. AT en premier, puis NT. </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Bible en un an, 4 chapitres/jour de McCheyne</string>
   <string name="plan_description_y1ot1nt2_mcheyne">
-Ce plan est basé sur le système de lecture M\'Cheyne,
-exposant 4 passages différents à lire en famille ou individuellement.
-Chaque jour sont à lire 2 passages de l\'AT, 1 passage du NT et 1 passage des Psaumes ou des Évangiles.
+Plan de Robert Murray McCheyne, pasteur écossais. 
+4 passages différents à lire chaque jour: 2 passages de l\'AT + 1 passage du NT + 1 passage des Psaumes ou des Évangiles.
 En une année, l\'AT est lu 1 fois et les Psaumes et le NT sont lus 2 fois . </string>
-  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner plan de lecture 10-chapitres/jour</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Plan de lecture du Prof. Horner. 10 chapitres/jour</string>
   <string name="plan_description_y1ot6nt4_profHorner">Avec l\'aimable autorisation de Prof. Horner</string>
   <string name="plan_name_y2ot1ntps2">Bible en 2 ans, NT+Psaumes 2 fois</string>
   <string name="plan_description_y2ot1ntps2">
@@ -342,15 +341,15 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
-  <string name="backup">Sauvegarder sous...</string>
+  <string name="backup">Sauvegarder vers...</string>
   <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
   <string name="restore">Restaurer de...</string>
-  <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Contextes?</string>
-  <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Contextes ont été restaurés avec succès</string>
+  <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Espaces?</string>
+  <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Espaces ont été restaurés avec succès</string>
   <string name="error_no_backup_file">Aucun fichier de sauvegarde n\'a été trouvé</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
   <string name="backup_email_subject">Sauvegarde de la base de données de And Bible</string>
-  <string name="backup_email_message">Votre base de données And Bible comprenant les Notes, Signets, Plans de lecture et les Contextes est ci-jointe.</string>
+  <string name="backup_email_message">Votre base de données And Bible comprenant Notes, Signets, Plans de lecture et Espaces est ci-jointe.</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
   <!--About-->
@@ -388,16 +387,16 @@ Le fichier est peut-être invalide.</string>
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
   <!--Workspaces-->
-  <string name="workspaces">Contextes</string>
-  <string name="new_workspace">Nouveau contexte</string>
-  <string name="switch_to_workspace">Changer de contexte...</string>
-  <string name="delete_workspace">Supprimer ce contexte</string>
-  <string name="choose_workspace_to_open">Sélectionner le contexte à ouvrir</string>
-  <string name="new_copied_workspace">Copier ce contexte</string>
-  <string name="workspace_number">Contexte %d</string>
+  <string name="workspaces">Espaces</string>
+  <string name="new_workspace">Nouvel espace</string>
+  <string name="switch_to_workspace">Changer d\'espace...</string>
+  <string name="delete_workspace">Supprimer cet espace</string>
+  <string name="choose_workspace_to_open">Sélectionner l\'espace à ouvrir</string>
+  <string name="new_copied_workspace">Copier cet espace</string>
+  <string name="workspace_number">Espace %d</string>
   <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Renommer le contexte...</string>
-  <string name="rename_workspace_title">Donner un nom à ce contexte</string>
+  <string name="rename_workspace">Renommer l\'espace...</string>
+  <string name="rename_workspace_title">Donner un nom à cet espace</string>
   <string name="new_workspace_from_dialog">Nouveau</string>
   <string name="delete_workspace_from_dialog">Supprimer actuel</string>
   <string name="history_title">Historique (%s)</string>

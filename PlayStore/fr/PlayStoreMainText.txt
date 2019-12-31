@@ -1,31 +1,31 @@
-And Bible est un logiciel biblique libre et gratuit, sans publicités, et fonctionnant hors-ligne. Il permet à toute personne, de tout pays, de lire, écouter et étudier l'Écriture très facilement, et d'en retirer des bienfaits.
+And Bible est un logiciel libre d'aide à l'étude de la Bible, sans pubs, gratuit, et fonctionnant hors-ligne. Toute personne, de tout pays, peut ainsi lire ou écouter, étudier l'Écriture très facilement, et d'en retirer des bienfaits personnels les plus grands.
 
 * Bibles, Commentaires, Dictionnaires, Cartes, et livres disponibles en plus de 700 langues.
-* Hors-ligne intégral, hormis le téléchargement initial, même pour l'ajout de notes, commentaires, recherches, etc.
-* Interface configurable en chinois, russe, allemand, anglais, hongrois, tchèque, hébreu, hindi ...
-* Différents plans de lecture de la Bible
-* Entièrement libre et gratuit, aucune publicité, aucun mail
-Plus de 40 Bibles en anglais y compris KJV et NET
+* Hors-ligne intégral (hormis le téléchargement initial), même pour l'ajout de notes, de commentaires, les recherches, etc.
+* Interface configurable en de nombreuses langues, chinois, russe, allemand, anglais, hongrois, tchèque, hébreu, hindi ...
+* Différents plans d'aide à la lecture de la Bible
+* Entièrement libre et gratuit, aucune publicité, pas de mail de prospection commerciale
+Plusieurs Bibles en français, incluant les Bibles Segond, Darby, Septante...
 * Commentaires bibliques
 * Dictionnaires bibliques et livres d'étude
-* Tous les documents sont distribués de manière légale
+* Tous les documents sont distribués de manière légale (Raison pour laquelle les Bibles sous Copyright sont absentes)
 * L'intégration des nombres de Strong permet l'analyse des mots en grec ou hébreu
-* Partagez l'écran en plusieurs fenêtres
+* Placez les textes dans plusieurs fenêtres juxtaposées
 * Ajoutez vos notes personnelles
-* Personnalisez la langue de l'application parmi une liste de plus de 25
+* Changez la langue de l'application dans une liste de plus de 25 possibles
 * Faites des recherches en souplesse
-* Créez des signets
-* Cartes des contrées bibliques
-* Écoutez tout document à voix haute
+* Créez des signets sur les passages qui vous intéressent
+* Visualisez les cartes des contrées bibliques (en anglais actuellement)
+* Écoutez le texte lu à voix haute pour vous
 * Défilement du texte automatique, mode jour/nuit automatique
-* Comparez différentes versions sur un même écran
+* Affichage parallèle de versions différentes sur un même écran
 * Une application biblique des plus rapides sur Android
-* Un Logiciel libre - Vous êtes libres d'améliorer ou de changer le code
-* Utilise le puissant moteur JSword de CrossWire
+* Un Logiciel libre - Vous êtes libres d'améliorer ou de changer le code si vous le voulez
+* S’appuie sur le puissant moteur JSword de CrossWire
 
-Nous sommes tous bénévoles; nous ne vous enverrons pas de mails, ni de publicités. Nous n'appelons jamais à recevoir, ni ne recevons de dons. Nous ne vous demanderons pas de vous enregistrer. And Bible ne collecte aucune information de votre mobile.
+Nous sommes tous bénévoles; nous ne vous enverrons donc pas de mails de prospection commerciale, ni de publicité. Nous n'appelons pas à recevoir, ni ne recevons de dons. Nous ne vous demandons pas de vous enregistrer sur un serveur. And Bible ne collecte aucune donnée personnelle de votre mobile.
 
-La provenance de tous les documents est soigneusement vérifiée pour s'assurer qu'ils sont bien distribués légalement ou que le propriétaire des droits a donné son accord.C'est aussi la raison pour laquelle And Bible ne contient pas certains documents comme les Bibles anglaises NIV ou NKJV.
+La provenance de tous les documents est soigneusement vérifiée de façon à être sûrs de les distribuer légalement ou que le propriétaire des droits a donné son accord. C'est aussi la raison pour laquelle And Bible ne contient pas certaines Bibles récentes dont la distribution est règlementée par les droits d'auteur..
 
 <b>Notes</b>
 * And Bible sur Facebook: https://www.facebook.com/AndBible/
