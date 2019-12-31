@@ -207,8 +207,7 @@ open class WindowRepository @Inject constructor(
                 activeWindow = windowList[min(currentPos, windowList.size - 1)]
                 activeWindow.isMaximised = windowList.size > 1
             }
-        }
-        if (!wasMaximized) setDefaultActiveWindow()
+        } else setDefaultActiveWindow()
     }
 
     private fun destroy(window: Window) {
