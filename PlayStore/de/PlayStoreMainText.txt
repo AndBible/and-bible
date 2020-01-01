@@ -25,7 +25,7 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 
 * Alle Mitarbeiter sind Freiwillige; wir versenden keine lästigen E-Mails; blenden keine störenden Werbungen ein; fragen nie nach finanzieller Unterstützung; verlangen keine Registrierung; And Bible sammelt keine Daten von deinem Telefon
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
+Die Herkunft aller Dokumente wird darauf überprüft, ob sie legal verbreitet werden dürfen bzw. ob der Eigentümer die Erlaubnis dazu gegeben hat. Das ist auch der Grund, warum And Bible keine Übersetzungen wie die NIV oder die NKJV enthalten kann.
 
 <b>Notizen</b>
 * Klicke "Gefällt mir" auf Facebook: https://www.facebook.com/AndBible/

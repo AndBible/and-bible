@@ -28,6 +28,6 @@ Ni ĉiuj estas volontuloj; nie ne sendas turmentajn retleterojn, ne montras teda
 La deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj.
 
 <b>Rimarkoj</b>:
-* ŝatu na And Biblio ĉe Facebook: https://www.facebook.com/AndBible/
-* plej oftaj demandoj (en la angla) pri And Biblio: https://github.com/AndBible/and-bible/wiki/FAQ
-* projekt‑paĝo ĉe GitHub: https://github.com/AndBible/and-bible
+* ŝatu na And Biblio ĉe <a href="https://facebook.com/AndBible">Facebook</a>
+* plej oftaj demandoj (en la angla) pri And Biblio: <a href="https://github.com/AndBible/and-bible/wiki/FAQ">FAQ</a>
+* projekt‑paĝo ĉe <a href="https://github.com/AndBible/and-bible">GitHub</a>

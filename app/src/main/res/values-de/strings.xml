@@ -88,6 +88,7 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="prefs_night_mode_title">Nachtmodus</string>
   <string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
+  <string name="prefs_night_mode_system">System</string>
   <string name="prefs_navigate_to_verse_title">Versauswahl</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
   <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
@@ -139,7 +140,9 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
   <string name="no_internet_connection">
-Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht. Bitte versuchen Sie es später noch einmal.</string>
+Verbindung zur Modulquelle von Crosswire fehlgeschlagen.
+Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht.
+Bitte versuchen Sie es später noch einmal.</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
@@ -156,6 +159,7 @@ Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
+  <string name="rdg_plan_set_start_date">Startdatum festlegen</string>
   <string name="done">Fertig</string>
   <string name="reset">Zurücksetzen</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
@@ -166,6 +170,23 @@ jsword/readingplan, der denselben Namen wie ein vordefinierter Leseplan hat. Dar
   <string name="plan_description_y1ntpspr">
 Mit freundlicher Genehmigung von HEARTLIGHT Internet Magazine,
 http://www.heartlight.org</string>
+  <string name="plan_name_y1ot1nt1_chronological">In 1 Jahr chronologisch durch die Bibel</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Leseplan, der versucht, annähernd der zeitlichen Abfolge der Ereignisse in der Bibel zu folgen.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">In 1 Jahr durchs AT und NT</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+In 1 Jahr die ganze Bibel lesen. Jeden Tag eine Stelle aus dem AT und dem NT.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">In 1 Jahr durch die Bibel</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Die ganze Bibel in einem Jahr, beginnend mit 1. Mose fortlaufend bis zur Offenbarung.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Die ganze Bibel in 1 Jahr nach M\'Cheyne: 4 Kapitel pro Tag</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Dieser Leseplan basiert auf dem System von M\'Cheyne und beinhaltet vier Lesungen für die Familie und die private Andacht. Jeder Tag hat zwei Abschnitte aus dem AT, einen aus dem NT und einen aus den Psalmen oder den Evangelien. In einem Jahr kommt man so einmal durch das AT und zweimal durch das NT und die Psalmen.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">10 Kapitel pro Tag nach Prof. Horner</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Mit freundlicher Genehmigung von Prof. Horner</string>
+  <string name="plan_name_y2ot1ntps2">In 2 Jahren durch die Bibel, NT und Ps zwei Mal</string>
+  <string name="plan_description_y2ot1ntps2">
+Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. Mit freundlicher Genehmigung von http://www.wholesomewords.org/.</string>
   <!--Document context menu-->
   <string name="delete">Löschen</string>
   <string name="delete_index">Suchindex löschen</string>
@@ -306,8 +327,16 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
+  <string name="backup">Sicherung auf...</string>
   <string name="backup_success">Notizen und Lesezeichen wurden in %s auf der SD-Karte gespeichert</string>
+  <string name="restore">Wiederherstellen von...</string>
+  <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
+  <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="error_no_backup_file">Eine Sicherungskopie konnte nicht gefunden werden</string>
+  <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
+  <string name="backup_email_subject">And Bible Datenbanksicherung</string>
+  <string name="backup_email_message">Die And Bible Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
+  <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version %s</string>
@@ -326,10 +355,12 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
+  <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Bearbeiten</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
+  <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->
   <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
@@ -341,5 +372,30 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
   <!--Workspaces-->
+  <string name="workspaces">Anordnungen der Arbeitsfläche</string>
+  <string name="new_workspace">Neuer Arbeitsbereich</string>
+  <string name="switch_to_workspace">Gehe zu Arbeitsbereich...</string>
+  <string name="delete_workspace">Diesen Arbeitsbereich löschen</string>
+  <string name="choose_workspace_to_open">Auswahl des zu öffnenden Arbeitsbereiches</string>
+  <string name="new_copied_workspace">Eine neue Kopie dieses Arbeitsbereiches erstellen</string>
+  <string name="workspace_number">Arbeitsbereich %d </string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Arbeitsbereich wird umbenannt...</string>
+  <string name="rename_workspace_title">Arbeitsbereich benennen</string>
+  <string name="new_workspace_from_dialog">Neu</string>
+  <string name="delete_workspace_from_dialog">Aktiven Arbeitsbereich löschen</string>
+  <string name="history_title">Chronik (%s)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Das ist eine Beta-Version!</string>
+  <string name="beta_notice_content_1">
+In Beta-Versionen gibt es Funktionen, die noch nicht ausreichend getestet wurden.
+Daher können Beta-Versionen unerwartetes Verhalten aufweisen, wie z.B. Fehler.
+Es wird empfohlen, dass normale Bibelleser die stabile Version verwenden.</string>
+  <string name="beta_notice_content_2">
+Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzugt) über %s zu melden.</string>
+  <string name="beta_notice_content_3">Wenn Sie Programmierer sind, wäre es schön, wenn Sie über %s selbst Fehlerbereinigungen beitragen könnten ;-)</string>
+  <string name="beta_notice_github_issues">Fehlermeldungen auf Github </string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Verwerfen</string>
+  <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
 </resources>
