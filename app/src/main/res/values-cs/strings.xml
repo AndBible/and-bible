@@ -94,6 +94,7 @@
   <string name="prefs_night_mode_title">Noční režim</string>
   <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
   <string name="prefs_night_mode_automatic">Automaticky</string>
+  <string name="prefs_night_mode_system">Systém</string>
   <string name="prefs_navigate_to_verse_title">Přejít na verš</string>
   <string name="prefs_navigate_to_verse_summary">Zadávat i verš při výběru pasáže</string>
   <string name="prefs_open_links_in_special_window_title">Otevřít odkazy ve zvláštním okně</string>
@@ -144,6 +145,11 @@
   <string name="download_refreshing_book_list">Obnovuji seznam dostupných dokumentů</string>
   <string name="download_refresh_book_list_menu_item">Obnovit</string>
   <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
+  <string name="no_internet_connection">
+        Nelze se připojit ke stránce Crosswire\'s s moduly.
+        Vzdálený server může být vypnutý nebo nemáte internetové připojení.
+        Prosím zkuste to později znovu.
+    </string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
   <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
@@ -160,8 +166,49 @@
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>
   <string name="rdg_plan_day">Den %s</string>
+  <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
   <string name="done">Hotovo</string>
   <string name="reset">Resetovat</string>
+  <string name="reset_plan_question">Jste si jisti, že chcete resetovat tento plán?</string>
+  <string name="plan_duplicate_user_plan">
+        Na SD kartě je uživatelský plán čtení
+        jsword nebo plán čtení se stejným jménem jako interní plán. Nelze ho zde zobrazit.
+        Prosím přejmenujte soubor na něco jiného a připonu souboru ponechte .properties
+    </string>
+  <string name="plan_name_y1ntpspr">NZ, žalmy &amp; přísloví za rok</string>
+  <string name="plan_description_y1ntpspr">
+        Se svolením HEARTLIGHT Internet Magazine,
+        http://www.heartlight.org, povolení uděleno
+    </string>
+  <string name="plan_name_y1ot1nt1_chronological">Chronologické čtení Bible důkladně 1-rok</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+        Plán založený na chronologických událostech v Bibli.
+        Chronologická časová linka je přibližná.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1-rok SZ a NZ zároveň</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+        Čtení Bible důkladně během 1-roku, kapitoly
+        ze SZ a NZ každý den.
+    </string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1-rok důkladné čtení Bible</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+        Čtení celé Bible důkladně za 1-rok, začíná se s Genesis
+        a končí se Zjevením. The SZ je první, pak NZ.
+    </string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-rok 4-kapitoly/den</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+        Plán se zakládá na systému čtení M’Cheyneno a
+        zahrnuje čtyři různá čtení pro použití jak při rodinném tak osobním ztišení. Každý den má
+        dvě pasáže ze starého zákona, jednu z nového zákona a jednu buďto z žalmů nebo evangelié. Během jednoho roku
+        se přečte celý starý zákon jednou a nový zákon s žalmy dvakrát.
+    </string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner 10 kapitol/den plán čtení</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Se svolením Prof. Horner, povolení uděleno</string>
+  <string name="plan_name_y2ot1ntps2">2-roky důkladné čtení Bible, NZ+Žalmy dvakrát</string>
+  <string name="plan_description_y2ot1ntps2">
+        Důkladné čtení Bible během 2 roků. NZ a žalmy se přečtou dvakrát.
+        Se svolením Wholesome Words,  http://www.wholesomewords.org/, povolení uděleno
+    </string>
   <!--Document context menu-->
   <string name="delete">Smazat</string>
   <string name="delete_index">Smazat vyhledávací index</string>
@@ -315,8 +362,16 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="mynote_saved">Poznámka uložena</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a Obnova</string>
+  <string name="backup">Zálohovat do...</string>
   <string name="backup_success">Poznámky a záložky uloženy na SD kartu do %s</string>
+  <string name="restore">Obnovit z...</string>
+  <string name="restore_confirmation">Přepsat poznámky, záložky, plány čtení a pracovní plochy?</string>
+  <string name="restore_success">Poznámky, záložky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
   <string name="error_no_backup_file">Soubor zálohy se nepodařilo nalézt</string>
+  <string name="loading_backup">Načítání databáze ze zálohy...</string>
+  <string name="backup_email_subject">And Bible záloha databáze</string>
+  <string name="backup_email_message">Přiložena je Vaše And Bible databáze obsahující poznámky, záložky, plány čtení a pracovní plochy.</string>
+  <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
   <!--About-->
   <string name="about_copyright">Autorská práva: %s</string>
   <string name="about_version">Verze: %s</string>
@@ -335,10 +390,12 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="yes">Ano</string>
   <string name="no">Ne</string>
   <string name="error">Chyba </string>
+  <string name="please_wait">Čekejte prosím...</string>
   <string name="all">Vše</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Upravit</string>
   <string name="watch_tutorial_video">Instruktážní video (Angličtina)</string>
+  <string name="verse_not_found">Verš nebyl nalezen</string>
   <!--Errors-->
   <string name="report_error">Zaslat hlášení</string>
   <string name="error_occurred">Vznikla chyba</string>
@@ -350,5 +407,34 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="notification_channel_tts_status">Převod textu na řeč</string>
   <string name="notification_channel_progress_status">Upozornění o průběh stavu pro stahování dokumentu atd.</string>
   <!--Workspaces-->
+  <string name="workspaces">Pracovní plochy</string>
+  <string name="new_workspace">Nová pracovní plocha</string>
+  <string name="switch_to_workspace">Přepnout na pracovní plochu...</string>
+  <string name="delete_workspace">Smazat pracovní plochu</string>
+  <string name="choose_workspace_to_open">Vybrat a otevřít pracovní plochu</string>
+  <string name="new_copied_workspace">Kopírovat pracovní plochu jako novou</string>
+  <string name="workspace_number">Pracovní plocha %d</string>
+  <string name="workspace_name_contents">%s: %s</string>
+  <string name="rename_workspace">Přejmenovat pracovní plochu ...</string>
+  <string name="rename_workspace_title">Pojmenovat pracovní plochu</string>
+  <string name="new_workspace_from_dialog">Nový</string>
+  <string name="delete_workspace_from_dialog">Smazat současný</string>
+  <string name="history_title">Historie (%s)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Toto je beta verze!</string>
+  <string name="beta_notice_content_1">
+        Beta verze obsahuje nové vlastnosti, které nejsou ještě dobře otestovány.
+        Používání beta verze může zapřičinit neočekávané chování, např. chyby.
+        Pro normální čtenáře Bible se doporučuje používat jen stabilní verze.
+    </string>
+  <string name="beta_notice_content_2">
+        Prosíme, aby beta uživatelé hlásili chyby přes Google Play nebo
+        (preferováno) přes %s.
+    </string>
+  <string name="beta_notice_content_3">Pokud jste programátor, můžete přispět opravou chyby
+        skrze %s. :-)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Vzít na vědomí</string>
+  <string name="beta_notice_dismiss_until_update">Vzít na vědomí do příští aktualizace</string>
 </resources>
