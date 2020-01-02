@@ -2,17 +2,16 @@ And Bible is 'n oop bron, aflyn, heeltemal gratis Bybel program sonder advertens
 
 * Bybels, Kommentare, Teologiese Woordeboeke, Kaarte en Christelike boeke in meer as 700 tale
 * aflyn vir alles na aanvanklike aflaai, insluitend soek, notas, kommentare, ens.
-* Koppelvlak in Sjinees, Russies, Duits, Frans, Hongaars, Tsjeggies, Pools, Hebreeus, Hindi, ...
+* Interface in multiple languages
 * Verskeie Bybel leesplanne
 * Heeltemal gratis, geen advertensies, geen e-posse
-* Meer as 40 Engelse Bybels, insluitend KJV en NET
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 Bybel kommentare
 * Uitgebreide woordeboek en Christelike boek versameling
 * Alle dokumente word wettig versprei (rede waarom dokumente soos NKJV en NIV nie beskikbaar is nie)
 * Strong's se integrasie laat Griekse en Hebreeuse woorde analise toe
-* Verdeelde skerm
+* Multiple workspaces with split screen
 * Skryf persoonlike aantekeninge
-* Kies enige koppelvlak taal uit 'n lys van meer as 25
 * Buigsame soektog
 Boekmerke
 * Kaarte van die Bybel lande
@@ -25,7 +24,7 @@ Boekmerke
 
 Ons is almal vrywilligers; Ons stuur nie uitmekende e-posse nie; vertoon geen irriterende advertensies nie; Sal  nooit vir donasies vra of ontvang nie; Sal nie vir registrasie vra nie; And Bible versamel nie data van jou selfoon nie.
 
-Die herkoms van alle dokumente word deeglik nagevors om te verseker dat alle dokumente wettig versprei kan word of toestemming deur die kopiereghouer verleen is. Dit is ook die rede En die Bybel kan nie dokumente soos NIV en NKJV bevat nie.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Notas</b>
 * Like And Bible op Facebook: https://www.facebook.com/AndBible/

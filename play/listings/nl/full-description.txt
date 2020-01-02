@@ -2,17 +2,16 @@ And Bible is een open source, offline en volledig gratis bijbelapp. De app bevat
 
 * Bijbels, commentaar, theologische woordenboeken, kaarten en christelijke boeken in meer dan 700 talen
 * Na een eenmalige download volledig offline, inclusief zoeken, aantekeningen, commentaar, etc.
-* De app is vertaald naar het Nederlands, Chinees, Russisch, Duits, Frans, Hongaars, Tsjechisch, Pools, Hebreeuws, Hindi, ...
+* Interface in multiple languages
 * Verschillende leesplannen
 * Volledig gratis - geen reclame, geen e-mails
-* Over 40 English Bibles including KJV and NET
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 bijbelcommentaren
 * Uitgebreid woordenboeken en christelijke boekenverzameling
 * Alle documenten zijn legaal te verspreiden (daarom zijn documenten als het NKJV en NIV niet beschikbaar)
 * Door Strong's integratie is Griekse en Hebreeuwse woordanalyse mogelijk
-* Gesplitst scherm
+* Multiple workspaces with split screen
 * Schrijf persoonlijke aantekeningen
-* Kies een apptaal uit een lijst van meer dan 25
 * Flexibel zoeken
 * Bladwijzers
 * Kaarten van bijbelse landen
@@ -25,7 +24,7 @@ Gebruik de krachtige JSword-aandrijving van CrossWire
 
 We zijn een groep vrijwilligers en versturen je geen vervelende e-mails. Daarnaast is de app reclamevrij, vragen we nooit om donaties of registratie en worden er geen telefoongegevens verzameld.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Aantekeningen</b>
 * Like And Bible op Facebook: https://www.facebook.com/AndBible/

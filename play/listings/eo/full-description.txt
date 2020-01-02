@@ -2,17 +2,16 @@ And Biblio estas malfermkoda, senkonekta kaj tute senpaga aplikaĵo por legi Bib
 
 * Biblioj, komentoj, teologiaj vortaroj, mapoj kaj kristanaj libroj en pli ol 700 lingvoj
 * tute senkonekta post unua elŝuto, serĉebla, inkluzivante notojn, komentojn, ktp.
-* fasado de programo en Esperanto, ĉina, rusa, germana, franca, hungara, pola, ĉeĥa, hebrea, hindia…
+* Interface in multiple languages
 * diversaj planoj de legado
 * tute senpaga, neniuj reklamoj
-* Esperanta Londona Biblio
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * komentoj (nedisponeblaj en EO)
 * teologia vortaro kaj kolekto de kristanaj libroj (nedisponeblaj en EO)
 * ĉiuj dokumentoj laŭleĝe distribuataj
 * numeroj de Strong por analizi vortojn en greka kaj hebrea
-* ekran‑dividebla
+* Multiple workspaces with split screen
 * eblo skribi personajn notojn
-* ŝanĝebla lingvo de fasado (25 lingvoj)
 * fleksebla serĉo
 * legosignoj
 * mapoj de Bibliaj regionoj
@@ -25,7 +24,7 @@ And Biblio estas malfermkoda, senkonekta kaj tute senpaga aplikaĵo por legi Bib
 
 Ni ĉiuj estas volontuloj; nie ne sendas turmentajn retleterojn, ne montras tedajn reklamojn; neniam petas pri donacoj; ne patas pri registri; la programo And Biblio kolektas neniujn datumojn el via telefono.
 
-La deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Rimarkoj</b>:
 * ŝatu na And Biblio ĉe <a href="https://facebook.com/AndBible">Facebook</a>

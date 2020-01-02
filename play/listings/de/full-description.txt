@@ -2,17 +2,16 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 
 * Bibeln, Kommentare, theologische Wörterbücher, Landkarten und christliche Bücher in über 700 Sprachen
 * Nach dem Herunterladen der benötigten Module absolut offline, inklusive allen Suchfunktionen, Notizen, Kommentaren etc.
-* Benutzeroberfläche in Chinesisch, Russisch, Deutsch, Französisch, Ungarisch, Tschechisch, Polnisch, Hebräisch, Hindi,...
+* Interface in multiple languages
 * verschiedenste Bibellesepläne
 * Absolut frei, keine Werbung, keine E-Mails
-* Über 40 englische Bibelübersetzungen, inklusive KJV und NET
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 Bibelkommentare
 * Große Sammlung an Wörterbüchern und christlicher Literatur
 * Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NKJV und NIV nicht enthalten)
 * Die Integration des Strong Wörterbuches erlaubt das Nachschlagen von griechischen und hebräischen Wörtern
-* Mehrere Fenster möglich
+* Multiple workspaces with split screen
 * Erstelle persönliche Notizen
-* Wähle aus über 25 Sprachen für die Benutzeroberfläche aus
 * Flexible Suchfunktion
 * Lesezeichen
 * Landkarten der biblischen Länder
@@ -25,7 +24,7 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 
 * Alle Mitarbeiter sind Freiwillige; wir versenden keine lästigen E-Mails; blenden keine störenden Werbungen ein; fragen nie nach finanzieller Unterstützung; verlangen keine Registrierung; And Bible sammelt keine Daten von deinem Telefon
 
-Die Herkunft aller Dokumente wird darauf überprüft, ob sie legal verbreitet werden dürfen bzw. ob der Eigentümer die Erlaubnis dazu gegeben hat. Das ist auch der Grund, warum And Bible keine Übersetzungen wie die NIV oder die NKJV enthalten kann.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Notizen</b>
 * Klicke "Gefällt mir" auf Facebook: https://www.facebook.com/AndBible/

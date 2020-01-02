@@ -2,17 +2,16 @@ And Bible jest otwartoźródłową, działającą offline, całkowicie bezpłatn
 
 * Biblie, komentarze, słowniki teologiczne, mapy i książki chrześcijańskie w przeszło 700 językach
 * nie wymaga połączenia z internetem po pierwszym pobraniu danych, włączając wyszukiwanie, notatki, komentarze, itd.
-* interfejs programu w języku polskim, chińskim, rosyjskim, Esperanto, niemieckim, francuskim, węgierskim, czeskim, hebrajskim, hindi…
+* Interface in multiple languages
 * wiele różnych planów czytania
 * całkowicie bezpłatna i bez reklam
-* Uwspółcześniona Biblia gdańska
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * komentarze (niedostępne w j. polskim)
 * słowniki teologiczne i kolekcja książek chrześcijańskich (niedostępne w j. polskim)
 * wszystkie dokumenty są rozprowadzane zgodnie z licencją (dlatego nie jest dostępna np. Biblia Tysiąclecia)
 * numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
-* tryb podzielnego ekranu
+* Multiple workspaces with split screen
 * możliwość umieszczanie notatek osobistych
-* możliwość zmiany języka interfejsu programu (ponad 25 języków)
 * elastyczne wyszukiwanie
 * zakładki
 * mapy krain biblijnych
@@ -25,7 +24,7 @@ And Bible jest otwartoźródłową, działającą offline, całkowicie bezpłatn
 
 Jesteśmy wolontariuszami; nie wysyłamy irytujących el-listów, nie wyświetlamy męczących reklam, nie prosimy o datki, nie prosimy o rejestrację; aplikacja And Bible nie zbiera jakichkolwiek danych z Twojego telefonu.
 
-Pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechniane nie naruszając praw autorskich. Z tego powodu aplikacja nie zawiera  np. Biblii Tysiąclecia.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Uwagi</b>:
 * polub nas na Facebooku: https://www.facebook.com/AndBible/

@@ -2,17 +2,16 @@ And Bible je open-source, offlin a úplne bezplatný biblický program bez rekla
 
 Preklady Biblie, komentáre, Teologické slovníky, Mapy, kresťanské knihy vo viac ako 700 jazykoch.
 Offline pre všetko po úvodnom stiahnutí vrátane vyhľadávania, poznámok, komentárov, atď.
-Rozhranie programu dostupné v Čínštine, Ruštine, Nemčine, Francúzštine, Maďarčine, Češtine, Poľštine, Hebrejšite, Indičtine,...
+* Interface in multiple languages
 Rôzne plány čítania Biblie
 Úplne zadarmo, žiadne reklamy, žiadne otravné emaily.
-* Over 40 English Bibles including KJV and NET
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 29 biblických komentárov
 Rozsiahly slovník a zbierka kresťanských kníh.
 Všetky dokumenty sú legálne distribuované (dôvod prečo verzie ako NKJV a NIV nie sú dostupné)
 Podpora Strongových čísel pre analýzu slov gréckeho a hebrejského textu.
-Rozdelenie obrazovky
+* Multiple workspaces with split screen
 Zapisuj si osobné poznámky
-Vyber si rozhranie programu z viac ako 25 jazykov
 Prispôsobivé vyhľadávanie
 Záložky
 Mapy biblických zemí
@@ -25,7 +24,7 @@ Použi silný JSword engine z biblického projektu CrossWire
 
 My všetci sme dobrovoľníci; neposielame blbé emaily; nepodporujeme otravné reklamy; nepýtame finančnú podporu; nie je potrebná registrácia; And Bible nezbiera žiadne údaje z vášho telefónu.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder. That is also the reason And Bible can not contain documents like NIV and NKJV.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Poznámky</b>
 Postavte páčik na Facebooku: https://www.facebook.com/AndBible/

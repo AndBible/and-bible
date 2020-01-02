@@ -2,17 +2,16 @@ And Bible on täysin ilmainen avoimen lähdekoodin raamattuohjelmisto. Se toimii
 
 * Raamattuja, kommentaareja, teologisia sanakirjoja, karttoja ja kristillisiä kirjoja yli 700 kielellä
 * Toimii ilman internetyhteyttä sen jälkeen kun dokumentit on ladattu, mukaanlukien hakutoiminto, muistiinpanot, kommentaarit jne.
-* Käyttöliittymä suomeksi, kiinaksi, venäjäksi, saksaksi, ranskaksi, unkariksi, tsekiksi, puolaksi, hepreaksi, hindiksi, ...
+* Interface in multiple languages
 *  Useita raamatunlukuohjelmia
 * Täysin ilmainen, ei mainoksia, ei sähköposteja
-* Yli 40 englanninkielistä raamattua, mukaanlukien KJV ja NET
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 raamattukommentaaria
 *  Laaja kokoelma sanakirjoja ja kristillistä kirjallisuutta
 * Kaikki dokumentit laillisia (tästä syystä joitain raamatunkäännöksiä kuten NKJV ja NIV, ei ole saatavilla)
 Strongin sanakirjan integraatio joka mahdollistaa kreikan ja heprean sanojen analysoinnin
-* Jaettu raamattunäkymä
+* Multiple workspaces with split screen
 * Kirjoita henkilökohtaisia muistiinpanoja
-* Valitse käyttöliittymän kieli yli 25 vaihtoehdosta
 * Joustava hakutoiminto
 * Kirjanmerkit
 * Raamatun maiden karttoja
@@ -25,7 +24,7 @@ Strongin sanakirjan integraatio joka mahdollistaa kreikan ja heprean sanojen ana
 
 Me olemme kaikki vapaaehtoistyöntekijöitä; emme näytä ärsyttäviä mainoksia, lähetä  sähköposteja, emme pyydä tai vastaanota lahjoituksia, emme pyydä rekisteröitymistä. And Bible ei kerää mitään tietoja puhelimestasi.
 
-Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä And Biblessä ei ole dokumentteja kuten NIV ja NKJV.
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
 
 <b>Huomioita</b>
 * Tykkää And Biblestä Facebookissa: https://www.facebook.com/AndBible/
