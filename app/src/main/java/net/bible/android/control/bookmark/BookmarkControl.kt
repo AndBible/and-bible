@@ -274,7 +274,8 @@ open class BookmarkControl @Inject constructor(
     }
 
     /** label the bookmark with these and only these labels  */
-    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>) { // never save LABEL_ALL
+    @JvmOverloads
+    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>, doNotSync: Boolean = false) { // never save LABEL_ALL
 		val labels = labels_.toMutableList()
         labels.remove(LABEL_ALL)
         labels.remove(LABEL_UNLABELLED)
@@ -294,7 +295,9 @@ open class BookmarkControl @Inject constructor(
                 db.insertBookmarkLabelJoin(bookmark, label)
             }
         } finally {}
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        }
     }
 
     fun saveOrUpdateLabel(label: LabelDto): LabelDto {

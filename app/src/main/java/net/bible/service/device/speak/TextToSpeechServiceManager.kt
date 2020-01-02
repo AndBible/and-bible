@@ -507,7 +507,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
         shutdownTtsEngine()
-        mSpeakTextProvider.stop()
+        mSpeakTextProvider.stop(willContinueAfter)
         clearPauseState()
         fireStateChangeEvent()
     }

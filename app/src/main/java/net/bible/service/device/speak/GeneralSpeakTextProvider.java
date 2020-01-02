@@ -247,7 +247,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	public void pause() {}
 
-	public void stop() {
+	public void stop(boolean doNotSync) {
 		reset();
 	}
 
@@ -341,7 +341,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 						.putString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR))
 						.putInt(PERSIST_NEXT_TEXT, nextTextToSpeak)
 						.putFloat(PERSIST_FRACTION_SPOKEN, fractionOfNextSentenceSpoken)
-						.commit();
+						.apply();
 		}
 	}
 
@@ -366,7 +366,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		CommonUtils.INSTANCE.getSharedPreferences().edit().remove(PERSIST_SPEAK_TEXT)
 												.remove(PERSIST_NEXT_TEXT)
 												.remove(PERSIST_FRACTION_SPOKEN)
-												.commit();
+												.apply();
 	}
 
 	private StartPos getPrevTextStartPos(String text, float fraction) {
@@ -519,24 +519,4 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	@Override
 	public void prepareForStartSpeaking() {}
-
-//	private List<String> nonREbreakUpText(String text) {
-//		List<String> chunks = new ArrayList<String>();
-//
-//		int matchedUpTo = 0;
-//		int count = 0;
-//		while (text.length()-matchedUpTo>1000) {
-//			int nextEnd = text.indexOf(". ",matchedUpTo+100)+2;
-//			if (nextEnd!=-1) {
-//				Log.d(TAG, "Match "+(++count)+" from "+matchedUpTo+" to "+nextEnd);
-//				chunks.add(text.substring(matchedUpTo, nextEnd));
-//				matchedUpTo = nextEnd;
-//			}
-//		}
-//		// add on the final part of the text
-//		chunks.add(text.substring(matchedUpTo));
-//
-//		return chunks;
-//	}
-//
 }
