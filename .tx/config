@@ -8,11 +8,11 @@ source_file = app/src/main/res/values/strings.xml
 source_lang = en
 
 [andbible.playstoremaintexttxt]
-file_filter = PlayStore/<lang>/PlayStoreMainText.txt
-source_file = PlayStore/en/PlayStoreMainText.txt
+file_filter = play/listings/<lang>/full-description.txt
+source_file = play/listings/en//full-description.txt
 source_lang = en
 
 [andbible.playstoreshorttexttxt]
-file_filter = PlayStore/<lang>/PlayStoreShortText.txt
-source_file = PlayStore/en/PlayStoreShortText.txt
+file_filter = play/listings/<lang>/short-description.txt
+source_file = play/listings/en/short-description.txt
 source_lang = en
