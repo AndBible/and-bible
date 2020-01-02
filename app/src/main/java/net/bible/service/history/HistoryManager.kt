@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.NoSuchKeyException
 
 
 import java.util.ArrayList
@@ -92,7 +93,10 @@ constructor(private val windowControl: WindowControl) {
         val stack = Stack<HistoryItem>()
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
-            val key = doc.getKey(entity.key)
+            val key = try {doc.getKey(entity.key) } catch (e: NoSuchKeyException) {
+                Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
+                continue
+            }
             stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window))
         }
         windowHistoryStackMap[window.id] = stack
