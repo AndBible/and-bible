@@ -1,23 +1,19 @@
-/**
- * Distribution License:
- * JSword is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License, version 2.1 as published by
- * the Free Software Foundation. This program is distributed in the hope
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the
- * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+/*
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
- * The License is available on the internet at:
- *       http://www.gnu.org/copyleft/lgpl.html
- * or by writing to:
- *      Free Software Foundation, Inc.
- *      59 Temple Place - Suite 330
- *      Boston, MA 02111-1307, USA
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
- * Copyright: 2008
- *     The copyright to this program is held by it's authors.
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
- * ID: $Id: BookIndexer.java 1466 2007-07-02 02:48:09Z dmsmith $
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
+ *
  */
 package net.bible.service.download;
 
