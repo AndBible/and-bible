@@ -2,15 +2,15 @@ And Bible yra atvirojo kodo, autonominė, visiškai nemokama Biblijos programėl
 
 * Biblijos, komentarai, teologiniai žodynai, žemėlapiai ir krikščioniškos knygos daugiau kaip 700 kalbų
 * Po pradinio atsisiuntimo, viskas veikia be interneto: paieška, pastabos, komentarai ir t.t.
-* Interface in multiple languages
+* Programėlės sąsaja įvairiomis kalbomis
 * Įvairūs Biblijos skaitymo planai
 * Visiškai nemokamai, be jokių reklamų ar el. laiškų
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Virš 40 Biblijų anglų kalba, įskaitant KJV ir NET (čia buvo ir ESV ir mes bandome ją sugrąžinti, žiūrėkite DUK: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 Biblijos komentarai
 * Išplėstinė žodynų ir krikščioniškų knygų kolekcija
 * Visi dokumentai yra platinami teisėtai (štai kodėl nėra prieinami tokie dokumentai kaip NKJV ir NIV)
 * Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
-* Multiple workspaces with split screen
+* Kelios darbo sritys su padalintu ekranu
 * Galimybė rašyti asmenines pastabas
 * Lanksti paieška
 * Žymės
@@ -24,7 +24,7 @@ And Bible yra atvirojo kodo, autonominė, visiškai nemokama Biblijos programėl
 
 Mes visi esame savanoriai; mes nesiunčiame neduodančių ramybės el. laiškų; nerodome erzinančių reklamų; niekada neprašome ir negauname paaukojimų; neprašome registruotis; And Bible nerenka iš jūsų mobiliojo telefono jokių duomenų.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Visų dokumentų kilmė yra kruopščiai nagrinėjama, kad būtų užtikrinta, jog visi dokumentai gali būti teisiškai platinami, arba, jog yra suteiktas autorių teisių turėtojo leidimas. Tai taip pat yra viena iš priežasčių, kodėl And Bible programėlėje nėra tokių dokumentų kaip NIV ir NKJV.
 
 <b>Pastabos</b>
 * Spauskite "Patinka" And Bible Facebook puslapyje: https://www.facebook.com/AndBible/

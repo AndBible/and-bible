@@ -2,7 +2,7 @@ And Bible on täysin ilmainen avoimen lähdekoodin raamattuohjelmisto. Se toimii
 
 * Raamattuja, kommentaareja, teologisia sanakirjoja, karttoja ja kristillisiä kirjoja yli 700 kielellä
 * Toimii ilman internetyhteyttä sen jälkeen kun dokumentit on ladattu, mukaanlukien hakutoiminto, muistiinpanot, kommentaarit jne.
-* Interface in multiple languages
+* Käyttöliittymä usealla kielellä
 *  Useita raamatunlukuohjelmia
 * Täysin ilmainen, ei mainoksia, ei sähköposteja
 * Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
@@ -10,7 +10,7 @@ And Bible on täysin ilmainen avoimen lähdekoodin raamattuohjelmisto. Se toimii
 *  Laaja kokoelma sanakirjoja ja kristillistä kirjallisuutta
 * Kaikki dokumentit laillisia (tästä syystä joitain raamatunkäännöksiä kuten NKJV ja NIV, ei ole saatavilla)
 Strongin sanakirjan integraatio joka mahdollistaa kreikan ja heprean sanojen analysoinnin
-* Multiple workspaces with split screen
+* Useita työtiloja ja jaetun näytön mahdollisuus
 * Kirjoita henkilökohtaisia muistiinpanoja
 * Joustava hakutoiminto
 * Kirjanmerkit

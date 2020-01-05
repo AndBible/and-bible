@@ -2,15 +2,15 @@ And Bible je odprtokoden projekt, ki za običajno delovanje ne potrebuje povezav
 
 * Biblije, komentarji, teološki slovarji, zemljevidi in krščanske knjige v več kot 700 jezikih
 * Po začetnem prenosu podatkov iz spleta, je vse, vključno z iskanjem, opombami in komentarji dostopno brez povezave s spletom.
-* Interface in multiple languages
+* Vmesnik v različnih jezikih
 * Različni načrti za branje Biblije
 * Popolnoma brezplačno, brez oglasov, brez e-pošte
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Preko 40 angleških biblij, vključno z KJV in NET (tudi ESV je bil včasih tukaj, poskušamo ga vrniti, glejte Pogosta vprašanja: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 komentarjev iz Biblije
 * Obsežna zbirka slovarjev in krščanskih knjig
 * Vsi dokumenti so zakonito razdeljeni (razlog zakaj dokumenti NKJV in NIV niso na voljo) (in v slovenščini Chraskova Biblija do 15. marca leta 2023 ni na voljo)
 * Strong-ova števila omogočajo grško in hebrejsko besedno analizo
-* Multiple workspaces with split screen
+* Več delovnih prostorov z deljenim zaslonom
 * Zapišite osebne beležke
 * Prilagodljivo iskanje
 * Zaznamki
@@ -24,7 +24,7 @@ And Bible je odprtokoden projekt, ki za običajno delovanje ne potrebuje povezav
 
 Vsi smo prostovoljci; ne pošiljamo motečih elektronskih sporočil; aplikacija ne prikazujte nadležnih oglasov; nikoli ne zahtevamo ali prejemamo donacij; ne prosimo za registracijo; And Biblija ne zbira podatkov iz vašega mobilnega telefona.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Poreklo vseh dokumentov je temeljito raziskano, da se zagotovi zakonita distribucija vseh dokumentov ali da je bilo dano dovoljenje imetnikov avtorskih pravic. To je tudi razlog, da Biblija ne more vsebovati dokumentov, kot sta NIV in NKJV.
 
 <b>Zaznamki</b>
 Všeč mi je in Sveto pismo na Facebooku: https://www.facebook.com/AndBible/
