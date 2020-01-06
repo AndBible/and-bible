@@ -46,7 +46,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
 
     init {
 
-        isSingleLine = false
+        setSingleLine(false)
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT

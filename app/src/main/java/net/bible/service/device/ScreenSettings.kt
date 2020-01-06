@@ -62,7 +62,7 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-    val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    val systemModeAvailable = false // Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     private val autoNightMode	get() =
         autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"

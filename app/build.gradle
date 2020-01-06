@@ -41,8 +41,8 @@ preBuild.dependsOn buildLoaderJs
 
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     dexOptions {
         javaMaxHeapSize "4g"
@@ -52,7 +52,7 @@ android {
     defaultConfig {
         applicationId "net.bible.android.activity"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 28
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""

@@ -597,7 +597,7 @@ class DocumentWebViewBuilder @Inject constructor(
             setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
             setTypeface(null, Typeface.BOLD)
             textSize = 20.0F
-            isSingleLine = true
+            setSingleLine(true)
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
