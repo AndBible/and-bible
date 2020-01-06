@@ -67,6 +67,7 @@ abstract class CurrentPageBase protected constructor(
             return field
         }
         set(currentYOffsetRatio) {
+            key ?: return
             docWhenYOffsetRatioSet = currentDocument
             keyWhenYOffsetRatioSet = key
             field = currentYOffsetRatio
