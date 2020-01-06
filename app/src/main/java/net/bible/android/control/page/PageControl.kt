@@ -110,7 +110,7 @@ open class PageControl @Inject constructor(
                 val bible = bibles[0]
                 for (verse in defaultVerses) {
                     if (bible.contains(verse)) {
-                        currentPageManager.currentBible.setKey(verse)
+                        currentPageManager.currentBible.doSetKey(verse)
                         return
                     }
                 }
