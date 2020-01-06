@@ -208,17 +208,25 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
     	// check a bible exists in current lang otherwise use english
     	boolean foundBibleInLocalLanguage = false;
+    	Language existingLanguage = null;
     	for (Book book : getAllDocuments()) {
-    		if (book.getBookCategory().equals(BookCategory.BIBLE) && localLanguage.equals(book.getLanguage())) {
-    			foundBibleInLocalLanguage = true;
-    			break;
-    		}
+    		if (book.getBookCategory().equals(BookCategory.BIBLE)) {
+    			if(localLanguage.equals(book.getLanguage())) {
+					foundBibleInLocalLanguage = true;
+					break;
+				}
+				existingLanguage = book.getLanguage();
+			}
     	}
     	
-    	// if no bibles exist in current lang then fall back to default language (English) so the user will not see an initially empty list
+    	// if no bibles exist in current lang then fall back to one of the languages that have books
+		// so the user will not see an initially empty list
     	if (!foundBibleInLocalLanguage) {
-        	Log.d(TAG, "No bibles found in local language so falling back to default lang");
-    		localLanguage = Language.DEFAULT_LANG;
+			if (existingLanguage != null) {
+    			localLanguage = existingLanguage;
+			} else {
+				localLanguage = Language.DEFAULT_LANG;
+			}
     	}
     	return localLanguage;
     }
