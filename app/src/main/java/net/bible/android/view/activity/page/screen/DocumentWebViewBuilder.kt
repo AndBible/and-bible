@@ -56,6 +56,7 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
 import java.util.*
 
 import javax.inject.Inject
@@ -311,7 +312,7 @@ class DocumentWebViewBuilder @Inject constructor(
     class WebViewsBuiltEvent
 
     private val windowButtons: MutableList<Button> = ArrayList()
-    private val restoreButtons: MutableList<RestoreButton> = ArrayList()
+    private val restoreButtons: MutableList<WindowButton> = ArrayList()
     private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
     private lateinit var bibleReferenceOverlay: TextView
 
@@ -338,7 +339,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateMinimizedButtonLetter(w: Window) {
-        restoreButtons.find { it.windowId == w.id }?.text = getDocumentInitial(w)
+        restoreButtons.find { it.window.id == w.id }?.text = getDocumentInitial(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -405,7 +406,7 @@ class DocumentWebViewBuilder @Inject constructor(
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
                     }  else {
-                        alpha(HIDDEN_ALPHA)
+                        alpha(hiddenAlpha)
                         interpolator = AccelerateInterpolator()
                     }
                     start()
@@ -418,6 +419,8 @@ class DocumentWebViewBuilder @Inject constructor(
         buttonsVisible = show
     }
 
+    private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
+
     private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
             minimisedWindowsFrameContainer.visibility = View.VISIBLE
@@ -428,7 +431,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 .start()
         }  else {
             if(mainBibleActivity.fullScreen) {
-                minimisedWindowsFrameContainer.animate().alpha(HIDDEN_ALPHA)
+                minimisedWindowsFrameContainer.animate().alpha(hiddenAlpha)
                     .setInterpolator(AccelerateInterpolator())
                     .start()
             }
@@ -488,14 +491,13 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createSeparator(
-            parent: LinearLayout,
-            window: Window,
-            nextScreen: Window,
-            isPortrait: Boolean,
-            numWindows: Int): Separator {
-        return Separator(this.mainBibleActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen,
-                numWindows, isPortrait, windowControl)
-    }
+        parent: LinearLayout,
+        window: Window,
+        nextWindow: Window,
+        isPortrait: Boolean,
+        numWindows: Int
+    ) = Separator(this.mainBibleActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextWindow,
+        windowRepository.activeWindow, numWindows, isPortrait, windowControl)
 
     /**
      * parent contains Frame, seperator, Frame.
@@ -538,22 +540,25 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createSingleWindowButton(window: Window): Button {
         return createTextButton("⊕",
             { v -> windowControl.addNewWindow()},
-            { v -> false}
+            { v -> false},
+            window
         )
     }
 
     private fun createCloseButton(window: Window): Button {
         return createTextButton("X",
             { v -> windowControl.closeWindow(window)},
-            { v -> showPopupWindow(window, v); true}
+            { v -> showPopupWindow(window, v); true},
+            window
         )
     }
 
-    private fun createUnMaximizeButton(window: Window): RestoreButton {
+    private fun createUnMaximizeButton(window: Window): WindowButton {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
-            { v -> windowControl.unmaximiseWindow(window); true}
+            { v -> windowControl.unmaximiseWindow(window); true},
+            window
         )
         return b
     }
@@ -562,11 +567,12 @@ class DocumentWebViewBuilder @Inject constructor(
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
         return createTextButton(text,
             { v -> showPopupWindow(window, v) },
-            { v -> windowControl.minimiseWindow(window); true }
+            { v -> windowControl.minimiseWindow(window); true },
+            window
         )
     }
 
-    private fun createRestoreButton(window: Window): RestoreButton {
+    private fun createRestoreButton(window: Window): WindowButton {
         return createTextButton(getDocumentInitial(window),
             { windowControl.restoreWindow(window) },
             { windowControl.restoreWindow(window); true },
@@ -589,8 +595,8 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window? = null): RestoreButton {
-        return RestoreButton(mainBibleActivity, window?.id).apply {
+                                 window: Window): WindowButton {
+        return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
             this.text = text
             width = BUTTON_SIZE_PX
             height = BUTTON_SIZE_PX
@@ -600,22 +606,8 @@ class DocumentWebViewBuilder @Inject constructor(
             setSingleLine(true)
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                setBackgroundResource(if (window?.isMaximised ?: false) R.drawable.window_button_active
-                else R.drawable.window_button)
-            }
         }
     }
-
-    private fun createImageButton(drawableId: Int, onClickListener: (View) -> Unit, onLongClickListener: ((View) -> Boolean)? = null) =
-            Button(mainBibleActivity).apply {
-                setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR)
-                setBackgroundResource(drawableId)
-                width = BUTTON_SIZE_PX
-                height = BUTTON_SIZE_PX
-                setOnClickListener(onClickListener)
-                setOnLongClickListener(onLongClickListener)
-            }
 
     @SuppressLint("RestrictedApi")
     private fun showPopupWindow(window: Window, view: View) {
@@ -651,11 +643,37 @@ class DocumentWebViewBuilder @Inject constructor(
         return tag != null && tag == TAG
     }
 
-    private class RestoreButton(context: Context, val windowId: Long?): AppCompatButton(context)
+    private class WindowButton(context: Context, val window: Window, var activeWindow: Window): AppCompatButton(context) {
+        init {
+            updateBackground()
+        }
+
+        fun updateBackground() {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                setBackgroundResource(if (window.id == activeWindow.id) R.drawable.window_button_active else R.drawable.window_button)
+            }
+        }
+
+        fun onEvent(event: CurrentWindowChangedEvent) {
+            activeWindow = event.activeWindow
+            updateBackground()
+        }
+        
+        override fun onAttachedToWindow() {
+            ABEventBus.getDefault().register(this)
+            super.onAttachedToWindow()
+        }
+
+        override fun onDetachedFromWindow() {
+            ABEventBus.getDefault().unregister(this)
+            super.onDetachedFromWindow()
+        }
+    }
 
     companion object {
         private const val TAG = "DocumentWebViewBuilder"
         private const val HIDDEN_ALPHA = 0.2F
+        private const val HIDDEN_ALPHA_NIGHT = 0.5F
         private const val VISIBLE_ALPHA = 1.0F
     }
 }

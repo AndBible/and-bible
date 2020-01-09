@@ -26,6 +26,8 @@ import android.widget.LinearLayout
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.util.TouchDelegateView
@@ -39,7 +41,8 @@ class Separator(
 		private val separatorWidth: Int,
 		private val parentLayout: View,
 		private val window1: Window,
-		private val window2: Window,
+        private val window2: Window,
+		private var activeWindow: Window,
 		private val numWindows: Int,
 		private val isPortrait: Boolean,
 		private val windowControl: WindowControl
@@ -73,11 +76,35 @@ class Separator(
         get() = if (isPortrait) parentLayout.height else parentLayout.width
 
 	private val res = BibleApplication.application.resources
-	private val separatorColor = res.getColor(R.color.window_separator_colour)
-	private val separatorDragColor = res.getColor(R.color.window_separator_drag_colour)
+
+    private val isActive get() = activeWindow.id == window1.id || activeWindow.id == window2.id
+
+    private val separatorResource get() = if (isActive) R.drawable.separator_active else R.drawable.separator
+
+	private val dragResource = R.drawable.separator_drag
 
 	init {
-        setBackgroundColor(separatorColor)
+        updateBackground()
+    }
+
+    private fun updateBackground() {
+        //setBackgroundColor(separatorColor)
+        setBackgroundResource(separatorResource)
+    }
+
+    override fun onDetachedFromWindow() {
+        ABEventBus.getDefault().unregister(this)
+        super.onDetachedFromWindow()
+    }
+
+    override fun onAttachedToWindow() {
+        ABEventBus.getDefault().register(this)
+        super.onAttachedToWindow()
+    }
+
+    fun onEvent(event: CurrentWindowChangedEvent) {
+        activeWindow = event.activeWindow
+        updateBackground()
     }
 
     /**
@@ -89,7 +116,7 @@ class Separator(
                 Log.d(TAG, " y:" + event.rawY)
                 touchOwner.setTouchOwner(this)
                 windowControl.setSeparatorMoving(true)
-                setBackgroundColor(separatorDragColor)
+                setBackgroundResource(dragResource)
 
                 val rawParentLocation = IntArray(2)
                 parentLayout.getLocationOnScreen(rawParentLocation)
@@ -101,7 +128,7 @@ class Separator(
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
-                setBackgroundColor(separatorColor)
+                setBackgroundResource(separatorResource)
                 window1.windowLayout.weight = view1LayoutParams.weight
                 window2.windowLayout.weight = view2LayoutParams.weight
                 windowControl.setSeparatorMoving(false)

@@ -32,6 +32,11 @@
         <attr name="windowButtonBackgroundColor" format="color"/>
         <attr name="windowButtonActiveBackgroundColor" format="color"/>
     </declare-styleable>
+    <declare-styleable name="separatorTheme">
+        <attr name="separatorBackgroundColor" format="color"/>
+        <attr name="separatorActiveBackgroundColor" format="color"/>
+        <attr name="separatorDragBackgroundColor" format="color"/>
+    </declare-styleable>
     <declare-styleable name="bibleReferenceOverlayTheme">
         <attr name="bibleReferenceOverlayBackgroundColor" format="color"/>
     </declare-styleable>
