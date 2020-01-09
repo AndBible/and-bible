@@ -260,10 +260,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // allow zooming if map
         enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
-        loadDataWithBaseURL("file:///android_asset/", finalHtml, "text/html", "UTF-8", "http://andBibleWindow-${window.id}")
-
         contentVisible = false
         lastUpdated = System.currentTimeMillis()
+
+        loadDataWithBaseURL("file:///android_asset/window-${window.id}", finalHtml, "text/html", "UTF-8", "http://andbible-window-${window.id}")
     }
 
     /**
@@ -454,6 +454,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: UpdateSecondaryWindowEvent) {
         if (window.id == event.updateWindowId) {
+            Log.d(TAG, "UpdateSecondaryWindowEvent")
             if(event.yOffsetRatio != null) {
                 jumpToYOffsetRatio = event.yOffsetRatio
             }

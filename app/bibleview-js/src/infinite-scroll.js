@@ -134,13 +134,11 @@ function setScrollPosition(offset) {
  */
 function loadTextAtTop(chapter, textId) {
     console.log("js:loadTextAtTop");
-    stopScrolling();
     jsInterface.requestMoreTextAtTop(chapter, textId);
 }
 
 function loadTextAtEnd(chapter, textId) {
     console.log("js:loadTextAtEnd");
-    stopScrolling();
     jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 

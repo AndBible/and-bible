@@ -75,7 +75,6 @@ class BibleJavascriptInterface(
         // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
         if (notificationsEnabled
             && !addingContentAtTop
-            && !PassageChangeMediator.getInstance().isPageChanging
             && !windowControl.isSeparatorMoving()
             && bibleView.contentVisible)
         {

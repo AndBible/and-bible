@@ -2,8 +2,7 @@ import {addWaiter, Deferred} from "./utils";
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 import {registerVersePositions} from "./bibleview";
 
-let currentAnimation = null;
-let stopAnimation = false;
+let currentScrollAnimation = null;
 let contentReady = false;
 export let toolbarOffset = 0;
 
@@ -19,27 +18,25 @@ export function setToolbarOffset(value, {doNotScroll = false, immediate = false}
 }
 
 export function updateLocation() {
-    if(currentAnimation == null) {
+    if(currentScrollAnimation == null) {
         jsInterface.onScroll(window.pageYOffset);
+    }
+}
+
+export function stopScrolling() {
+    if(currentScrollAnimation != null) {
+        window.cancelAnimationFrame(currentScrollAnimation);
+        currentScrollAnimation = null;
+        console.log("Animation ends");
     }
 }
 
 export function doScrolling(elementY, duration) {
     console.log("doScrolling", elementY, duration);
-    stopAnimation = false;
+    stopScrolling();
     const startingY = window.pageYOffset;
     const diff = elementY - startingY;
     let start;
-
-    function endAnimation() {
-        if(currentAnimation != null) {
-            window.cancelAnimationFrame(currentAnimation);
-            currentAnimation = null;
-            console.log("Animation ends");
-        }
-    }
-
-    endAnimation();
 
     if(duration === 0) {
         window.scrollTo(0, elementY);
@@ -48,7 +45,7 @@ export function doScrolling(elementY, duration) {
 
     // Bootstrap our animation - it will get called right before next frame shall be rendered.
     console.log("Animation starts");
-    currentAnimation = window.requestAnimationFrame(function step(timestamp) {
+    currentScrollAnimation = window.requestAnimationFrame(function step(timestamp) {
         if (!start) start = timestamp;
         // Elapsed milliseconds since start of scrolling.
         const time = timestamp - start;
@@ -58,11 +55,10 @@ export function doScrolling(elementY, duration) {
         window.scrollTo(0, startingY + diff * percent);
 
         // Proceed with animation as long as we wanted it to.
-        if (time < duration && stopAnimation === false) {
-            currentAnimation = window.requestAnimationFrame(step);
+        if (time < duration) {
+            currentScrollAnimation = window.requestAnimationFrame(step);
         }
         else {
-            endAnimation();
             updateLocation();
         }
     })
@@ -70,7 +66,7 @@ export function doScrolling(elementY, duration) {
 
 export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
-    stopAnimation = true;
+    stopScrolling();
     if(delta !== toolbarOffset) {
         toolbarOffset = delta;
     }
@@ -128,7 +124,3 @@ export function hideContent() {
     $("#content").css('visibility', 'hidden');
 }
 
-
-export function stopScrolling() {
-    stopAnimation = true;
-}

@@ -36,8 +36,6 @@ public class PassageChangeMediator {
 
 	private BibleContentManager mBibleContentManager;
 
-	private boolean isPageChanging = false;
-
 	private static final String TAG = "PassageChangeMediator";
 	
 	private static final PassageChangeMediator singleton = new PassageChangeMediator();
@@ -53,8 +51,6 @@ public class PassageChangeMediator {
 	/** first time we know a page or doc will imminently change
 	 */
 	public void onBeforeCurrentPageChanged(boolean updateHistory) {
-		isPageChanging = true;
-
 		ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
 		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
 	}
@@ -83,21 +79,14 @@ public class PassageChangeMediator {
 	/** The thread which fetches the new page html has started
 	 */
 	public void contentChangeStarted() {
-		isPageChanging = true;
 		ABEventBus.getDefault().post(new PassageChangeStartedEvent());
 	}
 	/** finished fetching html so should hide hourglass
 	 */
 	public void contentChangeFinished() {
 		ABEventBus.getDefault().post(new PassageChangedEvent());
-
-		isPageChanging = false;
 	}
 	
-	public boolean isPageChanging() {
-		return isPageChanging;
-	}
-
 	public void setBibleContentManager(BibleContentManager bibleContentManager) {
 		this.mBibleContentManager = bibleContentManager;
 	}
