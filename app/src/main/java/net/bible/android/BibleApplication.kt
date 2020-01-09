@@ -50,6 +50,10 @@ import java.util.Locale
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class BibleApplication : MultiDexApplication() {
+    init {
+        // save to a singleton to allow easy access from anywhere
+        application = this
+    }
     lateinit var applicationComponent: ApplicationComponent
         private set
 
@@ -62,9 +66,6 @@ open class BibleApplication : MultiDexApplication() {
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        // save to a singleton to allow easy access from anywhere
-        application = this
-
         super.onCreate()
         ABEventBus.getDefault().register(this)
 
