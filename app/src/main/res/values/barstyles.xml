@@ -68,9 +68,8 @@
 	<style name="OptionsButtonsStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
 		<item name="android:tint">@color/white</item>
 	</style>
-	<style name="MainBibleActionBar" parent="MainBibleViewTheme">
+	<style name="MainBibleActionBar">
 		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
-
 	</style>
 	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
 		<item name="android:textColorSecondary">@color/white</item>
