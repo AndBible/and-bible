@@ -105,6 +105,17 @@ private val MIGRATION_8_9 = object : Migration(8, 9) {
     }
 }
 
+private val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE TABLE IF NOT EXISTS `readingplan_new` (`_id` INTEGER, `plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`_id`))")
+            execSQL("INSERT INTO readingplan_new SELECT * from readingplan;")
+            execSQL("DROP TABLE readingplan;")
+            execSQL("ALTER TABLE readingplan_new RENAME TO readingplan;")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `readingplan` (`plan_code`)")
+        }
+    }
+}
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -124,7 +135,9 @@ object DatabaseContainer {
                         MIGRATION_5_6,
                         MIGRATION_6_7,
                         MIGRATION_7_8,
-                        MIGRATION_8_9
+                        MIGRATION_8_9,
+                        MIGRATION_9_10
+                        // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
                     .also { instance = it }
