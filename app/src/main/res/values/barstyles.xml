@@ -18,9 +18,8 @@
 		<item name="transportButtonColor">#ffffff</item>
 
 		<item name="windowButtonStrokeColor">#80FFFFFF</item>
-
-		<item name="windowButtonBackgroundColor">#B1B1B1</item>
-		<item name="windowButtonActiveBackgroundColor">#FF6B6B6B</item>
+		<item name="windowButtonBackgroundColor">#B78D8D8D</item>
+		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
 
 		<item name="bibleReferenceOverlayBackgroundColor">#DEEEEEEE</item>
 
