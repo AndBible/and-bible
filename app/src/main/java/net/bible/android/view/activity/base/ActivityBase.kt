@@ -73,6 +73,13 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         } else {
             setTheme(dayTheme)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!ScreenSettings.nightMode) {
+                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.decorView.systemUiVisibility = uiFlags
+            }
+        }
+
     }
 
     /** Called when the activity is first created.  */

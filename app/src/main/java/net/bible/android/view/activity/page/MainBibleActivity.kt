@@ -877,17 +877,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(ScreenSettings.nightMode) {
-                window.navigationBarColor = resources.getColor(R.color.black, theme)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    window.navigationBarDividerColor = resources.getColor(R.color.grey_800, theme)
-                }
-            } else {
+            if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.navigationBarColor = resources.getColor(R.color.white, theme)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    window.navigationBarDividerColor = resources.getColor(R.color.nav_bar_divider_grey, theme)
-                }
             }
         }
 
