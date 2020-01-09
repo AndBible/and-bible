@@ -19,10 +19,13 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
+import androidx.appcompat.content.res.AppCompatResources
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -79,17 +82,19 @@ class Separator(
 
     private val isActive get() = activeWindow.id == window1.id || activeWindow.id == window2.id
 
-    private val separatorResource get() = if (isActive) R.drawable.separator_active else R.drawable.separator
-
+    private val separatorResource get () = if (isActive) R.drawable.separator_active else R.drawable.separator
 	private val dragResource = R.drawable.separator_drag
 
-	init {
-        updateBackground()
+    private fun updateBackground() {
+        setBackgroundResource(separatorResource)
     }
 
-    private fun updateBackground() {
-        //setBackgroundColor(separatorColor)
-        setBackgroundResource(separatorResource)
+    override fun setBackgroundResource(backgroundResource: Int) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            super.setBackgroundResource(backgroundResource)
+        } else {
+            setBackgroundColor(res.getColor(R.color.grey_500))
+        }
     }
 
     override fun onDetachedFromWindow() {
@@ -98,6 +103,7 @@ class Separator(
     }
 
     override fun onAttachedToWindow() {
+        updateBackground()
         ABEventBus.getDefault().register(this)
         super.onAttachedToWindow()
     }
