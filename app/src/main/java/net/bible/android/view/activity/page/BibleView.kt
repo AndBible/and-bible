@@ -311,6 +311,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
+        if(window.updateOngoing) return false
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
@@ -326,6 +327,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** prevent swipe left if the user is scrolling the page left  */
     override val isPagePreviousOkay: Boolean get () {
+        if(window.updateOngoing) return false
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
