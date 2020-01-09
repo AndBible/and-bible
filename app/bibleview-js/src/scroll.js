@@ -1,5 +1,6 @@
 import {addWaiter, Deferred} from "./utils";
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
+import {registerVersePositions} from "./bibleview";
 
 let currentAnimation = null;
 let stopAnimation = false;
@@ -117,6 +118,7 @@ export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset
     // in Java side.
     requestAnimationFrame(() => {
         $("#content").css('visibility', 'visible');
+        registerVersePositions();
         contentReady = true;
         jsInterface.setContentReady();
     });

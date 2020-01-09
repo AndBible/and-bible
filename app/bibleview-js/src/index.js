@@ -18,7 +18,6 @@ import {sleep, whenReady} from "./utils";
 
 window.addEventListener("DOMContentLoaded",  async (event) => {
     console.log("js-side load!", event.timeStamp, event);
-    registerVersePositions();
     initializeListeners();
     initializeInfiniScroll();
     jsInterface.triggerJumpToOffset();
