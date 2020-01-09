@@ -4,7 +4,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {jsonscroll, stopScrolling} from "./scroll";
+import {updateLocation, stopScrolling} from "./scroll";
 
 export function registerVersePositions() {
     // Register verse positions after next screen refresh ensuring that css / font is rendered correctly.
@@ -22,7 +22,7 @@ export function registerVersePositions() {
             const location = verseTag.offsetTop + Math.max(0, verseTag.offsetHeight - 2 * lineHeight);
             jsInterface.registerVersePosition(verseTag.id, location);
         }
-        jsonscroll()
+        updateLocation()
     });
 }
 
@@ -49,6 +49,6 @@ function getElementsByClass( searchClass, domNode, tagName) {
 
 export function initializeListeners() {
     $(document).bind("touchstart", event => stopScrolling());
-    window.addEventListener("scroll", event => jsonscroll());
+    window.addEventListener("scroll", event => updateLocation());
 }
 

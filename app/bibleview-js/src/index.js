@@ -1,7 +1,7 @@
 import "libs/jquery.longpress"
 import "jquery-nearest"
 
-import {hideContent, jsonscroll, scrollToVerse, setToolbarOffset, setupContent} from "./scroll";
+import {hideContent, updateLocation, scrollToVerse, setToolbarOffset, setupContent} from "./scroll";
 import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
 import {
     registerVersePositions,
@@ -38,7 +38,7 @@ window.andbible = {
     disableVerseTouchSelection,
 
     setToolbarOffset,
-    jsonscroll,
+    jsonscroll: updateLocation,
     scrollToVerse,
     whenReady,
     setupContent,
