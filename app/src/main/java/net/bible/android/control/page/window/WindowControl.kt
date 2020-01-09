@@ -289,6 +289,7 @@ open class WindowControl @Inject constructor(
 
             // redisplay the current page
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            windowSync.reloadAllWindows()
         }
     }
 
