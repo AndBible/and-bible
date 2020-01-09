@@ -22,6 +22,7 @@ export function registerVersePositions() {
             const location = verseTag.offsetTop + Math.max(0, verseTag.offsetHeight - 2 * lineHeight);
             jsInterface.registerVersePosition(verseTag.id, location);
         }
+        jsonscroll()
     });
 }
 
