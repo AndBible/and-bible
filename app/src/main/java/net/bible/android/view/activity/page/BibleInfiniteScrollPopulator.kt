@@ -44,7 +44,7 @@ class BibleInfiniteScrollPopulator(
             if (currentPage is CurrentBiblePage) {
                 var fragment = currentPage.getFragmentForChapter(chapter)
                 fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-                bibleView.insertTextAtTop(textId, fragment)
+                bibleView.insertTextAtTop(chapter, textId, fragment)
             }
             // tell js interface that insert is complete
             callback.okay()
@@ -60,7 +60,7 @@ class BibleInfiniteScrollPopulator(
             if (currentPage is CurrentBiblePage) {
                 var fragment = currentPage.getFragmentForChapter(chapter)
                 fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-                bibleView.insertTextAtEnd(textId, fragment)
+                bibleView.insertTextAtEnd(chapter, textId, fragment)
             }
         }
     }

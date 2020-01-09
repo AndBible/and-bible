@@ -134,6 +134,10 @@ open class Window (
         }
     }
 
+    fun hasChapterLoaded(chapter: Int): Boolean {
+        return bibleView?.hasChapterLoaded(chapter) == true
+    }
+
     private val TAG get() = "BibleView[${id}] WIN"
 }
 

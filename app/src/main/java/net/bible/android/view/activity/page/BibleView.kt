@@ -73,8 +73,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val linkControl: LinkControl) :
         WebView(mainBibleActivity),
         DocumentView,
-        VerseActionModeMediator.VerseHighlightControl,
-        BibleViewTextInserter
+        VerseActionModeMediator.VerseHighlightControl
 {
 
     private var contextMenuInfo: BibleViewContextMenuInfo? = null
@@ -89,6 +88,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
+    private var loadedChapters = mutableSetOf<Int>()
 
 
     private var gestureDetector: GestureDetectorCompat
@@ -262,6 +262,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         contentVisible = false
         lastUpdated = System.currentTimeMillis()
+        loadedChapters.clear()
+        val chapter = jumpToChapterVerse?.chapter
+        if(chapter != null) {
+            loadedChapters.add(chapter)
+        }
 
         loadDataWithBaseURL("file:///android_asset/window-${window.id}", finalHtml, "text/html", "UTF-8", "http://andbible-window-${window.id}")
     }
@@ -677,11 +682,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         evaluateJavascript("andbible.$javascript;", callBack)
     }
 
-    override fun insertTextAtTop(textId: String, text: String) {
+    fun insertTextAtTop(chapter: Int, textId: String, text: String) {
+        loadedChapters.add(chapter)
         executeJavascriptOnUiThread("insertThisTextAtTop('$textId','$text')")
     }
 
-    override fun insertTextAtEnd(textId: String, text: String) {
+    fun insertTextAtEnd(chapter: Int, textId: String, text: String) {
+        loadedChapters.add(chapter)
         executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
     }
 
@@ -690,6 +697,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         window.updateOngoing = false
         jumpToYOffsetRatio = null
     }
+
+    fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
 
     var onDestroy: (() -> Unit)? = null
 

@@ -56,7 +56,8 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             && document?.bookCategory == BookCategory.BIBLE
             && prevVerse is VerseRange
             && prevVerse.start?.book == book
-            && prevVerse.start?.chapter == verse.chapter)
+            && window.hasChapterLoaded(verse.chapter)
+        )
         {
             window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
             PassageChangeMediator.getInstance().contentChangeFinished()
