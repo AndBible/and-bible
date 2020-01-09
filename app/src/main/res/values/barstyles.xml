@@ -47,8 +47,8 @@
 		<item name="speakTransportBackground">#000000</item>
 		<item name="transportBarHeight">75dp</item>
 
-		<item name="separatorBackgroundColor">#FF6B6B6B</item>
-		<item name="separatorActiveBackgroundColor">#B1B1B1</item>
+		<item name="separatorBackgroundColor">#333333</item>
+		<item name="separatorActiveBackgroundColor">#838383</item>
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
 	</style>
 
