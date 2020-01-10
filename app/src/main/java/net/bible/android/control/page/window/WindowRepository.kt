@@ -36,6 +36,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
 
+class IncrementBusyCount
+class DecrementBusyCount
+
 @ApplicationScope
 open class WindowRepository @Inject constructor(
         // Each window has its own currentPageManagerProvider to store the different state e.g.
@@ -50,10 +53,13 @@ open class WindowRepository @Inject constructor(
 
     val isBusy get() = busyCount > 0
 
-    fun updateBusyCount(diff: Int) {
-        synchronized(this) {
-            busyCount += diff
-        }
+
+    fun onEventMainThread(event: IncrementBusyCount) {
+        busyCount ++
+    }
+
+    fun onEventMainThread(event: DecrementBusyCount) {
+        busyCount --
     }
 
     var id: Long = 0

@@ -473,7 +473,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
-        if (window == event.window && handler != null) {
+        if (window == event.window) {
             scrollOrJumpToVerseOnUIThread(event.chapterVerse)
         }
     }
@@ -673,7 +673,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(Looper.myLooper() == Looper.getMainLooper()) {
             runnable()
         } else {
-            handler?.post(runnable)
+            post(runnable)
         }
     }
 

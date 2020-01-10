@@ -44,7 +44,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 
     fun reloadAllWindows(force: Boolean = false) {
-        windowRepository.updateBusyCount(1)
+        ABEventBus.getDefault().post(IncrementBusyCount())
         if(force)
             setResyncRequired()
 
@@ -55,14 +55,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
             if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
                 window.updateText()
         }
-        windowRepository.updateBusyCount(-1)
+        ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
      */
 
     fun synchronizeWindows(sourceWindow_: Window? = null) {
-        windowRepository.updateBusyCount(1)
+        ABEventBus.getDefault().post(IncrementBusyCount())
         val sourceWindow = sourceWindow_?: windowRepository.activeWindow
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
@@ -110,7 +110,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
 
         lastSynchWasInNightMode = ScreenSettings.nightMode
-        windowRepository.updateBusyCount(-1)
+        ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not

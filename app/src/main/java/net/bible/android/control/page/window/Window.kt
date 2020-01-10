@@ -101,7 +101,10 @@ open class Window (
 
     var updateOngoing = false
         set(value) {
-            windowRepository.updateBusyCount(if(value) 1 else -1)
+            ABEventBus.getDefault().post(
+                if(value) IncrementBusyCount()
+                else DecrementBusyCount()
+            )
             field = value
             Log.d(TAG, "updateOngoing set to $value")
         }
