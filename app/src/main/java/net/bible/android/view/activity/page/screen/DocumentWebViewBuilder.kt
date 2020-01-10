@@ -548,7 +548,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createCloseButton(window: Window): Button {
         return createTextButton("X",
             { v -> windowControl.closeWindow(window)},
-            { v -> showPopupWindow(window, v); true},
+            { v -> false},
             window
         )
     }
