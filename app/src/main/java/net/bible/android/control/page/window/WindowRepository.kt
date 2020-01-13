@@ -54,12 +54,16 @@ open class WindowRepository @Inject constructor(
     val isBusy get() = busyCount > 0
 
 
-    fun onEventMainThread(event: IncrementBusyCount) {
-        busyCount ++
+    fun onEvent(event: IncrementBusyCount) {
+        synchronized(this) {
+            busyCount ++
+        }
     }
 
-    fun onEventMainThread(event: DecrementBusyCount) {
-        busyCount --
+    fun onEvent(event: DecrementBusyCount) {
+        synchronized(this) {
+            busyCount --
+        }
     }
 
     var id: Long = 0
