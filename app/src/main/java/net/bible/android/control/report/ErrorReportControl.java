@@ -53,7 +53,7 @@ public class ErrorReportControl {
 		emailer.send(title, "errors.andbible@gmail.com", subject, text);
 	}
 	
-	private String createErrorText(Exception exception) {
+	public String createErrorText(Exception exception) {
 		try {
 			StringBuilder text = new StringBuilder();
 			text.append("And Bible version: ").append(CommonUtils.INSTANCE.getApplicationVersionName()).append("\n");

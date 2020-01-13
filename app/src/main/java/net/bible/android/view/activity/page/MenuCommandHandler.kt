@@ -23,6 +23,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -33,13 +34,17 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.core.content.FileProvider
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
+import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -61,6 +66,12 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
+import java.util.zip.GZIPOutputStream
 
 import javax.inject.Inject
 
@@ -78,7 +89,8 @@ constructor(private val callingActivity: MainBibleActivity,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val documentViewManager: DocumentViewManager
+            private val documentViewManager: DocumentViewManager,
+            private val errorReportControl: ErrorReportControl
 ) {
 
     /**
@@ -194,6 +206,9 @@ constructor(private val callingActivity: MainBibleActivity,
                     backupControl.backupDatabaseViaIntent(callingActivity)
                     isHandled = true
                 }
+                R.id.bugReport -> {
+                    reportBug()
+                }
                 R.id.restore -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "application/*"
@@ -213,6 +228,51 @@ constructor(private val callingActivity: MainBibleActivity,
         }
 
         return isHandled
+    }
+
+    private fun reportBug() {
+        // TODO: refactor this to ErrorReportControl later.
+        val log=StringBuilder()
+        try {
+            val process = Runtime.getRuntime().exec("logcat -d -t 10000")
+            val bufferedReader = BufferedReader(
+                InputStreamReader(process.inputStream))
+
+            var line = bufferedReader.readLine()
+            while (line != null)
+            {
+                log.append(line + '\n');
+                line = bufferedReader.readLine()
+            }
+        } catch (e: IOException) {}
+
+
+        val subject = callingActivity.getString(R.string.report_bug_subject, CommonUtils.applicationVersionName)
+        val message = callingActivity.getString(R.string.report_bug_message, errorReportControl.createErrorText(null))
+
+        val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
+        dir.mkdirs()
+
+        val f = File(dir, "logcat.txt.gz")
+
+        val fOut = FileOutputStream(f)
+        val osw = GZIPOutputStream(fOut)
+
+        osw.write(log.toString().toByteArray());
+        osw.flush()
+        osw.close()
+
+        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
+        val email = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, message)
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
+            type = "application/x-gzip"
+        }
+        val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_a_bug_report_title))
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        callingActivity.startActivity(chooserIntent)
     }
 
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {

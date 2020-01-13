@@ -69,7 +69,7 @@ class BackupControl @Inject constructor() {
             putExtra(Intent.EXTRA_TEXT, message)
             type = "application/x-sqlite3"
         }
-		val chooserIntent = Intent.createChooser(email, "Send")
+		val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_backup_file))
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 		callingActivity.startActivity(chooserIntent)
     }

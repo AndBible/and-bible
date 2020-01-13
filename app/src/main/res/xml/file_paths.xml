@@ -19,4 +19,5 @@
 
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <files-path name="andBibleDatabase.db" path="backup"/>
+    <files-path name="logcat.txt.gz" path="log"/>
 </paths>
