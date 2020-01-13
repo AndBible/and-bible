@@ -243,66 +243,71 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var lastUpdated = 0L
 
     override fun show(html: String, updateLocation: Boolean) {
+        synchronized(this) {
+            var finalHtml = html
+            // set background colour if necessary
+            changeBackgroundColour()
 
-        var finalHtml = html
-        // set background colour if necessary
-        changeBackgroundColour()
+            // call this from here because some documents may require an adjusted font size e.g. those using Greek font
+            applyFontSize()
 
-        // call this from here because some documents may require an adjusted font size e.g. those using Greek font
-        applyFontSize()
+            val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
+            finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
-        val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
-        finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
+            val currentPage = window.pageManager.currentPage
 
-        val currentPage = window.pageManager.currentPage
-
-        if(lastUpdated == 0L || updateLocation) {
-            if (currentPage is CurrentBiblePage) {
-                jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
-            } else {
-                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
+            if (lastUpdated == 0L || updateLocation) {
+                if (currentPage is CurrentBiblePage) {
+                    jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+                } else {
+                    jumpToYOffsetRatio = currentPage.currentYOffsetRatio
+                }
             }
+            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
+
+            // either enable verse selection or the default text selection
+            enableSelection()
+
+            // allow zooming if map
+            enableZoomForMap(pageControl.currentPageManager.isMapShown)
+
+            contentVisible = false
+            lastUpdated = System.currentTimeMillis()
+            loadedChapters.clear()
+
+            val chapter = jumpToChapterVerse?.chapter
+            if (chapter != null) {
+                loadedChapters.add(chapter)
+            }
+
+            val jumpToChapterVerse = jumpToChapterVerse
+            val jumpId = jumpToChapterVerse?.let { getIdToJumpTo(it) }
+            val settingsString = "{jumpToChapterVerse: '$jumpId', jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
+
+            finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
+            lastestHtml = finalHtml
         }
-        Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
-
-        // either enable verse selection or the default text selection
-        enableSelection()
-
-        // allow zooming if map
-        enableZoomForMap(pageControl.currentPageManager.isMapShown)
-
-        contentVisible = false
-        lastUpdated = System.currentTimeMillis()
-        loadedChapters.clear()
-        val chapter = jumpToChapterVerse?.chapter
-        if(chapter != null) {
-            loadedChapters.add(chapter)
-        }
-
-
-        val jumpToChapterVerse = jumpToChapterVerse
-        val jumpId = jumpToChapterVerse?.let { getIdToJumpTo(it) }
-        val settingsString = "{jumpToChapterVerse: '$jumpId', jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
-
-        finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
-        lastestHtml = finalHtml
-
         if(!updateOngoing) {
             loadHtml()
         } else {
-            needsUpdate = true
+            synchronized(this) {
+                needsUpdate = true
+            }
         }
     }
 
     private fun loadHtml() {
-        val html = lastestHtml
-        val containsDocument = html.contains("andbible.initialize")
-        needsUpdate = false
-        if(containsDocument) {
-            updateOngoing = true
-        } else {
-            updateOngoing = false
-            contentVisible = true
+        var html = ""
+        synchronized(this) {
+            html = lastestHtml
+            val containsDocument = html.contains("andbible.initialize")
+            needsUpdate = false
+            if (containsDocument) {
+                updateOngoing = true
+            } else {
+                updateOngoing = false
+                contentVisible = true
+            }
         }
         loadDataWithBaseURL("file:///android_asset/window-${window.id}", html, "text/html", "UTF-8", "http://andbible-window-${window.id}")
     }
@@ -700,16 +705,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun setContentReady() {
-        if(needsUpdate) {
-            runOnUiThread {
-                loadHtml()
+        synchronized(this) {
+            if(needsUpdate) {
+                runOnUiThread {
+                    loadHtml()
+                }
+            } else {
+                updateOngoing = false
+                contentVisible = true
+                jumpToYOffsetRatio = null
             }
-        } else {
-            updateOngoing = false
-            contentVisible = true
-            jumpToYOffsetRatio = null
         }
-
     }
 
     fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
