@@ -2,15 +2,15 @@ And Bible es una aplicación Bíblica de código abierto, que no necesita conexi
 
 * Biblias, comentarios, diccionarios teológicos, mapas y libros Cristianos en más de 700 idiomas.
 * Sin necesidad de internet después de la descarga inicial, puede usar la búsqueda, notas, comentarios, etc.
-* Interface in multiple languages
+* Interfaz en múltiples idiomas
 * Varios planes de lectura de la Biblia
 * Totalmente gratis, sin anuncios, sin correos electrónicos
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Más de 40 Biblias en inglés incluyendo KJV y NET (ESV solía estar también y estamos intentando tenerla de nuevo, vea las preguntas frecuentes (en inglés): https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 comentarios Bíblicos
 * Extensa colección de diccionarios y libros Cristianos
 * Todos los documentos son distribuidos legalmente (razón por la cual los documentos como NKJV y NIV no están disponibles)
 * La integración de Strong permite el análisis de palabras Griegas y Hebreas
-* Multiple workspaces with split screen
+* Múltiples espacios con pantalla dividida
 * Escriba notas personales
 * Búsqueda flexible
 * Marcadores
@@ -24,7 +24,7 @@ And Bible es una aplicación Bíblica de código abierto, que no necesita conexi
 
 Todos somos voluntarios; no enviamos correos electrónicos molestos; no mostramos anuncios; nunca solicitamos ni recibimos donaciones; no solicitamos registro; And Bible no recopila ningún dato de su dispositivo móvil.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+La procedencia de todos los documentos se investiga a fondo para asegurar que todos los documentos pueden distribuirse legalmente o bien se ha obtenido permiso del titular de los derechos de autor. Esta es también la razón por la que And Bible no puede contener documentos como NIV o NKJV.
 
 <b>Notas</b>
 * Dé Me Gusta a And Bible en Facebook: https://www.facebook.com/AndBible/

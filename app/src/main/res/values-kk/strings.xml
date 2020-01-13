@@ -3,6 +3,8 @@
   <string name="app_name">Киелі Кітап</string>
   <!--Startup & Help-->
   <string name="splash_top_text">Сонда Құдай: «Жарық пайда болсын!» — деп бұйырды. Осылай жарық пайда болды.</string>
+  <string name="help_text">Әрекет\тер үшін мәзір түймесін басыңыз. Қадағалау (трэк бол) құралын,  Сенсор (D-пэд) құралын пайдаланып немесе бейнені бармақпен сілтеп келесі не алдыңғы тарауға өтіңіз</string>
+  <string name="help_nav_title">Навигация</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және Киелі Кітап қайта қосыңыз.</string>
   <!--Main menu-->
