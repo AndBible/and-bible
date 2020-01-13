@@ -247,8 +247,8 @@ constructor(private val callingActivity: MainBibleActivity,
         } catch (e: IOException) {}
 
 
-        val subject = callingActivity.getString(R.string.report_bug_subject, CommonUtils.applicationVersionName)
-        val message = callingActivity.getString(R.string.report_bug_message, errorReportControl.createErrorText(null))
+        val subject = callingActivity.getString(R.string.report_bug_email_subject, CommonUtils.applicationVersionName)
+        val message = callingActivity.getString(R.string.report_bug_email_message, errorReportControl.createErrorText(null))
 
         val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
         dir.mkdirs()
@@ -270,7 +270,7 @@ constructor(private val callingActivity: MainBibleActivity,
             putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
             type = "application/x-gzip"
         }
-        val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_a_bug_report_title))
+        val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_bug_report_title))
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         callingActivity.startActivity(chooserIntent)
     }

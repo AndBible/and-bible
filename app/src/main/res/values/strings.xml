@@ -437,9 +437,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="send_backup_file">Send a backup file</string>
 
     <!-- Bug reporting -->
-    <string name="send_bug_report">Report a bug…</string>
-    <string name="report_bug_subject">Bug report for And Bible %s</string>
-    <string name="report_bug_message">
+    <string name="send_bug_report_title">Report a bug…</string>
+    <string name="report_bug_email_subject">Bug report for And Bible %s</string>
+    <string name="report_bug_email_message">
         Please use this function to report as soon as you have noticed it taking place.\n
         \n
         Tell us briefly what did you do / what happened when issue
@@ -447,7 +447,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         \n
         Device info: \n
         %s</string>
-    <string name="send_a_bug_report_title">Send a bug report</string>
 
     <!-- Document types -->
     <string name="doc_type_bible">Bible</string>

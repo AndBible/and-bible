@@ -86,7 +86,7 @@
                 android:icon="@drawable/ic_help_white_24dp"/>
 
             <item android:id="@+id/bugReport"
-                android:title="@string/send_bug_report"
+                android:title="@string/send_bug_report_title"
                 android:icon="@drawable/ic_bug_report_white_24dp"/>
         </menu>
     </item>
