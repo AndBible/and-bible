@@ -77,13 +77,13 @@
     <item
         android:title="@string/help">
         <menu>
-            <item android:id="@+id/rateButton"
-                android:title="@string/rate_application"
-                android:icon="@drawable/ic_rate_review_white_24dp"/>
-
             <item android:id="@+id/helpButton"
                 android:title="@string/help"
                 android:icon="@drawable/ic_help_white_24dp"/>
+
+            <item android:id="@+id/rateButton"
+                android:title="@string/rate_application"
+                android:icon="@drawable/ic_rate_review_white_24dp"/>
 
             <item android:id="@+id/bugReport"
                 android:title="@string/send_bug_report_title"
