@@ -339,7 +339,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateMinimizedButtonLetter(w: Window) {
-        restoreButtons.find { it.window.id == w.id }?.text = getDocumentInitial(w)
+        restoreButtons.find { it.window?.id == w.id }?.text = getDocumentInitial(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -558,7 +558,7 @@ class DocumentWebViewBuilder @Inject constructor(
         val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
             { v -> windowControl.unmaximiseWindow(window); true},
-            window
+            null
         )
         return b
     }
@@ -595,7 +595,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window): WindowButton {
+                                 window: Window?): WindowButton {
         return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
             this.text = text
             width = BUTTON_SIZE_PX
@@ -643,14 +643,14 @@ class DocumentWebViewBuilder @Inject constructor(
         return tag != null && tag == TAG
     }
 
-    private class WindowButton(context: Context, val window: Window, var activeWindow: Window): AppCompatButton(context) {
+    private class WindowButton(context: Context, val window: Window?, var activeWindow: Window): AppCompatButton(context) {
         init {
             updateBackground()
         }
 
         fun updateBackground() {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                setBackgroundResource(if (window.id == activeWindow.id) R.drawable.window_button_active else R.drawable.window_button)
+                setBackgroundResource(if (window?.id == activeWindow.id) R.drawable.window_button_active else R.drawable.window_button)
             }
         }
 
