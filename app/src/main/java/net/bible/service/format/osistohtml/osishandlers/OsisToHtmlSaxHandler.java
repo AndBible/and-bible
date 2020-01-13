@@ -239,7 +239,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		// only put top/bottom insert positions in main/non-fragment page
 		if (!parameters.isAsFragment()) {
-			write("<div id='bottomOfBibleText'></div></div>" + jsTag  + "  </body></html>");
+			write("<div id='bottomOfBibleText'></div></div>" + jsTag  + "<script type='text/javascript'>andbible.initialize(INITIALIZE_SETTINGS);</script></body></html>");
 		}
 	}
 

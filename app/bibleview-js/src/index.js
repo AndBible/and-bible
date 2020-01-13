@@ -15,22 +15,11 @@ import {
     unhighlightVerse
 } from "./highlighting";
 
-function initialize() {
-    console.log("js-side load!", event.timeStamp, event);
+function initialize(settings) {
     initializeListeners();
     initializeInfiniScroll();
-    jsInterface.triggerJumpToOffset();
-    // this will eventually call back setupContent
+    setupContent(settings)
 }
-
-let initialized = false;
-
-window.addEventListener("DOMContentLoaded",  async (event) => {
-    if(!initialized) {
-        initialize();
-        initialized = true;
-    }
-});
 
 window.andbible = {
     registerVersePositions,
@@ -48,4 +37,5 @@ window.andbible = {
     setToolbarOffset,
     scrollToVerse,
     setupContent,
+    initialize
 };

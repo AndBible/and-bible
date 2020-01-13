@@ -246,10 +246,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val currentPage = window.pageManager.currentPage
 
         if(lastUpdated == 0L || updateLocation) {
-            if (currentPage !is CurrentBiblePage) {
-                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
-            } else {
+            if (currentPage is CurrentBiblePage) {
                 jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+            } else {
+                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             }
         }
         Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
@@ -267,6 +267,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(chapter != null) {
             loadedChapters.add(chapter)
         }
+
+
+        val jumpToChapterVerse = jumpToChapterVerse
+        val jumpId = jumpToChapterVerse?.let { getIdToJumpTo(it) }
+        val settingsString = "{jumpToChapterVerse: '$jumpId', jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
+
+        finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
 
         loadDataWithBaseURL("file:///android_asset/window-${window.id}", finalHtml, "text/html", "UTF-8", "http://andbible-window-${window.id}")
     }
@@ -286,33 +293,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var contentVisible = false
 
-    fun jumpToOffset() {
-        runOnUiThread {
-            bibleJavascriptInterface.notificationsEnabled = windowControl.isActiveWindow(window)
-
-            val jumpToYOffsetRatio = jumpToYOffsetRatio
-            val jumpToChapterVerse = jumpToChapterVerse
-
-            // go to any specified verse or offset
-            if (jumpToChapterVerse!=null) {
-                // must clear jumpToChapterVerse because setting location causes another onPageFinished
-                this.jumpToChapterVerse = null
-
-                scrollOrJumpToVerse(jumpToChapterVerse)
-            }
-            else if (jumpToYOffsetRatio != null) {}
-            else {
-                Log.e(TAG, "Jump to offset does not know where to jump! But jumping anyway.")
-                val loc = window.pageManager.currentBible.currentChapterVerse
-                scrollOrJumpToVerse(loc)
-            }
-            if(contentVisible) {
-                Log.e(TAG, "Content visible already!")
-            }
-            executeJavascript("setupContent({isBible:${window.pageManager.isBibleShown}, " +
-                "jumpToYOffsetRatio:$jumpToYOffsetRatio, toolBarOffset:${toolbarOffset}})")
-        }
-    }
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {

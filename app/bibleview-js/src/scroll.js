@@ -1,4 +1,3 @@
-import {addWaiter, Deferred} from "./utils";
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 import {registerVersePositions} from "./bibleview";
 
@@ -88,13 +87,11 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export const isReady = new Deferred();
-addWaiter(isReady);
-
-export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset} = {}) {
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset} = {}) {
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
-    if(isBible) {
+    if(jumpToChapterVerse != null) {
+        scrollToVerse(jumpToChapterVerse, true);
         enableVerseLongTouchSelectionMode();
     } else if(doScroll) {
         console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
@@ -106,9 +103,6 @@ export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset
         console.log("scrolling to beginning of document (now)");
         scrollToVerse(null, true);
     }
-
-    isReady.resolve();
-
     // requestAnimationFrame should make sure that contentReady is set only after
     // initial scrolling has been performed so that we don't get onScroll during initialization
     // in Java side.
