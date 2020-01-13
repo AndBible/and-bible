@@ -99,16 +99,6 @@ open class Window (
         return "Window[$id]"
     }
 
-    var updateOngoing = false
-        set(value) {
-            ABEventBus.getDefault().post(
-                if(value) IncrementBusyCount()
-                else DecrementBusyCount()
-            )
-            field = value
-            Log.d(TAG, "updateOngoing set to $value")
-        }
-
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
         set(value) {
@@ -121,14 +111,12 @@ open class Window (
         if(pageManager.currentPage is CurrentMyNotePage) return
 
         val stackMessage: String? = Log.getStackTraceString(Exception())
-        val updateOngoing = updateOngoing
         val isVisible = isVisible
 
-        Log.d(TAG, "updateText, updateOngoing: $updateOngoing isVisible: $isVisible, stack: $stackMessage")
+        Log.d(TAG, "updateText, isVisible: $isVisible, stack: $stackMessage")
 
-        if(updateOngoing || !isVisible) return
+        if(!isVisible) return
 
-        this.updateOngoing = true;
         if(documentViewManager != null) {
             UpdateMainTextTask(documentViewManager).execute(this)
 

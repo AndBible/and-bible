@@ -41,6 +41,8 @@ import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.window.DecrementBusyCount
+import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.DocumentView
@@ -106,6 +108,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     var toBeDestroyed = false
+    var lastestHtml: String = ""
+    var needsUpdate: Boolean = false
+    var updateOngoing: Boolean = false
+        set(value) {
+            if(value != field) {
+                ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
+            }
+            field = value
+        }
 
     var window: Window
         get() = windowRef.get()!!
@@ -274,8 +285,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val settingsString = "{jumpToChapterVerse: '$jumpId', jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
 
         finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
+        lastestHtml = finalHtml
 
-        loadDataWithBaseURL("file:///android_asset/window-${window.id}", finalHtml, "text/html", "UTF-8", "http://andbible-window-${window.id}")
+        if(!updateOngoing) {
+            loadHtml()
+        } else {
+            needsUpdate = true
+        }
+    }
+
+    private fun loadHtml() {
+        val html = lastestHtml
+        val containsDocument = html.contains("andbible.initialize")
+        needsUpdate = false
+        if(containsDocument) {
+            updateOngoing = true
+        } else {
+            updateOngoing = false
+            contentVisible = true
+        }
+        loadDataWithBaseURL("file:///android_asset/window-${window.id}", html, "text/html", "UTF-8", "http://andbible-window-${window.id}")
     }
 
     /**
@@ -296,7 +325,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
-        if(window.updateOngoing) return false
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
@@ -312,7 +340,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** prevent swipe left if the user is scrolling the page left  */
     override val isPagePreviousOkay: Boolean get () {
-        if(window.updateOngoing) return false
         var isOkay = true
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
@@ -673,9 +700,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun setContentReady() {
-        contentVisible = true;
-        window.updateOngoing = false
-        jumpToYOffsetRatio = null
+        if(needsUpdate) {
+            runOnUiThread {
+                loadHtml()
+            }
+        } else {
+            updateOngoing = false
+            contentVisible = true
+            jumpToYOffsetRatio = null
+        }
+
     }
 
     fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
