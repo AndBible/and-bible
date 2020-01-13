@@ -272,6 +272,7 @@ open class WindowControl @Inject constructor(
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
         windowSync.synchronizeWindows()
+        windowSync.reloadAllWindows()
     }
 
     fun closeCurrentWindow() {
