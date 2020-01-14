@@ -107,10 +107,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
-    var toBeDestroyed = false
-    var lastestHtml: String = ""
-    var needsUpdate: Boolean = false
-    var updateOngoing: Boolean = false
+    private var toBeDestroyed = false
+    private var lastestHtml: String = ""
+    private var needsUpdate: Boolean = false
+    private var updateOngoing: Boolean = false
         set(value) {
             if(value != field) {
                 ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
@@ -121,9 +121,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var window: Window
         get() = windowRef.get()!!
         set(value) {
-            if(value !== windowRef.get()!!) {
-                windowRef = WeakReference(value)
-            }
+            windowRef = WeakReference(value)
         }
 
     class BibleViewTouched(val onlyTouch: Boolean = false)
