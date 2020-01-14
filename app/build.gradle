@@ -19,7 +19,8 @@ task npmInstall(type: Exec) {
     outputs.dir "bibleview-js/node_modules"
 
     workingDir "bibleview-js"
-    commandLine "/usr/bin/env", "npm", "install"
+    commandLine "/usr/bin/env", "npm", "install", "npm@latest"
+    commandLine "node_modules/.bin/npm", "install"
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
