@@ -121,7 +121,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var window: Window
         get() = windowRef.get()!!
         set(value) {
-            windowRef = WeakReference(value)
+            if(value !== windowRef.get()!!) {
+                windowRef = WeakReference(value)
+            }
         }
 
     class BibleViewTouched(val onlyTouch: Boolean = false)
@@ -220,6 +222,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         listenEvents = false
         Log.d(TAG, "Destroying Bibleview")
         super.destroy()
+        val win = windowRef.get()
+        if(win != null && win.bibleView === this) {
+            win.bibleView = null
+        }
+
         onDestroy?.invoke()
     }
 

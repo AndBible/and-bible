@@ -24,7 +24,6 @@ import net.bible.service.common.CommonUtils
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
 import org.jetbrains.anko.configuration
@@ -34,7 +33,7 @@ import org.jetbrains.anko.configuration
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object ScreenSettings {
-    private val mLightSensor: LightSensor = LightSensor { reading ->
+    private val lightSensor: LightSensor = LightSensor { reading ->
         if(autoNightMode) {
             val oldValue = lastNightMode
             if(reading <= MAX_DARK_READING) {
@@ -67,11 +66,11 @@ object ScreenSettings {
     private val autoNightMode	get() =
         autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
 
-    val autoModeAvailable = mLightSensor.isLightSensor
+    val autoModeAvailable = lightSensor.isLightSensor
 
     fun refreshNightMode(): Boolean {
         lastNightMode = if(autoNightMode) {
-            mLightSensor.reading < DARK_READING_THRESHOLD
+            lightSensor.reading < DARK_READING_THRESHOLD
         } else
             nightMode
         return lastNightMode

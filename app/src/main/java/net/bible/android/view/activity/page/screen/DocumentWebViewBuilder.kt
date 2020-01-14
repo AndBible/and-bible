@@ -534,7 +534,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     fun getView(window: Window): BibleView {
-        return bibleViewFactory.createBibleView(window)
+        return bibleViewFactory.getOrCreateBibleView(window)
     }
 
     private fun createSingleWindowButton(window: Window): Button {

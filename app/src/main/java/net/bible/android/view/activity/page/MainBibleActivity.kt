@@ -993,6 +993,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
+                bibleViewFactory.clear()
                 recreate()
                 currentNightMode = isNightMode
                 return true
@@ -1107,6 +1108,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
             mainMenuCommandHandler.isDisplayRefreshRequired(requestCode) -> {
                 preferenceSettingsChanged()
+                ScreenSettings.refreshNightMode()
+                refreshIfNightModeChange()
             }
             mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActions()
         }
