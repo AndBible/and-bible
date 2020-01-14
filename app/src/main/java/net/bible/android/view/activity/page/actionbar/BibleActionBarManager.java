@@ -67,6 +67,10 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 		updateButtons();
 	}
 
+	public void destroy() {
+		ABEventBus.getDefault().unregister(this);
+	}
+
 	/* (non-Javadoc)
 	 * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#prepareOptionsMenu(android.app.Activity, android.view.Menu, android.support.v7.app.ActionBar, net.bible.android.view.activity.page.MenuCommandHandler)
 	 */

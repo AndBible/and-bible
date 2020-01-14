@@ -88,8 +88,10 @@ import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils
@@ -124,6 +126,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     @Inject
     lateinit var documentViewManager: DocumentViewManager
+
+    @Inject
+    lateinit var documentWebViewBuilder: DocumentWebViewBuilder
+
+    @Inject lateinit var bibleActionBarManager: BibleActionBarManager
+
     @Inject
     lateinit var windowControl: WindowControl
     @Inject
@@ -987,6 +995,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     var currentNightMode: Boolean = false
 
+    private fun beforeDestroy() {
+        bibleViewFactory.clear()
+        documentViewManager.destroy()
+        documentWebViewBuilder.destroy()
+        bibleActionBarManager.destroy()
+    }
+
     fun refreshIfNightModeChange(): Boolean {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
@@ -994,7 +1009,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
-                bibleViewFactory.clear()
+                beforeDestroy()
                 recreate()
                 currentNightMode = isNightMode
                 return true

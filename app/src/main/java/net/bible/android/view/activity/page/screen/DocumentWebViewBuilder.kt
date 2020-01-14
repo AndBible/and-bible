@@ -23,10 +23,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.text.TextUtils
-
-import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.view.menu.MenuPopupHelper
-import androidx.appcompat.widget.PopupMenu
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -39,8 +35,10 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.AppCompatButton
-
+import androidx.appcompat.widget.PopupMenu
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
@@ -58,7 +56,6 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import java.util.*
-
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -125,6 +122,10 @@ class DocumentWebViewBuilder @Inject constructor(
      */
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         isWindowConfigurationChanged = true
+    }
+
+    fun destroy() {
+        ABEventBus.getDefault().unregister(this)
     }
 
     /**

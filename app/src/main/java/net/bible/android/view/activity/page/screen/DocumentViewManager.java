@@ -60,6 +60,10 @@ public class DocumentViewManager {
 
 		ABEventBus.getDefault().register(this);
 	}
+
+	public void destroy() {
+		ABEventBus.getDefault().unregister(this);
+	}
 	
 	public void onEvent(NumberOfWindowsChangedEvent event) {
 		buildView();
