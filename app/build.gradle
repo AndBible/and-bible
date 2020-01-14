@@ -14,9 +14,10 @@ def getGitHash = { ->
 }
 
 task npmUpgrade(type: Exec) {
+    inputs.file "bibleview-js/package.json"
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
-    commandLine "/usr/bin/env", "npm", "install", "npm@~6.13.6"
+    commandLine "/usr/bin/env", "npm", "install", "npm@latest"
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
