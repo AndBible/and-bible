@@ -175,8 +175,11 @@ class CurrentBiblePage(
     var currentChapterVerse: ChapterVerse
         get() = currentBibleVerse.chapterVerse
         set(chapterVerse) {
-            currentBibleVerse.chapterVerse = chapterVerse
-            onVerseChange()
+            val oldChapterVerse = currentBibleVerse.chapterVerse
+            if(chapterVerse != oldChapterVerse) {
+                currentBibleVerse.chapterVerse = chapterVerse
+                onVerseChange()
+            }
         }
 
     //TODO allow japanese search - japanese bibles use smartcn which is not available
