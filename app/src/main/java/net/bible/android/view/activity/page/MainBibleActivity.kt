@@ -929,6 +929,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onDestroy() {
         super.onDestroy()
+        beforeDestroy()
         ABEventBus.getDefault().unregister(this)
     }
 
@@ -1009,7 +1010,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
-                beforeDestroy()
                 recreate()
                 currentNightMode = isNightMode
                 return true
