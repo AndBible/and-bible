@@ -36,6 +36,7 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
+  <string name="other">Inne</string>
   <string name="administration">Zarządzanie</string>
   <string name="rate_application">Oceń w sklepie Google Play</string>
   <string name="chooce_document">Wybór dokumentu</string>
@@ -345,6 +346,17 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="about_copyright">Prawa autorskie: %s</string>
   <string name="about_version">Wersja: %s</string>
   <string name="about_versification">Wersyfikacja: %s</string>
+  <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Zgłoś błąd</string>
+  <string name="report_bug_email_subject">Raport o błędzie programu And Bible %s</string>
+  <string name="report_bug_email_message">
+Prosimy użyć tej funkcji, aby zgłosić błąd tuż po tym jak on wystąpił.\n
+\n
+Krótko opisz co zrobiłeś / co się stało kiedy wystąpił problem: \n
+\n
+Informacje o urządzeniu: \n
+%s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentarz</string>

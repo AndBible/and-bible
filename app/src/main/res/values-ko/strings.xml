@@ -188,6 +188,7 @@
   <string name="about_copyright">저작권: %s</string>
   <string name="about_version">버전의 %s</string>
   <string name="about_versification">시형: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">성경</string>
   <string name="doc_type_commentary">논평</string>

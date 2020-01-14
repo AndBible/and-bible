@@ -375,6 +375,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versión: %s</string>
   <string name="about_versification">Versificación: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Comentario</string>

@@ -156,6 +156,7 @@
   <!--Backup and restore-->
   <string name="backup_success">I miei appunti e i miei segnalibri salvati %s sulla carta \'SD\'</string>
   <!--About-->
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">La Bibbia</string>
   <string name="doc_type_commentary">Commento</string>

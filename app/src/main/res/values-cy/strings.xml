@@ -200,6 +200,7 @@
   <string name="about_copyright">Hawlfraint: %s</string>
   <string name="about_version">Fersiwn: %s</string>
   <string name="about_versification">Rhifau adnodau: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Beibl</string>
   <string name="doc_type_commentary">Esboniad</string>

@@ -325,6 +325,7 @@
   <string name="about_copyright">Autoriõigused: %s</string>
   <string name="about_version">Versioon: %s</string>
   <string name="about_versification">Salmideks jagamine: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Piibel</string>
   <string name="doc_type_commentary">Kommentaar</string>

@@ -158,6 +158,7 @@
   <!--Backup and restore-->
   <string name="backup_success">บันทึกย่อและที่คั่นหน้าของฉันได้บันทึกไว้ใน %s บนการ์ด SD</string>
   <!--About-->
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">พระคัมภีร์</string>
   <string name="doc_type_commentary">คู่มืออธิบายพระคัมภีร์</string>

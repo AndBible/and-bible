@@ -160,6 +160,7 @@
   <!--About-->
   <string name="about_version">Έκδοση: %s</string>
   <string name="about_versification">Στιχουργία: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Αγία Γραφή</string>
   <string name="doc_type_commentary">Σχόλια</string>

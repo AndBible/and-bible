@@ -272,6 +272,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="about_copyright">%sMualliflik Huquqi</string>
   <string name="about_version">Versiya: %s</string>
   <string name="about_versification">Versifikatsiya: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Muqaddas Kitob</string>
   <string name="doc_type_commentary">Sharh</string>

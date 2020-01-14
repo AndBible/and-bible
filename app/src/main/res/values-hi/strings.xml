@@ -161,6 +161,7 @@
   <!--About-->
   <string name="about_version">संस्करण: %s</string>
   <string name="about_versification">छंद व्यवस्था: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">बाइबिल</string>
   <string name="doc_type_commentary">कमेंटरी</string>

@@ -37,6 +37,7 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
+  <string name="other">Aliaj</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
   <string name="chooce_document">Elektu dokumenton</string>
@@ -203,7 +204,7 @@ laŭ ilia permeso.</string>
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="copy">Kopii</string>
   <string name="share_verse">Kunhavigi…</string>
-  <string name="share_verse_subject">Biblia verso kunhavigita per And Biblio.</string>
+  <string name="share_verse_subject">Verso de Biblio kunhavigita per la aplikaĵo And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Malfermi ligilon tie ĉi</string>
@@ -350,6 +351,17 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="about_copyright">Kopirajto: %s</string>
   <string name="about_version">Versio: %s</string>
   <string name="about_versification">Versarto: %s</string>
+  <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Raporti eraron…</string>
+  <string name="report_bug_email_subject">Erar‑raporto pri And Biblio %s</string>
+  <string name="report_bug_email_message">
+Bonvolu uzi tiun ĉi eblaĵon por raporti eraron tuj post kiam ĝi okazis.\n
+\n
+Koncize priskribu kion vi faris / kio okazis kiam la problemo aperis: \n
+\n
+Informoj pri aparato: \n
+%s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblio</string>
   <string name="doc_type_commentary">Komentaro</string>

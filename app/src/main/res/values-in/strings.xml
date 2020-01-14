@@ -366,6 +366,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="about_copyright">Hak cipta: %s</string>
   <string name="about_version">Versi: %s</string>
   <string name="about_versification">Versifikasi: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Alkitab</string>
   <string name="doc_type_commentary">Tafsiran</string>

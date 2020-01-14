@@ -304,6 +304,7 @@
   <string name="about_copyright">Авторское право: %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Версификация: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Комментарий</string>

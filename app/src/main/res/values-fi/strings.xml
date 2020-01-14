@@ -351,6 +351,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="about_copyright">Tekijäinoikeudet: %s</string>
   <string name="about_version">Käännös: %s</string>
   <string name="about_versification">Jaejako: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Raamattu</string>
   <string name="doc_type_commentary">Kommentaari</string>

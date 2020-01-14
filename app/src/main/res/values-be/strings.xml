@@ -189,6 +189,7 @@
   <string name="about_copyright">Аўтарскае права: %s</string>
   <string name="about_version">Вэрсія: %s</string>
   <string name="about_versification">Вершаскладаньне: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Біблія</string>
   <string name="doc_type_commentary">Каментары</string>

@@ -189,6 +189,7 @@
   <!--About-->
   <string name="about_version">Versija: %s</string>
   <string name="about_versification">Pantu atšķirības: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bībele</string>
   <string name="doc_type_commentary">Komentāri</string>

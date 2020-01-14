@@ -363,6 +363,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
   <string name="about_versification">Beryming: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>

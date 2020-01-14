@@ -370,6 +370,7 @@
   <string name="about_copyright">Авторське право: %s</string>
   <string name="about_version">Версія: %s</string>
   <string name="about_versification">Версифікація: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Біблія</string>
   <string name="doc_type_commentary">Коментар</string>

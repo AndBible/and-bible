@@ -317,6 +317,7 @@
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versie: %s</string>
   <string name="about_versification">Versificatie: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bijbel</string>
   <string name="doc_type_commentary">Commentaar</string>

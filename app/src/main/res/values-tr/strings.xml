@@ -188,6 +188,7 @@
   <string name="about_copyright">Telif Hakkı: %s</string>
   <string name="about_version">Sürüm: %s</string>
   <string name="about_versification">Ayetleme: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>

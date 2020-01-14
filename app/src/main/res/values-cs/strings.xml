@@ -376,6 +376,7 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="about_copyright">Autorská práva: %s</string>
   <string name="about_version">Verze: %s</string>
   <string name="about_versification">Veršování: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>

@@ -167,6 +167,7 @@
   <!--About-->
   <string name="about_version">వర్షన్: %s</string>
   <string name="about_versification">పద్యములు చెప్పడము: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">బైబిలు</string>
   <string name="doc_type_commentary">వ్యాఖ్యానము</string>
