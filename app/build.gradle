@@ -17,7 +17,7 @@ task npmUpgrade(type: Exec) {
     inputs.file "bibleview-js/package.json"
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
-    commandLine "/usr/bin/env", "npm", "install", "npm@latest"
+    commandLine "/usr/bin/env", "npm", "install", "--save-dev", "npm@latest"
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
