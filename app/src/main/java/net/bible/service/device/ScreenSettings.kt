@@ -68,6 +68,10 @@ object ScreenSettings {
 
     val autoModeAvailable = lightSensor.isLightSensor
 
+    fun checkMonitoring() {
+        lightSensor.reading
+    }
+
     fun refreshNightMode(): Boolean {
         lastNightMode = if(autoNightMode) {
             lightSensor.reading < DARK_READING_THRESHOLD

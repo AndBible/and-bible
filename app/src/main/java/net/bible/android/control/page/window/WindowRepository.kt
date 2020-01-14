@@ -18,6 +18,7 @@
 
 package net.bible.android.control.page.window
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
@@ -110,6 +111,7 @@ open class WindowRepository @Inject constructor(
         set (newActiveWindow) {
             if (!::_activeWindow.isInitialized || newActiveWindow != this.activeWindow) {
                 _activeWindow = newActiveWindow
+                Log.d(TAG, "Active window: ${newActiveWindow}")
                 ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
             }
         }
@@ -347,5 +349,8 @@ open class WindowRepository @Inject constructor(
         windowList.clear()
         historyManagerProvider.get().clear()
         name = ""
+    }
+    companion object {
+        private const val TAG = "WinRep BibleView"
     }
 }

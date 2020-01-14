@@ -990,6 +990,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     fun refreshIfNightModeChange(): Boolean {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
+        ScreenSettings.checkMonitoring()
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
@@ -1063,8 +1064,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 windowControl.windowSync.setResyncRequired()
-                                bibleViewFactory.clear()
                                 runOnUiThread {
+                                    bibleViewFactory.clear()
                                     currentWorkspaceId = 0
                                 }
                             }
@@ -1108,8 +1109,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
             mainMenuCommandHandler.isDisplayRefreshRequired(requestCode) -> {
                 preferenceSettingsChanged()
-                ScreenSettings.refreshNightMode()
-                refreshIfNightModeChange()
             }
             mainMenuCommandHandler.isDocumentChanged(requestCode) -> updateActions()
         }

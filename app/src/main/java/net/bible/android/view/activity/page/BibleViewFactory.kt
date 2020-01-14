@@ -83,13 +83,10 @@ class BibleViewFactory @Inject constructor(
     }
 
     fun clear() {
-        mainBibleActivity.runOnUiThread {
-            windowBibleViewMap.forEach { it ->
-                val bw = it.value
-                bw.onDestroy = null
-                bw.destroy()
-                bw.doDestroy()
-            }
+        windowBibleViewMap.forEach { it ->
+            val bw = it.value
+            bw.onDestroy = null
+            bw.doDestroy()
         }
         windowBibleViewMap.clear()
     }

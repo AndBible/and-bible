@@ -217,6 +217,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
     fun doDestroy() {
+        if(!toBeDestroyed) {
+            destroy()
+        }
         listenEvents = false
         Log.d(TAG, "Destroying Bibleview")
         super.destroy()
@@ -224,7 +227,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(win != null && win.bibleView === this) {
             win.bibleView = null
         }
-
         onDestroy?.invoke()
     }
 
