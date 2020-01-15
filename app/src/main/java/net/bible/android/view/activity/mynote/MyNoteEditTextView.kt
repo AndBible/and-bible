@@ -97,10 +97,6 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         myNoteControl.saveMyNoteText(text!!.toString())
     }
 
-    override fun show(html: String, updateLocation: Boolean) {
-        // NO-OP. 
-    }
-
     fun load() {
         applyPreferenceSettings()
         val currentPage = myNoteControl.activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage

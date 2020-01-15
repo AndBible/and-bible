@@ -155,7 +155,7 @@ class UpdateMainTextTask(private val documentViewManager: DocumentViewManager) :
 
     /** callback from base class when result is ready  */
     override fun showText(text: String, screenToUpdate: Window) {
-        val view = documentViewManager.getDocumentView(screenToUpdate)
+        val view = documentViewManager.getDocumentView(screenToUpdate) as BibleView
         view.show(text, true)
     }
 }

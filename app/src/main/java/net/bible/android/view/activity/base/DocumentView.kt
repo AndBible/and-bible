@@ -36,8 +36,6 @@ interface DocumentView {
 
     val currentPosition: Float
 
-    fun show(html: String, updateLocation: Boolean = false)
-
     fun applyPreferenceSettings()
 
     /** may need updating depending on environmental brightness

@@ -82,9 +82,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
-    private var jumpToYOffsetRatio : Float? = null
-    private var jumpToChapterVerse: ChapterVerse? = null
-
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
 
@@ -249,7 +246,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var lastUpdated = 0L
 
-    override fun show(html: String, updateLocation: Boolean) {
+    fun show(html: String,
+                      updateLocation: Boolean = false,
+                      chapterVerse: ChapterVerse? = null,
+                      yOffsetRatio: Float? = null)
+    {
         synchronized(this) {
             var finalHtml = html
             // set background colour if necessary
@@ -262,6 +263,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
             val currentPage = window.pageManager.currentPage
+
+            var jumpToChapterVerse = chapterVerse
+            var jumpToYOffsetRatio = yOffsetRatio
 
             if (lastUpdated == 0L || updateLocation) {
                 if (currentPage is CurrentBiblePage) {
@@ -287,7 +291,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 loadedChapters.add(chapter)
             }
 
-            val jumpToChapterVerse = jumpToChapterVerse
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
             val settingsString = "{jumpToChapterVerse: $jumpId, jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
 
@@ -479,15 +482,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: UpdateSecondaryWindowEvent) {
         if (window.id == event.updateWindowId) {
             Log.d(TAG, "UpdateSecondaryWindowEvent")
-            if(event.yOffsetRatio != null) {
-                jumpToYOffsetRatio = event.yOffsetRatio
-            }
-            if(event.chapterVerse != null) {
-                jumpToChapterVerse = event.chapterVerse
-            }
 
             changeBackgroundColour()
-            show(event.html)
+            show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
         }
     }
 
@@ -720,7 +717,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             } else {
                 updateOngoing = false
                 contentVisible = true
-                jumpToYOffsetRatio = null
             }
         }
     }
