@@ -88,6 +88,7 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 }
 
 export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset} = {}) {
+    console.log("setupContent", jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(jumpToChapterVerse != null) {

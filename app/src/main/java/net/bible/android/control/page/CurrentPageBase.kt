@@ -55,7 +55,7 @@ abstract class CurrentPageBase protected constructor(
     override var currentYOffsetRatio = 0f
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
-                if (_key == null || key != keyWhenYOffsetRatioSet || currentDocument != docWhenYOffsetRatioSet) {
+                if (key == null || key != keyWhenYOffsetRatioSet || currentDocument != docWhenYOffsetRatioSet) {
                     field = 0f
                 }
             } catch (e: Exception) {
@@ -67,7 +67,7 @@ abstract class CurrentPageBase protected constructor(
             return field
         }
         set(currentYOffsetRatio) {
-            _key ?: return
+            key ?: return
             docWhenYOffsetRatioSet = currentDocument
             keyWhenYOffsetRatioSet = key
             field = currentYOffsetRatio

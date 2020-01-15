@@ -288,8 +288,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             val jumpToChapterVerse = jumpToChapterVerse
-            val jumpId = jumpToChapterVerse?.let { getIdToJumpTo(it) }
-            val settingsString = "{jumpToChapterVerse: '$jumpId', jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
+            val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
+            val settingsString = "{jumpToChapterVerse: $jumpId, jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestHtml = finalHtml
