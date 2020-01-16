@@ -18,11 +18,7 @@
 				android:key="default_bookmark_style_pref"
 				android:title="@string/prefs_default_bookmark_style_title"
 				android:summary="@string/prefs_default_bookmark_style_summary"/>
-	<SeekBarPreference android:key="text_size_pref"
-				android:title="@string/prefs_text_size_title"
-				android:defaultValue="16"
-				app:updatesContinuously="true"
-				android:max="60"/> 
+
 	<SwitchPreferenceCompat android:key="navigate_to_verse_pref"
 				android:title="@string/prefs_navigate_to_verse_title"
 				android:summary="@string/prefs_navigate_to_verse_summary"

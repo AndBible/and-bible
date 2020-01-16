@@ -76,19 +76,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         try {
             setPreferencesFromResource(R.xml.settings, rootKey)
 
-			val textSizePref = preferenceScreen.findPreference<SeekBarPreference>("text_size_pref") as SeekBarPreference
-			textSizePref.summary = "${textSizePref.value} pt"
-			textSizePref.setOnPreferenceChangeListener { p, newValue ->
-				p.summary = "${newValue} pt"
-				true
-			}
-
 			//If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
             val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref2") as ListPreference
-            if (!autoModeAvailable) {
+			if (!autoModeAvailable) {
                 nightModePref.setEntries(R.array.prefs_night_mode_descriptions_noauto)
                 nightModePref.setEntryValues(R.array.prefs_night_mode_values_noauto)
+				nightModePref.isVisible = false
             }
             if (systemModeAvailable) {
                 if (autoModeAvailable) {

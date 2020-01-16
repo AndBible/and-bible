@@ -54,7 +54,6 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.speak_transport_widget, this, true)
-        ABEventBus.getDefault().register(this)
 
         buildActivityComponent().inject(this)
 
@@ -81,7 +80,13 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         }
     }
 
+    override fun onDetachedFromWindow() {
+        ABEventBus.getDefault().register(this)
+        super.onDetachedFromWindow()
+    }
+
     override fun onAttachedToWindow() {
+        ABEventBus.getDefault().unregister(this)
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }

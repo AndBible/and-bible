@@ -71,6 +71,11 @@
 		</menu>
 	</item>
 
+	<item android:id="@+id/fontSize"
+		android:title="@string/prefs_text_size_menuitem"
+		android:checkable="false"
+		/>
+
 	<item android:id="@+id/autoFullscreen"
 		android:title="@string/auto_fullscreen"
 		android:checkable="true"

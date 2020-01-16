@@ -94,6 +94,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
+import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
@@ -592,7 +593,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             updateToolbar()
         }
 
-   private fun getItemOptions(itemId: Int) =  when(itemId) {
+    private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
         R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
@@ -613,8 +614,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
         R.id.renameWorkspace -> CommandItem({renameWorkspace()})
         R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
+        R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {
+            preferences.edit().putInt("text_size_pref", it).apply()
+            preferenceSettingsChanged()
+        } })
         else -> throw RuntimeException("Illegal menu item")
-   }
+    }
 
     private val preferences = CommonUtils.sharedPreferences
 
