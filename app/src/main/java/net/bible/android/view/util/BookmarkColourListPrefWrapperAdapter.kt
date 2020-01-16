@@ -22,28 +22,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ListAdapter
 import android.widget.TextView
-import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkStyle
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import net.bible.android.view.util.widget.ListPrefWrapperAdapter
-import net.bible.service.common.CommonUtils.getResourceString
 
 /**
  * Set each list view item to represent background colour od icon of the relevant bookmark style.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkColourListPrefWrapperAdapter(private val context: Context, origAdapter: ListAdapter?) : ListPrefWrapperAdapter(origAdapter) {
-    private val sampleText = getResourceString(R.string.prefs_text_size_sample_text)
-    private val bookmarkStyleAdapterHelper: BookmarkStyleAdapterHelper
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = super.getView(position, convertView, parent) as TextView
-        val bookmarkStyle = BookmarkStyle.values()[position]
-        bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true)
+class BookmarkColourListPrefWrapperAdapter(private val context: Context, origAdapter: ListAdapter, val selectedPosition: Int) :
+	ListPrefWrapperAdapter(origAdapter)
+{
+    private val bookmarkStyleAdapterHelper: BookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
+
+	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+		val view = super.getView(position, convertView, parent) as TextView
+		//val view = parent.getChildAt(0) as AppCompatRadioButton
+		val bookmarkStyle = BookmarkStyle.values()[position]
+		bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true, selectedPosition == position)
         return view
     }
 
-    init {
-        bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
-    }
 }

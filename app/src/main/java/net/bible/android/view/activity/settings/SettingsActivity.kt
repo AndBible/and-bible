@@ -19,48 +19,86 @@ package net.bible.android.view.activity.settings
 
 import android.content.Context
 import android.os.Bundle
-import android.preference.ListPreference
-import android.preference.PreferenceActivity
 import android.util.Log
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SeekBarPreference
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.util.BookmarkColorPreferenceDialog
+import net.bible.android.view.util.BookmarkColourPreference
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 
-/** show settings
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-class SettingsActivity : PreferenceActivity() {
+class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
-		// change theme according to light sensor
-		//UiUtils.INSTANCE.applyTheme(this, false, true);
 		super.onCreate(savedInstanceState)
-        // allow partial integration with And Bible framework - without this TTS stops
-		// putting this before the below ensures any error dialog will be displayed in front of the settings screen and not the previous screen
-		// see onStop for paired iAmNoLongerCurrent method call
-        CurrentActivityHolder.getInstance().currentActivity = this
+		setContentView(R.layout.settings_activity)
+		super.buildActivityComponent().inject(this)
+
+		CurrentActivityHolder.getInstance().currentActivity = this
+		supportFragmentManager
+			.beginTransaction()
+			.replace(R.id.settings_container, SettingsFragment())
+			.commit()
+		LocaleHelper.translateTitle(this)
+	}
+
+	override fun attachBaseContext(newBase: Context) {
+		super.attachBaseContext(LocaleHelper.onAttach(newBase))
+	}
+
+	override fun onStop() {
+		super.onStop()
+		Log.i(localClassName, "onStop")
+		// call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+		CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
+	}
+}
+
+class SettingsFragment : PreferenceFragmentCompat() {
+	override fun onDisplayPreferenceDialog(preference: Preference?) {
+		if(fragmentManager!!.findFragmentByTag("customTag") != null)
+			return
+		if(preference is BookmarkColourPreference) {
+			val f = BookmarkColorPreferenceDialog.newInstance(preference.key, preference.findIndexOfValue(preference.value))
+			f.setTargetFragment(this, 0)
+			f.show(fragmentManager!!, "customTag")
+		} else {
+			super.onDisplayPreferenceDialog(preference)
+		}
+	}
+	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         try {
-            addPreferencesFromResource(R.xml.settings)
-            //If no light sensor exists switch to old boolean check box
+            setPreferencesFromResource(R.xml.settings, rootKey)
+
+			val textSizePref = preferenceScreen.findPreference<SeekBarPreference>("text_size_pref") as SeekBarPreference
+			textSizePref.summary = "${textSizePref.value} pt"
+			textSizePref.setOnPreferenceChangeListener { p, newValue ->
+				p.summary = "${newValue} pt"
+				true
+			}
+
+			//If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-            val pref = preferenceScreen.findPreference("night_mode_pref2") as ListPreference
+            val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref2") as ListPreference
             if (!autoModeAvailable) {
-                pref.setEntries(R.array.prefs_night_mode_descriptions_noauto)
-                pref.setEntryValues(R.array.prefs_night_mode_values_noauto)
+                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_noauto)
+                nightModePref.setEntryValues(R.array.prefs_night_mode_values_noauto)
             }
             if (systemModeAvailable) {
                 if (autoModeAvailable) {
-                    pref.setEntries(R.array.prefs_night_mode_descriptions_noyes)
-                    pref.setEntryValues(R.array.prefs_night_mode_values_noyes)
+                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_noyes)
+                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_noyes)
                 } else {
-                    preferenceScreen.removePreference(pref)
+                    preferenceScreen.removePreference(nightModePref)
                 }
             }
             // if locale is overridden then have to force title to be translated here
-            LocaleHelper.translateTitle(this)
         } catch (e: Exception) {
             Log.e(TAG, "Error preparing preference screen", e)
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
@@ -70,16 +108,6 @@ class SettingsActivity : PreferenceActivity() {
     /**
      * Override locale.  If user has selected a different ui language to the devices default language
      */
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.i(localClassName, "onStop")
-        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
-    }
 
     companion object {
         private const val LOCALE_PREF = "locale_pref"

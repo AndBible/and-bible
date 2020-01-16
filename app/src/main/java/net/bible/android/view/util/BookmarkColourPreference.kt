@@ -17,12 +17,16 @@
  */
 package net.bible.android.view.util
 
-import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.preference.ListPreference
 import android.util.AttributeSet
-import android.widget.ListAdapter
+import android.widget.ArrayAdapter
+import androidx.appcompat.app.AlertDialog
+import androidx.preference.ListPreference
+import androidx.preference.ListPreferenceDialogFragmentCompat
+import androidx.preference.PreferenceDialogFragmentCompat
+import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkStyle
 
 /**
@@ -30,6 +34,47 @@ import net.bible.android.control.bookmark.BookmarkStyle
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class BookmarkColorPreferenceDialog(private val selectedPosition: Int):
+	ListPreferenceDialogFragmentCompat() {
+	override fun onPrepareDialogBuilder(builder: AlertDialog.Builder?) {
+		super.onPrepareDialogBuilder(builder)
+		val pref = preference as BookmarkColourPreference
+		val adapter = ArrayAdapter<Int>(context!!, R.layout.listitem)
+		for(e in pref.entries) {
+			adapter.add(1)
+		}
+		val fontTypeAdapter = BookmarkColourListPrefWrapperAdapter(context!!, adapter, selectedPosition)
+		// Adjust the selection because resetting the adapter loses the selection.
+		builder?.setAdapter(fontTypeAdapter) {dialog, value ->
+			pref.value = pref.entries[value].toString()
+			dialog.dismiss()
+		}
+	}
+	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+		val dialog = super.onCreateDialog(savedInstanceState) as AlertDialog
+		//val dialog = dialog as AlertDialog
+		val listView = dialog.listView
+
+		if (selectedPosition != -1) {
+			listView.setItemChecked(selectedPosition, true)
+			listView.setSelection(selectedPosition)
+		}
+		return dialog
+	}
+
+	companion object {
+		fun newInstance(key: String, selectedPosition: Int): BookmarkColorPreferenceDialog {
+			val f = BookmarkColorPreferenceDialog(selectedPosition)
+			val b = Bundle(1)
+			b.putString(PreferenceDialogFragmentCompat.ARG_KEY, key)
+			f.arguments = b
+			return f
+		}
+
+	}
+}
+
 class BookmarkColourPreference : ListPreference {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
         initialise()
@@ -49,24 +94,5 @@ class BookmarkColourPreference : ListPreference {
         entries = styles
         entryValues = styles
         setDefaultValue(styles[0])
-    }
-
-    override fun showDialog(state: Bundle?) {
-        super.showDialog(state)
-        val dialog = dialog as AlertDialog
-        val listView = dialog.listView
-        val adapter = listView.adapter
-        val fontTypeAdapter = createWrapperAdapter(adapter)
-        // Adjust the selection because resetting the adapter loses the selection.
-        val selectedPosition = findIndexOfValue(value)
-        listView.adapter = fontTypeAdapter
-        if (selectedPosition != -1) {
-            listView.setItemChecked(selectedPosition, true)
-            listView.setSelection(selectedPosition)
-        }
-    }
-
-    protected fun createWrapperAdapter(origAdapter: ListAdapter?): BookmarkColourListPrefWrapperAdapter {
-        return BookmarkColourListPrefWrapperAdapter(context, origAdapter)
     }
 }

@@ -25,21 +25,21 @@ import net.bible.service.common.CommonUtils.getResourceString
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class TextSizePreference(context: Context?, attrs: AttributeSet?) : SeekBarPreference(context, attrs!!) {
-    override fun updateScreenValue(value: Int) {
-        super.updateScreenValue(value)
-        dialogMessageView!!.textSize = value.toFloat()
-    }
-
-    companion object {
-        // do not allow text smaller than 6sp;
-// there is no android:min attribute we can put in the xml definitions so easiest way is to set it here
-        private const val MIN_TEXT_SIZE = 6
-        private const val TAG = "TextSizePreference"
-    }
-
-    init {
-        setMin(MIN_TEXT_SIZE)
-        dialogMessage = getResourceString(R.string.prefs_text_size_sample_text)
-    }
-}
+//class TextSizePreference(context: Context?, attrs: AttributeSet) : SeekBarPreference(context, attrs) {
+//    override fun updateScreenValue(value: Int) {
+//        super.updateScreenValue(value)
+//        dialogMessageView!!.textSize = value.toFloat()
+//    }
+//
+//    companion object {
+//        // do not allow text smaller than 6sp;
+//// there is no android:min attribute we can put in the xml definitions so easiest way is to set it here
+//        private const val MIN_TEXT_SIZE = 6
+//        private const val TAG = "TextSizePreference"
+//    }
+//
+//    init {
+//        setMin(MIN_TEXT_SIZE)
+//        dialogMessage = getResourceString(R.string.prefs_text_size_sample_text)
+//    }
+//}
