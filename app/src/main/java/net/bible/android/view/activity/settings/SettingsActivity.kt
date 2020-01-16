@@ -34,7 +34,7 @@ import net.bible.service.device.ScreenSettings.systemModeAvailable
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class SettingsActivity : PreferenceActivity() {
-	override fun onCreate(savedInstanceState: Bundle) {
+	override fun onCreate(savedInstanceState: Bundle?) {
 		// change theme according to light sensor
 		//UiUtils.INSTANCE.applyTheme(this, false, true);
 		super.onCreate(savedInstanceState)
