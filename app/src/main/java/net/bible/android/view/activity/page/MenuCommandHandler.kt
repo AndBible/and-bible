@@ -172,18 +172,21 @@ constructor(private val callingActivity: MainBibleActivity,
                     val app = BibleApplication.application
                     val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
 
-                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_speech_title,
-                            R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
-                            R.string.help_contextmenus_title)
-                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_speech_text,
-                            R.string.help_mynote_text, R.string.help_bookmarks_text, R.string.help_search_text,
-                            R.string.help_contextmenus_text)
+                    val help = arrayOf(
+                        Pair(R.string.help_nav_title, R.string.help_nav_text),
+                        Pair(R.string.help_speech_title, R.string.help_speech_text),
+                        Pair(R.string.help_mynote_title,R.string.help_mynote_text),
+                        Pair(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
+                        Pair(R.string.help_search_title,R.string.help_search_text),
+                        Pair(R.string.help_workspaces_title,R.string.help_workspaces_text),
+                        Pair(R.string.help_contextmenus_title, R.string.help_contextmenus_text)
+                    )
 
                     var htmlMessage = ""
 
-                    for(idx in 0 until helpTitles.size) {
-                        val helpText = app.getString(helpTexts[idx]).replace("\n", "<br>")
-                        htmlMessage += "<b>${app.getString(helpTitles[idx])}</b><br>$helpText<br><br>"
+                    for(helpPair in help) {
+                        val helpText = app.getString(helpPair.second).replace("\n", "<br>")
+                        htmlMessage += "<b>${app.getString(helpPair.first)}</b><br>$helpText<br><br>"
                     }
                     htmlMessage += "<i>$versionMsg</i>"
 
