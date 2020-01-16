@@ -5,7 +5,7 @@ And Bible on täysin ilmainen avoimen lähdekoodin raamattuohjelmisto. Se toimii
 * Käyttöliittymä usealla kielellä
 *  Useita raamatunlukuohjelmia
 * Täysin ilmainen, ei mainoksia, ei sähköposteja
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Yli 40 englanninkielistä raamattua, mukaan lukien KJV ja NET (ESV oli mukana aiemmin ja yritämme saada sen takaisin, katso FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
 * 29 raamattukommentaaria
 *  Laaja kokoelma sanakirjoja ja kristillistä kirjallisuutta
 * Kaikki dokumentit laillisia (tästä syystä joitain raamatunkäännöksiä kuten NKJV ja NIV, ei ole saatavilla)
@@ -24,7 +24,7 @@ Strongin sanakirjan integraatio joka mahdollistaa kreikan ja heprean sanojen ana
 
 Me olemme kaikki vapaaehtoistyöntekijöitä; emme näytä ärsyttäviä mainoksia, lähetä  sähköposteja, emme pyydä tai vastaanota lahjoituksia, emme pyydä rekisteröitymistä. And Bible ei kerää mitään tietoja puhelimestasi.
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä And Biblessä ei ole dokumentteja kuten NIV ja NKJV.
 
 <b>Huomioita</b>
 * Tykkää And Biblestä Facebookissa: https://www.facebook.com/AndBible/
