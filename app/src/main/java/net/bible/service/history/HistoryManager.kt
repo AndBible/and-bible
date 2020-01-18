@@ -208,7 +208,7 @@ constructor(private val windowControl: WindowControl) {
 
     companion object {
 
-        private val MAX_HISTORY = 80
+        private val MAX_HISTORY = 500
 
         private val TAG = "HistoryManager"
     }
