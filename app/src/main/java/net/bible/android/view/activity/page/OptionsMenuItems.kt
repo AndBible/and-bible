@@ -44,7 +44,7 @@ abstract class MenuItemPreference(
     private val trueValue: String = "true",
     private val falseValue: String = "false",
     private val automaticValue: String = "automatic",
-    private val defaultString: String = automaticValue,
+    private val defaultString: String = falseValue,
 
     val subMenu: Boolean = false
 ) : OptionsMenuItemInterface {
