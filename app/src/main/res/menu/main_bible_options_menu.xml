@@ -75,11 +75,6 @@
 		</menu>
 	</item>
 
-	<item android:id="@+id/autoFullscreen"
-		android:title="@string/auto_fullscreen"
-		android:checkable="true"
-		/>
-
 	<item android:id="@+id/tiltToScroll"
 		android:title="@string/prefs_tilt_to_scroll_title"
 		android:checkable="true"

@@ -449,8 +449,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
-    class AutoFullScreenChanged(val newValue: Boolean)
-
     val workspaces get() = dao.allWorkspaces()
 
     private fun deleteWorkspace() {
@@ -603,7 +601,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
         R.id.showStrongsOption -> StrongsMenuItemPreference()
         R.id.morphologyOption -> MorphologyMenuItemPreference()
-        R.id.autoFullscreen -> AutoFullscreenMenuItemPreference()
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
         R.id.nightMode -> NightModeMenuItemPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()

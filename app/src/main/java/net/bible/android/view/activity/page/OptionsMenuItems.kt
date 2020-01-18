@@ -86,11 +86,6 @@ open class TextContentMenuItemPreference(name: String, default: Boolean) :
     override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
 }
 
-class AutoFullscreenMenuItemPreference :
-    MenuItemPreference("auto_fullscreen_pref", false, false) {
-    override fun handle() = ABEventBus.getDefault().post(MainBibleActivity.AutoFullScreenChanged(value))
-}
-
 class TiltToScrollMenuItemPreference :
     MenuItemPreference("tilt_to_scroll_pref", false, false) {
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()

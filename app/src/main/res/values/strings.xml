@@ -528,4 +528,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
     <string name="font_size_pt">%d pt</string>
+    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
 </resources>
