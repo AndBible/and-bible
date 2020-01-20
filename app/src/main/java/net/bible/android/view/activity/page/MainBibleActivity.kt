@@ -604,7 +604,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
         R.id.nightMode -> NightModeMenuItemPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
-        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
         R.id.workspacesSubMenu -> WorkspacesSubmenu()
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
