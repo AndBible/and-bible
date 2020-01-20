@@ -90,8 +90,9 @@ class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: 
         } else if (!bookContainsAnyOf(book, key)) {
             Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
             retVal = format(R.string.error_key_not_in_document)
-        } else { // we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
-// try to parse using optimised method first if a suitable document and it has not failed previously
+        } else {
+			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
+			// try to parse using optimised method first if a suitable document and it has not failed previously
             var isParsedOk = false
             if ("OSIS" == book.bookMetaData.getProperty("SourceType") && "zText" == book.bookMetaData.getProperty("ModDrv") &&
                 documentParseMethod.isFastParseOkay(book, key)) {
@@ -320,13 +321,14 @@ class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: 
     }
 
     @Throws(BookException::class)
-    fun search(bible: Book, searchText: String): Key { // 		  example of fetching Strongs ref - only works with downloaded indexes!
-//        Book book = getDocumentByInitials("KJV");
-//        Key key1 = book.find("strong:h3068");
-//        System.out.println("h3068 result count:"+key1.getCardinality());
+    fun search(bible: Book, searchText: String): Key {
+		// example of fetching Strongs ref - only works with downloaded indexes!
+		// Book book = getDocumentByInitials("KJV");
+		// Key key1 = book.find("strong:h3068");
+		// System.out.println("h3068 result count:"+key1.getCardinality());
         Log.d(TAG, "Searching:$bible Search term:$searchText")
-        // This does a standard operator search. See the search
-// documentation for more examples of how to search
+	    // This does a standard operator search. See the search
+		// documentation for more examples of how to search
         val key = bible.find(searchText) //$NON-NLS-1$
         Log.d(TAG, "There are " + key.cardinality + " verses containing " + searchText)
         return key
@@ -352,45 +354,44 @@ class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: 
         if (isAndroid) { // HunUj has an error in that refs are not wrapped so automatically add notes around refs
             osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
             val preferences = sharedPreferences
-            if (preferences != null) { // prefs applying to any doc type
-                osisToHtmlParameters.isShowNotes = preferences.getBoolean("show_notes_pref", false)
-                osisToHtmlParameters.isRedLetter = preferences.getBoolean("red_letter_pref", false)
-                osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
-                // show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
-                if (BookCategory.BIBLE == bookCategory) {
-                    osisToHtmlParameters.isShowVerseNumbers = preferences.getBoolean("show_verseno_pref", true) && BookCategory.BIBLE == bookCategory
-                    osisToHtmlParameters.isVersePerline = preferences.getBoolean("verse_per_line_pref", false)
-                    osisToHtmlParameters.isShowMyNotes = preferences.getBoolean("show_mynotes_pref", true)
-                    osisToHtmlParameters.isShowBookmarks = preferences.getBoolean("show_bookmarks_pref", true)
-                    osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)))
-                    osisToHtmlParameters.isShowTitles = preferences.getBoolean("section_title_pref", true)
-                    osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
-                    osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
-                    // showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
-                    val showStrongs = preferences.getBoolean("show_strongs_pref", true)
-                    osisToHtmlParameters.isShowStrongs = showStrongs
-                    osisToHtmlParameters.isShowMorphology = showStrongs && preferences.getBoolean("show_morphology_pref", false)
-                }
-                if (BookCategory.DICTIONARY == bookCategory) {
-                    if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) { //add allHebrew refs link
-                        val prompt = application.getString(R.string.all_hebrew_occurrences)
-                        osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-                        //convert text refs to links
-                        osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-                    } else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) { //add allGreek refs link
-                        val prompt = application.getString(R.string.all_greek_occurrences)
-                        osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_GREEK_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-                        //convert text refs to links
-                        osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-                    }
-                }
-                // which font, if any
-                osisToHtmlParameters.font = FontControl.getInstance().getFontForBook(book)
-                osisToHtmlParameters.cssClassForCustomFont = FontControl.getInstance().getCssClassForCustomFont(book)
-                // indent depth - larger screens have a greater indent
-                osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
-            }
-        }
+			// prefs applying to any doc type
+			osisToHtmlParameters.isShowNotes = preferences.getBoolean("show_notes_pref", false)
+			osisToHtmlParameters.isRedLetter = preferences.getBoolean("red_letter_pref", false)
+			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
+			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
+			if (BookCategory.BIBLE == bookCategory) {
+				osisToHtmlParameters.isShowVerseNumbers = preferences.getBoolean("show_verseno_pref", true) && BookCategory.BIBLE == bookCategory
+				osisToHtmlParameters.isVersePerline = preferences.getBoolean("verse_per_line_pref", false)
+				osisToHtmlParameters.isShowMyNotes = preferences.getBoolean("show_mynotes_pref", true)
+				osisToHtmlParameters.isShowBookmarks = preferences.getBoolean("show_bookmarks_pref", true)
+				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)))
+				osisToHtmlParameters.isShowTitles = preferences.getBoolean("section_title_pref", true)
+				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
+				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
+				// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
+				val showStrongs = preferences.getBoolean("show_strongs_pref", true)
+				osisToHtmlParameters.isShowStrongs = showStrongs
+				osisToHtmlParameters.isShowMorphology = showStrongs && preferences.getBoolean("show_morphology_pref", false)
+			}
+			if (BookCategory.DICTIONARY == bookCategory) {
+				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) { //add allHebrew refs link
+					val prompt = application.getString(R.string.all_hebrew_occurrences)
+					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
+					//convert text refs to links
+					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
+				} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) { //add allGreek refs link
+					val prompt = application.getString(R.string.all_greek_occurrences)
+					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_GREEK_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
+					//convert text refs to links
+					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
+				}
+			}
+			// which font, if any
+			osisToHtmlParameters.font = FontControl.getInstance().getFontForBook(book)
+			osisToHtmlParameters.cssClassForCustomFont = FontControl.getInstance().getCssClassForCustomFont(book)
+			// indent depth - larger screens have a greater indent
+			osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
+		}
         return OsisToHtmlSaxHandler(osisToHtmlParameters)
     }
 
