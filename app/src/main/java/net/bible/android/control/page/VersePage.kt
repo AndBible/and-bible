@@ -39,8 +39,9 @@ abstract class VersePage protected constructor(
 	val currentBibleVerse: CurrentBibleVerse,
 	protected val bibleTraverser: BibleTraverser,
 	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade) {
+	swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade, pageManager) {
 
 	override var _key: Key? = null
 

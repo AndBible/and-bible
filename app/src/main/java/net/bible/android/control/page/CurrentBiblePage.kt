@@ -37,12 +37,13 @@ import org.crosswire.jsword.passage.Verse
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentBiblePage(
-	currentBibleVerse: CurrentBibleVerse,
-	bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
+    currentBibleVerse: CurrentBibleVerse,
+    bibleTraverser: BibleTraverser,
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
-        swordDocumentFacade), CurrentPage {
+        swordDocumentFacade, pageManager), CurrentPage {
 
     override val bookCategory = BookCategory.BIBLE
 

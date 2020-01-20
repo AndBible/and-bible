@@ -33,13 +33,13 @@ import org.crosswire.jsword.passage.Verse
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class CurrentCommentaryPage  /* default */
-internal constructor(
-	currentBibleVerse: CurrentBibleVerse,
-	bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage
+open class CurrentCommentaryPage internal constructor(
+    currentBibleVerse: CurrentBibleVerse,
+    bibleTraverser: BibleTraverser,
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
 
     override val bookCategory = BookCategory.COMMENTARY

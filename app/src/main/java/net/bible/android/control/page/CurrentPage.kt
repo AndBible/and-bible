@@ -30,6 +30,8 @@ import org.crosswire.jsword.passage.Key
  */
 interface CurrentPage {
     val bookCategory: BookCategory
+    val pageManager: CurrentPageManager
+
     val keyChooserActivity: Class<out Activity?>?
     operator fun next()
     fun previous()

@@ -42,8 +42,9 @@ class CurrentMyNotePage internal constructor(
 	bibleTraverser: BibleTraverser,
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade,
-	private val myNoteDAO: MyNoteDAO
-) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage
+	private val myNoteDAO: MyNoteDAO,
+    pageManager: CurrentPageManager
+) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
     private var currentNoteVerseRange: ConvertibleVerseRange? = null
     // just one fake book for every note

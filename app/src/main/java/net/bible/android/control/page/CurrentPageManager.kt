@@ -51,12 +51,12 @@ open class CurrentPageManager @Inject constructor(
 {
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO)
-    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade)
-    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade)
-    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade)
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO, this)
+    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
+    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
+    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
 
     lateinit var window: Window
 

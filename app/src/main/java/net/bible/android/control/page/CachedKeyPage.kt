@@ -33,8 +33,9 @@ import java.util.*
 abstract class CachedKeyPage internal constructor(
 	shareKeyBetweenDocs: Boolean,
 	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade) {
+	swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
 

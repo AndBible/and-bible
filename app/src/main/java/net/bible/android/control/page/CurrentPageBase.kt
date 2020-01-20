@@ -40,7 +40,8 @@ import org.crosswire.jsword.passage.Key
 abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
 	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
+	swordDocumentFacade: SwordDocumentFacade,
+    override val pageManager: CurrentPageManager
 ) : CurrentPage {
 
     override var isInhibitChangeNotifications: Boolean = false
