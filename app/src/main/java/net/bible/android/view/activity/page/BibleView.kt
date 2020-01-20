@@ -598,6 +598,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal inner class BibleViewLongClickListener(private var defaultValue: Boolean) : View.OnLongClickListener {
 
         override fun onLongClick(v: View): Boolean {
+            Log.d(TAG, "onLongClickListener")
             val result = hitTestResult
             return if (result.type == HitTestResult.SRC_ANCHOR_TYPE) {
                 setContextMenuInfo(result.extra!!)

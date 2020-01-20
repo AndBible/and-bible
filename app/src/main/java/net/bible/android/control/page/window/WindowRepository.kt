@@ -273,6 +273,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun saveIntoDb() {
+        Log.d(TAG, "saveIntoDb")
         dao.updateWorkspace(WorkspaceEntities.Workspace(name, id))
 
         val historyManager = historyManagerProvider.get()
@@ -304,6 +305,7 @@ open class WindowRepository @Inject constructor(
      */
 
     fun loadFromDb(workspaceId: Long) {
+        Log.d(TAG, "onLoadDb ${workspaceId}")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
