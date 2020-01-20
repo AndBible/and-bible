@@ -41,6 +41,7 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
+  <string name="other">Drugo</string>
   <string name="administration">Upravljanje</string>
   <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
@@ -234,7 +235,7 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Poimenuj</string>
-  <string name="label_unlabelled">Neoznačeno</string>
+  <string name="label_unlabelled">Neoznačeni</string>
   <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
@@ -375,7 +376,16 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="about_copyright">Avtorske pravice: %s</string>
   <string name="about_version">Verzija: %s</string>
   <string name="about_versification">Verzifikacija: %s</string>
+  <string name="send_backup_file">Pošlji arhivsko datoteko</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Prijavite napako…</string>
+  <string name="report_bug_email_subject">Poročilo o napaki za And Bible%s</string>
+  <string name="report_bug_email_message">Uporabite to funkcijo, da napako prijavite takoj, ko jo opazite. \n
+\n
+Na kratko nam povejte, kaj ste storili / kaj se je zgodilo: \n
+\n
+Informacije o napravi: \n
+ %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentar</string>
@@ -391,7 +401,7 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="no">Ne</string>
   <string name="error">Napaka</string>
   <string name="please_wait">Prosimo počakajte…</string>
-  <string name="all">Vse</string>
+  <string name="all">Vsi</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Uredi</string>
   <string name="watch_tutorial_video">Ogled video navodil (Angleščina)</string>

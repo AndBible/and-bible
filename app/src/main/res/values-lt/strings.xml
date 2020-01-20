@@ -39,6 +39,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
+  <string name="other">Kita</string>
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
@@ -373,7 +374,18 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="about_copyright">Autorinės teisės: %s</string>
   <string name="about_version">Versija: %s</string>
   <string name="about_versification">Versijavimas: %s</string>
+  <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Pranešti apie klaidą…</string>
+  <string name="report_bug_email_subject">Pranešimas apie klaidą And Bible %s</string>
+  <string name="report_bug_email_message">
+        Naudokite šią funkciją, kad iš karto mums praneštumėte, kai tik pastebėjote problemą.\n
+        \n
+        Trumpai aprašykite ką darėte / kas nutiko, kai atsirado
+        klaida: \n
+        \n
+        Įrenginio informacija: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
