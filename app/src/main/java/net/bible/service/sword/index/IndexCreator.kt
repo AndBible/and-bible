@@ -15,35 +15,29 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.sword.index
 
-package net.bible.service.sword;
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.index.IndexManagerFactory
 
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.book.BookFilter;
-
-/**
+/** Optimise Lucene index creation
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class AcceptableBookTypeFilter implements BookFilter {
-
+class IndexCreator {
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
-     * org.crosswire.jsword.book.BookFilter#test(org.crosswire.jsword.book
-     * .Book)
+     * org.crosswire.jsword.index.search.AbstractIndex#generateSearchIndex(org
+     * .crosswire.common.progress.Job)
      */
-    public boolean test(Book book) {
-    	BookCategory bookCategory = book.getBookCategory();
-    	if (book.isLocked()) {
-    		return false;
-    	} else {
-    		return bookCategory.equals(BookCategory.BIBLE) ||
-    		bookCategory.equals(BookCategory.COMMENTARY) ||
-    		bookCategory.equals(BookCategory.DICTIONARY) ||
-    		bookCategory.equals(BookCategory.GENERAL_BOOK) || 
-    		bookCategory.equals(BookCategory.MAPS);
-    	}
+    fun scheduleIndexCreation(book: Book?) {
+        val work = Thread {
+            val indexManager = IndexManagerFactory.getIndexManager()
+            indexManager.indexPolicy = AndroidIndexPolicy()
+            indexManager.scheduleIndexCreation(book)
+        }
+        work.start()
     }
 }

@@ -15,23 +15,29 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.sword
 
-package net.bible.service.sword.index;
-
-import org.crosswire.jsword.index.IndexPolicyAdapter;
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookFilter
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class AndroidIndexPolicy extends IndexPolicyAdapter {
-
-	@Override
-	public int getRAMBufferSize() {
-		return 1;
-	}
-
-	@Override
-	public boolean isSerial() {
-		return true;
-	}
+open class AcceptableBookTypeFilter : BookFilter {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.crosswire.jsword.book.BookFilter#test(org.crosswire.jsword.book
+     * .Book)
+     */
+    override fun test(book: Book): Boolean {
+        val bookCategory = book.bookCategory
+        return if (book.isLocked) {
+            false
+        } else {
+            bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS
+        }
+    }
 }

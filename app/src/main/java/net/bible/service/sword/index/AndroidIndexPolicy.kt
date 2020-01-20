@@ -15,33 +15,19 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-package net.bible.service.sword.index;
+package net.bible.service.sword.index
 
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.index.IndexManager;
-import org.crosswire.jsword.index.IndexManagerFactory;
+import org.crosswire.jsword.index.IndexPolicyAdapter
 
-/** Optimise Lucene index creation
- * 
+/**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class IndexCreator  {
+class AndroidIndexPolicy : IndexPolicyAdapter() {
+    override fun getRAMBufferSize(): Int {
+        return 1
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.index.search.AbstractIndex#generateSearchIndex(org
-     * .crosswire.common.progress.Job)
-     */
-    public void scheduleIndexCreation(final Book book) {
-        Thread work = new Thread(new Runnable() {
-            public void run() {
-            	IndexManager indexManager = IndexManagerFactory.getIndexManager();
-            	indexManager.setIndexPolicy(new AndroidIndexPolicy());
-                indexManager.scheduleIndexCreation(book);
-            }
-        });
-        work.start();
+    override fun isSerial(): Boolean {
+        return true
     }
 }
