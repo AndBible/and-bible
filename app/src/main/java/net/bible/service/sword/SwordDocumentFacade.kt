@@ -114,7 +114,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
             return null
         }
 
-    fun getDocumentByInitials(initials: String?): Book {
+    fun getDocumentByInitials(initials: String?): Book? {
         return Books.installed().getBook(initials)
     }
 

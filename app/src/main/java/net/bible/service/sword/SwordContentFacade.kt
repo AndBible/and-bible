@@ -72,7 +72,7 @@ import javax.xml.parsers.SAXParser
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: BookmarkFormatSupport, private val myNoteFormatSupport: MyNoteFormatSupport) {
+open class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: BookmarkFormatSupport, private val myNoteFormatSupport: MyNoteFormatSupport) {
     private val documentParseMethod = DocumentParseMethod()
     private val saxParserPool = SaxParserPool()
     private val cssControl = CssControl()
