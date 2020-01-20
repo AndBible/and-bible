@@ -51,16 +51,16 @@ open class CurrentPageManager @Inject constructor(
 {
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible: CurrentBiblePage
-    val currentCommentary: CurrentCommentaryPage
-    val currentDictionary: CurrentDictionaryPage
-    val currentGeneralBook: CurrentGeneralBookPage
-    val currentMap: CurrentMapPage
-    val currentMyNotePage: CurrentMyNotePage
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO)
+    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade)
+    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade)
+    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade)
 
     lateinit var window: Window
 
-    var currentPage: CurrentPage
+    var currentPage: CurrentPage = currentBible
         private set
 
     /**
@@ -93,17 +93,6 @@ open class CurrentPageManager @Inject constructor(
     val isMapShown: Boolean
         get() = currentMap === currentPage
 
-    init {
-        currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-        currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-        currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO)
-
-        currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade)
-        currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade)
-        currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade)
-
-        currentPage = currentBible
-    }
 
     /** display a new Document and return the new Page
      */
