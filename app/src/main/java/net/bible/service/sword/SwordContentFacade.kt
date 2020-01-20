@@ -138,7 +138,7 @@ class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: 
      * This reduces memory requirements compared to standard JDom SaxEventProvider
      */
     @Throws(ParseException::class)
-    protected fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean): String {
+    internal fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean): String {
         log.debug("Using fast method to fetch document data")
         /*
 		  When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader;
@@ -161,7 +161,7 @@ class SwordContentFacade @Inject constructor(private val bookmarkFormatSupport: 
     }
 
     @Throws(ParseException::class)
-    protected fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean): String {
+    private fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean): String {
         log.debug("Using standard JSword to fetch document data")
         val retVal: String
         return try {

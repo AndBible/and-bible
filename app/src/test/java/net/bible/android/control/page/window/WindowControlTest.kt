@@ -10,6 +10,7 @@ import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.download.RepoFactory
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -62,7 +63,8 @@ class WindowControlTest {
         val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(null), bibleTraverser, myNoteDao) }
+        val repoFactory = mock(RepoFactory::class.java)
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
