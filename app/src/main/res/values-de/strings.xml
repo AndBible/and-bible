@@ -36,6 +36,7 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="history">Verlauf</string>
   <string name="speak">Vorlesen</string>
   <string name="help">Hilfe</string>
+  <string name="other">Anderes</string>
   <string name="administration">Verwaltung</string>
   <string name="rate_application">Bewerten &amp; Beschreiben in Google Play</string>
   <string name="chooce_document">Dokument auswählen</string>
@@ -341,7 +342,18 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version %s</string>
   <string name="about_versification">Versnummerierung: %s</string>
+  <string name="send_backup_file">Sende Backup</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Fehler melden...</string>
+  <string name="report_bug_email_subject">Fehlermeldung für And Bible %s</string>
+  <string name="report_bug_email_message">
+        Bitte verwenden Sie diese Funktion um Fehler zu melden, sobald sie auftreten.\n
+        \n
+        Sagen Sie uns kurz, was Sie tun / was sich gerade getan hat, als der Fehler
+        aufgetreten ist: \n
+        \n
+        Device info: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>

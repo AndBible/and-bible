@@ -40,6 +40,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
+  <string name="other">Ander</string>
   <string name="administration">Administrasie</string>
   <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
@@ -92,6 +93,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_night_mode_title">Nag mode</string>
   <string name="prefs_night_mode_summary">Om makliker in die donker te lees\n</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
+  <string name="prefs_night_mode_system">Stelsel</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Maak skakels in \'n spesiale venster</string>
@@ -363,7 +365,18 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
   <string name="about_versification">Beryming: %s</string>
+  <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Rapporteer \'n fout ...</string>
+  <string name="report_bug_email_subject">Foutverslag vir And Bible %s</string>
+  <string name="report_bug_email_message">
+       Gebruik asseblief hierdie funksie om \'n fout aan  te meld, wanneer jy \'n fout gesien het. \ n
+       \n
+       Vertel ons kortliks wat u gedoen het / wat gebeur het tydens         die uitreiking
+        plaasgevind: \ n
+        \n
+       Toestelinligting: \ n
+%s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>

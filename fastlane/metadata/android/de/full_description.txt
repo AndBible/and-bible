@@ -2,15 +2,15 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 
 * Bibeln, Kommentare, theologische Wörterbücher, Landkarten und christliche Bücher in über 700 Sprachen
 * Nach dem Herunterladen der benötigten Module absolut offline, inklusive allen Suchfunktionen, Notizen, Kommentaren etc.
-* Interface in multiple languages
+Benutzeroberfläche in vielen Sprachen
 * verschiedenste Bibellesepläne
 * Absolut frei, keine Werbung, keine E-Mails
-* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Über 15 deutsche Bibelübersetzungen
 * 29 Bibelkommentare
 * Große Sammlung an Wörterbüchern und christlicher Literatur
 * Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NKJV und NIV nicht enthalten)
 * Die Integration des Strong Wörterbuches erlaubt das Nachschlagen von griechischen und hebräischen Wörtern
-* Multiple workspaces with split screen
+Mehrere Arbeitsplätze mit aufgeteilten Fenstern
 * Erstelle persönliche Notizen
 * Flexible Suchfunktion
 * Lesezeichen
@@ -24,7 +24,7 @@ And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. D
 
 * Alle Mitarbeiter sind Freiwillige; wir versenden keine lästigen E-Mails; blenden keine störenden Werbungen ein; fragen nie nach finanzieller Unterstützung; verlangen keine Registrierung; And Bible sammelt keine Daten von deinem Telefon
 
-The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+Die Herkunft aller Dokumente wird sorgfältig untersucht, damit sichergestellt werden kann, dass alle Dokumente legal verbreitet werden können bzw. die Erlaubnis des Rechteinhabers eingeholt wurde. Das ist auch der Grund, warum Übersetzungen wie die neue Luther Übersetzung oder die Neue Genfer Übersetzung nicht enthalten sind.
 
 <b>Notizen</b>
 * Klicke "Gefällt mir" auf Facebook: https://www.facebook.com/AndBible/
