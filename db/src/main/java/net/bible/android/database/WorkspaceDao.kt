@@ -36,10 +36,10 @@ interface WorkspaceDao {
     @Transaction
     fun cloneWorkspace(workspaceId: Long, newName: String): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
-            ?: return WorkspaceEntities.Workspace(newName).apply {
+            ?: return WorkspaceEntities.Workspace(newName, null, null).apply {
                 id = insertWorkspace(this)
             }
-        val newWorkspace = WorkspaceEntities.Workspace(newName)
+        val newWorkspace = WorkspaceEntities.Workspace(newName, oldWorkspace.textDisplaySettings, oldWorkspace.windowBehaviorSettings)
         newWorkspace.id = insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)

@@ -71,6 +71,8 @@ class WorkspaceEntities {
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
+
         val currentCategoryName: String
     )
 
@@ -79,10 +81,49 @@ class WorkspaceEntities {
         val weight: Float = 1.0f
     )
 
+    data class TextDisplaySettings(
+        var fontSize: Int? = null,
+        var showStrongs: Boolean? = null,
+        var showMorphology: Boolean? = null,
+        var showFootNotes: Boolean? = null,
+        var showRedLetters: Boolean? = null,
+        var showSectionTitles: Boolean? = null,
+        var showVerseNumbers: Boolean? = null,
+        var showVersePerLine: Boolean? = null,
+        var showBookmarks: Boolean? = null,
+        var showMyNotes: Boolean? = null
+    ) {
+        companion object {
+            val default = TextDisplaySettings(
+                16,
+                false,
+                false,
+                false,
+                true,
+                true,
+                true,
+                false,
+                true,
+                true
+            )
+        }
+    }
+
+    data class WindowBehaviorSettings(
+        var enableTiltToScroll: Boolean = false,
+        var enableReverseSplitMode: Boolean = false
+    ) {
+        companion object {
+            var default = WindowBehaviorSettings(false, false)
+        }
+    }
+
     @Entity
     data class Workspace(
         val name: String,
 
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
+        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings?,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
     )
 

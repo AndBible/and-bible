@@ -483,7 +483,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val defaultDocument = pageControl.currentPageManager.currentBible.currentDocument
         windowRepository.saveIntoDb()
 
-        val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
+        val newWorkspaceEntity = WorkspaceEntities.Workspace(
+            newWorkspaceName, windowRepository.textDisplaySettings, windowRepository.windowBehaviorSettings
+        ).apply {
             id = dao.insertWorkspace(this)
         }
 
@@ -592,6 +594,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
     private fun getItemOptions(itemId: Int) =  when(itemId) {
+        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
+
         R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
         R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
         R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
@@ -601,20 +605,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
         R.id.showStrongsOption -> StrongsMenuItemPreference()
         R.id.morphologyOption -> MorphologyMenuItemPreference()
+        R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {
+            preferences.edit().putInt("text_size_pref", it).apply()
+            preferenceSettingsChanged()
+        } })
+        R.id.splitMode -> SplitModeMenuItemPreference()
+
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
         R.id.nightMode -> NightModeMenuItemPreference()
-        R.id.splitMode -> SplitModeMenuItemPreference()
-        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
+
         R.id.workspacesSubMenu -> WorkspacesSubmenu()
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
         R.id.renameWorkspace -> CommandItem({renameWorkspace()})
         R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
-        R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {
-            preferences.edit().putInt("text_size_pref", it).apply()
-            preferenceSettingsChanged()
-        } })
+
         else -> throw RuntimeException("Illegal menu item")
     }
 
