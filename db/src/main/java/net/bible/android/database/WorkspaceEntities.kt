@@ -18,6 +18,7 @@
 
 package net.bible.android.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -71,9 +72,8 @@ class WorkspaceEntities {
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
-        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-
-        val currentCategoryName: String
+        val currentCategoryName: String,
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?
     )
 
     data class WindowLayout(
@@ -82,16 +82,16 @@ class WorkspaceEntities {
     )
 
     data class TextDisplaySettings(
-        var fontSize: Int? = null,
-        var showStrongs: Boolean? = null,
-        var showMorphology: Boolean? = null,
-        var showFootNotes: Boolean? = null,
-        var showRedLetters: Boolean? = null,
-        var showSectionTitles: Boolean? = null,
-        var showVerseNumbers: Boolean? = null,
-        var showVersePerLine: Boolean? = null,
-        var showBookmarks: Boolean? = null,
-        var showMyNotes: Boolean? = null
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showSectionTitles: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showVerseNumbers: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showVersePerLine: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
     ) {
         companion object {
             val default = TextDisplaySettings(
@@ -110,8 +110,8 @@ class WorkspaceEntities {
     }
 
     data class WindowBehaviorSettings(
-        var enableTiltToScroll: Boolean = false,
-        var enableReverseSplitMode: Boolean = false
+        @ColumnInfo(defaultValue = "FALSE") var enableTiltToScroll: Boolean = false,
+        @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
     ) {
         companion object {
             var default = WindowBehaviorSettings(false, false)
@@ -121,10 +121,10 @@ class WorkspaceEntities {
     @Entity
     data class Workspace(
         val name: String,
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
 
-        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?,
-        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings?,
-        @PrimaryKey(autoGenerate = true) var id: Long = 0
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
+        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
     )
 
     @Entity(

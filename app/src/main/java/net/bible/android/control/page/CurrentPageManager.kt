@@ -225,8 +225,8 @@ open class CurrentPageManager @Inject constructor(
             currentDictionary.pageEntity,
             currentGeneralBook.pageEntity,
             currentMap.pageEntity,
-            textDisplaySettings,
-            currentPage.bookCategory.getName()
+            currentPage.bookCategory.getName(),
+            textDisplaySettings
         )
 
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {

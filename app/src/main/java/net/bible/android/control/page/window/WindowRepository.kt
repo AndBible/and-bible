@@ -95,7 +95,7 @@ open class WindowRepository @Inject constructor(
         if(::_activeWindow.isInitialized) return
         id = sharedPreferences.getLong("current_workspace_id", 0)
         if(id == 0L || dao.workspace(id) == null) {
-            id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1), null, null))
+            id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
             sharedPreferences.edit().putLong("current_workspace_id", id).apply()
         }
         loadFromDb(id)
@@ -275,7 +275,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, textDisplaySettings, windowBehaviorSettings, id))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id, textDisplaySettings, windowBehaviorSettings))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
@@ -308,7 +308,7 @@ open class WindowRepository @Inject constructor(
     fun loadFromDb(workspaceId: Long) {
         Log.d(TAG, "onLoadDb ${workspaceId}")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
-            ?: WorkspaceEntities.Workspace("", null, null).apply{
+            ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
             }
         clear()
