@@ -1,0 +1,14 @@
+3.2.340 (bugfix release)
+- Bugfixes
+- Translation updates
+
+3.2.333 (major release)
+- Workspaces for different window setups
+- History is now persisted
+- Improved maximize mode
+- User can backup to & restore from selected target, such as Google Drive
+- Reading plans (status etc.) stored in database (will be backed up)
+- Date based reading plans
+...
+
+Please report bugs either directly to Github (https://git.io/Jej6z) or via email and-bible-support@googlegroups.com .
