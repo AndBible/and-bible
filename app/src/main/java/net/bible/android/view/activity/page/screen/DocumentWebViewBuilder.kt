@@ -659,9 +659,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 item.isEnabled = itmOptions.enabled
                 if(itmOptions is WindowTextContentMenuItemPreference) {
                     if (itmOptions.inherited) {
-                        item.setIcon(R.drawable.ic_inherited_white_24dp)
+                        item.setIcon(R.drawable.ic_sync_white_24dp)
                     } else {
-                        item.setIcon(R.drawable.ic_check_green_24dp)
+                        item.setIcon(R.drawable.ic_sync_disabled_green_24dp)
                     }
                 }
 
