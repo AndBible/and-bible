@@ -123,7 +123,7 @@ class WorkspaceEntities {
             }
         }
 
-        fun setNonSpecific(type: WorkspaceEntities.TextDisplaySettings.Id) {
+        fun setNonSpecific(type: Id) {
             setBooleanValue(type, null)
         }
 
