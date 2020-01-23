@@ -63,7 +63,7 @@ open class CurrentPageManager @Inject constructor(
     val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
     val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
 
-    var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings()
+    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
 
 
     val hasStrongs: Boolean get() {
@@ -250,7 +250,7 @@ open class CurrentPageManager @Inject constructor(
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
-        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
+        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         currentPage = getBookPage(restoredBookCategory)
     }
 
