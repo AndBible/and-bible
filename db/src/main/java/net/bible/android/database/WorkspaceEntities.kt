@@ -93,6 +93,40 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
     ) {
+        enum class Id {
+            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES
+        }
+
+        fun getBooleanValue(type: Id) = when(type) {
+            Id.STRONGS -> showStrongs
+            Id.MORPH -> showMorphology
+            Id.FOOTNOTES -> showFootNotes
+            Id.REDLETTERS -> showRedLetters
+            Id.SECTIONTITLES -> showSectionTitles
+            Id.VERSENUMBERS -> showVerseNumbers
+            Id.VERSEPERLINE -> showVersePerLine
+            Id.BOOKMARKS -> showBookmarks
+            Id.MYNOTES -> showMyNotes
+        }
+
+        fun setBooleanValue(type: Id, value: Boolean?) {
+            when(type) {
+                Id.STRONGS -> showStrongs = value
+                Id.MORPH -> showMorphology = value
+                Id.FOOTNOTES -> showFootNotes = value
+                Id.REDLETTERS -> showRedLetters = value
+                Id.SECTIONTITLES -> showSectionTitles = value
+                Id.VERSENUMBERS -> showVerseNumbers = value
+                Id.VERSEPERLINE -> showVersePerLine = value
+                Id.BOOKMARKS -> showBookmarks = value
+                Id.MYNOTES -> showMyNotes = value
+            }
+        }
+
+        fun setNonSpecific(type: WorkspaceEntities.TextDisplaySettings.Id) {
+            setBooleanValue(type, null)
+        }
+
         companion object {
             val default = TextDisplaySettings(
                 16,
@@ -106,6 +140,16 @@ class WorkspaceEntities {
                 true,
                 true
             )
+
+            //const val STRONGS = 1
+            //const val MORPH = 2
+            //const val FOOTNOTES = 3
+            //const val REDLETTERS = 4
+            //const val SECTIONTITLES = 5
+            //const val VERSENUMBERS = 6
+            //const val VERSEPERLINE = 7
+            //const val BOOKMARKS = 8
+            //const val
         }
     }
 

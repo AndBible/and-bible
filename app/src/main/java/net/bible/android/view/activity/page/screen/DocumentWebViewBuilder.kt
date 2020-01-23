@@ -52,15 +52,17 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Id
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.CommandItem
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MorphologyMenuItemPreference
+import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsMenuItemPreference
 import net.bible.android.view.activity.page.SubMenuMenuItemPreference
-import net.bible.android.view.activity.page.TextContentMenuItemPreference
+import net.bible.android.view.activity.page.WindowTextContentMenuItemPreference
 import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -652,9 +654,12 @@ class DocumentWebViewBuilder @Inject constructor(
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item.itemId)
+                item.title = itmOptions.getTitle(item.title)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                item.title = itmOptions.getTitle(item.title)
+                if(itmOptions.specific) {
+                    item.setIcon(R.drawable.ic_check_green_24dp)
+                }
 
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
@@ -678,40 +683,41 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private val preferences = CommonUtils.sharedPreferences
 
-    private fun getItemOptions(window: Window, itemId: Int) =  when(itemId) {
+    private fun getItemOptions(window: Window, itemId: Int): OptionsMenuItemInterface {
+        return when(itemId) {
 
-        R.id.windowNew -> CommandItem({windowControl.addNewWindow()})
-        R.id.windowMaximise -> CommandItem(
-            {windowControl.setMaximized(window, !window.isMaximised)},
-            value = window.isMaximised
-        )
-        R.id.windowSynchronise -> CommandItem(
-            {windowControl.setSynchronised(window, !window.isSynchronised)},
-            value = window.isSynchronised)
-        R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
-        R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
-        R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+            R.id.windowNew -> CommandItem({windowControl.addNewWindow()})
+            R.id.windowMaximise -> CommandItem(
+                {windowControl.setMaximized(window, !window.isMaximised)},
+                value = window.isMaximised
+            )
+            R.id.windowSynchronise -> CommandItem(
+                {windowControl.setSynchronised(window, !window.isSynchronised)},
+                value = window.isSynchronised)
+            R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
+            R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+
+            R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+
+            R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Id.BOOKMARKS)
+            R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Id.REDLETTERS)
+            R.id.sectionTitlesOption -> WindowTextContentMenuItemPreference(window, Id.SECTIONTITLES)
+            R.id.verseNumbersOption -> WindowTextContentMenuItemPreference(window, Id.VERSENUMBERS)
+            R.id.versePerLineOption -> WindowTextContentMenuItemPreference(window, Id.VERSEPERLINE)
+            R.id.footnoteOption -> WindowTextContentMenuItemPreference(window, Id.FOOTNOTES)
+            R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Id.MYNOTES)
+            R.id.showStrongsOption -> StrongsMenuItemPreference()
+            R.id.morphologyOption -> MorphologyMenuItemPreference()
+            R.id.fontSize -> CommandItem({
+                TextSizeWidget.changeTextSize(mainBibleActivity, preferences.getInt("text_size_pref", 16)) {
+                    preferences.edit().putInt("text_size_pref", it).apply()
+                    //preferenceSettingsChanged()
+                } })
 
 
-        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
-
-        R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
-        R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
-        R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
-        R.id.verseNumbersOption -> TextContentMenuItemPreference("show_verseno_pref", true)
-        R.id.versePerLineOption -> TextContentMenuItemPreference("verse_per_line_pref", false)
-        R.id.footnoteOption -> TextContentMenuItemPreference("show_notes_pref", false)
-        R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
-        R.id.showStrongsOption -> StrongsMenuItemPreference()
-        R.id.morphologyOption -> MorphologyMenuItemPreference()
-        R.id.fontSize -> CommandItem({
-            TextSizeWidget.changeTextSize(mainBibleActivity, preferences.getInt("text_size_pref", 16)) {
-            preferences.edit().putInt("text_size_pref", it).apply()
-            //preferenceSettingsChanged()
-        } })
-
-
-        else -> throw RuntimeException("Illegal menu item")
+            else -> throw RuntimeException("Illegal menu item")
+        }
     }
 
     private fun isWebViewShowing(parent: ViewGroup): Boolean {

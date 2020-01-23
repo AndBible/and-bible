@@ -356,6 +356,16 @@ open class WindowRepository @Inject constructor(
         historyManagerProvider.get().clear()
         name = ""
     }
+
+    fun updateWindowTextDisplaySettings(type: WorkspaceEntities.TextDisplaySettings.Id, value: Boolean) {
+        windowList.forEach {
+            val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
+            if (winValue == value) {
+                it.pageManager.textDisplaySettings.setNonSpecific(type)
+            }
+        }
+    }
+
     companion object {
         private const val TAG = "WinRep BibleView"
     }

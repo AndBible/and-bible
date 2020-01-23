@@ -74,6 +74,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -596,13 +597,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-        R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
-        R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
-        R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
-        R.id.verseNumbersOption -> TextContentMenuItemPreference("show_verseno_pref", true)
-        R.id.versePerLineOption -> TextContentMenuItemPreference("verse_per_line_pref", false)
-        R.id.footnoteOption -> TextContentMenuItemPreference("show_notes_pref", false)
-        R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
+        R.id.showBookmarksOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.BOOKMARKS)
+        R.id.redLettersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.REDLETTERS)
+        R.id.sectionTitlesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.SECTIONTITLES)
+        R.id.verseNumbersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.VERSENUMBERS)
+        R.id.versePerLineOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.VERSEPERLINE)
+        R.id.footnoteOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.FOOTNOTES)
+        R.id.myNotesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MYNOTES)
+
         R.id.showStrongsOption -> StrongsMenuItemPreference()
         R.id.morphologyOption -> MorphologyMenuItemPreference()
         R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {

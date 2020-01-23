@@ -27,6 +27,7 @@
 		  android:checked="true"/>
 	<item
 		android:id="@+id/textOptionsSubMenu"
+		android:icon="@drawable/ic_text_format_white_24dp"
 		android:title="@string/text_options">
 		<menu/>
 	</item>

@@ -20,6 +20,9 @@ package net.bible.android.view.activity.page
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
+import net.bible.android.control.page.window.Window
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -30,14 +33,29 @@ interface OptionsMenuItemInterface {
     var value: Boolean
     val visible: Boolean
     val enabled: Boolean
+    val specific: Boolean
     fun handle()
     fun getTitle(title: CharSequence?): CharSequence? = title
+}
+
+abstract class GeneralMenuItemPreference(
+    protected val onlyBibles: Boolean = false,
+
+    val subMenu: Boolean = false
+) : OptionsMenuItemInterface {
+    override val visible: Boolean
+        get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+
+    override val enabled: Boolean
+        get() = true
+
+    override fun handle() {}
 }
 
 abstract class MenuItemPreference(
     private val preferenceName: String,
     private val default: Boolean = false,
-    private val onlyBibles: Boolean = false,
+    onlyBibles: Boolean = false,
     private val isBoolean: Boolean = true,
 
     // If we are handling non-boolean value
@@ -45,10 +63,11 @@ abstract class MenuItemPreference(
     private val falseValue: String = "false",
     private val automaticValue: String = "automatic",
     private val defaultString: String = falseValue,
-
-    val subMenu: Boolean = false
-) : OptionsMenuItemInterface {
+    subMenu: Boolean = false
+) : GeneralMenuItemPreference(onlyBibles, subMenu), OptionsMenuItemInterface {
     private val preferences = CommonUtils.sharedPreferences
+    override val specific = false
+
     override var value: Boolean
         get() = if (isBoolean) {
             preferences.getBoolean(preferenceName, default)
@@ -68,12 +87,6 @@ abstract class MenuItemPreference(
             preferences.getString(preferenceName, defaultString) == automaticValue
         }
 
-    override val visible: Boolean
-        get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
-
-    override val enabled: Boolean
-        get() = true
-
     override fun handle() {}
 }
 
@@ -86,6 +99,42 @@ open class TextContentMenuItemPreference(name: String, default: Boolean) :
     override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
 }
 
+class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Id) :
+    GeneralMenuItemPreference() {
+    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+
+    val def = WorkspaceEntities.TextDisplaySettings.default
+
+    //override fun handle() = window.updateText()
+    override var value: Boolean get() = wsTextSettings.getBooleanValue(type)?: def.getBooleanValue(type)!!
+        set(value) {
+            wsTextSettings.setBooleanValue(type, value)
+            mainBibleActivity.windowRepository.updateWindowTextDisplaySettings(type, value)
+        }
+    override val specific = false
+}
+
+class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Id) :
+    GeneralMenuItemPreference() {
+    private val textSettings = window.pageManager.textDisplaySettings
+    private val actualTextSettings = window.pageManager.actualTextDisplaySettings
+    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+
+    override fun handle() = window.updateText()
+    override var value: Boolean get() = actualTextSettings.getBooleanValue(type)!!
+        set(value) {
+            if(wsTextSettings.getBooleanValue(type) == value)
+                textSettings.setBooleanValue(type, null)
+            else
+                textSettings.setBooleanValue(type, value)
+
+        }
+    override val specific: Boolean get () = textSettings.getBooleanValue(type) != null
+
+    override val visible: Boolean = true
+}
+
+
 class TiltToScrollMenuItemPreference :
     MenuItemPreference("tilt_to_scroll_pref", false, false) {
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()
@@ -96,7 +145,8 @@ class CommandItem(
     val command: () -> Unit,
     override val enabled: Boolean = true,
     override var value: Boolean = true,
-    override val visible: Boolean = true
+    override val visible: Boolean = true,
+    override val specific: Boolean = false
 ) : OptionsMenuItemInterface {
     override fun handle() {
         command()
