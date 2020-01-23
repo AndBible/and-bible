@@ -148,7 +148,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
     ) {
         companion object {
-            var default = WindowBehaviorSettings(false, false)
+            val default get() = WindowBehaviorSettings(false, false)
         }
     }
 

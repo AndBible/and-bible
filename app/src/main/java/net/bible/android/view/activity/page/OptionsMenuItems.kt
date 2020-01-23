@@ -102,7 +102,6 @@ open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.
 
     val def = WorkspaceEntities.TextDisplaySettings.default
 
-    //override fun handle() = window.updateText()
     override var value: Boolean get() = wsTextSettings.getBooleanValue(type)?: def.getBooleanValue(type)!!
         set(value) {
             wsTextSettings.setBooleanValue(type, value)
