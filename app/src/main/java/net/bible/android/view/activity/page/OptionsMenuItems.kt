@@ -116,7 +116,7 @@ open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.
 }
 
 open class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Id) :
-    GeneralMenuItemPreference() {
+    GeneralMenuItemPreference(true) {
     private val textSettings = window.pageManager.textDisplaySettings
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
@@ -132,8 +132,8 @@ open class WindowTextContentMenuItemPreference(val window: Window, var type: Tex
 
         }
     override val inherited: Boolean get () = textSettings.getBooleanValue(type) == null
-
-    override val visible: Boolean = true
+    override val visible: Boolean
+        get() = if (onlyBibles) window.pageManager.isBibleShown else true
 }
 
 

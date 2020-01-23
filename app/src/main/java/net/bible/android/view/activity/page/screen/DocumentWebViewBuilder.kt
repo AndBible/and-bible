@@ -703,7 +703,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
             R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
 
-            R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+            R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
             R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Id.BOOKMARKS)
             R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Id.REDLETTERS)
