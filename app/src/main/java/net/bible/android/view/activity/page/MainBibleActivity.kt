@@ -628,6 +628,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
+        val subMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        menuInflater.inflate(R.menu.text_options_menu, subMenu)
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(item.itemId)
