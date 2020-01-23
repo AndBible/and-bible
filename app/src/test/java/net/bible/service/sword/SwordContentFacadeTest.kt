@@ -1,6 +1,7 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.ParseException
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
@@ -88,7 +89,7 @@ class SwordContentFacadeTest {
         val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false)
+            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
         } catch (e: ParseException) {
             "broken"
         }
@@ -103,7 +104,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false)
+            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
         } catch (e: ParseException) {
             "broken"
         }
@@ -119,7 +120,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false)
+                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
             } catch (e: ParseException) {
                 "broken"
             }
@@ -130,7 +131,7 @@ class SwordContentFacadeTest {
 
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
-        return swordContentFacade.readHtmlText(book, key, asFragment)
+        return swordContentFacade.readHtmlText(book, key, asFragment, WorkspaceEntities.TextDisplaySettings.default)
     }
 
     private fun getBook(initials: String): Book {

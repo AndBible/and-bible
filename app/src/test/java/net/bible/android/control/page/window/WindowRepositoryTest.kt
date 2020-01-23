@@ -42,7 +42,8 @@ class WindowRepositoryTest {
         val myNoteDao = mock(MyNoteDAO::class.java)
 
         val repoFactory = mock(RepoFactory::class.java)
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao) }
+        val mockWinRepo = mock(WindowRepository::class.java)
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao, mockWinRepo) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager)

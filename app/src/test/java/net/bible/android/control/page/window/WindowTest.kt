@@ -51,7 +51,8 @@ class WindowTest {
         val windowRepository = mock(WindowRepository::class.java)
         val repoFactory = mock(RepoFactory::class.java)
 
-        val mockCurrentPageManager = CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao)
+        val mockWinRepo = mock(WindowRepository::class.java)
+        val mockCurrentPageManager = CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao, mockWinRepo)
 
         // initialise Window
         var window = Window(

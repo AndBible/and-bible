@@ -64,8 +64,9 @@ class WindowControlTest {
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
         val repoFactory = mock(RepoFactory::class.java)
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao) }
+        val mockWindowRepository = mock(WindowRepository::class.java)
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao, mockWindowRepository) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
@@ -312,72 +313,6 @@ class WindowControlTest {
         assertThat(windowControl!!.isMultiWindow, equalTo(true))
         windowControl!!.closeWindow(newWindow)
         assertThat(windowControl!!.isMultiWindow, equalTo(false))
-    }
-
-    @Test
-    fun testUpdateSynchronisedMenuItem() {
-        val menu = createWindowsMenu()
-
-        windowControl!!.updateOptionsMenu(menu)
-        val synchronisedMenuItem = menu.findItem(R.id.windowSynchronise)
-        assertThat(synchronisedMenuItem.isChecked, equalTo(true))
-
-        windowControl!!.activeWindow.isSynchronised = false
-        windowControl!!.updateOptionsMenu(menu)
-        assertThat(synchronisedMenuItem.isChecked, equalTo(false))
-    }
-
-    @Test
-    fun testDisableMenuItemsIfLinksWindowActive() {
-        val normalWindow = windowControl!!.activeWindow
-        windowControl!!.addNewWindow()
-
-        val menu = createWindowsMenu()
-        windowControl!!.updateOptionsMenu(menu)
-
-        val synchronisedMenuItem = menu.findItem(R.id.windowSynchronise)
-        val moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst)
-        val minimiseMenuItem = menu.findItem(R.id.windowMinimise)
-
-        assertThat(synchronisedMenuItem.isEnabled, equalTo(true))
-        val linksWindow = windowRepository!!.dedicatedLinksWindow
-
-        windowControl!!.activeWindow = linksWindow
-        windowControl!!.updateOptionsMenu(menu)
-
-        assertThat(synchronisedMenuItem.isEnabled, equalTo(false))
-        assertThat(moveFirstMenuItem.isEnabled, equalTo(false))
-        assertThat(minimiseMenuItem.isEnabled, equalTo(false))
-
-        // check menu items are re-enabled when a normal window becomes active
-        windowControl!!.activeWindow = normalWindow
-        windowControl!!.updateOptionsMenu(menu)
-        assertThat(synchronisedMenuItem.isEnabled, equalTo(true))
-    }
-
-    @Test
-    fun testDisableMenuItemsIfOnlyOneWindow() {
-        // the links window should not allow minimise or close to work if only 1 other window
-        windowRepository!!.dedicatedLinksWindow.windowLayout.state = WindowState.SPLIT
-
-        val menu = createWindowsMenu()
-
-        windowControl!!.updateOptionsMenu(menu)
-        val minimiseMenuItem = menu.findItem(R.id.windowMinimise)
-        val closeMenuItem = menu.findItem(R.id.windowClose)
-        assertThat(minimiseMenuItem.isEnabled, equalTo(false))
-        assertThat(closeMenuItem.isEnabled, equalTo(false))
-    }
-
-    @Test
-    fun testCannotMoveFirstWindowFirst() {
-        windowControl!!.addNewWindow()
-
-        val menu = createWindowsMenu()
-
-        windowControl!!.updateOptionsMenu(menu)
-        val moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst)
-        assertThat(moveFirstMenuItem.isEnabled, equalTo(false))
     }
 
     fun createWindowsMenu(): Menu {
