@@ -25,6 +25,8 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
@@ -39,6 +41,7 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.children
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
@@ -49,10 +52,19 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Id
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
+import net.bible.android.view.activity.page.CommandItem
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.OptionsMenuItemInterface
+import net.bible.android.view.activity.page.SubMenuMenuItemPreference
+import net.bible.android.view.activity.page.WindowFontSizeItem
+import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
+import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
+import net.bible.android.view.activity.page.WindowTextContentMenuItemPreference
+import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import java.util.*
@@ -85,8 +97,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private val windowControl: WindowControl,
     private val mainBibleActivity: MainBibleActivity,
     private val bibleViewFactory: BibleViewFactory,
-    private val documentControl: DocumentControl,
-    private val windowMenuCommandHandler: WindowMenuCommandHandler
+    private val documentControl: DocumentControl
 ) {
 
     private var isWindowConfigurationChanged = true
@@ -610,6 +621,16 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
+    private fun handlePrefItem(window: Window, item: MenuItem) {
+        val itemOptions = getItemOptions(window, item.itemId)
+        if(itemOptions is SubMenuMenuItemPreference)
+            return
+
+        itemOptions.value = !itemOptions.value
+        itemOptions.handle()
+        item.isChecked = itemOptions.value
+    }
+
     @SuppressLint("RestrictedApi")
     private fun showPopupWindow(window: Window, view: View) {
         // ensure actions affect the right window
@@ -620,14 +641,40 @@ class DocumentWebViewBuilder @Inject constructor(
         val popup = PopupMenu(mainBibleActivity, view)
         popup.setOnMenuItemClickListener { menuItem ->
             resetTouchTimer()
-            windowMenuCommandHandler.handleMenuRequest(menuItem)
+            handlePrefItem(window, menuItem)
+            true
+            //windowMenuCommandHandler.handleMenuRequest(menuItem)
         }
 
         val inflater = popup.menuInflater
         inflater.inflate(R.menu.window_popup_menu, popup.menu)
 
-        // enable/disable and set synchronised checkbox
-        windowControl.updateOptionsMenu(popup.menu)
+        val subMenu = popup.menu.findItem(R.id.textOptionsSubMenu).subMenu
+        inflater.inflate(R.menu.text_options_menu, subMenu)
+
+        fun handleMenu(menu: Menu) {
+            for(item in menu.children) {
+                val itmOptions = getItemOptions(window, item.itemId)
+                item.title = itmOptions.getTitle(item.title)
+                item.isVisible = itmOptions.visible
+                item.isEnabled = itmOptions.enabled
+                if(itmOptions is WindowTextContentMenuItemPreference || itmOptions is WindowFontSizeItem) {
+                    if (itmOptions.inherited) {
+                        item.setIcon(R.drawable.ic_sync_white_24dp)
+                    } else {
+                        item.setIcon(R.drawable.ic_sync_disabled_green_24dp)
+                    }
+                }
+
+                if(item.hasSubMenu()) {
+                    handleMenu(item.subMenu)
+                    continue;
+                }
+
+                item.isChecked = itmOptions.value
+            }
+        }
+        handleMenu(popup.menu)
 
         val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
         menuHelper.setOnDismissListener {
@@ -637,6 +684,40 @@ class DocumentWebViewBuilder @Inject constructor(
 
         menuHelper.setForceShowIcon(true)
         menuHelper.show()
+    }
+
+    private val preferences = CommonUtils.sharedPreferences
+
+    private fun getItemOptions(window: Window, itemId: Int): OptionsMenuItemInterface {
+        return when(itemId) {
+
+            R.id.windowNew -> CommandItem({windowControl.addNewWindow()})
+            R.id.windowMaximise -> CommandItem(
+                {windowControl.setMaximized(window, !window.isMaximised)},
+                value = window.isMaximised
+            )
+            R.id.windowSynchronise -> CommandItem(
+                {windowControl.setSynchronised(window, !window.isSynchronised)},
+                value = window.isSynchronised)
+            R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
+            R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+
+            R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
+
+            R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Id.BOOKMARKS)
+            R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Id.REDLETTERS)
+            R.id.sectionTitlesOption -> WindowTextContentMenuItemPreference(window, Id.SECTIONTITLES)
+            R.id.verseNumbersOption -> WindowTextContentMenuItemPreference(window, Id.VERSENUMBERS)
+            R.id.versePerLineOption -> WindowTextContentMenuItemPreference(window, Id.VERSEPERLINE)
+            R.id.footnoteOption -> WindowTextContentMenuItemPreference(window, Id.FOOTNOTES)
+            R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Id.MYNOTES)
+            R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
+            R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
+            R.id.fontSize -> WindowFontSizeItem(window)
+
+            else -> throw RuntimeException("Illegal menu item")
+        }
     }
 
     private fun isWebViewShowing(parent: ViewGroup): Boolean {

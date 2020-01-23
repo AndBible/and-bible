@@ -29,6 +29,7 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.service.common.CommonUtils.sharedPreferences
 import java.util.*
 
@@ -105,8 +106,8 @@ class PageTiltScrollControl {
     /** start or stop tilt to scroll functionality
      */
     fun enableTiltScroll(enable: Boolean): Boolean {
-        return if (!sharedPreferences.getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) ||
-            !isTiltSensingPossible) {
+        val enabled = mainBibleActivity.windowRepository.windowBehaviorSettings.enableTiltToScroll
+        return if (!enabled || !isTiltSensingPossible) {
             false
         } else if (isTiltScrollEnabled != enable) {
             isTiltScrollEnabled = enable
@@ -272,7 +273,6 @@ class PageTiltScrollControl {
         private const val MAX_SPEED = 0.2f
         // calculated to ensure even speed up of scrolling
 		private lateinit var mTimeBetweenScrolls: Array<Int>
-        const val TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref"
         private const val TAG = "TiltScrollControl"
         /** return true if both a sensor and android support are available to sense device tilt
          */

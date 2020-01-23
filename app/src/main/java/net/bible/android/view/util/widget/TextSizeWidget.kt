@@ -58,7 +58,7 @@ class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout
     }
     
     companion object {
-        fun changeTextSize(context: Context, value: Int, callback: (value: Int) -> Unit) {
+        fun changeTextSize(context: Context, value: Int, resetCallback: (() -> Unit)? = null, callback: (value: Int) -> Unit) {
             AlertDialog.Builder(context).apply{
                 val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                 val layout = inflater.inflate(R.layout.text_size, null) as TextSizeWidget
@@ -68,6 +68,9 @@ class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout
                 setPositiveButton(R.string.okay) { dialog, which ->
                     dialog.dismiss()
                     callback(layout.value)
+                }
+                if(resetCallback != null) {
+                    setNeutralButton(R.string.reset) { _, _ -> resetCallback.invoke() }
                 }
                 setNegativeButton(R.string.cancel) { dialog, which ->
                     dialog.cancel()

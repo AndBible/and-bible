@@ -39,7 +39,7 @@ interface WorkspaceDao {
             ?: return WorkspaceEntities.Workspace(newName).apply {
                 id = insertWorkspace(this)
             }
-        val newWorkspace = WorkspaceEntities.Workspace(newName)
+        val newWorkspace = WorkspaceEntities.Workspace(newName, 0, oldWorkspace.textDisplaySettings, oldWorkspace.windowBehaviorSettings)
         newWorkspace.id = insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)

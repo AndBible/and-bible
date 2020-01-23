@@ -19,11 +19,13 @@
 package net.bible.android.control.page
 
 import android.content.Intent
+import android.util.Log
 
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
@@ -32,6 +34,7 @@ import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import java.lang.RuntimeException
@@ -47,7 +50,9 @@ open class CurrentPageManager @Inject constructor(
         swordContentFacade: SwordContentFacade,
         swordDocumentFacade: SwordDocumentFacade,
         bibleTraverser: BibleTraverser,
-        myNoteDAO: MyNoteDAO)
+        myNoteDAO: MyNoteDAO,
+        val windowRepository: WindowRepository
+        )
 {
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
@@ -57,6 +62,38 @@ open class CurrentPageManager @Inject constructor(
     val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
     val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
     val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
+
+    var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings()
+
+
+    val hasStrongs: Boolean get() {
+        return try {
+            val currentBook = currentPage.currentDocument
+            currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking for strongs Numbers in book", e)
+            false
+        }
+    }
+
+    val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+        get() {
+            val win = textDisplaySettings
+            val ws = windowRepository.textDisplaySettings
+            val def = WorkspaceEntities.TextDisplaySettings.default
+            return WorkspaceEntities.TextDisplaySettings(
+                win.fontSize?: ws.fontSize?: def.fontSize,
+                win.showStrongs?: ws.showStrongs?: def.showStrongs,
+                win.showMorphology?: ws.showMorphology?: def.showMorphology,
+                win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,
+                win.showRedLetters?: ws.showRedLetters?: def.showRedLetters,
+                win.showSectionTitles?: ws.showSectionTitles?: def.showSectionTitles,
+                win.showVerseNumbers?: ws.showVerseNumbers?: def.showVerseNumbers,
+                win.showVersePerLine?: ws.showVersePerLine?: def.showVersePerLine,
+                win.showBookmarks?: ws.showBookmarks?: def.showBookmarks,
+                win.showMyNotes?: ws.showMyNotes?: def.showMyNotes
+            )
+        }
 
     lateinit var window: Window
 
@@ -201,7 +238,8 @@ open class CurrentPageManager @Inject constructor(
             currentDictionary.pageEntity,
             currentGeneralBook.pageEntity,
             currentMap.pageEntity,
-            currentPage.bookCategory.getName()
+            currentPage.bookCategory.getName(),
+            textDisplaySettings
         )
 
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
@@ -212,6 +250,9 @@ open class CurrentPageManager @Inject constructor(
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
         currentPage = getBookPage(restoredBookCategory)
     }
+
+    val TAG get() = "PageManager[${window.id}]"
 }

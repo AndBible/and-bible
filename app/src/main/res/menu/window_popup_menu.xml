@@ -25,6 +25,12 @@
 		  android:icon="@drawable/ic_sync_white_24dp"
 		  android:checkable="true"
 		  android:checked="true"/>
+	<item
+		android:id="@+id/textOptionsSubMenu"
+		android:icon="@drawable/ic_text_format_white_24dp"
+		android:title="@string/text_options">
+		<menu/>
+	</item>
 	<item android:id="@+id/windowMoveFirst"
 		  android:title="@string/windowMoveFirst"
 		  android:icon="@drawable/ic_arrow_drop_up_white_24dp"/>

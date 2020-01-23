@@ -26,53 +26,10 @@
 				/>
         </menu>
     </item>
-
 	<item
 		android:id="@+id/textOptionsSubMenu"
 		android:title="@string/text_options">
-		<menu>
-			<item android:id="@+id/fontSize"
-				android:title="@string/prefs_text_size_menuitem"
-				android:checkable="false"
-				/>
-			<item android:id="@+id/showStrongsOption"
-				android:title="@string/prefs_show_strongs_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/morphologyOption"
-				android:title="@string/prefs_show_morphology_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/footnoteOption"
-				android:title="@string/prefs_show_notes_title"
-				android:checkable="true"
-				/>
-
-			<item android:id="@+id/redLettersOption"
-				android:title="@string/prefs_red_letter_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/sectionTitlesOption"
-				android:title="@string/prefs_section_title_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/verseNumbersOption"
-				android:title="@string/prefs_show_verseno_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/versePerLineOption"
-				android:title="@string/prefs_verse_per_line_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/showBookmarksOption"
-				android:title="@string/prefs_show_bookmarks_title"
-				android:checkable="true"
-				/>
-			<item android:id="@+id/myNotesOption"
-				android:title="@string/prefs_show_mynotes_title"
-				android:checkable="true"
-				/>
-		</menu>
+		<menu/>
 	</item>
 
 	<item android:id="@+id/tiltToScroll"
@@ -80,13 +37,13 @@
 		android:checkable="true"
 		/>
 
-	<item android:id="@+id/nightMode"
-		android:title="@string/prefs_night_mode_title"
+	<item android:id="@+id/splitMode"
+		android:title="@string/reversed_split_mode"
 		android:checkable="true"
 		/>
 
-	<item android:id="@+id/splitMode"
-		android:title="@string/reversed_split_mode"
+	<item android:id="@+id/nightMode"
+		android:title="@string/prefs_night_mode_title"
 		android:checkable="true"
 		/>
 

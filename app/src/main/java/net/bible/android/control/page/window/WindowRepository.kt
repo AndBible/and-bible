@@ -49,8 +49,9 @@ open class WindowRepository @Inject constructor(
 )
 {
     private var windowList: MutableList<Window> = ArrayList()
-
     private var busyCount: Int = 0
+    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
+    var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default
 
     val isBusy get() = busyCount > 0
 
@@ -274,7 +275,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id, textDisplaySettings, windowBehaviorSettings))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
@@ -314,6 +315,9 @@ open class WindowRepository @Inject constructor(
 
         id = entity.id
         name = entity.name
+
+        textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+        windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id, false, false, true,
@@ -355,6 +359,25 @@ open class WindowRepository @Inject constructor(
         historyManagerProvider.get().clear()
         name = ""
     }
+
+    fun updateWindowTextDisplaySettings(type: WorkspaceEntities.TextDisplaySettings.Id, value: Boolean) {
+        windowList.forEach {
+            val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
+            if (winValue == value) {
+                it.pageManager.textDisplaySettings.setNonSpecific(type)
+            }
+        }
+    }
+
+    fun updateWindowFontSizes(fontSize: Int) {
+        windowList.forEach {
+            val winValue = it.pageManager.textDisplaySettings.fontSize
+            if (winValue == fontSize) {
+                it.pageManager.textDisplaySettings.fontSize = null
+            }
+        }
+    }
+
     companion object {
         private const val TAG = "WinRep BibleView"
     }

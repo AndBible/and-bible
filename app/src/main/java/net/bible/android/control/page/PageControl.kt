@@ -126,23 +126,13 @@ open class PageControl @Inject constructor(
     /** font size may be adjusted for certain fonts e.g. SBLGNT
      */
     fun getDocumentFontSize(window: Window): Int { // get base font size
-        val preferences = sharedPreferences
-        val fontSize = preferences.getInt("text_size_pref", 16)
+        val fontSize = window.pageManager.actualTextDisplaySettings.fontSize!!
         // if book has a special font it may require an adjusted font size
         val book = window.pageManager.currentPage.currentDocument
         val font = FontControl.getInstance().getFontForBook(book)
         val fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book)
         return fontSize + fontSizeAdjustment
     }
-
-    /** return true if Strongs numbers are shown  */
-    val isStrongsShown: Boolean
-        get() = isStrongsRelevant &&
-            sharedPreferences.getBoolean("show_strongs_pref", true)
-
-    /** return true if Strongs are relevant to this doc & screen  */
-    val isStrongsRelevant: Boolean
-        get() = documentControl.isStrongsInBook// Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book
 
     /**
      * Return false if current page is not scripture, but only if the page is valid

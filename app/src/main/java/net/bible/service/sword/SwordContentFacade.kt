@@ -24,6 +24,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkStyle
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.VersificationConverter
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.common.CommonUtils.getResourceInteger
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Constants
@@ -82,7 +83,7 @@ open class SwordContentFacade @Inject constructor(
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class)
-    fun readHtmlText(book: Book?, key: Key?, asFragment: Boolean): String {
+    fun readHtmlText(book: Book?, key: Key?, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
         var retVal = ""
         if (book == null || key == null) {
             retVal = ""
@@ -100,7 +101,7 @@ open class SwordContentFacade @Inject constructor(
             if ("OSIS" == book.bookMetaData.getProperty("SourceType") && "zText" == book.bookMetaData.getProperty("ModDrv") &&
                 documentParseMethod.isFastParseOkay(book, key)) {
                 try {
-                    retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment)
+                    retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
                     isParsedOk = true
                 } catch (pe: ParseException) {
                     documentParseMethod.failedToParse(book, key)
@@ -108,7 +109,7 @@ open class SwordContentFacade @Inject constructor(
             }
             // fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
             if (!isParsedOk) {
-                retVal = readHtmlTextStandardJSwordMethod(book, key, asFragment)
+                retVal = readHtmlTextStandardJSwordMethod(book, key, asFragment, textDisplaySettings)
             }
         }
         return retVal
@@ -117,13 +118,13 @@ open class SwordContentFacade @Inject constructor(
     /** Get Footnotes and references from specified document page
      */
     @Throws(ParseException::class)
-    fun readFootnotesAndReferences(book: Book?, key: Key?): List<Note?> {
+    fun readFootnotesAndReferences(book: Book?, key: Key?, textDisplaySettings: TextDisplaySettings): List<Note?> {
         var retVal: List<Note?> = ArrayList()
         return try { // based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
             if (osissep != null) {
-                val osisToHtml = getSaxHandler(book!!, key!!, true)
+                val osisToHtml = getSaxHandler(book!!, key!!, true, textDisplaySettings)
                 osissep.provideSAXEvents(osisToHtml)
                 retVal = osisToHtml.notesList
             } else {
@@ -141,7 +142,7 @@ open class SwordContentFacade @Inject constructor(
      * This reduces memory requirements compared to standard JDom SaxEventProvider
      */
     @Throws(ParseException::class)
-    internal fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean): String {
+    internal fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
         log.debug("Using fast method to fetch document data")
         /*
 		  When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader;
@@ -149,7 +150,7 @@ open class SwordContentFacade @Inject constructor(
 		  reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
 		 */
         val `is`: InputStream = OSISInputStream(book, key)
-        val osisToHtml = getSaxHandler(book, key, asFragment)
+        val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
         var parser: SAXParser? = null
         try {
             parser = saxParserPool.obtain()
@@ -164,7 +165,7 @@ open class SwordContentFacade @Inject constructor(
     }
 
     @Throws(ParseException::class)
-    private fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean): String {
+    private fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
         log.debug("Using standard JSword to fetch document data")
         val retVal: String
         return try {
@@ -174,7 +175,7 @@ open class SwordContentFacade @Inject constructor(
                 Log.e(TAG, "No osis SEP returned")
                 "Error fetching osis SEP"
             } else {
-                val osisToHtml = getSaxHandler(book, key, asFragment)
+                val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
                 osissep.provideSAXEvents(osisToHtml)
                 osisToHtml.toString()
             }
@@ -337,7 +338,7 @@ open class SwordContentFacade @Inject constructor(
         return key
     }
 
-    private fun getSaxHandler(book: Book, key: Key, asFragment: Boolean): OsisToHtmlSaxHandler {
+    private fun getSaxHandler(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): OsisToHtmlSaxHandler {
         val osisToHtmlParameters = OsisToHtmlParameters()
         val bookCategory = book.bookCategory
         val bmd = book.bookMetaData
@@ -358,23 +359,23 @@ open class SwordContentFacade @Inject constructor(
             osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
             val preferences = sharedPreferences
 			// prefs applying to any doc type
-			osisToHtmlParameters.isShowNotes = preferences.getBoolean("show_notes_pref", false)
-			osisToHtmlParameters.isRedLetter = preferences.getBoolean("red_letter_pref", false)
+			osisToHtmlParameters.isShowNotes = textDisplaySettings.showMyNotes!!
+			osisToHtmlParameters.isRedLetter = textDisplaySettings.showRedLetters!!
 			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
 			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
 			if (BookCategory.BIBLE == bookCategory) {
-				osisToHtmlParameters.isShowVerseNumbers = preferences.getBoolean("show_verseno_pref", true) && BookCategory.BIBLE == bookCategory
-				osisToHtmlParameters.isVersePerline = preferences.getBoolean("verse_per_line_pref", false)
-				osisToHtmlParameters.isShowMyNotes = preferences.getBoolean("show_mynotes_pref", true)
-				osisToHtmlParameters.isShowBookmarks = preferences.getBoolean("show_bookmarks_pref", true)
+				osisToHtmlParameters.isShowVerseNumbers = textDisplaySettings.showVerseNumbers!! && BookCategory.BIBLE == bookCategory
+				osisToHtmlParameters.isVersePerline = textDisplaySettings.showVersePerLine!!
+				osisToHtmlParameters.isShowMyNotes = textDisplaySettings.showMyNotes!!
+				osisToHtmlParameters.isShowBookmarks = textDisplaySettings.showBookmarks!!
 				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)))
-				osisToHtmlParameters.isShowTitles = preferences.getBoolean("section_title_pref", true)
+				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
 				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
 				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
 				// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
-				val showStrongs = preferences.getBoolean("show_strongs_pref", true)
+				val showStrongs = textDisplaySettings.showStrongs!!
 				osisToHtmlParameters.isShowStrongs = showStrongs
-				osisToHtmlParameters.isShowMorphology = showStrongs && preferences.getBoolean("show_morphology_pref", false)
+				osisToHtmlParameters.isShowMorphology = showStrongs && textDisplaySettings.showMorphology!!
 			}
 			if (BookCategory.DICTIONARY == bookCategory) {
 				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) { //add allHebrew refs link

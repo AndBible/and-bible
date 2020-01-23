@@ -18,6 +18,7 @@
 
 package net.bible.android.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -71,7 +72,8 @@ class WorkspaceEntities {
         @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
-        val currentCategoryName: String
+        val currentCategoryName: String,
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings?
     )
 
     data class WindowLayout(
@@ -79,11 +81,84 @@ class WorkspaceEntities {
         val weight: Float = 1.0f
     )
 
+    data class TextDisplaySettings(
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showSectionTitles: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showVerseNumbers: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showVersePerLine: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
+    ) {
+        enum class Id {
+            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES
+        }
+
+        fun getBooleanValue(type: Id) = when(type) {
+            Id.STRONGS -> showStrongs
+            Id.MORPH -> showMorphology
+            Id.FOOTNOTES -> showFootNotes
+            Id.REDLETTERS -> showRedLetters
+            Id.SECTIONTITLES -> showSectionTitles
+            Id.VERSENUMBERS -> showVerseNumbers
+            Id.VERSEPERLINE -> showVersePerLine
+            Id.BOOKMARKS -> showBookmarks
+            Id.MYNOTES -> showMyNotes
+        }
+
+        fun setBooleanValue(type: Id, value: Boolean?) {
+            when(type) {
+                Id.STRONGS -> showStrongs = value
+                Id.MORPH -> showMorphology = value
+                Id.FOOTNOTES -> showFootNotes = value
+                Id.REDLETTERS -> showRedLetters = value
+                Id.SECTIONTITLES -> showSectionTitles = value
+                Id.VERSENUMBERS -> showVerseNumbers = value
+                Id.VERSEPERLINE -> showVersePerLine = value
+                Id.BOOKMARKS -> showBookmarks = value
+                Id.MYNOTES -> showMyNotes = value
+            }
+        }
+
+        fun setNonSpecific(type: WorkspaceEntities.TextDisplaySettings.Id) {
+            setBooleanValue(type, null)
+        }
+
+        companion object {
+            val default get() = TextDisplaySettings(
+                16,
+                false,
+                false,
+                false,
+                true,
+                true,
+                true,
+                false,
+                true,
+                true
+            )
+        }
+    }
+
+    data class WindowBehaviorSettings(
+        @ColumnInfo(defaultValue = "FALSE") var enableTiltToScroll: Boolean = false,
+        @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
+    ) {
+        companion object {
+            val default get() = WindowBehaviorSettings(false, false)
+        }
+    }
+
     @Entity
     data class Workspace(
         val name: String,
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
 
-        @PrimaryKey(autoGenerate = true) var id: Long = 0
+        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
+        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
     )
 
     @Entity(

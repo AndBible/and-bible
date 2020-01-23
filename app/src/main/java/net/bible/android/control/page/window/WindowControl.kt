@@ -93,43 +93,6 @@ open class WindowControl @Inject constructor(
         eventManager.register(this)
     }
 
-    /**
-     * Add the Window sub-menu resource which is not included in the main.xml for the main menu
-     * Set the synchronised checkbox in the app menu before displayed
-     * Disable various menu items if links window selected
-     */
-    fun updateOptionsMenu(menu: Menu) {
-        // when updating main menu rather than Window options menu
-
-        val synchronisedMenuItem = menu.findItem(R.id.windowSynchronise)
-        val moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst)
-        val closeMenuItem = menu.findItem(R.id.windowClose)
-        val minimiseMenuItem = menu.findItem(R.id.windowMinimise)
-        val maximiseMenuItem = menu.findItem(R.id.windowMaximise)
-        val window = activeWindow
-
-        if (synchronisedMenuItem != null && moveFirstMenuItem != null) {
-            // set synchronised & maximised checkbox state
-            synchronisedMenuItem.isChecked = window.isSynchronised
-            maximiseMenuItem.isChecked = window.isMaximised
-
-            // the dedicated links window cannot be treated as a normal window
-            val isDedicatedLinksWindowActive = isActiveWindow(windowRepository.dedicatedLinksWindow)
-            synchronisedMenuItem.isEnabled = !isDedicatedLinksWindowActive
-            moveFirstMenuItem.isEnabled = !isDedicatedLinksWindowActive
-
-            // cannot close last normal window
-            closeMenuItem.isEnabled = isWindowRemovable(window)
-            minimiseMenuItem.isEnabled = isWindowMinimisable(window)
-
-            // if window is already first then cannot promote
-            val visibleWindows = windowRepository.visibleWindows
-            if (visibleWindows.size > 0 && window == visibleWindows[0]) {
-                moveFirstMenuItem.isEnabled = false
-            }
-        }
-    }
-
     fun isActiveWindow(window: Window): Boolean {
         return window == windowRepository.activeWindow
     }
@@ -220,14 +183,6 @@ open class WindowControl @Inject constructor(
         return window
     }
 
-
-    /**
-     * Minimise window if possible
-     */
-    fun minimiseCurrentWindow() {
-        minimiseWindow(activeWindow)
-    }
-
     fun minimiseWindow(window: Window) {
         if (isWindowMinimisable(window)) {
             windowRepository.minimise(window)
@@ -275,10 +230,6 @@ open class WindowControl @Inject constructor(
         windowSync.reloadAllWindows()
     }
 
-    fun closeCurrentWindow() {
-        closeWindow(activeWindow)
-    }
-
     fun closeWindow(window: Window) {
 
         if (isWindowRemovable(window)) {
@@ -294,11 +245,11 @@ open class WindowControl @Inject constructor(
         }
     }
 
-    private fun isWindowMinimisable(window: Window): Boolean {
+    fun isWindowMinimisable(window: Window): Boolean {
         return !windowRepository.isMaximisedState && isWindowRemovable(window) && !window.isLinksWindow
     }
 
-    private fun isWindowRemovable(window: Window): Boolean {
+    fun isWindowRemovable(window: Window): Boolean {
         if(windowRepository.isMaximisedState && windowRepository.minimisedAndMaximizedScreens.size > 1) return true
         var normalWindows = windowRepository.visibleWindows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
@@ -330,22 +281,10 @@ open class WindowControl @Inject constructor(
         window.restoreOngoing = false
     }
 
-    fun synchroniseCurrentWindow() {
-        activeWindow.isSynchronised = true
-
-        windowSync.synchronizeWindows()
-    }
-
-    fun unsynchroniseCurrentWindow() {
-        activeWindow.isSynchronised = false
-    }
-
     /*
 	 * Move the current window to first
 	 */
-    fun moveCurrentWindowToFirst() {
-        val window = activeWindow
-
+    fun moveWindowToFirst(window: Window) {
         windowRepository.moveWindowToPosition(window, 0)
 
         // redisplay the current page
@@ -401,6 +340,33 @@ open class WindowControl @Inject constructor(
         if (isMultiWindow) {
             // need to layout multiple windows differently
             orientationChange()
+        }
+    }
+
+    fun canMoveFirst(window: Window): Boolean {
+        val visibleWindows = windowRepository.visibleWindows
+        if (visibleWindows.size > 0 && window == visibleWindows[0]) {
+            return false
+        }
+        return true
+    }
+
+    fun setMaximized(window: Window, value: Boolean) {
+        if(value == window.isMaximised) return
+        if(value) {
+            maximiseWindow(window)
+        } else {
+            unmaximiseWindow(window)
+        }
+    }
+
+    fun setSynchronised(window: Window, value: Boolean) {
+        if(value == window.isSynchronised) return
+        if(value) {
+            window.isSynchronised = true
+            windowSync.synchronizeWindows()
+        } else {
+            window.isSynchronised = false
         }
     }
 

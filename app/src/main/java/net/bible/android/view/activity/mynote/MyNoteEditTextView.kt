@@ -55,7 +55,6 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         gravity = Gravity.TOP
         isVerticalScrollBarEnabled = true
         updatePadding()
-        applyPreferenceSettings()
     }
 
     private fun updatePadding() {
@@ -107,8 +106,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     override fun applyPreferenceSettings() {
         changeBackgroundColour()
 
-        val preferences = CommonUtils.sharedPreferences
-        val fontSize = preferences.getInt("text_size_pref", 16)
+        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 

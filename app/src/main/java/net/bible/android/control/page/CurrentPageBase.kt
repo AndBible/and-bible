@@ -120,7 +120,7 @@ abstract class CurrentPageBase protected constructor(
 
     protected fun getPageContent(key: Key?, asFragment: Boolean): String {
         return try {
-            var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment)
+            var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment, pageManager.actualTextDisplaySettings)
             if (StringUtils.isEmpty(htmlText)) {
                 htmlText = format(R.string.error_no_content)
             }
@@ -133,7 +133,7 @@ abstract class CurrentPageBase protected constructor(
 
     @get:Throws(ParseException::class)
     override val currentPageFootnotesAndReferences: List<Note?>?
-        get() = swordContentFacade.readFootnotesAndReferences(currentDocument, key)
+        get() = swordContentFacade.readFootnotesAndReferences(currentDocument, key, pageManager.actualTextDisplaySettings)
 
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {

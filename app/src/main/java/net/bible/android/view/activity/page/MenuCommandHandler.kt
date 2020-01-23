@@ -58,7 +58,6 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -84,7 +83,6 @@ class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
             private val readingPlanControl: ReadingPlanControl,
             private val searchControl: SearchControl,
-            private val windowMenuCommandHandler: WindowMenuCommandHandler,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
@@ -218,10 +216,6 @@ constructor(private val callingActivity: MainBibleActivity,
                     callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
                     isHandled = true
                 }
-            }
-
-            if (!isHandled) {
-                isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem)
             }
 
             if (handlerIntent != null) {
