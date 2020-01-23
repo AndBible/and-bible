@@ -129,16 +129,16 @@ class WorkspaceEntities {
 
         companion object {
             val default get() = TextDisplaySettings(
-                16,
-                false,
-                false,
-                false,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true
+                fontSize = 16,
+                showStrongs = false,
+                showMorphology = false,
+                showFootNotes = false,
+                showRedLetters = true,
+                showSectionTitles = true,
+                showVerseNumbers = true,
+                showVersePerLine = false,
+                showBookmarks = true,
+                showMyNotes = true
             )
         }
     }
@@ -148,7 +148,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
     ) {
         companion object {
-            val default get() = WindowBehaviorSettings(false, false)
+            val default get() = WindowBehaviorSettings(
+                enableTiltToScroll = false,
+                enableReverseSplitMode = false
+            )
         }
     }
 
