@@ -33,7 +33,7 @@ interface OptionsMenuItemInterface {
     var value: Boolean
     val visible: Boolean
     val enabled: Boolean
-    val specific: Boolean
+    val inherited: Boolean
     fun handle()
     fun getTitle(title: CharSequence?): CharSequence? = title
 }
@@ -66,7 +66,7 @@ abstract class MenuItemPreference(
     subMenu: Boolean = false
 ) : GeneralMenuItemPreference(onlyBibles, subMenu), OptionsMenuItemInterface {
     private val preferences = CommonUtils.sharedPreferences
-    override val specific = false
+    override val inherited = false
 
     override var value: Boolean
         get() = if (isBoolean) {
@@ -94,12 +94,8 @@ abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
                                               trueValue: String = "true", falseValue: String = "false") :
     MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
-open class TextContentMenuItemPreference(name: String, default: Boolean) :
-    MenuItemPreference(name, default, true) {
-    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
-}
 
-class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Id) :
+open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Id) :
     GeneralMenuItemPreference() {
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
 
@@ -111,10 +107,12 @@ class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Id) :
             wsTextSettings.setBooleanValue(type, value)
             mainBibleActivity.windowRepository.updateWindowTextDisplaySettings(type, value)
         }
-    override val specific = false
+
+    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+    override val inherited = false
 }
 
-class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Id) :
+open class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Id) :
     GeneralMenuItemPreference() {
     private val textSettings = window.pageManager.textDisplaySettings
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
@@ -129,7 +127,7 @@ class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisp
                 textSettings.setBooleanValue(type, value)
 
         }
-    override val specific: Boolean get () = textSettings.getBooleanValue(type) != null
+    override val inherited: Boolean get () = textSettings.getBooleanValue(type) == null
 
     override val visible: Boolean = true
 }
@@ -146,7 +144,7 @@ class CommandItem(
     override val enabled: Boolean = true,
     override var value: Boolean = true,
     override val visible: Boolean = true,
-    override val specific: Boolean = false
+    override val inherited: Boolean = false
 ) : OptionsMenuItemInterface {
     override fun handle() {
         command()
@@ -163,20 +161,31 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 
 }
 
-class StrongsMenuItemPreference : TextContentMenuItemPreference("show_strongs_pref", true) {
-    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.STRONGS) {
+    override val enabled: Boolean get() = window.pageManager.hasStrongs
 }
+class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.STRONGS)
 
-class MorphologyMenuItemPreference : TextContentMenuItemPreference("show_morphology_pref", false) {
+class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.MORPH) {
     override val enabled: Boolean
-        get() = StrongsMenuItemPreference().value
+        get() = WindowStrongsMenuItemPreference(window).value
+
     override var value: Boolean
         get() = if (enabled) super.value else false
         set(value) {
             super.value = value
         }
+}
 
-    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MORPH) {
+    override val enabled: Boolean
+        get() = WorkspaceStrongsMenuItemPreference().value
+
+    override var value: Boolean
+        get() = if (enabled) super.value else false
+        set(value) {
+            super.value = value
+        }
 }
 
 class SplitModeMenuItemPreference :

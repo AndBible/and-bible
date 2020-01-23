@@ -19,6 +19,7 @@
 package net.bible.android.control.page
 
 import android.content.Intent
+import android.util.Log
 
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
@@ -33,6 +34,7 @@ import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import java.lang.RuntimeException
@@ -62,6 +64,17 @@ open class CurrentPageManager @Inject constructor(
     val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
 
     var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings()
+
+
+    val hasStrongs: Boolean get() {
+        return try {
+            val currentBook = currentPage.currentDocument
+            currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking for strongs Numbers in book", e)
+            false
+        }
+    }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
         get() {
@@ -240,4 +253,6 @@ open class CurrentPageManager @Inject constructor(
         textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
         currentPage = getBookPage(restoredBookCategory)
     }
+
+    val TAG get() = "PageManager[${window.id}]"
 }

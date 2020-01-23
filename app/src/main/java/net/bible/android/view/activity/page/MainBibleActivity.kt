@@ -605,8 +605,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.footnoteOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.FOOTNOTES)
         R.id.myNotesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MYNOTES)
 
-        R.id.showStrongsOption -> StrongsMenuItemPreference()
-        R.id.morphologyOption -> MorphologyMenuItemPreference()
+        R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
+        R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
         R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {
             preferences.edit().putInt("text_size_pref", it).apply()
             preferenceSettingsChanged()
