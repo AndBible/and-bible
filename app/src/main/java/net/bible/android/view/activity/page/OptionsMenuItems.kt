@@ -43,6 +43,7 @@ abstract class GeneralMenuItemPreference(
 
     val subMenu: Boolean = false
 ) : OptionsMenuItemInterface {
+    override val inherited: Boolean = false
     override val visible: Boolean
         get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
@@ -134,8 +135,14 @@ open class WindowTextContentMenuItemPreference(val window: Window, var type: Tex
 
 
 class TiltToScrollMenuItemPreference :
-    MenuItemPreference("tilt_to_scroll_pref", false, false) {
+    GeneralMenuItemPreference() {
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+    override var value: Boolean
+        get() = wsBehaviorSettings.enableTiltToScroll
+        set(value) {
+            wsBehaviorSettings.enableTiltToScroll = value
+        }
     override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
 }
 
@@ -164,6 +171,7 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.STRONGS) {
     override val enabled: Boolean get() = window.pageManager.hasStrongs
 }
+
 class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.STRONGS)
 
 class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.MORPH) {
@@ -189,11 +197,18 @@ class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPrefere
 }
 
 class SplitModeMenuItemPreference :
-    MenuItemPreference("reverse_split_mode_pref", false) {
+    GeneralMenuItemPreference() {
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
     override fun handle() {
         mainBibleActivity.windowControl.windowSizesChanged()
         ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.configuration))
     }
+
+    override var value: Boolean
+        get() = wsBehaviorSettings.enableReverseSplitMode
+        set(value) {
+            wsBehaviorSettings.enableReverseSplitMode = value
+        }
 
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }
