@@ -25,9 +25,11 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
+import org.w3c.dom.Text
 
 interface OptionsMenuItemInterface {
     var value: Boolean
@@ -117,11 +119,12 @@ open class WindowTextContentMenuItemPreference(val window: Window, var type: Tex
     private val textSettings = window.pageManager.textDisplaySettings
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+    private val default = TextDisplaySettings.default
 
     override fun handle() = window.updateText()
     override var value: Boolean get() = actualTextSettings.getBooleanValue(type)!!
         set(value) {
-            if(wsTextSettings.getBooleanValue(type) == value)
+            if(wsTextSettings.getBooleanValue(type)?: default.getBooleanValue(type) == value)
                 textSettings.setBooleanValue(type, null)
             else
                 textSettings.setBooleanValue(type, value)
@@ -153,7 +156,7 @@ class CommandItem(
     override val inherited: Boolean = false
 ) : OptionsMenuItemInterface {
     override fun handle() {
-        command()
+        command.invoke()
     }
 }
 
@@ -182,6 +185,37 @@ class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuI
         set(value) {
             super.value = value
         }
+}
+
+class WindowFontSizeItem(val window: Window): GeneralMenuItemPreference() {
+    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+    private val winTextSettings = window.pageManager.textDisplaySettings
+    private val default = TextDisplaySettings.default
+    override fun handle() {
+        TextSizeWidget.changeTextSize(mainBibleActivity, window.pageManager.actualTextDisplaySettings.fontSize!!) {
+            if(it == wsTextSettings.fontSize?: default.fontSize) {
+                winTextSettings.fontSize = null
+            } else {
+                winTextSettings.fontSize = it
+            }
+            window.bibleView?.applyPreferenceSettings()
+        }
+    }
+
+    override var value = true
+    override val inherited = window.pageManager.textDisplaySettings.fontSize == null
+}
+
+class WorkspaceFontSizeItem: GeneralMenuItemPreference() {
+    override fun handle() {
+        TextSizeWidget.changeTextSize(mainBibleActivity, mainBibleActivity.windowRepository.textDisplaySettings.fontSize
+            ?: TextDisplaySettings.default.fontSize!!) {
+            mainBibleActivity.windowRepository.textDisplaySettings.fontSize = it
+            mainBibleActivity.preferenceSettingsChanged()
+            mainBibleActivity.windowRepository.updateWindowFontSizes(it)
+        }
+    }
+    override var value = true
 }
 
 class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MORPH) {

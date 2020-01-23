@@ -607,10 +607,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
-        R.id.fontSize -> CommandItem({TextSizeWidget.changeTextSize(this, preferences.getInt("text_size_pref", 16)) {
-            preferences.edit().putInt("text_size_pref", it).apply()
-            preferenceSettingsChanged()
-        } })
+        R.id.fontSize -> WorkspaceFontSizeItem()
         R.id.splitMode -> SplitModeMenuItemPreference()
 
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()

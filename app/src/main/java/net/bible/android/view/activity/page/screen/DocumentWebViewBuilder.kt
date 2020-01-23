@@ -60,6 +60,7 @@ import net.bible.android.view.activity.page.CommandItem
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.SubMenuMenuItemPreference
+import net.bible.android.view.activity.page.WindowFontSizeItem
 import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
 import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
 import net.bible.android.view.activity.page.WindowTextContentMenuItemPreference
@@ -657,7 +658,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 item.title = itmOptions.getTitle(item.title)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                if(itmOptions is WindowTextContentMenuItemPreference) {
+                if(itmOptions is WindowTextContentMenuItemPreference || itmOptions is WindowFontSizeItem) {
                     if (itmOptions.inherited) {
                         item.setIcon(R.drawable.ic_sync_white_24dp)
                     } else {
@@ -713,12 +714,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Id.MYNOTES)
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
-            R.id.fontSize -> CommandItem({
-                TextSizeWidget.changeTextSize(mainBibleActivity, preferences.getInt("text_size_pref", 16)) {
-                    preferences.edit().putInt("text_size_pref", it).apply()
-                    //preferenceSettingsChanged()
-                } })
-
+            R.id.fontSize -> WindowFontSizeItem(window)
 
             else -> throw RuntimeException("Illegal menu item")
         }

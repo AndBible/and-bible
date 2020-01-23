@@ -50,8 +50,8 @@ open class WindowRepository @Inject constructor(
 {
     private var windowList: MutableList<Window> = ArrayList()
     private var busyCount: Int = 0
-    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
-    var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings()
+    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
+    var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default
 
     val isBusy get() = busyCount > 0
 
@@ -365,6 +365,15 @@ open class WindowRepository @Inject constructor(
             val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
             if (winValue == value) {
                 it.pageManager.textDisplaySettings.setNonSpecific(type)
+            }
+        }
+    }
+
+    fun updateWindowFontSizes(fontSize: Int) {
+        windowList.forEach {
+            val winValue = it.pageManager.textDisplaySettings.fontSize
+            if (winValue == fontSize) {
+                it.pageManager.textDisplaySettings.fontSize = null
             }
         }
     }
