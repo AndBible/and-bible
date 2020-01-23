@@ -37,13 +37,13 @@
 		android:checkable="true"
 		/>
 
-	<item android:id="@+id/nightMode"
-		android:title="@string/prefs_night_mode_title"
+	<item android:id="@+id/splitMode"
+		android:title="@string/reversed_split_mode"
 		android:checkable="true"
 		/>
 
-	<item android:id="@+id/splitMode"
-		android:title="@string/reversed_split_mode"
+	<item android:id="@+id/nightMode"
+		android:title="@string/prefs_night_mode_title"
 		android:checkable="true"
 		/>
 

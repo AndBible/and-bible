@@ -128,7 +128,7 @@ class WorkspaceEntities {
         }
 
         companion object {
-            val default = TextDisplaySettings(
+            val default get() = TextDisplaySettings(
                 16,
                 false,
                 false,
@@ -140,16 +140,6 @@ class WorkspaceEntities {
                 true,
                 true
             )
-
-            //const val STRONGS = 1
-            //const val MORPH = 2
-            //const val FOOTNOTES = 3
-            //const val REDLETTERS = 4
-            //const val SECTIONTITLES = 5
-            //const val VERSENUMBERS = 6
-            //const val VERSEPERLINE = 7
-            //const val BOOKMARKS = 8
-            //const val
         }
     }
 

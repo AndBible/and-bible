@@ -316,6 +316,9 @@ open class WindowRepository @Inject constructor(
         id = entity.id
         name = entity.name
 
+        textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+        windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
+
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
             id, false, false, true,
             WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
