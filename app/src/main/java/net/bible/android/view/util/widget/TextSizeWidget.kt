@@ -70,7 +70,7 @@ class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout
                     callback(layout.value)
                 }
                 if(resetCallback != null) {
-                    setNeutralButton(R.string.reset) { _, _ -> resetCallback.invoke() }
+                    setNeutralButton(R.string.reset_fontsize) { _, _ -> resetCallback.invoke() }
                 }
                 setNegativeButton(R.string.cancel) { dialog, which ->
                     dialog.cancel()
