@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
@@ -191,8 +192,13 @@ class WindowFontSizeItem(val window: Window): GeneralMenuItemPreference() {
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
     private val winTextSettings = window.pageManager.textDisplaySettings
     private val default = TextDisplaySettings.default
+    private val actualTextSettings = window.pageManager.actualTextDisplaySettings
+    override fun getTitle(title: CharSequence?): CharSequence = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, actualTextSettings.fontSize!!)
     override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, window.pageManager.actualTextDisplaySettings.fontSize!!) {
+        TextSizeWidget.changeTextSize(mainBibleActivity, actualTextSettings.fontSize!!, {
+            winTextSettings.fontSize = null
+            window.bibleView?.applyPreferenceSettings()
+        }) {
             if(it == wsTextSettings.fontSize?: default.fontSize) {
                 winTextSettings.fontSize = null
             } else {
@@ -207,9 +213,10 @@ class WindowFontSizeItem(val window: Window): GeneralMenuItemPreference() {
 }
 
 class WorkspaceFontSizeItem: GeneralMenuItemPreference() {
+    override fun getTitle(title: CharSequence?): CharSequence = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, fontSize)
+    private val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.fontSize?: TextDisplaySettings.default.fontSize!!
     override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, mainBibleActivity.windowRepository.textDisplaySettings.fontSize
-            ?: TextDisplaySettings.default.fontSize!!) {
+        TextSizeWidget.changeTextSize(mainBibleActivity, fontSize) {
             mainBibleActivity.windowRepository.textDisplaySettings.fontSize = it
             mainBibleActivity.preferenceSettingsChanged()
             mainBibleActivity.windowRepository.updateWindowFontSizes(it)
