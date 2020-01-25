@@ -28,7 +28,7 @@
     </item>
 	<item
 		android:id="@+id/textOptionsSubMenu"
-		android:title="@string/workspace_text_options">
+		android:title="@string/text_options">
 		<menu/>
 	</item>
 
