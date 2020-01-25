@@ -67,7 +67,7 @@ import java.lang.ref.WeakReference
  */
 
 class BibleView(val mainBibleActivity: MainBibleActivity,
-                private var windowRef: WeakReference<Window>,
+                internal var windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
