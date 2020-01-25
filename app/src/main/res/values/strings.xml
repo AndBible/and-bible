@@ -454,11 +454,19 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="send_bug_report_title">Report a bug</string>
     <string name="report_bug_email_subject">Bug report for And Bible %s</string>
     <string name="report_bug_email_message">
-        Please use this function to report as soon as you have noticed it taking place.\n
-        \n
+        --- WRITE BUG REPORT ABOVE THIS LINE ---\n
+        Instructions:\n
         Tell us briefly what did you do / what happened when issue
-        took place: \n
+        took place. Example: \n
         \n
+        1. Opened app\n
+        2. Clicked window menu\n
+         -> Crash\n
+        \n
+        Sometimes screenshot also is beneficial in resolving issues.
+        Please use this function to report as soon as you have noticed it taking place.
+        You can also use this function after opening app, after crash has taken place.
+        \n\n
         Device info: \n
         %s</string>
 
