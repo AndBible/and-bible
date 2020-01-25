@@ -25,6 +25,7 @@
 
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
+		<item name="toolbarTextColor">@color/white</item>
 
 		<item name="separatorBackgroundColor">#B1B1B1</item>
 		<item name="separatorActiveBackgroundColor">#FF6B6B6B</item>
@@ -50,7 +51,7 @@
 		<item name="bibleReferenceOverlayBackgroundColor">#DE3A3A3A</item>
 		<item name="speakTransportBackground">#000000</item>
 		<item name="transportBarHeight">75dp</item>
-
+		<item name="toolbarTextColor">@color/toolbar_text_color</item>
 		<item name="separatorBackgroundColor">#333333</item>
 		<item name="separatorActiveBackgroundColor">#838383</item>
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
@@ -66,7 +67,7 @@
 	</style>
 
 	<style name="OptionsButtonsStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
-		<item name="android:tint">@color/white</item>
+		<item name="android:tint">?attr/toolbarTextColor</item>
 	</style>
 	<style name="MainBibleActionBar">
 		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
@@ -95,12 +96,18 @@
 
 	<!-- Custom left title text -->
 	<style name="BibleTitle1" parent="ActionBarTitle">
+		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">15sp</item>
 		<item name="android:gravity">bottom|left</item>
 	</style>
 	<style name="BibleTitle2" parent="ActionBarTitle">
+		<item name="android:textColor">?attr/toolbarTextColor</item>
 		<item name="android:textSize">10sp</item>
 		<item name="android:gravity">top|left</item>
+	</style>
+	<style name="MyActionButton" parent="@style/Widget.AppCompat.ActionButton">
+		<item name="android:tint">?attr/toolbarTextColor</item>
+		<item name="android:textColor">?attr/toolbarTextColor</item>
 	</style>
 
 	<!-- Custom left title text -->

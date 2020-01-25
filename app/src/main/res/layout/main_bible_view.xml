@@ -53,6 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/menu"
+                    android:tint="?attr/toolbarTextColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
                     app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +101,7 @@
 
                     <ImageButton
                         android:id="@+id/searchButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/search"
@@ -108,21 +109,21 @@
 
                     <ImageButton
                         android:id="@+id/speakButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/speak"
                         app:srcCompat="@drawable/ic_hearing_24dp" />
                     <ImageButton
                         android:id="@+id/bookmarkButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/bookmarks"
                         app:srcCompat="@drawable/ic_collections_bookmark_24dp" />
                     <Button
                         android:id="@+id/strongsButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/prefs_show_strongs_title"
@@ -130,21 +131,21 @@
                         />
                     <Button
                         android:id="@+id/bibleButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_bible" />
 
                     <Button
                         android:id="@+id/commentaryButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_commentary" />
 
                     <Button
                         android:id="@+id/dictionaryButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/doc_type_dictionary" />
