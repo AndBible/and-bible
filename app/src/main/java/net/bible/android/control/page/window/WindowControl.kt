@@ -19,8 +19,6 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
-import android.view.Menu
-import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
@@ -284,13 +282,6 @@ open class WindowControl @Inject constructor(
     /*
 	 * Move the current window to first
 	 */
-    fun moveWindowToFirst(window: Window) {
-        windowRepository.moveWindowToPosition(window, 0)
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-    }
-
 
     /** screen orientation has changed  */
     fun orientationChange() {
@@ -343,14 +334,6 @@ open class WindowControl @Inject constructor(
         }
     }
 
-    fun canMoveFirst(window: Window): Boolean {
-        val visibleWindows = windowRepository.visibleWindows
-        if (visibleWindows.size > 0 && window == visibleWindows[0]) {
-            return false
-        }
-        return true
-    }
-
     fun setMaximized(window: Window, value: Boolean) {
         if(value == window.isMaximised) return
         if(value) {
@@ -368,6 +351,13 @@ open class WindowControl @Inject constructor(
         } else {
             window.isSynchronised = false
         }
+    }
+
+    fun moveWindow(window: Window, position: Int) {
+        windowRepository.moveWindowToPosition(window, position)
+
+        // redisplay the current page
+        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
     }
 
     companion object {

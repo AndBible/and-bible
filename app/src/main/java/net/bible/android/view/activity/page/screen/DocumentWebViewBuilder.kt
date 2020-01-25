@@ -64,9 +64,9 @@ import net.bible.android.view.activity.page.WindowFontSizeItem
 import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
 import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
 import net.bible.android.view.activity.page.WindowTextContentMenuItemPreference
-import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.crosswire.jsword.versification.BookName
 import java.util.*
 import javax.inject.Inject
 import kotlin.math.max
@@ -622,7 +622,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun handlePrefItem(window: Window, item: MenuItem) {
-        val itemOptions = getItemOptions(window, item.itemId)
+        val itemOptions = getItemOptions(window, item)
         if(itemOptions is SubMenuMenuItemPreference)
             return
 
@@ -652,9 +652,28 @@ class DocumentWebViewBuilder @Inject constructor(
         val subMenu = popup.menu.findItem(R.id.textOptionsSubMenu).subMenu
         inflater.inflate(R.menu.text_options_menu, subMenu)
 
+        val moveWindowsSubMenu = popup.menu.findItem(R.id.moveWindowSubMenu).subMenu
+
+        moveWindowsSubMenu.removeItem(R.id.moveItem)
+
+        var count = 0
+
+        val oldValue = BookName.isFullBookName()
+
+        BookName.setFullBookName(false)
+        windowControl.windowRepository.windowList.forEach {
+            if(it.id != window.id) {
+                val p = it.pageManager.currentPage
+                moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count,
+                    BibleApplication.application.getString(R.string.move_window_to_position, "${count} (${p.currentDocument?.abbreviation}: ${p.key?.name})"))
+            }
+            count ++;
+        }
+        BookName.setFullBookName(oldValue)
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
-                val itmOptions = getItemOptions(window, item.itemId)
+                val itmOptions = getItemOptions(window, item)
                 item.title = itmOptions.getTitle(item.title)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
@@ -686,10 +705,8 @@ class DocumentWebViewBuilder @Inject constructor(
         menuHelper.show()
     }
 
-    private val preferences = CommonUtils.sharedPreferences
-
-    private fun getItemOptions(window: Window, itemId: Int): OptionsMenuItemInterface {
-        return when(itemId) {
+    private fun getItemOptions(window: Window, item: MenuItem): OptionsMenuItemInterface {
+        return when(item.itemId) {
 
             R.id.windowNew -> CommandItem({windowControl.addNewWindow()})
             R.id.windowMaximise -> CommandItem(
@@ -699,7 +716,8 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowSynchronise -> CommandItem(
                 {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
-            R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
+            R.id.moveWindowSubMenu -> SubMenuMenuItemPreference(false)
+            //R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
             R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
             R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
 
@@ -715,7 +733,10 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
             R.id.fontSize -> WindowFontSizeItem(window)
-
+            R.id.moveItem -> CommandItem({
+                windowControl.moveWindow(window, item.order)
+                Log.d(TAG, "Number ${item.order}")
+            })
             else -> throw RuntimeException("Illegal menu item")
         }
     }

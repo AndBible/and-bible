@@ -31,7 +31,14 @@
 		android:title="@string/text_options">
 		<menu/>
 	</item>
-	<item android:id="@+id/windowMoveFirst"
-		  android:title="@string/windowMoveFirst"
-		  android:icon="@drawable/ic_arrow_drop_up_white_24dp"/>
+	<item
+		android:id="@+id/moveWindowSubMenu"
+		android:icon="@drawable/ic_compare_arrows_black_24dp"
+		android:title="@string/move_window">
+		<menu>
+			<item android:id="@+id/moveItem"
+				android:title=""
+				/>
+		</menu>
+	</item>
 </menu>

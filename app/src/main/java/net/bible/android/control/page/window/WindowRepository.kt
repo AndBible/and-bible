@@ -48,7 +48,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>
 )
 {
-    private var windowList: MutableList<Window> = ArrayList()
+    var windowList: MutableList<Window> = ArrayList()
     private var busyCount: Int = 0
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default

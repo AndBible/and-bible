@@ -698,9 +698,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             pageTitle.text = pageTitleText
             val layout = pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
+                val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 pageTitle.text = pageTitleText
-                BookName.setFullBookName(true)
+                BookName.setFullBookName(oldValue)
             }
         } catch (e: KeyIsNull) {
             Log.e(TAG, "Key is null, not updating", e)
