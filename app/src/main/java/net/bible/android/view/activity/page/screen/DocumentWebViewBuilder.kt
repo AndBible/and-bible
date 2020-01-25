@@ -661,11 +661,13 @@ class DocumentWebViewBuilder @Inject constructor(
         val oldValue = BookName.isFullBookName()
 
         BookName.setFullBookName(false)
+        val thisIdx = windowControl.windowRepository.windowList.indexOf(window)
         windowControl.windowRepository.windowList.forEach {
             if(it.id != window.id) {
                 val p = it.pageManager.currentPage
-                moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count,
-                    BibleApplication.application.getString(R.string.move_window_to_position, "${count+1} (${p.currentDocument?.abbreviation}: ${p.key?.name})"))
+                val title = BibleApplication.application.getString(R.string.move_window_to_position, "${count + 1} (${p.currentDocument?.abbreviation}: ${p.key?.name})")
+                val item = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, title)
+                item.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
             }
             count ++;
         }
