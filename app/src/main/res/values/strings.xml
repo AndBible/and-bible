@@ -200,8 +200,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
-    <string name="extracting_zip_file">Extracting Zip file now...</string>
-    <string name="checking_zip_file">Checking given file...</string>
+    <string name="extracting_zip_file">Extracting Zip file now…</string>
+    <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
     <string name="module_already_installed">File contains a module that is already installed</string>
     <string name="install_zip_title">Please wait. Loading Zip file.</string>
@@ -210,7 +210,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
-    <string name="rdg_plan_set_start_date">Set Start Date...</string>
+    <string name="rdg_plan_set_start_date">Set Start Date…</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
