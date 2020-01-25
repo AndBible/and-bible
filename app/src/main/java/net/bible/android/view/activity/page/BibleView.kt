@@ -726,7 +726,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var onDestroy: (() -> Unit)? = null
 
-    private val TAG get() = "BibleView[${window.id}]"
+    private val TAG get() = "BibleView[${windowRef.get()?.id}]"
 
     companion object {
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so
