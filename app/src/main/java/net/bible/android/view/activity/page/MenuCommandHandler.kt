@@ -65,12 +65,6 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStreamReader
-import java.util.zip.GZIPOutputStream
 
 import javax.inject.Inject
 
@@ -208,7 +202,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.bugReport -> {
-                    reportBug()
+                    errorReportControl.reportBug(callingActivity)
                 }
                 R.id.restore -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -225,51 +219,6 @@ constructor(private val callingActivity: MainBibleActivity,
         }
 
         return isHandled
-    }
-
-    private fun reportBug() {
-        // TODO: refactor this to ErrorReportControl later.
-        val log=StringBuilder()
-        try {
-            val process = Runtime.getRuntime().exec("logcat -d -t 10000")
-            val bufferedReader = BufferedReader(
-                InputStreamReader(process.inputStream))
-
-            var line = bufferedReader.readLine()
-            while (line != null)
-            {
-                log.append(line + '\n');
-                line = bufferedReader.readLine()
-            }
-        } catch (e: IOException) {}
-
-
-        val subject = callingActivity.getString(R.string.report_bug_email_subject, CommonUtils.applicationVersionName)
-        val message = callingActivity.getString(R.string.report_bug_email_message, errorReportControl.createErrorText(null))
-
-        val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
-        dir.mkdirs()
-
-        val f = File(dir, "logcat.txt.gz")
-
-        val fOut = FileOutputStream(f)
-        val osw = GZIPOutputStream(fOut)
-
-        osw.write(log.toString().toByteArray());
-        osw.flush()
-        osw.close()
-
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
-        val email = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
-            type = "application/x-gzip"
-        }
-        val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_bug_report_title))
-        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        callingActivity.startActivity(chooserIntent)
     }
 
     fun restartIfRequiredOnReturn(requestCode: Int): Boolean {

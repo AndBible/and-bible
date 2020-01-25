@@ -22,8 +22,6 @@ import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
-import net.bible.android.control.email.Emailer;
-import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -67,11 +65,5 @@ public class ApplicationModule {
 	@ApplicationScope
 	public EventManager eventManagerProvider() {
 		return ABEventBus.getDefault();
-	}
-
-	@Provides
-	@ApplicationScope
-	public Emailer emailer(EmailerImpl emailerImpl) {
-		return emailerImpl;
 	}
 }
