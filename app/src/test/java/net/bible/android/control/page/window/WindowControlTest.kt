@@ -317,7 +317,6 @@ class WindowControlTest {
     fun createWindowsMenu(): Menu {
         val menu = RoboMenu(RuntimeEnvironment.application)
         menu.add(0, R.id.windowSynchronise, 0, "Synchronise")
-        menu.add(0, R.id.windowMoveFirst, 0, "First")
         menu.add(0, R.id.windowMinimise, 0, "Minimise")
         menu.add(0, R.id.windowMaximise, 0, "Maximise")
         menu.add(0, R.id.windowClose, 0, "Close")
