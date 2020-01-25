@@ -41,7 +41,7 @@ import javax.inject.Inject
 
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
-    fun sendErrorReportEmail(e: Exception?) {
+    fun sendErrorReportEmail(e: Exception? = null) {
 		reportBug(exception = e)
     }
 
