@@ -665,7 +665,7 @@ class DocumentWebViewBuilder @Inject constructor(
             if(it.id != window.id) {
                 val p = it.pageManager.currentPage
                 moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count,
-                    BibleApplication.application.getString(R.string.move_window_to_position, "${count} (${p.currentDocument?.abbreviation}: ${p.key?.name})"))
+                    BibleApplication.application.getString(R.string.move_window_to_position, "${count+1} (${p.currentDocument?.abbreviation}: ${p.key?.name})"))
             }
             count ++;
         }
