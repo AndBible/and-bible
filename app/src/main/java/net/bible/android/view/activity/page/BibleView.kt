@@ -235,7 +235,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun applyFontSize() {
         val fontSize = pageControl.getDocumentFontSize(window)
+        val oldFontSize = settings.defaultFontSize
         settings.defaultFontSize = fontSize
+        if(oldFontSize != fontSize) {
+            doCheckWindows()
+        }
     }
 
     /** may need updating depending on environmental brightness
