@@ -83,16 +83,11 @@ class WorkspaceEntities {
 
     data class MarginSize(
         @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
-        @ColumnInfo(defaultValue = "NULL") var marginRight: Int?,
-        @ColumnInfo(defaultValue = "NULL", name="marginSize") var marginSizeDeprecated: Int? = null,
-        @ColumnInfo(defaultValue = "NULL", name="left") var leftDeprecated: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL", name="right") var rightDeprecated: Boolean? = null
+        @ColumnInfo(defaultValue = "NULL") var marginRight: Int?
     )
 
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
-        // TODO: remove
-        @ColumnInfo(defaultValue = "NULL", name="marginSize") val marginSizeDeprecated: Int? = null,
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,

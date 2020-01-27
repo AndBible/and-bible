@@ -161,19 +161,52 @@ private val MIGRATION_12_13 = object : Migration(12, 13) {
     }
 }
 
-private val MIGRATION_13_14 = object : Migration(13, 14) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.apply {
+fun createMarginSizeColumns(db: SupportSQLiteDatabase) {
+    db.apply {
 
-            val colDefs = "`text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL".split(",")
-            colDefs.forEach {
-                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
-                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
-            }
+        val colDefs = "`text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL".split(",")
+        colDefs.forEach {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+            execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
         }
     }
 }
 
+private val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) = createMarginSizeColumns(db)
+
+}
+
+private val MIGRATION_11_15 = object : Migration(11, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) = createMarginSizeColumns(db)
+
+}
+
+private val MIGRATION_14_15 = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("PRAGMA foreign_keys=OFF;")
+
+            execSQL("ALTER TABLE Workspace RENAME TO Workspace_old;")
+            execSQL("ALTER TABLE PageManager RENAME TO PageManager_old;")
+
+
+            execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT FALSE, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT FALSE)")
+
+            execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_currentYOffsetRatio` REAL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_currentYOffsetRatio` REAL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_currentYOffsetRatio` REAL, `map_document` TEXT, `map_key` TEXT, `map_currentYOffsetRatio` REAL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+
+            execSQL("INSERT INTO Workspace SELECT `name`, `id`, `text_display_settings_fontSize`, `text_display_settings_showStrongs`, `text_display_settings_showMorphology`, `text_display_settings_showFootNotes`, `text_display_settings_showRedLetters`, `text_display_settings_showSectionTitles`, `text_display_settings_showVerseNumbers`, `text_display_settings_showVersePerLine`, `text_display_settings_showBookmarks`, `text_display_settings_showMyNotes`, `text_display_settings_margin_size_marginLeft`, `text_display_settings_margin_size_marginRight`, `window_behavior_settings_enableTiltToScroll`, `window_behavior_settings_enableReverseSplitMode` from Workspace_old;")
+            execSQL("INSERT INTO PageManager SELECT `windowId`, `currentCategoryName`, `bible_document`, `bible_verse_versification`, `bible_verse_bibleBook`, `bible_verse_chapterNo`, `bible_verse_verseNo`, `commentary_document`, `commentary_currentYOffsetRatio`, `dictionary_document`, `dictionary_key`, `dictionary_currentYOffsetRatio` , `general_book_document` , `general_book_key` , `general_book_currentYOffsetRatio` , `map_document` , `map_key` , `map_currentYOffsetRatio` , `text_display_settings_fontSize` , `text_display_settings_showStrongs` , `text_display_settings_showMorphology` , `text_display_settings_showFootNotes` , `text_display_settings_showRedLetters` , `text_display_settings_showSectionTitles` , `text_display_settings_showVerseNumbers` , `text_display_settings_showVersePerLine` , `text_display_settings_showBookmarks` , `text_display_settings_showMyNotes` , `text_display_settings_margin_size_marginLeft` , `text_display_settings_margin_size_marginRight` from PageManager_old;")
+
+            execSQL("DROP TABLE Workspace_old;")
+            execSQL("DROP TABLE PageManager_old;")
+
+            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)")
+
+            execSQL("PRAGMA foreign_keys=ON;")
+        }
+    }
+}
 
 
 object DatabaseContainer {
@@ -199,7 +232,9 @@ object DatabaseContainer {
                         MIGRATION_10_11,
                         MIGRATION_11_12,
                         MIGRATION_12_13,
-                        MIGRATION_13_14
+                        MIGRATION_13_14,
+                        MIGRATION_14_15,
+                        MIGRATION_11_15
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
