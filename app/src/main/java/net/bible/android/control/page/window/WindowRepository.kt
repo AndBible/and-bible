@@ -360,7 +360,7 @@ open class WindowRepository @Inject constructor(
         name = ""
     }
 
-    fun updateWindowTextDisplaySettings(type: WorkspaceEntities.TextDisplaySettings.Booleans, value: Boolean) {
+    fun updateWindowTextDisplaySettingsBooleans(type: WorkspaceEntities.TextDisplaySettings.Booleans, value: Boolean) {
         windowList.forEach {
             val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
             if (winValue == value) {
@@ -369,11 +369,11 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    fun updateWindowFontSizes(fontSize: Int) {
+    fun updateWindowTextDisplaySettingsIntegers(type: WorkspaceEntities.TextDisplaySettings.Integers, value: Int) {
         windowList.forEach {
-            val winValue = it.pageManager.textDisplaySettings.fontSize
-            if (winValue == fontSize) {
-                it.pageManager.textDisplaySettings.fontSize = null
+            val winValue = it.pageManager.textDisplaySettings.getIntegerValue(type)
+            if (winValue == value) {
+                it.pageManager.textDisplaySettings.setIntegerValue(type, null)
             }
         }
     }

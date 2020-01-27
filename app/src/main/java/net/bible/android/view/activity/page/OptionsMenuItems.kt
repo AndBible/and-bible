@@ -37,7 +37,7 @@ interface OptionsMenuItemInterface {
     val enabled: Boolean
     val inherited: Boolean
     fun handle()
-    fun getTitle(title: CharSequence?): CharSequence? = title
+    val title: String?
 }
 
 abstract class GeneralMenuItemPreference(
@@ -53,6 +53,7 @@ abstract class GeneralMenuItemPreference(
         get() = true
 
     override fun handle() {}
+    override val title: String? = null
 }
 
 abstract class MenuItemPreference(
@@ -98,7 +99,7 @@ abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
     MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
 
-open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Booleans) :
+open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Booleans):
     GeneralMenuItemPreference() {
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
 
@@ -107,14 +108,14 @@ open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.
     override var value: Boolean get() = wsTextSettings.getBooleanValue(type)?: def.getBooleanValue(type)!!
         set(value) {
             wsTextSettings.setBooleanValue(type, value)
-            mainBibleActivity.windowRepository.updateWindowTextDisplaySettings(type, value)
+            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsBooleans(type, value)
         }
 
     override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
     override val inherited = false
 }
 
-open class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Booleans) :
+open class WindowTextContentMenuItemBooleanPreference(val window: Window, var type: TextDisplaySettings.Booleans) :
     GeneralMenuItemPreference(true) {
     private val textSettings = window.pageManager.textDisplaySettings
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
@@ -158,6 +159,7 @@ class CommandItem(
     override fun handle() {
         command.invoke()
     }
+    override val title: String? = null
 }
 
 open class SubMenuMenuItemPreference(onlyBibles: Boolean) :
@@ -170,13 +172,13 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 
 }
 
-class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemPreference(window, TextDisplaySettings.Booleans.STRONGS) {
+class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemBooleanPreference(window, TextDisplaySettings.Booleans.STRONGS) {
     override val enabled: Boolean get() = window.pageManager.hasStrongs
 }
 
 class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.STRONGS)
 
-class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemPreference(window, TextDisplaySettings.Booleans.MORPH) {
+class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemBooleanPreference(window, TextDisplaySettings.Booleans.MORPH) {
     override val enabled: Boolean
         get() = WindowStrongsMenuItemPreference(window).value
 
@@ -187,42 +189,63 @@ class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuI
         }
 }
 
-class WindowFontSizeItem(val window: Window): GeneralMenuItemPreference() {
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+open class WindowIntegerMenuItemPreference(val window: Window, val type: TextDisplaySettings.Integers): GeneralMenuItemPreference() {
+    override var value = true
+    protected val intValue: Int? get() = actualTextSettings.getIntegerValue(type)
+
     private val winTextSettings = window.pageManager.textDisplaySettings
-    private val default = TextDisplaySettings.default
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
-    override fun getTitle(title: CharSequence?): CharSequence = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, actualTextSettings.fontSize!!)
-    override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, actualTextSettings.fontSize!!, {
-            winTextSettings.fontSize = null
-            window.bibleView?.applyPreferenceSettings()
-        }) {
-            if(it == wsTextSettings.fontSize?: default.fontSize) {
-                winTextSettings.fontSize = null
-            } else {
-                winTextSettings.fontSize = it
-            }
-            window.bibleView?.applyPreferenceSettings()
+    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+    private val default = TextDisplaySettings.default
+    override val inherited = window.pageManager.textDisplaySettings.getIntegerValue(type) == null
+    fun setValue(value: Int) {
+        if(value == wsTextSettings.getIntegerValue(type)?: default.getIntegerValue(type)) {
+            winTextSettings.setIntegerValue(type, null)
+        } else {
+            winTextSettings.setIntegerValue(type, value)
         }
+        window.bibleView?.applyPreferenceSettings()
     }
-
-    override var value = true
-    override val inherited = window.pageManager.textDisplaySettings.fontSize == null
+    fun resetValue() {
+        winTextSettings.setIntegerValue(type, null)
+        window.bibleView?.applyPreferenceSettings()
+    }
 }
 
-class WorkspaceFontSizeItem: GeneralMenuItemPreference() {
-    override fun getTitle(title: CharSequence?): CharSequence = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, fontSize)
-    private val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.fontSize?: TextDisplaySettings.default.fontSize!!
+class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Integers.FONTSIZE) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
     override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, fontSize) {
-            mainBibleActivity.windowRepository.textDisplaySettings.fontSize = it
+        TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {setValue(it)})
+    }
+
+}
+
+open class WorkspaceIntegerMenuItemPreference(val type: TextDisplaySettings.Integers): GeneralMenuItemPreference() {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
+    protected val intValue = mainBibleActivity.windowRepository.textDisplaySettings.getIntegerValue(type)?: TextDisplaySettings.default.getIntegerValue(type)!!
+    override fun handle() {
+        TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {
+            mainBibleActivity.windowRepository.textDisplaySettings.setIntegerValue(type, it)
             mainBibleActivity.preferenceSettingsChanged()
-            mainBibleActivity.windowRepository.updateWindowFontSizes(it)
+            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsIntegers(type, it)
         }
+    }
+    fun setValue(value: Int) {
+        mainBibleActivity.windowRepository.textDisplaySettings.setIntegerValue(type, value)
+        mainBibleActivity.preferenceSettingsChanged()
+        mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsIntegers(type, value)
     }
     override var value = true
 }
+
+class WorkspaceFontSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Integers.FONTSIZE) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
+    override fun handle() {
+        TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
+    }
+    override var value = true
+}
+
 
 class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MORPH) {
     override val enabled: Boolean
@@ -252,8 +275,4 @@ class SplitModeMenuItemPreference :
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }
 
-class WorkspacesSubmenu: SubMenuMenuItemPreference(false) {
-    override fun getTitle(title: CharSequence?): CharSequence? {
-        return "$title (${SharedActivityState.currentWorkspaceName})"
-    }
-}
+class WorkspacesSubmenu(override val title: String?): SubMenuMenuItemPreference(false)

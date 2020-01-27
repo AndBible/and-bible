@@ -52,6 +52,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Booleans
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
@@ -60,10 +61,11 @@ import net.bible.android.view.activity.page.CommandItem
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.SubMenuMenuItemPreference
-import net.bible.android.view.activity.page.WindowFontSizeItem
+import net.bible.android.view.activity.page.WindowFontSizePreference
+import net.bible.android.view.activity.page.WindowIntegerMenuItemPreference
 import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
 import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
-import net.bible.android.view.activity.page.WindowTextContentMenuItemPreference
+import net.bible.android.view.activity.page.WindowTextContentMenuItemBooleanPreference
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
@@ -676,10 +678,12 @@ class DocumentWebViewBuilder @Inject constructor(
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item)
-                item.title = itmOptions.getTitle(item.title)
+                if(itmOptions.title != null) {
+                    item.title = itmOptions.title
+                }
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                if(itmOptions is WindowTextContentMenuItemPreference || itmOptions is WindowFontSizeItem) {
+                if(itmOptions is WindowTextContentMenuItemBooleanPreference || itmOptions is WindowIntegerMenuItemPreference) {
                     if (itmOptions.inherited) {
                         item.setIcon(R.drawable.ic_sync_white_24dp)
                     } else {
@@ -725,16 +729,16 @@ class DocumentWebViewBuilder @Inject constructor(
 
             R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-            R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Booleans.BOOKMARKS)
-            R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Booleans.REDLETTERS)
-            R.id.sectionTitlesOption -> WindowTextContentMenuItemPreference(window, Booleans.SECTIONTITLES)
-            R.id.verseNumbersOption -> WindowTextContentMenuItemPreference(window, Booleans.VERSENUMBERS)
-            R.id.versePerLineOption -> WindowTextContentMenuItemPreference(window, Booleans.VERSEPERLINE)
-            R.id.footnoteOption -> WindowTextContentMenuItemPreference(window, Booleans.FOOTNOTES)
-            R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Booleans.MYNOTES)
+            R.id.showBookmarksOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.BOOKMARKS)
+            R.id.redLettersOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.REDLETTERS)
+            R.id.sectionTitlesOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.SECTIONTITLES)
+            R.id.verseNumbersOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.VERSENUMBERS)
+            R.id.versePerLineOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.VERSEPERLINE)
+            R.id.footnoteOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.FOOTNOTES)
+            R.id.myNotesOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.MYNOTES)
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
-            R.id.fontSize -> WindowFontSizeItem(window)
+            R.id.fontSize -> WindowFontSizePreference(window)
             R.id.moveItem -> CommandItem({
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")

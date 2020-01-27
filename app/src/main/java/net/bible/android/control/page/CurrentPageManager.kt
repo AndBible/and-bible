@@ -82,16 +82,17 @@ open class CurrentPageManager @Inject constructor(
             val ws = windowRepository.textDisplaySettings
             val def = WorkspaceEntities.TextDisplaySettings.default
             return WorkspaceEntities.TextDisplaySettings(
-                win.fontSize?: ws.fontSize?: def.fontSize,
-                win.showStrongs?: ws.showStrongs?: def.showStrongs,
-                win.showMorphology?: ws.showMorphology?: def.showMorphology,
-                win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,
-                win.showRedLetters?: ws.showRedLetters?: def.showRedLetters,
-                win.showSectionTitles?: ws.showSectionTitles?: def.showSectionTitles,
-                win.showVerseNumbers?: ws.showVerseNumbers?: def.showVerseNumbers,
-                win.showVersePerLine?: ws.showVersePerLine?: def.showVersePerLine,
-                win.showBookmarks?: ws.showBookmarks?: def.showBookmarks,
-                win.showMyNotes?: ws.showMyNotes?: def.showMyNotes
+                fontSize = win.fontSize?: ws.fontSize?: def.fontSize,
+                marginSize = win.marginSize?: ws.marginSize?: def.marginSize,
+                showStrongs = win.showStrongs?: ws.showStrongs?: def.showStrongs,
+                showMorphology = win.showMorphology?: ws.showMorphology?: def.showMorphology,
+                showFootNotes = win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,
+                showRedLetters = win.showRedLetters?: ws.showRedLetters?: def.showRedLetters,
+                showSectionTitles = win.showSectionTitles?: ws.showSectionTitles?: def.showSectionTitles,
+                showVerseNumbers = win.showVerseNumbers?: ws.showVerseNumbers?: def.showVerseNumbers,
+                showVersePerLine = win.showVersePerLine?: ws.showVersePerLine?: def.showVersePerLine,
+                showBookmarks = win.showBookmarks?: ws.showBookmarks?: def.showBookmarks,
+                showMyNotes = win.showMyNotes?: ws.showMyNotes?: def.showMyNotes
             )
         }
 

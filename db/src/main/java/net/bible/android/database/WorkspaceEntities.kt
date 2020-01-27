@@ -101,6 +101,18 @@ class WorkspaceEntities {
             FONTSIZE, MARGINSIZE
         }
 
+        fun getIntegerValue(type: Integers) = when(type) {
+            Integers.FONTSIZE -> fontSize
+            Integers.MARGINSIZE -> marginSize
+        }
+
+        fun setIntegerValue(type: Integers, value: Int?) {
+            when(type) {
+                Integers.MARGINSIZE -> marginSize = value
+                Integers.FONTSIZE -> fontSize = value
+            }
+        }
+
         fun getBooleanValue(type: Booleans) = when(type) {
             Booleans.STRONGS -> showStrongs
             Booleans.MORPH -> showMorphology
@@ -134,6 +146,7 @@ class WorkspaceEntities {
         companion object {
             val default get() = TextDisplaySettings(
                 fontSize = 16,
+                marginSize = 0,
                 showStrongs = false,
                 showMorphology = false,
                 showFootNotes = false,

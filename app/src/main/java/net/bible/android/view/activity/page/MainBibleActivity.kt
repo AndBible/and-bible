@@ -424,7 +424,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = getItemOptions(R.id.showStrongsOption)
+            val prefOptions = WorkspaceStrongsMenuItemPreference()
             prefOptions.value = !prefOptions.value
             prefOptions.handle()
             invalidateOptionsMenu()
@@ -593,7 +593,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             updateToolbar()
         }
 
-    private fun getItemOptions(itemId: Int) =  when(itemId) {
+    private fun getItemOptions(item: MenuItem) =  when(item.itemId) {
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
         R.id.showBookmarksOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.BOOKMARKS)
@@ -606,13 +606,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
-        R.id.fontSize -> WorkspaceFontSizeItem()
+        R.id.fontSize -> WorkspaceFontSizePreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
 
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
         R.id.nightMode -> NightModeMenuItemPreference()
 
-        R.id.workspacesSubMenu -> WorkspacesSubmenu()
+        R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
         R.id.newWorkspace -> CommandItem({newWorkspace()})
         R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
         R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
@@ -631,10 +631,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
-                val itmOptions = getItemOptions(item.itemId)
+                val itmOptions = getItemOptions(item)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                item.title = itmOptions.getTitle(item.title)
+                if(itmOptions.title != null) {
+                    item.title = itmOptions.title
+                }
 
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
@@ -649,7 +651,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun handlePrefItem(item: MenuItem) {
-        val itemOptions = getItemOptions(item.itemId)
+        val itemOptions = getItemOptions(item)
         if(itemOptions is SubMenuMenuItemPreference)
             return
 
