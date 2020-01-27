@@ -81,6 +81,12 @@ class WorkspaceEntities {
         val weight: Float = 1.0f
     )
 
+    data class MarginSize(
+        val marginSize: Int?,
+        val left: Boolean?,
+        val right: Boolean?
+    )
+
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var marginSize: Int? = null,
@@ -94,53 +100,43 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
     ) {
-        enum class Booleans {
-            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES
-        }
-        enum class Integers {
+        enum class Types {
+            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
             FONTSIZE, MARGINSIZE
         }
 
-        fun getIntegerValue(type: Integers) = when(type) {
-            Integers.FONTSIZE -> fontSize
-            Integers.MARGINSIZE -> marginSize
+        fun getValue(type: Types): Any? = when(type) {
+            Types.STRONGS -> showStrongs
+            Types.MORPH -> showMorphology
+            Types.FOOTNOTES -> showFootNotes
+            Types.REDLETTERS -> showRedLetters
+            Types.SECTIONTITLES -> showSectionTitles
+            Types.VERSENUMBERS -> showVerseNumbers
+            Types.VERSEPERLINE -> showVersePerLine
+            Types.BOOKMARKS -> showBookmarks
+            Types.MYNOTES -> showMyNotes
+            Types.FONTSIZE -> fontSize
+            Types.MARGINSIZE -> marginSize
         }
 
-        fun setIntegerValue(type: Integers, value: Int?) {
+        fun setValue(type: Types, value: Any?) {
             when(type) {
-                Integers.MARGINSIZE -> marginSize = value
-                Integers.FONTSIZE -> fontSize = value
+                Types.STRONGS -> showStrongs = value as Boolean?
+                Types.MORPH -> showMorphology = value as Boolean?
+                Types.FOOTNOTES -> showFootNotes = value as Boolean?
+                Types.REDLETTERS -> showRedLetters = value as Boolean?
+                Types.SECTIONTITLES -> showSectionTitles = value as Boolean?
+                Types.VERSENUMBERS -> showVerseNumbers = value as Boolean?
+                Types.VERSEPERLINE -> showVersePerLine = value as Boolean?
+                Types.BOOKMARKS -> showBookmarks = value as Boolean?
+                Types.MYNOTES -> showMyNotes = value as Boolean?
+                Types.FONTSIZE -> fontSize = value as Int?
+                Types.MARGINSIZE -> marginSize = value as Int?
             }
         }
 
-        fun getBooleanValue(type: Booleans) = when(type) {
-            Booleans.STRONGS -> showStrongs
-            Booleans.MORPH -> showMorphology
-            Booleans.FOOTNOTES -> showFootNotes
-            Booleans.REDLETTERS -> showRedLetters
-            Booleans.SECTIONTITLES -> showSectionTitles
-            Booleans.VERSENUMBERS -> showVerseNumbers
-            Booleans.VERSEPERLINE -> showVersePerLine
-            Booleans.BOOKMARKS -> showBookmarks
-            Booleans.MYNOTES -> showMyNotes
-        }
-
-        fun setBooleanValue(type: Booleans, value: Boolean?) {
-            when(type) {
-                Booleans.STRONGS -> showStrongs = value
-                Booleans.MORPH -> showMorphology = value
-                Booleans.FOOTNOTES -> showFootNotes = value
-                Booleans.REDLETTERS -> showRedLetters = value
-                Booleans.SECTIONTITLES -> showSectionTitles = value
-                Booleans.VERSENUMBERS -> showVerseNumbers = value
-                Booleans.VERSEPERLINE -> showVersePerLine = value
-                Booleans.BOOKMARKS -> showBookmarks = value
-                Booleans.MYNOTES -> showMyNotes = value
-            }
-        }
-
-        fun setNonSpecific(type: Booleans) {
-            setBooleanValue(type, null)
+        fun setNonSpecific(type: Types) {
+            setValue(type, null)
         }
 
         companion object {

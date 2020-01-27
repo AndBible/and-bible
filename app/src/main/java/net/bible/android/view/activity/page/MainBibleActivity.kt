@@ -425,7 +425,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         strongsButton.setOnClickListener {
             val prefOptions = WindowStrongsMenuItemPreference(windowControl.activeWindow)
-            prefOptions.value = !prefOptions.value
+            prefOptions.value = !(prefOptions.value == true)
             prefOptions.handle()
             invalidateOptionsMenu()
         }
@@ -596,13 +596,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(item: MenuItem) =  when(item.itemId) {
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-        R.id.showBookmarksOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.BOOKMARKS)
-        R.id.redLettersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.REDLETTERS)
-        R.id.sectionTitlesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.SECTIONTITLES)
-        R.id.verseNumbersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.VERSENUMBERS)
-        R.id.versePerLineOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.VERSEPERLINE)
-        R.id.footnoteOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.FOOTNOTES)
-        R.id.myNotesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MYNOTES)
+        R.id.showBookmarksOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.BOOKMARKS)
+        R.id.redLettersOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.REDLETTERS)
+        R.id.sectionTitlesOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.SECTIONTITLES)
+        R.id.verseNumbersOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.VERSENUMBERS)
+        R.id.versePerLineOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.VERSEPERLINE)
+        R.id.footnoteOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.FOOTNOTES)
+        R.id.myNotesOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.MYNOTES)
 
         R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
@@ -644,7 +644,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     continue;
                 }
 
-                item.isChecked = itmOptions.value
+                item.isChecked = itmOptions.value == true
             }
         }
         handleMenu(menu)
@@ -655,10 +655,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val itemOptions = getItemOptions(item)
         if(itemOptions is SubMenuMenuItemPreference)
             return
-
-        itemOptions.value = !itemOptions.value
+        if(itemOptions.value is Boolean) {
+            itemOptions.value = !(itemOptions.value == true)
+        }
         itemOptions.handle()
-        item.isChecked = itemOptions.value
+        item.isChecked = itemOptions.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

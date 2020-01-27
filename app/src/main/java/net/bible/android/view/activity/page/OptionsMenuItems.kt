@@ -24,7 +24,6 @@ import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.TextSizeWidget
@@ -33,7 +32,7 @@ import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
 
 interface OptionsMenuItemInterface {
-    var value: Boolean
+    var value: Any
     val visible: Boolean
     val enabled: Boolean
     val inherited: Boolean
@@ -73,16 +72,16 @@ abstract class MenuItemPreference(
     private val preferences = CommonUtils.sharedPreferences
     override val inherited = false
 
-    override var value: Boolean
+    override var value: Any
         get() = if (isBoolean) {
             preferences.getBoolean(preferenceName, default)
         } else {
             preferences.getString(preferenceName, defaultString) == trueValue
         }
         set(value) = if (isBoolean) {
-            preferences.edit().putBoolean(preferenceName, value).apply()
+            preferences.edit().putBoolean(preferenceName, value == true).apply()
         } else {
-            preferences.edit().putString(preferenceName, if (value) trueValue else falseValue).apply()
+            preferences.edit().putString(preferenceName, if (value == true) trueValue else falseValue).apply()
         }
 
     protected open val automatic: Boolean
@@ -100,41 +99,38 @@ abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
     MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
 
-open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Booleans):
-    GeneralMenuItemPreference() {
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
-
-    val def = WorkspaceEntities.TextDisplaySettings.default
-
-    override var value: Boolean get() = wsTextSettings.getBooleanValue(type)?: def.getBooleanValue(type)!!
-        set(value) {
-            wsTextSettings.setBooleanValue(type, value)
-            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsBooleans(type, value)
-        }
-
-    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
-    override val inherited = false
-}
-
-open class WindowTextContentMenuItemBooleanPreference(val window: Window, var type: TextDisplaySettings.Booleans) :
+open class WindowMenuItemPreference(val window: Window, var type: TextDisplaySettings.Types) :
     GeneralMenuItemPreference(true) {
-    private val textSettings = window.pageManager.textDisplaySettings
-    private val actualTextSettings = window.pageManager.actualTextDisplaySettings
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
-    private val default = TextDisplaySettings.default
+    protected val textSettings = window.pageManager.textDisplaySettings
+    protected val actualTextSettings = window.pageManager.actualTextDisplaySettings
+    protected val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+    protected val default = TextDisplaySettings.default
 
     override fun handle() = window.updateText()
-    override var value: Boolean get() = actualTextSettings.getBooleanValue(type)!!
+    override var value get() = actualTextSettings.getValue(type)!!
         set(value) {
-            if(wsTextSettings.getBooleanValue(type)?: default.getBooleanValue(type) == value)
-                textSettings.setBooleanValue(type, null)
+            if(wsTextSettings.getValue(type)?: default.getValue(type) == value)
+                textSettings.setValue(type, null)
             else
-                textSettings.setBooleanValue(type, value)
+                textSettings.setValue(type, value)
 
         }
-    override val inherited: Boolean get () = textSettings.getBooleanValue(type) == null
+    override val inherited: Boolean get () = textSettings.getValue(type) == null
     override val visible: Boolean
         get() = if (onlyBibles) window.pageManager.isBibleShown else true
+}
+
+open class WindowIntegerMenuItemPreference(window: Window, type: TextDisplaySettings.Types): WindowMenuItemPreference(window, type) {
+    protected val intValue: Int? get() = actualTextSettings.getValue(type) as Int?
+
+    fun setValue(value: Int) {
+        this.value = value
+        window.bibleView?.applyPreferenceSettings()
+    }
+    fun resetValue() {
+        textSettings.setValue(type, null)
+        window.bibleView?.applyPreferenceSettings()
+    }
 }
 
 
@@ -142,10 +138,10 @@ class TiltToScrollMenuItemPreference :
     GeneralMenuItemPreference() {
     private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
     override fun handle() = mainBibleActivity.preferenceSettingsChanged()
-    override var value: Boolean
+    override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
-            wsBehaviorSettings.enableTiltToScroll = value
+            wsBehaviorSettings.enableTiltToScroll = value == true
         }
     override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
 }
@@ -153,7 +149,7 @@ class TiltToScrollMenuItemPreference :
 class CommandItem(
     val command: () -> Unit,
     override val enabled: Boolean = true,
-    override var value: Boolean = true,
+    override var value: Any = true,
     override val visible: Boolean = true,
     override val inherited: Boolean = false
 ) : OptionsMenuItemInterface {
@@ -173,54 +169,31 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 
 }
 
-class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemBooleanPreference(window, TextDisplaySettings.Booleans.STRONGS) {
+class WindowStrongsMenuItemPreference (window: Window) : WindowMenuItemPreference(window, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = window.pageManager.hasStrongs
 }
 
-class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.STRONGS)
+class WorkspaceStrongsMenuItemPreference: WorkspaceMenuItemPreference(TextDisplaySettings.Types.STRONGS)
 
-class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemBooleanPreference(window, TextDisplaySettings.Booleans.MORPH) {
+class WindowMorphologyMenuItemPreference(window: Window): WindowMenuItemPreference(window, TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
-        get() = WindowStrongsMenuItemPreference(window).value
+        get() = WindowStrongsMenuItemPreference(window).value == true
 
-    override var value: Boolean
+    override var value: Any
         get() = if (enabled) super.value else false
         set(value) {
             super.value = value
         }
 }
 
-open class WindowIntegerMenuItemPreference(val window: Window, val type: TextDisplaySettings.Integers): GeneralMenuItemPreference() {
-    override var value = true
-    protected val intValue: Int? get() = actualTextSettings.getIntegerValue(type)
-
-    private val winTextSettings = window.pageManager.textDisplaySettings
-    private val actualTextSettings = window.pageManager.actualTextDisplaySettings
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
-    private val default = TextDisplaySettings.default
-    override val inherited = window.pageManager.textDisplaySettings.getIntegerValue(type) == null
-    fun setValue(value: Int) {
-        if(value == wsTextSettings.getIntegerValue(type)?: default.getIntegerValue(type)) {
-            winTextSettings.setIntegerValue(type, null)
-        } else {
-            winTextSettings.setIntegerValue(type, value)
-        }
-        window.bibleView?.applyPreferenceSettings()
-    }
-    fun resetValue() {
-        winTextSettings.setIntegerValue(type, null)
-        window.bibleView?.applyPreferenceSettings()
-    }
-}
-
-class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Integers.FONTSIZE) {
+class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
     override fun handle() {
         TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {setValue(it)})
     }
 }
 
-class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Integers.MARGINSIZE) {
+class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.MARGINSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
     override fun handle() {
         MarginSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {
@@ -233,45 +206,52 @@ class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreferenc
     }
 }
 
-open class WorkspaceIntegerMenuItemPreference(val type: TextDisplaySettings.Integers): GeneralMenuItemPreference() {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
-    protected val intValue = mainBibleActivity.windowRepository.textDisplaySettings.getIntegerValue(type)?: TextDisplaySettings.default.getIntegerValue(type)!!
-    override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {
-            mainBibleActivity.windowRepository.textDisplaySettings.setIntegerValue(type, it)
-            mainBibleActivity.preferenceSettingsChanged()
-            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsIntegers(type, it)
+open class WorkspaceMenuItemPreference(var type: TextDisplaySettings.Types):
+    GeneralMenuItemPreference() {
+    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+
+    val def = WorkspaceEntities.TextDisplaySettings.default
+
+    override var value get() = (wsTextSettings.getValue(type)?: def.getValue(type)!!)
+        set(value) {
+            wsTextSettings.setValue(type, value)
+            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsValues(type, value)
         }
-    }
-    fun setValue(value: Int) {
-        mainBibleActivity.windowRepository.textDisplaySettings.setIntegerValue(type, value)
-        mainBibleActivity.preferenceSettingsChanged()
-        mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsIntegers(type, value)
-    }
-    override var value = true
+
+    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+    override val inherited = false
 }
 
-class WorkspaceFontSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Integers.FONTSIZE) {
+open class WorkspaceIntegerMenuItemPreference(type: TextDisplaySettings.Types): WorkspaceMenuItemPreference(type) {
+    protected val intValue = (mainBibleActivity.windowRepository.textDisplaySettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!) as Int
+
+    fun setValue(value: Int) {
+        this.value = value
+        mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsValues(type, value)
+        mainBibleActivity.preferenceSettingsChanged()
+    }
+    override var value: Any = true
+}
+
+class WorkspaceFontSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
     override fun handle() {
         TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
     }
-    override var value = true
 }
 
-class WorkspaceMarginSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Integers.MARGINSIZE) {
+class WorkspaceMarginSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Types.MARGINSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
     override fun handle() {
         MarginSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
     }
-    override var value = true
 }
 
-class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MORPH) {
+class WorkspaceMorphologyMenuItemPreference: WorkspaceMenuItemPreference(TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
-        get() = WorkspaceStrongsMenuItemPreference().value
+        get() = WorkspaceStrongsMenuItemPreference().value == true
 
-    override var value: Boolean
+    override var value: Any
         get() = if (enabled) super.value else false
         set(value) {
             super.value = value
@@ -286,10 +266,10 @@ class SplitModeMenuItemPreference :
         ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.configuration))
     }
 
-    override var value: Boolean
+    override var value: Any
         get() = wsBehaviorSettings.enableReverseSplitMode
         set(value) {
-            wsBehaviorSettings.enableReverseSplitMode = value
+            wsBehaviorSettings.enableReverseSplitMode = value == true
         }
 
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow

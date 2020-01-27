@@ -360,20 +360,11 @@ open class WindowRepository @Inject constructor(
         name = ""
     }
 
-    fun updateWindowTextDisplaySettingsBooleans(type: WorkspaceEntities.TextDisplaySettings.Booleans, value: Boolean) {
+    fun updateWindowTextDisplaySettingsValues(type: WorkspaceEntities.TextDisplaySettings.Types, value: Any) {
         windowList.forEach {
-            val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
+            val winValue = it.pageManager.textDisplaySettings.getValue(type)
             if (winValue == value) {
                 it.pageManager.textDisplaySettings.setNonSpecific(type)
-            }
-        }
-    }
-
-    fun updateWindowTextDisplaySettingsIntegers(type: WorkspaceEntities.TextDisplaySettings.Integers, value: Int) {
-        windowList.forEach {
-            val winValue = it.pageManager.textDisplaySettings.getIntegerValue(type)
-            if (winValue == value) {
-                it.pageManager.textDisplaySettings.setIntegerValue(type, null)
             }
         }
     }

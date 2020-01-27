@@ -52,8 +52,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Booleans
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -66,7 +65,7 @@ import net.bible.android.view.activity.page.WindowIntegerMenuItemPreference
 import net.bible.android.view.activity.page.WindowMarginSizePreference
 import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
 import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
-import net.bible.android.view.activity.page.WindowTextContentMenuItemBooleanPreference
+import net.bible.android.view.activity.page.WindowMenuItemPreference
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
@@ -629,9 +628,11 @@ class DocumentWebViewBuilder @Inject constructor(
         if(itemOptions is SubMenuMenuItemPreference)
             return
 
-        itemOptions.value = !itemOptions.value
+        if(itemOptions.value is Boolean) {
+            itemOptions.value = !(itemOptions.value == true)
+        }
         itemOptions.handle()
-        item.isChecked = itemOptions.value
+        item.isChecked = itemOptions.value == true
     }
 
     @SuppressLint("RestrictedApi")
@@ -684,7 +685,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                if(itmOptions is WindowTextContentMenuItemBooleanPreference || itmOptions is WindowIntegerMenuItemPreference) {
+                if(itmOptions is WindowMenuItemPreference || itmOptions is WindowIntegerMenuItemPreference) {
                     if (itmOptions.inherited) {
                         item.setIcon(R.drawable.ic_sync_white_24dp)
                     } else {
@@ -697,7 +698,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     continue;
                 }
 
-                item.isChecked = itmOptions.value
+                item.isChecked = itmOptions.value == true
             }
         }
         handleMenu(popup.menu)
@@ -730,13 +731,13 @@ class DocumentWebViewBuilder @Inject constructor(
 
             R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-            R.id.showBookmarksOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.BOOKMARKS)
-            R.id.redLettersOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.REDLETTERS)
-            R.id.sectionTitlesOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.SECTIONTITLES)
-            R.id.verseNumbersOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.VERSENUMBERS)
-            R.id.versePerLineOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.VERSEPERLINE)
-            R.id.footnoteOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.FOOTNOTES)
-            R.id.myNotesOption -> WindowTextContentMenuItemBooleanPreference(window, Booleans.MYNOTES)
+            R.id.showBookmarksOption -> WindowMenuItemPreference(window, Types.BOOKMARKS)
+            R.id.redLettersOption -> WindowMenuItemPreference(window, Types.REDLETTERS)
+            R.id.sectionTitlesOption -> WindowMenuItemPreference(window, Types.SECTIONTITLES)
+            R.id.verseNumbersOption -> WindowMenuItemPreference(window, Types.VERSENUMBERS)
+            R.id.versePerLineOption -> WindowMenuItemPreference(window, Types.VERSEPERLINE)
+            R.id.footnoteOption -> WindowMenuItemPreference(window, Types.FOOTNOTES)
+            R.id.myNotesOption -> WindowMenuItemPreference(window, Types.MYNOTES)
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
             R.id.fontSize -> WindowFontSizePreference(window)
