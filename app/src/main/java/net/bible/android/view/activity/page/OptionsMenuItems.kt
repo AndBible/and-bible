@@ -174,9 +174,24 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 
 class WindowStrongsMenuItemPreference (window: Window) : WindowMenuItemPreference(window, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = window.pageManager.hasStrongs
+    override var value get() = super.value
+        set(value) {
+            if(value == false) {
+                WindowMorphologyMenuItemPreference(window).value = false
+            }
+            super.value = value
+        }
 }
 
-class WorkspaceStrongsMenuItemPreference: WorkspaceMenuItemPreference(TextDisplaySettings.Types.STRONGS)
+class WorkspaceStrongsMenuItemPreference: WorkspaceMenuItemPreference(TextDisplaySettings.Types.STRONGS) {
+    override var value get() = super.value
+        set(value) {
+            if(value == false) {
+                WorkspaceMorphologyMenuItemPreference().value = false
+            }
+            super.value = value
+        }
+}
 
 class WindowMorphologyMenuItemPreference(window: Window): WindowMenuItemPreference(window, TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
