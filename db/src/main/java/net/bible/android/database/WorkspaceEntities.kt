@@ -133,7 +133,7 @@ class WorkspaceEntities {
                 showStrongs = false,
                 showMorphology = false,
                 showFootNotes = false,
-                showRedLetters = true,
+                showRedLetters = false,
                 showSectionTitles = true,
                 showVerseNumbers = true,
                 showVersePerLine = false,
