@@ -17,28 +17,24 @@
  */
 package net.bible.android.control.page
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.util.Log
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
-import net.bible.service.common.CommonUtils.sharedPreferences
 import java.util.*
 
 /** Manage the logic behind tilt-to-scroll
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-//Tilt-scroll is disabled on 2.1/ only enabled on 2.2+
-@TargetApi(Build.VERSION_CODES.FROYO)
+
 class PageTiltScrollControl {
     var isTiltScrollEnabled = false
         private set
@@ -210,7 +206,7 @@ class PageTiltScrollControl {
         }
     }
 
-    val myOrientationListener: SensorEventListener = object : SensorEventListener {
+    private val myOrientationListener: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_ORIENTATION) {
                 mOrientationValues = sensorEvent.values
@@ -282,7 +278,7 @@ class PageTiltScrollControl {
         /**
          * Returns true if at least one Orientation sensor is available
          */
-        val isOrientationSensor: Boolean
+        private val isOrientationSensor: Boolean
             get() {
                 if (mIsOrientationSensor == null) {
                     val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager
