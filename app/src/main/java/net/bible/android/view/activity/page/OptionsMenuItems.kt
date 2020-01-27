@@ -26,6 +26,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -217,7 +218,19 @@ class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(
     override fun handle() {
         TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {setValue(it)})
     }
+}
 
+class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Integers.MARGINSIZE) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
+    override fun handle() {
+        MarginSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {
+            resetValue()
+            window.bibleView?.updateTextDisplaySettings()
+        }, {
+            setValue(it)
+            window.bibleView?.updateTextDisplaySettings()
+        })
+    }
 }
 
 open class WorkspaceIntegerMenuItemPreference(val type: TextDisplaySettings.Integers): GeneralMenuItemPreference() {
@@ -246,6 +259,13 @@ class WorkspaceFontSizePreference: WorkspaceIntegerMenuItemPreference(TextDispla
     override var value = true
 }
 
+class WorkspaceMarginSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Integers.MARGINSIZE) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
+    override fun handle() {
+        MarginSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
+    }
+    override var value = true
+}
 
 class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MORPH) {
     override val enabled: Boolean

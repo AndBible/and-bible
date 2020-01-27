@@ -63,6 +63,7 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.SubMenuMenuItemPreference
 import net.bible.android.view.activity.page.WindowFontSizePreference
 import net.bible.android.view.activity.page.WindowIntegerMenuItemPreference
+import net.bible.android.view.activity.page.WindowMarginSizePreference
 import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
 import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
 import net.bible.android.view.activity.page.WindowTextContentMenuItemBooleanPreference
@@ -739,6 +740,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
             R.id.fontSize -> WindowFontSizePreference(window)
+            R.id.marginSize -> WindowMarginSizePreference(window)
             R.id.moveItem -> CommandItem({
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")

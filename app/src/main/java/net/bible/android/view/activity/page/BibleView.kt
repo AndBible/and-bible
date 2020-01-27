@@ -296,7 +296,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
-            val settingsString = "{jumpToChapterVerse: $jumpId, jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
+            val marginSize = window.pageManager.actualTextDisplaySettings.marginSize!!
+            val settingsString = "{jumpToChapterVerse: $jumpId, " +
+                "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
+                "toolBarOffset: $toolbarOffset," +
+                "marginSize: $marginSize" +
+                "}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestHtml = finalHtml
@@ -308,6 +313,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 needsUpdate = true
             }
         }
+    }
+
+    fun updateTextDisplaySettings() {
+        val marginSize = window.pageManager.actualTextDisplaySettings.marginSize!!
+        executeJavascriptOnUiThread("setMarginSize($marginSize, true);")
     }
 
     private fun loadHtml() {

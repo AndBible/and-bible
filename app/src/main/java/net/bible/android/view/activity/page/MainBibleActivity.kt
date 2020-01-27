@@ -607,6 +607,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
         R.id.fontSize -> WorkspaceFontSizePreference()
+        R.id.marginSize -> WorkspaceMarginSizePreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
 
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()

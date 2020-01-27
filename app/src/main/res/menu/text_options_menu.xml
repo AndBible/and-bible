@@ -22,6 +22,10 @@
         android:title="@string/prefs_text_size_menuitem"
         android:checkable="false"
         />
+    <item android:id="@+id/marginSize"
+        android:title="@string/prefs_margin_size_menuitem"
+        android:checkable="false"
+        />
     <item android:id="@+id/showStrongsOption"
         android:title="@string/prefs_show_strongs_title"
         android:checkable="true"
