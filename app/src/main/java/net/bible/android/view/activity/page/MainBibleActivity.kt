@@ -95,7 +95,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
-import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
@@ -597,13 +596,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(itemId: Int) =  when(itemId) {
         R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-        R.id.showBookmarksOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.BOOKMARKS)
-        R.id.redLettersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.REDLETTERS)
-        R.id.sectionTitlesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.SECTIONTITLES)
-        R.id.verseNumbersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.VERSENUMBERS)
-        R.id.versePerLineOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.VERSEPERLINE)
-        R.id.footnoteOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.FOOTNOTES)
-        R.id.myNotesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MYNOTES)
+        R.id.showBookmarksOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.BOOKMARKS)
+        R.id.redLettersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.REDLETTERS)
+        R.id.sectionTitlesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.SECTIONTITLES)
+        R.id.verseNumbersOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.VERSENUMBERS)
+        R.id.versePerLineOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.VERSEPERLINE)
+        R.id.footnoteOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.FOOTNOTES)
+        R.id.myNotesOption -> WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MYNOTES)
 
         R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()

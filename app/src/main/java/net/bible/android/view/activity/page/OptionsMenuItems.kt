@@ -30,7 +30,6 @@ import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
-import org.w3c.dom.Text
 
 interface OptionsMenuItemInterface {
     var value: Boolean
@@ -99,7 +98,7 @@ abstract class StringValuedMenuItemPreference(name: String, default: Boolean,
     MenuItemPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
 
-open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Id) :
+open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.Booleans) :
     GeneralMenuItemPreference() {
     private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
 
@@ -115,7 +114,7 @@ open class WorkspaceTextContentMenuItemPreference(var type: TextDisplaySettings.
     override val inherited = false
 }
 
-open class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Id) :
+open class WindowTextContentMenuItemPreference(val window: Window, var type: TextDisplaySettings.Booleans) :
     GeneralMenuItemPreference(true) {
     private val textSettings = window.pageManager.textDisplaySettings
     private val actualTextSettings = window.pageManager.actualTextDisplaySettings
@@ -171,13 +170,13 @@ class NightModeMenuItemPreference : StringValuedMenuItemPreference("night_mode_p
 
 }
 
-class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.STRONGS) {
+class WindowStrongsMenuItemPreference (window: Window) : WindowTextContentMenuItemPreference(window, TextDisplaySettings.Booleans.STRONGS) {
     override val enabled: Boolean get() = window.pageManager.hasStrongs
 }
 
-class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.STRONGS)
+class WorkspaceStrongsMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.STRONGS)
 
-class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemPreference(window, TextDisplaySettings.Id.MORPH) {
+class WindowMorphologyMenuItemPreference(window: Window): WindowTextContentMenuItemPreference(window, TextDisplaySettings.Booleans.MORPH) {
     override val enabled: Boolean
         get() = WindowStrongsMenuItemPreference(window).value
 
@@ -225,7 +224,7 @@ class WorkspaceFontSizeItem: GeneralMenuItemPreference() {
     override var value = true
 }
 
-class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Id.MORPH) {
+class WorkspaceMorphologyMenuItemPreference: WorkspaceTextContentMenuItemPreference(TextDisplaySettings.Booleans.MORPH) {
     override val enabled: Boolean
         get() = WorkspaceStrongsMenuItemPreference().value
 

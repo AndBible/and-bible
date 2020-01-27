@@ -83,6 +83,7 @@ class WorkspaceEntities {
 
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var marginSize: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
@@ -93,37 +94,40 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
     ) {
-        enum class Id {
+        enum class Booleans {
             STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES
         }
-
-        fun getBooleanValue(type: Id) = when(type) {
-            Id.STRONGS -> showStrongs
-            Id.MORPH -> showMorphology
-            Id.FOOTNOTES -> showFootNotes
-            Id.REDLETTERS -> showRedLetters
-            Id.SECTIONTITLES -> showSectionTitles
-            Id.VERSENUMBERS -> showVerseNumbers
-            Id.VERSEPERLINE -> showVersePerLine
-            Id.BOOKMARKS -> showBookmarks
-            Id.MYNOTES -> showMyNotes
+        enum class Integers {
+            FONTSIZE, MARGINSIZE
         }
 
-        fun setBooleanValue(type: Id, value: Boolean?) {
+        fun getBooleanValue(type: Booleans) = when(type) {
+            Booleans.STRONGS -> showStrongs
+            Booleans.MORPH -> showMorphology
+            Booleans.FOOTNOTES -> showFootNotes
+            Booleans.REDLETTERS -> showRedLetters
+            Booleans.SECTIONTITLES -> showSectionTitles
+            Booleans.VERSENUMBERS -> showVerseNumbers
+            Booleans.VERSEPERLINE -> showVersePerLine
+            Booleans.BOOKMARKS -> showBookmarks
+            Booleans.MYNOTES -> showMyNotes
+        }
+
+        fun setBooleanValue(type: Booleans, value: Boolean?) {
             when(type) {
-                Id.STRONGS -> showStrongs = value
-                Id.MORPH -> showMorphology = value
-                Id.FOOTNOTES -> showFootNotes = value
-                Id.REDLETTERS -> showRedLetters = value
-                Id.SECTIONTITLES -> showSectionTitles = value
-                Id.VERSENUMBERS -> showVerseNumbers = value
-                Id.VERSEPERLINE -> showVersePerLine = value
-                Id.BOOKMARKS -> showBookmarks = value
-                Id.MYNOTES -> showMyNotes = value
+                Booleans.STRONGS -> showStrongs = value
+                Booleans.MORPH -> showMorphology = value
+                Booleans.FOOTNOTES -> showFootNotes = value
+                Booleans.REDLETTERS -> showRedLetters = value
+                Booleans.SECTIONTITLES -> showSectionTitles = value
+                Booleans.VERSENUMBERS -> showVerseNumbers = value
+                Booleans.VERSEPERLINE -> showVersePerLine = value
+                Booleans.BOOKMARKS -> showBookmarks = value
+                Booleans.MYNOTES -> showMyNotes = value
             }
         }
 
-        fun setNonSpecific(type: Id) {
+        fun setNonSpecific(type: Booleans) {
             setBooleanValue(type, null)
         }
 

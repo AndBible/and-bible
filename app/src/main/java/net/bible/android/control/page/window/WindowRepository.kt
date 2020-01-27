@@ -360,7 +360,7 @@ open class WindowRepository @Inject constructor(
         name = ""
     }
 
-    fun updateWindowTextDisplaySettings(type: WorkspaceEntities.TextDisplaySettings.Id, value: Boolean) {
+    fun updateWindowTextDisplaySettings(type: WorkspaceEntities.TextDisplaySettings.Booleans, value: Boolean) {
         windowList.forEach {
             val winValue = it.pageManager.textDisplaySettings.getBooleanValue(type)
             if (winValue == value) {

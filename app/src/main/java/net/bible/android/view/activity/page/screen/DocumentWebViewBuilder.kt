@@ -52,7 +52,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Id
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Booleans
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -725,13 +725,13 @@ class DocumentWebViewBuilder @Inject constructor(
 
             R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
 
-            R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Id.BOOKMARKS)
-            R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Id.REDLETTERS)
-            R.id.sectionTitlesOption -> WindowTextContentMenuItemPreference(window, Id.SECTIONTITLES)
-            R.id.verseNumbersOption -> WindowTextContentMenuItemPreference(window, Id.VERSENUMBERS)
-            R.id.versePerLineOption -> WindowTextContentMenuItemPreference(window, Id.VERSEPERLINE)
-            R.id.footnoteOption -> WindowTextContentMenuItemPreference(window, Id.FOOTNOTES)
-            R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Id.MYNOTES)
+            R.id.showBookmarksOption -> WindowTextContentMenuItemPreference(window, Booleans.BOOKMARKS)
+            R.id.redLettersOption -> WindowTextContentMenuItemPreference(window, Booleans.REDLETTERS)
+            R.id.sectionTitlesOption -> WindowTextContentMenuItemPreference(window, Booleans.SECTIONTITLES)
+            R.id.verseNumbersOption -> WindowTextContentMenuItemPreference(window, Booleans.VERSENUMBERS)
+            R.id.versePerLineOption -> WindowTextContentMenuItemPreference(window, Booleans.VERSEPERLINE)
+            R.id.footnoteOption -> WindowTextContentMenuItemPreference(window, Booleans.FOOTNOTES)
+            R.id.myNotesOption -> WindowTextContentMenuItemPreference(window, Booleans.MYNOTES)
             R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
             R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
             R.id.fontSize -> WindowFontSizeItem(window)
