@@ -149,6 +149,32 @@ private val MIGRATION_11_12 = object : Migration(11, 12) {
     }
 }
 
+private val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`text_display_settings_margin_size_marginSize` INTEGER DEFAULT NULL, `text_display_settings_margin_size_left` INTEGER DEFAULT NULL, `text_display_settings_margin_size_right` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
+
+private val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+
+            val colDefs = "`text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
+
+
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -171,7 +197,9 @@ object DatabaseContainer {
                         MIGRATION_8_9,
                         MIGRATION_9_10,
                         MIGRATION_10_11,
-                        MIGRATION_11_12
+                        MIGRATION_11_12,
+                        MIGRATION_12_13,
+                        MIGRATION_13_14
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

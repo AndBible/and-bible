@@ -82,14 +82,18 @@ class WorkspaceEntities {
     )
 
     data class MarginSize(
-        val marginSize: Int?,
-        val left: Boolean?,
-        val right: Boolean?
+        @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
+        @ColumnInfo(defaultValue = "NULL") var marginRight: Int?,
+        @ColumnInfo(defaultValue = "NULL", name="marginSize") var marginSizeDeprecated: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name="left") var leftDeprecated: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name="right") var rightDeprecated: Boolean? = null
     )
 
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
-        @ColumnInfo(defaultValue = "NULL") var marginSize: Int? = null,
+        // TODO: remove
+        @ColumnInfo(defaultValue = "NULL", name="marginSize") val marginSizeDeprecated: Int? = null,
+        @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
@@ -131,7 +135,7 @@ class WorkspaceEntities {
                 Types.BOOKMARKS -> showBookmarks = value as Boolean?
                 Types.MYNOTES -> showMyNotes = value as Boolean?
                 Types.FONTSIZE -> fontSize = value as Int?
-                Types.MARGINSIZE -> marginSize = value as Int?
+                Types.MARGINSIZE -> marginSize = value as MarginSize?
             }
         }
 
@@ -142,7 +146,10 @@ class WorkspaceEntities {
         companion object {
             val default get() = TextDisplaySettings(
                 fontSize = 16,
-                marginSize = 0,
+                marginSize = MarginSize(
+                    marginLeft = 0,
+                    marginRight = 0
+                ),
                 showStrongs = false,
                 showMorphology = false,
                 showFootNotes = false,

@@ -131,7 +131,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
     <string name="prefs_text_size_title">Text font size</string>
     <string name="prefs_text_size_menuitem">Change font size (%d pt)</string>
-    <string name="prefs_margin_size_menuitem">Change margin size (%d mm)</string>
+    <string name="prefs_margin_size_menuitem">Change margin size (%d/%d mm)</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
@@ -544,5 +544,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
     <string name="prefs_margin_size_title">Margin size</string>
-    <string name="margin_size_mm">%d mm</string>
+    <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
+    <string name="left_margin">Left margin</string>
+    <string name="right_margin">Right margin</string>
 </resources>

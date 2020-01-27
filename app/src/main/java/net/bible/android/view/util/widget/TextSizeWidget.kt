@@ -35,7 +35,6 @@ class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout
         inflater.inflate(R.layout.text_size_widget, this, true)
         dialogMessage.setText(R.string.prefs_text_size_sample_text)
         myBar.max = 60
-        myBar.progress = value
         myBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 updateValue(progress)

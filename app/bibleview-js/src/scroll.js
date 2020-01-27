@@ -87,17 +87,20 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setMarginSize(marginSize, recalc = false) {
-    window.document.body.style.maxWidth = `calc(100vw - ${2*marginSize}mm)`;
+export function setMarginSize(marginLeft, marginRight, recalc = false) {
+    const contentDiv = $("#content");
+    console.log("setMarginSize", marginLeft, marginRight);
+    contentDiv.css('margin-left', `${marginLeft}mm`);
+    contentDiv.css('margin-right', `${marginRight}mm`);
     if(recalc) {
         registerVersePositions()
     }
 }
 
 
-export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, marginSize} = {}) {
-    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${marginSize}`);
-    setMarginSize(marginSize);
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, marginLeft, marginRight} = {}) {
+    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}`);
+    setMarginSize(marginLeft, marginRight);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(jumpToChapterVerse != null) {

@@ -121,12 +121,15 @@ open class WindowMenuItemPreference(val window: Window, var type: TextDisplaySet
 }
 
 open class WindowIntegerMenuItemPreference(window: Window, type: TextDisplaySettings.Types): WindowMenuItemPreference(window, type) {
-    protected val intValue: Int? get() = actualTextSettings.getValue(type) as Int?
+    protected open val intValue: Int? get() = actualTextSettings.getValue(type) as Int?
 
-    fun setValue(value: Int) {
-        this.value = value
-        window.bibleView?.applyPreferenceSettings()
-    }
+    override var value: Any
+        get() = super.value
+        set(value) {
+            super.value = value
+            window.bibleView?.applyPreferenceSettings()
+        }
+
     fun resetValue() {
         textSettings.setValue(type, null)
         window.bibleView?.applyPreferenceSettings()
@@ -189,18 +192,20 @@ class WindowMorphologyMenuItemPreference(window: Window): WindowMenuItemPreferen
 class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
     override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {setValue(it)})
+        TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {value = it})
     }
 }
 
 class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.MARGINSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
+    val leftVal get() = (actualTextSettings.getValue(type) as WorkspaceEntities.MarginSize).marginLeft!!
+    val rightVal get() = (actualTextSettings.getValue(type) as WorkspaceEntities.MarginSize).marginRight!!
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, leftVal, rightVal)
     override fun handle() {
-        MarginSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {
+        MarginSizeWidget.changeMarginSize(mainBibleActivity, value as WorkspaceEntities.MarginSize, {
             resetValue()
             window.bibleView?.updateTextDisplaySettings()
         }, {
-            setValue(it)
+            value = it
             window.bibleView?.updateTextDisplaySettings()
         })
     }
@@ -208,7 +213,7 @@ class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreferenc
 
 open class WorkspaceMenuItemPreference(var type: TextDisplaySettings.Types):
     GeneralMenuItemPreference() {
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
+    protected val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
 
     val def = WorkspaceEntities.TextDisplaySettings.default
 
@@ -223,27 +228,28 @@ open class WorkspaceMenuItemPreference(var type: TextDisplaySettings.Types):
 }
 
 open class WorkspaceIntegerMenuItemPreference(type: TextDisplaySettings.Types): WorkspaceMenuItemPreference(type) {
-    protected val intValue = (mainBibleActivity.windowRepository.textDisplaySettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!) as Int
+    protected open val intValue get() = (wsTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!) as Int
 
-    fun setValue(value: Int) {
-        this.value = value
-        mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsValues(type, value)
-        mainBibleActivity.preferenceSettingsChanged()
-    }
-    override var value: Any = true
+    override var value: Any
+        get() = super.value
+        set(value) {
+            super.value = value
+            mainBibleActivity.preferenceSettingsChanged()
+        }
 }
 
 class WorkspaceFontSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_menuitem, intValue)
     override fun handle() {
-        TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
+        TextSizeWidget.changeTextSize(mainBibleActivity, intValue) {value = it}
     }
 }
 
 class WorkspaceMarginSizePreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Types.MARGINSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, intValue)
+    val actualValue = (wsTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!) as WorkspaceEntities.MarginSize
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_menuitem, actualValue.marginLeft, actualValue.marginRight)
     override fun handle() {
-        MarginSizeWidget.changeTextSize(mainBibleActivity, intValue) {setValue(it)}
+        MarginSizeWidget.changeMarginSize(mainBibleActivity, value as WorkspaceEntities.MarginSize) {value = it}
     }
 }
 

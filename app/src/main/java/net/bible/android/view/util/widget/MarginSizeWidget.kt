@@ -26,18 +26,21 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.margin_size_widget.view.*
 import net.bible.android.activity.R
+import net.bible.android.database.WorkspaceEntities
 
 class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet)
 {
-    var value = 0
+    lateinit var value: WorkspaceEntities.MarginSize
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.margin_size_widget, this, true)
-        myBar.max = 100
-        myBar.progress = value
-        myBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+        leftMargin.max = 100
+        rightMargin.max = 100
+
+        leftMargin.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                updateValue(progress)
+                value.marginLeft = progress
+                updateValue()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
@@ -46,21 +49,34 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
             }
 
         })
-        updateValue(myBar.progress)
+
+        rightMargin.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                value.marginRight = progress
+                updateValue()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+        })
     }
     
-    fun updateValue(value: Int) {
-        actualValue.text = context.getString(R.string.margin_size_mm, value)
-        myBar.progress = value
-        this.value = value
+    fun updateValue() {
+        actualValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight)
+        leftMargin.progress = value.marginLeft!!
+        rightMargin.progress = value.marginRight!!
     }
     
     companion object {
-        fun changeTextSize(context: Context, value: Int, resetCallback: (() -> Unit)? = null, callback: (value: Int) -> Unit) {
+        fun changeMarginSize(context: Context, value: WorkspaceEntities.MarginSize, resetCallback: (() -> Unit)? = null, callback: (value: WorkspaceEntities.MarginSize) -> Unit) {
             AlertDialog.Builder(context).apply{
                 val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                 val layout = inflater.inflate(R.layout.margin_size, null) as MarginSizeWidget
-                layout.updateValue(value)
+                layout.value = value
+                layout.updateValue()
                 setTitle(R.string.prefs_margin_size_title)
                 setView(layout)
                 setPositiveButton(R.string.okay) { dialog, which ->

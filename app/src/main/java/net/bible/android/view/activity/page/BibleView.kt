@@ -45,6 +45,7 @@ import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
@@ -296,11 +297,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
-            val marginSize = window.pageManager.actualTextDisplaySettings.marginSize!!
+            val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
+            val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
             val settingsString = "{jumpToChapterVerse: $jumpId, " +
                 "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
                 "toolBarOffset: $toolbarOffset," +
-                "marginSize: $marginSize" +
+                "marginLeft: $marginLeft," +
+                "marginRight: $marginRight" +
                 "}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
@@ -316,8 +319,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun updateTextDisplaySettings() {
-        val marginSize = window.pageManager.actualTextDisplaySettings.marginSize!!
-        executeJavascriptOnUiThread("setMarginSize($marginSize, true);")
+        val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
+        val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+        executeJavascriptOnUiThread("setMarginSize($marginLeft, $marginRight, true);")
     }
 
     private fun loadHtml() {
