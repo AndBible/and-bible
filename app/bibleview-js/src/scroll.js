@@ -88,7 +88,7 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 }
 
 export function setMarginSize(marginSize, recalc = false) {
-    window.document.body.style.maxWidth = `calc(100vw - ${marginSize}mm)`;
+    window.document.body.style.maxWidth = `calc(100vw - ${2*marginSize}mm)`;
     if(recalc) {
         registerVersePositions()
     }
