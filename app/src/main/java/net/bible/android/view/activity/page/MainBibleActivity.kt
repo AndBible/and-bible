@@ -424,7 +424,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = WorkspaceStrongsMenuItemPreference()
+            val prefOptions = WindowStrongsMenuItemPreference(windowControl.activeWindow)
             prefOptions.value = !prefOptions.value
             prefOptions.handle()
             invalidateOptionsMenu()
