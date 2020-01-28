@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/colors_day_mode_title"
+        >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_text_day"
+            android:key="text_color"
+            android:title="@string/color_text"
+            />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_background_day"
+            android:key="background_color"
+            android:title="@string/color_background"/>
+        <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/link_color_default"
+            android:key="link_color"
+            android:title="@string/color_title"/>
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/night_link_color_default"
+            android:key="night_links_color"
+            android:title="@string/color_link"/-->
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/colors_night_mode_title"
+        >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_text_night"
+            android:key="night_text_color"
+            android:title="@string/color_text"
+            />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_background_night"
+            android:key="night_background_color"
+            android:title="@string/color_background"/>
+        <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/night_title_color_default"
+            android:key="night_titles_color"
+            android:title="@string/color_title"/>
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/night_link_color_default"
+            android:key="night_links_color"
+            android:title="@string/color_link"/-->
+    </PreferenceCategory>
+</PreferenceScreen>

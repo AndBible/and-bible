@@ -95,6 +95,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
+import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
@@ -907,7 +908,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // only need to un-hide navigation bar in portrait mode
         if (CommonUtils.isPortrait)
             uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.navigationBarColor = UiUtils.bibleViewBackgroundColor
+        }
         window.decorView.systemUiVisibility = uiFlags
     }
 
@@ -1159,6 +1162,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun preferenceSettingsChanged() {
         documentViewManager.documentView.applyPreferenceSettings()
+        resetSystemUi()
         if(!refreshIfNightModeChange()) {
             requestSdcardPermission()
             invalidateOptionsMenu()

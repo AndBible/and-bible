@@ -45,7 +45,6 @@ import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
@@ -246,7 +245,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** may need updating depending on environmental brightness
      */
     override fun changeBackgroundColour() {
-        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.nightMode)
+        UiUtils.setBibleViewBackgroundColour(this)
     }
 
     var lastUpdated = 0L
@@ -299,11 +298,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
             val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
             val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+            val textColor = String.format("#%06X", 0xFFFFFF and  UiUtils.bibleViewTextColour)
+
             val settingsString = "{jumpToChapterVerse: $jumpId, " +
                 "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
                 "toolBarOffset: $toolbarOffset," +
                 "marginLeft: $marginLeft," +
-                "marginRight: $marginRight" +
+                "marginRight: $marginRight," +
+                "textColor: '$textColor'" +
                 "}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)

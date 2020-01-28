@@ -108,3 +108,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         private const val TAG = "SettingsActivity"
     }
 }
+
+class ColorSettingsFragment : PreferenceFragmentCompat() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.color_settings, rootKey)
+    }
+}

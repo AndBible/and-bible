@@ -98,8 +98,9 @@ export function setMarginSize(marginLeft, marginRight, recalc = false) {
 }
 
 
-export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, marginLeft, marginRight} = {}) {
-    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}`);
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, marginLeft, marginRight, textColor} = {}) {
+    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${textColor}`);
+    window.document.body.style.color = textColor;
     setMarginSize(marginLeft, marginRight);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});

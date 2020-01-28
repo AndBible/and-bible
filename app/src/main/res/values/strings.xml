@@ -158,6 +158,24 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_auto_night_mode_title">Automatic night mode</string>
     <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
 
+    <!-- Colors preferences -->
+    <string name="color_text">Text</string>
+    <string name="color_background">Background</string>
+    <string name="color_title">Titles</string>
+    <string name="color_link">Links</string>
+    <string name="colors_day_mode_title">Colors, day mode</string>
+    <string name="colors_night_mode_title">Colors, night mode</string>
+    <string name="general_settings_title">General settings</string>
+    <string name="prefs_colors_summary">Change text and background colors</string>
+    <string name="prefs_colors_title">Colors</string>
+
+
+    <string name="cpv_default_title">Select a Color</string>
+    <string name="cpv_presets">Presets</string>
+    <string name="cpv_custom">Custom</string>
+    <string name="cpv_select">Select</string>
+    <string name="cpv_transparency">Transparency</string>
+
     <!-- Window -->
     <string name="new_window">New window</string>
     <string name="windowClose">Close</string>

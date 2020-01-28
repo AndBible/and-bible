@@ -34,6 +34,7 @@
 		<item name="android:navigationBarColor" tools:targetApi="lollipop">@color/white</item>
 		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/nav_bar_divider_grey</item>
 
+		<item name="cpv_dialogType">custom</item>
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
@@ -57,6 +58,7 @@
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
 		<item name="android:navigationBarColor" tools:targetApi="lollipop">@color/black</item>
 		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/grey_800</item>
+		<item name="cpv_dialogType">custom</item>
 
 	</style>
 

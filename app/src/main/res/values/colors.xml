@@ -38,6 +38,18 @@
 	<color name="indigo_500">#3f51b5</color>
 	<color name="indigo_700">#303f9f</color>
 
+	<!--color name="text_color_default">#000000</color>
+	<color name="background_color_default">#FFFFFF</color>
+
+	<color name="link_color_default">#2196F3</color>
+	<color name="title_color_default">#2196F3</color>
+
+	<color name="night_text_color_default">#C9C9C9</color>
+	<color name="night_background_color_default">#000000</color>
+
+	<color name="night_link_color_default">#000000</color>
+	<color name="night_title_color_default">#000000</color-->
+
 	<color name="toolbar_text_color">#BDBDBD</color>
 	<color name="grey_500">#9e9e9e</color>
 	<color name="grey_600">#757575</color>
