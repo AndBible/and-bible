@@ -183,7 +183,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="colors_day_mode_title">Colors, day mode</string>
     <string name="colors_night_mode_title">Colors, night mode</string>
     <string name="general_settings_title">General settings</string>
-    <string name="prefs_colors_summary">Change text and background colors</string>
+    <string name="prefs_colors_summary">Change text and background colors in document view</string>
     <string name="prefs_colors_title">Colors</string>
 
 
