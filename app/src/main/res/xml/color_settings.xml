@@ -31,6 +31,14 @@
             android:defaultValue="@color/bible_background_day"
             android:key="background_color"
             android:title="@string/color_background"/>
+        <SeekBarPreference
+            android:defaultValue="0"
+            android:max="100"
+            android:key="noise_day"
+            android:title="@string/prefs_noise_title"
+            android:summary="@string/prefs_noise_summary"
+            app:showSeekBarValue="true"
+            />
         <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/link_color_default"
             android:key="link_color"
@@ -52,6 +60,14 @@
             android:defaultValue="@color/bible_background_night"
             android:key="night_background_color"
             android:title="@string/color_background"/>
+        <SeekBarPreference
+            android:defaultValue="0"
+            android:max="100"
+            android:key="noise_night"
+            android:title="@string/prefs_noise_title"
+            android:summary="@string/prefs_noise_summary"
+            app:showSeekBarValue="true"
+            />
         <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/night_title_color_default"
             android:key="night_titles_color"
@@ -60,17 +76,5 @@
             android:defaultValue="@color/night_link_color_default"
             android:key="night_links_color"
             android:title="@string/color_link"/-->
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/prefs_effects"
-        >
-        <SeekBarPreference
-            android:defaultValue="0"
-            android:max="100"
-            android:key="noise_opacity"
-            android:title="@string/prefs_noise_title"
-            android:summary="@string/prefs_noise_summary"
-            app:showSeekBarValue="true"
-            />
     </PreferenceCategory>
 </PreferenceScreen>

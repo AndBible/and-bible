@@ -321,7 +321,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    val noiseOpacity get() = CommonUtils.sharedPreferences.getInt("noise_opacity", 0).toFloat()/100.0
+    val noiseOpacity get() = CommonUtils.sharedPreferences.getInt(if(ScreenSettings.nightMode) "noise_night" else "noise_day" , 0).toFloat()/100.0
 
     fun updateTextDisplaySettings() {
         val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
