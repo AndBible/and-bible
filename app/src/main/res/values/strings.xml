@@ -185,7 +185,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="general_settings_title">General settings</string>
     <string name="prefs_colors_summary">Change text and background colors in document view</string>
     <string name="prefs_colors_title">Colors</string>
-
+    <string name="prefs_effects">Effects</string>
+    <string name="prefs_noise_title">Noise</string>
+    <string name="prefs_noise_summary">Amount of noise to add to background</string>
 
     <string name="cpv_default_title">Select a Color</string>
     <string name="cpv_presets">Presets</string>

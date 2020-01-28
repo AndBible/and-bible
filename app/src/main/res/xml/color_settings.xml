@@ -17,7 +17,8 @@
   ~
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
         android:title="@string/colors_day_mode_title"
         >
@@ -59,5 +60,17 @@
             android:defaultValue="@color/night_link_color_default"
             android:key="night_links_color"
             android:title="@string/color_link"/-->
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_effects"
+        >
+        <SeekBarPreference
+            android:defaultValue="0"
+            android:max="100"
+            android:key="noise_opacity"
+            android:title="@string/prefs_noise_title"
+            android:summary="@string/prefs_noise_summary"
+            app:showSeekBarValue="true"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

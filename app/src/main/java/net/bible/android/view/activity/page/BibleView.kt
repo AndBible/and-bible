@@ -305,6 +305,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 "toolBarOffset: $toolbarOffset," +
                 "marginLeft: $marginLeft," +
                 "marginRight: $marginRight," +
+                "noiseOpacity: $noiseOpacity," +
                 "textColor: '$textColor'" +
                 "}"
 
@@ -319,6 +320,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
         }
     }
+
+    val noiseOpacity get() = CommonUtils.sharedPreferences.getInt("noise_opacity", 0).toFloat()/100.0
 
     fun updateTextDisplaySettings() {
         val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
