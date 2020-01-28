@@ -43,6 +43,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         by swipe-down gesture from toolbar. You may use swipe-left and swipe-right gestures to
         switch to previous / next workspace.
     </string>
+    <string name="help_hidden_features_title">Hidden shortcuts</string>
+    <string name="help_hidden_features_text">
+        Swipe down from toolbar to show workspace selector.
+        Long-click window button to quickly minimize.
+        Long-click speak toolbar button to quickly go to speak settings.
+        Long-click bible verse location text in toolbar to jump to document selector.
+        Long-click bible/commentary/dictionary quick-switch toolbar buttons to show popup menu of documents of each type.
+    </string>
 
     <string name="help_contextmenus_title">Context Menus</string>
     <string name="help_contextmenus_text">

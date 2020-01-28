@@ -170,7 +170,9 @@ constructor(private val callingActivity: MainBibleActivity,
                         Pair(R.string.help_mynote_title,R.string.help_mynote_text),
                         Pair(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
                         Pair(R.string.help_search_title,R.string.help_search_text),
+                        Pair(R.string.help_hidden_features_title,R.string.help_hidden_features_text),
                         Pair(R.string.help_workspaces_title,R.string.help_workspaces_text),
+                        Pair(R.string.help_hidden_features_title,R.string.help_hidden_features_text),
                         Pair(R.string.help_contextmenus_title, R.string.help_contextmenus_text)
                     )
 
