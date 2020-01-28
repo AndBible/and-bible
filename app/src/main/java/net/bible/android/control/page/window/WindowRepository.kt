@@ -117,6 +117,10 @@ open class WindowRepository @Inject constructor(
             }
         }
 
+    // When in maximized mode, keep track of last used
+    // window that was synchronized
+    var lastMaximizedAndSync: Window? = null
+
 
     lateinit var dedicatedLinksWindow: LinksWindow
         private set
