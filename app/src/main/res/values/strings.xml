@@ -158,6 +158,15 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_auto_night_mode_title">Automatic night mode</string>
     <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
 
+    <string name="font_size_pt">%d pt</string>
+    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
+    <string name="prefs_margin_size_title">Margin size</string>
+    <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
+    <string name="left_margin">Left margin</string>
+    <string name="right_margin">Right margin</string>
+    <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
+    <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
+
     <!-- Colors preferences -->
     <string name="color_text">Text</string>
     <string name="color_background">Background</string>
@@ -559,12 +568,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
-    <string name="font_size_pt">%d pt</string>
-    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
-    <string name="prefs_margin_size_title">Margin size</string>
-    <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
-    <string name="left_margin">Left margin</string>
-    <string name="right_margin">Right margin</string>
-    <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
-    <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
 </resources>
