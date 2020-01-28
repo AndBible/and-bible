@@ -209,6 +209,7 @@ class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(
     override fun handle() {
         TextSizeWidget.changeTextSize(mainBibleActivity, intValue!!, {resetValue()}, {value = it})
     }
+    override val visible = true
 }
 
 class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.MARGINSIZE) {
@@ -224,6 +225,7 @@ class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreferenc
             window.bibleView?.updateTextDisplaySettings()
         })
     }
+    override val visible = true
 }
 
 open class WorkspaceMenuItemPreference(var type: TextDisplaySettings.Types):

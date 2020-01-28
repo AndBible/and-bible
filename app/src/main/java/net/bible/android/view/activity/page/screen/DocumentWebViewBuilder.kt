@@ -725,7 +725,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
             R.id.moveWindowSubMenu -> SubMenuMenuItemPreference(false)
-            //R.id.windowMoveFirst -> CommandItem({windowControl.moveWindowToFirst(window)}, enabled = windowControl.canMoveFirst(window))
             R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
             R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
 
