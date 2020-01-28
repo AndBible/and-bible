@@ -565,4 +565,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
     <string name="left_margin">Left margin</string>
     <string name="right_margin">Right margin</string>
+    <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
+    <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
 </resources>

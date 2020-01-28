@@ -48,6 +48,11 @@
 			android:summary="@string/auto_fullscreen_summary"
 			android:defaultValue="false"
 			/>
+		<SwitchPreferenceCompat android:key="swipe_to_change_chapter"
+			android:title="@string/pref_swipe_to_change_chapter_title"
+			android:summary="@string/pref_swipe_to_change_chapter_summary"
+			android:defaultValue="true"
+			/>
 		<SwitchPreferenceCompat android:key="request_sdcard_permission_pref"
 			android:title="@string/prefs_request_sdcard_permission_title"
 			android:summary="@string/prefs_request_sdcard_permission_summary"

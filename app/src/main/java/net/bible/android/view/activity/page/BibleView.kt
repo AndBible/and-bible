@@ -357,10 +357,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var contentVisible = false
 
+    val swipeToChangeChapter get() = CommonUtils.sharedPreferences.getBoolean("swipe_to_change_chapter", true)
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
         var isOkay = true
+        if(window.pageManager.isBibleShown && !swipeToChangeChapter) return false
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
             val isAtRightEdge = scrollX >= maxHorizontalScroll
@@ -376,6 +378,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** prevent swipe left if the user is scrolling the page left  */
     override val isPagePreviousOkay: Boolean get () {
         var isOkay = true
+        if(window.pageManager.isBibleShown && !swipeToChangeChapter) return false
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
             val isAtLeftEdge = scrollX == 0
