@@ -28,6 +28,19 @@ import kotlinx.android.synthetic.main.margin_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 
+fun createListener(func: (progress: Int) -> Unit): SeekBar.OnSeekBarChangeListener {
+    return object: SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            func(progress)
+        }
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+        }
+    }
+}
+
 class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet)
 {
     lateinit var value: WorkspaceEntities.MarginSize
@@ -37,30 +50,14 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
         leftMargin.max = 100
         rightMargin.max = 100
 
-        leftMargin.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                value.marginLeft = progress
-                updateValue()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-
+        leftMargin.setOnSeekBarChangeListener(createListener {
+            value.marginLeft = it
+            updateValue();
         })
 
-        rightMargin.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                value.marginRight = progress
-                updateValue()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-
+        rightMargin.setOnSeekBarChangeListener(createListener {
+            value.marginRight = it
+            updateValue()
         })
     }
     
