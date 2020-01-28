@@ -259,18 +259,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
         drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerStateChanged(newState: Int) {
+                if(newState == DrawerLayout.STATE_SETTLING) {
+                    showSystemUI(false)
+                }
+
+            }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
-            override fun onDrawerOpened(drawerView: View) {
-                if (isFullScreen) {
-                    showSystemUI()
-                }
-            }
+            override fun onDrawerOpened(drawerView: View) {}
 
             override fun onDrawerClosed(drawerView: View) {
                 if (isFullScreen) {
                     hideSystemUI()
+                } else {
+                    showSystemUI()
+
                 }
             }
 
@@ -896,7 +900,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         window.decorView.systemUiVisibility = uiFlags
     }
 
-    private fun showSystemUI() {
+    private fun showSystemUI(setNavBarColor: Boolean=true) {
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -909,7 +913,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if (CommonUtils.isPortrait)
             uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.navigationBarColor = UiUtils.bibleViewBackgroundColor
+            if(setNavBarColor) {
+                window.navigationBarColor = UiUtils.bibleViewBackgroundColor
+            } else {
+                val typedValue = TypedValue()
+                val found = theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                window.navigationBarColor = typedValue.data
+            }
         }
         window.decorView.systemUiVisibility = uiFlags
     }
