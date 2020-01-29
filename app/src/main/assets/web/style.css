@@ -13,6 +13,9 @@ body {
     display: block;
     position: relative;
     --noise-opacity: 0.0;
+    --text-color: #000000;
+    color: var(--text-color);
+
 
 	/*hyphens: auto;
 	-webkit-hyphens: auto; */

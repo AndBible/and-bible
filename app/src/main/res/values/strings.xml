@@ -132,6 +132,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
+    <string name="options_menu_night_mode">Night mode</string>
 
     <string name="night_mode_disabled">Disabled manually</string>
     <string name="night_mode_enabled">Enabled manually</string>
@@ -180,19 +181,16 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
-    <string name="prefs_language_cat">Language</string>
 
     <!-- Colors preferences -->
-    <string name="color_text">Text</string>
-    <string name="color_background">Background</string>
-    <string name="color_title">Titles</string>
-    <string name="color_link">Links</string>
+    <string name="color_text">Text color</string>
+    <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Colors, day mode</string>
     <string name="colors_night_mode_title">Colors, night mode</string>
     <string name="prefs_colors_summary">Change text and background colors in document view</string>
     <string name="prefs_colors_title">Colors</string>
-    <string name="prefs_noise_title">Noise</string>
-    <string name="prefs_noise_summary">Amount of noise to add to background</string>
+    <string name="prefs_noise_title">Background noise</string>
+    <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
 
     <string name="cpv_default_title">Select a Color</string>
     <string name="cpv_presets">Presets</string>

@@ -43,7 +43,7 @@
 		/>
 
 	<item android:id="@+id/nightMode"
-		android:title="@string/prefs_night_mode_title"
+		android:title="@string/options_menu_night_mode"
 		android:checkable="true"
 		/>
 

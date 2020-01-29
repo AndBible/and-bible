@@ -39,14 +39,7 @@
             android:summary="@string/prefs_noise_summary"
             app:showSeekBarValue="true"
             />
-        <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/link_color_default"
-            android:key="link_color"
-            android:title="@string/color_title"/>
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/night_link_color_default"
-            android:key="night_links_color"
-            android:title="@string/color_link"/-->
+
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/colors_night_mode_title"
@@ -68,13 +61,6 @@
             android:summary="@string/prefs_noise_summary"
             app:showSeekBarValue="true"
             />
-        <!--com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/night_title_color_default"
-            android:key="night_titles_color"
-            android:title="@string/color_title"/>
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/night_link_color_default"
-            android:key="night_links_color"
-            android:title="@string/color_link"/-->
+
     </PreferenceCategory>
 </PreferenceScreen>
