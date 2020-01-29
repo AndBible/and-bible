@@ -359,7 +359,7 @@ open class SwordContentFacade @Inject constructor(
             osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
             val preferences = sharedPreferences
 			// prefs applying to any doc type
-			osisToHtmlParameters.isShowNotes = textDisplaySettings.showMyNotes!!
+			osisToHtmlParameters.isShowNotes = textDisplaySettings.showFootNotes!!
 			osisToHtmlParameters.isRedLetter = textDisplaySettings.showRedLetters!!
 			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
 			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
