@@ -35,8 +35,8 @@
 		<item>@string/prefs_night_mode_automatic</item>
 	</string-array>
 	<string-array name="prefs_night_mode_descriptions_noauto">
-		<item>@string/no</item>
-		<item>@string/yes</item>
+		<item>@string/night_mode_disabled</item>
+		<item>@string/night_mode_enabled</item>
 	</string-array>
 	<string-array name="prefs_night_mode_values_noauto">
 		<item>false</item>

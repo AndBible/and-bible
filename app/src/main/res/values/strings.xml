@@ -128,10 +128,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
     <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
-    <string name="prefs_night_mode_title">Night mode</string>
-    <string name="prefs_night_mode_summary">For easier reading in the dark</string>
+    <string name="prefs_night_mode_title">Night mode switching</string>
+    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
+
+    <string name="night_mode_disabled">Disabled manually</string>
+    <string name="night_mode_enabled">Enabled manually</string>
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
@@ -178,7 +181,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
     <string name="prefs_language_cat">Language</string>
-    
+
     <!-- Colors preferences -->
     <string name="color_text">Text</string>
     <string name="color_background">Background</string>
