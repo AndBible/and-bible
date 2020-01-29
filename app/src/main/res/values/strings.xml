@@ -38,7 +38,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
-        Workspaces allow having ontext-dependent working environments. Workspace functions
+        Workspaces allow having context-dependent working environments. Workspace functions
         can be accessed via options menu (top-right corner). Quick way to access workspaces is
         by swipe-down gesture from toolbar. You may use swipe-left and swipe-right gestures to
         switch to previous / next workspace.
