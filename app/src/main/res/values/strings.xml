@@ -156,7 +156,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_split_mode_title">Split mode</string>
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
-    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
+    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
 
     <string name="text_options">Text options</string>
     <string name="text_options_workspace">Text options (Workspace)</string>
@@ -174,7 +174,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="right_margin">Right margin</string>
     <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
     <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
-
+    <string name="prefs_advanced_settings_cat">Advanced settings</string>
+    <string name="prefs_display_customization_cat">Look &amp; feel</string>
+    <string name="prefs_behavior_customization_cat">Application behavior</string>
+    <string name="prefs_language_cat">Language</string>
+    
     <!-- Colors preferences -->
     <string name="color_text">Text</string>
     <string name="color_background">Background</string>
@@ -182,7 +186,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="color_link">Links</string>
     <string name="colors_day_mode_title">Colors, day mode</string>
     <string name="colors_night_mode_title">Colors, night mode</string>
-    <string name="general_settings_title">General settings</string>
     <string name="prefs_colors_summary">Change text and background colors in document view</string>
     <string name="prefs_colors_title">Colors</string>
     <string name="prefs_noise_title">Noise</string>
