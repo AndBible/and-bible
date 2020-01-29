@@ -78,7 +78,7 @@
         android:title="@string/help">
         <menu>
             <item android:id="@+id/helpButton"
-                android:title="@string/help"
+                android:title="@string/help_and_tips"
                 android:icon="@drawable/ic_help_white_24dp"/>
 
         </menu>
