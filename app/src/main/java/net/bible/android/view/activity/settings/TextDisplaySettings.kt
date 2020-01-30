@@ -90,7 +90,7 @@ fun getPrefItem(window: Window?, type: Types): OptionsMenuItemInterface =
 class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val window: Window?, val windowRepository: WindowRepository) : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, window, windowRepository)
-        setPreferencesFromResource(R.xml.text_options, rootKey)
+        setPreferencesFromResource(R.xml.text_display_settings, rootKey)
         updateItems()
     }
 
