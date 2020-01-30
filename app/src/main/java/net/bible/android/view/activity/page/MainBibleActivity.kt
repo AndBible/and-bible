@@ -656,8 +656,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         handlePrefItem(item)
-        //if(item.itemId == R.id.showStrongsOption)
-        //    invalidateOptionsMenu()
         return true
     }
 
