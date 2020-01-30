@@ -4,7 +4,6 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:key="bible_display_pref">
 	<PreferenceCategory
 		android:title="@string/prefs_behavior_customization_cat"
@@ -41,11 +40,6 @@
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
-		<Preference
-			android:title="@string/prefs_colors_title"
-			android:summary="@string/prefs_colors_summary"
-			app:fragment="net.bible.android.view.activity.settings.ColorSettingsFragment"
-			/>
 
 		<net.bible.android.view.util.BookmarkColourPreference
 			android:key="default_bookmark_style_pref"

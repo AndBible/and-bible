@@ -613,6 +613,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
         R.id.fontSize -> WorkspaceFontSizePreference()
         R.id.marginSize -> WorkspaceMarginSizePreference()
+        R.id.colors -> WorkspaceColorPreference()
         R.id.splitMode -> SplitModeMenuItemPreference()
 
         R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
@@ -914,7 +915,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if(setNavBarColor) {
-                window.navigationBarColor = UiUtils.bibleViewBackgroundColor
+                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
+                window.navigationBarColor = color?: UiUtils.bibleViewDefaultBackgroundColor
+                UiUtils.bibleViewDefaultBackgroundColor
             } else {
                 val typedValue = TypedValue()
                 val found = theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
@@ -1115,6 +1119,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
             }
+            REFRESH_WINDOW -> {
+                val windowId = data?.extras?.getLong("windowId")
+                val edited = data?.extras?.getBoolean("edited")
+                if(edited != true) return
+                if(windowId != 0L) {
+                    val window = windowRepository.getWindow(windowId)
+                    window?.bibleView?.updateTextDisplaySettings()
+                } else {
+                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                }
+                return
+            }
             STD_REQUEST_CODE -> {
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
                 if (classes.contains(data?.component?.className)) {
@@ -1288,6 +1304,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // ActivityBase.STD_REQUEST_CODE = 1
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
+        const val REFRESH_WINDOW = 4
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

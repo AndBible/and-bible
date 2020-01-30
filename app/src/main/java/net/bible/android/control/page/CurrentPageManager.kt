@@ -84,6 +84,7 @@ open class CurrentPageManager @Inject constructor(
             return WorkspaceEntities.TextDisplaySettings(
                 fontSize = win.fontSize?: ws.fontSize?: def.fontSize,
                 marginSize = win.marginSize?: ws.marginSize?: def.marginSize,
+                colors = win.colors?: ws.colors?: def.colors,
                 showStrongs = win.showStrongs?: ws.showStrongs?: def.showStrongs,
                 showMorphology = win.showMorphology?: ws.showMorphology?: def.showMorphology,
                 showFootNotes = win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,

@@ -43,6 +43,7 @@ import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchIndexProgressStatus;
 import net.bible.android.view.activity.search.SearchResults;
+import net.bible.android.view.activity.settings.ColorSettingsActivity;
 import net.bible.android.view.activity.speak.GeneralSpeakActivity;
 import net.bible.android.view.activity.speak.BibleSpeakActivity;
 
@@ -64,6 +65,8 @@ public interface ActivityComponent {
 
 	// don't like this but inject is called from ActivityBase and the subclasses
 	void inject(ActivityBase activityBase);
+
+	void inject(ColorSettingsActivity colorSettings);
 
 	void inject(StartupActivity startupActivity);
 

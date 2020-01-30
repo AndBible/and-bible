@@ -18,14 +18,6 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/fontSize"
-        android:title="@string/prefs_text_size_menuitem"
-        android:checkable="false"
-        />
-    <item android:id="@+id/marginSize"
-        android:title="@string/prefs_margin_size_menuitem"
-        android:checkable="false"
-        />
     <item android:id="@+id/showStrongsOption"
         android:title="@string/prefs_show_strongs_title"
         android:checkable="true"
@@ -63,4 +55,18 @@
         android:title="@string/prefs_show_mynotes_title"
         android:checkable="true"
         />
+
+    <item android:id="@+id/fontSize"
+        android:title="@string/prefs_text_size_menuitem"
+        android:checkable="false"
+        />
+    <item android:id="@+id/marginSize"
+        android:title="@string/prefs_margin_size_menuitem"
+        android:checkable="false"
+        />
+    <item android:id="@+id/colors"
+        android:title="@string/text_background_colors"
+        android:checkable="false"
+        />
+
 </menu>

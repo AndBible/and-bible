@@ -72,6 +72,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak">Speak</string>
     <string name="help">Help</string>
     <string name="other">Other</string>
+    <string name="help_and_tips">Help &amp; tips></string>
 
     <string name="administration">Administration</string>
 
@@ -183,12 +184,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_behavior_customization_cat">Application behavior</string>
 
     <!-- Colors preferences -->
+    <string name="text_background_colors">Text &amp; background colors</string>
+    <string name="window_color_settings_title">Window color settings</string>
+    <string name="workspace_color_settings_title">Workspace color settings</string>
+
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
     <string name="colors_day_mode_title">Colors, day mode</string>
     <string name="colors_night_mode_title">Colors, night mode</string>
-    <string name="prefs_colors_summary">Change text and background colors in document view</string>
-    <string name="prefs_colors_title">Colors</string>
     <string name="prefs_noise_title">Background noise</string>
     <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
 
@@ -581,5 +584,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
-    <string name="help_and_tips"><![CDATA[Help & tips]]></string>
 </resources>

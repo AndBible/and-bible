@@ -87,24 +87,23 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setMarginSize(marginLeft, marginRight, recalc = false) {
-    const contentDiv = $("#content");
-    console.log("setMarginSize", marginLeft, marginRight);
-    contentDiv.css('margin-left', `${marginLeft}mm`);
-    contentDiv.css('margin-right', `${marginRight}mm`);
-    if(recalc) {
+export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpacity, reCalc = false} = {}) {
+    const contentDiv = $("#content")
+        .css('margin-left', `${marginLeft}mm`)
+        .css('margin-right', `${marginRight}mm`);
+    $("body")
+        .css("--text-color", textColor)
+        .css("--noise-opacity", noiseOpacity/100);
+    console.log("noiseOpacity", noiseOpacity/100);
+    if(reCalc) {
         registerVersePositions()
     }
 }
 
 
-export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, marginLeft, marginRight, noiseOpacity, textColor} = {}) {
-    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${textColor}`);
-
-    $("body")
-        .css("--text-color", textColor)
-        .css("--noise-opacity", noiseOpacity);
-    setMarginSize(marginLeft, marginRight);
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
+    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${displaySettings}`);
+    setDisplaySettings(displaySettings);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(jumpToChapterVerse != null) {

@@ -24,12 +24,12 @@
         >
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_text_day"
-            android:key="text_color"
+            android:key="text_color_day"
             android:title="@string/color_text"
             />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_background_day"
-            android:key="background_color"
+            android:key="background_color_day"
             android:title="@string/color_background"/>
         <SeekBarPreference
             android:defaultValue="0"
@@ -46,12 +46,12 @@
         >
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_text_night"
-            android:key="night_text_color"
+            android:key="text_color_night"
             android:title="@string/color_text"
             />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/bible_background_night"
-            android:key="night_background_color"
+            android:key="background_color_night"
             android:title="@string/color_background"/>
         <SeekBarPreference
             android:defaultValue="0"

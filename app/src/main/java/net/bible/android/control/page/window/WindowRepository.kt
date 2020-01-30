@@ -157,6 +157,7 @@ open class WindowRepository @Inject constructor(
     private val defaultState = WindowState.SPLIT
 
     val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
+    val lastVisibleWindow: Window get() = windowList.findLast { it.isVisible }!!
 
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow(true)
@@ -175,7 +176,7 @@ open class WindowRepository @Inject constructor(
 
     private fun getWindows(state: WindowState)= windows.filter { it.windowLayout.state === state}
 
-    fun getWindow(windowId: Long): Window? = windows.find {it.id == windowId}
+    fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
 
     fun addNewWindow(): Window {
         val newWindow = createNewWindow()

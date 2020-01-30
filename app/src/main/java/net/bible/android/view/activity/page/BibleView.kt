@@ -244,8 +244,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** may need updating depending on environmental brightness
      */
-    override fun changeBackgroundColour() {
-        UiUtils.setBibleViewBackgroundColour(this)
+    override fun updateBackgroundColor() {
+        val colors = window.pageManager.actualTextDisplaySettings.colors
+        val color = (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
+        setBackgroundColor(color)
     }
 
     var lastUpdated = 0L
@@ -258,7 +260,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         synchronized(this) {
             var finalHtml = html
             // set background colour if necessary
-            changeBackgroundColour()
+            updateBackgroundColor()
 
             // call this from here because some documents may require an adjusted font size e.g. those using Greek font
             applyFontSize()
@@ -296,17 +298,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
+
+            val colors = window.pageManager.actualTextDisplaySettings.colors!!
+            val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
+            val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
             val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
             val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
-            val textColor = String.format("#%06X", 0xFFFFFF and  UiUtils.bibleViewTextColour)
+            val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
 
             val settingsString = "{jumpToChapterVerse: $jumpId, " +
                 "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
                 "toolBarOffset: $toolbarOffset," +
-                "marginLeft: $marginLeft," +
-                "marginRight: $marginRight," +
-                "noiseOpacity: $noiseOpacity," +
-                "textColor: '$textColor'" +
+                "displaySettings: {" +
+                    "marginLeft: $marginLeft," +
+                    "marginRight: $marginRight," +
+                    "textColor: '$textColorStr'," +
+                    "noiseOpacity: $noise" +
+                    "}" +
                 "}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
@@ -321,12 +329,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    val noiseOpacity get() = CommonUtils.sharedPreferences.getInt(if(ScreenSettings.nightMode) "noise_night" else "noise_day" , 0).toFloat()/100.0
-
     fun updateTextDisplaySettings() {
+        updateBackgroundColor()
+        val colors = window.pageManager.actualTextDisplaySettings.colors!!
+        val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
+        val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
         val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
         val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
-        executeJavascriptOnUiThread("setMarginSize($marginLeft, $marginRight, true);")
+        val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
+        executeJavascriptOnUiThread("setDisplaySettings({marginLeft: $marginLeft, marginRight: $marginRight, textColor: '$textColorStr', noiseOpacity: $noise, reCalc: true});")
     }
 
     private fun loadHtml() {
@@ -509,7 +520,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (window.id == event.updateWindowId) {
             Log.d(TAG, "UpdateSecondaryWindowEvent")
 
-            changeBackgroundColour()
+            updateBackgroundColor()
             show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
         }
     }

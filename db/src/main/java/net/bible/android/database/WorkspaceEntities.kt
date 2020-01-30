@@ -86,9 +86,20 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var marginRight: Int?
     )
 
+    data class Colors(
+        @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
+        @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
+        @ColumnInfo(defaultValue = "NULL") var dayNoise: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
+    )
+
+
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
+        @Embedded(prefix="colors_") var colors: Colors? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
@@ -101,7 +112,7 @@ class WorkspaceEntities {
     ) {
         enum class Types {
             STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
-            FONTSIZE, MARGINSIZE
+            FONTSIZE, MARGINSIZE, COLORS
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -115,7 +126,8 @@ class WorkspaceEntities {
             Types.BOOKMARKS -> showBookmarks
             Types.MYNOTES -> showMyNotes
             Types.FONTSIZE -> fontSize
-            Types.MARGINSIZE -> marginSize
+            Types.MARGINSIZE -> marginSize?.copy()
+            Types.COLORS -> colors?.copy()
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -131,6 +143,7 @@ class WorkspaceEntities {
                 Types.MYNOTES -> showMyNotes = value as Boolean?
                 Types.FONTSIZE -> fontSize = value as Int?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
+                Types.COLORS -> colors = value as Colors?
             }
         }
 
@@ -141,6 +154,14 @@ class WorkspaceEntities {
         companion object {
             val default get() = TextDisplaySettings(
                 fontSize = 16,
+                colors = Colors(
+                    dayBackground = null,
+                    dayTextColor = null,
+                    nightBackground = null,
+                    nightTextColor = null,
+                    nightNoise = 0,
+                    dayNoise = 0
+                ),
                 marginSize = MarginSize(
                     marginLeft = 0,
                     marginRight = 0

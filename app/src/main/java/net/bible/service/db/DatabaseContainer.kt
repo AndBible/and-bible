@@ -208,6 +208,18 @@ private val MIGRATION_14_15 = object : Migration(14, 15) {
     }
 }
 
+private val MIGRATION_15_16 = object : Migration(15, 16) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
+
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -234,7 +246,8 @@ object DatabaseContainer {
                         MIGRATION_12_13,
                         MIGRATION_13_14,
                         MIGRATION_14_15,
-                        MIGRATION_11_15
+                        MIGRATION_11_15,
+                        MIGRATION_15_16
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

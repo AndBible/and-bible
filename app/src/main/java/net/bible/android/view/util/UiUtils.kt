@@ -63,16 +63,12 @@ object UiUtils {
         }
     }
 
-    val bibleViewBackgroundColor: Int
+    val bibleViewDefaultBackgroundColor: Int
         get() {
-            val nightColor = CommonUtils.sharedPreferences.getInt("night_background_color", BIBLEVIEW_BACKGROUND_NIGHT)
-            val dayColor = CommonUtils.sharedPreferences.getInt("background_color", BIBLEVIEW_BACKGROUND_DAY)
+            val nightColor = BIBLEVIEW_BACKGROUND_NIGHT
+            val dayColor = BIBLEVIEW_BACKGROUND_DAY
             return if (ScreenSettings.nightMode) nightColor else dayColor
         }
-
-    fun setBibleViewBackgroundColour(bibleView: View) {
-        bibleView.setBackgroundColor(bibleViewBackgroundColor)
-    }
 
     fun getThemeBackgroundColour(context: Context): Int {
         val a = TypedValue()
@@ -87,10 +83,10 @@ object UiUtils {
         }
     }
 
-    val bibleViewTextColour: Int
+    val bibleViewDefaultTextColour: Int
         get() {
-            val nightColor = CommonUtils.sharedPreferences.getInt("night_text_color", BIBLEVIEW_TEXT_NIGHT)
-            val dayColor = CommonUtils.sharedPreferences.getInt("text_color", BIBLEVIEW_TEXT_DAY)
+            val nightColor = BIBLEVIEW_TEXT_NIGHT
+            val dayColor = BIBLEVIEW_TEXT_DAY
             return if (ScreenSettings.nightMode) nightColor else dayColor
         }
 

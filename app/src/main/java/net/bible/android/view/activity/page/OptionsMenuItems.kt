@@ -18,13 +18,16 @@
 
 package net.bible.android.view.activity.page
 
+import android.content.Intent
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.REFRESH_WINDOW
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
@@ -211,6 +214,24 @@ class WindowFontSizePreference(window: Window): WindowIntegerMenuItemPreference(
     }
     override val visible = true
 }
+
+
+class WindowColorPreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.COLORS) {
+    override fun handle() {
+        val intent = Intent(mainBibleActivity, ColorSettingsActivity::class.java)
+        intent.putExtra("windowId", window.id)
+        mainBibleActivity.startActivityForResult(intent, REFRESH_WINDOW)
+    }
+    override val visible = true
+
+}
+class WorkspaceColorPreference: WorkspaceIntegerMenuItemPreference(TextDisplaySettings.Types.COLORS) {
+    override fun handle() {
+        val intent = Intent(mainBibleActivity, ColorSettingsActivity::class.java)
+        mainBibleActivity.startActivityForResult(intent, REFRESH_WINDOW)
+    }
+}
+
 
 class WindowMarginSizePreference(window: Window): WindowIntegerMenuItemPreference(window, TextDisplaySettings.Types.MARGINSIZE) {
     val leftVal get() = (actualTextSettings.getValue(type) as WorkspaceEntities.MarginSize).marginLeft!!
