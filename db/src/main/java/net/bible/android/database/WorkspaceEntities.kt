@@ -111,7 +111,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
     ) {
         enum class Types {
-            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES, VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
+            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES,
+            VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
             FONTSIZE, MARGINSIZE, COLORS
         }
 

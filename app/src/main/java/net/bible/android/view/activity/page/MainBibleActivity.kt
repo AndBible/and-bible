@@ -74,7 +74,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -93,6 +92,7 @@ import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
+import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.util.UiUtils
@@ -429,7 +429,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = WindowStrongsMenuItemPreference(windowControl.activeWindow)
+            val prefOptions = StrongsPreference(windowControl.activeWindow)
             prefOptions.value = !(prefOptions.value == true)
             prefOptions.handle()
             invalidateOptionsMenu()
@@ -598,34 +598,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             updateToolbar()
         }
 
-    private fun getItemOptions(item: MenuItem) =  when(item.itemId) {
-        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
+    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface =  when(item.itemId) {
+        R.id.textOptionsSubMenu -> CommandPreference({
+            val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+            startActivityForResult(intent, REFRESH_WINDOW)
+        })
+        R.id.splitMode -> SplitModePreference()
 
-        R.id.showBookmarksOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.BOOKMARKS)
-        R.id.redLettersOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.REDLETTERS)
-        R.id.sectionTitlesOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.SECTIONTITLES)
-        R.id.verseNumbersOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.VERSENUMBERS)
-        R.id.versePerLineOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.VERSEPERLINE)
-        R.id.footnoteOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.FOOTNOTES)
-        R.id.myNotesOption -> WorkspaceMenuItemPreference(TextDisplaySettings.Types.MYNOTES)
-
-        R.id.showStrongsOption -> WorkspaceStrongsMenuItemPreference()
-        R.id.morphologyOption -> WorkspaceMorphologyMenuItemPreference()
-        R.id.fontSize -> WorkspaceFontSizePreference()
-        R.id.marginSize -> WorkspaceMarginSizePreference()
-        R.id.colors -> WorkspaceColorPreference()
-        R.id.splitMode -> SplitModeMenuItemPreference()
-
-        R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
-        R.id.nightMode -> NightModeMenuItemPreference()
+        R.id.tiltToScroll -> TiltToScrollPreference()
+        R.id.nightMode -> NightModePreference()
 
         R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-        R.id.newWorkspace -> CommandItem({newWorkspace()})
-        R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
-        R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
-        R.id.renameWorkspace -> CommandItem({renameWorkspace()})
-        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
-
+        R.id.newWorkspace -> CommandPreference({newWorkspace()})
+        R.id.cloneWorkspace -> CommandPreference({cloneWorkspace()})
+        R.id.deleteWorkspace -> CommandPreference({deleteWorkspace()}, haveWorkspaces)
+        R.id.renameWorkspace -> CommandPreference({renameWorkspace()})
+        R.id.switchToWorkspace -> CommandPreference({chooseWorkspace()})
         else -> throw RuntimeException("Illegal menu item")
     }
 
@@ -633,8 +621,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
-        val subMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
-        menuInflater.inflate(R.menu.text_options_menu, subMenu)
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
@@ -659,7 +645,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun handlePrefItem(item: MenuItem) {
         val itemOptions = getItemOptions(item)
-        if(itemOptions is SubMenuMenuItemPreference)
+        if(itemOptions is SubMenuPreference)
             return
         if(itemOptions.value is Boolean) {
             itemOptions.value = !(itemOptions.value == true)
@@ -670,8 +656,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         handlePrefItem(item)
-        if(item.itemId == R.id.showStrongsOption)
-            invalidateOptionsMenu()
         return true
     }
 
@@ -1122,10 +1106,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             REFRESH_WINDOW -> {
                 val windowId = data?.extras?.getLong("windowId")
                 val edited = data?.extras?.getBoolean("edited")
+                val requiresReload = data?.extras?.getBoolean("requiresReload")
                 if(edited != true) return
                 if(windowId != 0L) {
                     val window = windowRepository.getWindow(windowId)
-                    window?.bibleView?.updateTextDisplaySettings()
+                    if(requiresReload == true)
+                        window?.updateText()
+                    else {
+                        window?.bibleView?.updateTextDisplaySettings()
+                    }
                 } else {
                     ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
                 }

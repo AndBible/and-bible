@@ -116,6 +116,18 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_executing_search">Invalid search query</string>
 
     <!-- Preferences -->
+    <string name="prefs_show_verseno_summary">Show verse numbers</string>
+    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
+    <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
+
+    <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
+    <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
+    <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
+    <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
+    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
+    <string name="prefs_red_letter_summary">Show words of Christ in red</string>
+    <string name="prefs_text_size_title">Text size</string>
+
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
@@ -142,9 +154,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
     <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
-    <string name="prefs_text_size_title">Text font size</string>
-    <string name="prefs_text_size_menuitem">Change font size (%d pt)</string>
-    <string name="prefs_margin_size_menuitem">Change margin size (%d/%d mm)</string>
+    <string name="prefs_text_size_pt_title">Text font size (%d pt)</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
@@ -163,8 +173,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
 
-    <string name="text_options">Text options</string>
-    <string name="text_options_workspace">Text options (Workspace)</string>
+    <string name="text_options_window_menutitle">Text options…</string>
+    <string name="text_options_workspace_menuitem">Text options…</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
     <string name="switch_split_mode">Switch split mode</string>
     <string name="reversed_split_mode">Reversed split mode</string>
@@ -173,7 +183,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
-    <string name="prefs_margin_size_title">Margin size</string>
+    <string name="prefs_margin_size_title">Change margin size</string>
+    <string name="prefs_margin_size_mm_title">Change margin size (%d/%d mm)</string>
     <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
     <string name="left_margin">Left margin</string>
     <string name="right_margin">Right margin</string>
@@ -183,15 +194,23 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
 
+    <string name="prefs_margin_size_summary">Adjust left and right margin of the text view</string>
+    <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
+    <string name="text_display_settings_activity_title">Text display settings</string>
+    <string name="workspace_text_display_settings_title">Workspace text option defaults</string>
+    <string name="window_text_display_settings_title">Window text options</string>
+    <string name="prefs_text_display_settings_title">Formatting</string>
+    <string name="prefs_text_appearance_title">Appearance</string>
+
     <!-- Colors preferences -->
-    <string name="text_background_colors">Text &amp; background colors</string>
+    <string name="prefs_text_colors_title">Text &amp; background colors</string>
     <string name="window_color_settings_title">Window color settings</string>
-    <string name="workspace_color_settings_title">Workspace color settings</string>
+    <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 
     <string name="color_text">Text color</string>
     <string name="color_background">Background color</string>
-    <string name="colors_day_mode_title">Colors, day mode</string>
-    <string name="colors_night_mode_title">Colors, night mode</string>
+    <string name="colors_day_mode_title">Day mode</string>
+    <string name="colors_night_mode_title">Night mode</string>
     <string name="prefs_noise_title">Background noise</string>
     <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
 
