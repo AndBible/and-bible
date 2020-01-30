@@ -183,7 +183,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
-    <string name="prefs_margin_size_title">Change margin size (%d/%d mm)</string>
+    <string name="prefs_margin_size_title">Change margin size</string>
+    <string name="prefs_margin_size_mm_title">Change margin size (%d/%d mm)</string>
     <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
     <string name="left_margin">Left margin</string>
     <string name="right_margin">Right margin</string>
@@ -192,6 +193,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
+
+    <string name="prefs_margin_size_summary">Adjust left and right margin of the text view</string>
+    <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
+    <string name="text_display_settings_activity_title">Text display settings</string>
+    <string name="workspace_text_display_settings_title">Text display settings (workspace)</string>
+    <string name="window_text_display_settings_title">Text display settings (window)</string>
+    <string name="prefs_text_display_settings_title">Text display settings</string>
+    <string name="prefs_text_appearance_title">Text appearance</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_title">Text &amp; background colors</string>
@@ -594,7 +603,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
-    <string name="prefs_margin_size_summary">margin size summary</string>
-    <string name="prefs_text_colors_summary">text colors summary</string>
-    <string name="text_display_settings_activity_title">Text display settings</string>
 </resources>

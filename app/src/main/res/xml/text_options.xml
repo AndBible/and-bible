@@ -17,10 +17,31 @@
   ~
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="@string/colors_day_mode_title"
+        android:title="@string/prefs_text_appearance_title"
+        >
+    <Preference
+        android:key="FONTSIZE"
+        android:title="@string/prefs_text_size_title"
+        android:summary="@string/prefs_text_size_summary"
+        />
+
+    <Preference
+        android:key="MARGINSIZE"
+        android:title="@string/prefs_margin_size_title"
+        android:summary="@string/prefs_margin_size_summary"
+        />
+
+    <Preference
+        android:key="COLORS"
+        android:title="@string/prefs_text_colors_title"
+        android:summary="@string/prefs_text_colors_summary"
+        />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/prefs_text_display_settings_title"
         >
         <SwitchPreference
             android:key="STRONGS"
@@ -73,24 +94,6 @@
             android:key="MYNOTES"
             android:title="@string/prefs_show_mynotes_title"
             android:summary="@string/prefs_show_mynotes_summary"
-            />
-
-        <Preference
-            android:key="FONTSIZE"
-            android:title="@string/prefs_text_size_title"
-            android:summary="@string/prefs_text_size_summary"
-            />
-
-        <Preference
-            android:key="MARGINSIZE"
-            android:title="@string/prefs_margin_size_title"
-            android:summary="@string/prefs_margin_size_summary"
-            />
-
-        <Preference
-            android:key="COLORS"
-            android:title="@string/prefs_text_colors_title"
-            android:summary="@string/prefs_text_colors_summary"
             />
 
     </PreferenceCategory>

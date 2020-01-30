@@ -36,6 +36,8 @@ interface OptionsMenuItemInterface {
     val inherited: Boolean
     val requiresReload: Boolean
     fun handle()
+    fun setNonSpecific() {}
+
     val title: String?
 }
 
@@ -118,6 +120,10 @@ open class Preference(val window: Window?, var type: TextDisplaySettings.Types, 
         get() {
             return if (onlyBibles) pageManager.isBibleShown else true
         }
+
+    override fun setNonSpecific() {
+        winSettings?.setNonSpecific(type)
+    }
 
     override val requiresReload get() = value is Boolean
 
@@ -212,7 +218,7 @@ class ColorPreference(window: Window?): Preference(window, TextDisplaySettings.T
 class MarginSizePreference(window: Window?): Preference(window, TextDisplaySettings.Types.MARGINSIZE) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_title, leftVal, rightVal)
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal)
     override val visible = true
 }
 
