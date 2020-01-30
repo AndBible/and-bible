@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Build
 import android.text.TextUtils
@@ -52,21 +53,15 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
-import net.bible.android.view.activity.page.CommandItem
+import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
-import net.bible.android.view.activity.page.SubMenuMenuItemPreference
-import net.bible.android.view.activity.page.WindowColorPreference
-import net.bible.android.view.activity.page.WindowFontSizePreference
-import net.bible.android.view.activity.page.WindowIntegerMenuItemPreference
-import net.bible.android.view.activity.page.WindowMarginSizePreference
-import net.bible.android.view.activity.page.WindowMorphologyMenuItemPreference
-import net.bible.android.view.activity.page.WindowStrongsMenuItemPreference
-import net.bible.android.view.activity.page.WindowMenuItemPreference
+import net.bible.android.view.activity.page.Preference
+import net.bible.android.view.activity.page.SubMenuPreference
+import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
@@ -626,7 +621,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun handlePrefItem(window: Window, item: MenuItem) {
         val itemOptions = getItemOptions(window, item)
-        if(itemOptions is SubMenuMenuItemPreference)
+        if(itemOptions is SubMenuPreference)
             return
 
         if(itemOptions.value is Boolean) {
@@ -648,14 +643,10 @@ class DocumentWebViewBuilder @Inject constructor(
             resetTouchTimer()
             handlePrefItem(window, menuItem)
             true
-            //windowMenuCommandHandler.handleMenuRequest(menuItem)
         }
 
         val inflater = popup.menuInflater
         inflater.inflate(R.menu.window_popup_menu, popup.menu)
-
-        val subMenu = popup.menu.findItem(R.id.textOptionsSubMenu).subMenu
-        inflater.inflate(R.menu.text_options_menu, subMenu)
 
         val moveWindowsSubMenu = popup.menu.findItem(R.id.moveWindowSubMenu).subMenu
 
@@ -686,7 +677,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                if(itmOptions is WindowMenuItemPreference || itmOptions is WindowIntegerMenuItemPreference) {
+                if(itmOptions is Preference) {
                     if (itmOptions.inherited) {
                         item.setIcon(R.drawable.ic_sync_white_24dp)
                     } else {
@@ -717,33 +708,23 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun getItemOptions(window: Window, item: MenuItem): OptionsMenuItemInterface {
         return when(item.itemId) {
 
-            R.id.windowNew -> CommandItem({windowControl.addNewWindow()})
-            R.id.windowMaximise -> CommandItem(
+            R.id.windowNew -> CommandPreference({windowControl.addNewWindow()})
+            R.id.windowMaximise -> CommandPreference(
                 {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised
             )
-            R.id.windowSynchronise -> CommandItem(
+            R.id.windowSynchronise -> CommandPreference(
                 {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
-            R.id.moveWindowSubMenu -> SubMenuMenuItemPreference(false)
-            R.id.windowClose -> CommandItem({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
-            R.id.windowMinimise -> CommandItem({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
-
-            R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(false)
-
-            R.id.showBookmarksOption -> WindowMenuItemPreference(window, Types.BOOKMARKS)
-            R.id.redLettersOption -> WindowMenuItemPreference(window, Types.REDLETTERS)
-            R.id.sectionTitlesOption -> WindowMenuItemPreference(window, Types.SECTIONTITLES)
-            R.id.verseNumbersOption -> WindowMenuItemPreference(window, Types.VERSENUMBERS)
-            R.id.versePerLineOption -> WindowMenuItemPreference(window, Types.VERSEPERLINE)
-            R.id.footnoteOption -> WindowMenuItemPreference(window, Types.FOOTNOTES)
-            R.id.myNotesOption -> WindowMenuItemPreference(window, Types.MYNOTES)
-            R.id.showStrongsOption -> WindowStrongsMenuItemPreference(window)
-            R.id.morphologyOption -> WindowMorphologyMenuItemPreference(window)
-            R.id.fontSize -> WindowFontSizePreference(window)
-            R.id.marginSize -> WindowMarginSizePreference(window)
-            R.id.colors -> WindowColorPreference(window)
-            R.id.moveItem -> CommandItem({
+            R.id.moveWindowSubMenu -> SubMenuPreference(false)
+            R.id.windowClose -> CommandPreference({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowMinimise -> CommandPreference({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+            R.id.textOptionsSubMenu -> CommandPreference({
+                val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
+                intent.putExtra("windowId", window.id)
+                mainBibleActivity.startActivityForResult(intent, MainBibleActivity.REFRESH_WINDOW)
+            })
+            R.id.moveItem -> CommandPreference({
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")
             })

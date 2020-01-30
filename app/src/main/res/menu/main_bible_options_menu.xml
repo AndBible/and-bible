@@ -29,7 +29,6 @@
 	<item
 		android:id="@+id/textOptionsSubMenu"
 		android:title="@string/text_options_workspace">
-		<menu/>
 	</item>
 
 	<item android:id="@+id/tiltToScroll"
