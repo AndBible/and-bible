@@ -136,7 +136,7 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
             WorkspaceEntities.TextDisplaySettings.Types.COLORS -> {
                 val intent = Intent(activity, ColorSettingsActivity::class.java)
                 intent.putExtra("windowId", window?.id ?: 0)
-                activity.startActivityForResult(intent, TextDisplaySettingsActivity.FROM_COLORS)
+                startActivityForResult(intent, TextDisplaySettingsActivity.FROM_COLORS)
                 return true
             }
             WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE -> {
@@ -151,6 +151,18 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
             }
         }
         return returnValue
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            TextDisplaySettingsActivity.FROM_COLORS -> {
+                if(data?.extras?.getBoolean("edited") == true) {
+                    activity.setDirty()
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
 
@@ -208,14 +220,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            FROM_COLORS -> {
-                setDirty(true)
-            }
-        }
-        return super.onActivityResult(requestCode, resultCode, data)
-    }
+
     override fun onStop() {
         super.onStop()
         Log.i(localClassName, "onStop")

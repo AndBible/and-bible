@@ -159,12 +159,14 @@
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:launchMode="singleTask"
             android:label="@string/workspace_color_settings_title"
             android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/text_display_settings_activity_title"
+            android:launchMode="singleTask"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.History"
