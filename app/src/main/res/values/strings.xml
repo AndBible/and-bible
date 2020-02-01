@@ -72,7 +72,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak">Speak</string>
     <string name="help">Help</string>
     <string name="other">Other</string>
-    <string name="help_and_tips">Help &amp; tips></string>
+    <string name="help_and_tips">Help &amp; tips</string>
 
     <string name="administration">Administration</string>
 
