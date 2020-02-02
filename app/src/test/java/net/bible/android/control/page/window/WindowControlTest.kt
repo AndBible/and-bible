@@ -240,6 +240,26 @@ class WindowControlTest {
 
     @Test
     @Throws(Exception::class)
+    fun testMaximiseMinimiseWindows() {
+        // issue #373
+
+        val window1 = windowControl!!.activeWindow
+        val window2 = windowControl!!.addNewWindow()
+        val window3 = windowControl!!.addNewWindow()
+
+        windowControl!!.minimiseWindow(window1)
+
+        windowControl!!.maximiseWindow(window2)
+        windowControl!!.unmaximiseWindow(window2)
+
+        assertThat(window1.isVisible, equalTo(false))
+        assertThat(window2.isVisible, equalTo(true))
+        assertThat(window3.isVisible, equalTo(true))
+
+    }
+
+        @Test
+    @Throws(Exception::class)
     fun testCloseWindow() {
         val newWindow = windowControl!!.addNewWindow()
         reset<EventManager>(eventManager)
