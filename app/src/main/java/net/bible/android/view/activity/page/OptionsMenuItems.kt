@@ -217,12 +217,9 @@ open class SubMenuPreference(onlyBibles: Boolean = false) :
     override val isBoolean: Boolean = false
 }
 
-class NightModePreference : StringValuedPreference("night_mode_pref2", false) {
-    override val isBoolean: Boolean = true
+class NightModePreference : SharedPreferencesPreference("night_mode_pref", false) {
     override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
-    override val visible: Boolean get() = super.visible && !automatic && !ScreenSettings.systemModeAvailable
-    override val automatic get() = super.automatic && ScreenSettings.autoModeAvailable
-
+    override val visible: Boolean get() = super.visible && ScreenSettings.manualMode
 }
 
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {

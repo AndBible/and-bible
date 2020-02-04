@@ -143,6 +143,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
     <string name="prefs_night_mode_title">Night mode switching</string>
     <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
+    <string name="prefs_night_mode_manual">Manual</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
     <string name="options_menu_night_mode">Night mode</string>

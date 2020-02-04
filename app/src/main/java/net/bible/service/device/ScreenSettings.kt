@@ -65,7 +65,11 @@ object ScreenSettings {
     val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     private val autoNightMode	get() =
-        autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
+        autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
+    val manualMode: Boolean get() =
+        preferences.getString("night_mode_pref3", "manual") == "manual"
+    val systemMode: Boolean get() =
+        systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor
 
@@ -86,14 +90,14 @@ object ScreenSettings {
 	val nightMode: Boolean get() =
         if (autoNightMode)
             lastNightMode
-        else if(systemModeAvailable)
+        else if(systemMode)
             when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> true
                 Configuration.UI_MODE_NIGHT_NO -> false
                 else -> false
             }
-        else
-            preferences.getString("night_mode_pref2", "false") == "true"
+        else // manual mode
+            preferences.getBoolean("night_mode_pref", false)
 
     fun setLastNightMode(value: Boolean) {
         if(autoNightMode)

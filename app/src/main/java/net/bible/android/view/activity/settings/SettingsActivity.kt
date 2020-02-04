@@ -78,18 +78,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
 			//If no light sensor exists switch to old boolean check box
 			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-            val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref2") as ListPreference
-			if (!autoModeAvailable) {
-                nightModePref.setEntries(R.array.prefs_night_mode_descriptions_noauto)
-                nightModePref.setEntryValues(R.array.prefs_night_mode_values_noauto)
-				nightModePref.isVisible = false
-            }
+            val nightModePref = preferenceScreen.findPreference<ListPreference>("night_mode_pref3") as ListPreference
             if (systemModeAvailable) {
                 if (autoModeAvailable) {
-                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_noyes)
-                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_noyes)
+                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
+                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
+                    nightModePref.setDefaultValue("manual")
                 } else {
-                    preferenceScreen.removePreference(nightModePref)
+                    nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
+                    nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
+                    nightModePref.setDefaultValue("manual")
+                }
+            } else {
+                if (!autoModeAvailable) {
+                    nightModePref.isVisible = false
                 }
             }
             // if locale is overridden then have to force title to be translated here
