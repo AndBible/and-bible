@@ -18,13 +18,19 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.Activity
+import android.content.Intent
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.settings.ColorSettingsActivity
+import net.bible.android.view.util.widget.MarginSizeWidget
+import net.bible.android.view.util.widget.TextSizeWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
@@ -35,7 +41,9 @@ interface OptionsMenuItemInterface {
     val enabled: Boolean
     val inherited: Boolean
     val requiresReload: Boolean
+    val isBoolean: Boolean
     fun handle()
+    fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)? = null, onReset: (() -> Unit)? = null): Boolean = false
     fun setNonSpecific() {}
 
     val title: String?
@@ -63,7 +71,7 @@ abstract class SharedPreferencesPreference(
     private val preferenceName: String,
     private val default: Boolean = false,
     onlyBibles: Boolean = false,
-    private val isBoolean: Boolean = true,
+    override val isBoolean: Boolean = true,
 
     // If we are handling non-boolean value
     private val trueValue: String = "true",
@@ -129,6 +137,7 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
     override var value
         get() = actualTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!
         set(value) {
+            CommonUtils.displaySettingChanged(type)
             if (window != null) {
                 if (workspaceSettings.getValue(type) ?: default.getValue(type) == value)
                     pageManagerSettings!!.setNonSpecific(type)
@@ -139,6 +148,8 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
             }
         }
 
+    override val isBoolean: Boolean get() = value is Boolean
+
     override fun handle(){
         if(!requiresReload) return
 
@@ -148,6 +159,23 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
 
     }
 
+    override val title: String?
+        get() {
+            val id = when(type) {
+                TextDisplaySettings.Types.STRONGS -> R.string.prefs_show_strongs_title
+                TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
+                TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_notes_title
+                TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
+                TextDisplaySettings.Types.SECTIONTITLES -> R.string.prefs_section_title_title
+                TextDisplaySettings.Types.VERSENUMBERS -> R.string.prefs_show_verseno_title
+                TextDisplaySettings.Types.VERSEPERLINE -> R.string.prefs_verse_per_line_title
+                TextDisplaySettings.Types.BOOKMARKS -> R.string.prefs_show_bookmarks_title
+                TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
+                TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
+                else -> null
+            }
+            return if(id != null) mainBibleActivity.getString(id) else null
+        }
 }
 
 class TiltToScrollPreference:
@@ -161,6 +189,7 @@ class TiltToScrollPreference:
             wsBehaviorSettings.enableTiltToScroll = value == true
         }
     override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
+    override val isBoolean = true
 }
 
 class CommandPreference(
@@ -171,14 +200,21 @@ class CommandPreference(
     override val inherited: Boolean = false,
     override val requiresReload: Boolean = false
 ) : OptionsMenuItemInterface {
-    override fun handle() {
+    override fun handle() {}
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         command.invoke()
+        return true
     }
+
     override val title: String? = null
+    override val isBoolean = false
 }
 
 open class SubMenuPreference(onlyBibles: Boolean = false) :
     GeneralPreference(onlyBibles = onlyBibles, subMenu = true)
+{
+    override val isBoolean: Boolean = false
+}
 
 class NightModePreference : StringValuedPreference("night_mode_pref2", false) {
     override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
@@ -215,20 +251,40 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, value as Int)
     override val visible = true
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        TextSizeWidget.changeTextSize(activity, value as Int,
+            if(settings.windowId != null) onReset else null) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
 }
 
 
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
-
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val intent = Intent(activity, ColorSettingsActivity::class.java)
+        intent.putExtra("settingsBundle", settings.toJson())
+        activity.startActivityForResult(intent, COLORS_CHANGED)
+        return true
+    }
 }
-
 
 class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal)
     override val visible = true
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        MarginSizeWidget.changeMarginSize(activity, value as WorkspaceEntities.MarginSize,
+            if(settings.windowId != null) {onReset} else null) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
 }
 
 class SplitModePreference :
@@ -245,6 +301,7 @@ class SplitModePreference :
             wsBehaviorSettings.enableReverseSplitMode = value == true
         }
 
+    override val isBoolean = true
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }
 

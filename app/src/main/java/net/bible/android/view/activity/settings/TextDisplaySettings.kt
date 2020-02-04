@@ -43,6 +43,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.FontSizePreference
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
@@ -100,7 +101,7 @@ class TextDisplaySettingsFragment(
         updateItems()
     }
 
-    private fun updateItems() {
+    internal fun updateItems() {
         for(p in getPreferenceList()) {
             updateItem(p)
         }
@@ -148,60 +149,17 @@ class TextDisplaySettingsFragment(
             prefItem.setNonSpecific()
             updateItem(preference)
         }
-        when (type) {
-            Types.COLORS -> {
-                val intent = Intent(activity, ColorSettingsActivity::class.java)
-                intent.putExtra("isWindow", windowId != null)
-                intent.putExtra("colors", (prefItem.value as WorkspaceEntities.Colors).toJson())
-                startActivityForResult(intent, TextDisplaySettingsActivity.FROM_COLORS)
-                return true
-            }
-            Types.MARGINSIZE -> {
-                MarginSizeWidget.changeMarginSize(context!!, prefItem.value as WorkspaceEntities.MarginSize,
-                    if(windowId != null) resetFunc else null) {
-                    prefItem.value = it
-                    updateItem(preference)
-                    activity.setDirty(type)
-                }
-            }
-            Types.FONTSIZE -> {
-                TextSizeWidget.changeTextSize(context!!, prefItem.value as Int,
-                    if(windowId != null) resetFunc else null) {
-                    prefItem.value = it
-                    updateItem(preference)
-                    activity.setDirty(type)
-                }
-            }
-            else -> {
-                returnValue = super.onPreferenceTreeClick(preference)
-                updateItems()
-            }
+        val handled = prefItem.openDialog(activity, {
+            updateItem(preference)
+            activity.setDirty(type)
+        }, resetFunc)
+
+        if(!handled) {
+            returnValue = super.onPreferenceTreeClick(preference)
+            updateItems()
         }
+
         return returnValue
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            TextDisplaySettingsActivity.FROM_COLORS -> {
-                val extras = data?.extras!!
-                val edited = extras.getBoolean("edited")
-                val reset = extras.getBoolean("reset")
-                val prefItem = getPrefItem(settingsBundle, Types.COLORS)
-                if(reset) {
-                    prefItem.setNonSpecific()
-                    activity.setDirty(Types.COLORS)
-                    updateItems()
-                }
-                else if(edited) {
-                    val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
-                    prefItem.value = colors
-                    activity.setDirty(Types.COLORS)
-                    updateItems()
-                }
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data)
     }
 }
 
@@ -219,6 +177,7 @@ data class DirtyTypesSerializer(val dirtyTypes: MutableSet<Types>) {
 
 @ActivityScope
 class TextDisplaySettingsActivity: ActivityBase() {
+    private lateinit var fragment: TextDisplaySettingsFragment
     private var requiresReload = false
     private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
@@ -247,11 +206,12 @@ class TextDisplaySettingsActivity: ActivityBase() {
             resetButton.visibility = View.INVISIBLE
         }
 
-
+        val fragment = TextDisplaySettingsFragment(this, settingsBundle)
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, TextDisplaySettingsFragment(this, settingsBundle))
+            .replace(R.id.settings_container, fragment)
             .commit()
+        this.fragment = fragment
         okButton.setOnClickListener {finish()}
         cancelButton.setOnClickListener {
             dirtyTypes.clear()
@@ -260,6 +220,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
         }
         resetButton.setOnClickListener {
             reset = true
+            requiresReload = true
             setResult()
             finish()
         }
@@ -289,13 +250,34 @@ class TextDisplaySettingsActivity: ActivityBase() {
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            COLORS_CHANGED -> {
+                val extras = data?.extras!!
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val prefItem = getPrefItem(settingsBundle, Types.COLORS)
+                if(reset) {
+                    prefItem.setNonSpecific()
+                    setDirty(Types.COLORS)
+                    fragment.updateItems()
+                }
+                else if(edited) {
+                    val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
+                    prefItem.value = colors
+                    setDirty(Types.COLORS)
+                    fragment.updateItems()
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onStop() {
         super.onStop()
         Log.i(localClassName, "onStop")
         // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
         CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
-    }
-    companion object{
-        const val FROM_COLORS = 1
     }
 }

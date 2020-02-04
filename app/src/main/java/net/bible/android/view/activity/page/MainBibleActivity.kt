@@ -96,6 +96,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.util.UiUtils
@@ -607,31 +608,41 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             updateToolbar()
         }
 
-    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface =  when(item.itemId) {
-        R.id.textOptionsSubMenu -> CommandPreference({
-            val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-            val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
-            intent.putExtra("settingsBundle", settingsBundle.toJson())
-            startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
-        })
-        R.id.splitMode -> SplitModePreference()
+    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
+        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
+        return when(item.itemId) {
+            R.id.allTextOptions -> CommandPreference({
+                val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+                intent.putExtra("settingsBundle", settingsBundle.toJson())
+                startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+            })
+            R.id.textOptionsSubMenu -> SubMenuPreference(false)
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+            R.id.splitMode -> SplitModePreference()
 
-        R.id.tiltToScroll -> TiltToScrollPreference()
-        R.id.nightMode -> NightModePreference()
+            R.id.tiltToScroll -> TiltToScrollPreference()
+            R.id.nightMode -> NightModePreference()
 
-        R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-        R.id.newWorkspace -> CommandPreference({newWorkspace()})
-        R.id.cloneWorkspace -> CommandPreference({cloneWorkspace()})
-        R.id.deleteWorkspace -> CommandPreference({deleteWorkspace()}, haveWorkspaces)
-        R.id.renameWorkspace -> CommandPreference({renameWorkspace()})
-        R.id.switchToWorkspace -> CommandPreference({chooseWorkspace()})
-        else -> throw RuntimeException("Illegal menu item")
+            R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
+            R.id.newWorkspace -> CommandPreference({newWorkspace()})
+            R.id.cloneWorkspace -> CommandPreference({cloneWorkspace()})
+            R.id.deleteWorkspace -> CommandPreference({deleteWorkspace()}, haveWorkspaces)
+            R.id.renameWorkspace -> CommandPreference({renameWorkspace()})
+            R.id.switchToWorkspace -> CommandPreference({chooseWorkspace()})
+            else -> throw RuntimeException("Illegal menu item")
+        }
     }
 
     private val preferences = CommonUtils.sharedPreferences
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
+
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        textOptionsSubMenu.removeItem(R.id.textOptionItem)
+        for((idx, t) in CommonUtils.lastDisplaySettings.withIndex()) {
+            textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+        }
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
@@ -658,11 +669,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val itemOptions = getItemOptions(item)
         if(itemOptions is SubMenuPreference)
             return
-        if(itemOptions.value is Boolean) {
+        if(itemOptions.isBoolean) {
             itemOptions.value = !(itemOptions.value == true)
+            itemOptions.handle()
+            item.isChecked = itemOptions.value == true
+        } else {
+            val onReady = {
+                if(itemOptions is Preference) {
+                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
+                }
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            }
+            itemOptions.openDialog(this, {onReady()}, onReady)
         }
-        itemOptions.handle()
-        item.isChecked = itemOptions.value == true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1114,22 +1133,51 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
             }
+            COLORS_CHANGED -> {
+                val extras = data?.extras!!
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val windowId = extras.getLong("windowId")
+                val colorsStr = extras.getString("colors")
+
+                if(!edited && !reset) return
+
+                val colors = if(reset)
+                    null
+                else
+                    WorkspaceEntities.Colors.fromJson(colorsStr!!)
+
+                if(windowId != 0L) {
+                    val window = windowRepository.getWindow(windowId)!!
+                    window.pageManager.textDisplaySettings.colors = colors
+                    window.bibleView?.updateTextDisplaySettings()
+                } else {
+                    windowRepository.textDisplaySettings.colors = colors
+                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
+                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                }
+            }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
                 val extras = data?.extras!!
 
                 val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
 
                 val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
                 val windowId = settingsBundle.windowId
 
                 val requiresReload = extras.getBoolean("requiresReload")
 
-                if(!edited) return
+                if(!edited && !reset) return
 
                 if(windowId != null) {
                     val window = windowRepository.getWindow(windowId)!!
-                    window.pageManager.textDisplaySettings = settingsBundle.pageManagerSettings!!
-                    if(requiresReload == true)
+                    window.pageManager.textDisplaySettings = if(reset)
+                        TextDisplaySettings()
+                    else
+                        settingsBundle.pageManagerSettings!!
+
+                    if(requiresReload)
                         window.updateText()
                     else {
                         window.bibleView?.updateTextDisplaySettings()
@@ -1316,6 +1364,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // ActivityBase.STD_REQUEST_CODE = 1
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
+        const val COLORS_CHANGED = 5
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

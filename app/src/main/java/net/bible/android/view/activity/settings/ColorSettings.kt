@@ -28,6 +28,7 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import kotlinx.android.synthetic.main.settings_dialog.*
 import net.bible.android.activity.R
+import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -65,9 +66,9 @@ class ColorSettingsDataStore(
 
 @ActivityScope
 class ColorSettingsActivity: ActivityBase() {
+    private lateinit var settingsBundle: SettingsBundle
     private lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
-    private var isWindow = false
     private var reset = false
 
     override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
@@ -82,15 +83,15 @@ class ColorSettingsActivity: ActivityBase() {
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        colors = WorkspaceEntities.Colors.fromJson(intent.extras?.getString("colors")!!)
-        isWindow = intent.extras?.getBoolean("isWindow")!!
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!
 
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings_container, ColorSettingsFragment(this, colors))
             .commit()
 
-        if(isWindow) {
+        if(settingsBundle.windowId != null) {
             title = getString(R.string.window_color_settings_title)
         } else {
             title = getString(R.string.workspace_color_settings_title)
@@ -122,6 +123,7 @@ class ColorSettingsActivity: ActivityBase() {
 
         resultIntent.putExtra("edited", dirty)
         resultIntent.putExtra("reset", reset)
+        resultIntent.putExtra("windowId", settingsBundle.windowId)
         resultIntent.putExtra("colors", colors.toJson())
 
         setResult(Activity.RESULT_OK, resultIntent)

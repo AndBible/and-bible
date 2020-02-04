@@ -173,7 +173,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
 
-    <string name="text_options_window_menutitle">Text options…</string>
+    <string name="all_text_options_window_menutitle">All text options…</string>
+    <string name="text_options_window_menutitle">Text options</string>
     <string name="text_options_workspace_menuitem">Text options…</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
     <string name="switch_split_mode">Switch split mode</string>
@@ -203,7 +204,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_appearance_title">Appearance</string>
 
     <!-- Colors preferences -->
-    <string name="prefs_text_colors_title">Text &amp; background colors</string>
+    <string name="prefs_text_colors_menutitle">Text &amp; background</string>
+    <string name="prefs_text_colors_title">Text &amp; background</string>
     <string name="window_color_settings_title">Window color settings</string>
     <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 

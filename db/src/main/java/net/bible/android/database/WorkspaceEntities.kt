@@ -307,6 +307,10 @@ data class SettingsBundle (
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: Long? = null
 ) {
+    val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
+        return if(windowId == null) workspaceSettings else pageManagerSettings!!
+    }
+
     fun toJson(): String {
         return json.stringify(serializer(), this)
     }

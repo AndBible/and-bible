@@ -63,6 +63,7 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
@@ -625,11 +626,13 @@ class DocumentWebViewBuilder @Inject constructor(
         if(itemOptions is SubMenuPreference)
             return
 
-        if(itemOptions.value is Boolean) {
+        if(itemOptions.isBoolean) {
             itemOptions.value = !(itemOptions.value == true)
+            itemOptions.handle()
+            item.isChecked = itemOptions.value == true
+        } else {
+            itemOptions.openDialog(mainBibleActivity)
         }
-        itemOptions.handle()
-        item.isChecked = itemOptions.value == true
     }
 
     @SuppressLint("RestrictedApi")
@@ -670,6 +673,13 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         BookName.setFullBookName(oldValue)
 
+        val textOptionsSubMenu = popup.menu.findItem(R.id.textOptionsSubMenu).subMenu
+        textOptionsSubMenu.removeItem(R.id.textOptionItem)
+        for((idx, t) in CommonUtils.lastDisplaySettings.withIndex()) {
+            textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+        }
+
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item)
@@ -678,6 +688,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
+                item.isCheckable = itmOptions.isBoolean
                 if(itmOptions is Preference) {
                     if (itmOptions.inherited) {
                         item.setIcon(R.drawable.ic_sync_white_24dp)
@@ -707,6 +718,13 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun getItemOptions(window: Window, item: MenuItem): OptionsMenuItemInterface {
+        val settingsBundle = SettingsBundle(
+            windowId = window.id,
+            pageManagerSettings = window.pageManager.textDisplaySettings,
+            workspaceId = windowControl.windowRepository.id,
+            workspaceSettings = windowControl.windowRepository.textDisplaySettings
+        )
+
         return when(item.itemId) {
 
             R.id.windowNew -> CommandPreference({windowControl.addNewWindow()})
@@ -718,22 +736,20 @@ class DocumentWebViewBuilder @Inject constructor(
                 {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
             R.id.moveWindowSubMenu -> SubMenuPreference(false)
+            R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.windowClose -> CommandPreference({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
             R.id.windowMinimise -> CommandPreference({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
-            R.id.textOptionsSubMenu -> CommandPreference({
+            R.id.allTextOptions -> CommandPreference({
                 val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
-                intent.putExtra("settingsBundle", SettingsBundle(
-                    windowId = window.id,
-                    pageManagerSettings = window.pageManager.textDisplaySettings,
-                    workspaceId = windowControl.windowRepository.id,
-                    workspaceSettings = windowControl.windowRepository.textDisplaySettings
-                ).toJson())
+                intent.putExtra("settingsBundle", settingsBundle.toJson())
                 mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
             })
             R.id.moveItem -> CommandPreference({
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")
             })
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+
             else -> throw RuntimeException("Illegal menu item")
         }
     }

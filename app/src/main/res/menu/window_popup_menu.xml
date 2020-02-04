@@ -39,5 +39,16 @@
 		android:id="@+id/textOptionsSubMenu"
 		android:icon="@drawable/ic_text_format_white_24dp"
 		android:title="@string/text_options_window_menutitle">
+		<menu>
+			<item android:id="@+id/textOptionItem"
+				android:title=""
+				/>
+			<item
+				android:id="@+id/allTextOptions"
+				android:icon="@drawable/ic_text_format_white_24dp"
+				android:title="@string/all_text_options_window_menutitle"
+				android:orderInCategory="1000"
+				/>
+		</menu>
 	</item>
 </menu>
