@@ -471,7 +471,7 @@ object CommonUtils {
     fun displaySettingChanged(type: WorkspaceEntities.TextDisplaySettings.Types) {
         val lastTypes = lastDisplaySettings.toMutableList()
         lastTypes.remove(type)
-        while (lastTypes.size >= 3) {
+        while (lastTypes.size >= 5) {
             lastTypes.removeAt(lastTypes.size-1)
         }
         lastTypes.add(0, type)
