@@ -204,7 +204,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
     <string name="prefs_apply_all_workspaces_title">Apply to all workspaces</string>
-    <string name="prefsapply_all_workspaces_summary">Apply current settings to all workspaces</string>
+    <string name="prefs_apply_all_workspaces_summary">Apply current settings to all workspaces</string>
     <string name="reset_settings">Reset</string>
 
     <!-- Colors preferences -->

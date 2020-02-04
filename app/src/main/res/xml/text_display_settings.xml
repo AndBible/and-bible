@@ -100,6 +100,6 @@
     <Preference
         android:key="apply_to_all_workspaces"
         android:title="@string/prefs_apply_all_workspaces_title"
-        android:summary="@string/prefsapply_all_workspaces_summary"
+        android:summary="@string/prefs_apply_all_workspaces_summary"
         />
 </PreferenceScreen>
