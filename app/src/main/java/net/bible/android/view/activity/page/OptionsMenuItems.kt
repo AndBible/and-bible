@@ -21,7 +21,7 @@ package net.bible.android.view.activity.page
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
-import net.bible.android.control.page.window.Window
+import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -102,16 +102,15 @@ abstract class StringValuedPreference(name: String, default: Boolean,
     SharedPreferencesPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
 
 
-open class Preference(val window: Window?, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true) : GeneralPreference(onlyBibles) {
-    private val winSettings = window?.pageManager?.textDisplaySettings
-    private val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
-
-    protected val actualTextSettings = window?.pageManager?.actualTextDisplaySettings
-        ?: wsTextSettings
+open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true) : GeneralPreference(onlyBibles) {
+    private val actualTextSettings = TextDisplaySettings.Companion.actual(settings.pageManagerSettings, settings.workspaceSettings)
+    private val pageManagerSettings = settings.pageManagerSettings
+    private val workspaceSettings = settings.workspaceSettings
+    val window = mainBibleActivity.windowRepository.getWindow(settings.windowId)
 
     protected val default = TextDisplaySettings.default
 
-    override val inherited: Boolean get() = if (window == null) false else winSettings?.getValue(type) == null
+    override val inherited: Boolean get() = if (window == null) false else pageManagerSettings?.getValue(type) == null
     val pageManager get() = if (window == null) {
         mainBibleActivity.pageControl.currentPageManager
     } else window.pageManager
@@ -122,7 +121,7 @@ open class Preference(val window: Window?, var type: TextDisplaySettings.Types, 
         }
 
     override fun setNonSpecific() {
-        winSettings?.setNonSpecific(type)
+        pageManagerSettings?.setNonSpecific(type)
     }
 
     override val requiresReload get() = value is Boolean
@@ -131,14 +130,24 @@ open class Preference(val window: Window?, var type: TextDisplaySettings.Types, 
         get() = actualTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!
         set(value) {
             if (window != null) {
-                if (wsTextSettings.getValue(type) ?: default.getValue(type) == value)
-                    winSettings!!.setNonSpecific(type)
+                if (workspaceSettings.getValue(type) ?: default.getValue(type) == value)
+                    pageManagerSettings!!.setNonSpecific(type)
                 else
-                    winSettings!!.setValue(type, value)
+                    pageManagerSettings!!.setValue(type, value)
             } else {
-                wsTextSettings.setValue(type, value)
+                workspaceSettings.setValue(type, value)
             }
         }
+
+    override fun handle(){
+        if(!requiresReload) return
+
+        if(window == null)
+            mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+        else window.updateText()
+
+    }
+
 }
 
 class TiltToScrollPreference:
@@ -178,21 +187,21 @@ class NightModePreference : StringValuedPreference("night_mode_pref2", false) {
 
 }
 
-class StrongsPreference (window: Window?) : Preference(window, TextDisplaySettings.Types.STRONGS) {
+class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
     override val enabled: Boolean get() = pageManager.hasStrongs
     override var value get() = if (enabled) super.value else false
         set(value) {
             if(value == false) {
-                MorphologyPreference(window).value = false
+                MorphologyPreference(settings).value = false
             }
             super.value = value
         }
 }
 
-class MorphologyPreference(window: Window?): Preference(window, TextDisplaySettings.Types.MORPH) {
+class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
         get() {
-            val itm = StrongsPreference(window)
+            val itm = StrongsPreference(settings)
             return itm.enabled && itm.value == true
         }
 
@@ -203,39 +212,23 @@ class MorphologyPreference(window: Window?): Preference(window, TextDisplaySetti
         }
 }
 
-class FontSizePreference(window: Window?): Preference(window, TextDisplaySettings.Types.FONTSIZE) {
+class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, value as Int)
     override val visible = true
 }
 
 
-class ColorPreference(window: Window?): Preference(window, TextDisplaySettings.Types.COLORS) {
+class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
 
 }
 
 
-class MarginSizePreference(window: Window?): Preference(window, TextDisplaySettings.Types.MARGINSIZE) {
+class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal)
     override val visible = true
-}
-
-open class WorkspacePreference(var type: TextDisplaySettings.Types):
-    GeneralPreference() {
-    protected val wsTextSettings = mainBibleActivity.windowRepository.textDisplaySettings
-
-    val def = WorkspaceEntities.TextDisplaySettings.default
-
-    override var value get() = (wsTextSettings.getValue(type)?: def.getValue(type)!!)
-        set(value) {
-            wsTextSettings.setValue(type, value)
-            mainBibleActivity.windowRepository.updateWindowTextDisplaySettingsValues(type, value)
-        }
-
-    override fun handle() = mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
-    override val inherited = false
 }
 
 class SplitModePreference :

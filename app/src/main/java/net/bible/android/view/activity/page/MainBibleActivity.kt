@@ -73,7 +73,9 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -92,6 +94,7 @@ import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
+import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
@@ -429,7 +432,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = StrongsPreference(windowControl.activeWindow)
+            val prefOptions = StrongsPreference(
+                SettingsBundle(
+                    pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
+                    workspaceId = windowRepository.id,
+                    workspaceSettings = windowRepository.textDisplaySettings,
+                    windowId = windowControl.activeWindow.id
+                ))
             prefOptions.value = !(prefOptions.value == true)
             prefOptions.handle()
             invalidateOptionsMenu()
@@ -601,7 +610,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface =  when(item.itemId) {
         R.id.textOptionsSubMenu -> CommandPreference({
             val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-            startActivityForResult(intent, REFRESH_WINDOW)
+            val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
+            intent.putExtra("settingsBundle", settingsBundle.toJson())
+            startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
         })
         R.id.splitMode -> SplitModePreference()
 
@@ -1103,19 +1114,30 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
             }
-            REFRESH_WINDOW -> {
-                val windowId = data?.extras?.getLong("windowId")
-                val edited = data?.extras?.getBoolean("edited")
-                val requiresReload = data?.extras?.getBoolean("requiresReload")
-                if(edited != true) return
-                if(windowId != 0L) {
-                    val window = windowRepository.getWindow(windowId)
+            TEXT_DISPLAY_SETTINGS_CHANGED -> {
+                val extras = data?.extras!!
+
+                val edited = extras.getBoolean("edited")
+
+                val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
+                val windowId = settingsBundle.windowId
+
+                val requiresReload = extras.getBoolean("requiresReload")
+
+                if(!edited) return
+
+                if(windowId != null) {
+                    val window = windowRepository.getWindow(windowId)!!
+                    window.pageManager.textDisplaySettings = settingsBundle.pageManagerSettings!!
                     if(requiresReload == true)
-                        window?.updateText()
+                        window.updateText()
                     else {
-                        window?.bibleView?.updateTextDisplaySettings()
+                        window.bibleView?.updateTextDisplaySettings()
                     }
                 } else {
+                    windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                    val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
+                    windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
                     ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
                 }
                 return
@@ -1293,7 +1315,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // ActivityBase.STD_REQUEST_CODE = 1
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
-        const val REFRESH_WINDOW = 4
+        const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

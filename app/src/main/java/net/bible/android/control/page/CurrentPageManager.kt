@@ -77,25 +77,7 @@ open class CurrentPageManager @Inject constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() {
-            val win = textDisplaySettings
-            val ws = windowRepository.textDisplaySettings
-            val def = WorkspaceEntities.TextDisplaySettings.default
-            return WorkspaceEntities.TextDisplaySettings(
-                fontSize = win.fontSize?: ws.fontSize?: def.fontSize,
-                marginSize = win.marginSize?: ws.marginSize?: def.marginSize,
-                colors = win.colors?: ws.colors?: def.colors,
-                showStrongs = win.showStrongs?: ws.showStrongs?: def.showStrongs,
-                showMorphology = win.showMorphology?: ws.showMorphology?: def.showMorphology,
-                showFootNotes = win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,
-                showRedLetters = win.showRedLetters?: ws.showRedLetters?: def.showRedLetters,
-                showSectionTitles = win.showSectionTitles?: ws.showSectionTitles?: def.showSectionTitles,
-                showVerseNumbers = win.showVerseNumbers?: ws.showVerseNumbers?: def.showVerseNumbers,
-                showVersePerLine = win.showVersePerLine?: ws.showVersePerLine?: def.showVersePerLine,
-                showBookmarks = win.showBookmarks?: ws.showBookmarks?: def.showBookmarks,
-                showMyNotes = win.showMyNotes?: ws.showMyNotes?: def.showMyNotes
-            )
-        }
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowRepository.textDisplaySettings)
 
     lateinit var window: Window
 

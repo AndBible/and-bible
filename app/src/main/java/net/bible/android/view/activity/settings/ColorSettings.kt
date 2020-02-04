@@ -27,22 +27,17 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import kotlinx.android.synthetic.main.settings_dialog.*
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.Window
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.locale.LocaleHelper
-import javax.inject.Inject
 
-class ColorSettingsDataStore(val activity: ColorSettingsActivity, val window: Window?, val windowRepository: WindowRepository): PreferenceDataStore() {
+class ColorSettingsDataStore(
+    val activity: ColorSettingsActivity,
+    val colors: WorkspaceEntities.Colors
+): PreferenceDataStore() {
     override fun putInt(key: String?, value: Int) {
-        activity.setDirty()
-        val settings = window?.pageManager?.actualTextDisplaySettings ?: windowRepository.textDisplaySettings
-        val colors = settings.colors?.copy() ?: WorkspaceEntities.TextDisplaySettings.default.colors!!
-
         when(key) {
             "text_color_day" -> colors.dayTextColor = value
             "text_color_night" -> colors.nightTextColor = value
@@ -51,21 +46,10 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity, val window: Wi
             "noise_day" -> colors.dayNoise = value
             "noise_night" -> colors.nightNoise = value
         }
-        if(window != null) {
-            window.pageManager.textDisplaySettings.colors = colors
-        } else {
-            windowRepository.textDisplaySettings.colors = colors
-            windowRepository.updateWindowTextDisplaySettingsValues(WorkspaceEntities.TextDisplaySettings.Types.COLORS, colors)
-        }
-
+        activity.setDirty()
     }
 
     override fun getInt(key: String?, defValue: Int): Int {
-        val colors =
-            if(window != null) {
-                window.pageManager.actualTextDisplaySettings.colors!!
-            } else windowRepository.textDisplaySettings.colors ?: WorkspaceEntities.TextDisplaySettings.default.colors!!
-
         return when(key) {
             "text_color_day" -> colors.dayTextColor?: defValue
             "text_color_night" -> colors.nightTextColor?: defValue
@@ -80,14 +64,12 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity, val window: Wi
 
 @ActivityScope
 class ColorSettingsActivity: ActivityBase() {
-    var window: Window? = null
+    private lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
 
     override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
     override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
 
-    @Inject
-    lateinit var windowControl: WindowControl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)
@@ -96,15 +78,19 @@ class ColorSettingsActivity: ActivityBase() {
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        val windowId = intent.extras?.getLong("windowId")
-        window = windowControl.windowRepository.getWindow(windowId)
+        this.colors = WorkspaceEntities.Colors.fromJson(intent.extras?.getString("colors")!!)
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment(this, window, windowControl.windowRepository))
+            .replace(R.id.settings_container, ColorSettingsFragment(this, colors))
             .commit()
+
         okButton.setOnClickListener {finish()}
-        cancelButton.setOnClickListener {finish()}
+        cancelButton.setOnClickListener {
+            dirty = false
+            setResult()
+            finish()
+        }
 
         setResult()
     }
@@ -116,15 +102,10 @@ class ColorSettingsActivity: ActivityBase() {
 
     fun setResult() {
         val resultIntent = Intent(this, ColorSettingsActivity::class.java)
-        val window = this.window
 
-        if(window != null) {
-            title = getString(R.string.window_color_settings_title)
-        } else {
-            title = getString(R.string.workspace_color_settings_title)
-        }
-        resultIntent.putExtra("windowId", window?.id ?: 0L)
         resultIntent.putExtra("edited", dirty)
+        resultIntent.putExtra("colors", colors.toJson())
+
         setResult(Activity.RESULT_OK, resultIntent)
     }
 
@@ -141,9 +122,9 @@ class ColorSettingsActivity: ActivityBase() {
 }
 
 
-class ColorSettingsFragment(val activity: ColorSettingsActivity, val window: Window?, val windowRepository: WindowRepository) : PreferenceFragmentCompat() {
+class ColorSettingsFragment(val activity: ColorSettingsActivity, val settings: WorkspaceEntities.Colors) : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity, window, windowRepository)
+        preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity, settings)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
     }
 }

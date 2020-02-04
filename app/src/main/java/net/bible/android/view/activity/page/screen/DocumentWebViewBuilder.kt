@@ -53,6 +53,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
@@ -721,8 +722,13 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowMinimise -> CommandPreference({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
             R.id.textOptionsSubMenu -> CommandPreference({
                 val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
-                intent.putExtra("windowId", window.id)
-                mainBibleActivity.startActivityForResult(intent, MainBibleActivity.REFRESH_WINDOW)
+                intent.putExtra("settingsBundle", SettingsBundle(
+                    windowId = window.id,
+                    pageManagerSettings = window.pageManager.textDisplaySettings,
+                    workspaceId = windowControl.windowRepository.id,
+                    workspaceSettings = windowControl.windowRepository.textDisplaySettings
+                ).toJson())
+                mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
             })
             R.id.moveItem -> CommandPreference({
                 windowControl.moveWindow(window, item.order)

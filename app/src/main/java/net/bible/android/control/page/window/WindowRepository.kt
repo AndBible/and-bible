@@ -365,11 +365,13 @@ open class WindowRepository @Inject constructor(
         name = ""
     }
 
-    fun updateWindowTextDisplaySettingsValues(type: WorkspaceEntities.TextDisplaySettings.Types, value: Any) {
+    fun updateWindowTextDisplaySettingsValues(types: Set<WorkspaceEntities.TextDisplaySettings.Types>, settings: WorkspaceEntities.TextDisplaySettings) {
         windowList.forEach {
-            val winValue = it.pageManager.textDisplaySettings.getValue(type)
-            if (winValue == value) {
-                it.pageManager.textDisplaySettings.setNonSpecific(type)
+            types.forEach {t ->
+                val winValue = it.pageManager.textDisplaySettings.getValue(t)
+                if (winValue == settings.getValue(t)) {
+                    it.pageManager.textDisplaySettings.setNonSpecific(t)
+                }
             }
         }
     }

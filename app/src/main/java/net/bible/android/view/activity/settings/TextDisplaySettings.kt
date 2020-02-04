@@ -30,12 +30,13 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import kotlinx.android.synthetic.main.settings_dialog.*
+import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.Window
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -48,49 +49,52 @@ import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.TextSizeWidget
-import javax.inject.Inject
 
-class TextDisplaySettingsDataStore(val activity: TextDisplaySettingsActivity, val window: Window?, val windowRepository: WindowRepository): PreferenceDataStore() {
+class TextDisplaySettingsDataStore(
+    private val activity: TextDisplaySettingsActivity,
+    private val settingsBundle: SettingsBundle
+): PreferenceDataStore() {
     override fun putBoolean(key: String, value: Boolean) {
         val type = Types.valueOf(key)
-        val prefItem = getPrefItem(window, type)
+        val prefItem = getPrefItem(settingsBundle, type)
         val oldValue = prefItem.value
         prefItem.value = value
         if(oldValue != value) {
-            activity.setDirty(prefItem.requiresReload)
+            activity.setDirty(type, prefItem.requiresReload)
         }
     }
 
     override fun getBoolean(key: String, defValue: Boolean): Boolean {
         val type = Types.valueOf(key)
-        val settings =
-            if(window != null) window.pageManager.actualTextDisplaySettings
-            else(windowRepository.textDisplaySettings)
+        val settings = TextDisplaySettings.actual(settingsBundle.pageManagerSettings, settingsBundle.workspaceSettings)
 
-        return (settings.getValue(type) ?: WorkspaceEntities.TextDisplaySettings.default.getValue(type)) as Boolean
+        return (settings.getValue(type) ?: TextDisplaySettings.default.getValue(type)) as Boolean
     }
 }
 
-fun getPrefItem(window: Window?, type: Types): OptionsMenuItemInterface =
+fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface =
     when(type) {
-        Types.BOOKMARKS -> net.bible.android.view.activity.page.Preference(window, Types.BOOKMARKS)
-        Types.REDLETTERS -> net.bible.android.view.activity.page.Preference(window, Types.REDLETTERS)
-        Types.SECTIONTITLES -> net.bible.android.view.activity.page.Preference(window, Types.SECTIONTITLES)
-        Types.VERSENUMBERS -> net.bible.android.view.activity.page.Preference(window, Types.VERSENUMBERS)
-        Types.VERSEPERLINE -> net.bible.android.view.activity.page.Preference(window, Types.VERSEPERLINE)
-        Types.FOOTNOTES -> net.bible.android.view.activity.page.Preference(window, Types.FOOTNOTES)
-        Types.MYNOTES -> net.bible.android.view.activity.page.Preference(window, Types.MYNOTES)
+        Types.BOOKMARKS -> net.bible.android.view.activity.page.Preference(settings, Types.BOOKMARKS)
+        Types.REDLETTERS -> net.bible.android.view.activity.page.Preference(settings, Types.REDLETTERS)
+        Types.SECTIONTITLES -> net.bible.android.view.activity.page.Preference(settings, Types.SECTIONTITLES)
+        Types.VERSENUMBERS -> net.bible.android.view.activity.page.Preference(settings, Types.VERSENUMBERS)
+        Types.VERSEPERLINE -> net.bible.android.view.activity.page.Preference(settings, Types.VERSEPERLINE)
+        Types.FOOTNOTES -> net.bible.android.view.activity.page.Preference(settings, Types.FOOTNOTES)
+        Types.MYNOTES -> net.bible.android.view.activity.page.Preference(settings, Types.MYNOTES)
 
-        Types.STRONGS -> StrongsPreference(window)
-        Types.MORPH -> MorphologyPreference(window)
-        Types.FONTSIZE -> FontSizePreference(window)
-        Types.MARGINSIZE -> MarginSizePreference(window)
-        Types.COLORS -> ColorPreference(window)
+        Types.STRONGS -> StrongsPreference(settings)
+        Types.MORPH -> MorphologyPreference(settings)
+        Types.FONTSIZE -> FontSizePreference(settings)
+        Types.MARGINSIZE -> MarginSizePreference(settings)
+        Types.COLORS -> ColorPreference(settings)
     }
 
-class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val window: Window?, val windowRepository: WindowRepository) : PreferenceFragmentCompat() {
+class TextDisplaySettingsFragment(
+    val activity: TextDisplaySettingsActivity,
+    private val settingsBundle: SettingsBundle
+) : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, window, windowRepository)
+        preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, settingsBundle)
         setPreferencesFromResource(R.xml.text_display_settings, rootKey)
         updateItems()
     }
@@ -101,10 +105,12 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
         }
     }
 
+    private val windowId = settingsBundle.windowId
+
     private fun updateItem(p: Preference) {
         val type = Types.valueOf(p.key)
-        val itmOptions = getPrefItem(window, type)
-        if(window != null) {
+        val itmOptions = getPrefItem(settingsBundle, type)
+        if(windowId != null) {
             if (itmOptions.inherited) {
                 p.setIcon(R.drawable.ic_sync_white_24dp)
             } else {
@@ -136,7 +142,7 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         val type = Types.valueOf(preference?.key!!)
         var returnValue = true
-        val prefItem = getPrefItem(window, type)
+        val prefItem = getPrefItem(settingsBundle, type)
         val resetFunc = {
             prefItem.setNonSpecific()
             updateItem(preference)
@@ -144,24 +150,24 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
         when (type) {
             Types.COLORS -> {
                 val intent = Intent(activity, ColorSettingsActivity::class.java)
-                intent.putExtra("windowId", window?.id ?: 0)
+                intent.putExtra("colors", (prefItem.value as WorkspaceEntities.Colors).toJson())
                 startActivityForResult(intent, TextDisplaySettingsActivity.FROM_COLORS)
                 return true
             }
             Types.MARGINSIZE -> {
                 MarginSizeWidget.changeMarginSize(context!!, prefItem.value as WorkspaceEntities.MarginSize,
-                    if(window != null) resetFunc else null) {
+                    if(windowId != null) resetFunc else null) {
                     prefItem.value = it
-                    activity.setDirty()
                     updateItem(preference)
+                    activity.setDirty(type)
                 }
             }
             Types.FONTSIZE -> {
                 TextSizeWidget.changeTextSize(context!!, prefItem.value as Int,
-                    if(window != null) resetFunc else null) {
+                    if(windowId != null) resetFunc else null) {
                     prefItem.value = it
-                    activity.setDirty()
                     updateItem(preference)
+                    activity.setDirty(type)
                 }
             }
             else -> {
@@ -175,8 +181,12 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             TextDisplaySettingsActivity.FROM_COLORS -> {
-                if(data?.extras?.getBoolean("edited") == true) {
-                    activity.setDirty()
+                val extras = data?.extras!!
+                if(extras.getBoolean("edited")) {
+                    val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
+                    val prefItem = getPrefItem(settingsBundle, Types.COLORS)
+                    prefItem.value = colors
+                    activity.setDirty(Types.COLORS)
                 }
             }
         }
@@ -185,43 +195,62 @@ class TextDisplaySettingsFragment(val activity: TextDisplaySettingsActivity, val
     }
 }
 
+@Serializable
+data class DirtyTypesSerializer(val dirtyTypes: MutableSet<Types>) {
+    fun toJson(): String {
+        return json.stringify(serializer(), this)
+    }
+    companion object {
+        fun fromJson(jsonString: String): DirtyTypesSerializer {
+            return json.parse(serializer(), jsonString)
+        }
+    }
+}
 
 @ActivityScope
 class TextDisplaySettingsActivity: ActivityBase() {
-    var window: Window? = null
-    private var dirty = false
+    //var window: Window? = null
     private var requiresReload = false
+    private val dirtyTypes = mutableSetOf<Types>()
 
     override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
     override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
 
-    @Inject
-    lateinit var windowControl: WindowControl
+    private lateinit var settingsBundle: SettingsBundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
-        dirty = false
+        dirtyTypes.clear()
         requiresReload = false
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        val windowId = intent.extras?.getLong("windowId")
-        window = windowControl.windowRepository.getWindow(windowId)
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+
+        if(settingsBundle.windowId != null) {
+            title = getString(R.string.window_text_display_settings_title)
+        } else {
+            title = getString(R.string.workspace_text_display_settings_title)
+        }
+
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container,
-                TextDisplaySettingsFragment(this, window, windowControl.windowRepository))
+            .replace(R.id.settings_container, TextDisplaySettingsFragment(this, settingsBundle))
             .commit()
         okButton.setOnClickListener {finish()}
-        cancelButton.setOnClickListener {finish()}
+        cancelButton.setOnClickListener {
+            dirtyTypes.clear()
+            setResult()
+            finish()
+        }
         setResult()
     }
 
-    fun setDirty(requiresReload: Boolean = false) {
-        dirty = true
+    fun setDirty(type: Types, requiresReload: Boolean = false) {
+        dirtyTypes.add(type)
         if(requiresReload)
             this.requiresReload = true
         setResult()
@@ -229,16 +258,12 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
     fun setResult() {
         val resultIntent = Intent(this, ColorSettingsActivity::class.java)
-        val window = this.window
 
-        if(window != null) {
-            title = getString(R.string.window_text_display_settings_title)
-        } else {
-            title = getString(R.string.workspace_text_display_settings_title)
-        }
-        resultIntent.putExtra("windowId", window?.id ?: 0L)
+        resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
         resultIntent.putExtra("requiresReload", requiresReload)
-        resultIntent.putExtra("edited", dirty)
+        resultIntent.putExtra("edited", dirtyTypes.isNotEmpty())
+        resultIntent.putExtra("dirtyTypes", DirtyTypesSerializer(dirtyTypes).toJson())
+
         setResult(Activity.RESULT_OK, resultIntent)
     }
 

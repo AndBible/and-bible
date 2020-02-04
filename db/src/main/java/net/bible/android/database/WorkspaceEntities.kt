@@ -25,8 +25,13 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 
 import java.util.*
+
+val json = Json(JsonConfiguration.Stable)
 
 class WorkspaceEntities {
     data class Page(
@@ -81,11 +86,13 @@ class WorkspaceEntities {
         val weight: Float = 1.0f
     )
 
+    @Serializable
     data class MarginSize(
         @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
         @ColumnInfo(defaultValue = "NULL") var marginRight: Int?
     )
 
+    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -93,9 +100,18 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
-    )
+    ) {
+        fun toJson(): String {
+            return json.stringify(serializer(), this)
+        }
+        companion object {
+            fun fromJson(jsonString: String): Colors {
+                return json.parse(serializer(), jsonString)
+            }
+        }
+    }
 
-
+    @Serializable
     data class TextDisplaySettings(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
@@ -152,7 +168,15 @@ class WorkspaceEntities {
             setValue(type, null)
         }
 
+        fun toJson(): String {
+            return json.stringify(serializer(), this)
+        }
+
         companion object {
+            fun fromJson(jsonString: String): TextDisplaySettings {
+                return json.parse(serializer(), jsonString)
+            }
+
             val default get() = TextDisplaySettings(
                 fontSize = 16,
                 colors = Colors(
@@ -177,6 +201,33 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 showMyNotes = true
             )
+
+            fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
+                val pg = pageManagerEntity?.textDisplaySettings
+                val ws = workspaceEntity?.textDisplaySettings
+                val def = default
+                return actual(pg?: ws?: def, ws?: def)
+            }
+
+            fun actual(pageManagerSettigns: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
+                    val pg = pageManagerSettigns
+                    val ws = workspaceSettings
+                    val def = default
+                    return TextDisplaySettings(
+                        fontSize = pg?.fontSize ?: ws.fontSize ?: def.fontSize,
+                        marginSize = pg?.marginSize ?: ws.marginSize ?: def.marginSize,
+                        colors = pg?.colors ?: ws.colors ?: def.colors,
+                        showStrongs = pg?.showStrongs ?: ws.showStrongs ?: def.showStrongs,
+                        showMorphology = pg?.showMorphology ?: ws.showMorphology ?: def.showMorphology,
+                        showFootNotes = pg?.showFootNotes ?: ws.showFootNotes ?: def.showFootNotes,
+                        showRedLetters = pg?.showRedLetters ?: ws.showRedLetters ?: def.showRedLetters,
+                        showSectionTitles = pg?.showSectionTitles ?: ws.showSectionTitles ?: def.showSectionTitles,
+                        showVerseNumbers = pg?.showVerseNumbers ?: ws.showVerseNumbers ?: def.showVerseNumbers,
+                        showVersePerLine = pg?.showVersePerLine ?: ws.showVersePerLine ?: def.showVersePerLine,
+                        showBookmarks = pg?.showBookmarks ?: ws.showBookmarks ?: def.showBookmarks,
+                        showMyNotes = pg?.showMyNotes ?: ws.showMyNotes ?: def.showMyNotes
+                    )
+            }
         }
     }
 
@@ -247,5 +298,23 @@ class WorkspaceEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var orderNumber: Int = 0
     )
+}
+
+@Serializable
+data class SettingsBundle (
+    val workspaceId: Long,
+    val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
+    val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
+    val windowId: Long? = null
+) {
+    fun toJson(): String {
+        return json.stringify(serializer(), this)
+    }
+    companion object {
+        fun fromJson(jsonString: String): SettingsBundle {
+            return json.parse(serializer(), jsonString)
+        }
+    }
+
 }
 
