@@ -246,8 +246,9 @@ open class CurrentPageManager @Inject constructor(
 
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
         pageManagerEntity ?: return
-        currentBible.restoreFrom(pageManagerEntity.biblePage)
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+        // currentBibleVerse is stored in biblePage. We need to load it last, so that versification is set up correctly.
+        currentBible.restoreFrom(pageManagerEntity.biblePage)
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
