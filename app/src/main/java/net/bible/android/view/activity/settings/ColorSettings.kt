@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import kotlinx.android.synthetic.main.settings_dialog.*
@@ -66,6 +67,8 @@ class ColorSettingsDataStore(
 class ColorSettingsActivity: ActivityBase() {
     private lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
+    private var isWindow = false
+    private var reset = false
 
     override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
     override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
@@ -75,22 +78,36 @@ class ColorSettingsActivity: ActivityBase() {
         setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
         dirty = false
+        reset = false
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        this.colors = WorkspaceEntities.Colors.fromJson(intent.extras?.getString("colors")!!)
+        colors = WorkspaceEntities.Colors.fromJson(intent.extras?.getString("colors")!!)
+        isWindow = intent.extras?.getBoolean("isWindow")!!
 
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings_container, ColorSettingsFragment(this, colors))
             .commit()
 
+        if(isWindow) {
+            title = getString(R.string.window_color_settings_title)
+        } else {
+            title = getString(R.string.workspace_color_settings_title)
+            resetButton.visibility = View.INVISIBLE
+        }
         okButton.setOnClickListener {finish()}
         cancelButton.setOnClickListener {
             dirty = false
             setResult()
             finish()
         }
+        resetButton.setOnClickListener {
+            reset = true
+            setResult()
+            finish()
+        }
+
 
         setResult()
     }
@@ -104,6 +121,7 @@ class ColorSettingsActivity: ActivityBase() {
         val resultIntent = Intent(this, ColorSettingsActivity::class.java)
 
         resultIntent.putExtra("edited", dirty)
+        resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("colors", colors.toJson())
 
         setResult(Activity.RESULT_OK, resultIntent)

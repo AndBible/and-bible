@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -150,6 +151,7 @@ class TextDisplaySettingsFragment(
         when (type) {
             Types.COLORS -> {
                 val intent = Intent(activity, ColorSettingsActivity::class.java)
+                intent.putExtra("isWindow", windowId != null)
                 intent.putExtra("colors", (prefItem.value as WorkspaceEntities.Colors).toJson())
                 startActivityForResult(intent, TextDisplaySettingsActivity.FROM_COLORS)
                 return true
@@ -182,11 +184,19 @@ class TextDisplaySettingsFragment(
         when (requestCode) {
             TextDisplaySettingsActivity.FROM_COLORS -> {
                 val extras = data?.extras!!
-                if(extras.getBoolean("edited")) {
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val prefItem = getPrefItem(settingsBundle, Types.COLORS)
+                if(reset) {
+                    prefItem.setNonSpecific()
+                    activity.setDirty(Types.COLORS)
+                    updateItems()
+                }
+                else if(edited) {
                     val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
-                    val prefItem = getPrefItem(settingsBundle, Types.COLORS)
                     prefItem.value = colors
                     activity.setDirty(Types.COLORS)
+                    updateItems()
                 }
             }
         }
@@ -209,8 +219,8 @@ data class DirtyTypesSerializer(val dirtyTypes: MutableSet<Types>) {
 
 @ActivityScope
 class TextDisplaySettingsActivity: ActivityBase() {
-    //var window: Window? = null
     private var requiresReload = false
+    private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
 
     override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
@@ -224,6 +234,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
         super.buildActivityComponent().inject(this)
         dirtyTypes.clear()
         requiresReload = false
+        reset = false
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
@@ -233,6 +244,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             title = getString(R.string.window_text_display_settings_title)
         } else {
             title = getString(R.string.workspace_text_display_settings_title)
+            resetButton.visibility = View.INVISIBLE
         }
 
 
@@ -243,6 +255,11 @@ class TextDisplaySettingsActivity: ActivityBase() {
         okButton.setOnClickListener {finish()}
         cancelButton.setOnClickListener {
             dirtyTypes.clear()
+            setResult()
+            finish()
+        }
+        resetButton.setOnClickListener {
+            reset = true
             setResult()
             finish()
         }
@@ -261,6 +278,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
         resultIntent.putExtra("requiresReload", requiresReload)
+        resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("edited", dirtyTypes.isNotEmpty())
         resultIntent.putExtra("dirtyTypes", DirtyTypesSerializer(dirtyTypes).toJson())
 
