@@ -24,6 +24,7 @@ import net.bible.service.common.CommonUtils
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
 import org.jetbrains.anko.configuration
@@ -61,7 +62,7 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-    val systemModeAvailable = false // Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     private val autoNightMode	get() =
         autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"

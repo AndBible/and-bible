@@ -368,7 +368,7 @@ open class SwordContentFacade @Inject constructor(
 				osisToHtmlParameters.isVersePerline = textDisplaySettings.showVersePerLine!!
 				osisToHtmlParameters.isShowMyNotes = textDisplaySettings.showMyNotes!!
 				osisToHtmlParameters.isShowBookmarks = textDisplaySettings.showBookmarks!!
-				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)))
+				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!))
 				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
 				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
 				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
