@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.3.61'
-    ext.room_version = "2.2.2"
+    ext.room_version = '2.2.3'
 
     repositories {
         jcenter()
