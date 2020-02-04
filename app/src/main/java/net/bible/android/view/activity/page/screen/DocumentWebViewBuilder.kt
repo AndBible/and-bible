@@ -650,9 +650,10 @@ class DocumentWebViewBuilder @Inject constructor(
         }
 
         val inflater = popup.menuInflater
-        inflater.inflate(R.menu.window_popup_menu, popup.menu)
+        val menu = popup.menu
+        inflater.inflate(R.menu.window_popup_menu, menu)
 
-        val moveWindowsSubMenu = popup.menu.findItem(R.id.moveWindowSubMenu).subMenu
+        val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu
 
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
@@ -673,10 +674,18 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         BookName.setFullBookName(oldValue)
 
-        val textOptionsSubMenu = popup.menu.findItem(R.id.textOptionsSubMenu).subMenu
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
         textOptionsSubMenu.removeItem(R.id.textOptionItem)
-        for((idx, t) in CommonUtils.lastDisplaySettings.withIndex()) {
-            textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+
+        val lastSettings = CommonUtils.lastDisplaySettings
+        if(lastSettings.isNotEmpty()) {
+            for ((idx, t) in lastSettings.withIndex()) {
+                textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+            }
+        } else {
+            menu.removeItem(R.id.textOptionsSubMenu)
+            val item = menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle_alone)
+            item.setIcon(R.drawable.ic_text_format_white_24dp)
         }
 
 
@@ -705,9 +714,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 item.isChecked = itmOptions.value == true
             }
         }
-        handleMenu(popup.menu)
+        handleMenu(menu)
 
-        val menuHelper = MenuPopupHelper(mainBibleActivity, popup.menu as MenuBuilder, view)
+        val menuHelper = MenuPopupHelper(mainBibleActivity, menu as MenuBuilder, view)
         menuHelper.setOnDismissListener {
             resetTouchTimer()
             mainBibleActivity.resetSystemUi()
@@ -727,24 +736,24 @@ class DocumentWebViewBuilder @Inject constructor(
 
         return when(item.itemId) {
 
-            R.id.windowNew -> CommandPreference({windowControl.addNewWindow()})
+            R.id.windowNew -> CommandPreference({_, _, _ -> windowControl.addNewWindow()})
             R.id.windowMaximise -> CommandPreference(
-                {windowControl.setMaximized(window, !window.isMaximised)},
+                {_, _, _ -> windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised
             )
             R.id.windowSynchronise -> CommandPreference(
-                {windowControl.setSynchronised(window, !window.isSynchronised)},
+                {_, _, _ -> windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
             R.id.moveWindowSubMenu -> SubMenuPreference(false)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.windowClose -> CommandPreference({windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
-            R.id.windowMinimise -> CommandPreference({windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
-            R.id.allTextOptions -> CommandPreference({
+            R.id.windowClose -> CommandPreference({_, _, _ ->windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowMinimise -> CommandPreference({_, _, _ ->windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+            R.id.allTextOptions -> CommandPreference({_, _, _ ->
                 val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
             })
-            R.id.moveItem -> CommandPreference({
+            R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")
             })

@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.settings
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -37,11 +38,13 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.ColorPreference
+import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontSizePreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MarginSizePreference
@@ -49,8 +52,10 @@ import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.util.locale.LocaleHelper
-import net.bible.android.view.util.widget.MarginSizeWidget
-import net.bible.android.view.util.widget.TextSizeWidget
+import net.bible.service.db.DatabaseContainer
+import java.lang.IllegalArgumentException
+import java.lang.RuntimeException
+
 
 class TextDisplaySettingsDataStore(
     private val activity: TextDisplaySettingsActivity,
@@ -74,15 +79,40 @@ class TextDisplaySettingsDataStore(
     }
 }
 
+fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface {
+    try {
+        val type = Types.valueOf(key)
+        return getPrefItem(settings, type)
+    }
+    catch (e: IllegalArgumentException) {
+        return when(key) {
+            "apply_to_all_workspaces" -> CommandPreference({activity, onChanged, onReset ->
+                AlertDialog.Builder(activity)
+                    .setTitle("Are you sure?")
+                    .setMessage("Do you want to apply these settings to all workspaces?")
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        val dao = DatabaseContainer.db.workspaceDao()
+                        dao.applyTextToDisplaySettingsToAllWorkspaces(settings.actualSettings)
+                        onChanged?.invoke(true)
+                        activity.finish()
+                    }
+                    .setNegativeButton(R.string.no, null)
+                    .show()
+            }, visible = settings.windowId == null)
+            else -> throw RuntimeException("Unsupported item key")
+        }
+    }
+}
+
 fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface =
     when(type) {
-        Types.BOOKMARKS -> net.bible.android.view.activity.page.Preference(settings, Types.BOOKMARKS)
-        Types.REDLETTERS -> net.bible.android.view.activity.page.Preference(settings, Types.REDLETTERS)
-        Types.SECTIONTITLES -> net.bible.android.view.activity.page.Preference(settings, Types.SECTIONTITLES)
-        Types.VERSENUMBERS -> net.bible.android.view.activity.page.Preference(settings, Types.VERSENUMBERS)
-        Types.VERSEPERLINE -> net.bible.android.view.activity.page.Preference(settings, Types.VERSEPERLINE)
-        Types.FOOTNOTES -> net.bible.android.view.activity.page.Preference(settings, Types.FOOTNOTES)
-        Types.MYNOTES -> net.bible.android.view.activity.page.Preference(settings, Types.MYNOTES)
+        Types.BOOKMARKS -> ItemPreference(settings, Types.BOOKMARKS)
+        Types.REDLETTERS -> ItemPreference(settings, Types.REDLETTERS)
+        Types.SECTIONTITLES -> ItemPreference(settings, Types.SECTIONTITLES)
+        Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
+        Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
+        Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
+        Types.MYNOTES -> ItemPreference(settings, Types.MYNOTES)
 
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
@@ -110,8 +140,7 @@ class TextDisplaySettingsFragment(
     private val windowId = settingsBundle.windowId
 
     private fun updateItem(p: Preference) {
-        val type = Types.valueOf(p.key)
-        val itmOptions = getPrefItem(settingsBundle, type)
+        val itmOptions = getPrefItem(settingsBundle, p.key)
         if(windowId != null) {
             if (itmOptions.inherited) {
                 p.setIcon(R.drawable.ic_sync_white_24dp)
@@ -141,17 +170,18 @@ class TextDisplaySettingsFragment(
         return list
     }
 
-    override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-        val type = Types.valueOf(preference?.key!!)
+    override fun onPreferenceTreeClick(preference: Preference): Boolean {
         var returnValue = true
-        val prefItem = getPrefItem(settingsBundle, type)
+        val prefItem = getPrefItem(settingsBundle, preference.key)
+        val type = try {Types.valueOf(preference.key)} catch (e: IllegalArgumentException) { null }
         val resetFunc = {
             prefItem.setNonSpecific()
             updateItem(preference)
         }
         val handled = prefItem.openDialog(activity, {
             updateItem(preference)
-            activity.setDirty(type)
+            if(type != null)
+                activity.setDirty(type)
         }, resetFunc)
 
         if(!handled) {

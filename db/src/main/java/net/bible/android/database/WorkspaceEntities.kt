@@ -248,7 +248,7 @@ class WorkspaceEntities {
         val name: String,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
 
-        @Embedded(prefix="text_display_settings_") val textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
+        @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
         @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
     )
 

@@ -108,4 +108,12 @@ interface WorkspaceDao {
         deleteHistoryItems(windowId)
         insertHistoryItems(entities)
     }
+
+    @Transaction
+    fun applyTextToDisplaySettingsToAllWorkspaces(displaySettings: WorkspaceEntities.TextDisplaySettings) {
+        for(w in allWorkspaces()) {
+            w.textDisplaySettings = displaySettings
+            updateWorkspace(w)
+        }
+    }
 }

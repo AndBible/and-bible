@@ -611,7 +611,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
         return when(item.itemId) {
-            R.id.allTextOptions -> CommandPreference({
+            R.id.allTextOptions -> CommandPreference({ _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
@@ -624,11 +624,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             R.id.nightMode -> NightModePreference()
 
             R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-            R.id.newWorkspace -> CommandPreference({newWorkspace()})
-            R.id.cloneWorkspace -> CommandPreference({cloneWorkspace()})
-            R.id.deleteWorkspace -> CommandPreference({deleteWorkspace()}, haveWorkspaces)
-            R.id.renameWorkspace -> CommandPreference({renameWorkspace()})
-            R.id.switchToWorkspace -> CommandPreference({chooseWorkspace()})
+            R.id.newWorkspace -> CommandPreference({_, _, _ -> newWorkspace()})
+            R.id.cloneWorkspace -> CommandPreference({_, _, _ -> cloneWorkspace()})
+            R.id.deleteWorkspace -> CommandPreference({_, _, _ -> deleteWorkspace()}, haveWorkspaces)
+            R.id.renameWorkspace -> CommandPreference({_, _, _ -> renameWorkspace()})
+            R.id.switchToWorkspace -> CommandPreference({_, _, _ -> chooseWorkspace()})
             else -> throw RuntimeException("Illegal menu item")
         }
     }
@@ -640,8 +640,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
         textOptionsSubMenu.removeItem(R.id.textOptionItem)
-        for((idx, t) in CommonUtils.lastDisplaySettings.withIndex()) {
-            textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+        val lastSettings = CommonUtils.lastDisplaySettings
+        if(lastSettings.isNotEmpty()) {
+            for ((idx, t) in lastSettings.withIndex()) {
+                textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+            }
+        } else {
+            menu.removeItem(R.id.textOptionsSubMenu)
+            menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle_alone)
         }
 
         fun handleMenu(menu: Menu) {
@@ -649,6 +655,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val itmOptions = getItemOptions(item)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
+                item.isCheckable = itmOptions.isBoolean
                 if(itmOptions.title != null) {
                     item.title = itmOptions.title
                 }

@@ -174,6 +174,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
 
     <string name="all_text_options_window_menutitle">All text options…</string>
+    <string name="all_text_options_window_menutitle_alone">Text options…</string>
     <string name="text_options_window_menutitle">Text options</string>
     <string name="text_options_workspace_menutitle">Text options</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
@@ -202,6 +203,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="window_text_display_settings_title">Window text options</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
+    <string name="prefs_apply_all_workspaces_title">Apply to all workspaces</string>
+    <string name="prefsapply_all_workspaces_summary">Apply current settings to all workspaces</string>
+    <string name="reset_settings">Reset</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Text &amp; background</string>
@@ -605,5 +609,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
-    <string name="reset_settings">Reset</string>
 </resources>

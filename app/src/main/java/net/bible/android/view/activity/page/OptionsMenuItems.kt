@@ -111,7 +111,7 @@ abstract class StringValuedPreference(name: String, default: Boolean,
 
 
 open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true) : GeneralPreference(onlyBibles) {
-    private val actualTextSettings = TextDisplaySettings.Companion.actual(settings.pageManagerSettings, settings.workspaceSettings)
+    private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
     val window = mainBibleActivity.windowRepository.getWindow(settings.windowId)
@@ -193,7 +193,7 @@ class TiltToScrollPreference:
 }
 
 class CommandPreference(
-    val command: () -> Unit,
+    val command: (activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?) -> Unit,
     override val enabled: Boolean = true,
     override var value: Any = true,
     override val visible: Boolean = true,
@@ -202,7 +202,7 @@ class CommandPreference(
 ) : OptionsMenuItemInterface {
     override fun handle() {}
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        command.invoke()
+        command.invoke(activity, onChanged, onReset)
         return true
     }
 
