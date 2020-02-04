@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 
 import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper
@@ -69,8 +70,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     fun applyTheme() {
         if (ScreenSettings.nightMode) {
             setTheme(nightTheme)
+            if(ScreenSettings.manualMode) {
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+                }
+            }
         } else {
             setTheme(dayTheme)
+            if(ScreenSettings.manualMode) {
+                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {

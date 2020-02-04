@@ -121,11 +121,10 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.COLORS -> ColorPreference(settings)
     }
 
-class TextDisplaySettingsFragment(
-    val activity: TextDisplaySettingsActivity,
-    private val settingsBundle: SettingsBundle
-) : PreferenceFragmentCompat() {
+class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
+    private val settingsBundle get() = (activity as TextDisplaySettingsActivity).settingsBundle
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        val activity = activity as TextDisplaySettingsActivity
         preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, settingsBundle)
         setPreferencesFromResource(R.xml.text_display_settings, rootKey)
         updateItems()
@@ -137,7 +136,7 @@ class TextDisplaySettingsFragment(
         }
     }
 
-    private val windowId = settingsBundle.windowId
+    private val windowId get() = settingsBundle.windowId
 
     private fun updateItem(p: Preference) {
         val itmOptions = getPrefItem(settingsBundle, p.key)
@@ -178,6 +177,7 @@ class TextDisplaySettingsFragment(
             prefItem.setNonSpecific()
             updateItem(preference)
         }
+        val activity = activity as TextDisplaySettingsActivity
         val handled = prefItem.openDialog(activity, {
             updateItem(preference)
             if(type != null)
@@ -212,12 +212,14 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
 
-    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_MinWidth
+    override val dayTheme = R.style.Theme_AppCompat_DayNight_Dialog_MinWidth
     override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_MinWidth
 
-    private lateinit var settingsBundle: SettingsBundle
+    internal lateinit var settingsBundle: SettingsBundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
@@ -227,7 +229,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
 
         if(settingsBundle.windowId != null) {
             title = getString(R.string.window_text_display_settings_title)
@@ -236,7 +237,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             resetButton.visibility = View.INVISIBLE
         }
 
-        val fragment = TextDisplaySettingsFragment(this, settingsBundle)
+        val fragment = TextDisplaySettingsFragment()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings_container, fragment)

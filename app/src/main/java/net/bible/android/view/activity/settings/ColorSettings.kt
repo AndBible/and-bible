@@ -35,10 +35,9 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.locale.LocaleHelper
 
-class ColorSettingsDataStore(
-    val activity: ColorSettingsActivity,
-    val colors: WorkspaceEntities.Colors
-): PreferenceDataStore() {
+class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
+    val colors get() = activity.colors
+
     override fun putInt(key: String?, value: Int) {
         when(key) {
             "text_color_day" -> colors.dayTextColor = value
@@ -67,14 +66,17 @@ class ColorSettingsDataStore(
 @ActivityScope
 class ColorSettingsActivity: ActivityBase() {
     private lateinit var settingsBundle: SettingsBundle
-    private lateinit var colors: WorkspaceEntities.Colors
+    internal lateinit var colors: WorkspaceEntities.Colors
     private var dirty = false
     private var reset = false
 
-    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_MinWidth
+    override val dayTheme = R.style.Theme_AppCompat_DayNight_Dialog_MinWidth
     override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_MinWidth
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
@@ -83,12 +85,9 @@ class ColorSettingsActivity: ActivityBase() {
 
         CurrentActivityHolder.getInstance().currentActivity = this
 
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-        colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!
-
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment(this, colors))
+            .replace(R.id.settings_container, ColorSettingsFragment())
             .commit()
 
         if(settingsBundle.windowId != null) {
@@ -108,7 +107,6 @@ class ColorSettingsActivity: ActivityBase() {
             setResult()
             finish()
         }
-
 
         setResult()
     }
@@ -142,9 +140,11 @@ class ColorSettingsActivity: ActivityBase() {
 }
 
 
-class ColorSettingsFragment(val activity: ColorSettingsActivity, val settings: WorkspaceEntities.Colors) : PreferenceFragmentCompat() {
+class ColorSettingsFragment: PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity, settings)
+        val activity = activity as ColorSettingsActivity
+
+        preferenceManager.preferenceDataStore = ColorSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.color_settings, rootKey)
     }
 }

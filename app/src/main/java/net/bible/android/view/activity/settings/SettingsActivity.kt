@@ -83,11 +83,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (autoModeAvailable) {
                     nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_auto_manual)
                     nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_auto_manual)
-                    nightModePref.setDefaultValue("manual")
+                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
                 } else {
                     nightModePref.setEntries(R.array.prefs_night_mode_descriptions_system_manual)
                     nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
-                    nightModePref.setDefaultValue("manual")
+                    nightModePref.setDefaultValue(R.string.prefs_night_mode_manual)
                 }
             } else {
                 if (!autoModeAvailable) {
