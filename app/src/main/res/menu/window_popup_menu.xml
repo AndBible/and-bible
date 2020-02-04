@@ -4,7 +4,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
+	>
 
 	<item android:id="@+id/windowNew"
 		  android:title="@string/new_window"
@@ -26,11 +26,6 @@
 		  android:checkable="true"
 		  android:checked="true"/>
 	<item
-		android:id="@+id/textOptionsSubMenu"
-		android:icon="@drawable/ic_text_format_white_24dp"
-		android:title="@string/text_options_window_menutitle">
-	</item>
-	<item
 		android:id="@+id/moveWindowSubMenu"
 		android:icon="@drawable/ic_compare_arrows_black_24dp"
 		android:title="@string/move_window">
@@ -39,5 +34,10 @@
 				android:title=""
 				/>
 		</menu>
+	</item>
+	<item
+		android:id="@+id/textOptionsSubMenu"
+		android:icon="@drawable/ic_text_format_white_24dp"
+		android:title="@string/text_options_window_menutitle">
 	</item>
 </menu>

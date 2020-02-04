@@ -57,8 +57,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open var nightTheme = R.style.AppThemeNight
-    protected open var dayTheme = R.style.AppThemeDay
+    protected open val nightTheme = R.style.AppThemeNight
+    protected open val dayTheme = R.style.AppThemeDay
 
 
     /** Called when the activity is first created.  */

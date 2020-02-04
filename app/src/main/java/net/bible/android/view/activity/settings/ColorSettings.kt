@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.android.synthetic.main.settings_dialog.*
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -82,11 +83,14 @@ class ColorSettingsActivity: ActivityBase() {
     var window: Window? = null
     private var dirty = false
 
+    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
+    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
+
     @Inject
     lateinit var windowControl: WindowControl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
         dirty = false
 
@@ -99,6 +103,8 @@ class ColorSettingsActivity: ActivityBase() {
             .beginTransaction()
             .replace(R.id.settings_container, ColorSettingsFragment(this, window, windowControl.windowRepository))
             .commit()
+        okButton.setOnClickListener {finish()}
+        cancelButton.setOnClickListener {finish()}
 
         setResult()
     }

@@ -29,6 +29,7 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
+import kotlinx.android.synthetic.main.settings_dialog.*
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -191,11 +192,15 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private var dirty = false
     private var requiresReload = false
 
+    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
+    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
+
     @Inject
     lateinit var windowControl: WindowControl
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        setContentView(R.layout.settings_dialog)
         super.buildActivityComponent().inject(this)
         dirty = false
         requiresReload = false
@@ -207,9 +212,11 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, TextDisplaySettingsFragment(this, window, windowControl.windowRepository))
+            .replace(R.id.settings_container,
+                TextDisplaySettingsFragment(this, window, windowControl.windowRepository))
             .commit()
-
+        okButton.setOnClickListener {finish()}
+        cancelButton.setOnClickListener {finish()}
         setResult()
     }
 

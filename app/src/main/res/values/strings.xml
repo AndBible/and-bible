@@ -227,7 +227,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
     <string name="windowMoveFirst">Move first</string>
-    <string name="move_window">Move window to…</string>
+    <string name="move_window">Move to…</string>
     <string name="move_window_to_position">Position %s</string>
 
     <!-- Notes screen -->
