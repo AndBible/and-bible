@@ -72,6 +72,7 @@ abstract class SharedPreferencesPreference(
     private val default: Boolean = false,
     onlyBibles: Boolean = false,
     override val isBoolean: Boolean = true,
+    private val isBooleanPreference: Boolean = true,
 
     // If we are handling non-boolean value
     private val trueValue: String = "true",
@@ -84,19 +85,19 @@ abstract class SharedPreferencesPreference(
     override val inherited = false
 
     override var value: Any
-        get() = if (isBoolean) {
+        get() = if (isBooleanPreference) {
             preferences.getBoolean(preferenceName, default)
         } else {
             preferences.getString(preferenceName, defaultString) == trueValue
         }
-        set(value) = if (isBoolean) {
+        set(value) = if (isBooleanPreference) {
             preferences.edit().putBoolean(preferenceName, value == true).apply()
         } else {
             preferences.edit().putString(preferenceName, if (value == true) trueValue else falseValue).apply()
         }
 
     protected open val automatic: Boolean
-        get() = if (isBoolean) {
+        get() = if (isBooleanPreference) {
             false
         } else {
             preferences.getString(preferenceName, defaultString) == automaticValue
@@ -107,7 +108,7 @@ abstract class SharedPreferencesPreference(
 
 abstract class StringValuedPreference(name: String, default: Boolean,
                                       trueValue: String = "true", falseValue: String = "false") :
-    SharedPreferencesPreference(name, default, isBoolean = false, trueValue = trueValue, falseValue = falseValue)
+    SharedPreferencesPreference(name, default, isBooleanPreference = false, trueValue = trueValue, falseValue = falseValue)
 
 
 open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true) : GeneralPreference(onlyBibles) {
@@ -217,6 +218,7 @@ open class SubMenuPreference(onlyBibles: Boolean = false) :
 }
 
 class NightModePreference : StringValuedPreference("night_mode_pref2", false) {
+    override val isBoolean: Boolean = true
     override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
     override val visible: Boolean get() = super.visible && !automatic && !ScreenSettings.systemModeAvailable
     override val automatic get() = super.automatic && ScreenSettings.autoModeAvailable
