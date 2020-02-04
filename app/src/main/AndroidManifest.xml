@@ -158,7 +158,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
-            android:theme="@style/Theme.AppCompat.Dialog"
+            android:theme="@style/Theme.AppCompat.Dialog.MinWidth"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:launchMode="singleTask"
             android:label="@string/workspace_color_settings_title"
@@ -166,7 +166,7 @@
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@style/Theme.AppCompat.Dialog"
+            android:theme="@style/Theme.AppCompat.Dialog.MinWidth"
             android:label="@string/text_display_settings_activity_title"
             android:launchMode="singleTask"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />

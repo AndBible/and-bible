@@ -71,8 +71,8 @@ class ColorSettingsActivity: ActivityBase() {
     private var dirty = false
     private var reset = false
 
-    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_Alert
-    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
+    override val dayTheme = R.style.Theme_AppCompat_Light_Dialog_MinWidth
+    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_MinWidth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
