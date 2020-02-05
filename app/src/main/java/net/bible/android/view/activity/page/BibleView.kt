@@ -331,6 +331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun updateTextDisplaySettings() {
         updateBackgroundColor()
+        applyFontSize()
         val colors = window.pageManager.actualTextDisplaySettings.colors!!
         val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
         val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
