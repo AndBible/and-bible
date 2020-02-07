@@ -680,12 +680,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             itemOptions.value = !(itemOptions.value == true)
             itemOptions.handle()
             item.isChecked = itemOptions.value == true
+            invalidateOptionsMenu()
         } else {
             val onReady = {
                 if(itemOptions is Preference) {
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
                 }
                 ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                invalidateOptionsMenu()
             }
             itemOptions.openDialog(this, {onReady()}, onReady)
         }
@@ -1150,7 +1152,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 if(!edited && !reset) return
 
                 val colors = if(reset)
-                    null
+                    if(windowId != 0L) {
+                        null
+                    } else TextDisplaySettings.default.colors
                 else
                     WorkspaceEntities.Colors.fromJson(colorsStr!!)
 
@@ -1163,6 +1167,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
                     windowRepository.updateVisibleWindowsTextDisplaySettings()
                 }
+                invalidateOptionsMenu()
             }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
                 val extras = data?.extras!!
@@ -1190,7 +1195,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         window.bibleView?.updateTextDisplaySettings()
                     }
                 } else {
-                    windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                    if(reset) {
+                        windowRepository.textDisplaySettings = TextDisplaySettings.default
+                    } else {
+                        windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                    }
                     val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
                     windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
                     if(requiresReload) {
@@ -1199,6 +1208,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         windowRepository.updateVisibleWindowsTextDisplaySettings()
                     }
                 }
+                invalidateOptionsMenu()
                 return
             }
             STD_REQUEST_CODE -> {

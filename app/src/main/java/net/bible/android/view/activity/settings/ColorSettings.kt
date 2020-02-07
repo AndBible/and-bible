@@ -94,7 +94,6 @@ class ColorSettingsActivity: ActivityBase() {
             title = getString(R.string.window_color_settings_title)
         } else {
             title = getString(R.string.workspace_color_settings_title)
-            resetButton.visibility = View.INVISIBLE
         }
         okButton.setOnClickListener {finish()}
         cancelButton.setOnClickListener {

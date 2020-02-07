@@ -234,7 +234,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
             title = getString(R.string.window_text_display_settings_title)
         } else {
             title = getString(R.string.workspace_text_display_settings_title)
-            resetButton.visibility = View.INVISIBLE
         }
 
         val fragment = TextDisplaySettingsFragment()
@@ -289,7 +288,11 @@ class TextDisplaySettingsActivity: ActivityBase() {
                 val reset = extras.getBoolean("reset")
                 val prefItem = getPrefItem(settingsBundle, Types.COLORS)
                 if(reset) {
-                    prefItem.setNonSpecific()
+                    if(settingsBundle.windowId != null) {
+                        prefItem.setNonSpecific()
+                    } else {
+                        prefItem.value = TextDisplaySettings.default.getValue(Types.COLORS)!!
+                    }
                     setDirty(Types.COLORS)
                     fragment.updateItems()
                 }
