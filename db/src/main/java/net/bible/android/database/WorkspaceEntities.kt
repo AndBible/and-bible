@@ -308,7 +308,7 @@ data class SettingsBundle (
     val windowId: Long? = null
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() {
-        return if(windowId == null) workspaceSettings else pageManagerSettings!!
+        return if(windowId == null) workspaceSettings else WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
     }
 
     fun toJson(): String {
