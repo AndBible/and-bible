@@ -377,6 +377,12 @@ open class WindowRepository @Inject constructor(
         }
     }
 
+    fun updateVisibleWindowsTextDisplaySettings() {
+        visibleWindows.forEach {
+            it.bibleView?.updateTextDisplaySettings()
+        }
+    }
+
     companion object {
         private const val TAG = "WinRep BibleView"
     }

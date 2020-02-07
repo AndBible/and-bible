@@ -1161,7 +1161,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 } else {
                     windowRepository.textDisplaySettings.colors = colors
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                    windowRepository.updateVisibleWindowsTextDisplaySettings()
                 }
             }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
@@ -1193,7 +1193,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
                     val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
                     windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                    if(requiresReload) {
+                        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                    } else {
+                        windowRepository.updateVisibleWindowsTextDisplaySettings()
+                    }
                 }
                 return
             }
