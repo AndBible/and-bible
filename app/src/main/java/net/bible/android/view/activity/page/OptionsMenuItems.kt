@@ -52,14 +52,12 @@ interface OptionsMenuItemInterface {
 abstract class GeneralPreference(
     protected val onlyBibles: Boolean = false,
 
-    val subMenu: Boolean = false
+    val subMenu: Boolean = false,
+    override val enabled: Boolean = true
 ) : OptionsMenuItemInterface {
     override val inherited: Boolean = false
     override val visible: Boolean
         get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
-
-    override val enabled: Boolean
-        get() = true
 
     override var value: Any = false
     override fun handle() {}
@@ -214,8 +212,8 @@ class CommandPreference(
     override val isBoolean get() = handle != null && value is Boolean
 }
 
-open class SubMenuPreference(onlyBibles: Boolean = false) :
-    GeneralPreference(onlyBibles = onlyBibles, subMenu = true)
+open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = true, override val visible: Boolean = true) :
+    GeneralPreference(onlyBibles = onlyBibles, subMenu = true, enabled = enabled)
 {
     override val isBoolean: Boolean = false
 }

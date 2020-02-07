@@ -560,8 +560,8 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createCloseButton(window: Window): Button {
         return createTextButton("X",
-            { v -> windowControl.closeWindow(window)},
-            { v -> false},
+            { v -> showPopupWindow(window, v)},
+            { v -> windowControl.closeWindow(window); true},
             window
         )
     }
@@ -745,20 +745,27 @@ class DocumentWebViewBuilder @Inject constructor(
 
         return when(item.itemId) {
 
-            R.id.windowNew -> CommandPreference(handle = {windowControl.addNewWindow()})
+            R.id.windowNew -> CommandPreference(handle = {windowControl.addNewWindow()},
+                visible = !window.isLinksWindow
+            )
             R.id.windowMaximise -> CommandPreference(
                 handle = {windowControl.setMaximized(window, !window.isMaximised)},
-                value = window.isMaximised
+                value = window.isMaximised,
+                visible = !window.isLinksWindow
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
-                value = window.isSynchronised)
-            R.id.moveWindowSubMenu -> SubMenuPreference(false)
+                value = window.isSynchronised,
+                visible = !window.isLinksWindow
+                )
+            R.id.moveWindowSubMenu -> SubMenuPreference(false,
+                visible = !window.isLinksWindow
+            )
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.windowClose -> CommandPreference(handle = {windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
             R.id.windowMinimise -> CommandPreference(
                 handle = {windowControl.minimiseWindow(window)},
-                enabled = windowControl.isWindowMinimisable(window)
+                visible = windowControl.isWindowMinimisable(window)
             )
             R.id.allTextOptions -> CommandPreference({_, _, _ ->
                 val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
@@ -768,7 +775,9 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")
-            })
+            },
+                visible = !window.isLinksWindow
+            )
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
 
             else -> throw RuntimeException("Illegal menu item")
