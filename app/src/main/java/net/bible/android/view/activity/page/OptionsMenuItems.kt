@@ -194,21 +194,24 @@ class TiltToScrollPreference:
 }
 
 class CommandPreference(
-    val command: (activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?) -> Unit,
+    private val openDialog: ((activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?) -> Unit)? = null,
+    private val handle: (() -> Unit)? = null,
     override val enabled: Boolean = true,
-    override var value: Any = true,
+    override var value: Any = Object(),
     override val visible: Boolean = true,
     override val inherited: Boolean = false,
     override val requiresReload: Boolean = false
 ) : OptionsMenuItemInterface {
-    override fun handle() {}
+    override fun handle() {
+        handle?.invoke()
+    }
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        command.invoke(activity, onChanged, onReset)
+        openDialog?.invoke(activity, onChanged, onReset)
         return true
     }
 
     override val title: String? = null
-    override val isBoolean = false
+    override val isBoolean get() = handle != null && value is Boolean
 }
 
 open class SubMenuPreference(onlyBibles: Boolean = false) :

@@ -745,18 +745,21 @@ class DocumentWebViewBuilder @Inject constructor(
 
         return when(item.itemId) {
 
-            R.id.windowNew -> CommandPreference({_, _, _ -> windowControl.addNewWindow()})
+            R.id.windowNew -> CommandPreference(handle = {windowControl.addNewWindow()})
             R.id.windowMaximise -> CommandPreference(
-                {_, _, _ -> windowControl.setMaximized(window, !window.isMaximised)},
+                handle = {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised
             )
             R.id.windowSynchronise -> CommandPreference(
-                {_, _, _ -> windowControl.setSynchronised(window, !window.isSynchronised)},
+                handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
                 value = window.isSynchronised)
             R.id.moveWindowSubMenu -> SubMenuPreference(false)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.windowClose -> CommandPreference({_, _, _ ->windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
-            R.id.windowMinimise -> CommandPreference({_, _, _ ->windowControl.minimiseWindow(window)}, enabled = windowControl.isWindowMinimisable(window))
+            R.id.windowClose -> CommandPreference(handle = {windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowMinimise -> CommandPreference(
+                handle = {windowControl.minimiseWindow(window)},
+                enabled = windowControl.isWindowMinimisable(window)
+            )
             R.id.allTextOptions -> CommandPreference({_, _, _ ->
                 val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())

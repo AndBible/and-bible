@@ -624,11 +624,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             R.id.nightMode -> NightModePreference()
 
             R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-            R.id.newWorkspace -> CommandPreference({_, _, _ -> newWorkspace()})
-            R.id.cloneWorkspace -> CommandPreference({_, _, _ -> cloneWorkspace()})
-            R.id.deleteWorkspace -> CommandPreference({_, _, _ -> deleteWorkspace()}, haveWorkspaces)
-            R.id.renameWorkspace -> CommandPreference({_, _, _ -> renameWorkspace()})
-            R.id.switchToWorkspace -> CommandPreference({_, _, _ -> chooseWorkspace()})
+            R.id.newWorkspace -> CommandPreference(handle = {newWorkspace()})
+            R.id.cloneWorkspace -> CommandPreference(handle = {cloneWorkspace()})
+            R.id.deleteWorkspace -> CommandPreference(handle = {deleteWorkspace()}, enabled = haveWorkspaces)
+            R.id.renameWorkspace -> CommandPreference(handle = {renameWorkspace()})
+            R.id.switchToWorkspace -> CommandPreference(handle = {chooseWorkspace()})
             else -> throw RuntimeException("Illegal menu item")
         }
     }
