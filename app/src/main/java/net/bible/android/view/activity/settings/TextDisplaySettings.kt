@@ -147,8 +147,9 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
                 p.setIcon(R.drawable.ic_sync_disabled_green_24dp)
             }
         }
-        p.isEnabled = itmOptions.enabled
-        p.isVisible = itmOptions.visible
+        if(itmOptions is MorphologyPreference) {
+            p.isEnabled = StrongsPreference(settingsBundle).value as Boolean
+        }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
