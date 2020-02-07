@@ -150,7 +150,6 @@ open class WindowControl @Inject constructor(
 
         // default state to active window
         if (!isActiveWindow(window)) {
-            window.pageManager.restoreFrom(oldActiveWindow.pageManager.entity)
             window.isSynchronised = oldActiveWindow.isSynchronised
             if (windowRepository.isMaximisedState) {
                 activeWindow = window

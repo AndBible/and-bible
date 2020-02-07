@@ -192,7 +192,7 @@ class TiltToScrollPreference:
 }
 
 class CommandPreference(
-    private val openDialog: ((activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?) -> Unit)? = null,
+    private val launch: ((activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?) -> Unit)? = null,
     private val handle: (() -> Unit)? = null,
     override val enabled: Boolean = true,
     override var value: Any = Object(),
@@ -204,7 +204,7 @@ class CommandPreference(
         handle?.invoke()
     }
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        openDialog?.invoke(activity, onChanged, onReset)
+        launch?.invoke(activity, onChanged, onReset)
         return true
     }
 

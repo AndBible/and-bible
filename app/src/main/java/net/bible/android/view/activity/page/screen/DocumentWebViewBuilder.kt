@@ -48,7 +48,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
@@ -745,7 +744,8 @@ class DocumentWebViewBuilder @Inject constructor(
 
         return when(item.itemId) {
 
-            R.id.windowNew -> CommandPreference(handle = {windowControl.addNewWindow()},
+            R.id.windowNew -> CommandPreference(
+                launch = {_, _, _ -> windowControl.addNewWindow()},
                 visible = !window.isLinksWindow
             )
             R.id.windowMaximise -> CommandPreference(
@@ -762,7 +762,10 @@ class DocumentWebViewBuilder @Inject constructor(
                 visible = !window.isLinksWindow
             )
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
-            R.id.windowClose -> CommandPreference(handle = {windowControl.closeWindow(window)}, enabled = windowControl.isWindowRemovable(window))
+            R.id.windowClose -> CommandPreference(
+                launch = { _, _, _ ->  windowControl.closeWindow(window)},
+                enabled = windowControl.isWindowRemovable(window)
+            )
             R.id.windowMinimise -> CommandPreference(
                 handle = {windowControl.minimiseWindow(window)},
                 visible = windowControl.isWindowMinimisable(window)
