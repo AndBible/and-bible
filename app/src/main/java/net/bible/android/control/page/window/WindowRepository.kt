@@ -117,6 +117,8 @@ open class WindowRepository @Inject constructor(
             }
         }
 
+    val initialized get() = ::_activeWindow.isInitialized
+
     // When in maximized mode, keep track of last used
     // window that was synchronized
     var lastMaximizedAndSync: Window? = null
@@ -262,7 +264,9 @@ open class WindowRepository @Inject constructor(
         }
 
         val newWindow = Window(winEntity, pageManager, this)
-        pageManager.textDisplaySettings = activeWindow.pageManager.textDisplaySettings.copy()
+        if(initialized) {
+            pageManager.textDisplaySettings = activeWindow.pageManager.textDisplaySettings.copy()
+        }
         dao.insertPageManager(pageManager.entity)
         windowList.add(if(first) 0 else windowList.indexOf(activeWindow) + 1, newWindow)
         return newWindow
