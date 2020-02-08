@@ -335,8 +335,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             "marginRight: $marginRight, " +
             "textColor: '$textColorStr', " +
             "noiseOpacity: $noise, " +
-            "justifyText: $justifyText, " +
-            "reCalc: true}"
+            "justifyText: $justifyText}"
     }
 
     private fun loadHtml() {

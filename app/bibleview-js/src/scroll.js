@@ -87,7 +87,7 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpacity, justifyText, reCalc = false} = {}) {
+export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpacity, justifyText} = {}, doNotReCalc = false) {
     console.log(`JustifyText ${justifyText}`);
     $("#content")
         .css('margin-left', `${marginLeft}mm`)
@@ -97,7 +97,7 @@ export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpa
         .css("--noise-opacity", noiseOpacity/100)
         .css("--text-align", justifyText? "justify" : "left");
     console.log("noiseOpacity", noiseOpacity/100);
-    if(reCalc) {
+    if(!doNotReCalc) {
         registerVersePositions()
     }
 }
@@ -105,7 +105,7 @@ export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpa
 
 export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
     console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${displaySettings}`);
-    setDisplaySettings(displaySettings);
+    setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(jumpToChapterVerse != null) {
