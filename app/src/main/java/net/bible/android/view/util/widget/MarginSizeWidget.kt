@@ -70,7 +70,7 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
         actualValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight, value.maxWidth)
         leftMargin.progress = value.marginLeft!!
         rightMargin.progress = value.marginRight!!
-        maxWidth.progress = value.maxWidth!!
+        maxWidth.progress = value.maxWidth ?: WorkspaceEntities.TextDisplaySettings.default.marginSize!!.maxWidth!!
     }
     
     companion object {
