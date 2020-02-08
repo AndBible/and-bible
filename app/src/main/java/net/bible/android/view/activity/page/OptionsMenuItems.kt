@@ -104,12 +104,10 @@ abstract class SharedPreferencesPreference(
     override fun handle() {}
 }
 
-abstract class StringValuedPreference(name: String, default: Boolean,
-                                      trueValue: String = "true", falseValue: String = "false") :
-    SharedPreferencesPreference(name, default, isBooleanPreference = false, trueValue = trueValue, falseValue = falseValue)
+open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true,
+                      override val requiresReload: Boolean = true
 
-
-open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true) : GeneralPreference(onlyBibles) {
+                      ) : GeneralPreference(onlyBibles) {
     private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
@@ -131,8 +129,6 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
         pageManagerSettings?.setNonSpecific(type)
     }
 
-    override val requiresReload get() = value is Boolean
-
     override var value
         get() = actualTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!
         set(value) {
@@ -150,12 +146,17 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
     override val isBoolean: Boolean get() = value is Boolean
 
     override fun handle(){
-        if(!requiresReload) return
-
-        if(window == null)
-            mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
-        else window.updateText()
-
+        if(!requiresReload) {
+            if(window == null) {
+                mainBibleActivity.windowRepository.updateVisibleWindowsTextDisplaySettings()
+            } else {
+                window.bibleView?.updateTextDisplaySettings()
+            }
+        } else {
+            if (window == null)
+                mainBibleActivity.windowControl.windowSync.reloadAllWindows(true)
+            else window.updateText()
+        }
     }
 
     override val title: String?
@@ -171,6 +172,7 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
                 TextDisplaySettings.Types.BOOKMARKS -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
+                TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
                 else -> null
             }
             return if(id != null) mainBibleActivity.getString(id) else null
@@ -262,7 +264,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
 }
 
 
-class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
+class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS, requiresReload = false) {
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ColorSettingsActivity::class.java)
@@ -272,7 +274,7 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
     }
 }
 
-class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE) {
+class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE, requiresReload = false) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal)

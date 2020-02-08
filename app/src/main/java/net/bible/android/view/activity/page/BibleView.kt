@@ -299,23 +299,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
 
-            val colors = window.pageManager.actualTextDisplaySettings.colors!!
-            val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
-            val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
-            val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
-            val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
-            val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
-
             val settingsString = "{jumpToChapterVerse: $jumpId, " +
                 "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
                 "toolBarOffset: $toolbarOffset," +
-                "displaySettings: {" +
-                    "marginLeft: $marginLeft," +
-                    "marginRight: $marginRight," +
-                    "textColor: '$textColorStr'," +
-                    "noiseOpacity: $noise" +
-                    "}" +
-                "}"
+                "displaySettings: $displaySettingsJson}"
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestHtml = finalHtml
@@ -332,13 +319,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun updateTextDisplaySettings() {
         updateBackgroundColor()
         applyFontSize()
+        executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
+    }
+
+    private val displaySettingsJson: String get() {
         val colors = window.pageManager.actualTextDisplaySettings.colors!!
         val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
         val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
         val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
         val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+        val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
         val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
-        executeJavascriptOnUiThread("setDisplaySettings({marginLeft: $marginLeft, marginRight: $marginRight, textColor: '$textColorStr', noiseOpacity: $noise, reCalc: true});")
+
+        return "{marginLeft: $marginLeft, " +
+            "marginRight: $marginRight, " +
+            "textColor: '$textColorStr', " +
+            "noiseOpacity: $noise, " +
+            "justifyText: $justifyText, " +
+            "reCalc: true}"
     }
 
     private fun loadHtml() {

@@ -95,7 +95,11 @@
             android:title="@string/prefs_verse_per_line_title"
             android:summary="@string/prefs_verse_per_line_summary"
             />
-
+        <SwitchPreference
+            android:key="JUSTIFY"
+            android:title="@string/prefs_justify_title"
+            android:summary="@string/prefs_justify_summary"
+            />
     </PreferenceCategory>
     <Preference
         android:key="apply_to_all_workspaces"

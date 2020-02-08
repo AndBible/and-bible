@@ -87,13 +87,15 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpacity, reCalc = false} = {}) {
-    const contentDiv = $("#content")
+export function setDisplaySettings({marginLeft, marginRight, textColor, noiseOpacity, justifyText, reCalc = false} = {}) {
+    console.log(`JustifyText ${justifyText}`);
+    $("#content")
         .css('margin-left', `${marginLeft}mm`)
         .css('margin-right', `${marginRight}mm`);
     $("body")
         .css("--text-color", textColor)
-        .css("--noise-opacity", noiseOpacity/100);
+        .css("--noise-opacity", noiseOpacity/100)
+        .css("--text-align", justifyText? "justify" : "left");
     console.log("noiseOpacity", noiseOpacity/100);
     if(reCalc) {
         registerVersePositions()

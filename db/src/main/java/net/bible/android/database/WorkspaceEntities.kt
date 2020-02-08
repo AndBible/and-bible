@@ -124,12 +124,13 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showVerseNumbers: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showVersePerLine: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null
+        @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null
     ) {
         enum class Types {
             STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES,
             VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
-            FONTSIZE, MARGINSIZE, COLORS
+            FONTSIZE, MARGINSIZE, COLORS, JUSTIFY
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -145,6 +146,7 @@ class WorkspaceEntities {
             Types.FONTSIZE -> fontSize
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
+            Types.JUSTIFY -> justifyText
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -161,6 +163,7 @@ class WorkspaceEntities {
                 Types.FONTSIZE -> fontSize = value as Int?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
+                Types.JUSTIFY -> justifyText = value as Boolean?
             }
         }
 
@@ -199,7 +202,8 @@ class WorkspaceEntities {
                 showVerseNumbers = true,
                 showVersePerLine = false,
                 showBookmarks = true,
-                showMyNotes = true
+                showMyNotes = true,
+                justifyText = true
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -225,7 +229,8 @@ class WorkspaceEntities {
                         showVerseNumbers = pg?.showVerseNumbers ?: ws.showVerseNumbers ?: def.showVerseNumbers,
                         showVersePerLine = pg?.showVersePerLine ?: ws.showVersePerLine ?: def.showVersePerLine,
                         showBookmarks = pg?.showBookmarks ?: ws.showBookmarks ?: def.showBookmarks,
-                        showMyNotes = pg?.showMyNotes ?: ws.showMyNotes ?: def.showMyNotes
+                        showMyNotes = pg?.showMyNotes ?: ws.showMyNotes ?: def.showMyNotes,
+                        justifyText = pg?.justifyText ?: ws.justifyText ?: def.justifyText
                     )
             }
         }

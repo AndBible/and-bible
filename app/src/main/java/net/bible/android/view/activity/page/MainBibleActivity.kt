@@ -1167,6 +1167,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
                     windowRepository.updateVisibleWindowsTextDisplaySettings()
                 }
+                resetSystemUi()
                 invalidateOptionsMenu()
             }
             TEXT_DISPLAY_SETTINGS_CHANGED -> {
@@ -1209,6 +1210,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
                 invalidateOptionsMenu()
+                resetSystemUi()
                 return
             }
             STD_REQUEST_CODE -> {

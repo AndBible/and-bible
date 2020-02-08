@@ -8,20 +8,16 @@ body {
 	padding-bottom: 100vh;
 	padding-left: 2vw;
 	padding-right: 2vw;
-	max-width: 17cm;
 
     display: block;
     position: relative;
     --noise-opacity: 0.0;
     --text-color: #000000;
+    --text-width: 170mm;
+    --text-align: justify;
     color: var(--text-color);
-
-
-	/*hyphens: auto;
-	-webkit-hyphens: auto; */
-	/*text-align: justify;*/
+    text-align: center;
 }
-
 
 body:after {
     content: "";
@@ -33,6 +29,13 @@ body:after {
     left: 0;
     bottom: 0;
     right: 0;
+}
+
+div#content {
+	max-width: var(--text-width);
+	display: inline-block;
+	text-align: var(--text-align);
+	hyphens: auto;
 }
 
 h1, .heading1 {

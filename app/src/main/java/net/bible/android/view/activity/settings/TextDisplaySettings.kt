@@ -119,6 +119,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.FONTSIZE -> FontSizePreference(settings)
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
+        Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
