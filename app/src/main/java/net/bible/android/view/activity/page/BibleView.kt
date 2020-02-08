@@ -328,11 +328,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
         val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
         val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+        val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
         val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
         val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
 
         return "{marginLeft: $marginLeft, " +
             "marginRight: $marginRight, " +
+            "maxWidth: $maxWidth, " +
             "textColor: '$textColorStr', " +
             "noiseOpacity: $noise, " +
             "justifyText: $justifyText}"

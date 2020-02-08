@@ -89,7 +89,8 @@ class WorkspaceEntities {
     @Serializable
     data class MarginSize(
         @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
-        @ColumnInfo(defaultValue = "NULL") var marginRight: Int?
+        @ColumnInfo(defaultValue = "NULL") var marginRight: Int?,
+        @ColumnInfo(defaultValue = "NULL") var maxWidth: Int?
     )
 
     @Serializable
@@ -192,7 +193,8 @@ class WorkspaceEntities {
                 ),
                 marginSize = MarginSize(
                     marginLeft = 0,
-                    marginRight = 0
+                    marginRight = 0,
+                    maxWidth = 170
                 ),
                 showStrongs = false,
                 showMorphology = false,

@@ -187,8 +187,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
     <string name="prefs_margin_size_title">Change margin size</string>
-    <string name="prefs_margin_size_mm_title">Change margin size (%d/%d mm)</string>
-    <string name="margin_size_mm">Left: %d mm Right: %d mm</string>
+    <string name="prefs_margin_size_mm_title">Change margin size (%d/%d/%d mm)</string>
+    <string name="margin_size_mm">Margins left / right %d mm / %d mm, Max text width: %d mm</string>
     <string name="left_margin">Left margin</string>
     <string name="right_margin">Right margin</string>
     <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
@@ -197,7 +197,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
 
-    <string name="prefs_margin_size_summary">Adjust left and right margin of the text view</string>
+    <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
+        adjust maximum width of the text.
+    </string>
     <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
     <string name="text_display_settings_activity_title">Text display settings</string>
     <string name="workspace_text_display_settings_title">Workspace text option defaults</string>
@@ -612,4 +614,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
     <string name="prefs_justify_title">Justify-align text</string>
     <string name="prefs_justify_summary">Align text in \'justify\' style, meaning left and right margins of the text are in line</string>
+    <string name="pref_left_margin_label">Left margin</string>
+    <string name="pref_right_margin_label">Right margin</string>
+    <string name="pref_maximum_width_of_text_label">Maximum width of text</string>
 </resources>

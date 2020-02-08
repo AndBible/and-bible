@@ -49,6 +49,7 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
         inflater.inflate(R.layout.margin_size_widget, this, true)
         leftMargin.max = 100
         rightMargin.max = 100
+        maxWidth.max = 500
 
         leftMargin.setOnSeekBarChangeListener(createListener {
             value.marginLeft = it
@@ -59,12 +60,17 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
             value.marginRight = it
             updateValue()
         })
+        maxWidth.setOnSeekBarChangeListener(createListener {
+            value.maxWidth = it
+            updateValue()
+        })
     }
     
     fun updateValue() {
-        actualValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight)
+        actualValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight, value.maxWidth)
         leftMargin.progress = value.marginLeft!!
         rightMargin.progress = value.marginRight!!
+        maxWidth.progress = value.maxWidth!!
     }
     
     companion object {

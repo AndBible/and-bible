@@ -277,7 +277,8 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE, requiresReload = false) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal)
+    private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth!!
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         MarginSizeWidget.changeMarginSize(activity, value as WorkspaceEntities.MarginSize,

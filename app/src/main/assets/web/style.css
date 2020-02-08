@@ -13,7 +13,7 @@ body {
     position: relative;
     --noise-opacity: 0.0;
     --text-color: #000000;
-    --text-width: 170mm;
+    --max-width: 170mm;
     --text-align: justify;
     color: var(--text-color);
     text-align: center;
@@ -32,7 +32,7 @@ body:after {
 }
 
 div#content {
-	max-width: var(--text-width);
+	max-width: var(--max-width);
 	display: inline-block;
 	text-align: var(--text-align);
 	hyphens: auto;

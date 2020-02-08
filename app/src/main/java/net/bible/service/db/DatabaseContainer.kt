@@ -223,7 +223,7 @@ private val MIGRATION_15_16 = object : Migration(15, 16) {
 private val MIGRATION_16_17 = object : Migration(16, 17) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
-            val colDefs = "`text_display_settings_justifyText` INTEGER DEFAULT NULL".split(",")
+            val colDefs = "`text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL ".split(",")
             colDefs.forEach {
                 execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
                 execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
