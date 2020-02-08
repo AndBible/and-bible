@@ -277,6 +277,7 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE, requiresReload = false) {
     private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
     private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
+    // I added this field later (migration 15..16) so to prevent crashes because of null values, need to have this.
     private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth ?: defaultVal.maxWidth!!
     private val defaultVal = TextDisplaySettings.default.marginSize!!
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
