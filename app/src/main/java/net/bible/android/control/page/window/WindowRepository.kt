@@ -48,6 +48,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>
 )
 {
+    val lastMaximizedAndSyncWindow: Window? get() = getWindow(lastMaximizedAndSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
     private var busyCount: Int = 0
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
@@ -121,7 +122,7 @@ open class WindowRepository @Inject constructor(
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
-    var lastMaximizedAndSync: Window? = null
+    var lastMaximizedAndSyncWindowId: Long? = null
 
 
     lateinit var dedicatedLinksWindow: LinksWindow
@@ -357,6 +358,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        lastMaximizedAndSyncWindowId = null
         windowList.forEach {
             it.bibleView?.listenEvents = false
             if(destroy)

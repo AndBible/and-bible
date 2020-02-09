@@ -66,9 +66,9 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
         // if maximized mode and current active window is not in sync, then get previous window that was in sync
         val sourceWindow: Window = sourceWindow_ ?:
-            if (windowRepository.isMaximisedState && windowRepository.lastMaximizedAndSync != null
+            if (windowRepository.isMaximisedState && windowRepository.lastMaximizedAndSyncWindowId != null
                 && !windowRepository.activeWindow.isSynchronised)
-                windowRepository.lastMaximizedAndSync!!
+                windowRepository.lastMaximizedAndSyncWindow!!
             else windowRepository.activeWindow
 
         val activePage = sourceWindow.pageManager.currentPage

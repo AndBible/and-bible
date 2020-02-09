@@ -273,10 +273,11 @@ open class WindowControl @Inject constructor(
         windowSync.reloadAllWindows()
 
         if (switchingMaximised) {
-            if (activeWindow.isSynchronised) windowRepository.lastMaximizedAndSync =  activeWindow
+            if (activeWindow.isSynchronised)
+                windowRepository.lastMaximizedAndSyncWindowId =  activeWindow.id
             activeWindow = window
         } else
-            windowRepository.lastMaximizedAndSync = null
+            windowRepository.lastMaximizedAndSyncWindowId = null
 
         window.restoreOngoing = false
     }
