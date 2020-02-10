@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -45,7 +44,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
-import net.bible.android.view.activity.page.FontSizePreference
+import net.bible.android.view.activity.page.FontPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
@@ -116,7 +115,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
 
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
-        Types.FONTSIZE -> FontSizePreference(settings)
+        Types.FONT -> FontPreference(settings)
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)

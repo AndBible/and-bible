@@ -2,7 +2,6 @@
 */
 
 body {
-	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
 	margin: auto;
 	padding-bottom: 100vh;
@@ -15,6 +14,8 @@ body {
     --text-color: #000000;
     --max-width: 170mm;
     --text-align: justify;
+    --line-spacing: 1em;
+	line-height: var(--line-spacing);
     color: var(--text-color);
     text-align: center;
 }
@@ -89,7 +90,7 @@ h1 a, .heading2, .heading3, .heading4 {
 	color: Gray;
 	vertical-align: top;
 	font-size: 0.7em;
-	line-height: 1.6em; /* need line-height repeated here because otherwise the verse no drops to the bottom */
+	line-height: var(--line-spacing);
 }
 .noteRef {
 	color: Green;

@@ -105,7 +105,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     override fun applyPreferenceSettings() {
         updateBackgroundColor()
 
-        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.fontSize!!
+        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font!!.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 

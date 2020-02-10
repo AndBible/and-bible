@@ -26,18 +26,20 @@ import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.text_size_widget.view.*
 import net.bible.android.activity.R
+import net.bible.android.database.WorkspaceEntities
 
-class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet) 
+class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet)
 {
-    var value = 0
+    var value = WorkspaceEntities.TextDisplaySettings.default.font!!
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.text_size_widget, this, true)
         dialogMessage.setText(R.string.prefs_text_size_sample_text)
-        myBar.max = 60
-        myBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+        fontSizeSlider.max = 60
+        fontSizeSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                updateValue(progress)
+                value.fontSize = progress
+                updateValue()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
@@ -46,22 +48,39 @@ class TextSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayout
             }
 
         })
-        updateValue(myBar.progress)
+        lineSpacing.max = 200
+        lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                value.lineSpacing = progress + 100
+                updateValue()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+        })
     }
     
-    fun updateValue(value: Int) {
-        dialogMessage.textSize = value.toFloat()
-        actualValue.text = context.getString(R.string.font_size_pt, value)
-        myBar.progress = value
-        this.value = value
+    fun updateValue() {
+        val fontSize = value.fontSize!!
+        val lineSpacingVal = value.lineSpacing!!
+        dialogMessage.textSize = fontSize.toFloat()
+        fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
+        lineSpacingValue.text = context.getString(R.string.line_spacing_pt, lineSpacingVal / 100.0)
+        lineSpacing.progress = lineSpacingVal - 100
+        fontSizeSlider.progress = fontSize
+
     }
     
     companion object {
-        fun changeTextSize(context: Context, value: Int, resetCallback: (() -> Unit)? = null, callback: (value: Int) -> Unit) {
+        fun changeFont(context: Context, value: WorkspaceEntities.Font, resetCallback: (() -> Unit)? = null, callback: (value: WorkspaceEntities.Font) -> Unit) {
             AlertDialog.Builder(context).apply{
                 val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val layout = inflater.inflate(R.layout.text_size, null) as TextSizeWidget
-                layout.updateValue(value)
+                val layout = inflater.inflate(R.layout.text_size, null) as FontWidget
+                layout.value = value
+                layout.updateValue()
                 setTitle(R.string.prefs_text_size_title)
                 setView(layout)
                 setPositiveButton(R.string.okay) { dialog, which ->

@@ -126,7 +126,7 @@ open class PageControl @Inject constructor(
     /** font size may be adjusted for certain fonts e.g. SBLGNT
      */
     fun getDocumentFontSize(window: Window): Int { // get base font size
-        val fontSize = window.pageManager.actualTextDisplaySettings.fontSize!!
+        val fontSize = window.pageManager.actualTextDisplaySettings.font!!.fontSize!!
         // if book has a special font it may require an adjusted font size
         val book = window.pageManager.currentPage.currentDocument
         val font = FontControl.getInstance().getFontForBook(book)

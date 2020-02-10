@@ -94,6 +94,13 @@ class WorkspaceEntities {
     )
 
     @Serializable
+    data class Font(
+        @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
+        @ColumnInfo(defaultValue = "NULL") var fontType: String?,
+        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int?
+    )
+
+    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -114,7 +121,7 @@ class WorkspaceEntities {
 
     @Serializable
     data class TextDisplaySettings(
-        @ColumnInfo(defaultValue = "NULL") var fontSize: Int? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "fontSize") var deprecatedFontSize: Int? = null, // TODO: remove
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
@@ -126,12 +133,13 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showVersePerLine: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null
+        @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
+        @Embedded(prefix="font_") var font: Font? = null
     ) {
         enum class Types {
             STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES,
             VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
-            FONTSIZE, MARGINSIZE, COLORS, JUSTIFY
+            MARGINSIZE, COLORS, JUSTIFY, FONT
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -144,10 +152,10 @@ class WorkspaceEntities {
             Types.VERSEPERLINE -> showVersePerLine
             Types.BOOKMARKS -> showBookmarks
             Types.MYNOTES -> showMyNotes
-            Types.FONTSIZE -> fontSize
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
+            Types.FONT -> font?.copy()
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -161,10 +169,10 @@ class WorkspaceEntities {
                 Types.VERSEPERLINE -> showVersePerLine = value as Boolean?
                 Types.BOOKMARKS -> showBookmarks = value as Boolean?
                 Types.MYNOTES -> showMyNotes = value as Boolean?
-                Types.FONTSIZE -> fontSize = value as Int?
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
+                Types.FONT -> font = value as Font?
             }
         }
 
@@ -182,7 +190,6 @@ class WorkspaceEntities {
             }
 
             val default get() = TextDisplaySettings(
-                fontSize = 16,
                 colors = Colors(
                     dayBackground = null,
                     dayTextColor = null,
@@ -195,6 +202,11 @@ class WorkspaceEntities {
                     marginLeft = 0,
                     marginRight = 0,
                     maxWidth = 170
+                ),
+                font = Font(
+                    fontSize = 16,
+                    fontType = "times",
+                    lineSpacing = 160
                 ),
                 showStrongs = false,
                 showMorphology = false,
@@ -220,7 +232,6 @@ class WorkspaceEntities {
                     val ws = workspaceSettings
                     val def = default
                     return TextDisplaySettings(
-                        fontSize = pg?.fontSize ?: ws.fontSize ?: def.fontSize,
                         marginSize = pg?.marginSize ?: ws.marginSize ?: def.marginSize,
                         colors = pg?.colors ?: ws.colors ?: def.colors,
                         showStrongs = pg?.showStrongs ?: ws.showStrongs ?: def.showStrongs,
@@ -232,7 +243,8 @@ class WorkspaceEntities {
                         showVersePerLine = pg?.showVersePerLine ?: ws.showVersePerLine ?: def.showVersePerLine,
                         showBookmarks = pg?.showBookmarks ?: ws.showBookmarks ?: def.showBookmarks,
                         showMyNotes = pg?.showMyNotes ?: ws.showMyNotes ?: def.showMyNotes,
-                        justifyText = pg?.justifyText ?: ws.justifyText ?: def.justifyText
+                        justifyText = pg?.justifyText ?: ws.justifyText ?: def.justifyText,
+                        font = pg?.font ?: ws.font ?: def.font
                     )
             }
         }

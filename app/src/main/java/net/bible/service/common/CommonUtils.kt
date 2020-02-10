@@ -33,6 +33,7 @@ import android.preference.PreferenceManager
 
 import android.util.Log
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
@@ -463,7 +464,11 @@ object CommonUtils {
         val lastDisplaySettingsString = sharedPreferences.getString("lastDisplaySettings", null)
         var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
         if(lastDisplaySettingsString!= null) {
-            lastTypes = LastTypesSerializer.fromJson(lastDisplaySettingsString).types
+            try {
+                lastTypes = LastTypesSerializer.fromJson(lastDisplaySettingsString).types
+            } catch (e: SerializationException) {
+                Log.e(TAG, "Could not deserialize $lastDisplaySettingsString")
+            }
         }
         return lastTypes
     }

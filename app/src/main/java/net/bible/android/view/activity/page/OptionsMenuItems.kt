@@ -30,7 +30,7 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_C
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.MarginSizeWidget
-import net.bible.android.view.util.widget.TextSizeWidget
+import net.bible.android.view.util.widget.FontWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
@@ -250,11 +250,11 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
         }
 }
 
-class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, value as Int)
+class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONT) {
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, (value as WorkspaceEntities.Font).fontSize)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        TextSizeWidget.changeTextSize(activity, value as Int, onReset) {
+        FontWidget.changeFont(activity, value as WorkspaceEntities.Font, onReset) {
             value = it
             onChanged?.invoke(it)
         }

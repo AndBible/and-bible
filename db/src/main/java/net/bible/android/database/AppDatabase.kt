@@ -24,7 +24,7 @@ import androidx.room.TypeConverters
 
 import java.util.*
 
-const val DATABASE_VERSION = 17
+const val DATABASE_VERSION = 18
 
 class Converters {
     @TypeConverter

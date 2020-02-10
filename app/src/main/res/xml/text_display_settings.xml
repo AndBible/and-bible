@@ -73,7 +73,7 @@
             />
 
         <Preference
-            android:key="FONTSIZE"
+            android:key="FONT"
             android:title="@string/prefs_text_size_title"
             android:summary="@string/prefs_text_size_summary"
             />
