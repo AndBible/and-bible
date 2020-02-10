@@ -175,15 +175,22 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         var returnValue = true
         val prefItem = getPrefItem(settingsBundle, preference.key)
         val type = try {Types.valueOf(preference.key)} catch (e: IllegalArgumentException) { null }
+        val activity = activity as TextDisplaySettingsActivity
         val resetFunc = {
-            prefItem.setNonSpecific()
+            if(prefItem is ItemPreference) {
+                if (settingsBundle.windowId != null) {
+                    prefItem.setNonSpecific()
+                } else {
+                    prefItem.value = TextDisplaySettings.default.getValue(prefItem.type)!!
+                }
+                activity.setDirty(prefItem.type, prefItem.requiresReload)
+            }
             updateItem(preference)
         }
-        val activity = activity as TextDisplaySettingsActivity
         val handled = prefItem.openDialog(activity, {
             updateItem(preference)
             if(type != null)
-                activity.setDirty(type)
+                activity.setDirty(type, prefItem.requiresReload)
         }, resetFunc)
 
         if(!handled) {

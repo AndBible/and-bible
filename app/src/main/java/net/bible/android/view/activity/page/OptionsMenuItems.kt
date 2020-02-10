@@ -254,8 +254,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, value as Int)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        TextSizeWidget.changeTextSize(activity, value as Int,
-            if(settings.windowId != null) onReset else null) {
+        TextSizeWidget.changeTextSize(activity, value as Int, onReset) {
             value = it
             onChanged?.invoke(it)
         }

@@ -686,10 +686,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 if(itemOptions is Preference) {
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
                 }
-                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                if(itemOptions.requiresReload) {
+                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateVisibleWindowsTextDisplaySettings()
+                }
                 invalidateOptionsMenu()
             }
-            itemOptions.openDialog(this, {onReady()}, onReady)
+            val onReset = {
+                if(itemOptions is Preference) {
+                    itemOptions.value = TextDisplaySettings.default.getValue(itemOptions.type)!!
+                }
+                onReady()
+            }
+            itemOptions.openDialog(this, {onReady()}, onReset)
         }
     }
 
