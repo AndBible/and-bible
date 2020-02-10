@@ -19,11 +19,8 @@
 package net.bible.android.view.activity.settings
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import kotlinx.android.synthetic.main.settings_dialog.*
@@ -33,7 +30,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.util.locale.LocaleHelper
 
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
     val colors get() = activity.colors
@@ -83,8 +79,6 @@ class ColorSettingsActivity: ActivityBase() {
         dirty = false
         reset = false
 
-        CurrentActivityHolder.getInstance().currentActivity = this
-
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings_container, ColorSettingsFragment())
@@ -124,17 +118,6 @@ class ColorSettingsActivity: ActivityBase() {
         resultIntent.putExtra("colors", colors.toJson())
 
         setResult(Activity.RESULT_OK, resultIntent)
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.i(localClassName, "onStop")
-        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
     }
 }
 

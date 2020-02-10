@@ -231,9 +231,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
         requiresReload = false
         reset = false
 
-        CurrentActivityHolder.getInstance().currentActivity = this
-
-
         if(settingsBundle.windowId != null) {
             title = getString(R.string.window_text_display_settings_title)
         } else {
@@ -280,10 +277,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
         setResult(Activity.RESULT_OK, resultIntent)
     }
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             COLORS_CHANGED -> {
@@ -306,12 +299,5 @@ class TextDisplaySettingsActivity: ActivityBase() {
         }
 
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.i(localClassName, "onStop")
-        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
     }
 }

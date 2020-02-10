@@ -29,7 +29,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.BookmarkColorPreferenceDialog
 import net.bible.android.view.util.BookmarkColourPreference
-import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 
@@ -39,23 +38,10 @@ class SettingsActivity: ActivityBase() {
 		setContentView(R.layout.settings_activity)
 		super.buildActivityComponent().inject(this)
 
-		CurrentActivityHolder.getInstance().currentActivity = this
 		supportFragmentManager
 			.beginTransaction()
 			.replace(R.id.settings_container, SettingsFragment())
 			.commit()
-		LocaleHelper.translateTitle(this)
-	}
-
-	override fun attachBaseContext(newBase: Context) {
-		super.attachBaseContext(LocaleHelper.onAttach(newBase))
-	}
-
-	override fun onStop() {
-		super.onStop()
-		Log.i(localClassName, "onStop")
-		// call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-		CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this)
 	}
 }
 
