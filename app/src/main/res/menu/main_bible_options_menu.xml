@@ -5,6 +5,9 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
+	<item android:id="@+id/switchToWorkspace2"
+		android:title="@string/switch_to_workspace"
+		/>
     <item
 		android:id="@+id/workspacesSubMenu"
         android:title="@string/workspaces">

@@ -227,8 +227,8 @@ class WorkspaceEntities {
                 return actual(pg?: ws?: def, ws?: def)
             }
 
-            fun actual(pageManagerSettigns: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
-                    val pg = pageManagerSettigns
+            fun actual(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
+                    val pg = pageManagerSettings
                     val ws = workspaceSettings
                     val def = default
                     return TextDisplaySettings(
@@ -246,6 +246,18 @@ class WorkspaceEntities {
                         justifyText = pg?.justifyText ?: ws.justifyText ?: def.justifyText,
                         font = pg?.font ?: ws.font ?: def.font
                     )
+            }
+
+            fun markNonSpecific(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings) {
+                val pg = pageManagerSettings
+                val ws = workspaceSettings
+
+                if(pg == null) return
+                for(t in Types.values()) {
+                    if(pg.getValue(t) == ws.getValue(t)) {
+                        pg.setNonSpecific(t)
+                    }
+                }
             }
         }
     }
@@ -266,6 +278,7 @@ class WorkspaceEntities {
     data class Workspace(
         val name: String,
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
         @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()

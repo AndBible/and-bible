@@ -48,6 +48,7 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>
 )
 {
+    var orderNumber: Int = 0
     val lastMaximizedAndSyncWindow: Window? get() = getWindow(lastMaximizedAndSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
     private var busyCount: Int = 0
@@ -286,7 +287,7 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id, textDisplaySettings, windowBehaviorSettings))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id, orderNumber, textDisplaySettings, windowBehaviorSettings))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
@@ -317,13 +318,14 @@ open class WindowRepository @Inject constructor(
      */
 
     fun loadFromDb(workspaceId: Long) {
-        Log.d(TAG, "onLoadDb ${workspaceId}")
+        Log.d(TAG, "onLoadDb $workspaceId")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
             }
         clear()
 
+        orderNumber = entity.orderNumber
         id = entity.id
         name = entity.name
 
@@ -341,15 +343,15 @@ open class WindowRepository @Inject constructor(
 
         if(!::dedicatedLinksWindow.isInitialized) {
             val pageManager = currentPageManagerProvider.get()
-            pageManager.restoreFrom(linksPageManagerEntity)
+            pageManager.restoreFrom(linksPageManagerEntity, textDisplaySettings)
             dedicatedLinksWindow = LinksWindow(linksWindowEntity, pageManager, this)
         } else {
-            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity)
+            dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity, textDisplaySettings)
         }
         val historyManager = historyManagerProvider.get()
         dao.windows(id).forEach {
             val pageManager = currentPageManagerProvider.get()
-            pageManager.restoreFrom(dao.pageManager(it.id))
+            pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
             val window = Window(it, pageManager, this)
             windowList.add(window)
             historyManager.restoreFrom(window, dao.historyItems(it.id))
@@ -358,6 +360,8 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        orderNumber = 0
+        id = 0
         lastMaximizedAndSyncWindowId = null
         windowList.forEach {
             it.bibleView?.listenEvents = false

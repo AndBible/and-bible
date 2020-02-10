@@ -226,7 +226,7 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings
         )
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings) {
         pageManagerEntity ?: return
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
         // currentBibleVerse is stored in biblePage. We need to load it last, so that versification is set up correctly.
@@ -235,7 +235,9 @@ open class CurrentPageManager @Inject constructor(
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
-        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
+        val settings = pageManagerEntity.textDisplaySettings
+        WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+        textDisplaySettings = settings?: WorkspaceEntities.TextDisplaySettings()
         currentPage = getBookPage(restoredBookCategory)
     }
 
