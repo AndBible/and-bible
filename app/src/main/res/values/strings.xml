@@ -619,4 +619,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="pref_maximum_width_of_text_label">Maximum width of text</string>
     <string name="pref_line_spacing_label">Line spacing</string>
     <string name="line_spacing_pt">Line spacing %1.1fx</string>
+    <string name="pref_font_family_label">Font family</string>
 </resources>

@@ -177,11 +177,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val activity = activity as TextDisplaySettingsActivity
         val resetFunc = {
             if(prefItem is ItemPreference) {
-                if (settingsBundle.windowId != null) {
-                    prefItem.setNonSpecific()
-                } else {
-                    prefItem.value = TextDisplaySettings.default.getValue(prefItem.type)!!
-                }
+                prefItem.setNonSpecific()
                 activity.setDirty(prefItem.type, prefItem.requiresReload)
             }
             updateItem(preference)
@@ -296,11 +292,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
                 val reset = extras.getBoolean("reset")
                 val prefItem = getPrefItem(settingsBundle, Types.COLORS)
                 if(reset) {
-                    if(settingsBundle.windowId != null) {
-                        prefItem.setNonSpecific()
-                    } else {
-                        prefItem.value = TextDisplaySettings.default.getValue(Types.COLORS)!!
-                    }
+                    prefItem.setNonSpecific()
                     setDirty(Types.COLORS)
                     fragment.updateItems()
                 }

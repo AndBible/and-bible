@@ -126,7 +126,11 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
         }
 
     override fun setNonSpecific() {
-        pageManagerSettings?.setNonSpecific(type)
+        if(window != null) {
+            pageManagerSettings?.setNonSpecific(type)
+        } else {
+            workspaceSettings.setValue(type, TextDisplaySettings.default.getValue(type))
+        }
     }
 
     override var value
@@ -254,7 +258,10 @@ class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplay
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, (value as WorkspaceEntities.Font).fontSize)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontWidget.changeFont(activity, value as WorkspaceEntities.Font, onReset) {
+        FontWidget.changeFont(activity, value as WorkspaceEntities.Font, {
+            setNonSpecific()
+            onReset?.invoke()
+        }) {
             value = it
             onChanged?.invoke(it)
         }

@@ -74,6 +74,11 @@ class BackupControl @Inject constructor() {
 		callingActivity.startActivity(chooserIntent)
     }
 
+    fun resetDatabase() {
+        val f = File(internalDbDir, DATABASE_NAME)
+        f.delete()
+    }
+
     /** backup database from custom source
      */
     fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {

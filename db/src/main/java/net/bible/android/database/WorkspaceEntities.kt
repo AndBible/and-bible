@@ -96,7 +96,7 @@ class WorkspaceEntities {
     @Serializable
     data class Font(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
-        @ColumnInfo(defaultValue = "NULL") var fontType: String?,
+        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?,
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int?
     )
 
@@ -205,7 +205,7 @@ class WorkspaceEntities {
                 ),
                 font = Font(
                     fontSize = 16,
-                    fontType = "times",
+                    fontFamily = "sans-serif",
                     lineSpacing = 160
                 ),
                 showStrongs = false,

@@ -237,6 +237,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val fontSize = pageControl.getDocumentFontSize(window)
         val oldFontSize = settings.defaultFontSize
         settings.defaultFontSize = fontSize
+        settings.standardFontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
         if(oldFontSize != fontSize) {
             doCheckWindows()
         }

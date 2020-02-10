@@ -19,14 +19,59 @@
 package net.bible.android.view.util.widget
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.text_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+
+
+val availableFonts = arrayOf(
+    "sans-serif-thin",
+    "sans-serif-light",
+    "sans-serif",
+    "sans-serif-medium",
+    "sans-serif-black",
+    "sans-serif-condensed-light",
+    "sans-serif-condensed",
+    "sans-serif-condensed-medium",
+    "sans-serif-condensed",
+    "serif",
+    "monospace",
+    "serif-monospace",
+    "casual",
+    "cursive",
+    "sans-serif-smallcaps"
+)
+
+
+class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<String>) :
+    ArrayAdapter<String>(context, resource, fontTypes) {
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view = super.getView(position, convertView, parent) as TextView
+        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
+        view.typeface = tf
+        return view
+    }
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view = super.getDropDownView(position, convertView, parent) as TextView
+        val tf = Typeface.create(fontTypes[position], Typeface.NORMAL)
+        view.typeface = tf
+        return view
+
+    }
+}
 
 class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet)
 {
@@ -35,6 +80,20 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.text_size_widget, this, true)
         dialogMessage.setText(R.string.prefs_text_size_sample_text)
+
+        val adapter = FontAdapter(context, R.layout.fontfamily_list_item, availableFonts)
+        fontFamily.adapter = adapter
+
+        fontFamily.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                fontFamily.setSelection(0)
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                value.fontFamily = availableFonts[position]
+                updateValue()
+            }
+        }
         fontSizeSlider.max = 60
         fontSizeSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -66,11 +125,15 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
     fun updateValue() {
         val fontSize = value.fontSize!!
         val lineSpacingVal = value.lineSpacing!!
+        val fontFamilyVal = value.fontFamily!!
         dialogMessage.textSize = fontSize.toFloat()
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
+        val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
+        dialogMessage.typeface = tf
         lineSpacingValue.text = context.getString(R.string.line_spacing_pt, lineSpacingVal / 100.0)
         lineSpacing.progress = lineSpacingVal - 100
         fontSizeSlider.progress = fontSize
+        fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
 
     }
     

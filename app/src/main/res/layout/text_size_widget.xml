@@ -42,6 +42,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/SmallGreyText"
+            android:text="@string/pref_font_family_label" />
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/fontFamily"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/SmallGreyText"
             android:text="@string/pref_line_spacing_label" />
 
         <SeekBar android:id="@+id/lineSpacing"
