@@ -212,7 +212,7 @@ class WorkspaceEntities {
                 font = Font(
                     fontSize = 16,
                     fontFamily = "sans-serif",
-                    lineSpacing = 160
+                    lineSpacing = 16
                 ),
                 showStrongs = false,
                 showMorphology = false,
