@@ -47,8 +47,8 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet): LinearLayo
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.margin_size_widget, this, true)
-        leftMargin.max = 100
-        rightMargin.max = 100
+        leftMargin.max = 30
+        rightMargin.max = 30
         maxWidth.max = 500
 
         leftMargin.setOnSeekBarChangeListener(createListener {
