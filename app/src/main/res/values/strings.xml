@@ -620,4 +620,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="pref_line_spacing_label">Line spacing</string>
     <string name="line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="apply_to_all_workspaces">Do you want to apply these settings to all workspaces?</string>
 </resources>

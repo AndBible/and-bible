@@ -184,6 +184,12 @@ class WorkspaceEntities {
             return json.stringify(serializer(), this)
         }
 
+        fun copyFrom(textDisplaySettings: TextDisplaySettings) {
+            for(t in Types.values()) {
+                setValue(t, textDisplaySettings.getValue(t))
+            }
+        }
+
         companion object {
             fun fromJson(jsonString: String): TextDisplaySettings {
                 return json.parse(serializer(), jsonString)
