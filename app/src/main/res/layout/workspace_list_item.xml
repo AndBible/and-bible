@@ -17,34 +17,48 @@
   ~
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/selectable_background"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/selectable_background">
     <LinearLayout
-        android:id="@+id/layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:mode="twoLine"
-        android:padding="16dp"
+        android:orientation="horizontal"
         >
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:padding="10dp"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/ic_library_books_black_24dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceListItem"
+            android:orientation="vertical"
+            android:mode="twoLine"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
             >
-        </TextView>
-        <TextView
-            android:id="@+id/summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceSmall"
-            >
-        </TextView>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceListItem"
+                >
+            </TextView>
+            <TextView
+                android:id="@+id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceSmall"
+                >
+            </TextView>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
 

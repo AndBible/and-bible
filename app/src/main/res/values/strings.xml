@@ -582,7 +582,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- Workspaces -->
     <string name="workspaces">Workspaces</string>
-    <string name="new_workspace">New workspace</string>
+    <string name="new_workspace">New</string>
     <string name="switch_to_workspace">Switch to workspace…</string>
     <string name="delete_workspace">Delete this workspace</string>
     <string name="choose_workspace_to_open">Choose workspace to open</string>

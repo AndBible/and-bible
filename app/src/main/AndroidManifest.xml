@@ -161,7 +161,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:launchMode="singleTask"
             android:label="@string/workspace_selector_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog.MinWidth"
