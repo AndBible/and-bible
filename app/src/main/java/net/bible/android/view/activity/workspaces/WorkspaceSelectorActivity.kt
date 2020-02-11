@@ -19,15 +19,17 @@
 package net.bible.android.view.activity.workspaces
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.selection.ItemDetailsLookup
@@ -74,7 +76,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         summary.text = "test ${position}"
 
         layout.setOnClickListener {
-            activity.workspaceClicked(holder.itemId)
+            activity.goToWorkspace(holder.itemId)
         }
         layout.setOnLongClickListener {true}
 
@@ -179,6 +181,30 @@ class WorkspaceSelectorActivity: ActivityBase() {
         )
             .withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
             .build()
+        newWorkspace.setOnClickListener {
+            val name = EditText(this)
+            name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
+            name.requestFocus()
+            AlertDialog.Builder(this)
+                .setPositiveButton(R.string.okay) {d,_ ->
+                    val windowRepository = windowControl.windowRepository
+                    windowRepository.saveIntoDb()
+                    val newWorkspaceEntity = WorkspaceEntities.Workspace(
+                        name.text.toString(), 0,
+                        windowRepository.orderNumber,
+                        windowRepository.textDisplaySettings,
+                        windowRepository.windowBehaviorSettings
+                    ).apply {
+                        id = dao.insertWorkspace(this)
+                    }
+                    goToWorkspace(newWorkspaceEntity.id)
+                }
+                .setView(name)
+                .setNegativeButton(R.string.cancel, null)
+                .setTitle(getString(R.string.give_name_workspace))
+                .create()
+                .show()
+        }
 
 
         tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
@@ -255,7 +281,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun workspaceClicked(itemId: Long) {
+    fun goToWorkspace(itemId: Long) {
         dao.updateWorkspaces(workspaceAdapter.items)
         resultIntent.putExtra("workspaceId", itemId)
         setResult(Activity.RESULT_OK, resultIntent)
