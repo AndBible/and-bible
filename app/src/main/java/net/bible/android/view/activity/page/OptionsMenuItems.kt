@@ -255,7 +255,7 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONT) {
-    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title, (value as WorkspaceEntities.Font).fontSize)
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         FontWidget.changeFont(activity, value as WorkspaceEntities.Font, {

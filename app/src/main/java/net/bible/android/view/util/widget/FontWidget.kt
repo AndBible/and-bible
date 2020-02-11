@@ -107,10 +107,10 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
             }
 
         })
-        lineSpacing.max = 200
+        lineSpacing.max = 20
         lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                value.lineSpacing = progress + 100
+                value.lineSpacing = progress + 10
                 updateValue()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -130,8 +130,8 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
         val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
         dialogMessage.typeface = tf
-        lineSpacingValue.text = context.getString(R.string.line_spacing_pt, lineSpacingVal / 100.0)
-        lineSpacing.progress = lineSpacingVal - 100
+        lineSpacingValue.text = context.getString(R.string.line_spacing_pt, lineSpacingVal / 10.0)
+        lineSpacing.progress = lineSpacingVal - 10
         fontSizeSlider.progress = fontSize
         fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
 

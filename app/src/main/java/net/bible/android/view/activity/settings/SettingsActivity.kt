@@ -17,7 +17,6 @@
  */
 package net.bible.android.view.activity.settings
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.preference.ListPreference
@@ -25,7 +24,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.BookmarkColorPreferenceDialog
 import net.bible.android.view.util.BookmarkColourPreference

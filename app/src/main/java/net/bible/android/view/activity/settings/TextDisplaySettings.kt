@@ -20,10 +20,8 @@ package net.bible.android.view.activity.settings
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
@@ -41,7 +39,6 @@ import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontPreference
@@ -50,7 +47,6 @@ import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
-import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.db.DatabaseContainer
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
@@ -86,18 +82,33 @@ fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface
     catch (e: IllegalArgumentException) {
         return when(key) {
             "apply_to_all_workspaces" -> CommandPreference({activity, onChanged, onReset ->
-                AlertDialog.Builder(activity)
-                    .setTitle("Are you sure?")
-                    .setMessage("Do you want to apply these settings to all workspaces?")
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        val dao = DatabaseContainer.db.workspaceDao()
-                        dao.applyTextToDisplaySettingsToAllWorkspaces(settings.actualSettings)
-                        onChanged?.invoke(true)
-                        activity.finish()
-                    }
-                    .setNegativeButton(R.string.no, null)
-                    .show()
-            }, visible = settings.windowId == null)
+                if(settings.windowId == null) {
+                    AlertDialog.Builder(activity)
+                        .setTitle(activity.getString(R.string.are_you_sure))
+                        .setMessage(activity.getString(R.string.apply_to_all_workspaces))
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            val dao = DatabaseContainer.db.workspaceDao()
+                            dao.applyTextToDisplaySettingsToAllWorkspaces(settings.actualSettings)
+                            onChanged?.invoke(true)
+                            activity.finish()
+                        }
+                        .setNegativeButton(R.string.no, null)
+                        .show()
+                }
+
+//                else {
+//                    AlertDialog.Builder(activity)
+//                        .setTitle(activity.getString(R.string.are_you_sure))
+//                        .setMessage("Do you want to apply these settings to the workspace?")
+//                        .setPositiveButton(R.string.yes) { _, _ ->
+//                            settings.workspaceSettings.copyFrom(settings.actualSettings)
+//                            onChanged?.invoke(true)
+//                            activity.finish()
+//                        }
+//                        .setNegativeButton(R.string.no, null)
+//                        .show()
+//                }
+            }, requiresReload = true, visible = settings.windowId == null)
             else -> throw RuntimeException("Unsupported item key")
         }
     }
@@ -186,6 +197,11 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
             updateItem(preference)
             if(type != null)
                 activity.setDirty(type, prefItem.requiresReload)
+            else if(prefItem.requiresReload) {
+                for(t in Types.values()) {
+                    activity.setDirty(t, true)
+                }
+            }
         }, resetFunc)
 
         if(!handled) {

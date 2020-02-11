@@ -184,6 +184,12 @@ class WorkspaceEntities {
             return json.stringify(serializer(), this)
         }
 
+        fun copyFrom(textDisplaySettings: TextDisplaySettings) {
+            for(t in Types.values()) {
+                setValue(t, textDisplaySettings.getValue(t))
+            }
+        }
+
         companion object {
             fun fromJson(jsonString: String): TextDisplaySettings {
                 return json.parse(serializer(), jsonString)
@@ -206,7 +212,7 @@ class WorkspaceEntities {
                 font = Font(
                     fontSize = 16,
                     fontFamily = "sans-serif",
-                    lineSpacing = 160
+                    lineSpacing = 16
                 ),
                 showStrongs = false,
                 showMorphology = false,
@@ -228,24 +234,14 @@ class WorkspaceEntities {
             }
 
             fun actual(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
-                    val pg = pageManagerSettings
-                    val ws = workspaceSettings
-                    val def = default
-                    return TextDisplaySettings(
-                        marginSize = pg?.marginSize ?: ws.marginSize ?: def.marginSize,
-                        colors = pg?.colors ?: ws.colors ?: def.colors,
-                        showStrongs = pg?.showStrongs ?: ws.showStrongs ?: def.showStrongs,
-                        showMorphology = pg?.showMorphology ?: ws.showMorphology ?: def.showMorphology,
-                        showFootNotes = pg?.showFootNotes ?: ws.showFootNotes ?: def.showFootNotes,
-                        showRedLetters = pg?.showRedLetters ?: ws.showRedLetters ?: def.showRedLetters,
-                        showSectionTitles = pg?.showSectionTitles ?: ws.showSectionTitles ?: def.showSectionTitles,
-                        showVerseNumbers = pg?.showVerseNumbers ?: ws.showVerseNumbers ?: def.showVerseNumbers,
-                        showVersePerLine = pg?.showVersePerLine ?: ws.showVersePerLine ?: def.showVersePerLine,
-                        showBookmarks = pg?.showBookmarks ?: ws.showBookmarks ?: def.showBookmarks,
-                        showMyNotes = pg?.showMyNotes ?: ws.showMyNotes ?: def.showMyNotes,
-                        justifyText = pg?.justifyText ?: ws.justifyText ?: def.justifyText,
-                        font = pg?.font ?: ws.font ?: def.font
-                    )
+                val pg = pageManagerSettings
+                val ws = workspaceSettings
+                val def = default
+                val result = TextDisplaySettings()
+                for(t in Types.values()) {
+                    result.setValue(t, pg?.getValue(t) ?: ws.getValue(t)?: def.getValue(t)!!)
+                }
+                return result
             }
 
             fun markNonSpecific(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings) {

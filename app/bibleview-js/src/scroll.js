@@ -96,7 +96,7 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
         .css("--max-width", `${maxWidth}mm`)
         .css("--text-color", textColor)
         .css("--noise-opacity", noiseOpacity/100)
-        .css("--line-spacing", `${lineSpacing/100}em`)
+        .css("--line-spacing", `${lineSpacing/10}em`)
         .css("--text-align", justifyText? "justify" : "left");
     console.log("noiseOpacity", noiseOpacity/100);
     if(!doNotReCalc) {

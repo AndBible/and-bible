@@ -29,7 +29,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.CurrentActivityHolder
 
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
     val colors get() = activity.colors

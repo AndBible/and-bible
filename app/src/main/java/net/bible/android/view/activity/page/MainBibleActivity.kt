@@ -621,7 +621,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
             })
-            R.id.textOptionsSubMenu -> SubMenuPreference(false, visible = !windowRepository.isMaximisedState)
+            R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
             R.id.splitMode -> SplitModePreference()
 

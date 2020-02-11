@@ -126,7 +126,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
     <string name="prefs_section_title_summary">Show non-canonical section titles</string>
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
-    <string name="prefs_text_size_title">Text size</string>
+    <string name="prefs_text_size_title">Font preferences</string>
 
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
@@ -155,8 +155,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
     <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
-    <string name="prefs_text_size_pt_title">Text font size (%d pt)</string>
-    <string name="prefs_text_size_summary">See more or see more clearly</string>
+    <string name="prefs_text_size_pt_title">Font preferences</string>
+    <string name="prefs_text_size_summary">Adjust text appearance settings, like font family, font size and line spacing.</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
@@ -188,7 +188,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
     <string name="prefs_margin_size_title">Change margin size</string>
     <string name="prefs_margin_size_mm_title">Change margin size (%d/%d/%d mm)</string>
-    <string name="margin_size_mm">Margins left / right %d mm / %d mm, Max text width: %d mm</string>
+    <string name="margin_size_mm">Margins left %d mm right %d mm.
+        \nMaximum text width: %d mm.</string>
     <string name="left_margin">Left margin</string>
     <string name="right_margin">Right margin</string>
     <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
@@ -622,4 +623,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="pref_font_family_label">Font family</string>
     <string name="workspace_selector_title">Select workspace</string>
     <string name="workspace_settings">Workspace settings</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="apply_to_all_workspaces">Do you want to apply these settings to all workspaces?</string>
 </resources>
