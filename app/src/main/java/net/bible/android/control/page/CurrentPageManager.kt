@@ -217,13 +217,13 @@ open class CurrentPageManager @Inject constructor(
     val entity get() =
         WorkspaceEntities.PageManager(
             window.id,
-            currentBible.entity,
-            currentCommentary.entity,
-            currentDictionary.pageEntity,
-            currentGeneralBook.pageEntity,
-            currentMap.pageEntity,
+            currentBible.entity.copy(),
+            currentCommentary.entity.copy(),
+            currentDictionary.pageEntity.copy(),
+            currentGeneralBook.pageEntity.copy(),
+            currentMap.pageEntity.copy(),
             currentPage.bookCategory.getName(),
-            textDisplaySettings
+            textDisplaySettings.copy()
         )
 
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
