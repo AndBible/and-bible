@@ -52,13 +52,13 @@ import net.bible.service.db.DatabaseContainer
 import javax.inject.Inject
 
 
-class WorkspaceViewHolder(val layout: LinearLayout): RecyclerView.ViewHolder(layout)
+class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
 
 class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Adapter<WorkspaceViewHolder>() {
     val items get() = activity.dataSet
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkspaceViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.workspace_list_item, parent, false) as LinearLayout
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.workspace_list_item, parent, false) as ViewGroup
         return WorkspaceViewHolder(view)
     }
 
@@ -69,7 +69,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     override fun onBindViewHolder(holder: WorkspaceViewHolder, position: Int) {
         val title = holder.layout.findViewById<TextView>(R.id.title)
         val summary = holder.layout.findViewById<TextView>(R.id.summary)
-        val layout = holder.layout.findViewById<LinearLayout>(R.id.layout)
+        val layout = holder.layout
         title.text = items[position].name
         summary.text = "test ${position}"
 
