@@ -206,7 +206,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 .show()
         }
 
-
         tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
             override fun onItemStateChanged(key: Long, selected: Boolean) {
                 val holder = recyclerView.findViewHolderForItemId(key) as WorkspaceViewHolder
@@ -214,17 +213,28 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 if(actionMode == null) {
                     startSupportActionMode(object: ActionMode.Callback {
                         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                            val workspaceId: Long = tracker.selection.iterator().next()
                             when(item?.itemId) {
                                 R.id.settings -> {
                                     val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
-                                    val workspaceId: Long = tracker.selection.iterator().next()
-
                                     val settings = SettingsBundle(workspaceId = workspaceId,
                                         workspaceSettings = workspaceAdapter.items.find {it.id == workspaceId}!!.textDisplaySettings!!)
                                     intent.putExtra("settingsBundle", settings.toJson())
                                     startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
                                 }
-                                R.id.deleteWorkspace -> {}
+                                R.id.deleteWorkspace -> {
+                                    AlertDialog.Builder(this@WorkspaceSelectorActivity)
+                                        .setPositiveButton(R.string.yes) {_, _ ->
+                                            dao.deleteWorkspace(workspaceId)
+                                            val position = dataSet.indexOf(dataSet.find { it.id == workspaceId })
+                                            dataSet.removeAt(position)
+                                            workspaceAdapter.notifyItemRemoved(position)
+                                        }
+                                        .setNegativeButton(R.string.cancel, null)
+                                        .setMessage(getString(R.string.remove_workspace_confirmation))
+                                        .create()
+                                        .show()
+                                }
                                 R.id.renameWorkspace -> {}
                                 R.id.cloneWorkspace -> {}
                             }
