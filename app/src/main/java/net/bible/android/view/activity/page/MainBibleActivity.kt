@@ -230,7 +230,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .build()
             .inject(this)
         // When I mess up database, I can re-create database like this.
-        // backupControl.resetDatabase()
+        //backupControl.resetDatabase()
         windowRepository.initialize()
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
