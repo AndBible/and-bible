@@ -199,6 +199,10 @@ abstract class CurrentPageBase protected constructor(
         _currentDocument = doc
     }
 
+    fun onlySetCurrentDocument(doc: Book?) {
+        _currentDocument = doc
+    }
+
     protected open fun localSetCurrentDocument(doc: Book?, isMyNote: Boolean = false) {
         localSetCurrentDocument(doc)
     }

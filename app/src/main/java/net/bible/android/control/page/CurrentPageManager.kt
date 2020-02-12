@@ -217,27 +217,32 @@ open class CurrentPageManager @Inject constructor(
     val entity get() =
         WorkspaceEntities.PageManager(
             window.id,
-            currentBible.entity,
-            currentCommentary.entity,
-            currentDictionary.pageEntity,
-            currentGeneralBook.pageEntity,
-            currentMap.pageEntity,
+            currentBible.entity.copy(),
+            currentCommentary.entity.copy(),
+            currentDictionary.pageEntity.copy(),
+            currentGeneralBook.pageEntity.copy(),
+            currentMap.pageEntity.copy(),
             currentPage.bookCategory.getName(),
-            textDisplaySettings
+            textDisplaySettings.copy()
         )
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
-        currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
-        // currentBibleVerse is stored in biblePage. We need to load it last, so that versification is set up correctly.
+
+        // Order between these two following lines is critical!
+        // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
         currentBible.restoreFrom(pageManagerEntity.biblePage)
+        currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
         val settings = pageManagerEntity.textDisplaySettings
-        WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
-        textDisplaySettings = settings?: WorkspaceEntities.TextDisplaySettings()
+        if(workspaceDisplaySettings != null) {
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+            textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+        }
         currentPage = getBookPage(restoredBookCategory)
     }
 

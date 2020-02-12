@@ -123,7 +123,7 @@ open class WindowControl @Inject constructor(
         linksWindow.restoreOngoing = true
         val linksWindowWasVisible = linksWindow.isVisible
 
-        linksWindow.initialisePageStateIfClosed(activeWindow, windowRepository.textDisplaySettings)
+        linksWindow.initialisePageStateIfClosed(activeWindow)
 
         //TODO do not set links window active -  currently need to set links window to active
         // window otherwise BibleContentMediator logic does not refresh that window

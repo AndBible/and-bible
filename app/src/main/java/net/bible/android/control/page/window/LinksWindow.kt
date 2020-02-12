@@ -35,11 +35,11 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
      * Page state should reflect active window when links window is being used after being closed.
      * Not enough to select default bible because another module type may be selected in link.
      */
-    fun initialisePageStateIfClosed(activeWindow: Window, workspaceTextDisplaySettings: WorkspaceEntities.TextDisplaySettings) {
+    fun initialisePageStateIfClosed(activeWindow: Window) {
         // set links window state from active window if it was closed
         if (windowLayout.state == WindowState.CLOSED && !activeWindow.isLinksWindow) {
             // initialise links window documents from active window
-            pageManager.restoreFrom(activeWindow.pageManager.entity, workspaceTextDisplaySettings)
+            pageManager.restoreFrom(activeWindow.pageManager.entity)
         }
     }
 
