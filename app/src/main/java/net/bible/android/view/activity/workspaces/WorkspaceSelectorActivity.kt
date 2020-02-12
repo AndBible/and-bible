@@ -173,14 +173,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         }
 
-        tracker = SelectionTracker.Builder<Long>("workspace-id",
-            recyclerView,
-            keyProvider,
-            workspaceDetailsLookup,
-            StorageStrategy.createLongStorage()
-        )
-            .withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
-            .build()
         newWorkspace.setOnClickListener {
             val name = EditText(this)
             name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
@@ -206,6 +198,16 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 .create()
                 .show()
         }
+
+        tracker = SelectionTracker.Builder<Long>("workspace-selector",
+            recyclerView,
+            keyProvider,
+            workspaceDetailsLookup,
+            StorageStrategy.createLongStorage()
+        )
+            .withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
+            //.withSelectionPredicate(SelectionPredicates.createSelectAnything())
+            .build()
 
         tracker.addObserver(object: SelectionTracker.SelectionObserver<Long>() {
             override fun onItemStateChanged(key: Long, selected: Boolean) {
