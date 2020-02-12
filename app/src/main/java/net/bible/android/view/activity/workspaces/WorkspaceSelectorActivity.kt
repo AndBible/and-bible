@@ -184,6 +184,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         newWorkspace.setOnClickListener {
             val name = EditText(this)
             name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
+            name.selectAll()
             name.requestFocus()
             AlertDialog.Builder(this)
                 .setPositiveButton(R.string.okay) {d,_ ->
