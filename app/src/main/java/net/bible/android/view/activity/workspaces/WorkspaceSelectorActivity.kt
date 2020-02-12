@@ -144,6 +144,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
         ItemTouchHelper(cb)
     }
 
+    fun setDirty() {
+        save.isEnabled = true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         resultIntent = Intent(this, this::class.java)
@@ -152,6 +156,29 @@ class WorkspaceSelectorActivity: ActivityBase() {
         val layoutManager = LinearLayoutManager(this)
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
+            registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+                override fun onChanged() {
+                    setDirty()
+                }
+
+                override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
+                    if(payload == null) {
+                        setDirty()
+                    }
+                }
+
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    setDirty()
+                }
+
+                override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                    setDirty()
+                }
+
+                override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                    setDirty()
+                }
+            })
         }
 
         dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
@@ -199,6 +226,15 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 .show()
         }
 
+        cancel.setOnClickListener {
+            finish()
+        }
+
+        save.setOnClickListener {
+            dao.updateWorkspaces(workspaceAdapter.items)
+            finish()
+        }
+
         tracker = SelectionTracker.Builder<Long>("workspace-selector",
             recyclerView,
             keyProvider,
@@ -217,6 +253,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     startSupportActionMode(object: ActionMode.Callback {
                         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                             val workspaceId: Long = tracker.selection.iterator().next()
+                            val workspace = dataSet.find { it.id == workspaceId }!!
+                            val position = dataSet.indexOf(workspace)
+
                             when(item?.itemId) {
                                 R.id.settings -> {
                                     val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
@@ -229,7 +268,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
                                     AlertDialog.Builder(this@WorkspaceSelectorActivity)
                                         .setPositiveButton(R.string.yes) {_, _ ->
                                             dao.deleteWorkspace(workspaceId)
-                                            val position = dataSet.indexOf(dataSet.find { it.id == workspaceId })
                                             dataSet.removeAt(position)
                                             workspaceAdapter.notifyItemRemoved(position)
                                         }
@@ -238,7 +276,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
                                         .create()
                                         .show()
                                 }
-                                R.id.renameWorkspace -> {}
+                                R.id.renameWorkspace -> {
+                                    val name = EditText(this@WorkspaceSelectorActivity)
+                                    name.text = SpannableStringBuilder(workspace.name)
+                                    name.selectAll()
+                                    name.requestFocus()
+                                    AlertDialog.Builder(this@WorkspaceSelectorActivity)
+                                        .setPositiveButton(R.string.okay) {d,_ ->
+                                            workspace.name = name.text.toString()
+                                            workspaceAdapter.notifyItemChanged(position)
+                                        }
+                                        .setView(name)
+                                        .setNegativeButton(R.string.cancel, null)
+                                        .setTitle(getString(R.string.give_name_workspace))
+                                        .create()
+                                        .show()
+
+
+
+                                }
                                 R.id.cloneWorkspace -> {}
                             }
                             return false
@@ -275,7 +331,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private val dao = DatabaseContainer.db.workspaceDao()
 
     override fun onBackPressed() {
-        dao.updateWorkspaces(workspaceAdapter.items)
+        // dao.updateWorkspaces(workspaceAdapter.items)
         setResult(Activity.RESULT_CANCELED, resultIntent)
         super.onBackPressed()
     }

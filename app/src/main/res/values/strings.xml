@@ -627,4 +627,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="apply_to_all_workspaces">Do you want to apply these settings to all workspaces?</string>
     <string name="give_name_workspace">Give name for new workspace</string>
     <string name="remove_workspace_confirmation">Are you sure you want to delete this workspace?</string>
+    <string name="save_and_exit">Save</string>
 </resources>
