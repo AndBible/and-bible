@@ -184,6 +184,8 @@ class DocumentWebViewBuilder @Inject constructor(
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
 
                 val bibleView = getCleanView(window)
+                bibleView.updateBackgroundColor()
+
                 val windowWeight = max(window.windowLayout.weight, 0.1F)
                 val lp = if (isSplitHorizontally)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
