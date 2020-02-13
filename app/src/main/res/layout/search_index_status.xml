@@ -3,31 +3,67 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-   	<TextView android:id="@+id/progressStatusMessage"
-		android:text="@string/task_kill_warning"
-		style="@style/InfoText"
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content"
-		android:layout_alignParentTop="true"/>
-   	<TextView android:id="@+id/noTasksRunning"
-		android:text="@string/no_tasks_running"
-		style="@style/InfoText"
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content"
-		android:visibility="invisible"
-		android:layout_below="@id/progressStatusMessage"/>
-	<LinearLayout android:id="@+id/progressControlContainer"
-    	android:orientation="vertical"
-	    android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_margin="10dip"
-		android:layout_below="@id/noTasksRunning">
-    </LinearLayout>
-        
-</RelativeLayout>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		app:layout_constraintTop_toTopOf="parent"
+		android:id="@+id/topContainer"
+		>
+
+		<TextView android:id="@+id/progressStatusMessage"
+			android:text="@string/task_kill_warning"
+			style="@style/InfoText"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			/>
+		<TextView android:id="@+id/noTasksRunning"
+			android:text="@string/no_tasks_running"
+			style="@style/InfoText"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:visibility="invisible"
+			/>
+		<LinearLayout android:id="@+id/progressControlContainer"
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="10dip"
+			>
+		</LinearLayout>
+	</LinearLayout>
+	<LinearLayout android:id="@+id/button_panel"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintTop_toBottomOf="@id/topContainer"
+		android:layout_alignParentBottom="true">
+		<View
+			android:layout_width="0dip"
+			android:layout_height="match_parent"
+			android:layout_weight="1"/>
+
+		<Button android:id="@+id/hideButton"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:text="@string/do_in_background"
+			android:onClick="onHide"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"/>
+
+		<View
+		android:layout_width="0dip"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			/>
+
+	</LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

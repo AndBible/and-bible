@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.search_index.*
 
 import net.bible.android.activity.R
@@ -42,6 +43,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     @Inject lateinit var searchControl: SearchControl
 
+    override val customTheme = false
+
     private val documentToIndex: Book?
         get() {
             val documentInitials = intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)
@@ -58,6 +61,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
+        buildActivityComponent().inject(this)
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying SearchIndex view")
         setContentView(R.layout.search_index)
@@ -66,9 +70,14 @@ class SearchIndex : CustomTitlebarActivityBase() {
             createButton.isEnabled = false
             indexCreationRequired.text = getString(R.string.index_creation_required) +
                 "\n" + getString(R.string.search_index_unavailable)
+        } else {
+            val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
+            indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
+            createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
+            downloadButton.visibility = View.INVISIBLE
+
         }
 
-        buildActivityComponent().inject(this)
 
         Log.d(TAG, "Finished displaying Search Index view")
     }
@@ -88,6 +97,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
             monitorProgress()
         }
     }
+
+    fun onCancel(v: View) = finish()
 
     /** Indexing is very slow
      *

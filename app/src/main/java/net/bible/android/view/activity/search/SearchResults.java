@@ -51,8 +51,13 @@ import javax.inject.Inject;
  */
 public class SearchResults extends ListActivityBase {
 	private static final String TAG = "SearchResults";
-	
-    private SearchResultsDto mSearchResultsHolder;
+
+	@Override
+	protected boolean getCustomTheme() {
+		return false;
+	}
+
+	private SearchResultsDto mSearchResultsHolder;
     
     private List<Key> mCurrentlyDisplayedSearchResults = new ArrayList<>();
     private ArrayAdapter<Key> mKeyArrayAdapter;

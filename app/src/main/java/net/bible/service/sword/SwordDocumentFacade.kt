@@ -179,6 +179,16 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
         }
     }
 
+    @Throws(BookException::class)
+    fun hasIndex(document: Book?): Boolean { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
+        val realDocument = getDocumentByInitials(document?.initials)
+        val indexManager = IndexManagerFactory.getIndexManager()
+        if (indexManager.isIndexed(realDocument)) {
+            return true
+        }
+        return false
+    }
+
     /** this custom index creation has been optimised for slow, low memory devices
      * If an index is in progress then nothing will happen
      */

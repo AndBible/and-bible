@@ -59,7 +59,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     protected open val nightTheme = R.style.AppThemeNight
     protected open val dayTheme = R.style.AppThemeDay
-
+    protected open val customTheme = true
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -69,14 +69,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     fun applyTheme() {
         if (ScreenSettings.nightMode) {
-            setTheme(nightTheme)
+            if(customTheme)
+                setTheme(nightTheme)
             if(ScreenSettings.manualMode) {
                 if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
                     delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
                 }
             }
         } else {
-            setTheme(dayTheme)
+            if(customTheme)
+                setTheme(dayTheme)
             if(ScreenSettings.manualMode) {
                 delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
                 if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
