@@ -628,4 +628,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="do_in_background">Continue in background</string>
     <string name="index_finished">Index creation finished</string>
     <string name="rebuild_index_button">Rebuild</string>
+    <string name="search_in">Find in %s</string>
 </resources>
