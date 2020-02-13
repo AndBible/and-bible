@@ -629,4 +629,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="index_finished">Index creation finished</string>
     <string name="rebuild_index_button">Rebuild</string>
     <string name="search_in">Find in %s</string>
+    <string name="history_for">History (%s: Window %d)</string>
 </resources>
