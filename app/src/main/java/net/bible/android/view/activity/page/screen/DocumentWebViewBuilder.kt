@@ -109,6 +109,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private val WINDOW_BUTTON_TEXT_COLOUR: Int
     private val WINDOW_BUTTON_BACKGROUND_COLOUR: Int
     private val BUTTON_SIZE_PX: Int
+    private val MIN_BUTTON_WIDTH: Int
     private val BIBLE_REF_OVERLAY_OFFSET: Int
 
     private var previousParent: LinearLayout? = null
@@ -122,6 +123,7 @@ class DocumentWebViewBuilder @Inject constructor(
         WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour)
 
         BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size)
+        MIN_BUTTON_WIDTH = (BUTTON_SIZE_PX * 1.3).toInt()
         BIBLE_REF_OVERLAY_OFFSET = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
         // Be notified of any changes to window config
@@ -298,14 +300,14 @@ class DocumentWebViewBuilder @Inject constructor(
                 val restoreButton = createRestoreButton(minAndMaxScreens[i])
                 restoreButtons.add(restoreButton)
                 minimisedWindowsLayout.addView(restoreButton,
-                        LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
+                        LinearLayout.LayoutParams(MIN_BUTTON_WIDTH, BUTTON_SIZE_PX))
             }
             if (windowRepository.isMaximisedState) {
                 val maximizedWindow = windowRepository.maximisedScreens[0]
                 val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
                 restoreButtons.add(unMaximizeButton)
                 minimisedWindowsLayout.addView(unMaximizeButton,
-                    LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX))
+                    LinearLayout.LayoutParams(MIN_BUTTON_WIDTH, BUTTON_SIZE_PX))
             }
 
             // Make sure "unmaximise" button on right is visible
@@ -587,11 +589,15 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createRestoreButton(window: Window): WindowButton {
-        return createTextButton(getDocumentInitial(window),
-            { windowControl.restoreWindow(window) },
-            { windowControl.restoreWindow(window); true },
-            window
-        )
+        return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
+            this.text = getDocumentInitial(window)
+            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
+            setTypeface(null, Typeface.BOLD)
+            textSize = 18.0F
+            isSingleLine = true
+            setOnClickListener { windowControl.restoreWindow(window) }
+            setOnLongClickListener { windowControl.restoreWindow(window); true }
+        }
     }
 
     /**
@@ -600,7 +606,8 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun getDocumentInitial(window: Window): String {
         return try {
             val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
-            abbrv?.substring(0, 1) ?: ""
+            return abbrv ?: ""
+            //abbrv?.substring(0, 1) ?: ""
         } catch (e: Exception) {
             " "
         }
@@ -612,8 +619,6 @@ class DocumentWebViewBuilder @Inject constructor(
                                  window: Window?): WindowButton {
         return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
             this.text = text
-            width = BUTTON_SIZE_PX
-            height = BUTTON_SIZE_PX
             setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
             setTypeface(null, Typeface.BOLD)
             textSize = 20.0F
