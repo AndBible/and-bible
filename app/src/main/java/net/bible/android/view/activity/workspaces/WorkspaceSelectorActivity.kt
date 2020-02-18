@@ -21,7 +21,6 @@ package net.bible.android.view.activity.workspaces
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -134,7 +133,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
     private lateinit var workspaceAdapter: WorkspaceAdapter
-    //private lateinit var tracker: SelectionTracker<Long>
+
     val itemTouchHelper by lazy {
         val cb = object: ItemTouchHelper.SimpleCallback(UP or DOWN, 0) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
