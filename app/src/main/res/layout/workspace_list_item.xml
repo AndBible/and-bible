@@ -30,9 +30,9 @@
         android:layout_width="60dp"
         android:layout_height="0dp"
         android:padding="10dp"
-        android:scaleType="centerCrop"
-        android:id="@+id/icon"
-        app:srcCompat="@drawable/ic_library_books_black_24dp"
+        android:scaleType="center"
+        android:id="@+id/dragHolder"
+        app:srcCompat="@drawable/ic_menu_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -46,7 +46,7 @@
         android:paddingTop="5dp"
         android:text="Workspace title"
         android:textAppearance="?attr/textAppearanceListItem"
-        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintStart_toEndOf="@id/dragHolder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
@@ -61,8 +61,22 @@
         android:lines="2"
         android:ellipsize="end"
         android:textAppearance="?android:textAppearanceSmall"
-        app:layout_constraintStart_toEndOf="@id/icon"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/dragHolder"
+        app:layout_constraintEnd_toStartOf="@id/menuButton"
         app:layout_constraintTop_toBottomOf="@id/title"/>
+
+    <ImageButton
+        android:id="@+id/menuButton"
+        style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+        android:layout_width="45dp"
+        android:layout_height="0dp"
+        android:padding="5dp"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_more_vert_black_24dp"
+
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

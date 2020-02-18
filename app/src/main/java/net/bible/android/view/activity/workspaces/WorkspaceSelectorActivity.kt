@@ -18,9 +18,11 @@
 
 package net.bible.android.view.activity.workspaces
 
+import android.app.ActionBar
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableStringBuilder
@@ -30,9 +32,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.view.ActionMode
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.ItemKeyProvider
 import androidx.recyclerview.selection.SelectionPredicates
@@ -52,6 +56,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.service.db.DatabaseContainer
+import org.jetbrains.anko.displayMetrics
 import javax.inject.Inject
 
 
@@ -128,6 +133,7 @@ class WorkspaceDetailsLookup(private val workspaceList: RecyclerView): ItemDetai
 
 @ActivityScope
 class WorkspaceSelectorActivity: ActivityBase() {
+    override val customTheme: Boolean = false
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
@@ -155,12 +161,26 @@ class WorkspaceSelectorActivity: ActivityBase() {
         save.isEnabled = true
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateRecyclerViewHeight()
+    }
+
+    private fun updateRecyclerViewHeight() {
+        val lp = ConstraintLayout.LayoutParams(recyclerView.layoutParams)
+        val screenHeight = displayMetrics.heightPixels
+        lp.height = (screenHeight * 0.6).toInt()
+        recyclerView.layoutParams = lp
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
         setContentView(R.layout.workspace_selector)
+        updateRecyclerViewHeight()
+
         val layoutManager = LinearLayoutManager(this)
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)

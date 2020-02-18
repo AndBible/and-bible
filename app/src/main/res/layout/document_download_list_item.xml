@@ -10,7 +10,7 @@
 																   android:paddingRight="16dp"
 																   android:background="@drawable/selectable_background">
     
-    <ImageView android:id="@+id/icon"
+    <ImageView android:id="@+id/dragHolder"
 	    android:layout_width="24dp"
 	    android:layout_height="wrap_content"
 	    android:layout_gravity="center_vertical"
@@ -24,7 +24,7 @@
 		android:layout_height="wrap_content"
         android:layout_marginLeft="6dip"
         android:layout_marginTop="6dip"
-        android:layout_toRightOf="@+id/icon"
+        android:layout_toRightOf="@+id/dragHolder"
 		android:textAppearance="?attr/textAppearanceListItem"/>
 		
 	<TextView android:id="@+id/text2"

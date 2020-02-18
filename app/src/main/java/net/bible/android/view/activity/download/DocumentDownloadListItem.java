@@ -62,7 +62,7 @@ public class DocumentDownloadListItem extends TwoLineListItem {
     protected void onFinishInflate() {
 		super.onFinishInflate();
 
-        mIcon = (ImageView) findViewById(R.id.icon);
+        mIcon = (ImageView) findViewById(R.id.dragHolder);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 		ensureRegisteredForDownloadEvents();
