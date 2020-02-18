@@ -21,6 +21,7 @@ package net.bible.android.view.activity.workspaces
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.util.Log
@@ -73,7 +74,12 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         val summary = holder.layout.findViewById<TextView>(R.id.summary)
         val layout = holder.layout
         val workspaceEntity = items[position]
-        title.text = workspaceEntity.name
+        var titleText = workspaceEntity.name
+        if(activity.windowControl.windowRepository.id == workspaceEntity.id) {
+            title.setTypeface(Typeface.DEFAULT_BOLD)
+            titleText += " (${activity.getString(R.string.current_workspace)})"
+        }
+        title.text = titleText
         summary.text = workspaceEntity.contentsText
 
         layout.setOnClickListener {
