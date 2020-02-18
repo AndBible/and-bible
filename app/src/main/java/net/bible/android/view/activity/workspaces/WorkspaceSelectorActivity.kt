@@ -377,6 +377,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
         }
         val menu = popup.menu
         popup.menuInflater.inflate(R.menu.workspace_popup_menu, menu)
+        val delItem = menu.findItem(R.id.deleteWorkspace)
+        delItem.isEnabled = workspaceEntity.id != windowControl.windowRepository.id
+
         val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, view)
 
         menuHelper.show()
