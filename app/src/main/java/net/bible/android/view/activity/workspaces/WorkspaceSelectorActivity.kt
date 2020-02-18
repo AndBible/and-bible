@@ -122,24 +122,6 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 }
 
-//class WorkspaceDetailsLookup(private val workspaceList: RecyclerView): ItemDetailsLookup<Long>() {
-//    override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
-//        val view = workspaceList.findChildViewUnder(e.x, e.y)
-//        if(view != null) {
-//            val holder = workspaceList.getChildViewHolder(view)
-//            if(holder is WorkspaceViewHolder) {
-//                return object: ItemDetails<Long>() {
-//                    override fun getSelectionKey(): Long? = holder.itemId
-//                    override fun getPosition(): Int = holder.adapterPosition
-//
-//                }
-//            }
-//        }
-//        return null
-//    }
-//
-//}
-
 @ActivityScope
 class WorkspaceSelectorActivity: ActivityBase() {
     private var isDirty: Boolean = false
@@ -268,25 +250,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         }
-
-        //val workspaceDetailsLookup = WorkspaceDetailsLookup(recyclerView)
-        //val keyProvider = object: ItemKeyProvider<Long>(SCOPE_MAPPED) {
-        //    override fun getKey(position: Int): Long = workspaceAdapter.getItemId(position)
-        //    override fun getPosition(key: Long): Int =
-        //        recyclerView.findViewHolderForItemId(key)?.layoutPosition ?: RecyclerView.NO_POSITION
-        //}
-
-
-        //tracker = SelectionTracker.Builder<Long>("workspace-selector",
-        //    recyclerView,
-        //    keyProvider,
-        //    workspaceDetailsLookup,
-        //    StorageStrategy.createLongStorage()
-        //)
-        //    .withSelectionPredicate(SelectionPredicates.createSelectSingleAnything())
-        //    //.withSelectionPredicate(SelectionPredicates.createSelectAnything())
-        //    .build()
-        //recyclerView.scrollToPosition(currentPosition)
     }
 
     fun applyChanges() {
