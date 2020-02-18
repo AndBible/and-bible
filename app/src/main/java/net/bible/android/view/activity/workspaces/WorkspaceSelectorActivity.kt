@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
@@ -214,7 +215,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         recyclerView.apply {
             this.layoutManager = layoutManager
-            adapter = workspaceAdapter
             setHasFixedSize(true)
         }
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -254,6 +254,11 @@ class WorkspaceSelectorActivity: ActivityBase() {
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         }
+
+        // Workaround to issue that list item width is incorrect in slower devices
+        Handler().postDelayed( {
+            recyclerView.adapter = workspaceAdapter
+        }, 10)
     }
 
     private fun applyChanges() {
