@@ -635,4 +635,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rebuild_index_button">Rebuild</string>
     <string name="current_workspace">current</string>
     <string name="workspace_save_changes">Apply changes to workspaces?</string>
+    <string name="copy_of_workspace">Copy of %s</string>
 </resources>

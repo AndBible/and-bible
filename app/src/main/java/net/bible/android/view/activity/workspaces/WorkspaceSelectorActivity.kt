@@ -126,6 +126,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 class WorkspaceSelectorActivity: ActivityBase() {
     private var isDirty: Boolean = false
     private val workspacesToBeDeleted = HashSet<Long>()
+    private val workspacesCreated = HashSet<Long>()
     override val customTheme: Boolean = false
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
@@ -170,6 +171,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isDirty = false
+        workspacesToBeDeleted.clear()
+        workspacesCreated.clear()
         super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
@@ -223,7 +226,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
             AlertDialog.Builder(this)
                 .setPositiveButton(R.string.okay) {d,_ ->
                     val windowRepository = windowControl.windowRepository
-                    windowRepository.saveIntoDb()
                     val newWorkspaceEntity = WorkspaceEntities.Workspace(
                         name.text.toString(), null, 0,
                         windowRepository.orderNumber,
@@ -242,6 +244,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         }
 
         cancel.setOnClickListener {
+            cancelChanges()
             finish()
         }
 
@@ -252,11 +255,17 @@ class WorkspaceSelectorActivity: ActivityBase() {
         }
     }
 
-    fun applyChanges() {
+    private fun applyChanges() {
         workspacesToBeDeleted.forEach {
             dao.deleteWorkspace(it)
         }
         dao.updateWorkspaces(dataSet)
+    }
+
+    private fun cancelChanges() {
+       workspacesCreated.forEach {
+           dao.deleteWorkspace(it)
+       }
     }
 
     private fun handleMenuItem(item: MenuItem?, workspace: WorkspaceEntities.Workspace): Boolean {
@@ -292,7 +301,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     .create()
                     .show()
             }
-            R.id.cloneWorkspace -> {}
+            R.id.cloneWorkspace -> {
+                val name = EditText(this)
+                name.text = SpannableStringBuilder(getString(R.string.copy_of_workspace, workspace.name))
+                name.selectAll()
+                name.requestFocus()
+                AlertDialog.Builder(this)
+                    .setPositiveButton(R.string.okay) {d,_ ->
+                        val newWorkspaceEntity = dao.cloneWorkspace(workspaceId, name.text.toString())
+                        workspacesCreated.add(newWorkspaceEntity.id)
+                        dataSet.add(position + 1, newWorkspaceEntity)
+                        workspaceAdapter.notifyItemInserted(position + 1)
+                    }
+                    .setView(name)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setTitle(getString(R.string.give_name_workspace))
+                    .create()
+                    .show()
+
+            }
         }
         return false
     }
@@ -318,6 +345,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
         fun apply(save: Boolean) {
             if(save)
                 applyChanges()
+            else
+                cancelChanges()
             resultIntent.putExtra("workspaceId", itemId)
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
@@ -350,7 +379,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
         popup.menuInflater.inflate(R.menu.workspace_popup_menu, menu)
         val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, view)
 
-        //menuHelper.setForceShowIcon(true)
         menuHelper.show()
     }
 
