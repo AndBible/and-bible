@@ -1049,8 +1049,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val changed = extras?.getBoolean("changed")
 
                 if(resultCode == Activity.RESULT_OK) {
-                    if(workspaceId != null && workspaceId != currentWorkspaceId) {
-                        currentWorkspaceId = workspaceId
+                    if(workspaceId != 0L && workspaceId != currentWorkspaceId) {
+                        currentWorkspaceId = workspaceId!!
                     } else if(changed == true) {
                         currentWorkspaceId = currentWorkspaceId
                     }

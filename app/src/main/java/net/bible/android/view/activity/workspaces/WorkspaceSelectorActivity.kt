@@ -83,8 +83,9 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         val layout = holder.layout
         val workspaceEntity = items[position]
         var titleText = workspaceEntity.name
+        title.typeface = Typeface.DEFAULT
         if(activity.windowControl.windowRepository.id == workspaceEntity.id) {
-            title.setTypeface(Typeface.DEFAULT_BOLD)
+            title.typeface = Typeface.DEFAULT_BOLD
             titleText += " (${activity.getString(R.string.current_workspace)})"
         }
         title.text = titleText
@@ -258,7 +259,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         // Workaround to issue that list item width is incorrect in slower devices
         Handler().postDelayed( {
             recyclerView.adapter = workspaceAdapter
-        }, 10)
+        }, 100)
     }
 
     private fun applyChanges() {
@@ -404,9 +405,16 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private val dao = DatabaseContainer.db.workspaceDao()
 
     override fun onBackPressed() {
+        cancelChanges()
         setResult(Activity.RESULT_CANCELED, resultIntent)
         super.onBackPressed()
     }
+
+    override fun onDetachedFromWindow() {
+        cancelChanges()
+        super.onDetachedFromWindow()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == WORKSPACE_SETTINGS_CHANGED) {
             val extras = data!!.extras!!
