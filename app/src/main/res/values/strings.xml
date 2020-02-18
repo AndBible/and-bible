@@ -640,4 +640,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="copy_settings_title">Which settings do you want to copy?</string>
     <string name="select_all">Select all</string>
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
+    <string name="search_in">Find in %s</string>
+    <string name="history_for">History (%s: Window %d)</string>
+>>>>>>> master
 </resources>

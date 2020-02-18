@@ -183,6 +183,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.History"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/history"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />

@@ -28,7 +28,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.Dialogs;
+ import net.bible.android.control.page.window.WindowControl;
+ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
  import net.bible.android.view.activity.base.SharedActivityState;
  import net.bible.service.history.HistoryItem;
@@ -49,7 +50,13 @@ public class History extends ListActivityBase {
 	private List<HistoryItem> mHistoryItemList;
 
 	private HistoryManager historyManager;
-	
+	private WindowControl windowControl;
+
+	@Override
+	protected boolean getCustomTheme() {
+		return false;
+	}
+
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
 	/** Called when the activity is first created. */
@@ -65,7 +72,7 @@ public class History extends ListActivityBase {
 
         String name = SharedActivityState.getCurrentWorkspaceName();
 
-        setTitle(String.format("%s (%s)", getTitle(), name));
+        setTitle(getString(R.string.history_for, name, windowControl.getActiveWindowPosition()+1));
         Log.d(TAG, "Finished displaying Search view");
     }
 
@@ -111,5 +118,10 @@ public class History extends ListActivityBase {
 	@Inject
 	void setHistoryManager(HistoryManager historyManager) {
 		this.historyManager = historyManager;
+	}
+
+	@Inject
+	void setWindowControl(WindowControl windowControl) {
+		this.windowControl = windowControl;
 	}
 }

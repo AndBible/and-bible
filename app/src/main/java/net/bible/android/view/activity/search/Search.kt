@@ -105,6 +105,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred) { finish() }
         }
 
+        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
+
         searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
             // If the event is a key-down event on the "enter" button
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
