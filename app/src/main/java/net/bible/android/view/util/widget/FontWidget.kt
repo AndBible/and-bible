@@ -130,7 +130,7 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
         val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
         dialogMessage.typeface = tf
-        lineSpacingValue.text = context.getString(R.string.line_spacing_pt, lineSpacingVal / 10.0)
+        lineSpacingValue.text = context.getString(R.string.prefs_line_spacing_pt, lineSpacingVal / 10.0)
         lineSpacing.progress = lineSpacingVal - 10
         fontSizeSlider.progress = fontSize
         fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
