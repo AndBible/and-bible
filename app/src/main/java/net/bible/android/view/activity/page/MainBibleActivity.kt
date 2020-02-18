@@ -1164,17 +1164,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             WORKSPACE_CHANGED -> {
                 val extras = data?.extras
                 val workspaceId = extras?.getLong("workspaceId")
+                val changed = extras?.getBoolean("changed")
 
-                if(resultCode == Activity.RESULT_OK && currentWorkspaceId != workspaceId!!) {
-                    currentWorkspaceId = workspaceId
-                } else {
-                    if(extras?.getBoolean("settingsChanged") == true) {
-                        val entity = dao.workspace(windowRepository.id)!!
-                        val bundle = SettingsBundle(
-                            workspaceId = entity.id,
-                            workspaceSettings = entity.textDisplaySettings?: TextDisplaySettings.default
-                        )
-                        workspaceSettingsChanged(bundle, true)
+                if(resultCode == Activity.RESULT_OK) {
+                    if(workspaceId != null && workspaceId != currentWorkspaceId) {
+                        currentWorkspaceId = workspaceId
+                    } else if(changed == true) {
+                        currentWorkspaceId = currentWorkspaceId
                     }
                 }
                 return

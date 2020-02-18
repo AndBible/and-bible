@@ -21,22 +21,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/settings"
         android:title="@string/workspace_settings"
-        android:icon="@drawable/ic_settings_black_24dp"
-        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_settings_grey_24dp"
         />
     <item android:id="@+id/deleteWorkspace"
         android:title="@string/delete_workspace"
-        android:icon="@drawable/ic_delete_24dp"
-        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_delete_24dp_black"
         />
 
     <item android:id="@+id/renameWorkspace"
         android:title="@string/rename_workspace"
-        app:showAsAction="never"
         />
     <item android:id="@+id/cloneWorkspace"
         android:title="@string/new_copied_workspace"
         android:icon="@drawable/ic_action_new"
-        app:showAsAction="never"
         />
 </menu>
