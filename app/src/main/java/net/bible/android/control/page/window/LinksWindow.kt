@@ -39,20 +39,20 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
         // set links window state from active window if it was closed
         if (windowLayout.state == WindowState.CLOSED && !activeWindow.isLinksWindow) {
             // initialise links window documents from active window
-            val style = pageManager.textDisplaySettings
             pageManager.restoreFrom(activeWindow.pageManager.entity)
-            pageManager.textDisplaySettings = style
         }
     }
 
     fun restoreFrom(windowEntity: WorkspaceEntities.Window,
-                    pageManagerEntity: WorkspaceEntities.PageManager?)
+                    pageManagerEntity: WorkspaceEntities.PageManager?,
+                    workspaceTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+                    )
     {
         id = windowEntity.id
         wasMinimised = windowEntity.wasMinimised
         workspaceId = windowEntity.workspaceId
 
         windowLayout.restoreFrom(windowEntity.windowLayout)
-        pageManager.restoreFrom(pageManagerEntity)
+        pageManager.restoreFrom(pageManagerEntity, workspaceTextDisplaySettings)
     }
 }

@@ -51,6 +51,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity;
 import dagger.Component;
 
 import net.bible.android.view.activity.speak.SpeakSettingsActivity;
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity;
 import net.bible.android.view.util.widget.SpeakTransportWidget;
 import net.bible.service.device.speak.TextToSpeechNotificationManager;
 
@@ -69,6 +70,7 @@ public interface ActivityComponent {
 	void inject(TextDisplaySettingsActivity activity);
 
 	void inject(ColorSettingsActivity colorSettings);
+	void inject(WorkspaceSelectorActivity activity);
 
 	void inject(StartupActivity startupActivity);
 

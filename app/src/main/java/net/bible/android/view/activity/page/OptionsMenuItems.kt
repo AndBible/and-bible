@@ -316,4 +316,3 @@ class SplitModePreference :
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }
 
-class WorkspacesSubmenu(override val title: String?): SubMenuPreference()

@@ -226,7 +226,7 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings.copy()
         )
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
 
         // Order between these two following lines is critical!
@@ -238,7 +238,11 @@ open class CurrentPageManager @Inject constructor(
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
-        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
+        val settings = pageManagerEntity.textDisplaySettings
+        if(workspaceDisplaySettings != null) {
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+            textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+        }
         currentPage = getBookPage(restoredBookCategory)
     }
 

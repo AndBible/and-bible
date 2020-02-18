@@ -81,34 +81,7 @@ fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface
     }
     catch (e: IllegalArgumentException) {
         return when(key) {
-            "apply_to_all_workspaces" -> CommandPreference({activity, onChanged, onReset ->
-                if(settings.windowId == null) {
-                    AlertDialog.Builder(activity)
-                        .setTitle(activity.getString(R.string.are_you_sure))
-                        .setMessage(activity.getString(R.string.apply_to_all_workspaces))
-                        .setPositiveButton(R.string.yes) { _, _ ->
-                            val dao = DatabaseContainer.db.workspaceDao()
-                            dao.applyTextToDisplaySettingsToAllWorkspaces(settings.actualSettings)
-                            onChanged?.invoke(true)
-                            activity.finish()
-                        }
-                        .setNegativeButton(R.string.no, null)
-                        .show()
-                }
-
-//                else {
-//                    AlertDialog.Builder(activity)
-//                        .setTitle(activity.getString(R.string.are_you_sure))
-//                        .setMessage("Do you want to apply these settings to the workspace?")
-//                        .setPositiveButton(R.string.yes) { _, _ ->
-//                            settings.workspaceSettings.copyFrom(settings.actualSettings)
-//                            onChanged?.invoke(true)
-//                            activity.finish()
-//                        }
-//                        .setNegativeButton(R.string.no, null)
-//                        .show()
-//                }
-            }, requiresReload = true, visible = settings.windowId == null)
+            "apply_to_all_workspaces" -> CommandPreference()
             else -> throw RuntimeException("Unsupported item key")
         }
     }
@@ -164,6 +137,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
+        p.isVisible = itmOptions.visible
     }
 
     private fun getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {

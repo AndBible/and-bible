@@ -27,8 +27,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.text.InputType
-import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
@@ -43,8 +41,6 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -99,6 +95,7 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
@@ -361,7 +358,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
                 if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
-                    chooseWorkspace()
+                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
                     return true
 
                 } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
@@ -467,110 +465,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     val workspaces get() = dao.allWorkspaces()
-
-    private fun deleteWorkspace() {
-        val nextWorkspace = workspaces.reversed().find { it.id < currentWorkspaceId } ?: workspaces[0]
-        dao.deleteWorkspace(currentWorkspaceId)
-        windowRepository.clear(true)
-        currentWorkspaceId = nextWorkspace.id
-    }
-
-    private fun renameWorkspace() {
-        val input = EditText(this)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        input.text = SpannableStringBuilder(windowRepository.name)
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.rename_workspace_title))
-            .setView(input)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.okay) { dialog, _ ->
-                dialog.dismiss()
-                windowRepository.name = input.text.toString()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-                invalidateOptionsMenu()
-            }
-            .show()
-    }
-
     val windowRepository get() = windowControl.windowRepository
-
-    private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
-
-    private fun newWorkspace() {
-        val defaultDocument = pageControl.currentPageManager.currentBible.currentDocument
-        windowRepository.saveIntoDb()
-
-        val newWorkspaceEntity = WorkspaceEntities.Workspace(
-            newWorkspaceName, 0, windowRepository.textDisplaySettings, windowRepository.windowBehaviorSettings
-        ).apply {
-            id = dao.insertWorkspace(this)
-        }
-
-        currentWorkspaceId = newWorkspaceEntity.id
-        pageControl.currentPageManager.currentBible.setCurrentDocument(defaultDocument)
-    }
-
-    private fun cloneWorkspace() {
-        val newWorkspace = dao.cloneWorkspace(currentWorkspaceId, newWorkspaceName)
-        currentWorkspaceId = newWorkspace.id
-        ABEventBus.getDefault().post(ToastEvent(newWorkspace.name))
-        invalidateOptionsMenu()
-    }
-
-    private fun chooseWorkspace() {
-        windowRepository.saveIntoDb()
-
-        val workspaceTitles = ArrayList<String>()
-        val pageManager = windowRepository.currentPageManagerProvider.get()
-        val workspaces = workspaces
-
-        for(workspace in workspaces) {
-            val windows = dao.windows(workspace.id)
-
-            val name = workspace.name
-            val keyTitle = ArrayList<String>()
-            val prevFullBookNameValue = BookName.isFullBookName()
-            BookName.setFullBookName(false)
-
-            windows.forEach {
-                pageManager.restoreFrom(dao.pageManager(it.id))
-                keyTitle.add("${pageManager.currentPage.singleKey?.name} (${pageManager.currentPage.currentDocument?.abbreviation})")
-            }
-
-            BookName.setFullBookName(prevFullBookNameValue)
-            val text = if(name.isNotEmpty())
-                getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
-            else
-                keyTitle.joinToString(", ")
-
-            val prefix = if(currentWorkspaceId == workspace.id) {
-                "• ⭐ "
-            } else "• "
-
-            workspaceTitles.add(prefix + text)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, workspaceTitles)
-        val builder = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.choose_workspace_to_open))
-            .setPositiveButton(getString(R.string.new_workspace_from_dialog)) { _, _ ->
-                newWorkspace()
-            }
-            .setAdapter(adapter) {_, which ->
-                val now = workspaces[which]
-                if(currentWorkspaceId != now.id) {
-                    currentWorkspaceId = now.id
-                }
-            }
-            .setNeutralButton(R.string.cancel, null)
-
-        if(workspaces.size > 1) {
-            builder.setNegativeButton(getString(R.string.delete_workspace_from_dialog)) { _, _ ->
-                deleteWorkspace()
-            }
-        }
-        builder.show()
-    }
 
     private fun previousWorkspace() {
         val workspaces = workspaces
@@ -591,9 +486,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         currentWorkspaceId = if(currentWorkspacePos < workspaces.size - 1) workspaces[currentWorkspacePos + 1].id else workspaces[0].id
     }
 
-    private val haveWorkspaces: Boolean get() = numWorkspaces > 1
-    private val numWorkspaces: Int get() = workspaces.size
-
     private var currentWorkspaceId
         get() = windowRepository.id
         set(value) {
@@ -613,7 +505,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
         return when(item.itemId) {
-            R.id.allTextOptions -> CommandPreference({ _, _, _ ->
+            R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
@@ -624,13 +516,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()
-
-            R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-            R.id.newWorkspace -> CommandPreference(handle = {newWorkspace()})
-            R.id.cloneWorkspace -> CommandPreference(handle = {cloneWorkspace()})
-            R.id.deleteWorkspace -> CommandPreference(handle = {deleteWorkspace()}, enabled = haveWorkspaces)
-            R.id.renameWorkspace -> CommandPreference(handle = {renameWorkspace()})
-            R.id.switchToWorkspace -> CommandPreference(handle = {chooseWorkspace()})
+            R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
+                val intent = Intent(this, WorkspaceSelectorActivity::class.java)
+                startActivityForResult(intent, WORKSPACE_CHANGED)
+            })
             else -> throw RuntimeException("Illegal menu item")
         }
     }
@@ -1154,6 +1043,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
             }
+            WORKSPACE_CHANGED -> {
+                val extras = data?.extras
+                val workspaceId = extras?.getLong("workspaceId")
+                val changed = extras?.getBoolean("changed")
+
+                if(resultCode == Activity.RESULT_OK) {
+                    if(workspaceId != null && workspaceId != currentWorkspaceId) {
+                        currentWorkspaceId = workspaceId
+                    } else if(changed == true) {
+                        currentWorkspaceId = currentWorkspaceId
+                    }
+                }
+                return
+            }
             COLORS_CHANGED -> {
                 val extras = data?.extras!!
                 val edited = extras.getBoolean("edited")
@@ -1189,40 +1092,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val reset = extras.getBoolean("reset")
 
                 val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
-                val windowId = settingsBundle.windowId
-
                 val requiresReload = extras.getBoolean("requiresReload")
 
                 if(!edited && !reset) return
 
-                if(windowId != null) {
-                    val window = windowRepository.getWindow(windowId)!!
-                    window.pageManager.textDisplaySettings = if(reset)
-                        TextDisplaySettings()
-                    else
-                        settingsBundle.pageManagerSettings!!
+                val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
 
-                    if(requiresReload)
-                        window.updateText()
-                    else {
-                        window.bibleView?.updateTextDisplaySettings()
-                    }
-                } else {
-                    if(reset) {
-                        windowRepository.textDisplaySettings = TextDisplaySettings.default
-                    } else {
-                        windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
-                    }
-                    val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
-                    windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
-                    if(requiresReload) {
-                        ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-                    } else {
-                        windowRepository.updateVisibleWindowsTextDisplaySettings()
-                    }
-                }
-                invalidateOptionsMenu()
-                resetSystemUi()
+                workspaceSettingsChanged(settingsBundle, requiresReload, reset, dirtyTypes)
                 return
             }
             STD_REQUEST_CODE -> {
@@ -1267,6 +1143,39 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     }
 
+    private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
+                                         reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
+        val windowId = settingsBundle.windowId
+        if(windowId != null) {
+            val window = windowRepository.getWindow(windowId)!!
+            window.pageManager.textDisplaySettings = if(reset)
+                TextDisplaySettings()
+            else
+                settingsBundle.pageManagerSettings!!
+
+            if(requiresReload)
+                window.updateText()
+            else {
+                window.bibleView?.updateTextDisplaySettings()
+            }
+        } else {
+            if(reset) {
+                windowRepository.textDisplaySettings = TextDisplaySettings.default
+            } else {
+                windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+            }
+            if(dirtyTypes != null) {
+                windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+            }
+            if(requiresReload) {
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            } else {
+                windowRepository.updateVisibleWindowsTextDisplaySettings()
+            }
+        }
+        invalidateOptionsMenu()
+        resetSystemUi()
+    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
@@ -1400,6 +1309,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
         const val COLORS_CHANGED = 5
+        const val WORKSPACE_CHANGED = 6
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

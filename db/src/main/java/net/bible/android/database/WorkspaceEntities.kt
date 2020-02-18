@@ -137,9 +137,19 @@ class WorkspaceEntities {
         @Embedded(prefix="font_") var font: Font? = null
     ) {
         enum class Types {
-            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES,
-            VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
-            MARGINSIZE, COLORS, JUSTIFY, FONT
+            FONT,
+            COLORS,
+            MARGINSIZE,
+            JUSTIFY,
+            STRONGS,
+            MORPH,
+            FOOTNOTES,
+            REDLETTERS,
+            SECTIONTITLES,
+            VERSENUMBERS,
+            VERSEPERLINE,
+            BOOKMARKS,
+            MYNOTES,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -233,8 +243,8 @@ class WorkspaceEntities {
                 return actual(pg?: ws?: def, ws?: def)
             }
 
-            fun actual(pageManagerSettigns: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
-                val pg = pageManagerSettigns
+            fun actual(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
+                val pg = pageManagerSettings
                 val ws = workspaceSettings
                 val def = default
                 val result = TextDisplaySettings()
@@ -242,6 +252,18 @@ class WorkspaceEntities {
                     result.setValue(t, pg?.getValue(t) ?: ws.getValue(t)?: def.getValue(t)!!)
                 }
                 return result
+            }
+
+            fun markNonSpecific(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings) {
+                val pg = pageManagerSettings
+                val ws = workspaceSettings
+
+                if(pg == null) return
+                for(t in Types.values()) {
+                    if(pg.getValue(t) == ws.getValue(t)) {
+                        pg.setNonSpecific(t)
+                    }
+                }
             }
         }
     }
@@ -260,8 +282,11 @@ class WorkspaceEntities {
 
     @Entity
     data class Workspace(
-        val name: String,
+        var name: String,
+        var contentsText: String? = null,
+
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
         @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
