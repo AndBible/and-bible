@@ -636,4 +636,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="current_workspace">current</string>
     <string name="workspace_save_changes">Apply changes to workspaces?</string>
     <string name="copy_of_workspace">Copy of %s</string>
+    <string name="copy_workspace_settings">Copy settings…</string>
+    <string name="copy_settings_title">Which settings do you want to copy?</string>
+    <string name="select_all">Select all</string>
+    <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
 </resources>

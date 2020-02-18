@@ -21,6 +21,7 @@ package net.bible.android.view.activity.workspaces
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Typeface
@@ -53,6 +54,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.db.DatabaseContainer
 import org.jetbrains.anko.displayMetrics
 import javax.inject.Inject
@@ -320,8 +322,79 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     .show()
 
             }
+            R.id.copySettings -> {
+                copySettingsStage1(workspace)
+            }
         }
         return false
+    }
+
+    private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
+        val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
+            getPrefItem(SettingsBundle(0, WorkspaceEntities.TextDisplaySettings()), it).title
+        }.toTypedArray()
+        val checkedItems = items.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay) {d,_ ->
+                copySettingsStage2(workspace, checkedItems)
+            }
+            .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all, null)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.copy_settings_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val v = dialog.listView
+                for(i in 0 until v.count) {
+                    v.setItemChecked(i, true)
+                    checkedItems[i] = true
+                }
+            }
+        }
+        dialog.show()
+
+    }
+
+    private fun copySettingsStage2(workspace: WorkspaceEntities.Workspace, checkedTypes: BooleanArray) {
+        val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+        val workspaceNames = dataSet.map { it.name }.toTypedArray()
+        val checkedWorkspaces = workspaceNames.map {false}.toBooleanArray()
+
+        val dialog = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay) { d, _ ->
+                for ((wsIdx, ws) in dataSet.withIndex())
+                    for ((tIdx, type) in types.withIndex()) {
+                        if(checkedTypes[tIdx] && checkedWorkspaces[wsIdx] && workspace.id != ws.id) {
+                            val s = ws.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+                            s.setValue(type, workspace.textDisplaySettings?.getValue(type))
+                            ws.textDisplaySettings = s
+                        }
+                    }
+                setDirty()
+            }
+            .setMultiChoiceItems(workspaceNames, checkedWorkspaces) { _, pos, value ->
+                checkedWorkspaces[pos] = value
+            }
+            .setNeutralButton(R.string.select_all, null)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.copy_settings_workspaces_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val v = dialog.listView
+                for(i in 0 until v.count) {
+                    v.setItemChecked(i, true)
+                    checkedWorkspaces[i] = true
+                }
+            }
+        }
+        dialog.show()
+
     }
 
     private val dao = DatabaseContainer.db.workspaceDao()

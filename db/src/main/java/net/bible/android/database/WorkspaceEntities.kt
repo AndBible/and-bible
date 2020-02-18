@@ -137,9 +137,19 @@ class WorkspaceEntities {
         @Embedded(prefix="font_") var font: Font? = null
     ) {
         enum class Types {
-            STRONGS, MORPH, FOOTNOTES, REDLETTERS, SECTIONTITLES,
-            VERSENUMBERS, VERSEPERLINE, BOOKMARKS, MYNOTES,
-            MARGINSIZE, COLORS, JUSTIFY, FONT
+            FONT,
+            COLORS,
+            MARGINSIZE,
+            JUSTIFY,
+            STRONGS,
+            MORPH,
+            FOOTNOTES,
+            REDLETTERS,
+            SECTIONTITLES,
+            VERSENUMBERS,
+            VERSEPERLINE,
+            BOOKMARKS,
+            MYNOTES,
         }
 
         fun getValue(type: Types): Any? = when(type) {
