@@ -33,6 +33,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
+import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
@@ -285,9 +286,22 @@ open class WindowRepository @Inject constructor(
         }
     }
 
+    val contentText: String get() {
+        val keyTitle = ArrayList<String>()
+        val prevFullBookNameValue = BookName.isFullBookName()
+        BookName.setFullBookName(false)
+
+        windowList.forEach {
+            keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+        }
+
+        BookName.setFullBookName(prevFullBookNameValue)
+        return keyTitle.joinToString(", ")
+    }
+
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, id, orderNumber, textDisplaySettings, windowBehaviorSettings))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(name, contentText, id, orderNumber, textDisplaySettings, windowBehaviorSettings))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)

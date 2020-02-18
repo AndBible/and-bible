@@ -247,13 +247,15 @@ private val MIGRATION_17_18 = object : Migration(17, 18) {
 private val MIGRATION_18_19 = object : Migration(18, 19) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
-            val colDefs = "`orderNumber` INTEGER NOT NULL DEFAULT 0".split(",")
+            val colDefs = "`orderNumber` INTEGER NOT NULL DEFAULT 0, `contentsText` TEXT".split(",")
             colDefs.forEach {
                 execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
             }
         }
     }
 }
+
+
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null

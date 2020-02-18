@@ -273,6 +273,8 @@ class WorkspaceEntities {
     @Entity
     data class Workspace(
         var name: String,
+        var contentsText: String? = null,
+
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 

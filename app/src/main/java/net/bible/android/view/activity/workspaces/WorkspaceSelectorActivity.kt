@@ -72,8 +72,9 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         val title = holder.layout.findViewById<TextView>(R.id.title)
         val summary = holder.layout.findViewById<TextView>(R.id.summary)
         val layout = holder.layout
-        title.text = items[position].name
-        summary.text = "test ${position}"
+        val workspaceEntity = items[position]
+        title.text = workspaceEntity.name
+        summary.text = workspaceEntity.contentsText
 
         layout.setOnClickListener {
             activity.goToWorkspace(holder.itemId)
@@ -150,9 +151,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        super.buildActivityComponent().inject(this)
+        windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
         setContentView(R.layout.workspace_selector)
-        super.buildActivityComponent().inject(this)
         val layoutManager = LinearLayoutManager(this)
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
@@ -210,7 +212,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     val windowRepository = windowControl.windowRepository
                     windowRepository.saveIntoDb()
                     val newWorkspaceEntity = WorkspaceEntities.Workspace(
-                        name.text.toString(), 0,
+                        name.text.toString(), null, 0,
                         windowRepository.orderNumber,
                         windowRepository.textDisplaySettings,
                         windowRepository.windowBehaviorSettings

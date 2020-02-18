@@ -504,7 +504,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowRepository.saveIntoDb()
 
         val newWorkspaceEntity = WorkspaceEntities.Workspace(
-            newWorkspaceName, 0, windowRepository.orderNumber, windowRepository.textDisplaySettings, windowRepository.windowBehaviorSettings
+            newWorkspaceName, windowRepository.contentText, 0, windowRepository.orderNumber, windowRepository.textDisplaySettings, windowRepository.windowBehaviorSettings
         ).apply {
             id = dao.insertWorkspace(this)
         }
