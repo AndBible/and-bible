@@ -27,8 +27,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.text.InputType
-import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
@@ -43,8 +41,6 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -53,7 +49,6 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.internal.TextDrawableHelper
 import kotlinx.android.synthetic.main.main_bible_view.*
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -470,110 +465,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     val workspaces get() = dao.allWorkspaces()
-
-    private fun deleteWorkspace() {
-        val nextWorkspace = workspaces.reversed().find { it.id < currentWorkspaceId } ?: workspaces[0]
-        dao.deleteWorkspace(currentWorkspaceId)
-        windowRepository.clear(true)
-        currentWorkspaceId = nextWorkspace.id
-    }
-
-    private fun renameWorkspace() {
-        val input = EditText(this)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        input.text = SpannableStringBuilder(windowRepository.name)
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.rename_workspace_title))
-            .setView(input)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.okay) { dialog, _ ->
-                dialog.dismiss()
-                windowRepository.name = input.text.toString()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-                invalidateOptionsMenu()
-            }
-            .show()
-    }
-
     val windowRepository get() = windowControl.windowRepository
-
-    private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
-
-    private fun newWorkspace() {
-        val defaultDocument = pageControl.currentPageManager.currentBible.currentDocument
-        windowRepository.saveIntoDb()
-
-        val newWorkspaceEntity = WorkspaceEntities.Workspace(
-            newWorkspaceName, windowRepository.contentText, 0, windowRepository.orderNumber, windowRepository.textDisplaySettings, windowRepository.windowBehaviorSettings
-        ).apply {
-            id = dao.insertWorkspace(this)
-        }
-
-        currentWorkspaceId = newWorkspaceEntity.id
-        pageControl.currentPageManager.currentBible.setCurrentDocument(defaultDocument)
-    }
-
-    private fun cloneWorkspace() {
-        val newWorkspace = dao.cloneWorkspace(currentWorkspaceId, newWorkspaceName)
-        currentWorkspaceId = newWorkspace.id
-        ABEventBus.getDefault().post(ToastEvent(newWorkspace.name))
-        invalidateOptionsMenu()
-    }
-
-    private fun chooseWorkspace() {
-        windowRepository.saveIntoDb()
-
-        val workspaceTitles = ArrayList<String>()
-        val pageManager = windowRepository.currentPageManagerProvider.get()
-        val workspaces = workspaces
-
-        for(workspace in workspaces) {
-            val windows = dao.windows(workspace.id)
-
-            val name = workspace.name
-            val keyTitle = ArrayList<String>()
-            val prevFullBookNameValue = BookName.isFullBookName()
-            BookName.setFullBookName(false)
-
-            //windows.forEach {
-            //    pageManager.restoreFrom(dao.pageManager(it.id))
-            //    keyTitle.add("${pageManager.currentPage.singleKey?.name} (${pageManager.currentPage.currentDocument?.abbreviation})")
-            //}
-
-            BookName.setFullBookName(prevFullBookNameValue)
-            val text = if(name.isNotEmpty())
-                getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
-            else
-                keyTitle.joinToString(", ")
-
-            val prefix = if(currentWorkspaceId == workspace.id) {
-                "• ⭐ "
-            } else "• "
-
-            workspaceTitles.add(prefix + text)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, workspaceTitles)
-        val builder = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.choose_workspace_to_open))
-            .setPositiveButton(getString(R.string.new_workspace_from_dialog)) { _, _ ->
-                newWorkspace()
-            }
-            .setAdapter(adapter) {_, which ->
-                val now = workspaces[which]
-                if(currentWorkspaceId != now.id) {
-                    currentWorkspaceId = now.id
-                }
-            }
-            .setNeutralButton(R.string.cancel, null)
-
-        if(workspaces.size > 1) {
-            builder.setNegativeButton(getString(R.string.delete_workspace_from_dialog)) { _, _ ->
-                deleteWorkspace()
-            }
-        }
-        builder.show()
-    }
 
     private fun previousWorkspace() {
         val workspaces = workspaces
@@ -593,9 +485,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         currentWorkspaceId = if(currentWorkspacePos < workspaces.size - 1) workspaces[currentWorkspacePos + 1].id else workspaces[0].id
     }
-
-    private val haveWorkspaces: Boolean get() = numWorkspaces > 1
-    private val numWorkspaces: Int get() = workspaces.size
 
     private var currentWorkspaceId
         get() = windowRepository.id
@@ -627,14 +516,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()
-
-            R.id.workspacesSubMenu -> WorkspacesSubmenu("${item.title} (${SharedActivityState.currentWorkspaceName})")
-            R.id.newWorkspace -> CommandPreference(handle = {newWorkspace()})
-            R.id.cloneWorkspace -> CommandPreference(handle = {cloneWorkspace()})
-            R.id.deleteWorkspace -> CommandPreference(handle = {deleteWorkspace()}, enabled = haveWorkspaces)
-            R.id.renameWorkspace -> CommandPreference(handle = {renameWorkspace()})
-            R.id.switchToWorkspace -> CommandPreference(handle = {chooseWorkspace()})
-            R.id.switchToWorkspace2 -> CommandPreference(launch = { _, _, _ ->
+            R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             })
