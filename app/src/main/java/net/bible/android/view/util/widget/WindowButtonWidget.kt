@@ -72,9 +72,7 @@ class WindowButtonWidget(
             windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
         }
         if(window?.isMinimised == true) {
-            buttonText.textSize = 12.0f
-            buttonText.setLines(2)
-            buttonText.isSingleLine = false
+            buttonText.textSize = 13.0f
         }
     }
 
