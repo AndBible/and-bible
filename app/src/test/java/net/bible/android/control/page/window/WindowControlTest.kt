@@ -111,7 +111,7 @@ class WindowControlTest {
         val linksWindow = windowRepository!!.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowLayout.state, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
     }
 
@@ -127,7 +127,7 @@ class WindowControlTest {
         val linksWindow = windowRepository!!.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowLayout.state, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
         assertThat(windowControl!!.isActiveWindow(linksWindow), `is`(true))
 
@@ -194,7 +194,7 @@ class WindowControlTest {
         verifyZeroInteractions(eventManager)
 
         // test still prevented if links window is visible
-        windowRepository!!.dedicatedLinksWindow.windowLayout.state = WindowState.SPLIT
+        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
         windowControl!!.minimiseWindow(onlyWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
         verifyZeroInteractions(eventManager)
@@ -283,7 +283,7 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testCloseWindowPreventedIfOnlyOtherIsLinks() {
-        windowRepository!!.dedicatedLinksWindow.windowLayout.state = WindowState.SPLIT
+        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
         val onlyNormalWindow = windowRepository!!.activeWindow
         windowControl!!.closeWindow(onlyNormalWindow)
         assertThat(windowRepository!!.windows, hasItem(onlyNormalWindow))

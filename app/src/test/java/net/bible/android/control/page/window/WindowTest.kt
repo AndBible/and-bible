@@ -56,14 +56,13 @@ class WindowTest {
 
         // initialise Window
         var window = Window(
-            WorkspaceEntities.Window(0,true, false, false,
+            WorkspaceEntities.Window(0,true, false, false, false,
                 WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()), 2),
             mockCurrentPageManager,
             windowRepository
         )
-        var layout = window.windowLayout
         window.isSynchronised = true
-        layout.weight = 1.23456f
+        window.weight = 1.23456f
 
         var pageManager = window.pageManager
         var biblePage = pageManager.currentBible
@@ -75,11 +74,10 @@ class WindowTest {
 
         // recreate window from saved state
         window = Window(entity, mockCurrentPageManager, windowRepository)
-        layout = window.windowLayout
         assertThat(window.id, equalTo(2L))
-        assertThat(layout.state, equalTo(WindowState.MINIMISED))
+        assertThat(window.windowState, equalTo(WindowState.MINIMISED))
         assertThat(window.isSynchronised, equalTo(true))
-        assertThat(layout.weight, equalTo(1.23456f))
+        assertThat(window.weight, equalTo(1.23456f))
 
         pageManager = window.pageManager
         biblePage = pageManager.currentBible
