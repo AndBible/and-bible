@@ -89,7 +89,7 @@ open class WindowRepository @Inject constructor(
             val windows = ArrayList(windowList)
             addLinksWindowIfVisible(windows)
             val maximizedMode = windows.find {it.isMaximised} != null
-            return if(maximizedMode) windows.sortedWith(compareBy { it.isPinMode }).asReversed() else windows
+            return if(maximizedMode) windows.sortedWith(compareBy { !it.isPinMode }) else windows
         }
 
     init {

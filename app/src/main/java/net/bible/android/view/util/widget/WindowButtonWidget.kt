@@ -71,7 +71,7 @@ class WindowButtonWidget(
             val isMaximised = window?.isMaximised == true
             windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
         }
-        if(window?.isMinimised == true) {
+        if(window?.isMinimised == true || window?.isMaximised == true) {
             buttonText.textSize = 13.0f
         }
     }
