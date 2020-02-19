@@ -79,21 +79,30 @@ constructor(private val windowControl: WindowControl) {
         }
 
 
-    fun getEntities(windowId: Long) =
-        windowHistoryStackMap[windowId]?.mapNotNull {
-            if(it is KeyHistoryItem) {
-                WorkspaceEntities.HistoryItem(
-                    windowId, it.createdAt, it.document.initials, it.key.osisID,
-                    if(it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
-                )
+    fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
+        var lastItem: KeyHistoryItem? = null
+        return windowHistoryStackMap[windowId]?.mapNotNull {
+            if (it is KeyHistoryItem) {
+                if(it.document == lastItem?.document && it.key == lastItem?.key) {
+                    null
+                } else {
+                    lastItem = it
+                    WorkspaceEntities.HistoryItem(
+                        windowId, it.createdAt, it.document.initials, it.key.osisID,
+                        if (it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
+                    )
+                }
             } else null
         } ?: emptyList()
+    }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
         val stack = Stack<HistoryItem>()
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
-            val key = try {doc.getKey(entity.key) } catch (e: NoSuchKeyException) {
+            val key = try {
+                doc.getKey(entity.key)[0]
+            } catch (e: NoSuchKeyException) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
@@ -149,7 +158,10 @@ constructor(private val windowControl: WindowControl) {
             val key = currentPage.singleKey
             val yOffsetRatio = currentPage.currentYOffsetRatio
             if(doc == null) return null
-            historyItem = if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow) else null
+            historyItem =
+                if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow)
+                else null
+
         } else if (currentActivity is AndBibleActivity) {
             val andBibleActivity = currentActivity as AndBibleActivity
             if (andBibleActivity.isIntegrateWithHistoryManager) {
