@@ -187,21 +187,6 @@ class WindowControlTest {
 
     @Test
     @Throws(Exception::class)
-    fun testMinimiseOnlyWindowPrevented() {
-        val onlyWindow = windowControl!!.activeWindow
-        windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
-        verifyZeroInteractions(eventManager)
-
-        // test still prevented if links window is visible
-        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
-        windowControl!!.minimiseWindow(onlyWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
-        verifyZeroInteractions(eventManager)
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun testMaximiseWindow() {
         val newWindow = windowControl!!.addNewWindow()
         windowControl!!.activeWindow = newWindow
