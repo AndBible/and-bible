@@ -160,25 +160,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
         save.isEnabled = true
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        updateRecyclerViewHeight()
-    }
-
-    private fun updateRecyclerViewHeight() {
-        val lp = ConstraintLayout.LayoutParams(recyclerView.layoutParams)
-        val screenHeight = displayMetrics.heightPixels
-        lp.height = (screenHeight * 0.6).toInt()
-        recyclerView.layoutParams = lp
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
         setContentView(R.layout.workspace_selector)
-        updateRecyclerViewHeight()
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
             registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
@@ -253,12 +240,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             applyChanges()
             finishOk()
         }
-
-        // Workaround to issue that list item width is incorrect in some (slower?) devices
-        // At least there is issue with my Samsung Tab A 8" (Android 9).
-        Handler().postDelayed( {
-            recyclerView.adapter = workspaceAdapter
-        }, 50)
+        recyclerView.adapter = workspaceAdapter
     }
 
     private fun finishOk() {
