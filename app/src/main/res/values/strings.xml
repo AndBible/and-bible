@@ -193,7 +193,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
     <string name="prefs_margin_size_title">Change margin size</string>
-    <string name="prefs_margin_size_mm_title">Change margin size (%d/%d/%d mm)</string>
+    <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
     <string name="margin_size_mm">Margins left %d mm right %d mm.
         \nMaximum text width: %d mm.</string>
     <string name="left_margin">Left margin</string>

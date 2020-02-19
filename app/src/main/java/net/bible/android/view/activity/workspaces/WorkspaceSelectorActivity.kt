@@ -329,7 +329,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(0, "", WorkspaceEntities.TextDisplaySettings()), it).title
+            getPrefItem(SettingsBundle(workspace.id, workspace.name, workspace.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default), it).title
         }.toTypedArray()
         val checkedItems = items.map { false }.toBooleanArray()
         val dialog = AlertDialog.Builder(this)
