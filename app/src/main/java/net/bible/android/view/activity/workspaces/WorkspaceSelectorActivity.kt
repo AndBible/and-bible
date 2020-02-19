@@ -254,7 +254,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
             finishOk()
         }
 
-        // Workaround to issue that list item width is incorrect in slower devices
+        // Workaround to issue that list item width is incorrect in some (slower?) devices
+        // At least there is issue with my Samsung Tab A 8" (Android 9).
         Handler().postDelayed( {
             recyclerView.adapter = workspaceAdapter
         }, 20)
