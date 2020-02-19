@@ -181,7 +181,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
         resultIntent = Intent(this, this::class.java)
         setContentView(R.layout.workspace_selector)
         updateRecyclerViewHeight()
-        val layoutManager = LinearLayoutManager(this)
         workspaceAdapter = WorkspaceAdapter(this).apply {
             setHasStableIds(true)
             registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
@@ -214,13 +213,15 @@ class WorkspaceSelectorActivity: ActivityBase() {
         val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
         val currentPosition = dataSet.indexOf(workspace)
 
+        val llm = LinearLayoutManager(this)
+
         recyclerView.apply {
-            this.layoutManager = layoutManager
+            layoutManager = llm
             setHasFixedSize(true)
         }
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-       newWorkspace.setOnClickListener {
+        newWorkspace.setOnClickListener {
             val name = EditText(this)
             name.text = SpannableStringBuilder(getString(R.string.workspace_number, dataSet.size + 1))
             name.selectAll()
