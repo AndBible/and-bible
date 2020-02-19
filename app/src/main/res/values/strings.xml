@@ -643,4 +643,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- History -->
     <string name="history_for">History (%s: Window %d)</string>
     <string name="history_title">History (%s)</string>
+    <string name="window_swap_mode">Swap</string>
 </resources>

@@ -62,6 +62,7 @@ class WindowButtonWidget(
 
     private fun updateSettings() {
         synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.INVISIBLE
+        swapMode.visibility = if(window?.isSwapMode == true) View.VISIBLE else View.INVISIBLE
     }
 
     private fun updateBackground() {

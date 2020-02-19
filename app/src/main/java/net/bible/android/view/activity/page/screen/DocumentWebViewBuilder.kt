@@ -754,6 +754,10 @@ class DocumentWebViewBuilder @Inject constructor(
                 value = window.isSynchronised,
                 visible = !window.isLinksWindow
                 )
+            R.id.swapMode -> CommandPreference(
+                handle = {windowControl.setSwapMode(window, !window.isSwapMode)},
+                value = window.isSwapMode
+            )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow
             )

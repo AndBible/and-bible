@@ -50,8 +50,14 @@ open class Window (
     }
 
     val entity get () =
-        WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
-            WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight), id
+        WorkspaceEntities.Window(
+            workspaceId = workspaceId,
+            isSynchronized = isSynchronised,
+            isSwapMode = isSwapMode,
+            wasMinimised = wasMinimised,
+            isLinksWindow = isLinksWindow,
+            windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
+            id = id
         )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
@@ -63,6 +69,11 @@ open class Window (
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
 
+    var isSwapMode: Boolean = window.isSwapMode
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
     var wasMinimised = window.wasMinimised
 
     val isClosed: Boolean

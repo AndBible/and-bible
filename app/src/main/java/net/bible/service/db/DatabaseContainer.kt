@@ -255,6 +255,18 @@ private val MIGRATION_18_19 = object : Migration(18, 19) {
     }
 }
 
+private val MIGRATION_19_20 = object : Migration(19, 20) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`isSwapMode` INTEGER NOT NULL DEFAULT 0".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Window` ADD COLUMN $it")
+            }
+        }
+    }
+}
+
+
 
 
 object DatabaseContainer {
@@ -286,7 +298,8 @@ object DatabaseContainer {
                         MIGRATION_15_16,
                         MIGRATION_16_17,
                         MIGRATION_17_18,
-                        MIGRATION_18_19
+                        MIGRATION_18_19,
+                        MIGRATION_19_20
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

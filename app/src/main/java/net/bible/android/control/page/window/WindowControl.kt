@@ -50,6 +50,10 @@ open class WindowControl @Inject constructor(
         private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
 
+    val swapModeWindow: Window? get() {
+        return windowRepository.windowList.find { it.isSwapMode }
+    }
+
     private var isSeparatorMoving = false
     private var stoppedMovingTime: Long = 0
     val windowSync: WindowSync = WindowSync(windowRepository)
@@ -262,6 +266,7 @@ open class WindowControl @Inject constructor(
     fun restoreWindow(window: Window) {
         if (window == activeWindow) return
         window.restoreOngoing = true
+
         var switchingMaximised = false
         windowRepository.maximisedScreens.forEach {
             switchingMaximised = true
@@ -271,7 +276,6 @@ open class WindowControl @Inject constructor(
         window.isMaximised = switchingMaximised
 
         // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
         windowSync.synchronizeWindows()
         windowSync.reloadAllWindows()
 
@@ -279,8 +283,18 @@ open class WindowControl @Inject constructor(
             if (activeWindow.isSynchronised)
                 windowRepository.lastMaximizedAndSyncWindowId =  activeWindow.id
             activeWindow = window
-        } else
+        } else {
             windowRepository.lastMaximizedAndSyncWindowId = null
+
+            val swapWin = swapModeWindow
+            if(swapWin != null) {
+                window.isSwapMode = true
+                swapWin.isSwapMode = false
+                windowRepository.swapWindowPositions(window, swapWin)
+                windowRepository.minimise(swapWin)
+            }
+        }
+        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
         window.restoreOngoing = false
     }
@@ -364,6 +378,18 @@ open class WindowControl @Inject constructor(
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+    }
+
+    fun setSwapMode(window: Window, value: Boolean) {
+        if(value) {
+            val swapWin = swapModeWindow
+            if (swapWin != null) {
+                swapWin.isSwapMode = false
+            }
+            window.isSwapMode = true
+        } else {
+            window.isSwapMode = false
+        }
     }
 
     companion object {

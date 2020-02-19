@@ -257,11 +257,26 @@ open class WindowRepository @Inject constructor(
         windowList.add(position, window)
     }
 
+    fun swapWindowPositions(w1: Window, w2: Window) {
+        val i1 = windowList.indexOf(w1)
+        val i2 = windowList.indexOf(w2)
+
+        windowList.add(i1+1, w2)
+        windowList.removeAt(i1)
+
+        windowList.add(i2+1, w1)
+        windowList.removeAt(i2)
+    }
+
     private fun createNewWindow(first: Boolean = false): Window {
         val pageManager = currentPageManagerProvider.get()
         val winEntity = WorkspaceEntities.Window(
-            id, true, false, false,
-            WorkspaceEntities.WindowLayout(defaultState.toString())
+            id,
+            isSynchronized = true,
+            isSwapMode = false,
+            wasMinimised = false,
+            isLinksWindow = false,
+            windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString())
         ).apply {
             id = dao.insertWindow(this)
         }
@@ -347,8 +362,12 @@ open class WindowRepository @Inject constructor(
         windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
 
         val linksWindowEntity = dao.linksWindow(id) ?: WorkspaceEntities.Window(
-            id, false, false, true,
-            WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
+            id,
+            isSynchronized = false,
+            isSwapMode = false,
+            wasMinimised = false,
+            isLinksWindow = true,
+            windowLayout = WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
         ).apply {
             id = dao.insertWindow(this)
         }

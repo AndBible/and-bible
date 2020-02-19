@@ -331,6 +331,7 @@ class WorkspaceEntities {
     data class Window(
         var workspaceId: Long,
         val isSynchronized: Boolean,
+        val isSwapMode: Boolean,
         val wasMinimised: Boolean,
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,

@@ -25,6 +25,11 @@
 		  android:icon="@drawable/ic_sync_white_24dp"
 		  android:checkable="true"
 		  android:checked="true"/>
+	<item android:id="@+id/swapMode"
+		android:title="@string/window_swap_mode"
+		android:icon="@drawable/ic_swap_vert_black_24dp"
+		android:checkable="true"
+		android:checked="true"/>
 	<item
 		android:id="@+id/moveWindowSubMenu"
 		android:icon="@drawable/ic_compare_arrows_black_24dp"
