@@ -31,6 +31,9 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.RangedPassage
+import java.lang.Exception
+import java.lang.IndexOutOfBoundsException
 
 
 import java.util.ArrayList
@@ -101,7 +104,8 @@ constructor(private val windowControl: WindowControl) {
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
             val key = try {
-                doc.getKey(entity.key)[0]
+                val k = doc.getKey(entity.key)
+                if(k is RangedPassage) k[0] else k
             } catch (e: NoSuchKeyException) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
