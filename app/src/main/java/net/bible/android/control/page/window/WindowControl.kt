@@ -183,11 +183,13 @@ open class WindowControl @Inject constructor(
         return window
     }
 
-    fun minimiseWindow(window: Window) {
-        windowRepository.minimise(window)
+    fun minimiseWindow(window: Window, force: Boolean = false) {
+        if(force || isWindowMinimisable(window)) {
+            windowRepository.minimise(window)
 
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            // redisplay the current page
+            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        }
     }
 
     fun maximiseWindow(window: Window) {
@@ -382,7 +384,7 @@ open class WindowControl @Inject constructor(
             if(value) {
                 maximiseWindow(window)
             } else if(windowRepository.maximisedWindows.size > 1) {
-                minimiseWindow(window)
+                minimiseWindow(window, true)
             }
         }
     }
