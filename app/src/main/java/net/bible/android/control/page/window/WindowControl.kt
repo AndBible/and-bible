@@ -220,12 +220,12 @@ open class WindowControl @Inject constructor(
     }
 
     fun unmaximiseWindow(window: Window) {
-        window.windowState = WindowState.SPLIT
-
-        windowRepository.minimisedWindows.forEach {
+        for (it in windowRepository.windowList) {
             it.windowState = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
             it.wasMinimised = false
         }
+
+        window.windowState = WindowState.SPLIT
 
         // redisplay the current page
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
