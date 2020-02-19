@@ -9,6 +9,7 @@
 	<color name="bible_text_day">#000000</color>
 	<color name="bible_text_night">#b0b0b0</color>
 
+	<color name="window_button_icon_tint">#000000</color>
 	<color name="window_button_text_colour">#7FFFFFFF</color>
 	<color name="window_button_background_colour">#466b6b6b</color>
 				    
