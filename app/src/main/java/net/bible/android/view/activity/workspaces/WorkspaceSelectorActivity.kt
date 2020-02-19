@@ -22,10 +22,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Handler
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
@@ -40,7 +38,6 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.UP
@@ -56,7 +53,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.db.DatabaseContainer
-import org.jetbrains.anko.displayMetrics
 import javax.inject.Inject
 
 

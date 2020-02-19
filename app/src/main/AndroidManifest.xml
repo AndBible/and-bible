@@ -162,7 +162,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity"
-            android:theme="@style/Theme.AppCompat.DayNight"
+            android:theme="@style/MyDayNightTheme"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_selector_title"
             />

@@ -60,6 +60,7 @@
 
 	</style>
 
+
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
 		<item name="textAllCaps">false</item>
 		<item name="android:textStyle">normal</item>
