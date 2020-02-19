@@ -31,6 +31,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import java.lang.RuntimeException
 
 class WindowChangedEvent(val window: Window)
 
@@ -39,9 +40,21 @@ open class Window (
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository
 ){
+    var weight: Float
+        get() =
+            if(isMaximised && !isPinMode) windowRepository.maximizedWeight ?: windowLayout.weight
+            else windowLayout.weight
+        set(value) {
+            if(isMaximised && !isPinMode)
+                windowRepository.maximizedWeight = value
+            else
+                windowLayout.weight = value
+        }
 
-    val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+
     var id = window.id
+
     protected var workspaceId = window.workspaceId
 
     init {
@@ -53,7 +66,7 @@ open class Window (
         WorkspaceEntities.Window(
             workspaceId = workspaceId,
             isSynchronized = isSynchronised,
-            isSwapMode = isSwapMode,
+            isPinMode = isPinMode,
             wasMinimised = wasMinimised,
             isLinksWindow = isLinksWindow,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
@@ -69,22 +82,29 @@ open class Window (
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
 
-    var isSwapMode: Boolean = window.isSwapMode
+    var isPinMode: Boolean = window.isPinMode
         set(value) {
             field = value
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
     var wasMinimised = window.wasMinimised
 
+    val isMaximised: Boolean
+        get() = windowLayout.state == WindowState.MAXIMISED
+
+    val isMinimised: Boolean
+        get() = windowLayout.state == WindowState.MINIMISED
+
+    val isSplit: Boolean
+        get() = windowLayout.state == WindowState.SPLIT
+
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
 
-    var isMaximised: Boolean
-        get() = windowLayout.state == WindowState.MAXIMISED
-        set(maximise) = if (maximise) {
-            windowLayout.state = WindowState.MAXIMISED
-        } else {
-            windowLayout.state = WindowState.SPLIT
+    var windowState: WindowState
+        get() = windowLayout.state
+        set(value) {
+            windowLayout.state = value
         }
 
     val isVisible: Boolean

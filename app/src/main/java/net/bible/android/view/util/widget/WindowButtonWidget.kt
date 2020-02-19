@@ -62,12 +62,14 @@ class WindowButtonWidget(
 
     private fun updateSettings() {
         synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.INVISIBLE
-        swapMode.visibility = if(window?.isSwapMode == true) View.VISIBLE else View.INVISIBLE
+        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
     }
 
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            windowButton.setBackgroundResource(if (window?.id == activeWindow.id) R.drawable.window_button_active else R.drawable.window_button)
+            val isActive = window?.id == activeWindow.id
+            val isMaximised = window?.isMaximised == true
+            windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
         }
     }
 

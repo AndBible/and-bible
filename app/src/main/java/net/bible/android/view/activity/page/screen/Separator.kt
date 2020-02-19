@@ -135,8 +135,8 @@ class Separator(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
                 setBackgroundResource(separatorResource)
-                window1.windowLayout.weight = view1LayoutParams.weight
-                window2.windowLayout.weight = view2LayoutParams.weight
+                window1.weight = view1LayoutParams.weight
+                window2.weight = view2LayoutParams.weight
                 windowControl.setSeparatorMoving(false)
                 touchOwner.releaseOwnership(this)
             }

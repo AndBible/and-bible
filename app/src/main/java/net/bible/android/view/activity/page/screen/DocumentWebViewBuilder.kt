@@ -19,9 +19,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log
@@ -33,14 +31,12 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
 import net.bible.android.BibleApplication
@@ -184,7 +180,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 val bibleView = getCleanView(window)
                 bibleView.updateBackgroundColor()
 
-                val windowWeight = max(window.windowLayout.weight, 0.1F)
+                val windowWeight = max(window.weight, 0.1F)
                 val lp = if (isSplitHorizontally)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
                 else
@@ -251,7 +247,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     windowButtons.add(defaultWindowActionButton)
                     currentWindowFrameLayout.addView(defaultWindowActionButton,
                         FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                            if (isSingleWindow && windowRepository.maximisedScreens.isEmpty())
+                            if (isSingleWindow && windowRepository.maximisedWindows.isEmpty())
                                 Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
                 }
@@ -299,7 +295,7 @@ class DocumentWebViewBuilder @Inject constructor(
                         LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
             }
             if (windowRepository.isMaximisedState) {
-                val maximizedWindow = windowRepository.maximisedScreens[0]
+                val maximizedWindow = windowRepository.maximisedWindows[0]
                 val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
                 restoreButtons.add(unMaximizeButton)
                 minimisedWindowsLayout.addView(unMaximizeButton,
@@ -588,7 +584,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return WindowButtonWidget(window, windowRepository.activeWindow, mainBibleActivity).apply {
             text = getDocumentInitial(window)
             setOnClickListener { windowControl.restoreWindow(window) }
-            setOnLongClickListener { windowControl.restoreWindow(window); true }
+            setOnLongClickListener { v-> showPopupWindow(window, v); true }
         }
     }
 
@@ -754,9 +750,9 @@ class DocumentWebViewBuilder @Inject constructor(
                 value = window.isSynchronised,
                 visible = !window.isLinksWindow
                 )
-            R.id.swapMode -> CommandPreference(
-                handle = {windowControl.setSwapMode(window, !window.isSwapMode)},
-                value = window.isSwapMode
+            R.id.pinMode -> CommandPreference(
+                handle = {windowControl.setPinMode(window, !window.isPinMode)},
+                value = window.isPinMode
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow

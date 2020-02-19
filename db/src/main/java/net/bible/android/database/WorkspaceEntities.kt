@@ -327,11 +327,10 @@ class WorkspaceEntities {
             Index("workspaceId")
         ]
     )
-
     data class Window(
         var workspaceId: Long,
         val isSynchronized: Boolean,
-        val isSwapMode: Boolean,
+        @ColumnInfo(name="isSwapMode") val isPinMode: Boolean,
         val wasMinimised: Boolean,
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,

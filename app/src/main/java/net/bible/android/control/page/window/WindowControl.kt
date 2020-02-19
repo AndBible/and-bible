@@ -50,10 +50,6 @@ open class WindowControl @Inject constructor(
         private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
 
-    val swapModeWindow: Window? get() {
-        return windowRepository.windowList.find { it.isSwapMode }
-    }
-
     private var isSeparatorMoving = false
     private var stoppedMovingTime: Long = 0
     val windowSync: WindowSync = WindowSync(windowRepository)
@@ -139,7 +135,7 @@ open class WindowControl @Inject constructor(
 
         // redisplay the current page
         if (!linksWindowWasVisible) {
-            linksWindow.windowLayout.state = WindowState.SPLIT
+            linksWindow.windowState = WindowState.SPLIT
         }
 
         linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
@@ -188,31 +184,33 @@ open class WindowControl @Inject constructor(
     }
 
     fun minimiseWindow(window: Window) {
-        if (isWindowMinimisable(window)) {
-            windowRepository.minimise(window)
+        windowRepository.minimise(window)
 
-            // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-        }
+        // redisplay the current page
+        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
     }
 
     fun maximiseWindow(window: Window) {
         windowRepository.minimisedWindows.forEach {
             it.wasMinimised = true
         }
-        windowRepository.visibleWindows.forEach {
+        windowRepository.windowList.forEach {
             if (it != window) {
-                it.windowLayout.state = WindowState.MINIMISED
+                if(it.isPinMode) {
+                    it.windowState = WindowState.MAXIMISED
+                } else {
+                    it.windowState = WindowState.MINIMISED
+                }
             }
         }
 
-        window.isMaximised = true
+        window.windowState = WindowState.MAXIMISED
         activeWindow = window
 
         // also remove the links window because it may possibly displayed even though a window is
         // maximised if a link is pressed
         if (!window.isLinksWindow) {
-            windowRepository.dedicatedLinksWindow.windowLayout.state = WindowState.CLOSED
+            windowRepository.dedicatedLinksWindow.windowState = WindowState.CLOSED
         }
 
         // redisplay the current page
@@ -220,10 +218,10 @@ open class WindowControl @Inject constructor(
     }
 
     fun unmaximiseWindow(window: Window) {
-        window.isMaximised = false
+        window.windowState = WindowState.SPLIT
 
         windowRepository.minimisedWindows.forEach {
-            it.windowLayout.state = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
+            it.windowState = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
             it.wasMinimised = false
         }
 
@@ -241,7 +239,7 @@ open class WindowControl @Inject constructor(
             windowRepository.close(window)
 
             val visibleWindows = windowRepository.visibleWindows
-            if (visibleWindows.count() == 1) visibleWindows[0].windowLayout.weight = 1.0F
+            if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
             eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
@@ -268,12 +266,15 @@ open class WindowControl @Inject constructor(
         window.restoreOngoing = true
 
         var switchingMaximised = false
-        windowRepository.maximisedScreens.forEach {
+
+        for (it in windowRepository.maximisedWindows) {
             switchingMaximised = true
-            it.windowLayout.state = WindowState.MINIMISED
+            if(!it.isPinMode) {
+                it.windowState = WindowState.MINIMISED
+            }
         }
 
-        window.isMaximised = switchingMaximised
+        window.windowState = if(switchingMaximised) WindowState.MAXIMISED else WindowState.SPLIT
 
         // causes BibleViews to be created and laid out
         windowSync.synchronizeWindows()
@@ -285,16 +286,8 @@ open class WindowControl @Inject constructor(
             activeWindow = window
         } else {
             windowRepository.lastMaximizedAndSyncWindowId = null
-
-            val swapWin = swapModeWindow
-            if(swapWin != null) {
-                window.isSwapMode = true
-                swapWin.isSwapMode = false
-                window.windowLayout.weight = swapWin.windowLayout.weight
-                windowRepository.swapWindowPositions(window, swapWin)
-                windowRepository.minimise(swapWin)
-            }
         }
+
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
         window.restoreOngoing = false
@@ -360,7 +353,9 @@ open class WindowControl @Inject constructor(
         if(value) {
             maximiseWindow(window)
         } else {
-            unmaximiseWindow(window)
+            for(w in windowRepository.maximisedWindows) {
+                unmaximiseWindow(w)
+            }
         }
     }
 
@@ -381,15 +376,14 @@ open class WindowControl @Inject constructor(
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
     }
 
-    fun setSwapMode(window: Window, value: Boolean) {
-        if(value) {
-            val swapWin = swapModeWindow
-            if (swapWin != null) {
-                swapWin.isSwapMode = false
+    fun setPinMode(window: Window, value: Boolean) {
+        window.isPinMode = value
+        if (windowRepository.isMaximisedState) {
+            if(value) {
+                maximiseWindow(window)
+            } else if(windowRepository.maximisedWindows.size > 1) {
+                minimiseWindow(window)
             }
-            window.isSwapMode = true
-        } else {
-            window.isSwapMode = false
         }
     }
 

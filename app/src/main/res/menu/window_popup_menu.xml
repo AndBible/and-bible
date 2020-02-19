@@ -25,9 +25,9 @@
 		  android:icon="@drawable/ic_sync_white_24dp"
 		  android:checkable="true"
 		  android:checked="true"/>
-	<item android:id="@+id/swapMode"
-		android:title="@string/window_swap_mode"
-		android:icon="@drawable/ic_swap_vert_black_24dp"
+	<item android:id="@+id/pinMode"
+		android:title="@string/window_pin_mode"
+		android:icon="@drawable/ic_pin"
 		android:checkable="true"
 		android:checked="true"/>
 	<item
