@@ -42,7 +42,12 @@ open class Window (
 ){
     var weight: Float
         get() =
-            if(isMaximised && !isPinMode) windowRepository.maximizedWeight ?: windowLayout.weight
+            if(isMaximised && !isPinMode) {
+                if(windowRepository.maximizedWeight == null) {
+                    windowRepository.maximizedWeight = windowLayout.weight
+                }
+                windowRepository.maximizedWeight!!
+            }
             else windowLayout.weight
         set(value) {
             if(isMaximised && !isPinMode)
