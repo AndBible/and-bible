@@ -733,6 +733,7 @@ class DocumentWebViewBuilder @Inject constructor(
             workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings
         )
+        val isMaximized = windowControl.windowRepository.isMaximisedState
 
         return when(item.itemId) {
 
@@ -743,7 +744,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowMaximise -> CommandPreference(
                 handle = {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised,
-                visible = !window.isLinksWindow
+                visible = !window.isLinksWindow && (!isMaximized || (isMaximized && window.isMaximised))
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},

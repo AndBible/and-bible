@@ -157,7 +157,7 @@ open class WindowRepository @Inject constructor(
             state === WindowState.MAXIMISED || state === WindowState.MINIMISED
         }
 
-    val isMaximisedState get() = windows.find{ it.windowState === WindowState.MAXIMISED } !== null
+    val isMaximisedState get() = windows.find{ it.isMaximised } !== null
 
     val isMultiWindow get() = visibleWindows.size > 1
 

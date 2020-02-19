@@ -355,9 +355,7 @@ open class WindowControl @Inject constructor(
         if(value) {
             maximiseWindow(window)
         } else {
-            for(w in windowRepository.maximisedWindows) {
-                unmaximiseWindow(w)
-            }
+            unmaximiseWindow(window)
         }
     }
 
