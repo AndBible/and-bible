@@ -290,6 +290,7 @@ open class WindowControl @Inject constructor(
             if(swapWin != null) {
                 window.isSwapMode = true
                 swapWin.isSwapMode = false
+                window.windowLayout.weight = swapWin.windowLayout.weight
                 windowRepository.swapWindowPositions(window, swapWin)
                 windowRepository.minimise(swapWin)
             }
