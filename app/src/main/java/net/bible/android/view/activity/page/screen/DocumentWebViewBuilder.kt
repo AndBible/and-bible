@@ -64,6 +64,7 @@ import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
@@ -108,8 +109,6 @@ class DocumentWebViewBuilder @Inject constructor(
     private val WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX: Int
     private val WINDOW_BUTTON_TEXT_COLOUR: Int
     private val WINDOW_BUTTON_BACKGROUND_COLOUR: Int
-    private val BUTTON_SIZE_PX: Int
-    private val MIN_BUTTON_WIDTH: Int
     private val BIBLE_REF_OVERLAY_OFFSET: Int
 
     private var previousParent: LinearLayout? = null
@@ -121,9 +120,6 @@ class DocumentWebViewBuilder @Inject constructor(
         WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
         WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour)
         WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour)
-
-        BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size)
-        MIN_BUTTON_WIDTH = (BUTTON_SIZE_PX * 1.3).toInt()
         BIBLE_REF_OVERLAY_OFFSET = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
         // Be notified of any changes to window config
@@ -254,7 +250,7 @@ class DocumentWebViewBuilder @Inject constructor(
 
                     windowButtons.add(defaultWindowActionButton)
                     currentWindowFrameLayout.addView(defaultWindowActionButton,
-                        FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX,
+                        FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                             if (isSingleWindow && windowRepository.maximisedScreens.isEmpty())
                                 Gravity.BOTTOM or Gravity.RIGHT
                             else Gravity.TOP or Gravity.RIGHT))
@@ -289,7 +285,7 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
             currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
-                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX,
+                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                             Gravity.BOTTOM or Gravity.RIGHT))
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
             minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
@@ -300,14 +296,14 @@ class DocumentWebViewBuilder @Inject constructor(
                 val restoreButton = createRestoreButton(minAndMaxScreens[i])
                 restoreButtons.add(restoreButton)
                 minimisedWindowsLayout.addView(restoreButton,
-                        LinearLayout.LayoutParams(MIN_BUTTON_WIDTH, BUTTON_SIZE_PX))
+                        LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
             }
             if (windowRepository.isMaximisedState) {
                 val maximizedWindow = windowRepository.maximisedScreens[0]
                 val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
                 restoreButtons.add(unMaximizeButton)
                 minimisedWindowsLayout.addView(unMaximizeButton,
-                    LinearLayout.LayoutParams(MIN_BUTTON_WIDTH, BUTTON_SIZE_PX))
+                    LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
             }
 
             // Make sure "unmaximise" button on right is visible
@@ -327,8 +323,8 @@ class DocumentWebViewBuilder @Inject constructor(
 
     class WebViewsBuiltEvent
 
-    private val windowButtons: MutableList<Button> = ArrayList()
-    private val restoreButtons: MutableList<WindowButton> = ArrayList()
+    private val windowButtons: MutableList<WindowButtonWidget> = ArrayList()
+    private val restoreButtons: MutableList<WindowButtonWidget> = ArrayList()
     private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
     private lateinit var bibleReferenceOverlay: TextView
 
@@ -553,7 +549,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return bibleViewFactory.getOrCreateBibleView(window)
     }
 
-    private fun createSingleWindowButton(window: Window): Button {
+    private fun createSingleWindowButton(window: Window): WindowButtonWidget {
         return createTextButton("⊕",
             { v -> windowControl.addNewWindow()},
             { v -> false},
@@ -561,7 +557,7 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createCloseButton(window: Window): Button {
+    private fun createCloseButton(window: Window): WindowButtonWidget {
         return createTextButton("X",
             { v -> showPopupWindow(window, v)},
             { v -> windowControl.closeWindow(window); true},
@@ -569,7 +565,7 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createUnMaximizeButton(window: Window): WindowButton {
+    private fun createUnMaximizeButton(window: Window): WindowButtonWidget {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
@@ -579,7 +575,7 @@ class DocumentWebViewBuilder @Inject constructor(
         return b
     }
 
-    private fun createMinimiseButton(window: Window): Button {
+    private fun createMinimiseButton(window: Window): WindowButtonWidget {
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
         return createTextButton(text,
             { v -> showPopupWindow(window, v) },
@@ -588,13 +584,9 @@ class DocumentWebViewBuilder @Inject constructor(
         )
     }
 
-    private fun createRestoreButton(window: Window): WindowButton {
-        return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
-            this.text = getDocumentInitial(window)
-            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-            setTypeface(null, Typeface.BOLD)
-            textSize = 18.0F
-            isSingleLine = true
+    private fun createRestoreButton(window: Window): WindowButtonWidget {
+        return WindowButtonWidget(window, windowRepository.activeWindow, mainBibleActivity).apply {
+            text = getDocumentInitial(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { windowControl.restoreWindow(window); true }
         }
@@ -616,13 +608,9 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?): WindowButton {
-        return WindowButton(mainBibleActivity, window, windowRepository.activeWindow).apply {
+                                 window: Window?): WindowButtonWidget {
+        return WindowButtonWidget(window, windowRepository.activeWindow, mainBibleActivity).apply {
             this.text = text
-            setTextColor(WINDOW_BUTTON_TEXT_COLOUR)
-            setTypeface(null, Typeface.BOLD)
-            textSize = 20.0F
-            isSingleLine = true
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
         }
@@ -775,7 +763,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 enabled = windowControl.isWindowRemovable(window)
             )
             R.id.windowMinimise -> CommandPreference(
-                handle = {windowControl.minimiseWindow(window)},
+                launch = {_, _, _ -> windowControl.minimiseWindow(window)},
                 visible = windowControl.isWindowMinimisable(window)
             )
             R.id.allTextOptions -> CommandPreference({_, _, _ ->
@@ -798,33 +786,6 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun isWebViewShowing(parent: ViewGroup): Boolean {
         val tag = parent.tag
         return tag != null && tag == TAG
-    }
-
-    private class WindowButton(context: Context, val window: Window?, var activeWindow: Window): AppCompatButton(context) {
-        init {
-            updateBackground()
-        }
-
-        fun updateBackground() {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                setBackgroundResource(if (window?.id == activeWindow.id) R.drawable.window_button_active else R.drawable.window_button)
-            }
-        }
-
-        fun onEvent(event: CurrentWindowChangedEvent) {
-            activeWindow = event.activeWindow
-            updateBackground()
-        }
-        
-        override fun onAttachedToWindow() {
-            ABEventBus.getDefault().register(this)
-            super.onAttachedToWindow()
-        }
-
-        override fun onDetachedFromWindow() {
-            ABEventBus.getDefault().unregister(this)
-            super.onDetachedFromWindow()
-        }
     }
 
     companion object {

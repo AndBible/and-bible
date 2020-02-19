@@ -32,6 +32,7 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
+class WindowChangedEvent(val window: Window)
 
 open class Window (
     window: WorkspaceEntities.Window,
@@ -57,6 +58,10 @@ open class Window (
     var displayedBook: Book? = null
 
     open var isSynchronised = window.isSynchronized
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
 
     var wasMinimised = window.wasMinimised
 
