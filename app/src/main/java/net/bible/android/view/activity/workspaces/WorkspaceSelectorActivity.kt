@@ -127,6 +127,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 
 @ActivityScope
 class WorkspaceSelectorActivity: ActivityBase() {
+    private var finished = false
     private var isDirty: Boolean = false
     private val workspacesToBeDeleted = HashSet<Long>()
     private val workspacesCreated = HashSet<Long>()
@@ -173,9 +174,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isDirty = false
-        workspacesToBeDeleted.clear()
-        workspacesCreated.clear()
         super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
@@ -248,19 +246,30 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         cancel.setOnClickListener {
             cancelChanges()
-            finish()
+            finishCanceled()
         }
 
         save.setOnClickListener {
             applyChanges()
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+            finishOk()
         }
 
         // Workaround to issue that list item width is incorrect in slower devices
         Handler().postDelayed( {
             recyclerView.adapter = workspaceAdapter
-        }, 100)
+        }, 20)
+    }
+
+    private fun finishOk() {
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+        finished = true;
+    }
+
+    private fun finishCanceled() {
+        setResult(Activity.RESULT_CANCELED, resultIntent)
+        finish()
+        finished = true;
     }
 
     private fun applyChanges() {
@@ -271,9 +280,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
     }
 
     private fun cancelChanges() {
-       workspacesCreated.forEach {
-           dao.deleteWorkspace(it)
-       }
+        workspacesCreated.forEach {
+            dao.deleteWorkspace(it)
+        }
     }
 
     private fun handleMenuItem(item: MenuItem?, workspace: WorkspaceEntities.Workspace): Boolean {
@@ -407,12 +416,14 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     override fun onBackPressed() {
         cancelChanges()
-        setResult(Activity.RESULT_CANCELED, resultIntent)
+        finishCanceled()
         super.onBackPressed()
     }
 
     override fun onDetachedFromWindow() {
-        cancelChanges()
+        if(!finished) {
+            cancelChanges()
+        }
         super.onDetachedFromWindow()
     }
 
@@ -434,8 +445,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             else
                 cancelChanges()
             resultIntent.putExtra("workspaceId", itemId)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+            finishOk()
         }
         if(isDirty) {
             AlertDialog.Builder(this@WorkspaceSelectorActivity)
