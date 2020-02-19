@@ -8,21 +8,6 @@
 	<item android:id="@+id/switchToWorkspace"
 		android:title="@string/switch_to_workspace"
 		/>
-	<item
-		android:id="@+id/textOptionsSubMenu"
-		android:title="@string/text_options_workspace_menutitle">
-		<menu>
-			<item android:id="@+id/textOptionItem"
-				android:title=""
-				/>
-			<item
-				android:id="@+id/allTextOptions"
-				android:icon="@drawable/ic_text_format_white_24dp"
-				android:title="@string/all_text_options_window_menutitle"
-				android:orderInCategory="1000"
-				/>
-		</menu>
-	</item>
 
 	<item android:id="@+id/tiltToScroll"
 		android:title="@string/prefs_tilt_to_scroll_title"
@@ -38,5 +23,16 @@
 		android:title="@string/options_menu_night_mode"
 		android:checkable="true"
 		/>
+
+	<group
+		android:id="@+id/textOptionsGroup"
+		>
+		<item
+			android:id="@+id/allTextOptions"
+			android:icon="@drawable/ic_text_format_white_24dp"
+			android:title="@string/all_text_options_window_menutitle"
+			android:orderInCategory="1000"
+			/>
+	</group>
 
 </menu>

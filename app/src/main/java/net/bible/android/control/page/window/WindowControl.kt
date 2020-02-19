@@ -69,6 +69,7 @@ open class WindowControl @Inject constructor(
         }
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
+    fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
 
     /**
      * Get current chapter.verse for each window displaying a Bible

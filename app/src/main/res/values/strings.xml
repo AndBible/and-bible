@@ -209,8 +209,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
     <string name="text_display_settings_activity_title">Text display settings</string>
-    <string name="workspace_text_display_settings_title">Workspace text option defaults</string>
-    <string name="window_text_display_settings_title">Window text options</string>
+    <string name="workspace_text_display_settings_title">Text option - %s</string>
+    <string name="window_text_display_settings_title">Text options - Window %d</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
     <string name="prefs_apply_all_workspaces_title">Apply to all workspaces</string>
@@ -598,7 +598,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Workspaces -->
     <string name="workspaces">Workspaces</string>
     <string name="new_workspace">New</string>
-    <string name="switch_to_workspace">Workspaces</string>
+    <string name="switch_to_workspace">Workspaces…</string>
     <string name="delete_workspace">Remove</string>
     <string name="choose_workspace_to_open">Choose workspace to open</string>
     <string name="new_copied_workspace">Copy as new</string>

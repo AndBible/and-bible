@@ -746,6 +746,7 @@ class DocumentWebViewBuilder @Inject constructor(
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
             workspaceId = windowControl.windowRepository.id,
+            workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings
         )
 

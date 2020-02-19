@@ -47,6 +47,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -437,6 +438,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 SettingsBundle(
                     pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
                     workspaceId = windowRepository.id,
+                    workspaceName = windowRepository.name,
                     workspaceSettings = windowRepository.textDisplaySettings,
                     windowId = windowControl.activeWindow.id
                 ))
@@ -503,7 +505,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
-        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceSettings = windowRepository.textDisplaySettings)
+        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
         return when(item.itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
@@ -529,17 +531,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
 
-        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
-        textOptionsSubMenu.removeItem(R.id.textOptionItem)
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {
             for ((idx, t) in lastSettings.withIndex()) {
-                textOptionsSubMenu.add(Menu.NONE, R.id.textOptionItem, idx, t.name)
+                menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
             }
-        } else {
-            menu.removeItem(R.id.textOptionsSubMenu)
-            menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle_alone)
         }
+        MenuCompat.setGroupDividerEnabled(menu, true)
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {

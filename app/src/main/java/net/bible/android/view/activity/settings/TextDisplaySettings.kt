@@ -28,6 +28,7 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
+import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
@@ -43,6 +44,7 @@ import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
@@ -221,10 +223,11 @@ class TextDisplaySettingsActivity: ActivityBase() {
         requiresReload = false
         reset = false
 
-        if(settingsBundle.windowId != null) {
-            title = getString(R.string.window_text_display_settings_title)
+        val windowId = settingsBundle.windowId
+        if(windowId != null) {
+            title = getString(R.string.window_text_display_settings_title, mainBibleActivity.windowControl.windowPosition(windowId) + 1)
         } else {
-            title = getString(R.string.workspace_text_display_settings_title)
+            title = getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
         }
 
         val fragment = TextDisplaySettingsFragment()

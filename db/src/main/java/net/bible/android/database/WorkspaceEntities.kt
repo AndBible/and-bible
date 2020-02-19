@@ -343,6 +343,7 @@ class WorkspaceEntities {
 @Serializable
 data class SettingsBundle (
     val workspaceId: Long,
+    val workspaceName: String,
     val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: Long? = null

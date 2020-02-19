@@ -258,7 +258,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         // At least there is issue with my Samsung Tab A 8" (Android 9).
         Handler().postDelayed( {
             recyclerView.adapter = workspaceAdapter
-        }, 20)
+        }, 50)
     }
 
     private fun finishOk() {
@@ -293,7 +293,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         when(item?.itemId) {
             R.id.settings -> {
                 val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
-                val settings = SettingsBundle(workspaceId = workspaceId,
+                val settings = SettingsBundle(workspaceId = workspaceId, workspaceName = workspace.name,
                     workspaceSettings = dataSet.find {it.id == workspaceId}!!.textDisplaySettings!!)
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -347,7 +347,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(0, WorkspaceEntities.TextDisplaySettings()), it).title
+            getPrefItem(SettingsBundle(0, "", WorkspaceEntities.TextDisplaySettings()), it).title
         }.toTypedArray()
         val checkedItems = items.map { false }.toBooleanArray()
         val dialog = AlertDialog.Builder(this)
