@@ -397,6 +397,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        maximizedWeight = null
         orderNumber = 0
         id = 0
         lastMaximizedAndSyncWindowId = null
