@@ -80,10 +80,10 @@ class WindowButtonWidget(
     }
 
     var text: String
-        get() = windowButton.text.toString()
+        get() = buttonText.text.toString()
 
         set(value) {
-            windowButton.text = value
+            buttonText.text = value
         }
 
     override fun onAttachedToWindow() {
