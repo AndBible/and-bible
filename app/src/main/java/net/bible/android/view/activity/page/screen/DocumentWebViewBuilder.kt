@@ -564,8 +564,8 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createUnMaximizeButton(window: Window): WindowButtonWidget {
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
-            { v -> showPopupWindow(window, v) },
-            { v -> windowControl.setMaximized(window, false); true},
+            { v -> windowControl.setMaximized(window, false)},
+            { v -> showPopupWindow(window, v); true },
             null
         )
         return b
@@ -746,7 +746,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowMaximise -> CommandPreference(
                 handle = {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised,
-                visible = !window.isLinksWindow && window.isVisible
+                visible = !window.isLinksWindow && !isMaximized
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
