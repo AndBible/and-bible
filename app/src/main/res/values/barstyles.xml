@@ -17,7 +17,7 @@
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 		<item name="transportButtonColor">#ffffff</item>
 
-		<item name="windowButtonStrokeColor">#80FFFFFF</item>
+		<item name="windowButtonStrokeColor">#00FFFFFF</item>
 		<item name="windowButtonBackgroundColor">#B78D8D8D</item>
 		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
 
@@ -43,7 +43,7 @@
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<item name="transportButtonColor">#d4d4d4</item>
 
-		<item name="windowButtonStrokeColor">#80000000</item>
+		<item name="windowButtonStrokeColor">#00FFFFFF</item>
 
 		<item name="windowButtonActiveBackgroundColor">#9b6e6e6e</item>
 		<item name="windowButtonBackgroundColor">#9B313131</item>
