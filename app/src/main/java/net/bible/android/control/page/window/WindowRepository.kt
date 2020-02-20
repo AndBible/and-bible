@@ -162,7 +162,7 @@ open class WindowRepository @Inject constructor(
     var isMaximisedState: Boolean
         get() {
             if(_isMaximizedState == null) {
-                _isMaximizedState = windows.find { it.isMaximised } !== null
+                _isMaximizedState = windowList.find { it.isMaximised } !== null
             }
             return _isMaximizedState!!
         }
@@ -193,7 +193,6 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun getWindows(state: WindowState)= windows.filter { it.windowState === state}
-    val pinnedWindows get() = windowList.filter {it.isPinMode}
 
     fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
 
