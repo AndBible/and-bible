@@ -169,7 +169,7 @@ class WindowControlTest {
         assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
 
         // A window is maximized, the others should then all be minimized.
-        windowControl!!.maximiseWindow(activeWindow)
+        windowControl!!.setMaximized(activeWindow, true)
         assertThat<List<Window>>(windowRepository!!.minimisedWindows, containsInAnyOrder(newWindow1, newWindow2))
     }
 
@@ -207,7 +207,7 @@ class WindowControlTest {
         windowControl!!.activeWindow = newWindow
         reset<EventManager>(eventManager)
 
-        windowControl!!.maximiseWindow(newWindow)
+        windowControl!!.setMaximized(newWindow, true)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(newWindow))
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasSize<Any>(1))
 
@@ -225,7 +225,7 @@ class WindowControlTest {
         reset<EventManager>(eventManager)
 
         // making window active should remove links window
-        windowControl!!.maximiseWindow(activeWindow)
+        windowControl!!.setMaximized(activeWindow, true)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
 
         // showing link should re-display links window despite window being maximised
@@ -234,7 +234,7 @@ class WindowControlTest {
 
         // maximise links window should be possible
         val linksWindow = windowRepository!!.dedicatedLinksWindow
-        windowControl!!.maximiseWindow(linksWindow)
+        windowControl!!.setMaximized(linksWindow, true)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(linksWindow))
     }
 
@@ -249,8 +249,8 @@ class WindowControlTest {
 
         windowControl!!.minimiseWindow(window1)
 
-        windowControl!!.maximiseWindow(window2)
-        windowControl!!.unmaximiseWindow(window2)
+        windowControl!!.setMaximized(window2, true)
+        windowControl!!.setMaximized(window2, false)
 
         assertThat(window1.isVisible, equalTo(false))
         assertThat(window2.isVisible, equalTo(true))

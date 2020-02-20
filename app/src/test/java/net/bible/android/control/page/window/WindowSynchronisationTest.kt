@@ -110,7 +110,7 @@ class WindowSynchronisationTest {
         assertThat(window1.pageManager.currentBible.currentChapterVerse, not(equalTo(newChapterVerse)))
         assertThat(window2.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
 
-        windowControl!!.maximiseWindow(window0)
+        windowControl!!.setMaximized(window0, true)
         val secondNewChapterVerse = ChapterVerse(chapter, 12)
         window0.pageManager.currentBible.currentChapterVerse = secondNewChapterVerse
         assertThat(window0.isMaximised, equalTo(true))
