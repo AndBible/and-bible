@@ -239,7 +239,7 @@ open class WindowRepository @Inject constructor(
         if (!window.isLinksWindow) {
             dao.deleteWindow(window.id)
             destroy(window)
-            if(wasMaximized) {
+            if(wasMaximized && visibleWindows.size == 0) {
                 activeWindow = windowList[min(currentPos, windowList.size - 1)]
                 activeWindow.windowState =
                     if(windowList.size > 1) WindowState.MAXIMISED
