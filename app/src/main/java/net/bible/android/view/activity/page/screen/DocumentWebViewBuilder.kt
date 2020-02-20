@@ -639,7 +639,9 @@ class DocumentWebViewBuilder @Inject constructor(
         // ensure actions affect the right window
         timerTask?.cancel()
         toggleWindowButtonVisibility(true)
-        windowControl.activeWindow = window
+        if(window.isVisible) {
+            windowControl.activeWindow = window
+        }
 
         val popup = PopupMenu(mainBibleActivity, view)
         popup.setOnMenuItemClickListener { menuItem ->
@@ -739,12 +741,12 @@ class DocumentWebViewBuilder @Inject constructor(
 
             R.id.windowNew -> CommandPreference(
                 launch = {_, _, _ -> windowControl.addNewWindow()},
-                visible = !window.isLinksWindow
+                visible = !window.isLinksWindow && !window.isMinimised
             )
             R.id.windowMaximise -> CommandPreference(
                 handle = {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised,
-                visible = !window.isLinksWindow && (!isMaximized || (isMaximized && window.isMaximised))
+                visible = !window.isLinksWindow && window.isVisible
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
@@ -759,7 +761,10 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow
             )
-            R.id.textOptionsSubMenu -> SubMenuPreference(false)
+            R.id.textOptionsSubMenu -> SubMenuPreference(
+                onlyBibles = false,
+                visible = window.isVisible
+            )
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
                 enabled = windowControl.isWindowRemovable(window)
@@ -768,11 +773,14 @@ class DocumentWebViewBuilder @Inject constructor(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
                 visible = windowControl.isWindowMinimisable(window)
             )
-            R.id.allTextOptions -> CommandPreference({_, _, _ ->
-                val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
-                intent.putExtra("settingsBundle", settingsBundle.toJson())
-                mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
-            })
+            R.id.allTextOptions -> CommandPreference(
+                launch = {_, _, _ ->
+                    val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
+                    intent.putExtra("settingsBundle", settingsBundle.toJson())
+                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
+                },
+                visible = window.isVisible
+            )
             R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, item.order)
                 Log.d(TAG, "Number ${item.order}")

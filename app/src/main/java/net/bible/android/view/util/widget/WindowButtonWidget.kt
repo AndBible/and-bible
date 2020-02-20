@@ -51,7 +51,6 @@ class WindowButtonWidget(
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
-        windowControl.activeWindow = event.activeWindow
         updateBackground()
     }
 

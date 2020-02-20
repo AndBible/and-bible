@@ -250,7 +250,7 @@ open class WindowControl @Inject constructor(
     }
 
     fun isWindowMinimisable(window: Window): Boolean {
-        return !windowRepository.isMaximisedState && isWindowRemovable(window) && !window.isLinksWindow
+        return !window.isMinimised && !windowRepository.isMaximisedState && isWindowRemovable(window) && !window.isLinksWindow
     }
 
     fun isWindowRemovable(window: Window): Boolean {
