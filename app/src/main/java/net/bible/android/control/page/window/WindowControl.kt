@@ -352,12 +352,12 @@ open class WindowControl @Inject constructor(
 
     fun setMaximized(window: Window, value: Boolean) {
         if(value == window.isMaximised) return
+        windowRepository.isMaximisedState = value
         if(value) {
             maximiseWindow(window)
         } else {
             unmaximiseWindow(window)
         }
-        windowRepository.isMaximisedState = value
     }
 
     fun setSynchronised(window: Window, value: Boolean) {
