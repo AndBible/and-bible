@@ -1,6 +1,14 @@
 /* colours:  http://www.w3schools.com/css/css_colornames.asp 
 */
 
+:root {
+    --noise-opacity: 0.0;
+    --text-color: #000000;
+    --max-width: 170mm;
+    --text-align: left;
+    --line-spacing: 1em;
+}
+
 body {
 	font-size: 1.1em;
 	margin: auto;
@@ -10,14 +18,8 @@ body {
 
     display: block;
     position: relative;
-    --noise-opacity: 0.0;
-    --text-color: #000000;
-    --max-width: 170mm;
-    --text-align: justify;
-    --line-spacing: 1em;
 	line-height: var(--line-spacing);
     color: var(--text-color);
-    text-align: center;
 }
 
 body:after {

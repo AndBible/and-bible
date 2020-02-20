@@ -92,7 +92,7 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
     $("#content")
         .css('margin-left', `${marginLeft}mm`)
         .css('margin-right', `${marginRight}mm`);
-    $("body")
+    $(":root")
         .css("--max-width", `${maxWidth}mm`)
         .css("--text-color", textColor)
         .css("--noise-opacity", noiseOpacity/100)
