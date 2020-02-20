@@ -581,7 +581,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
-        return WindowButtonWidget(window, windowRepository.activeWindow, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl, mainBibleActivity).apply {
             text = getDocumentInitial(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupWindow(window, v); true }
@@ -605,7 +605,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
                                  window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowRepository.activeWindow, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
@@ -753,7 +753,8 @@ class DocumentWebViewBuilder @Inject constructor(
                 )
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},
-                value = window.isPinMode
+                value = window.isPinMode,
+                visible = isMaximized && !window.isLinksWindow
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow

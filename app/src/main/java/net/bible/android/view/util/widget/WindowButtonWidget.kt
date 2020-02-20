@@ -31,12 +31,13 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
 
 @SuppressLint("ViewConstructor")
 class WindowButtonWidget(
     val window: Window?,
-    var activeWindow: Window,
+    var windowControl: WindowControl,
     context: Context,
     attributeSet: AttributeSet? = null
 ): LinearLayout(context, attributeSet)
@@ -50,7 +51,7 @@ class WindowButtonWidget(
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
-        activeWindow = event.activeWindow
+        windowControl.activeWindow = event.activeWindow
         updateBackground()
     }
 
@@ -62,12 +63,12 @@ class WindowButtonWidget(
 
     private fun updateSettings() {
         synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.INVISIBLE
-        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
+        pinMode.visibility = if(windowControl.windowRepository.isMaximisedState && window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
     }
 
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            val isActive = window?.id == activeWindow.id
+            val isActive = window?.id == windowControl.activeWindow.id
             val isMaximised = window?.isMaximised == true
             windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
         }
