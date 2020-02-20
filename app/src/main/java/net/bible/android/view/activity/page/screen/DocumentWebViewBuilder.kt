@@ -565,7 +565,7 @@ class DocumentWebViewBuilder @Inject constructor(
         val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
         val b = createTextButton(text,
             { v -> showPopupWindow(window, v) },
-            { v -> windowControl.unmaximiseWindow(window); true},
+            { v -> windowControl.setMaximized(window, false); true},
             null
         )
         return b

@@ -192,7 +192,7 @@ open class WindowControl @Inject constructor(
         }
     }
 
-    fun maximiseWindow(window: Window) {
+    private fun maximiseWindow(window: Window) {
         windowRepository.minimisedWindows.forEach {
             it.wasMinimised = true
         }
@@ -219,7 +219,7 @@ open class WindowControl @Inject constructor(
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
     }
 
-    fun unmaximiseWindow(window: Window) {
+    private fun unmaximiseWindow(window: Window) {
         for (it in windowRepository.windowList) {
             it.windowState = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
             it.wasMinimised = false
