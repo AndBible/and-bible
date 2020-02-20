@@ -157,7 +157,18 @@ open class WindowRepository @Inject constructor(
             state === WindowState.MAXIMISED || state === WindowState.MINIMISED
         }
 
-    val isMaximisedState get() = windows.find{ it.isMaximised } !== null
+    var _isMaximizedState: Boolean? = null
+
+    var isMaximisedState: Boolean
+        get() {
+            if(_isMaximizedState == null) {
+                _isMaximizedState = windows.find { it.isMaximised } !== null
+            }
+            return _isMaximizedState!!
+        }
+        set(value) {
+            _isMaximizedState = value
+        }
 
     val isMultiWindow get() = visibleWindows.size > 1
 
@@ -398,6 +409,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        _isMaximizedState = null
         maximizedWeight = null
         orderNumber = 0
         id = 0
