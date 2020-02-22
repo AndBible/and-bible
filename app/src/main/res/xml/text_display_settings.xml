@@ -84,6 +84,12 @@
             android:summary="@string/prefs_margin_size_summary"
             />
 
+        <Preference
+            android:key="LINE_SPACING"
+            android:title="@string/line_spacing_title"
+            android:summary="@string/line_spacing_summary"
+            />
+
         <SwitchPreference
             android:key="REDLETTERS"
             android:title="@string/prefs_red_letter_title"

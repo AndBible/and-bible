@@ -24,62 +24,46 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
-import kotlinx.android.synthetic.main.margin_size_widget.view.*
+import kotlinx.android.synthetic.main.line_spacing_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 
-fun createListener(func: (progress: Int) -> Unit): SeekBar.OnSeekBarChangeListener {
-    return object: SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            func(progress)
-        }
-        override fun onStartTrackingTouch(seekBar: SeekBar?) {
-        }
 
-        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-        }
-    }
-}
-
-class MarginSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
+class LineSpacingWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
-    lateinit var value: WorkspaceEntities.MarginSize
+    var value = WorkspaceEntities.TextDisplaySettings.default.lineSpacing!!
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.margin_size_widget, this, true)
-        leftMargin.max = 30
-        rightMargin.max = 30
-        maxWidth.max = 500
+        inflater.inflate(R.layout.line_spacing_widget, this, true)
 
-        leftMargin.setOnSeekBarChangeListener(createListener {
-            value.marginLeft = it
-            updateValue();
-        })
+        lineSpacing.max = 20
+        lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                value = progress + 10
+                updateValue()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
 
-        rightMargin.setOnSeekBarChangeListener(createListener {
-            value.marginRight = it
-            updateValue()
-        })
-        maxWidth.setOnSeekBarChangeListener(createListener {
-            value.maxWidth = it
-            updateValue()
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
         })
     }
     
     fun updateValue() {
-        fontSizeValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight, value.maxWidth)
-        leftMargin.progress = value.marginLeft!!
-        rightMargin.progress = value.marginRight!!
-        maxWidth.progress = value.maxWidth ?: WorkspaceEntities.TextDisplaySettings.default.marginSize!!.maxWidth!!
+        val lineSpacingVal = value
+        lineSpacingValue.text = context.getString(R.string.prefs_line_spacing_pt, lineSpacingVal.toFloat() / 10.0)
+        lineSpacing.progress = lineSpacingVal - 10
     }
     
     companion object {
-        fun dialog(context: Context, value: WorkspaceEntities.MarginSize, resetCallback: (() -> Unit)? = null, callback: (value: WorkspaceEntities.MarginSize) -> Unit) {
+        fun dialog(context: Context, value: Int, resetCallback: (() -> Unit)? = null, callback: (value: Int) -> Unit) {
             AlertDialog.Builder(context).apply{
-                val layout = MarginSizeWidget(context, null)
+                val layout = LineSpacingWidget(context, null)
                 layout.value = value
                 layout.updateValue()
-                setTitle(R.string.prefs_margin_size_title)
+                setTitle(R.string.line_spacing_title)
                 setView(layout)
                 setPositiveButton(R.string.okay) { dialog, which ->
                     dialog.dismiss()

@@ -73,7 +73,7 @@ class FontAdapter(context: Context, resource: Int, private val fontTypes: Array<
     }
 }
 
-class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet)
+class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(context, attributeSet)
 {
     var value = WorkspaceEntities.TextDisplaySettings.default.font!!
     init {
@@ -107,41 +107,24 @@ class FontWidget(context: Context, attributeSet: AttributeSet): LinearLayout(con
             }
 
         })
-        lineSpacing.max = 20
-        lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                value.lineSpacing = progress + 10
-                updateValue()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-            }
-
-        })
     }
     
     fun updateValue() {
         val fontSize = value.fontSize!!
-        val lineSpacingVal = value.lineSpacing!!
         val fontFamilyVal = value.fontFamily!!
         dialogMessage.textSize = fontSize.toFloat()
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
         val tf = Typeface.create(fontFamilyVal, Typeface.NORMAL)
         dialogMessage.typeface = tf
-        lineSpacingValue.text = context.getString(R.string.prefs_line_spacing_pt, lineSpacingVal / 10.0)
-        lineSpacing.progress = lineSpacingVal - 10
         fontSizeSlider.progress = fontSize
         fontFamily.setSelection(availableFonts.indexOf(fontFamilyVal))
 
     }
     
     companion object {
-        fun changeFont(context: Context, value: WorkspaceEntities.Font, resetCallback: (() -> Unit)? = null, callback: (value: WorkspaceEntities.Font) -> Unit) {
+        fun dialog(context: Context, value: WorkspaceEntities.Font, resetCallback: (() -> Unit)? = null, callback: (value: WorkspaceEntities.Font) -> Unit) {
             AlertDialog.Builder(context).apply{
-                val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val layout = inflater.inflate(R.layout.text_size, null) as FontWidget
+                val layout = FontWidget(context, null)
                 layout.value = value
                 layout.updateValue()
                 setTitle(R.string.prefs_text_size_title)

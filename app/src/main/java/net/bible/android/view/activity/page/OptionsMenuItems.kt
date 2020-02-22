@@ -31,6 +31,7 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibl
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.FontWidget
+import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.jetbrains.anko.configuration
@@ -258,7 +259,7 @@ class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplay
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_text_size_pt_title)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontWidget.changeFont(activity, value as WorkspaceEntities.Font, {
+        FontWidget.dialog(activity, value as WorkspaceEntities.Font, {
             setNonSpecific()
             onReset?.invoke()
         }) {
@@ -269,6 +270,21 @@ class FontPreference(settings: SettingsBundle): Preference(settings, TextDisplay
     }
 }
 
+class LineSpacingPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LINE_SPACING) {
+    private val valueInt get() = (value as Int)
+    override val title: String get() = mainBibleActivity.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
+    override val visible = true
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        LineSpacingWidget.dialog(activity, valueInt, {
+            setNonSpecific()
+            onReset?.invoke()
+        }) {
+            value = it
+            onChanged?.invoke(it)
+        }
+        return true
+    }
+}
 
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS, requiresReload = false) {
     override val visible = true
@@ -289,7 +305,7 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     override val title: String get() = mainBibleActivity.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val visible = true
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        MarginSizeWidget.changeMarginSize(activity, value as WorkspaceEntities.MarginSize,
+        MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,
             if(settings.windowId != null) {onReset} else null) {
             value = it
             onChanged?.invoke(it)

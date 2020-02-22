@@ -331,7 +331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
         val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
         val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
-        val lineSpacing = window.pageManager.actualTextDisplaySettings.font!!.lineSpacing!!
+        val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
         val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
 
         return "{marginLeft: $marginLeft, " +

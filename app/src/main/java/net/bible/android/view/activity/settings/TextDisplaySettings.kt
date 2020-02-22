@@ -43,6 +43,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontPreference
+import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
@@ -105,6 +106,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
+        Types.LINE_SPACING -> LineSpacingPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

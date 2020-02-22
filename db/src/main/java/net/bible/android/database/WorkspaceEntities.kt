@@ -96,8 +96,7 @@ class WorkspaceEntities {
     @Serializable
     data class Font(
         @ColumnInfo(defaultValue = "NULL") var fontSize: Int?,
-        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?,
-        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int?
+        @ColumnInfo(defaultValue = "NULL") var fontFamily: String?
     )
 
     @Serializable
@@ -134,13 +133,15 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
-        @Embedded(prefix="font_") var font: Font? = null
+        @Embedded(prefix="font_") var font: Font? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "font_lineSpacing" ) var lineSpacing: Int? = null // TODO: rename column
     ) {
         enum class Types {
             FONT,
             COLORS,
             MARGINSIZE,
             JUSTIFY,
+            LINE_SPACING,
             STRONGS,
             MORPH,
             FOOTNOTES,
@@ -165,6 +166,7 @@ class WorkspaceEntities {
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
+            Types.LINE_SPACING -> lineSpacing
             Types.FONT -> font?.copy()
         }
 
@@ -183,6 +185,7 @@ class WorkspaceEntities {
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
                 Types.FONT -> font = value as Font?
+                Types.LINE_SPACING -> lineSpacing = value as Int?
             }
         }
 
@@ -221,8 +224,7 @@ class WorkspaceEntities {
                 ),
                 font = Font(
                     fontSize = 16,
-                    fontFamily = "sans-serif",
-                    lineSpacing = 16
+                    fontFamily = "sans-serif"
                 ),
                 showStrongs = false,
                 showMorphology = false,
@@ -233,7 +235,8 @@ class WorkspaceEntities {
                 showVersePerLine = false,
                 showBookmarks = true,
                 showMyNotes = true,
-                justifyText = true
+                justifyText = true,
+                lineSpacing = 16
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -330,7 +333,7 @@ class WorkspaceEntities {
     data class Window(
         var workspaceId: Long,
         val isSynchronized: Boolean,
-        @ColumnInfo(name="isSwapMode") val isPinMode: Boolean,
+        @ColumnInfo(name="isSwapMode") val isPinMode: Boolean, // TODO: rename column
         val wasMinimised: Boolean,
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
