@@ -191,7 +191,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
 
     <string name="font_size_pt">%d pt</string>
-    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
+    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
     <string name="prefs_margin_size_title">Change margin size</string>
     <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
     <string name="margin_size_mm">Margins left %d mm right %d mm.
@@ -209,7 +209,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
     <string name="text_display_settings_activity_title">Text display settings</string>
-    <string name="workspace_text_display_settings_title">Text option - %s</string>
+    <string name="workspace_text_display_settings_title">Text options - %s</string>
     <string name="window_text_display_settings_title">Text options - Window %d</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
@@ -227,8 +227,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="pref_font_family_label">Font family</string>
 
     <!-- Colors preferences -->
-    <string name="prefs_text_colors_menutitle">Text &amp; background</string>
-    <string name="prefs_text_colors_title">Text &amp; background</string>
+    <string name="prefs_text_colors_menutitle">Color settings</string>
     <string name="window_color_settings_title">Window color settings</string>
     <string name="workspace_color_settings_title">Workspace color setting defaults</string>
 
@@ -609,7 +608,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_workspace_from_dialog">New</string>
     <string name="delete_workspace_from_dialog">Delete current</string>
     <string name="workspace_selector_title">Select workspace</string>
-    <string name="workspace_settings">Settings</string>
+    <string name="workspace_settings">Settings…</string>
     <string name="give_name_workspace">Give name for new workspace</string>
     <string name="save_and_exit">Save</string>
     <string name="current_workspace">current</string>
@@ -646,7 +645,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
     <string name="workspace_dismiss">Dismiss</string>
-    <string name="prefs_line_spacing_pt_title">Line spacing (%1.1f pt)</string>
+    <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
     <string name="line_spacing_title">Line spacing</string>
     <string name="line_spacing_summary">Set the space between lines</string>
 </resources>

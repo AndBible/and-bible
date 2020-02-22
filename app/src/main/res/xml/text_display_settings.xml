@@ -68,7 +68,7 @@
         >
         <Preference
             android:key="COLORS"
-            android:title="@string/prefs_text_colors_title"
+            android:title="@string/prefs_text_colors_menutitle"
             android:summary="@string/prefs_text_colors_summary"
             />
 
