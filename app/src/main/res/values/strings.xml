@@ -645,4 +645,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="history_title">History (%s)</string>
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
+    <string name="workspace_dismiss">Dismiss</string>
 </resources>
