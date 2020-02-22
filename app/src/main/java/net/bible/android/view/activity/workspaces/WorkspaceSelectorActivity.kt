@@ -409,9 +409,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == WORKSPACE_SETTINGS_CHANGED) {
             val extras = data!!.extras!!
+            val reset = extras.getBoolean("reset")
             val settings = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
             val workspaceItem = dataSet.find {it.id == settings.workspaceId}!!
-            workspaceItem.textDisplaySettings = settings.workspaceSettings
+            workspaceItem.textDisplaySettings =
+                if(reset) WorkspaceEntities.TextDisplaySettings.default
+                else settings.workspaceSettings
             setDirty()
         }
         super.onActivityResult(requestCode, resultCode, data)

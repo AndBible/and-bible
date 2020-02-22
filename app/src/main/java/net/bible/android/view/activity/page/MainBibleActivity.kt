@@ -496,6 +496,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
             documentViewManager.resetView()
             windowControl.windowSync.reloadAllWindows()
+            windowRepository.updateVisibleWindowsTextDisplaySettings()
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
