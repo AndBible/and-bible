@@ -2,7 +2,6 @@
 */
 
 body {
-    --text-color: #B0B0B0;
 	color: var(--text-color);
 }
 
