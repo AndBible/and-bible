@@ -648,4 +648,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
     <string name="line_spacing_title">Line spacing</string>
     <string name="line_spacing_summary">Set the space between lines</string>
+    <string name="select_none">Select none</string>
 </resources>
