@@ -245,10 +245,17 @@ class TextDisplaySettingsActivity: ActivityBase() {
             finish()
         }
         resetButton.setOnClickListener {
-            reset = true
-            requiresReload = true
-            setResult()
-            finish()
+            AlertDialog.Builder(this)
+                .setPositiveButton(R.string.yes) {_, _ ->
+                    reset = true
+                    requiresReload = true
+                    setResult()
+                    finish()
+                }
+                .setNegativeButton(R.string.no,null)
+                .setMessage(getString(R.string.reset_are_you_sure))
+                .create()
+                .show()
         }
         setResult()
     }

@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.settings
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.preference.PreferenceDataStore
@@ -95,9 +96,16 @@ class ColorSettingsActivity: ActivityBase() {
             finish()
         }
         resetButton.setOnClickListener {
-            reset = true
-            setResult()
-            finish()
+            AlertDialog.Builder(this)
+                .setPositiveButton(R.string.yes) {_, _ ->
+                    reset = true
+                    setResult()
+                    finish()
+                }
+                .setNegativeButton(R.string.no,null)
+                .setMessage(getString(R.string.reset_are_you_sure))
+                .create()
+                .show()
         }
 
         setResult()
