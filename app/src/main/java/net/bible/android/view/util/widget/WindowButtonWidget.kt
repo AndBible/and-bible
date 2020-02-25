@@ -68,7 +68,13 @@ class WindowButtonWidget(
 
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            val isActive = window?.id == windowControl.activeWindow.id
+            val isActive = if(isRestoreButton) {
+                window?.isVisible == true
+            }
+            else {
+                window?.id == windowControl.activeWindow.id
+            }
+
             windowButton.setBackgroundResource(if (isActive) R.drawable.window_button_active else R.drawable.window_button)
         }
         if(isRestoreButton) {
