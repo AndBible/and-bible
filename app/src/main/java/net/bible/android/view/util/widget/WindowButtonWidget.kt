@@ -78,10 +78,17 @@ class WindowButtonWidget(
 
     override fun setOnClickListener(l: OnClickListener?) {
         windowButton.setOnClickListener(l)
+        buttonText.setOnClickListener(l)
+        synchronize.setOnClickListener(l)
+        pinMode.setOnClickListener(l)
+
     }
 
     override fun setOnLongClickListener(l: OnLongClickListener?) {
         windowButton.setOnLongClickListener(l)
+        buttonText.setOnLongClickListener(l)
+        synchronize.setOnLongClickListener(l)
+        pinMode.setOnLongClickListener(l)
     }
 
     var text: String
