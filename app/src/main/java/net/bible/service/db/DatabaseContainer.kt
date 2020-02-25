@@ -270,7 +270,6 @@ private val MIGRATION_19_20 = object : Migration(19, 20) {
 private val MIGRATION_20_21 = object : Migration(20, 21) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
-            execSQL("UPDATE `Window` SET window_layout_state = 'SPLIT' WHERE window_layout_state = 'MAXIMISE'")
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT TRUE")
         }
     }
@@ -299,6 +298,14 @@ private val MIGRATION_21_22 = object : Migration(21, 22) {
             execSQL("INSERT INTO Workspace ($colNameStr) SELECT $colNameStr from Workspace_old;")
             execSQL("DROP TABLE Workspace_old;")
             execSQL("PRAGMA foreign_keys=ON;")
+        }
+    }
+}
+
+private val MIGRATION_22_23 = object : Migration(22, 23) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("UPDATE `Window` SET window_layout_state = 'SPLIT' WHERE window_layout_state = 'MAXIMISED'")
         }
     }
 }
@@ -335,7 +342,8 @@ object DatabaseContainer {
                         MIGRATION_18_19,
                         MIGRATION_19_20,
                         MIGRATION_20_21,
-                        MIGRATION_21_22
+                        MIGRATION_21_22,
+                        MIGRATION_22_23
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
