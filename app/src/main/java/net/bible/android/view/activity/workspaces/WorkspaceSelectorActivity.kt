@@ -31,6 +31,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -342,11 +343,14 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
                 val v = dialog.listView
                 for(i in 0 until v.count) {
-                    v.setItemChecked(i, true)
-                    checkedItems[i] = true
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
                 }
+                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
             }
         }
         dialog.show()
@@ -356,13 +360,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private fun copySettingsStage2(workspace: WorkspaceEntities.Workspace, checkedTypes: BooleanArray) {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val workspaceNames = dataSet.map { it.name }.toTypedArray()
-        val checkedWorkspaces = workspaceNames.map {false}.toBooleanArray()
+        val checkedItems = workspaceNames.map {false}.toBooleanArray()
 
         val dialog = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay) { d, _ ->
                 for ((wsIdx, ws) in dataSet.withIndex())
                     for ((tIdx, type) in types.withIndex()) {
-                        if(checkedTypes[tIdx] && checkedWorkspaces[wsIdx] && workspace.id != ws.id) {
+                        if(checkedTypes[tIdx] && checkedItems[wsIdx] && workspace.id != ws.id) {
                             val s = ws.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
                             s.setValue(type, workspace.textDisplaySettings?.getValue(type))
                             ws.textDisplaySettings = s
@@ -370,8 +374,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     }
                 setDirty()
             }
-            .setMultiChoiceItems(workspaceNames, checkedWorkspaces) { _, pos, value ->
-                checkedWorkspaces[pos] = value
+            .setMultiChoiceItems(workspaceNames, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
             }
             .setNeutralButton(R.string.select_all, null)
             .setNegativeButton(R.string.cancel, null)
@@ -380,11 +384,14 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
                 val v = dialog.listView
                 for(i in 0 until v.count) {
-                    v.setItemChecked(i, true)
-                    checkedWorkspaces[i] = true
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
                 }
+                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
             }
         }
         dialog.show()
