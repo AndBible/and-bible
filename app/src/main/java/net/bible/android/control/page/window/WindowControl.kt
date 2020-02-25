@@ -208,13 +208,12 @@ open class WindowControl @Inject constructor(
     }
 
     fun isWindowRemovable(window: Window): Boolean {
-        if(windowRepository.visibleWindows.size > 1) return true
         var normalWindows = windowRepository.visibleWindows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
             normalWindows--
         }
 
-        return window.isLinksWindow || normalWindows > 1 || !window.isVisible
+        return window.isLinksWindow || normalWindows > 1
     }
 
     fun restoreWindow(window: Window) {
@@ -234,7 +233,8 @@ open class WindowControl @Inject constructor(
         windowSync.reloadAllWindows()
 
         if (activeWindow.isSynchronised)
-            windowRepository.lastSyncWindowId =  activeWindow.id
+            windowRepository.lastSyncWindowId = activeWindow.id
+
         activeWindow = window
 
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
