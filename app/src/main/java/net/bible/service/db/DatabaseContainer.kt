@@ -267,6 +267,13 @@ private val MIGRATION_19_20 = object : Migration(19, 20) {
 }
 
 
+private val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("UPDATE `Window` SET window_layout_state = 'SPLIT' WHERE window_layout_state = 'MAXIMISE'")
+        }
+    }
+}
 
 
 object DatabaseContainer {
@@ -299,7 +306,8 @@ object DatabaseContainer {
                         MIGRATION_16_17,
                         MIGRATION_17_18,
                         MIGRATION_18_19,
-                        MIGRATION_19_20
+                        MIGRATION_19_20,
+                        MIGRATION_20_21
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
