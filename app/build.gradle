@@ -18,7 +18,7 @@ task npmUpgrade(type: Exec) {
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+    commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
@@ -26,7 +26,7 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
     outputs.dir "bibleview-js/node_modules"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/npm", "install"
+    commandLine "C:\\Program Files\\nodejs\\npm.cmd", "install"
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
@@ -36,7 +36,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     outputs.file "bibleview-js/dist/loader.js"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/webpack"
+    commandLine "C:\\Users\\Admin\\node_modules\\.bin\\webpack.cmd"
 }
 
 task buildLoaderJs(type: Copy, dependsOn: webpack) {
@@ -54,7 +54,7 @@ android {
     dexOptions {
         javaMaxHeapSize "4g"
     }
-
+   /* C:\Users\Admin\AppData\Roaming\npm\node_modules\webpack*/
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId "net.bible.android.activity"
