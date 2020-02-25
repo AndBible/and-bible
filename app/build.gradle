@@ -36,7 +36,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.dir "bibleview-js/src"
     inputs.file "bibleview-js/webpack.config.js"
     outputs.file "bibleview-js/dist/loader.js"
-
+    //
     workingDir "bibleview-js"
     commandLine "C:\\Users\\Admin\\node_modules\\.bin\\webpack.cmd"
 }
