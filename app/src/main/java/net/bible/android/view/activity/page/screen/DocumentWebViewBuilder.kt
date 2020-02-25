@@ -218,39 +218,36 @@ class DocumentWebViewBuilder @Inject constructor(
                 }
 
                 // create default action button for top or bottom right of each window
-                if (!windowRepository.isMaximisedState || window.isLinksWindow) {
-                    val defaultWindowActionButton =
-                        if (isSingleWindow && window.defaultOperation != WindowOperation.MAXIMISE) {
-                            createSingleWindowButton(window)
-                        } else if (window.defaultOperation == WindowOperation.CLOSE) {
-                            createCloseButton(window)
-                        } else {
-                            createMinimiseButton(window)
-                        }
-
-
-                    if (!isSplitHorizontally) {
-                        defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
-                        if (windowNo == windows.size - 1) {
-                            defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-                        }
+                val defaultWindowActionButton =
+                    if (isSingleWindow) {
+                        createSingleWindowButton(window)
+                    } else if (window.defaultOperation == WindowOperation.CLOSE) {
+                        createCloseButton(window)
                     } else {
-                        if (windowNo == 0) {
-                            defaultWindowActionButton.translationY =
-                                if (isSingleWindow) -mainBibleActivity.bottomOffset2
-                                else mainBibleActivity.topOffset2
-                        }
-                        defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+                        createMinimiseButton(window)
                     }
 
 
-                    windowButtons.add(defaultWindowActionButton)
-                    currentWindowFrameLayout.addView(defaultWindowActionButton,
-                        FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                            if (isSingleWindow && windowRepository.maximisedWindows.isEmpty())
-                                Gravity.BOTTOM or Gravity.RIGHT
-                            else Gravity.TOP or Gravity.RIGHT))
+                if (!isSplitHorizontally) {
+                    defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+                    if (windowNo == windows.size - 1) {
+                        defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+                    }
+                } else {
+                    if (windowNo == 0) {
+                        defaultWindowActionButton.translationY =
+                            if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                            else mainBibleActivity.topOffset2
+                    }
+                    defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
                 }
+
+
+                windowButtons.add(defaultWindowActionButton)
+                currentWindowFrameLayout.addView(defaultWindowActionButton,
+                    FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                        if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
+
                 window.bibleView = bibleView
             }
 
@@ -293,13 +290,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 restoreButtons.add(restoreButton)
                 minimisedWindowsLayout.addView(restoreButton,
                         LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-            }
-            if (windowRepository.isMaximisedState) {
-                val maximizedWindow = windowRepository.maximisedWindows[0]
-                val unMaximizeButton = createUnMaximizeButton(maximizedWindow)
-                restoreButtons.add(unMaximizeButton)
-                minimisedWindowsLayout.addView(unMaximizeButton,
-                    LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
             }
 
             // Make sure "unmaximise" button on right is visible
@@ -402,7 +392,7 @@ class DocumentWebViewBuilder @Inject constructor(
                         if (isSingleWindow) -mainBibleActivity.bottomOffset2
                         else (
                             if(CommonUtils.isSplitVertically) {
-                                if(idx == 0 && !windowRepository.isMaximisedState)
+                                if(idx == 0)
                                     mainBibleActivity.topOffset2
                                 else 0.0F
                             }
@@ -559,16 +549,6 @@ class DocumentWebViewBuilder @Inject constructor(
             { v -> windowControl.closeWindow(window); true},
             window
         )
-    }
-
-    private fun createUnMaximizeButton(window: Window): WindowButtonWidget {
-        val text = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "⇕" else "━━"
-        val b = createTextButton(text,
-            { v -> windowControl.setMaximized(window, false)},
-            { v -> windowControl.setMaximized(window, false); true},
-            null
-        )
-        return b
     }
 
     private fun createMinimiseButton(window: Window): WindowButtonWidget {
@@ -735,18 +715,12 @@ class DocumentWebViewBuilder @Inject constructor(
             workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings
         )
-        val isMaximized = windowControl.windowRepository.isMaximisedState
 
         return when(item.itemId) {
 
             R.id.windowNew -> CommandPreference(
                 launch = {_, _, _ -> windowControl.addNewWindow()},
                 visible = !window.isLinksWindow && !window.isMinimised
-            )
-            R.id.windowMaximise -> CommandPreference(
-                handle = {windowControl.setMaximized(window, !window.isMaximised)},
-                value = window.isMaximised,
-                visible = false && !window.isLinksWindow && !isMaximized
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},

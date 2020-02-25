@@ -42,15 +42,15 @@ open class Window (
     var weight: Float
         get() =
             if(!isPinMode) {
-                if(windowRepository.maximizedWeight == null) {
-                    windowRepository.maximizedWeight = windowLayout.weight
+                if(windowRepository.unPinnedWeight == null) {
+                    windowRepository.unPinnedWeight = windowLayout.weight
                 }
-                windowRepository.maximizedWeight!!
+                windowRepository.unPinnedWeight!!
             }
             else windowLayout.weight
         set(value) {
             if(!isPinMode)
-                windowRepository.maximizedWeight = value
+                windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
         }
@@ -93,9 +93,6 @@ open class Window (
         }
     var wasMinimised = window.wasMinimised
 
-    val isMaximised: Boolean
-        get() = windowLayout.state == WindowState.MAXIMISED
-
     val isMinimised: Boolean
         get() = windowLayout.state == WindowState.MINIMISED
 
@@ -115,10 +112,8 @@ open class Window (
         get() = windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    // if window is maximised then default operation is always to unmaximise
     val defaultOperation: WindowOperation
         get() = when {
-            isMaximised -> WindowOperation.MAXIMISE
             isLinksWindow -> WindowOperation.CLOSE
             else -> WindowOperation.MINIMISE
         }
@@ -132,7 +127,7 @@ open class Window (
     }
 
     enum class WindowOperation {
-        MAXIMISE, MINIMISE, RESTORE, CLOSE
+        MINIMISE, RESTORE, CLOSE
     }
 
     override fun toString(): String {

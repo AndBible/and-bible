@@ -9,11 +9,6 @@
 	<item android:id="@+id/windowNew"
 		  android:title="@string/new_window"
 		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
-	<item android:id="@+id/windowMaximise"
-		  android:title="@string/windowMaximise"
-		  android:checkable="true"
-		  android:checked="false"
-		  android:icon="@drawable/ic_zoom_out_map_white_24dp"/>
 	<item android:id="@+id/pinMode"
 		android:title="@string/window_pin_mode"
 		android:icon="@drawable/ic_pin"

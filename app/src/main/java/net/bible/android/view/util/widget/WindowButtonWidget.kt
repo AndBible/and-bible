@@ -69,8 +69,7 @@ class WindowButtonWidget(
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             val isActive = window?.id == windowControl.activeWindow.id
-            val isMaximised = window?.isMaximised == true
-            windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
+            windowButton.setBackgroundResource(if (isActive) R.drawable.window_button_active else R.drawable.window_button)
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f

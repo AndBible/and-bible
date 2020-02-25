@@ -557,7 +557,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     val isTopWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
-            || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
 
     val toolbarOffset
         get() =
