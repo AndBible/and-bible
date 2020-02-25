@@ -73,6 +73,8 @@ class WindowButtonWidget(
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f
+        } else {
+            buttonText.visibility = View.GONE
         }
     }
 
@@ -92,10 +94,10 @@ class WindowButtonWidget(
     }
 
     var text: String
-        get() = buttonText.text.toString()
+        get() = (if(isRestoreButton) buttonText else windowButton).text.toString()
 
         set(value) {
-            buttonText.text = value
+            (if(isRestoreButton) buttonText else windowButton).text = value
         }
 
     override fun onAttachedToWindow() {
