@@ -18,6 +18,8 @@ task npmUpgrade(type: Exec) {
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
+
+    // install nodejs to ProgramFiles
     commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
 }
 
