@@ -133,7 +133,7 @@ open class WindowRepository @Inject constructor(
 
     // links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
     // should only ever be one maximised window
-    val visibleWindows: MutableList<Window> get() = ArrayList(getWindows(WindowState.SPLIT))
+    val visibleWindows get() = getWindows(WindowState.SPLIT)
 
     val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
 
@@ -174,7 +174,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
-        val windows = visibleWindows
+        val windows = ArrayList(visibleWindows)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }
