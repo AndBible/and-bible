@@ -289,7 +289,15 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, contentText, id, orderNumber, textDisplaySettings, windowBehaviorSettings))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(
+            name = name,
+            contentsText = contentText,
+            id = id,
+            orderNumber = orderNumber,
+            textDisplaySettings = textDisplaySettings,
+            windowBehaviorSettings = windowBehaviorSettings,
+            unPinnedWeight = unPinnedWeight
+        ))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
@@ -330,6 +338,7 @@ open class WindowRepository @Inject constructor(
         orderNumber = entity.orderNumber
         id = entity.id
         name = entity.name
+        unPinnedWeight = entity.unPinnedWeight
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default

@@ -294,7 +294,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
-        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
+        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings(),
+        @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null
     )
 
     @Entity(

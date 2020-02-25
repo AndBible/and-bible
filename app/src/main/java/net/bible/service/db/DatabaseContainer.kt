@@ -310,6 +310,14 @@ private val MIGRATION_22_23 = object : Migration(22, 23) {
     }
 }
 
+private val MIGRATION_23_24 = object : Migration(23, 24) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Workspace` ADD COLUMN `unPinnedWeight` REAL DEFAULT NULL")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -343,7 +351,8 @@ object DatabaseContainer {
                         MIGRATION_19_20,
                         MIGRATION_20_21,
                         MIGRATION_21_22,
-                        MIGRATION_22_23
+                        MIGRATION_22_23,
+                        MIGRATION_23_24
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
