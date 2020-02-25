@@ -71,7 +71,6 @@ open class Window (
             workspaceId = workspaceId,
             isSynchronized = isSynchronised,
             isPinMode = isPinMode,
-            wasMinimised = wasMinimised,
             isLinksWindow = isLinksWindow,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
             id = id
@@ -91,7 +90,6 @@ open class Window (
             field = value
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
-    var wasMinimised = window.wasMinimised
 
     val isMinimised: Boolean
         get() = windowLayout.state == WindowState.MINIMISED

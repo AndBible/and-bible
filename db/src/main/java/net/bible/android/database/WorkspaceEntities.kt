@@ -336,7 +336,7 @@ class WorkspaceEntities {
         var workspaceId: Long,
         val isSynchronized: Boolean,
         @ColumnInfo(name="isSwapMode") val isPinMode: Boolean, // TODO: rename column
-        val wasMinimised: Boolean,
+        @ColumnInfo(name="wasMinimised") val wasMinimisedDeprecated: Boolean = false, // TODO: drop column
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
 

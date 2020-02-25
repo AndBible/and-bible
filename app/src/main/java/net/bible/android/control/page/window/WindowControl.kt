@@ -188,48 +188,6 @@ open class WindowControl @Inject constructor(
         }
     }
 
-//    private fun maximiseWindow(window: Window) {
-//        windowRepository.minimisedWindows.forEach {
-//            it.wasMinimised = true
-//        }
-//        windowRepository.windowList.forEach {
-//            if (it != window) {
-//                if(it.isPinMode) {
-//                    it.windowState = WindowState.SPLIT
-//                } else {
-//                    it.windowState = WindowState.MINIMISED
-//                }
-//            }
-//        }
-//
-//        window.windowState = WindowState.SPLIT
-//        activeWindow = window
-//
-//        // also remove the links window because it may possibly displayed even though a window is
-//        // maximised if a link is pressed
-//        if (!window.isLinksWindow) {
-//            windowRepository.dedicatedLinksWindow.windowState = WindowState.CLOSED
-//        }
-//
-//        // redisplay the current page
-//        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-//    }
-
-    private fun unmaximiseWindow(window: Window) {
-        for (it in windowRepository.windowList) {
-            it.windowState = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
-            it.wasMinimised = false
-        }
-
-        window.windowState = WindowState.SPLIT
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-
-        windowSync.synchronizeWindows()
-        windowSync.reloadAllWindows()
-    }
-
     fun closeWindow(window: Window) {
 
         if (isWindowRemovable(window)) {

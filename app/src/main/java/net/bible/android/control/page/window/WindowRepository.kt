@@ -248,7 +248,6 @@ open class WindowRepository @Inject constructor(
             id,
             isSynchronized = true,
             isPinMode = false,
-            wasMinimised = false,
             isLinksWindow = false,
             windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString())
         ).apply {
@@ -339,7 +338,6 @@ open class WindowRepository @Inject constructor(
             id,
             isSynchronized = false,
             isPinMode = false,
-            wasMinimised = false,
             isLinksWindow = true,
             windowLayout = WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
         ).apply {
