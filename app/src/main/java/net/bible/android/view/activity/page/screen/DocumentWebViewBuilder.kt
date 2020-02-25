@@ -286,7 +286,7 @@ class DocumentWebViewBuilder @Inject constructor(
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
             minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
 
-            val minAndMaxScreens = windowRepository.minimisedAndMaximizedScreens
+            val minAndMaxScreens = windowRepository.windows.filter {!it.isPinMode}
             for (i in minAndMaxScreens.indices) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(minAndMaxScreens[i])
@@ -581,7 +581,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getDocumentInitial(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupWindow(window, v); true }
@@ -605,7 +605,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
                                  window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
@@ -746,7 +746,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.windowMaximise -> CommandPreference(
                 handle = {windowControl.setMaximized(window, !window.isMaximised)},
                 value = window.isMaximised,
-                visible = !window.isLinksWindow && !isMaximized
+                visible = false && !window.isLinksWindow && !isMaximized
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
@@ -756,7 +756,7 @@ class DocumentWebViewBuilder @Inject constructor(
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},
                 value = window.isPinMode,
-                visible = isMaximized && !window.isLinksWindow
+                visible = !window.isLinksWindow
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
                 visible = !window.isLinksWindow

@@ -89,7 +89,7 @@ open class WindowRepository @Inject constructor(
             val windows = ArrayList(windowList)
             addLinksWindowIfVisible(windows)
             val maximizedMode = windows.find {it.isMaximised} != null
-            return if(maximizedMode) windows.sortedWith(compareBy { !it.isPinMode }) else windows
+            return windows.sortedWith(compareBy { !it.isPinMode })
         }
 
     init {
@@ -174,8 +174,8 @@ open class WindowRepository @Inject constructor(
 
     private val defaultState = WindowState.SPLIT
 
-    val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
-    val lastVisibleWindow: Window get() = windowList.findLast { it.isVisible }!!
+    val firstVisibleWindow: Window get() = windows.find { it.isVisible }!!
+    val lastVisibleWindow: Window get() = windows.findLast { it.isVisible }!!
 
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow(true)
@@ -222,6 +222,7 @@ open class WindowRepository @Inject constructor(
 
     fun minimise(window: Window) {
         window.windowState = WindowState.MINIMISED
+        window.isPinMode = false
 
         // has the active screen been minimised?
         if (activeWindow == window) {

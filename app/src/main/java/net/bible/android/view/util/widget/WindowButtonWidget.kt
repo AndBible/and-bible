@@ -38,6 +38,7 @@ import net.bible.android.database.WorkspaceEntities
 class WindowButtonWidget(
     val window: Window?,
     var windowControl: WindowControl,
+    val isRestoreButton: Boolean,
     context: Context,
     attributeSet: AttributeSet? = null
 ): LinearLayout(context, attributeSet)
@@ -62,7 +63,7 @@ class WindowButtonWidget(
 
     private fun updateSettings() {
         synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.INVISIBLE
-        pinMode.visibility = if(windowControl.windowRepository.isMaximisedState && window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
+        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
     }
 
     private fun updateBackground() {
@@ -71,7 +72,7 @@ class WindowButtonWidget(
             val isMaximised = window?.isMaximised == true
             windowButton.setBackgroundResource(if (isActive || isMaximised) R.drawable.window_button_active else R.drawable.window_button)
         }
-        if(window?.isMinimised == true || window?.isMaximised == true) {
+        if(isRestoreButton) {
             buttonText.textSize = 13.0f
         }
     }

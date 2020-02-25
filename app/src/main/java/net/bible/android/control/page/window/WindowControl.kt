@@ -267,28 +267,21 @@ open class WindowControl @Inject constructor(
         if (window == activeWindow) return
         window.restoreOngoing = true
 
-        var switchingMaximised = false
-
-        for (it in windowRepository.maximisedWindows) {
-            switchingMaximised = true
+        for (it in windowRepository.windowList) {
             if(!it.isPinMode) {
                 it.windowState = WindowState.MINIMISED
             }
         }
 
-        window.windowState = if(switchingMaximised) WindowState.MAXIMISED else WindowState.SPLIT
+        window.windowState = WindowState.SPLIT
 
         // causes BibleViews to be created and laid out
         windowSync.synchronizeWindows()
         windowSync.reloadAllWindows()
 
-        if (switchingMaximised) {
-            if (activeWindow.isSynchronised)
-                windowRepository.lastMaximizedAndSyncWindowId =  activeWindow.id
-            activeWindow = window
-        } else {
-            windowRepository.lastMaximizedAndSyncWindowId = null
-        }
+        if (activeWindow.isSynchronised)
+            windowRepository.lastMaximizedAndSyncWindowId =  activeWindow.id
+        activeWindow = window
 
         eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
 
@@ -382,10 +375,11 @@ open class WindowControl @Inject constructor(
         if (windowRepository.isMaximisedState) {
             if(value) {
                 maximiseWindow(window)
-            } else if(windowRepository.maximisedWindows.size > 1) {
+            } else if(windowRepository.visibleWindows.size > 1) {
                 minimiseWindow(window, true)
             }
         }
+        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
     }
 
     companion object {

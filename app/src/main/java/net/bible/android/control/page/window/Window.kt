@@ -31,7 +31,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import java.lang.RuntimeException
 
 class WindowChangedEvent(val window: Window)
 
@@ -42,7 +41,7 @@ open class Window (
 ){
     var weight: Float
         get() =
-            if(isMaximised && !isPinMode) {
+            if(!isPinMode) {
                 if(windowRepository.maximizedWeight == null) {
                     windowRepository.maximizedWeight = windowLayout.weight
                 }
@@ -50,7 +49,7 @@ open class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(isMaximised && !isPinMode)
+            if(!isPinMode)
                 windowRepository.maximizedWeight = value
             else
                 windowLayout.weight = value
