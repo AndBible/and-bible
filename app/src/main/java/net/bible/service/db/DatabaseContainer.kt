@@ -258,7 +258,7 @@ private val MIGRATION_18_19 = object : Migration(18, 19) {
 private val MIGRATION_19_20 = object : Migration(19, 20) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
-            val colDefs = "`isSwapMode` INTEGER NOT NULL DEFAULT FALSE".split(",")
+            val colDefs = "`isSwapMode` INTEGER NOT NULL DEFAULT 0".split(",")
             colDefs.forEach {
                 execSQL("ALTER TABLE `Window` ADD COLUMN $it")
             }
