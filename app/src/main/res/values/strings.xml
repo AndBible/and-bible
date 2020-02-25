@@ -650,4 +650,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="line_spacing_summary">Set the space between lines</string>
     <string name="select_none">Select none</string>
     <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
+    <string name="auto_pin_mode">Auto-pin windows</string>
 </resources>

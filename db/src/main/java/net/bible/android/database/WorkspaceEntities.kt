@@ -272,13 +272,15 @@ class WorkspaceEntities {
     }
 
     data class WindowBehaviorSettings(
-        @ColumnInfo(defaultValue = "FALSE") var enableTiltToScroll: Boolean = false,
-        @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
+        @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
+        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false
     ) {
         companion object {
             val default get() = WindowBehaviorSettings(
                 enableTiltToScroll = false,
-                enableReverseSplitMode = false
+                enableReverseSplitMode = false,
+                autoPin = true
             )
         }
     }

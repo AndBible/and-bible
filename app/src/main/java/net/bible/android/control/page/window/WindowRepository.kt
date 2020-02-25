@@ -168,6 +168,7 @@ open class WindowRepository @Inject constructor(
         newWindow.weight = activeWindow.weight
 
         activeWindow.windowState = WindowState.SPLIT
+        newWindow.isPinMode = windowBehaviorSettings.autoPin
 
         return newWindow
     }

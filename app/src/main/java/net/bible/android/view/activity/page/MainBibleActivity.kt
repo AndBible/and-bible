@@ -516,6 +516,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
             R.id.splitMode -> SplitModePreference()
+            R.id.autoPinMode -> AutoPinModePreference()
 
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()

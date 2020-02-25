@@ -269,34 +269,36 @@ class DocumentWebViewBuilder @Inject constructor(
             // Display minimised screens
             restoreButtons.clear()
 
-            val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
-            minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
-                addView(minimisedWindowsLayout,
-                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT)
-                )
-            }
+            if(!isSingleWindow) {
+                val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
+                minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
+                    addView(minimisedWindowsLayout,
+                        FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT)
+                    )
+                }
 
-            currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
+                currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
                     FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                            Gravity.BOTTOM or Gravity.RIGHT))
-            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
-            minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
+                        Gravity.BOTTOM or Gravity.RIGHT))
+                minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
+                minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
 
-            val minAndMaxScreens = windowRepository.windows.filter {!it.isPinMode}
-            for (i in minAndMaxScreens.indices) {
-                Log.d(TAG, "Show restore button")
-                val restoreButton = createRestoreButton(minAndMaxScreens[i])
-                restoreButtons.add(restoreButton)
-                minimisedWindowsLayout.addView(restoreButton,
+                val minAndMaxScreens = windowRepository.windows.filter { !it.isPinMode }
+                for (i in minAndMaxScreens.indices) {
+                    Log.d(TAG, "Show restore button")
+                    val restoreButton = createRestoreButton(minAndMaxScreens[i])
+                    restoreButtons.add(restoreButton)
+                    minimisedWindowsLayout.addView(restoreButton,
                         LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-            }
+                }
 
-            // Make sure "unmaximise" button on right is visible
-            // Delay must be called for fullScroll that it gets done
-            minimisedWindowsFrameContainer.postDelayed({
-                minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-            }, 50L)
+                // Make sure "unmaximise" button on right is visible
+                // Delay must be called for fullScroll that it gets done
+                minimisedWindowsFrameContainer.postDelayed({
+                    minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+                }, 50L)
+            }
 
             previousParent = parent
             isLaidOutWithHorizontalSplit = isSplitHorizontally

@@ -262,11 +262,11 @@ open class WindowControl @Inject constructor(
     fun restoreWindow(window: Window) {
         if (window == activeWindow) return
         window.restoreOngoing = true
+        if(windowRepository.windowBehaviorSettings.autoPin)
+            window.isPinMode = true
 
-        for (it in windowRepository.windowList) {
-            if(!it.isPinMode) {
-                it.windowState = WindowState.MINIMISED
-            }
+        for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+            it.windowState = WindowState.MINIMISED
         }
 
         window.windowState = WindowState.SPLIT

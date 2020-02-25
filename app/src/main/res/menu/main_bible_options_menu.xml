@@ -19,6 +19,11 @@
 		android:checkable="true"
 		/>
 
+	<item android:id="@+id/autoPinMode"
+		android:title="@string/auto_pin_mode"
+		android:checkable="true"
+		/>
+
 	<item android:id="@+id/nightMode"
 		android:title="@string/options_menu_night_mode"
 		android:checkable="true"
