@@ -71,25 +71,6 @@ open class WindowControl @Inject constructor(
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
     fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
 
-    /**
-     * Get current chapter.verse for each window displaying a Bible
-     *
-     * @return Map of window num to verse num
-     */
-    private// get page offsets to maintain for each window
-    val windowChapterVerseMap: Map<Window, ChapterVerse>
-        get() {
-            val windowVerseMap = HashMap<Window, ChapterVerse>()
-            for (window in windowRepository.windows) {
-                val currentPage = window.pageManager.currentPage
-                if (BookCategory.BIBLE == currentPage.currentDocument?.bookCategory) {
-                    val chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.singleKey))
-                    windowVerseMap[window] = chapterVerse
-                }
-            }
-            return windowVerseMap
-        }
-
     init {
         eventManager.register(this)
     }
@@ -141,7 +122,7 @@ open class WindowControl @Inject constructor(
         linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         if (!linksWindowWasVisible) {
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
         }
         linksWindow.restoreOngoing = false
     }
@@ -171,7 +152,7 @@ open class WindowControl @Inject constructor(
             windowRepository.minimise(window)
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
         }
     }
 
@@ -185,7 +166,7 @@ open class WindowControl @Inject constructor(
             if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
             windowSync.reloadAllWindows()
         }
     }
@@ -231,7 +212,7 @@ open class WindowControl @Inject constructor(
 
         activeWindow = window
 
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        eventManager.post(NumberOfWindowsChangedEvent())
 
         window.restoreOngoing = false
     }
@@ -243,7 +224,7 @@ open class WindowControl @Inject constructor(
     /** screen orientation has changed  */
     fun orientationChange() {
         // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        eventManager.post(NumberOfWindowsChangedEvent())
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -281,7 +262,7 @@ open class WindowControl @Inject constructor(
 
         val isMoveFinished = !isSeparatorMoving
 
-        eventManager.post(WindowSizeChangedEvent(isMoveFinished, windowChapterVerseMap))
+        eventManager.post(WindowSizeChangedEvent(isMoveFinished))
     }
 
     fun windowSizesChanged() {
@@ -305,7 +286,7 @@ open class WindowControl @Inject constructor(
         windowRepository.moveWindowToPosition(window, position)
 
         // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        eventManager.post(NumberOfWindowsChangedEvent())
     }
 
     fun setPinMode(window: Window, value: Boolean) {
@@ -315,7 +296,7 @@ open class WindowControl @Inject constructor(
         } else if(windowRepository.visibleWindows.size > 1) {
             minimiseWindow(window, true)
         }
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        eventManager.post(NumberOfWindowsChangedEvent())
     }
 
     companion object {

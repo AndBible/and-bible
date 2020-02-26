@@ -19,13 +19,11 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
-import androidx.appcompat.content.res.AppCompatResources
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R

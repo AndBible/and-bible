@@ -77,7 +77,7 @@ public class DocumentViewManager {
     		mainBibleActivity.resetSystemUi();
     		myNoteViewBuilder.addMyNoteView(parent);
     	} else {
-    		documentWebViewBuilder.addWebView(parent);
+    		documentWebViewBuilder.addWebViews(parent);
     	}
 
 		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
@@ -93,7 +93,7 @@ public class DocumentViewManager {
     		myNoteViewBuilder.addMyNoteView(parent);
     	} else {
     		myNoteViewBuilder.removeMyNoteView(parent);
-    		documentWebViewBuilder.addWebView(parent);
+    		documentWebViewBuilder.addWebViews(parent);
     	}
 		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
 		for(Window window: windows) {

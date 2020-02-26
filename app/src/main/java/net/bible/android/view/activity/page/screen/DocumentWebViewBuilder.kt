@@ -151,7 +151,7 @@ class DocumentWebViewBuilder @Inject constructor(
     val windowRepository get() = windowControl.windowRepository
 
     @SuppressLint("RtlHardcoded")
-    fun addWebView(parent: LinearLayout) {
+    fun addWebViews(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
         val isSplitHorizontally = CommonUtils.isSplitVertically
