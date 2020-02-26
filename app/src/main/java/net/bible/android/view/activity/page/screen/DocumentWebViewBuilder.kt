@@ -154,9 +154,9 @@ class DocumentWebViewBuilder @Inject constructor(
     fun addWebViews(parent: LinearLayout) {
         val isWebView = isWebViewShowing(parent)
         parent.tag = TAG
-        val isSplitHorizontally = CommonUtils.isSplitVertically
+        val isSplitVertically = isSplitVertically
 
-        if (!isWebView || isWindowConfigurationChanged || isSplitHorizontally != isLaidOutWithHorizontalSplit) {
+        if (!isWebView || isWindowConfigurationChanged || isSplitVertically != isLaidOutWithHorizontalSplit) {
             Log.d(TAG, "Layout web view")
 
             val windows = windowRepository.visibleWindows
@@ -164,7 +164,7 @@ class DocumentWebViewBuilder @Inject constructor(
             removeChildViews(previousParent)
             ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
 
-            parent.orientation = if (isSplitHorizontally) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+            parent.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
             windowButtons.clear()
@@ -174,34 +174,26 @@ class DocumentWebViewBuilder @Inject constructor(
 
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
 
-                val bibleView = getCleanView(window)
-                bibleView.updateBackgroundColor()
-
                 val windowWeight = max(window.weight, 0.1F)
-                val lp = if (isSplitHorizontally)
+                val lp = if (isSplitVertically)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
                 else
                     LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
 
                 parent.addView(currentWindowFrameLayout, lp)
 
-                currentWindowFrameLayout.addView(
-                    bibleView,
-                    FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                )
-
                 if (windowNo > 0) {
                     val separator = previousSeparator
-                    addTopOrLeftSeparatorTouchExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
+                    addTopOrLeftSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator!!)
                 }
 
                 if (windowNo < windows.size - 1) {
                     val nextWindow = windows[windowNo + 1]
-                    val separator = createSeparator(parent, window, nextWindow, isSplitHorizontally, windows.size)
+                    val separator = createSeparator(parent, window, nextWindow, isSplitVertically, windows.size)
 
-                    addBottomOrRightSeparatorTouchExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator)
+                    addBottomOrRightSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator)
 
-                    parent.addView(separator, if (isSplitHorizontally)
+                    parent.addView(separator, if (isSplitVertically)
                         LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0f)
                     else
                         LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0f))
@@ -210,37 +202,7 @@ class DocumentWebViewBuilder @Inject constructor(
                     previousSeparator = separator
                 }
 
-                val defaultWindowActionButton =
-                    if (isSingleWindow) {
-                        createSingleWindowButton(window)
-                    } else if (window.defaultOperation == WindowOperation.CLOSE) {
-                        createCloseButton(window)
-                    } else {
-                        createMinimiseButton(window)
-                    }
-
-
-                if (!isSplitHorizontally) {
-                    defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
-                    if (windowNo == windows.size - 1) {
-                        defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-                    }
-                } else {
-                    if (windowNo == 0) {
-                        defaultWindowActionButton.translationY =
-                            if (isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else mainBibleActivity.topOffset2
-                    }
-                    defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-                }
-
-
-                windowButtons.add(defaultWindowActionButton)
-                currentWindowFrameLayout.addView(defaultWindowActionButton,
-                    FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                        if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
-
-                window.bibleView = bibleView
+                buildBibleViewFrame(currentWindowFrameLayout, window)
             }
 
             bibleReferenceOverlay = TextView(mainBibleActivity).apply {
@@ -294,12 +256,53 @@ class DocumentWebViewBuilder @Inject constructor(
             }
 
             previousParent = parent
-            isLaidOutWithHorizontalSplit = isSplitHorizontally
+            isLaidOutWithHorizontalSplit = isSplitVertically
             isWindowConfigurationChanged = false
         }
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         ABEventBus.getDefault().post(WebViewsBuiltEvent())
+    }
+
+    private val isSplitVertically get() = CommonUtils.isSplitVertically
+
+    private fun buildBibleViewFrame(currentWindowFrameLayout: FrameLayout, window: Window) {
+        val bibleView = getCleanView(window)
+        bibleView.updateBackgroundColor()
+
+        currentWindowFrameLayout.addView(
+            bibleView,
+            FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        )
+
+        val defaultWindowActionButton =
+            if (isSingleWindow) {
+                createSingleWindowButton(window)
+            } else if (window.defaultOperation == WindowOperation.CLOSE) {
+                createCloseButton(window)
+            } else {
+                createMinimiseButton(window)
+            }
+
+        if (!isSplitVertically) {
+            defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
+            if (windowRepository.lastVisibleWindow.id == window.id) {
+                defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+            }
+        } else {
+            if (windowRepository.firstVisibleWindow.id == window.id) {
+                defaultWindowActionButton.translationY =
+                    if (isSingleWindow) -mainBibleActivity.bottomOffset2
+                    else mainBibleActivity.topOffset2
+            }
+            defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
+        }
+
+
+        windowButtons.add(defaultWindowActionButton)
+        currentWindowFrameLayout.addView(defaultWindowActionButton,
+            FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
     }
 
     class WebViewsBuiltEvent
