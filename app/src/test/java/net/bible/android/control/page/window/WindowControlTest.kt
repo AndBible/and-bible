@@ -70,6 +70,8 @@ class WindowControlTest {
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
         reset<EventManager>(eventManager)
+        windowRepository!!.windowBehaviorSettings.autoPin = true
+        windowControl!!.activeWindow.isPinMode = true
     }
 
     @After
@@ -160,7 +162,6 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testGetMinimisedWindows() {
-        val activeWindow = windowControl!!.activeWindow
         val newWindow1 = windowControl!!.addNewWindow()
         val newWindow2 = windowControl!!.addNewWindow()
 
@@ -269,7 +270,7 @@ class WindowControlTest {
         reset<EventManager>(eventManager)
 
         windowControl!!.restoreWindow(newWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, containsInAnyOrder(newWindow))
+        assertThat<List<Window>>(windowRepository!!.visibleWindows, containsInAnyOrder(activeWindow, newWindow))
 
         verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
     }
