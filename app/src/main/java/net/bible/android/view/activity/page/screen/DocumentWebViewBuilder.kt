@@ -156,14 +156,10 @@ class DocumentWebViewBuilder @Inject constructor(
         parent.tag = TAG
         val isSplitHorizontally = CommonUtils.isSplitVertically
 
-        if (!isWebView ||
-                isWindowConfigurationChanged ||
-                isSplitHorizontally != isLaidOutWithHorizontalSplit) {
+        if (!isWebView || isWindowConfigurationChanged || isSplitHorizontally != isLaidOutWithHorizontalSplit) {
             Log.d(TAG, "Layout web view")
 
             val windows = windowRepository.visibleWindows
-
-            // ensure we have a known starting point - could be none, 1, or 2 webviews present
 
             removeChildViews(previousParent)
             ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
@@ -172,6 +168,7 @@ class DocumentWebViewBuilder @Inject constructor(
             var currentWindowFrameLayout: ViewGroup? = null
             var previousSeparator: Separator? = null
             windowButtons.clear()
+
             for ((windowNo, window) in windows.withIndex()) {
                 Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
 
@@ -188,36 +185,31 @@ class DocumentWebViewBuilder @Inject constructor(
 
                 parent.addView(currentWindowFrameLayout, lp)
 
-                // add bible to framelayout
-                val frameLayoutParamsBibleWebView = FrameLayout.LayoutParams(
-                        LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                currentWindowFrameLayout.addView(bibleView, frameLayoutParamsBibleWebView)
+                currentWindowFrameLayout.addView(
+                    bibleView,
+                    FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                )
 
                 if (windowNo > 0) {
                     val separator = previousSeparator
-
-                    // extend touch area of separator
-                    addTopOrLeftSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
+                    addTopOrLeftSeparatorTouchExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator!!)
                 }
 
-                // Add screen separator
                 if (windowNo < windows.size - 1) {
                     val nextWindow = windows[windowNo + 1]
                     val separator = createSeparator(parent, window, nextWindow, isSplitHorizontally, windows.size)
 
-                    // extend touch area of separator
-                    addBottomOrRightSeparatorExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator)
+                    addBottomOrRightSeparatorTouchExtension(isSplitHorizontally, currentWindowFrameLayout, lp, separator)
 
-                    // Add actual separator line dividing two windows
                     parent.addView(separator, if (isSplitHorizontally)
                         LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0f)
                     else
                         LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0f))
+
                     // allow extension to be added in next screen
                     previousSeparator = separator
                 }
 
-                // create default action button for top or bottom right of each window
                 val defaultWindowActionButton =
                     if (isSingleWindow) {
                         createSingleWindowButton(window)
@@ -266,6 +258,7 @@ class DocumentWebViewBuilder @Inject constructor(
             currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
                 FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                     Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
+
             // Display minimised screens
             restoreButtons.clear()
 
@@ -453,14 +446,11 @@ class DocumentWebViewBuilder @Inject constructor(
         }
     }
 
-    /**
-     * Add extension preceding separator
-     */
     @SuppressLint("RtlHardcoded")
-    private fun addBottomOrRightSeparatorExtension(isPortrait: Boolean,
-                                                   previousWindowLayout: ViewGroup,
-                                                   previousLp: LinearLayout.LayoutParams,
-                                                   separator: Separator) {
+    private fun addBottomOrRightSeparatorTouchExtension(isPortrait: Boolean,
+                                                        previousWindowLayout: ViewGroup,
+                                                        previousLp: LinearLayout.LayoutParams,
+                                                        separator: Separator) {
         // add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
         val frameLayoutParamsSeparatorDelegate = if (isPortrait)
             FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM)
@@ -471,14 +461,11 @@ class DocumentWebViewBuilder @Inject constructor(
         separator.view1LayoutParams = previousLp
     }
 
-    /**
-     * Add extension after separator
-     */
     @SuppressLint("RtlHardcoded")
-    private fun addTopOrLeftSeparatorExtension(isPortrait: Boolean,
-                                               currentWindowLayout: ViewGroup,
-                                               lp: LinearLayout.LayoutParams,
-                                               separator: Separator) {
+    private fun addTopOrLeftSeparatorTouchExtension(isPortrait: Boolean,
+                                                    currentWindowLayout: ViewGroup,
+                                                    lp: LinearLayout.LayoutParams,
+                                                    separator: Separator) {
         // add separator handle touch delegate to framelayout
         val frameLayoutParamsSeparatorDelegate = if (isPortrait)
             FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP)
