@@ -60,7 +60,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
@@ -1223,13 +1222,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         invalidateOptionsMenu()
-    }
-
-    /**
-     * called just before starting work to change the current passage
-     */
-    fun onEventMainThread(event: PassageChangeStartedEvent) {
-        documentViewManager.buildView()
     }
 
     /**

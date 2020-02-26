@@ -21,6 +21,7 @@ import android.view.View
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -50,6 +51,14 @@ class DocumentViewManager @Inject constructor(
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         buildView()
     }
+
+	/**
+	 * called just before starting work to change the current passage
+	 */
+	fun onEventMainThread(event: PassageChangeStartedEvent) {
+		buildView()
+	}
+
 
     @Synchronized
     fun resetView() {
