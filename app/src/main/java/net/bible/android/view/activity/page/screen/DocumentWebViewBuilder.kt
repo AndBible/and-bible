@@ -173,6 +173,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
 
                 currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
+                buildBibleViewFrame(currentWindowFrameLayout, window)
 
                 val windowWeight = max(window.weight, 0.1F)
                 val lp = if (isSplitVertically)
@@ -202,7 +203,6 @@ class DocumentWebViewBuilder @Inject constructor(
                     previousSeparator = separator
                 }
 
-                buildBibleViewFrame(currentWindowFrameLayout, window)
             }
 
             bibleReferenceOverlay = TextView(mainBibleActivity).apply {
