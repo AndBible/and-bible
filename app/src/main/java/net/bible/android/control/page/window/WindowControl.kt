@@ -148,19 +148,9 @@ open class WindowControl @Inject constructor(
 
 
     fun addNewWindow(): Window {
-        val oldActiveWindow = activeWindow
         val window = windowRepository.addNewWindow()
 
-        // default state to active window
-        if (!isActiveWindow(window)) {
-            window.isSynchronised = oldActiveWindow.isSynchronised
-            activeWindow = window
-        }
-
-        window.updateText()
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        restoreWindow(window)
 
         return window
     }
@@ -171,10 +161,7 @@ open class WindowControl @Inject constructor(
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        activeWindow = window
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        restoreWindow(window)
 
         return window
     }
@@ -204,11 +191,18 @@ open class WindowControl @Inject constructor(
     }
 
     fun isWindowMinimisable(window: Window): Boolean {
-        return !window.isMinimised && isWindowRemovable(window) && !window.isLinksWindow
+        var normalWindows = windowRepository.visibleWindows.size
+        if (windowRepository.dedicatedLinksWindow.isVisible) {
+            normalWindows--
+        }
+
+        val canMinimize =  normalWindows > 1
+
+        return !window.isMinimised && canMinimize && !window.isLinksWindow
     }
 
     fun isWindowRemovable(window: Window): Boolean {
-        var normalWindows = windowRepository.visibleWindows.size
+        var normalWindows = windowRepository.windows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
             normalWindows--
         }

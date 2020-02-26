@@ -743,7 +743,7 @@ class DocumentWebViewBuilder @Inject constructor(
             )
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
-                enabled = windowControl.isWindowRemovable(window)
+                visible = windowControl.isWindowRemovable(window)
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
