@@ -69,62 +69,21 @@ import javax.inject.Inject
 import kotlin.math.max
 
 
-/**
- * TEMP NOTE: http://stackoverflow.com/questions/961944/overlapping-views-in-android
- * FOR OVERLAY IMAGE
- */
-/**
- * Build the main WebView component for displaying most document types
- *
- * Structure of the layout:
- * parent
- * windowFrameLayout
- * bibleView
- * separatorExtension (touch delegate for next separator)
- * separator
- * windowFrameLayout
- * bibleView
- * separatorExtension (touch delegate for previous separator)
- * minimiseButton
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
 @MainBibleActivityScope
 class DocumentWebViewBuilder @Inject constructor(
     private val windowControl: WindowControl,
     private val mainBibleActivity: MainBibleActivity,
-    private val bibleViewFactory: BibleViewFactory,
-    private val documentControl: DocumentControl
+    private val bibleViewFactory: BibleViewFactory
 ) {
 
-    private var isWindowConfigurationChanged = true
+    private val res = BibleApplication.application.resources
 
-    private var isLaidOutWithHorizontalSplit: Boolean = false
-
-    private val WINDOW_SEPARATOR_WIDTH_PX: Int
-    private val WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX: Int
-    private val WINDOW_BUTTON_TEXT_COLOUR: Int
-    private val WINDOW_BUTTON_BACKGROUND_COLOUR: Int
-    private val BIBLE_REF_OVERLAY_OFFSET: Int
+    private val WINDOW_SEPARATOR_WIDTH_PX: Int = res.getDimensionPixelSize(R.dimen.window_separator_width)
+    private val WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
+    private val BIBLE_REF_OVERLAY_OFFSET: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
     init {
-
-        val res = BibleApplication.application.resources
-        WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width)
-        WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
-        WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour)
-        WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour)
-        BIBLE_REF_OVERLAY_OFFSET = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
-
-        // Be notified of any changes to window config
         ABEventBus.getDefault().register(this)
-    }
-
-    /**
-     * Record changes to scplit screen config so can redraw screen from scratch.
-     */
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
-        isWindowConfigurationChanged = true
     }
 
     fun destroy() {
@@ -230,8 +189,6 @@ class DocumentWebViewBuilder @Inject constructor(
             }
         }
 
-        isLaidOutWithHorizontalSplit = isSplitVertically
-        isWindowConfigurationChanged = false
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         return topView
