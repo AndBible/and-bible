@@ -133,135 +133,114 @@ class DocumentWebViewBuilder @Inject constructor(
         ABEventBus.getDefault().unregister(this)
     }
 
-    /**
-     * Enable switch from Bible WebView to MyNote view
-     */
-    fun removeWebView(parent: ViewGroup) {
-        val isWebView = isWebViewShowing(parent)
-
-        if (isWebView) {
-            parent.tag = ""
-            removeChildViews(parent)
-            ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
-        }
-    }
-
     private val isSingleWindow get () = !windowControl.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
 
     val windowRepository get() = windowControl.windowRepository
 
     @SuppressLint("RtlHardcoded")
-    fun addWebViews(parent: LinearLayout) {
-        val isWebView = isWebViewShowing(parent)
-        parent.tag = TAG
+    fun buildWebViews(): LinearLayout {
+        val parent = LinearLayout(mainBibleActivity)
         val isSplitVertically = isSplitVertically
 
-        if (!isWebView || isWindowConfigurationChanged || isSplitVertically != isLaidOutWithHorizontalSplit) {
-            Log.d(TAG, "Layout web view")
+        Log.d(TAG, "Layout web view")
+        val windows = windowRepository.visibleWindows
 
-            val windows = windowRepository.visibleWindows
+        parent.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        var currentWindowFrameLayout: ViewGroup? = null
+        var previousSeparator: Separator? = null
+        windowButtons.clear()
 
-            removeChildViews(previousParent)
-            ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
+        for ((windowNo, window) in windows.withIndex()) {
+            Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
 
-            parent.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-            var currentWindowFrameLayout: ViewGroup? = null
-            var previousSeparator: Separator? = null
-            windowButtons.clear()
+            currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
+            buildBibleViewFrame(currentWindowFrameLayout, window)
 
-            for ((windowNo, window) in windows.withIndex()) {
-                Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
+            val windowWeight = max(window.weight, 0.1F)
+            val lp = if (isSplitVertically)
+                LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
+            else
+                LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
 
-                currentWindowFrameLayout = FrameLayout(this.mainBibleActivity)
-                buildBibleViewFrame(currentWindowFrameLayout, window)
+            parent.addView(currentWindowFrameLayout, lp)
 
-                val windowWeight = max(window.weight, 0.1F)
-                val lp = if (isSplitVertically)
-                    LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
+            if (windowNo > 0) {
+                val separator = previousSeparator
+                addTopOrLeftSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator!!)
+            }
+
+            if (windowNo < windows.size - 1) {
+                val nextWindow = windows[windowNo + 1]
+                val separator = createSeparator(parent, window, nextWindow, isSplitVertically, windows.size)
+
+                addBottomOrRightSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator)
+
+                parent.addView(separator, if (isSplitVertically)
+                    LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0f)
                 else
-                    LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
+                    LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0f))
 
-                parent.addView(currentWindowFrameLayout, lp)
-
-                if (windowNo > 0) {
-                    val separator = previousSeparator
-                    addTopOrLeftSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator!!)
-                }
-
-                if (windowNo < windows.size - 1) {
-                    val nextWindow = windows[windowNo + 1]
-                    val separator = createSeparator(parent, window, nextWindow, isSplitVertically, windows.size)
-
-                    addBottomOrRightSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator)
-
-                    parent.addView(separator, if (isSplitVertically)
-                        LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0f)
-                    else
-                        LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0f))
-
-                    // allow extension to be added in next screen
-                    previousSeparator = separator
-                }
-
+                // allow extension to be added in next screen
+                previousSeparator = separator
             }
-
-            bibleReferenceOverlay = TextView(mainBibleActivity).apply {
-                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-                    setBackgroundResource(R.drawable.bible_reference_overlay)
-                }
-                visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
-                ellipsize = TextUtils.TruncateAt.MIDDLE
-                setLines(1)
-                gravity = Gravity.CENTER
-                translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
-                text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
-                textSize = 18F
-            }
-            currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
-                FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-
-            // Display minimised screens
-            restoreButtons.clear()
-
-            if(!isSingleWindow) {
-                val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
-                minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
-                    addView(minimisedWindowsLayout,
-                        FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT)
-                    )
-                }
-
-                currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
-                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                        Gravity.BOTTOM or Gravity.RIGHT))
-                minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
-                minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
-
-                val minAndMaxScreens = windowRepository.windows.filter { !it.isPinMode }
-                for (i in minAndMaxScreens.indices) {
-                    Log.d(TAG, "Show restore button")
-                    val restoreButton = createRestoreButton(minAndMaxScreens[i])
-                    restoreButtons.add(restoreButton)
-                    minimisedWindowsLayout.addView(restoreButton,
-                        LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-                }
-
-                // Make sure "unmaximise" button on right is visible
-                // Delay must be called for fullScroll that it gets done
-                minimisedWindowsFrameContainer.postDelayed({
-                    minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-                }, 50L)
-            }
-
-            previousParent = parent
-            isLaidOutWithHorizontalSplit = isSplitVertically
-            isWindowConfigurationChanged = false
         }
+
+        bibleReferenceOverlay = TextView(mainBibleActivity).apply {
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+                setBackgroundResource(R.drawable.bible_reference_overlay)
+            }
+            visibility = if(buttonsVisible && mainBibleActivity.fullScreen) View.VISIBLE else View.GONE
+            ellipsize = TextUtils.TruncateAt.MIDDLE
+            setLines(1)
+            gravity = Gravity.CENTER
+            translationY = -BIBLE_REF_OVERLAY_OFFSET.toFloat()
+            text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
+            textSize = 18F
+        }
+        currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
+            FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
+
+        // Display minimised screens
+        restoreButtons.clear()
+
+        if(!isSingleWindow) {
+            val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
+            minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
+                addView(minimisedWindowsLayout,
+                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
+                )
+            }
+
+            currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
+                FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM or Gravity.RIGHT))
+            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
+            minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
+
+            val minAndMaxScreens = windowRepository.windows.filter { !it.isPinMode }
+            for (i in minAndMaxScreens.indices) {
+                Log.d(TAG, "Show restore button")
+                val restoreButton = createRestoreButton(minAndMaxScreens[i])
+                restoreButtons.add(restoreButton)
+                minimisedWindowsLayout.addView(restoreButton,
+                    LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+            }
+
+            // Make sure "unmaximise" button on right is visible
+            // Delay must be called for fullScroll that it gets done
+            minimisedWindowsFrameContainer.postDelayed({
+                minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+            }, 50L)
+        }
+
+        previousParent = parent
+        isLaidOutWithHorizontalSplit = isSplitVertically
+        isWindowConfigurationChanged = false
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
-        ABEventBus.getDefault().post(WebViewsBuiltEvent())
+        return parent
     }
 
     private val isSplitVertically get() = CommonUtils.isSplitVertically
@@ -757,11 +736,6 @@ class DocumentWebViewBuilder @Inject constructor(
 
             else -> throw RuntimeException("Illegal menu item")
         }
-    }
-
-    private fun isWebViewShowing(parent: ViewGroup): Boolean {
-        val tag = parent.tag
-        return tag != null && tag == TAG
     }
 
     companion object {

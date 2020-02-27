@@ -65,31 +65,15 @@ public class MyNoteViewBuilder {
 	}
 	
 	public void addMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	parent.setTag(TAG);
-
-    	if (!isMynoteTextEdit) {
-    		parent.addView(myNoteText);
-    		mainActivity.registerForContextMenu(myNoteText);
-    	}
+		parent.addView(myNoteText);
+		mainActivity.registerForContextMenu(myNoteText);
 	}
 
-	public void removeMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	
-    	if (isMynoteTextEdit) {
-        	parent.setTag("");
-    		parent.removeView(myNoteText);
-    		mainActivity.unregisterForContextMenu(myNoteText);
-    	}
+	public void afterRemove() {
+		mainActivity.unregisterForContextMenu(myNoteText);
 	}
 
 	public DocumentView getView() {
 		return myNoteText;
-	}
-
-	private boolean isMyNoteViewShowing(ViewGroup parent) {
-		Object tag = parent.getTag();
-		return tag!=null && tag.equals(TAG);
 	}
 }

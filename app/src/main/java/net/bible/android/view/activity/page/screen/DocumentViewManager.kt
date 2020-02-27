@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -62,33 +63,42 @@ class DocumentViewManager @Inject constructor(
 
     @Synchronized
     fun resetView() {
-        myNoteViewBuilder.removeMyNoteView(parent)
-        documentWebViewBuilder.removeWebView(parent)
+        parent.removeAllViews()
+        ABEventBus.getDefault().post(DocumentWebViewBuilder.AfterRemoveWebViewEvent())
+        myNoteViewBuilder.afterRemove()
+
         if (myNoteViewBuilder.isMyNoteViewType) {
             mainBibleActivity.resetSystemUi()
             myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            documentWebViewBuilder.addWebViews(parent)
-        }
-        val windows = windowControl.windowRepository.visibleWindows
-        for (window in windows) {
-            mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
+            val view = documentWebViewBuilder.buildWebViews()
+            parent.addView(view, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)))
+            val windows = windowControl.windowRepository.visibleWindows
+            for (window in windows) {
+                mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
+            }
         }
     }
 
     @Synchronized
     fun buildView() {
+        parent.removeAllViews()
+        ABEventBus.getDefault().post(DocumentWebViewBuilder.AfterRemoveWebViewEvent())
         if (myNoteViewBuilder.isMyNoteViewType) {
             mainBibleActivity.resetSystemUi()
-            documentWebViewBuilder.removeWebView(parent)
             myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            myNoteViewBuilder.removeMyNoteView(parent)
-            documentWebViewBuilder.addWebViews(parent)
-        }
-        val windows = windowControl.windowRepository.visibleWindows
-        for (window in windows) {
-            mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
+            myNoteViewBuilder.afterRemove()
+            val view = documentWebViewBuilder.buildWebViews()
+            parent.addView(view,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            val windows = windowControl.windowRepository.visibleWindows
+            for (window in windows) {
+                mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
+            }
+            ABEventBus.getDefault().post(DocumentWebViewBuilder.WebViewsBuiltEvent())
+
         }
     }
 
