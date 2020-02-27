@@ -99,7 +99,7 @@ public class VerseMenuCommandHandler {
 					mainActivity.setFullScreen(false);
 					myNoteControl.showMyNote(verseRange);
 					mainActivity.invalidateOptionsMenu();
-					mainActivity.documentViewManager.resetView();
+					mainActivity.documentViewManager.buildView();
 					isHandled = true;
 					break;
 				case R.id.copy:

@@ -63,36 +63,15 @@ class DocumentViewManager @Inject constructor(
 		buildView()
 	}
 
-
-    @Synchronized
-    fun resetView() {
-        parent.removeAllViews()
-        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
-        myNoteViewBuilder.afterRemove()
-
-        if (myNoteViewBuilder.isMyNoteViewType) {
-            mainBibleActivity.resetSystemUi()
-            myNoteViewBuilder.addMyNoteView(parent)
-        } else {
-            val view = documentWebViewBuilder.buildWebViews()
-            parent.addView(view, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)))
-            val windows = windowControl.windowRepository.visibleWindows
-            for (window in windows) {
-                mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
-            }
-        }
-    }
-
     @Synchronized
     fun buildView() {
         parent.removeAllViews()
         ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
+        myNoteViewBuilder.afterRemove()
         if (myNoteViewBuilder.isMyNoteViewType) {
             mainBibleActivity.resetSystemUi()
             myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            myNoteViewBuilder.afterRemove()
             val view = documentWebViewBuilder.buildWebViews()
             parent.addView(view,
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
@@ -101,7 +80,6 @@ class DocumentViewManager @Inject constructor(
                 mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
             }
             ABEventBus.getDefault().post(WebViewsBuiltEvent())
-
         }
     }
 

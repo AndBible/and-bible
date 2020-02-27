@@ -493,7 +493,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             windowRepository.loadFromDb(value)
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
-            documentViewManager.resetView()
+            documentViewManager.buildView()
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateVisibleWindowsTextDisplaySettings()
 
@@ -1120,7 +1120,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
                 if(data?.component?.className == MyNotes::class.java.name) {
                     invalidateOptionsMenu()
-                    documentViewManager.resetView()
+                    documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {

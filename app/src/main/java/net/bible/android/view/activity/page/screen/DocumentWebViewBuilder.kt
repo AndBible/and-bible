@@ -89,6 +89,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
     private lateinit var bibleReferenceOverlay: TextView
     private var buttonsVisible = true
+    private val bibleFrames = TreeMap<Long, BibleViewFrame>()
 
     init {
         ABEventBus.getDefault().register(this)
@@ -118,8 +119,10 @@ class DocumentWebViewBuilder @Inject constructor(
         for ((windowNo, window) in windows.withIndex()) {
             Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
 
-            val currentWindowFrameLayout = BibleViewFrame(this.mainBibleActivity)
-            buildBibleViewFrame(currentWindowFrameLayout, window)
+            //val bibleFrame = bibleFrames[window.id] ?: buildBibleFrame(window).also {
+            //    bibleFrames[window.id] = it
+            //}
+            val bibleFrame = buildBibleFrame(window)
 
             val windowWeight = max(window.weight, 0.1F)
             val lp = if (isSplitVertically)
@@ -127,18 +130,18 @@ class DocumentWebViewBuilder @Inject constructor(
             else
                 LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
 
-            parentLinearLayout.addView(currentWindowFrameLayout, lp)
+            parentLinearLayout.addView(bibleFrame, lp)
 
             if (windowNo > 0) {
                 val separator = previousSeparator
-                addTopOrLeftSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator!!)
+                addTopOrLeftSeparatorTouchExtension(isSplitVertically, bibleFrame, lp, separator!!)
             }
 
             if (windowNo < windows.size - 1) {
                 val nextWindow = windows[windowNo + 1]
                 val separator = createSeparator(parentLinearLayout, window, nextWindow, isSplitVertically, windows.size)
 
-                addBottomOrRightSeparatorTouchExtension(isSplitVertically, currentWindowFrameLayout, lp, separator)
+                addBottomOrRightSeparatorTouchExtension(isSplitVertically, bibleFrame, lp, separator)
 
                 parentLinearLayout.addView(separator, if (isSplitVertically)
                     LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
@@ -198,11 +201,12 @@ class DocumentWebViewBuilder @Inject constructor(
         return topView
     }
 
-    private fun buildBibleViewFrame(currentWindowFrameLayout: BibleViewFrame, window: Window) {
+    private fun buildBibleFrame(window: Window): BibleViewFrame {
+        val frame = BibleViewFrame(this.mainBibleActivity)
         val bibleView = getCleanView(window)
         bibleView.updateBackgroundColor()
 
-        currentWindowFrameLayout.addView(
+        frame.addView(
             bibleView,
             FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         )
@@ -232,9 +236,10 @@ class DocumentWebViewBuilder @Inject constructor(
 
 
         windowButtons.add(defaultWindowActionButton)
-        currentWindowFrameLayout.addView(defaultWindowActionButton,
+        frame.addView(defaultWindowActionButton,
             FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
+        return frame
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
