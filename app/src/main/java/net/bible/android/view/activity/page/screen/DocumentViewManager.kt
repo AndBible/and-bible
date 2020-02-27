@@ -32,6 +32,9 @@ import net.bible.android.view.activity.mynote.MyNoteViewBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
+class WebViewsBuiltEvent
+class AfterRemoveWebViewEvent
+
 /**
  * Create Views for displaying documents
  *
@@ -64,7 +67,7 @@ class DocumentViewManager @Inject constructor(
     @Synchronized
     fun resetView() {
         parent.removeAllViews()
-        ABEventBus.getDefault().post(DocumentWebViewBuilder.AfterRemoveWebViewEvent())
+        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
         myNoteViewBuilder.afterRemove()
 
         if (myNoteViewBuilder.isMyNoteViewType) {
@@ -84,7 +87,7 @@ class DocumentViewManager @Inject constructor(
     @Synchronized
     fun buildView() {
         parent.removeAllViews()
-        ABEventBus.getDefault().post(DocumentWebViewBuilder.AfterRemoveWebViewEvent())
+        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
         if (myNoteViewBuilder.isMyNoteViewType) {
             mainBibleActivity.resetSystemUi()
             myNoteViewBuilder.addMyNoteView(parent)
@@ -97,7 +100,7 @@ class DocumentViewManager @Inject constructor(
             for (window in windows) {
                 mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
             }
-            ABEventBus.getDefault().post(DocumentWebViewBuilder.WebViewsBuiltEvent())
+            ABEventBus.getDefault().post(WebViewsBuiltEvent())
 
         }
     }

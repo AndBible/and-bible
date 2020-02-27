@@ -80,6 +80,15 @@ class DocumentWebViewBuilder @Inject constructor(
     private val windowSeparatorWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_width)
     private val windowSeparatorTouchExpansionWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
+    private val windowRepository = windowControl.windowRepository
+    private val isSplitVertically get() = CommonUtils.isSplitVertically
+    private val isSingleWindow get () = !windowControl.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
+    private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
+    private val windowButtons: MutableList<WindowButtonWidget> = ArrayList()
+    private val restoreButtons: MutableList<WindowButtonWidget> = ArrayList()
+    private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
+    private lateinit var bibleReferenceOverlay: TextView
+    private var buttonsVisible = true
 
     init {
         ABEventBus.getDefault().register(this)
@@ -88,10 +97,6 @@ class DocumentWebViewBuilder @Inject constructor(
     fun destroy() {
         ABEventBus.getDefault().unregister(this)
     }
-
-    private val isSingleWindow get () = !windowControl.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
-
-    val windowRepository get() = windowControl.windowRepository
 
     @SuppressLint("RtlHardcoded")
     fun buildWebViews(): AllBibleViewsContainer {
@@ -193,8 +198,6 @@ class DocumentWebViewBuilder @Inject constructor(
         return topView
     }
 
-    private val isSplitVertically get() = CommonUtils.isSplitVertically
-
     private fun buildBibleViewFrame(currentWindowFrameLayout: BibleViewFrame, window: Window) {
         val bibleView = getCleanView(window)
         bibleView.updateBackgroundColor()
@@ -233,13 +236,6 @@ class DocumentWebViewBuilder @Inject constructor(
             FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
     }
-
-    class WebViewsBuiltEvent
-
-    private val windowButtons: MutableList<WindowButtonWidget> = ArrayList()
-    private val restoreButtons: MutableList<WindowButtonWidget> = ArrayList()
-    private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
-    private lateinit var bibleReferenceOverlay: TextView
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         toggleWindowButtonVisibility(true, force=true)
@@ -302,7 +298,6 @@ class DocumentWebViewBuilder @Inject constructor(
         sleepTimer.schedule(timerTask, 2000L)
     }
 
-    private var buttonsVisible = true
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
         if(!::minimisedWindowsFrameContainer.isInitialized) {
             // Too early to do anything
@@ -343,8 +338,6 @@ class DocumentWebViewBuilder @Inject constructor(
         }
         buttonsVisible = show
     }
-
-    private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
 
     private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
@@ -417,27 +410,6 @@ class DocumentWebViewBuilder @Inject constructor(
         numWindows: Int
     ) = Separator(this.mainBibleActivity, windowSeparatorWidthPixels, parent, window, nextWindow,
         windowRepository.activeWindow, numWindows, isPortrait, windowControl)
-
-    /**
-     * parent contains Frame, seperator, Frame.
-     * Frame contains BibleView
-     * @param parent
-     */
-    private fun removeChildViews(parent: ViewGroup?) {
-        if (parent != null) {
-            for (i in 0 until parent.childCount) {
-                val view = parent.getChildAt(i)
-                if (view is ViewGroup) {
-                    // this detaches the BibleView from it's containing Frame
-                    removeChildViews(view)
-                }
-            }
-
-            parent.removeAllViews()
-        }
-    }
-
-    class AfterRemoveWebViewEvent
 
 
     /**

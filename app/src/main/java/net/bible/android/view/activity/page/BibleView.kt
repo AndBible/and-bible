@@ -48,8 +48,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
+import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
+import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -553,7 +554,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset);")
     }
 
-    fun onEvent(event: DocumentWebViewBuilder.WebViewsBuiltEvent) {
+    fun onEvent(event: WebViewsBuiltEvent) {
         checkWindows = true
     }
 
@@ -603,7 +604,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pauseTiltScroll()
     }
 
-    fun onEventMainThread(event: DocumentWebViewBuilder.AfterRemoveWebViewEvent) {
+    fun onEventMainThread(event: AfterRemoveWebViewEvent) {
         if(toBeDestroyed)
             doDestroy()
     }
