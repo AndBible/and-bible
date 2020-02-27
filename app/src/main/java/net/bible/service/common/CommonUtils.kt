@@ -29,9 +29,9 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
-import android.preference.PreferenceManager
 
 import android.util.Log
+import androidx.preference.PreferenceManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonConfiguration
