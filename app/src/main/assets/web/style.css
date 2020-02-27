@@ -7,6 +7,7 @@
     --max-width: 170mm;
     --text-align: left;
     --line-spacing: 1em;
+    --hyphens: auto;
 }
 
 body {
@@ -38,7 +39,7 @@ div#content {
 	max-width: var(--max-width);
 	display: inline-block;
 	text-align: var(--text-align);
-	hyphens: auto;
+	hyphens: var(--hyphens);
 }
 
 h1, .heading1 {

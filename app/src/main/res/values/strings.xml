@@ -651,4 +651,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="select_none">Select none</string>
     <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
     <string name="auto_pin_mode">Auto-pin windows</string>
+    <string name="prefs_hyphenation_title">Hyphenation</string>
+    <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
 </resources>

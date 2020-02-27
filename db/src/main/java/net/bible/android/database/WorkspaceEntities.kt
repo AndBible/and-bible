@@ -133,6 +133,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showBookmarks: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMyNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @Embedded(prefix="font_") var font: Font? = null,
         @ColumnInfo(defaultValue = "NULL", name = "font_lineSpacing" ) var lineSpacing: Int? = null // TODO: rename column
     ) {
@@ -141,6 +142,7 @@ class WorkspaceEntities {
             COLORS,
             MARGINSIZE,
             JUSTIFY,
+            HYPHENATION,
             LINE_SPACING,
             STRONGS,
             MORPH,
@@ -166,6 +168,7 @@ class WorkspaceEntities {
             Types.MARGINSIZE -> marginSize?.copy()
             Types.COLORS -> colors?.copy()
             Types.JUSTIFY -> justifyText
+            Types.HYPHENATION -> hyphenation
             Types.LINE_SPACING -> lineSpacing
             Types.FONT -> font?.copy()
         }
@@ -184,6 +187,7 @@ class WorkspaceEntities {
                 Types.MARGINSIZE -> marginSize = value as MarginSize?
                 Types.COLORS -> colors = value as Colors?
                 Types.JUSTIFY -> justifyText = value as Boolean?
+                Types.HYPHENATION -> hyphenation = value as Boolean?
                 Types.FONT -> font = value as Font?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
             }
@@ -236,6 +240,7 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 showMyNotes = true,
                 justifyText = true,
+                hyphenation = true,
                 lineSpacing = 16
             )
 

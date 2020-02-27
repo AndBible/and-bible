@@ -106,5 +106,10 @@
             android:title="@string/prefs_justify_title"
             android:summary="@string/prefs_justify_summary"
             />
+        <SwitchPreference
+            android:key="HYPHENATION"
+            android:title="@string/prefs_hyphenation_title"
+            android:summary="@string/prefs_hyphenation_summary"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -179,9 +179,12 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.MYNOTES -> R.string.prefs_show_mynotes_title
                 TextDisplaySettings.Types.COLORS -> R.string.prefs_text_colors_menutitle
                 TextDisplaySettings.Types.JUSTIFY -> R.string.prefs_justify_title
-                else -> null
+                TextDisplaySettings.Types.HYPHENATION -> R.string.prefs_hyphenation_title
+                TextDisplaySettings.Types.FONT -> R.string.prefs_text_size_title
+                TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
+                TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
             }
-            return if(id != null) mainBibleActivity.getString(id) else null
+            return mainBibleActivity.getString(id)
         }
 }
 

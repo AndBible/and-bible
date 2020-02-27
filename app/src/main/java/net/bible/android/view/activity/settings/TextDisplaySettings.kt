@@ -106,6 +106,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
+        Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION, requiresReload = false)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
     }
 

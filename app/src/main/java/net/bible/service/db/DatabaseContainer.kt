@@ -318,6 +318,19 @@ private val MIGRATION_23_24 = object : Migration(23, 24) {
     }
 }
 
+private val MIGRATION_24_25 = object : Migration(24, 25) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            val colDefs = "`text_display_settings_hyphenation` INTEGER DEFAULT NULL".split(",")
+            colDefs.forEach {
+                execSQL("ALTER TABLE `Workspace` ADD COLUMN $it")
+                execSQL("ALTER TABLE `PageManager` ADD COLUMN $it")
+            }
+        }
+    }
+}
+
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -352,7 +365,8 @@ object DatabaseContainer {
                         MIGRATION_20_21,
                         MIGRATION_21_22,
                         MIGRATION_22_23,
-                        MIGRATION_23_24
+                        MIGRATION_23_24,
+                        MIGRATION_24_25
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

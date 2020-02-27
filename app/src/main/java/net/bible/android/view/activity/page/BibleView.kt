@@ -331,6 +331,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
         val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
         val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
+        val hyphenation = window.pageManager.actualTextDisplaySettings.hyphenation!!
         val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
         val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
 
@@ -340,6 +341,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             "textColor: '$textColorStr', " +
             "noiseOpacity: $noise, " +
             "justifyText: $justifyText, " +
+            "hyphenation: $hyphenation, " +
             "lineSpacing: $lineSpacing" +
             "}"
     }
