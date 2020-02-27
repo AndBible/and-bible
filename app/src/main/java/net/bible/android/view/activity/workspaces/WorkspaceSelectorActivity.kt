@@ -36,8 +36,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
@@ -464,10 +462,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         popup.menuInflater.inflate(R.menu.workspace_popup_menu, menu)
         val delItem = menu.findItem(R.id.deleteWorkspace)
         delItem.isEnabled = workspaceEntity.id != windowControl.windowRepository.id
-
-        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, view)
-
-        menuHelper.show()
+        popup.show()
     }
 
     companion object {

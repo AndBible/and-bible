@@ -105,10 +105,11 @@ abstract class SharedPreferencesPreference(
     override fun handle() {}
 }
 
-open class Preference(val settings: SettingsBundle, var type: TextDisplaySettings.Types, onlyBibles: Boolean = true,
+open class Preference(val settings: SettingsBundle,
+                      var type: TextDisplaySettings.Types,
+                      onlyBibles: Boolean = false,
                       override val requiresReload: Boolean = true
-
-                      ) : GeneralPreference(onlyBibles) {
+) : GeneralPreference(onlyBibles) {
     private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
@@ -123,7 +124,7 @@ open class Preference(val settings: SettingsBundle, var type: TextDisplaySetting
 
     override val visible: Boolean
         get() {
-            return if (onlyBibles) pageManager.isBibleShown else true
+            return if (window != null && onlyBibles) pageManager.isBibleShown else true
         }
 
     override fun setNonSpecific() {
@@ -330,5 +331,17 @@ class SplitModePreference :
 
     override val isBoolean = true
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
+}
+
+class AutoPinModePreference :
+    GeneralPreference() {
+    private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
+    override var value: Any
+        get() = wsBehaviorSettings.autoPin
+        set(value) {
+            wsBehaviorSettings.autoPin = value == true
+        }
+
+    override val isBoolean = true
 }
 

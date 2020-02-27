@@ -272,13 +272,15 @@ class WorkspaceEntities {
     }
 
     data class WindowBehaviorSettings(
-        @ColumnInfo(defaultValue = "FALSE") var enableTiltToScroll: Boolean = false,
-        @ColumnInfo(defaultValue = "FALSE") var enableReverseSplitMode: Boolean = false
+        @ColumnInfo(defaultValue = "0") var enableTiltToScroll: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var enableReverseSplitMode: Boolean = false,
+        @ColumnInfo(defaultValue = "1") var autoPin: Boolean = false
     ) {
         companion object {
             val default get() = WindowBehaviorSettings(
                 enableTiltToScroll = false,
-                enableReverseSplitMode = false
+                enableReverseSplitMode = false,
+                autoPin = true
             )
         }
     }
@@ -292,7 +294,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
-        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings()
+        @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings(),
+        @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null
     )
 
     @Entity(
@@ -334,7 +337,7 @@ class WorkspaceEntities {
         var workspaceId: Long,
         val isSynchronized: Boolean,
         @ColumnInfo(name="isSwapMode") val isPinMode: Boolean, // TODO: rename column
-        val wasMinimised: Boolean,
+        @ColumnInfo(name="wasMinimised") val wasMinimisedDeprecated: Boolean = false, // TODO: drop column
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
 

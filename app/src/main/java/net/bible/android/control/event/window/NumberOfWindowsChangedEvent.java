@@ -26,19 +26,4 @@ import net.bible.android.control.page.window.Window;
 /**
  * 	Window has been minimized/restored/closed/added
  */
-public class NumberOfWindowsChangedEvent implements WindowEvent {
-	
-	private Map<Window, ChapterVerse> windowChapterVerseMap;
-
-	public NumberOfWindowsChangedEvent(Map<Window, ChapterVerse> windowChapterVerseMap) {
-		this.windowChapterVerseMap = windowChapterVerseMap;
-	}
-
-	public boolean isVerseNoSet(Window window) {
-		return windowChapterVerseMap.containsKey(window);
-	}
-
-	public ChapterVerse getChapterVerse(Window window) {
-		return windowChapterVerseMap.get(window);
-	}
-}
+public class NumberOfWindowsChangedEvent implements WindowEvent {}

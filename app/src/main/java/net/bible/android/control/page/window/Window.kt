@@ -31,7 +31,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import java.lang.RuntimeException
 
 class WindowChangedEvent(val window: Window)
 
@@ -42,16 +41,16 @@ open class Window (
 ){
     var weight: Float
         get() =
-            if(isMaximised && !isPinMode) {
-                if(windowRepository.maximizedWeight == null) {
-                    windowRepository.maximizedWeight = windowLayout.weight
+            if(!isPinMode) {
+                if(windowRepository.unPinnedWeight == null) {
+                    windowRepository.unPinnedWeight = windowLayout.weight
                 }
-                windowRepository.maximizedWeight!!
+                windowRepository.unPinnedWeight!!
             }
             else windowLayout.weight
         set(value) {
-            if(isMaximised && !isPinMode)
-                windowRepository.maximizedWeight = value
+            if(!isPinMode)
+                windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
         }
@@ -72,7 +71,6 @@ open class Window (
             workspaceId = workspaceId,
             isSynchronized = isSynchronised,
             isPinMode = isPinMode,
-            wasMinimised = wasMinimised,
             isLinksWindow = isLinksWindow,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
             id = id
@@ -92,10 +90,6 @@ open class Window (
             field = value
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
-    var wasMinimised = window.wasMinimised
-
-    val isMaximised: Boolean
-        get() = windowLayout.state == WindowState.MAXIMISED
 
     val isMinimised: Boolean
         get() = windowLayout.state == WindowState.MINIMISED
@@ -116,10 +110,8 @@ open class Window (
         get() = windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    // if window is maximised then default operation is always to unmaximise
     val defaultOperation: WindowOperation
         get() = when {
-            isMaximised -> WindowOperation.MAXIMISE
             isLinksWindow -> WindowOperation.CLOSE
             else -> WindowOperation.MINIMISE
         }
@@ -133,7 +125,7 @@ open class Window (
     }
 
     enum class WindowOperation {
-        MAXIMISE, MINIMISE, RESTORE, CLOSE
+        MINIMISE, RESTORE, CLOSE
     }
 
     override fun toString(): String {

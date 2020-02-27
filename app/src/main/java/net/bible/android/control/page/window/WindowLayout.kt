@@ -32,6 +32,6 @@ class WindowLayout(entity: WorkspaceEntities.WindowLayout?) {
     var weight = entity?.weight ?: 1.0f
 
     enum class WindowState {
-        SPLIT, MINIMISED, MAXIMISED, CLOSED
+        SPLIT, MINIMISED, CLOSED
     }
 }

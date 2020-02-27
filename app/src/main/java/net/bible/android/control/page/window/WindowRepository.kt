@@ -49,9 +49,9 @@ open class WindowRepository @Inject constructor(
     private val historyManagerProvider: Provider<HistoryManager>
 )
 {
-    var maximizedWeight: Float? = null
+    var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
-    val lastMaximizedAndSyncWindow: Window? get() = getWindow(lastMaximizedAndSyncWindowId)
+    val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
     private var busyCount: Int = 0
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
@@ -88,8 +88,7 @@ open class WindowRepository @Inject constructor(
         get() {
             val windows = ArrayList(windowList)
             addLinksWindowIfVisible(windows)
-            val maximizedMode = windows.find {it.isMaximised} != null
-            return if(maximizedMode) windows.sortedWith(compareBy { !it.isPinMode }) else windows
+            return windows.sortedWith(compareBy { !it.isPinMode })
         }
 
     init {
@@ -126,7 +125,7 @@ open class WindowRepository @Inject constructor(
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
-    var lastMaximizedAndSyncWindowId: Long? = null
+    var lastSyncWindowId: Long? = null
 
 
     lateinit var dedicatedLinksWindow: LinksWindow
@@ -134,48 +133,16 @@ open class WindowRepository @Inject constructor(
 
     // links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
     // should only ever be one maximised window
-    val visibleWindows: MutableList<Window>
-        get() {
-            val maximisedWindows = ArrayList(getWindows(WindowState.MAXIMISED))
-            return if (maximisedWindows.isNotEmpty()) {
-                if (!maximisedWindows.contains(dedicatedLinksWindow as Window)) {
-                    addLinksWindowIfVisible(maximisedWindows)
-                }
-                maximisedWindows
-            } else {
-                ArrayList(getWindows(WindowState.SPLIT))
-            }
-        }
-
-    val maximisedWindows get() = getWindows(WindowState.MAXIMISED)
+    val visibleWindows get() = getWindows(WindowState.SPLIT)
 
     val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
-
-    val minimisedAndMaximizedScreens: List<Window>
-        get() = windows.filter {
-            val state = it.windowState
-            state === WindowState.MAXIMISED || state === WindowState.MINIMISED
-        }
-
-    var _isMaximizedState: Boolean? = null
-
-    var isMaximisedState: Boolean
-        get() {
-            if(_isMaximizedState == null) {
-                _isMaximizedState = windowList.find { it.isMaximised } !== null
-            }
-            return _isMaximizedState!!
-        }
-        set(value) {
-            _isMaximizedState = value
-        }
 
     val isMultiWindow get() = visibleWindows.size > 1
 
     private val defaultState = WindowState.SPLIT
 
-    val firstVisibleWindow: Window get() = windowList.find { it.isVisible }!!
-    val lastVisibleWindow: Window get() = windowList.findLast { it.isVisible }!!
+    val firstVisibleWindow: Window get() = windows.find { it.isVisible }!!
+    val lastVisibleWindow: Window get() = windows.findLast { it.isVisible }!!
 
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow(true)
@@ -200,19 +167,14 @@ open class WindowRepository @Inject constructor(
         val newWindow = createNewWindow()
         newWindow.weight = activeWindow.weight
 
-        if(isMaximisedState) {
-            activeWindow.windowState = WindowState.MINIMISED
-            newWindow.windowState = WindowState.MAXIMISED
-
-        } else {
-            activeWindow.windowState = WindowState.SPLIT
-        }
+        activeWindow.windowState = WindowState.SPLIT
+        newWindow.isPinMode = windowBehaviorSettings.autoPin
 
         return newWindow
     }
 
     fun getWindowsToSynchronise(sourceWindow: Window?): List<Window> {
-        val windows = visibleWindows
+        val windows = ArrayList(visibleWindows)
         if (sourceWindow != null) {
             windows.remove(sourceWindow)
         }
@@ -222,6 +184,7 @@ open class WindowRepository @Inject constructor(
 
     fun minimise(window: Window) {
         window.windowState = WindowState.MINIMISED
+        window.isPinMode = false
 
         // has the active screen been minimised?
         if (activeWindow == window) {
@@ -230,8 +193,6 @@ open class WindowRepository @Inject constructor(
     }
 
     fun close(window: Window) {
-        val wasMaximized = isMaximisedState
-
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
@@ -239,11 +200,9 @@ open class WindowRepository @Inject constructor(
         if (!window.isLinksWindow) {
             dao.deleteWindow(window.id)
             destroy(window)
-            if(wasMaximized && visibleWindows.size == 0) {
+            if(visibleWindows.size == 0) {
                 activeWindow = windowList[min(currentPos, windowList.size - 1)]
-                activeWindow.windowState =
-                    if(windowList.size > 1) WindowState.MAXIMISED
-                    else WindowState.SPLIT
+                activeWindow.windowState = WindowState.SPLIT
             } else setDefaultActiveWindow()
         } else setDefaultActiveWindow()
     }
@@ -289,7 +248,6 @@ open class WindowRepository @Inject constructor(
             id,
             isSynchronized = true,
             isPinMode = false,
-            wasMinimised = false,
             isLinksWindow = false,
             windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString())
         ).apply {
@@ -331,7 +289,15 @@ open class WindowRepository @Inject constructor(
 
     fun saveIntoDb() {
         Log.d(TAG, "saveIntoDb")
-        dao.updateWorkspace(WorkspaceEntities.Workspace(name, contentText, id, orderNumber, textDisplaySettings, windowBehaviorSettings))
+        dao.updateWorkspace(WorkspaceEntities.Workspace(
+            name = name,
+            contentsText = contentText,
+            id = id,
+            orderNumber = orderNumber,
+            textDisplaySettings = textDisplaySettings,
+            windowBehaviorSettings = windowBehaviorSettings,
+            unPinnedWeight = unPinnedWeight
+        ))
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
@@ -372,6 +338,7 @@ open class WindowRepository @Inject constructor(
         orderNumber = entity.orderNumber
         id = entity.id
         name = entity.name
+        unPinnedWeight = entity.unPinnedWeight
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
@@ -380,7 +347,6 @@ open class WindowRepository @Inject constructor(
             id,
             isSynchronized = false,
             isPinMode = false,
-            wasMinimised = false,
             isLinksWindow = true,
             windowLayout = WorkspaceEntities.WindowLayout(WindowState.CLOSED.toString())
         ).apply {
@@ -408,11 +374,10 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
-        _isMaximizedState = null
-        maximizedWeight = null
+        unPinnedWeight = null
         orderNumber = 0
         id = 0
-        lastMaximizedAndSyncWindowId = null
+        lastSyncWindowId = null
         windowList.forEach {
             it.bibleView?.listenEvents = false
             if(destroy)

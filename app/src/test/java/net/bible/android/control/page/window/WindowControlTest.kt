@@ -70,6 +70,8 @@ class WindowControlTest {
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
         reset<EventManager>(eventManager)
+        windowRepository!!.windowBehaviorSettings.autoPin = true
+        windowControl!!.activeWindow.isPinMode = true
     }
 
     @After
@@ -90,7 +92,7 @@ class WindowControlTest {
         val window1 = windowControl!!.activeWindow
 
         val newWindow = windowControl!!.addNewWindow()
-        assertThat(window1, equalTo(windowControl!!.activeWindow))
+        assertThat(newWindow, equalTo(windowControl!!.activeWindow))
 
         windowControl!!.activeWindow = newWindow
         assertThat(newWindow, equalTo(windowControl!!.activeWindow))
@@ -160,17 +162,12 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testGetMinimisedWindows() {
-        val activeWindow = windowControl!!.activeWindow
         val newWindow1 = windowControl!!.addNewWindow()
         val newWindow2 = windowControl!!.addNewWindow()
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
         assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
-
-        // A window is maximized, the others should then all be minimized.
-        windowControl!!.setMaximized(activeWindow, true)
-        assertThat<List<Window>>(windowRepository!!.minimisedWindows, containsInAnyOrder(newWindow1, newWindow2))
     }
 
     @Test
@@ -200,43 +197,6 @@ class WindowControlTest {
         verifyZeroInteractions(eventManager)
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testMaximiseWindow() {
-        val newWindow = windowControl!!.addNewWindow()
-        windowControl!!.activeWindow = newWindow
-        reset<EventManager>(eventManager)
-
-        windowControl!!.setMaximized(newWindow, true)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(newWindow))
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasSize<Any>(1))
-
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testMaximiseAndLinksWindow() {
-        val activeWindow = windowControl!!.activeWindow
-        windowControl!!.addNewWindow() // add an extra window for good measure
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-        windowControl!!.activeWindow = activeWindow
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasSize<Any>(3))
-        reset<EventManager>(eventManager)
-
-        // making window active should remove links window
-        windowControl!!.setMaximized(activeWindow, true)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
-
-        // showing link should re-display links window despite window being maximised
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow, windowRepository!!.dedicatedLinksWindow))
-
-        // maximise links window should be possible
-        val linksWindow = windowRepository!!.dedicatedLinksWindow
-        windowControl!!.setMaximized(linksWindow, true)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(linksWindow))
-    }
 
     @Test
     @Throws(Exception::class)
@@ -249,8 +209,6 @@ class WindowControlTest {
 
         windowControl!!.minimiseWindow(window1)
 
-        windowControl!!.setMaximized(window2, true)
-        windowControl!!.setMaximized(window2, false)
 
         assertThat(window1.isVisible, equalTo(false))
         assertThat(window2.isVisible, equalTo(true))
@@ -338,7 +296,6 @@ class WindowControlTest {
         val menu = RoboMenu(RuntimeEnvironment.application)
         menu.add(0, R.id.windowSynchronise, 0, "Synchronise")
         menu.add(0, R.id.windowMinimise, 0, "Minimise")
-        menu.add(0, R.id.windowMaximise, 0, "Maximise")
         menu.add(0, R.id.windowClose, 0, "Close")
         return menu
     }
