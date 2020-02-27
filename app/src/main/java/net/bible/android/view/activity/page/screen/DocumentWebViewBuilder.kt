@@ -107,8 +107,6 @@ class DocumentWebViewBuilder @Inject constructor(
     private val WINDOW_BUTTON_BACKGROUND_COLOUR: Int
     private val BIBLE_REF_OVERLAY_OFFSET: Int
 
-    private var previousParent: LinearLayout? = null
-
     init {
 
         val res = BibleApplication.application.resources
@@ -138,8 +136,11 @@ class DocumentWebViewBuilder @Inject constructor(
     val windowRepository get() = windowControl.windowRepository
 
     @SuppressLint("RtlHardcoded")
-    fun buildWebViews(): LinearLayout {
+    fun buildWebViews(): FrameLayout {
+        val topView = FrameLayout(mainBibleActivity)
         val parent = LinearLayout(mainBibleActivity)
+
+        topView.addView(parent, FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         val isSplitVertically = isSplitVertically
 
         Log.d(TAG, "Layout web view")
@@ -197,7 +198,7 @@ class DocumentWebViewBuilder @Inject constructor(
             text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
             textSize = 18F
         }
-        currentWindowFrameLayout!!.addView(bibleReferenceOverlay,
+        topView.addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
 
@@ -213,7 +214,7 @@ class DocumentWebViewBuilder @Inject constructor(
                 )
             }
 
-            currentWindowFrameLayout.addView(minimisedWindowsFrameContainer,
+            topView.addView(minimisedWindowsFrameContainer,
                 FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                     Gravity.BOTTOM or Gravity.RIGHT))
             minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
@@ -227,20 +228,13 @@ class DocumentWebViewBuilder @Inject constructor(
                 minimisedWindowsLayout.addView(restoreButton,
                     LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
             }
-
-            // Make sure "unmaximise" button on right is visible
-            // Delay must be called for fullScroll that it gets done
-            minimisedWindowsFrameContainer.postDelayed({
-                minimisedWindowsFrameContainer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-            }, 50L)
         }
 
-        previousParent = parent
         isLaidOutWithHorizontalSplit = isSplitVertically
         isWindowConfigurationChanged = false
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
-        return parent
+        return topView
     }
 
     private val isSplitVertically get() = CommonUtils.isSplitVertically
