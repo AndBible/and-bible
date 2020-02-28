@@ -65,10 +65,122 @@ import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.math.max
 
-class AllBibleViewsContainer(context: Context): FrameLayout(context)
-class BibleViewFrame(context: Context): FrameLayout(context)
+private val isSplitVertically get() = CommonUtils.isSplitVertically
+
+class BibleViewFrame(val window: Window, context: Context): FrameLayout(context)
+
+class AllBibleViewsContainer(
+    private val windowControl: WindowControl,
+    context: Context
+): FrameLayout(context) {
+    val linearLayout = LinearLayout(context)
+    val bibleFrames: MutableList<BibleViewFrame> = ArrayList()
+
+    private val res = BibleApplication.application.resources
+
+    private val windowSeparatorWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_width)
+    private val windowSeparatorTouchExpansionWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
+
+    init {
+        this.addView(linearLayout, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    }
+
+    fun addBibleFrame(frame: BibleViewFrame) {
+        val windowWeight = max(frame.window.weight, 0.1F)
+        val lp = if (isSplitVertically)
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, windowWeight)
+        else
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, windowWeight)
+
+        linearLayout.addView(frame, lp)
+        bibleFrames.add(frame)
+    }
+
+    fun removeRemovedViews(windowIds: List<Long>) {
+        val windowIdSet = windowIds.toSet()
+        for(frame in bibleFrames.filter { !windowIdSet.contains(it.window.id) }) {
+            linearLayout.removeView(frame)
+            bibleFrames.remove(frame)
+        }
+    }
+
+    fun removeBibleFrames() {
+        linearLayout.removeAllViews()
+        bibleFrames.clear()
+    }
+
+    fun addSeparators() {
+        val size = bibleFrames.size
+        for(i in 0 until size - 1) {
+            val bf = bibleFrames[i]
+            val bfNext = bibleFrames[i+1]
+
+            val separator = createSeparator(linearLayout, bf.window, bibleFrames[i+1].window, isSplitVertically, size)
+
+            addBottomOrRightSeparatorTouchExtension(isSplitVertically, bf, separator)
+            addTopOrLeftSeparatorTouchExtension(isSplitVertically, bfNext, separator)
+
+            val lp = if (isSplitVertically)
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
+            else
+                LinearLayout.LayoutParams(windowSeparatorWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, 0f)
+
+            val currentPos = linearLayout.children.indexOf(bf)
+            linearLayout.addView(separator, currentPos + 1, lp)
+        }
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private fun addBottomOrRightSeparatorTouchExtension(isPortrait: Boolean,
+                                                        previousWindowLayout: BibleViewFrame,
+                                                        separator: Separator) {
+        // add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
+        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
+            LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.BOTTOM)
+        else
+            LayoutParams(windowSeparatorTouchExpansionWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.RIGHT)
+        previousWindowLayout.addView(separator.touchDelegateView1, frameLayoutParamsSeparatorDelegate)
+        // separator will adjust layouts when dragged
+        separator.view1LayoutParams = previousWindowLayout.layoutParams as LinearLayout.LayoutParams
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private fun addTopOrLeftSeparatorTouchExtension(isPortrait: Boolean,
+                                                    currentWindowLayout: BibleViewFrame,
+                                                    separator: Separator) {
+        // add separator handle touch delegate to framelayout
+        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
+            LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.TOP)
+        else
+            LayoutParams(windowSeparatorTouchExpansionWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.LEFT)
+        currentWindowLayout.addView(separator.touchDelegateView2, frameLayoutParamsSeparatorDelegate)
+
+        // separator will adjust layouts when dragged
+        separator.view2LayoutParams = currentWindowLayout.layoutParams as LinearLayout.LayoutParams
+    }
+
+    private fun createSeparator(
+        parent: LinearLayout,
+        window: Window,
+        nextWindow: Window,
+        isPortrait: Boolean,
+        numWindows: Int
+    ) = Separator(
+        context = context,
+        separatorWidth = windowSeparatorWidthPixels,
+        parentLayout = parent,
+        window1 = window,
+        window2 = nextWindow,
+        numWindows = numWindows,
+        isPortrait = isPortrait,
+        windowControl = windowControl
+    )
+
+    val currentWindowIds get() = bibleFrames.map { it.window.id }
+}
 
 @MainBibleActivityScope
 class DocumentWebViewBuilder @Inject constructor(
@@ -77,11 +189,8 @@ class DocumentWebViewBuilder @Inject constructor(
     private val bibleViewFactory: BibleViewFactory
 ) {
     private val res = BibleApplication.application.resources
-    private val windowSeparatorWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_width)
-    private val windowSeparatorTouchExpansionWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
     private val windowRepository = windowControl.windowRepository
-    private val isSplitVertically get() = CommonUtils.isSplitVertically
     private val isSingleWindow get () = !windowControl.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val windowButtons: MutableList<WindowButtonWidget> = ArrayList()
@@ -89,7 +198,7 @@ class DocumentWebViewBuilder @Inject constructor(
     private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
     private lateinit var bibleReferenceOverlay: TextView
     private var buttonsVisible = true
-    private val bibleFrames = TreeMap<Long, BibleViewFrame>()
+    private var allBibleViewsContainer: AllBibleViewsContainer? = null
 
     init {
         ABEventBus.getDefault().register(this)
@@ -103,55 +212,25 @@ class DocumentWebViewBuilder @Inject constructor(
     fun buildWebViews(): AllBibleViewsContainer {
         Log.d(TAG, "Layout web views")
 
-        val topView = AllBibleViewsContainer(mainBibleActivity)
-        val parentLinearLayout = LinearLayout(mainBibleActivity).apply {
-            orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-        }
-
-        topView.addView(parentLinearLayout, FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-
+        val topView = allBibleViewsContainer?: AllBibleViewsContainer(windowControl, mainBibleActivity)
         val isSplitVertically = isSplitVertically
-        val windows = windowRepository.visibleWindows
 
-        var previousSeparator: Separator? = null
+        topView.linearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+
+        val windows = windowRepository.visibleWindows
+        val windowIds = windows.map { it.id }
+
+        topView.removeBibleFrames()
+
         windowButtons.clear()
 
-        for ((windowNo, window) in windows.withIndex()) {
+        for ((orderNum, window) in windows.withIndex()) {
             Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
-
-            //val bibleFrame = bibleFrames[window.id] ?: buildBibleFrame(window).also {
-            //    bibleFrames[window.id] = it
-            //}
             val bibleFrame = buildBibleFrame(window)
-
-            val windowWeight = max(window.weight, 0.1F)
-            val lp = if (isSplitVertically)
-                LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight)
-            else
-                LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight)
-
-            parentLinearLayout.addView(bibleFrame, lp)
-
-            if (windowNo > 0) {
-                val separator = previousSeparator
-                addTopOrLeftSeparatorTouchExtension(isSplitVertically, bibleFrame, lp, separator!!)
-            }
-
-            if (windowNo < windows.size - 1) {
-                val nextWindow = windows[windowNo + 1]
-                val separator = createSeparator(parentLinearLayout, window, nextWindow, isSplitVertically, windows.size)
-
-                addBottomOrRightSeparatorTouchExtension(isSplitVertically, bibleFrame, lp, separator)
-
-                parentLinearLayout.addView(separator, if (isSplitVertically)
-                    LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
-                else
-                    LinearLayout.LayoutParams(windowSeparatorWidthPixels, LayoutParams.MATCH_PARENT, 0f))
-
-                // allow extension to be added in next screen
-                previousSeparator = separator
-            }
+            topView.addBibleFrame(bibleFrame)
         }
+
+        topView.addSeparators()
 
         bibleReferenceOverlay = TextView(mainBibleActivity).apply {
             if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
@@ -198,11 +277,12 @@ class DocumentWebViewBuilder @Inject constructor(
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
+        allBibleViewsContainer = topView
         return topView
     }
 
     private fun buildBibleFrame(window: Window): BibleViewFrame {
-        val frame = BibleViewFrame(this.mainBibleActivity)
+        val frame = BibleViewFrame(window, this.mainBibleActivity)
         val bibleView = getCleanView(window)
         bibleView.updateBackgroundColor()
 
@@ -375,47 +455,6 @@ class DocumentWebViewBuilder @Inject constructor(
                 .start()
         }
     }
-
-    @SuppressLint("RtlHardcoded")
-    private fun addBottomOrRightSeparatorTouchExtension(isPortrait: Boolean,
-                                                        previousWindowLayout: ViewGroup,
-                                                        previousLp: LinearLayout.LayoutParams,
-                                                        separator: Separator) {
-        // add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
-        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
-            FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.BOTTOM)
-        else
-            FrameLayout.LayoutParams(windowSeparatorTouchExpansionWidthPixels, LayoutParams.MATCH_PARENT, Gravity.RIGHT)
-        previousWindowLayout.addView(separator.touchDelegateView1, frameLayoutParamsSeparatorDelegate)
-        // separator will adjust layouts when dragged
-        separator.view1LayoutParams = previousLp
-    }
-
-    @SuppressLint("RtlHardcoded")
-    private fun addTopOrLeftSeparatorTouchExtension(isPortrait: Boolean,
-                                                    currentWindowLayout: ViewGroup,
-                                                    lp: LinearLayout.LayoutParams,
-                                                    separator: Separator) {
-        // add separator handle touch delegate to framelayout
-        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
-            FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.TOP)
-        else
-            FrameLayout.LayoutParams(windowSeparatorTouchExpansionWidthPixels, LayoutParams.MATCH_PARENT, Gravity.LEFT)
-        currentWindowLayout.addView(separator.touchDelegateView2, frameLayoutParamsSeparatorDelegate)
-
-        // separator will adjust layouts when dragged
-        separator.view2LayoutParams = lp
-    }
-
-    private fun createSeparator(
-        parent: LinearLayout,
-        window: Window,
-        nextWindow: Window,
-        isPortrait: Boolean,
-        numWindows: Int
-    ) = Separator(this.mainBibleActivity, windowSeparatorWidthPixels, parent, window, nextWindow,
-        windowRepository.activeWindow, numWindows, isPortrait, windowControl)
-
 
     /**
      * Attempt to fix occasional error: "The specified child already has a parent. You must call removeView() on the child's parent first."

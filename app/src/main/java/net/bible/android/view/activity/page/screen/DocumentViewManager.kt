@@ -75,6 +75,8 @@ class DocumentViewManager @Inject constructor(
             val view = documentWebViewBuilder.buildWebViews()
             parent.addView(view,
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+            // TODO: this is not proper place to do this (should be in builder)
             val windows = windowControl.windowRepository.visibleWindows
             for (window in windows) {
                 mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)

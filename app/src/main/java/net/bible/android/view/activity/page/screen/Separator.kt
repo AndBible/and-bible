@@ -43,11 +43,11 @@ class Separator(
 		private val parentLayout: View,
 		private val window1: Window,
         private val window2: Window,
-		private var activeWindow: Window,
 		private val numWindows: Int,
 		private val isPortrait: Boolean,
 		private val windowControl: WindowControl
 ) : View(context) {
+    private val activeWindow get() = windowControl.windowRepository.activeWindow
 
     // offset absolute points from top of layout to enable correct calculation of screen weights in layout
     private var parentStartRawPx: Float = 0.toFloat()
@@ -107,7 +107,6 @@ class Separator(
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
-        activeWindow = event.activeWindow
         updateBackground()
     }
 
