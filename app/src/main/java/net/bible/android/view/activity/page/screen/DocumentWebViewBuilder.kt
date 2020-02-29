@@ -70,8 +70,10 @@ import kotlin.math.max
 
 private val isSplitVertically get() = CommonUtils.isSplitVertically
 
+@SuppressLint("ViewConstructor")
 class BibleViewFrame(val window: Window, context: Context): FrameLayout(context)
 
+@SuppressLint("ViewConstructor")
 class AllBibleViewsContainer(
     private val windowControl: WindowControl,
     context: Context
@@ -115,22 +117,32 @@ class AllBibleViewsContainer(
     fun addSeparators() {
         val size = bibleFrames.size
         for(i in 0 until size - 1) {
-            val bf = bibleFrames[i]
-            val bfNext = bibleFrames[i+1]
-
-            val separator = createSeparator(linearLayout, bf.window, bibleFrames[i+1].window, isSplitVertically, size)
-
-            addBottomOrRightSeparatorTouchExtension(isSplitVertically, bf, separator)
-            addTopOrLeftSeparatorTouchExtension(isSplitVertically, bfNext, separator)
-
-            val lp = if (isSplitVertically)
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
-            else
-                LinearLayout.LayoutParams(windowSeparatorWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, 0f)
-
-            val currentPos = linearLayout.children.indexOf(bf)
-            linearLayout.addView(separator, currentPos + 1, lp)
+            addSeparator(bibleFrames[i], bibleFrames[i+1])
         }
+    }
+
+    private fun addSeparator(bf1: BibleViewFrame, bf2: BibleViewFrame) {
+        val separator = Separator(
+            context = context,
+            separatorWidth = windowSeparatorWidthPixels,
+            parentLayout = linearLayout,
+            window1 = bf1.window,
+            window2 = bf2.window,
+            numWindows = bibleFrames.size,
+            isPortrait = isSplitVertically,
+            windowControl = windowControl
+        )
+
+        addBottomOrRightSeparatorTouchExtension(isSplitVertically, bf1, separator)
+        addTopOrLeftSeparatorTouchExtension(isSplitVertically, bf2, separator)
+
+        val lp = if (isSplitVertically)
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
+        else
+            LinearLayout.LayoutParams(windowSeparatorWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, 0f)
+
+        val currentPos = linearLayout.children.indexOf(bf1)
+        linearLayout.addView(separator, currentPos + 1, lp)
     }
 
     @SuppressLint("RtlHardcoded")
@@ -161,23 +173,6 @@ class AllBibleViewsContainer(
         // separator will adjust layouts when dragged
         separator.view2LayoutParams = currentWindowLayout.layoutParams as LinearLayout.LayoutParams
     }
-
-    private fun createSeparator(
-        parent: LinearLayout,
-        window: Window,
-        nextWindow: Window,
-        isPortrait: Boolean,
-        numWindows: Int
-    ) = Separator(
-        context = context,
-        separatorWidth = windowSeparatorWidthPixels,
-        parentLayout = parent,
-        window1 = window,
-        window2 = nextWindow,
-        numWindows = numWindows,
-        isPortrait = isPortrait,
-        windowControl = windowControl
-    )
 
     val currentWindowIds get() = bibleFrames.map { it.window.id }
 }

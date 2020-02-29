@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page.screen
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -37,6 +38,7 @@ import net.bible.android.view.util.TouchOwner
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@SuppressLint("ViewConstructor")
 class Separator(
 		context: Context,
 		private val separatorWidth: Int,
