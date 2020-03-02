@@ -275,8 +275,8 @@ class AllBibleViewsContainer(
             context = context,
             separatorWidth = windowSeparatorWidthPixels,
             parentLayout = biblesLinearLayout,
-            window1 = bf1.window,
-            window2 = bf2.window,
+            frame1 = bf1,
+            frame2 = bf2,
             numWindows = bibleFrames.size,
             isPortrait = isSplitVertically,
             windowControl = windowControl
@@ -296,31 +296,31 @@ class AllBibleViewsContainer(
 
     @SuppressLint("RtlHardcoded")
     private fun addBottomOrRightSeparatorTouchExtension(isPortrait: Boolean,
-                                                        previousWindowLayout: BibleViewFrame,
+                                                        frame: BibleViewFrame,
                                                         separator: Separator) {
         // add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
-        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
+        val layoutParams = if (isPortrait)
             LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.BOTTOM)
         else
             LayoutParams(windowSeparatorTouchExpansionWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.RIGHT)
-        previousWindowLayout.addView(separator.touchDelegateView1, frameLayoutParamsSeparatorDelegate)
+        frame.addView(separator.touchDelegateView1, layoutParams)
         // separator will adjust layouts when dragged
-        separator.view1LayoutParams = previousWindowLayout.layoutParams as LinearLayout.LayoutParams
+        separator.view1LayoutParams = frame.layoutParams as LinearLayout.LayoutParams
     }
 
     @SuppressLint("RtlHardcoded")
     private fun addTopOrLeftSeparatorTouchExtension(isPortrait: Boolean,
-                                                    currentWindowLayout: BibleViewFrame,
+                                                    frame: BibleViewFrame,
                                                     separator: Separator) {
         // add separator handle touch delegate to framelayout
-        val frameLayoutParamsSeparatorDelegate = if (isPortrait)
+        val layoutParams = if (isPortrait)
             LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorTouchExpansionWidthPixels, Gravity.TOP)
         else
             LayoutParams(windowSeparatorTouchExpansionWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.LEFT)
-        currentWindowLayout.addView(separator.touchDelegateView2, frameLayoutParamsSeparatorDelegate)
+        frame.addView(separator.touchDelegateView2, layoutParams)
 
         // separator will adjust layouts when dragged
-        separator.view2LayoutParams = currentWindowLayout.layoutParams as LinearLayout.LayoutParams
+        separator.view2LayoutParams = frame.layoutParams as LinearLayout.LayoutParams
     }
 
     val currentWindowIds get() = bibleFrames.map { it.window.id }

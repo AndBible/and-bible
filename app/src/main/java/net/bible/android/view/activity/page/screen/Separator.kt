@@ -43,13 +43,16 @@ class Separator(
 		context: Context,
 		private val separatorWidth: Int,
 		private val parentLayout: View,
-		private val window1: Window,
-        private val window2: Window,
+		private val frame1: BibleViewFrame,
+        private val frame2: BibleViewFrame,
 		private val numWindows: Int,
 		private val isPortrait: Boolean,
 		private val windowControl: WindowControl
 ) : View(context) {
     private val activeWindow get() = windowControl.windowRepository.activeWindow
+
+    private val window1 get() = frame1.window
+    private val window2 get() = frame2.window
 
     // offset absolute points from top of layout to enable correct calculation of screen weights in layout
     private var parentStartRawPx: Float = 0.toFloat()
