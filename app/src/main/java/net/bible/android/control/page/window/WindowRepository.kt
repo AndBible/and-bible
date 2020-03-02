@@ -218,6 +218,10 @@ open class WindowRepository @Inject constructor(
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
+        val pinnedWindows = windowList.filter {it.isPinMode}.toMutableList()
+        val unPinnedWindows = windowList.filter {!it.isPinMode}.toMutableList()
+        val windowList = if(window.isPinMode) pinnedWindows else unPinnedWindows
+
         val originalWindowIndex = windowList.indexOf(window)
 
         if (originalWindowIndex == -1) {
@@ -232,6 +236,9 @@ open class WindowRepository @Inject constructor(
         windowList.removeAt(originalWindowIndex)
 
         windowList.add(position, window)
+        this.windowList.clear()
+        this.windowList.addAll(pinnedWindows)
+        this.windowList.addAll(unPinnedWindows)
     }
 
     fun swapWindowPositions(w1: Window, w2: Window) {

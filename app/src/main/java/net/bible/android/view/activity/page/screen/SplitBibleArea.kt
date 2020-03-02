@@ -516,8 +516,9 @@ class SplitBibleArea(
         val oldValue = BookName.isFullBookName()
 
         BookName.setFullBookName(false)
-        val thisIdx = windowControl.windowRepository.windowList.indexOf(window)
-        windowControl.windowRepository.windowList.forEach {
+        val windowList = windowRepository.windowList.filter {it.isPinMode == window.isPinMode}
+        val thisIdx = windowList.indexOf(window)
+        windowList.forEach {
             if(it.id != window.id) {
                 val p = it.pageManager.currentPage
                 val title = BibleApplication.application.getString(R.string.move_window_to_position, "${count + 1} (${p.currentDocument?.abbreviation}: ${p.key?.name})")
