@@ -66,6 +66,7 @@ import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.versification.BookName
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
@@ -97,6 +98,7 @@ class BibleViewFrame(
     }
 
     fun destroy() {
+        mainBibleActivity.unregisterForContextMenu(bibleView as View)
         removeView(bibleView)
     }
 
@@ -110,6 +112,7 @@ class BibleViewFrame(
         val isSingleWindow = windowControl.isSingleWindow
 
         addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView as View)
 
         val defaultWindowActionButton =
             if (isSingleWindow) {
@@ -232,6 +235,7 @@ class AllBibleViewsContainer(
         val isSplitVertically = isSplitVertically
         biblesLinearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
 
+        removeSeparators()
         updateWindows()
         updateSeparators()
         updateRestoreButtons()
@@ -240,18 +244,43 @@ class AllBibleViewsContainer(
         mainBibleActivity.resetSystemUi()
     }
 
+    private fun removeSeparators() {
+        for(v in biblesLinearLayout.children.filter { it is Separator }.map{it as Separator}) {
+            v.frame1.removeView(v.touchDelegateView1)
+            v.frame2.removeView(v.touchDelegateView2)
+            biblesLinearLayout.removeView(v)
+        }
+    }
+
     private fun updateWindows() {
         val windows = windowRepository.visibleWindows
-        val windowIds = windows.map { it.id }
+        fun getBf(i: Int) = try {bibleFrames[i] } catch (e: IndexOutOfBoundsException) {null}
 
-        for(f in bibleFrames) f.destroy()
-        biblesLinearLayout.removeAllViews()
-        bibleFrames.clear()
-
-        for ((orderNum, window) in windows.withIndex()) {
-            Log.d(TAG, "Layout screen " + window.id + " of " + windows.size)
-            addBibleFrame(BibleViewFrame(window, this))
+        for((i, w) in windows.withIndex()) {
+            var firstIs = false
+            do {
+                val first = getBf(i) ?: break
+                if(first.window.id == w.id) {
+                    firstIs = true
+                    break
+                }
+                if (first.window.id != w.id) {
+                    removeFrame(first)
+                }
+            } while(true)
+            if(!firstIs) {
+                addBibleFrame(BibleViewFrame(w, this))
+            }
         }
+        while(bibleFrames.size > windows.size) {
+            removeFrame(getBf(windows.size -1)!!)
+        }
+    }
+
+    private fun removeFrame(frame: BibleViewFrame) {
+        frame.destroy()
+        biblesLinearLayout.removeView(frame)
+        bibleFrames.remove(frame)
     }
 
     private fun addBibleFrame(frame: BibleViewFrame) {
@@ -263,14 +292,6 @@ class AllBibleViewsContainer(
 
         biblesLinearLayout.addView(frame, lp)
         bibleFrames.add(frame)
-    }
-
-    private fun removeRemovedViews(windowIds: List<Long>) {
-        val windowIdSet = windowIds.toSet()
-        for(frame in bibleFrames.filter { !windowIdSet.contains(it.window.id) }) {
-            biblesLinearLayout.removeView(frame)
-            bibleFrames.remove(frame)
-        }
     }
 
     private fun updateSeparators() {
@@ -340,8 +361,6 @@ class AllBibleViewsContainer(
         separator.view2LayoutParams = frame.layoutParams as LinearLayout.LayoutParams
     }
 
-    val currentWindowIds get() = bibleFrames.map { it.window.id }
-
     private fun updateRestoreButtons() {
         restoreButtonsList.clear()
         restoreButtons.removeAllViews()
@@ -383,11 +402,9 @@ class AllBibleViewsContainer(
     }
 
     private fun updateBibleReference() {
-        if(bibleReferenceOverlay == null) return
-
         mainBibleActivity.runOnUiThread {
             try {
-                bibleReferenceOverlay!!.text = mainBibleActivity.bibleOverlayText
+                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
             } catch(e: MainBibleActivity.KeyIsNull) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
@@ -436,10 +453,6 @@ class AllBibleViewsContainer(
     private val windowButtons get() = bibleFrames.map { it.windowButton }
 
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
-//        if(restoreButtonContainer == null) {
-//            // Too early to do anything
-//            return
-//        }
         if(buttonsVisible == show && !force) {
             return
         }
@@ -496,14 +509,14 @@ class AllBibleViewsContainer(
     private fun updateBibleReferenceOverlay(_show: Boolean) {
         val show = mainBibleActivity.fullScreen && _show
         if(show) {
-            bibleReferenceOverlay!!.visibility = View.VISIBLE
-            bibleReferenceOverlay!!.animate().alpha(1.0f)
+            bibleReferenceOverlay.visibility = View.VISIBLE
+            bibleReferenceOverlay.animate().alpha(1.0f)
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }  else {
-            bibleReferenceOverlay!!.animate().alpha(0f)
+            bibleReferenceOverlay.animate().alpha(0f)
                 .setInterpolator(AccelerateInterpolator())
-                .withEndAction { bibleReferenceOverlay!!.visibility = View.GONE }
+                .withEndAction { bibleReferenceOverlay.visibility = View.GONE }
                 .start()
         }
     }
@@ -725,8 +738,7 @@ class DocumentWebViewBuilder @Inject constructor() {
         val topView = allBibleViewsContainer?: AllBibleViewsContainer().also {
             allBibleViewsContainer = it
         }
-
-        allBibleViewsContainer!!.update()
+        topView.update()
         return topView
     }
 

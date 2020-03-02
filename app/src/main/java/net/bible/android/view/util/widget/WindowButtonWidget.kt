@@ -38,7 +38,7 @@ import net.bible.android.database.WorkspaceEntities
 class WindowButtonWidget(
     val window: Window?,
     var windowControl: WindowControl,
-    val isRestoreButton: Boolean,
+    private val isRestoreButton: Boolean,
     context: Context,
     attributeSet: AttributeSet? = null
 ): LinearLayout(context, attributeSet)
@@ -62,8 +62,8 @@ class WindowButtonWidget(
     }
 
     private fun updateSettings() {
-        synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.INVISIBLE
-        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.INVISIBLE
+        synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.GONE
+        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.GONE
     }
 
     private fun updateBackground() {
