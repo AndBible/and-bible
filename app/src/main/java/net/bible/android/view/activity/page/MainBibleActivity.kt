@@ -125,9 +125,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     lateinit var bibleContentManager: BibleContentManager
 
     @Inject
-    lateinit var bibleViewFactory: BibleViewFactory
-
-    @Inject
     lateinit var documentViewManager: DocumentViewManager
 
     @Inject
@@ -952,7 +949,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     var currentNightMode: Boolean = false
 
     private fun beforeDestroy() {
-        bibleViewFactory.clear()
         documentViewManager.destroy()
         documentWebViewBuilder.destroy()
         bibleActionBarManager.destroy()
@@ -1035,7 +1031,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 windowControl.windowSync.setResyncRequired()
                                 runOnUiThread {
-                                    bibleViewFactory.clear()
+                                    documentViewManager.clearBibleViewFactory()
                                     currentWorkspaceId = 0
                                 }
                             }

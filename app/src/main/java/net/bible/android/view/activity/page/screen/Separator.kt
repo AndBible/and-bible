@@ -45,7 +45,7 @@ class Separator(
 		private val parentLayout: View,
 		private val frame1: BibleViewFrame,
         private val frame2: BibleViewFrame,
-		private val numWindows: Int,
+		internal var numWindows: Int,
 		private val isPortrait: Boolean,
 		private val windowControl: WindowControl
 ) : View(context) {

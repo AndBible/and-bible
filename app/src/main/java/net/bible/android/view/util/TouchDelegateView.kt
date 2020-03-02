@@ -33,6 +33,7 @@ class TouchDelegateView(context: Context?, private val delegate: View) : View(co
     }
 
     init {
-        setBackgroundColor(Color.TRANSPARENT)
+        //setBackgroundColor(Color.TRANSPARENT)
+        setBackgroundColor(Color.BLUE)
     }
 }

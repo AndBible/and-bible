@@ -46,8 +46,7 @@ class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
 	private val documentWebViewBuilder: DocumentWebViewBuilder,
 	private val myNoteViewBuilder: MyNoteViewBuilder,
-	private val windowControl: WindowControl,
-    private val bibleViewFactory: BibleViewFactory
+	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
 	fun destroy() {
@@ -94,8 +93,12 @@ class DocumentViewManager @Inject constructor(
         return if (myNoteViewBuilder.isMyNoteViewType) {
             myNoteViewBuilder.view
         } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            bibleViewFactory.getOrCreateBibleView(window)
+            documentWebViewBuilder.getBibleView(window)
         }
+    }
+
+    fun clearBibleViewFactory() {
+        documentWebViewBuilder.clearBibleViewFactory()
     }
 
     init {
