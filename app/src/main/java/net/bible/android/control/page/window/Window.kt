@@ -107,7 +107,9 @@ open class Window (
         }
 
     val isVisible: Boolean
-        get() = windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
+        get() =
+            if(windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
     val defaultOperation: WindowOperation

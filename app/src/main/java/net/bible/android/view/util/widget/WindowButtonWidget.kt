@@ -61,9 +61,9 @@ class WindowButtonWidget(
         }
     }
 
-    private fun updateSettings() {
-        val isMaximised = windowControl.windowRepository.isMaximized
+    private val isMaximised get() = windowControl.windowRepository.isMaximized
 
+    private fun updateSettings() {
         this.visibility = if(isMaximised && !isUnmaximiseButton) View.GONE else View.VISIBLE
         synchronize.visibility = if(window?.isSynchronised == true && !isMaximised) View.VISIBLE else View.GONE
         pinMode.visibility = if(window?.isPinMode == true && !isMaximised) View.VISIBLE else View.GONE
@@ -72,12 +72,12 @@ class WindowButtonWidget(
 
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            val isActive = windowControl.activeWindow.id == window?.id
+            val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
             val isWindowVisible = if(isRestoreButton) {
                 window?.isVisible == true
             }
             else {
-                window?.id == windowControl.activeWindow.id
+                window?.id == windowControl.activeWindow.id && !isMaximised
             }
             windowButton.setBackgroundResource(
                 if (isActive) R.drawable.window_button_active

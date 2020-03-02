@@ -145,8 +145,8 @@ open class WindowRepository @Inject constructor(
 
     private val defaultState = WindowState.SPLIT
 
-    val firstVisibleWindow: Window get() = windows.find { it.isVisible }!!
-    val lastVisibleWindow: Window get() = windows.findLast { it.isVisible }!!
+    val firstVisibleWindow: Window get() = visibleWindows.first()
+    val lastVisibleWindow: Window get() = visibleWindows.last()
 
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow(true)

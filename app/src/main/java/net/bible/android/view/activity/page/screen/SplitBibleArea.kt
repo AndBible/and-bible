@@ -172,7 +172,7 @@ class SplitBibleArea(
             }
         }
         while(bibleFrames.size > windows.size) {
-            removeFrame(getBf(windows.size -1)!!)
+            removeFrame(getBf(windows.size)!!)
         }
     }
 
