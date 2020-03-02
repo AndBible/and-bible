@@ -87,7 +87,6 @@ open class WindowRepository @Inject constructor(
 
     private val logger = Logger(this.javaClass.name)
 
-    //TODO if user presses a link then should also show links window
     val windows: List<Window>
         get() {
             val windows = ArrayList(windowList)

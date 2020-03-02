@@ -39,8 +39,7 @@ class WindowButtonWidget(
     var windowControl: WindowControl,
     private val isRestoreButton: Boolean,
     context: Context,
-    attributeSet: AttributeSet? = null,
-    private val isUnmaximiseButton: Boolean = false
+    attributeSet: AttributeSet? = null
 
 ): LinearLayout(context, attributeSet)
 {
@@ -87,24 +86,25 @@ class WindowButtonWidget(
         } else {
             buttonText.visibility = View.GONE
         }
-        //this.visibility = if(isMaximised && !isUnmaximiseButton) View.GONE else View.VISIBLE
         unMaximiseImage.visibility = if(isMaximised) View.VISIBLE else View.GONE
-
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
+        unMaximiseImage.setOnClickListener(l)
         windowButton.setOnClickListener(l)
         buttonText.setOnClickListener(l)
         synchronize.setOnClickListener(l)
         pinMode.setOnClickListener(l)
-
+        super.setOnClickListener(l)
     }
 
     override fun setOnLongClickListener(l: OnLongClickListener?) {
+        unMaximiseImage.setOnLongClickListener(l)
         windowButton.setOnLongClickListener(l)
         buttonText.setOnLongClickListener(l)
         synchronize.setOnLongClickListener(l)
         pinMode.setOnLongClickListener(l)
+        super.setOnLongClickListener(l)
     }
 
     var text: String

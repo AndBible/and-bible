@@ -280,8 +280,10 @@ class SplitBibleArea(
 
         if(windowControl.isSingleWindow) return
 
-        val pinnedWindows = windowRepository.windows.filter { it.isPinMode }
-        val nonPinnedWindows = windowRepository.windows.filter { !it.isPinMode }
+        val windows = windowRepository.windows.filter {!it.isLinksWindow}
+
+        val pinnedWindows = windows.filter { it.isPinMode }
+        val nonPinnedWindows = windows.filter { !it.isPinMode }
 
         for (win in pinnedWindows) {
             Log.d(TAG, "Show restore button")
@@ -444,8 +446,7 @@ class SplitBibleArea(
             window,
             windowControl = windowControl,
             isRestoreButton = true,
-            context = mainBibleActivity,
-            isUnmaximiseButton = true
+            context = mainBibleActivity
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
             text = ""
