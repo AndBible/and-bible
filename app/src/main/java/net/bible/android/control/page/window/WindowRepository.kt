@@ -188,7 +188,6 @@ open class WindowRepository @Inject constructor(
 
     fun minimise(window: Window) {
         window.windowState = WindowState.MINIMISED
-        window.isPinMode = false
 
         // has the active screen been minimised?
         if (activeWindow == window) {

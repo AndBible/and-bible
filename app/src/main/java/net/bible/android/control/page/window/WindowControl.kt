@@ -193,29 +193,31 @@ open class WindowControl @Inject constructor(
     }
 
     fun restoreWindow(window: Window) {
-        if (window == activeWindow) return
-        window.restoreOngoing = true
-        if(windowRepository.windowBehaviorSettings.autoPin)
-            window.isPinMode = true
+        if(window.isVisible) {
+            minimiseWindow(window)
+        } else {
+            if (window == activeWindow) return
+            window.restoreOngoing = true
+            if (windowRepository.windowBehaviorSettings.autoPin)
+                window.isPinMode = true
 
-        for (it in windowRepository.windowList.filter { !it.isPinMode }) {
-            it.windowState = WindowState.MINIMISED
+            for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+                it.windowState = WindowState.MINIMISED
+            }
+
+            window.windowState = WindowState.SPLIT
+
+            // causes BibleViews to be created and laid out
+            windowSync.synchronizeWindows()
+            windowSync.reloadAllWindows()
+
+            if (activeWindow.isSynchronised)
+                windowRepository.lastSyncWindowId = activeWindow.id
+
+            activeWindow = window
+            eventManager.post(NumberOfWindowsChangedEvent())
+            window.restoreOngoing = false
         }
-
-        window.windowState = WindowState.SPLIT
-
-        // causes BibleViews to be created and laid out
-        windowSync.synchronizeWindows()
-        windowSync.reloadAllWindows()
-
-        if (activeWindow.isSynchronised)
-            windowRepository.lastSyncWindowId = activeWindow.id
-
-        activeWindow = window
-
-        eventManager.post(NumberOfWindowsChangedEvent())
-
-        window.restoreOngoing = false
     }
 
     /*
