@@ -304,6 +304,7 @@ open class WindowControl @Inject constructor(
 
     fun maximiseWindow(window: Window) {
         windowRepository.maximizedWindowId = window.id
+        windowSync.reloadAllWindows()
         eventManager.post(NumberOfWindowsChangedEvent())
     }
 
