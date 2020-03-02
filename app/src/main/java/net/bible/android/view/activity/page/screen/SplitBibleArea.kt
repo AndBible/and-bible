@@ -40,6 +40,7 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
 import kotlinx.android.synthetic.main.split_bible_area.view.*
+import kotlinx.android.synthetic.main.window_button.*
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -263,10 +264,20 @@ class SplitBibleArea(
         restoreButtons.removeAllViews()
         pinnedRestoreButtons.removeAllViews()
 
-        if(windowControl.isSingleWindow) return
 
         restoreButtonsContainer.translationY = -mainBibleActivity.bottomOffset2
         restoreButtonsContainer.translationX = -mainBibleActivity.rightOffset1
+
+        if(windowControl.isSingleWindow) return
+
+        val maxWindow = windowRepository.maximizedWindow
+        if(maxWindow != null) {
+            val restoreButton = createUnmaximiseButton(maxWindow)
+            restoreButtonsList.add(restoreButton)
+            restoreButtons.addView(restoreButton,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            return
+        }
 
         val pinnedWindows = windowRepository.windows.filter { it.isPinMode }
         val nonPinnedWindows = windowRepository.windows.filter { !it.isPinMode }
@@ -426,6 +437,20 @@ class SplitBibleArea(
         }
     }
 
+    private fun createUnmaximiseButton(window: Window): WindowButtonWidget {
+        return WindowButtonWidget(
+            window,
+            windowControl = windowControl,
+            isRestoreButton = true,
+            context = mainBibleActivity,
+            isUnmaximiseButton = true
+        ).apply {
+            setOnClickListener { windowControl.unMaximise() }
+            text = ""
+            setOnLongClickListener { v-> showPopupWindow(window, v); true }
+        }
+    }
+
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
@@ -564,11 +589,13 @@ class SplitBibleArea(
             workspaceSettings = windowControl.windowRepository.textDisplaySettings
         )
 
+        val isMaximised = windowRepository.isMaximized
+
         return when(item.itemId) {
 
             R.id.windowNew -> CommandPreference(
                 launch = {_, _, _ -> windowControl.addNewWindow()},
-                visible = !window.isLinksWindow && !window.isMinimised
+                visible = !window.isLinksWindow && !window.isMinimised && !isMaximised
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},
@@ -578,10 +605,10 @@ class SplitBibleArea(
             R.id.pinMode -> CommandPreference(
                 handle = {windowControl.setPinMode(window, !window.isPinMode)},
                 value = window.isPinMode,
-                visible = !window.isLinksWindow
+                visible = !window.isLinksWindow && !isMaximised
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
-                visible = !window.isLinksWindow
+                visible = !window.isLinksWindow && !isMaximised
             )
             R.id.textOptionsSubMenu -> SubMenuPreference(
                 onlyBibles = false,
@@ -589,11 +616,15 @@ class SplitBibleArea(
             )
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
-                visible = windowControl.isWindowRemovable(window)
+                visible = windowControl.isWindowRemovable(window) && !isMaximised
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},
-                visible = windowControl.isWindowMinimisable(window)
+                visible = windowControl.isWindowMinimisable(window) && !isMaximised
+            )
+            R.id.windowMaximise -> CommandPreference(
+                launch = {_, _, _ -> windowControl.maximiseWindow(window)},
+                visible = !isMaximised
             )
             R.id.allTextOptions -> CommandPreference(
                 launch = {_, _, _ ->

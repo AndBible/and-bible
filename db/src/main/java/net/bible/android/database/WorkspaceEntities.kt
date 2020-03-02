@@ -300,7 +300,8 @@ class WorkspaceEntities {
 
         @Embedded(prefix="text_display_settings_") var textDisplaySettings: TextDisplaySettings? = TextDisplaySettings(),
         @Embedded(prefix="window_behavior_settings_") val windowBehaviorSettings: WindowBehaviorSettings? = WindowBehaviorSettings(),
-        @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null
+        @ColumnInfo(defaultValue = "NULL") var unPinnedWeight: Float? = null,
+        val maximizedWindowId: Long? = null
     )
 
     @Entity(

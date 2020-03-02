@@ -40,10 +40,11 @@ class WindowButtonWidget(
     var windowControl: WindowControl,
     private val isRestoreButton: Boolean,
     context: Context,
-    attributeSet: AttributeSet? = null
+    attributeSet: AttributeSet? = null,
+    private val isUnmaximiseButton: Boolean = false
+
 ): LinearLayout(context, attributeSet)
 {
-    lateinit var value: WorkspaceEntities.MarginSize
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.window_button, this, true)
@@ -62,8 +63,12 @@ class WindowButtonWidget(
     }
 
     private fun updateSettings() {
-        synchronize.visibility = if(window?.isSynchronised == true) View.VISIBLE else View.GONE
-        pinMode.visibility = if(window?.isPinMode == true) View.VISIBLE else View.GONE
+        val isMaximised = windowControl.windowRepository.isMaximized
+
+        this.visibility = if(isMaximised && !isUnmaximiseButton) View.GONE else View.VISIBLE
+        synchronize.visibility = if(window?.isSynchronised == true && !isMaximised) View.VISIBLE else View.GONE
+        pinMode.visibility = if(window?.isPinMode == true && !isMaximised) View.VISIBLE else View.GONE
+        unMaximiseImage.visibility = if(isMaximised) View.VISIBLE else View.GONE
     }
 
     private fun updateBackground() {
@@ -74,7 +79,6 @@ class WindowButtonWidget(
             else {
                 window?.id == windowControl.activeWindow.id
             }
-
             windowButton.setBackgroundResource(if (isActive) R.drawable.window_button_active else R.drawable.window_button)
         }
         if(isRestoreButton) {

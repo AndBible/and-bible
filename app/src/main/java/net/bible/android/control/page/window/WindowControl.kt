@@ -300,6 +300,17 @@ open class WindowControl @Inject constructor(
         eventManager.post(NumberOfWindowsChangedEvent())
     }
 
+    fun maximiseWindow(window: Window) {
+        windowRepository.maximizedWindowId = window.id
+        eventManager.post(NumberOfWindowsChangedEvent())
+    }
+
+    fun unMaximise() {
+        windowRepository.maximizedWindowId = null
+        windowSync.reloadAllWindows()
+        eventManager.post(NumberOfWindowsChangedEvent())
+    }
+
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
         const val TAG = "WindowControl"

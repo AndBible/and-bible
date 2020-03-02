@@ -36,6 +36,7 @@ import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.math.max
 import kotlin.math.min
 
 class IncrementBusyCount
@@ -56,7 +57,10 @@ open class WindowRepository @Inject constructor(
     private var busyCount: Int = 0
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default
+    var maximizedWindowId: Long? = null
 
+    val isMaximized get() = maximizedWindowId != null
+    val maximizedWindow get() = getWindow(maximizedWindowId)
     val isBusy get() = busyCount > 0
 
 
@@ -131,9 +135,9 @@ open class WindowRepository @Inject constructor(
     lateinit var dedicatedLinksWindow: LinksWindow
         private set
 
-    // links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
-    // should only ever be one maximised window
-    val visibleWindows get() = getWindows(WindowState.SPLIT)
+    val visibleWindows get() =
+        if(isMaximized) listOf(getWindow(maximizedWindowId)!!)
+        else getWindows(WindowState.SPLIT)
 
     val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
 
@@ -296,7 +300,8 @@ open class WindowRepository @Inject constructor(
             orderNumber = orderNumber,
             textDisplaySettings = textDisplaySettings,
             windowBehaviorSettings = windowBehaviorSettings,
-            unPinnedWeight = unPinnedWeight
+            unPinnedWeight = unPinnedWeight,
+            maximizedWindowId = maximizedWindowId
         ))
 
         val historyManager = historyManagerProvider.get()
@@ -339,6 +344,7 @@ open class WindowRepository @Inject constructor(
         id = entity.id
         name = entity.name
         unPinnedWeight = entity.unPinnedWeight
+        maximizedWindowId = entity.maximizedWindowId
 
         textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
         windowBehaviorSettings = entity.windowBehaviorSettings?: WorkspaceEntities.WindowBehaviorSettings.default
@@ -374,6 +380,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        maximizedWindowId = null
         unPinnedWeight = null
         orderNumber = 0
         id = 0
