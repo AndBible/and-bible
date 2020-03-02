@@ -359,7 +359,7 @@ class SplitBibleArea(
         sleepTimer.schedule(timerTask, 2000L)
     }
 
-    private val windowButtons get() = bibleFrames.map { it.windowButton }.filterNotNull()
+    private val windowButtons get() = bibleFrames.map { it.windowButton }
 
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
         if(buttonsVisible == show && !force) {
@@ -367,6 +367,7 @@ class SplitBibleArea(
         }
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
+                if(b == null) continue
                 b.animate().apply {
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
