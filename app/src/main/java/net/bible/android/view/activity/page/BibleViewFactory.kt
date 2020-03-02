@@ -77,6 +77,7 @@ class BibleViewFactory @Inject constructor(
             }
 
             windowBibleViewMap[window.id] = bibleView
+            window.bibleView = bibleView
         }
         return bibleView
 
