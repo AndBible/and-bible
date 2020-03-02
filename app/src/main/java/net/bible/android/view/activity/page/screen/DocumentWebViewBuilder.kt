@@ -25,6 +25,7 @@ import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -87,6 +88,8 @@ class AllBibleViewsContainer(
     private val windowSeparatorTouchExpansionWidthPixels: Int = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width)
 
     init {
+        //val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        //inflater.inflate(R.layout.bibleframes, this, true)
         this.addView(linearLayout, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
     }
 
@@ -190,8 +193,8 @@ class DocumentWebViewBuilder @Inject constructor(
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val windowButtons: MutableList<WindowButtonWidget> = ArrayList()
     private val restoreButtons: MutableList<WindowButtonWidget> = ArrayList()
-    private lateinit var minimisedWindowsFrameContainer: HorizontalScrollView
-    private lateinit var bibleReferenceOverlay: TextView
+    private var restoreButtonContainer: HorizontalScrollView? = null
+    private var bibleReferenceOverlay: TextView? = null
     private var buttonsVisible = true
     private var allBibleViewsContainer: AllBibleViewsContainer? = null
 
@@ -207,7 +210,9 @@ class DocumentWebViewBuilder @Inject constructor(
     fun buildWebViews(): AllBibleViewsContainer {
         Log.d(TAG, "Layout web views")
 
-        val topView = allBibleViewsContainer?: AllBibleViewsContainer(windowControl, mainBibleActivity)
+        val topView = allBibleViewsContainer?: AllBibleViewsContainer(windowControl, mainBibleActivity).also {
+            allBibleViewsContainer = it
+        }
         val isSplitVertically = isSplitVertically
 
         topView.linearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
@@ -226,7 +231,56 @@ class DocumentWebViewBuilder @Inject constructor(
         }
 
         topView.addSeparators()
+        addBibleReferenceOverlay()
 
+        restoreButtons.clear()
+
+        if(!isSingleWindow) {
+            addRestoreButtons()
+        }
+
+        resetTouchTimer()
+        mainBibleActivity.resetSystemUi()
+        return topView
+    }
+
+    private fun addRestoreButtons() {
+        val restoreButtonsLinearLAyout = LinearLayout(mainBibleActivity)
+
+        restoreButtonContainer = HorizontalScrollView(mainBibleActivity).apply {
+            addView(restoreButtonsLinearLAyout,
+                FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT)
+            )
+        }
+
+        restoreButtonContainer!!.translationY = -mainBibleActivity.bottomOffset2
+        restoreButtonContainer!!.translationX = -mainBibleActivity.rightOffset1
+
+        val pinnedWindows = windowRepository.windows.filter { it.isPinMode }
+        val nonPinnedWindows = windowRepository.windows.filter { !it.isPinMode }
+
+        fun addWindow(win: Window) {
+            Log.d(TAG, "Show restore button")
+            val restoreButton = createRestoreButton(win)
+            restoreButtons.add(restoreButton)
+            restoreButtonsLinearLAyout.addView(restoreButton,
+                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        }
+        for (win in pinnedWindows) {
+            addWindow(win)
+        }
+
+        for (win in nonPinnedWindows) {
+            addWindow(win)
+        }
+
+        allBibleViewsContainer?.addView(restoreButtonContainer,
+            FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.RIGHT))
+    }
+
+    private fun addBibleReferenceOverlay() {
         bibleReferenceOverlay = TextView(mainBibleActivity).apply {
             if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
                 setBackgroundResource(R.drawable.bible_reference_overlay)
@@ -239,41 +293,10 @@ class DocumentWebViewBuilder @Inject constructor(
             text = try {mainBibleActivity.bibleOverlayText} catch (e: MainBibleActivity.KeyIsNull) {""}
             textSize = 18F
         }
-        topView.addView(bibleReferenceOverlay,
+        allBibleViewsContainer?.addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
 
-        restoreButtons.clear()
-
-        if(!isSingleWindow) {
-            val minimisedWindowsLayout = LinearLayout(mainBibleActivity)
-            minimisedWindowsFrameContainer = HorizontalScrollView(mainBibleActivity).apply {
-                addView(minimisedWindowsLayout,
-                    FrameLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT)
-                )
-            }
-
-            topView.addView(minimisedWindowsFrameContainer,
-                FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-                    Gravity.BOTTOM or Gravity.RIGHT))
-            minimisedWindowsFrameContainer.translationY = -mainBibleActivity.bottomOffset2
-            minimisedWindowsFrameContainer.translationX = -mainBibleActivity.rightOffset1
-
-            val minAndMaxScreens = windowRepository.windows.filter { !it.isPinMode }
-            for (i in minAndMaxScreens.indices) {
-                Log.d(TAG, "Show restore button")
-                val restoreButton = createRestoreButton(minAndMaxScreens[i])
-                restoreButtons.add(restoreButton)
-                minimisedWindowsLayout.addView(restoreButton,
-                    LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-            }
-        }
-
-        resetTouchTimer()
-        mainBibleActivity.resetSystemUi()
-        allBibleViewsContainer = topView
-        return topView
     }
 
     private fun buildBibleFrame(window: Window): BibleViewFrame {
@@ -328,11 +351,11 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun updateBibleReference() {
-        if(!::bibleReferenceOverlay.isInitialized) return
+        if(bibleReferenceOverlay == null) return
         
         mainBibleActivity.runOnUiThread {
             try {
-                bibleReferenceOverlay.text = mainBibleActivity.bibleOverlayText
+                bibleReferenceOverlay!!.text = mainBibleActivity.bibleOverlayText
             } catch(e: MainBibleActivity.KeyIsNull) {
                 Log.e(TAG, "Key is null, can't update", e)
             }
@@ -379,7 +402,7 @@ class DocumentWebViewBuilder @Inject constructor(
     }
 
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
-        if(!::minimisedWindowsFrameContainer.isInitialized) {
+        if(restoreButtonContainer == null) {
             // Too early to do anything
             return
         }
@@ -421,15 +444,15 @@ class DocumentWebViewBuilder @Inject constructor(
 
     private fun updateMinimizedButtons(show: Boolean) {
         if(show) {
-            minimisedWindowsFrameContainer.visibility = View.VISIBLE
-            minimisedWindowsFrameContainer.animate()
+            restoreButtonContainer!!.visibility = View.VISIBLE
+            restoreButtonContainer!!.animate()
                 .alpha(VISIBLE_ALPHA)
                 .translationY(-mainBibleActivity.bottomOffset2)
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }  else {
             if(mainBibleActivity.fullScreen) {
-                minimisedWindowsFrameContainer.animate().alpha(hiddenAlpha)
+                restoreButtonContainer!!.animate().alpha(hiddenAlpha)
                     .setInterpolator(AccelerateInterpolator())
                     .start()
             }
@@ -439,14 +462,14 @@ class DocumentWebViewBuilder @Inject constructor(
     private fun updateBibleReferenceOverlay(_show: Boolean) {
         val show = mainBibleActivity.fullScreen && _show
         if(show) {
-            bibleReferenceOverlay.visibility = View.VISIBLE
-            bibleReferenceOverlay.animate().alpha(1.0f)
+            bibleReferenceOverlay!!.visibility = View.VISIBLE
+            bibleReferenceOverlay!!.animate().alpha(1.0f)
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }  else {
-            bibleReferenceOverlay.animate().alpha(0f)
+            bibleReferenceOverlay!!.animate().alpha(0f)
                 .setInterpolator(AccelerateInterpolator())
-                .withEndAction { bibleReferenceOverlay.visibility = View.GONE }
+                .withEndAction { bibleReferenceOverlay!!.visibility = View.GONE }
                 .start()
         }
     }
