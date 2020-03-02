@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -31,6 +32,9 @@ import net.bible.android.view.activity.mynote.MyNoteViewBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
+class WebViewsBuiltEvent
+class AfterRemoveWebViewEvent
+
 /**
  * Create Views for displaying documents
  *
@@ -39,13 +43,16 @@ import javax.inject.Inject
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
-	private val documentWebViewBuilder: DocumentWebViewBuilder,
 	private val myNoteViewBuilder: MyNoteViewBuilder,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
+    private var lastView: View? = null
+    private var splitBibleArea: SplitBibleArea? = null
+
 	fun destroy() {
         ABEventBus.getDefault().unregister(this)
+        splitBibleArea?.destroy()
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
@@ -59,48 +66,54 @@ class DocumentViewManager @Inject constructor(
 		buildView()
 	}
 
+    private fun removeView() {
+        parent.removeAllViews()
+        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
+        myNoteViewBuilder.afterRemove()
+    }
 
-    @Synchronized
-    fun resetView() {
-        myNoteViewBuilder.removeMyNoteView(parent)
-        documentWebViewBuilder.removeWebView(parent)
-        if (myNoteViewBuilder.isMyNoteViewType) {
-            mainBibleActivity.resetSystemUi()
-            myNoteViewBuilder.addMyNoteView(parent)
-        } else {
-            documentWebViewBuilder.addWebViews(parent)
+    private fun buildWebViews(): SplitBibleArea {
+        val topView = splitBibleArea?: SplitBibleArea().also {
+            splitBibleArea = it
         }
-        val windows = windowControl.windowRepository.visibleWindows
-        for (window in windows) {
-            mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
-        }
+        topView.update()
+        return topView
     }
 
     @Synchronized
     fun buildView() {
         if (myNoteViewBuilder.isMyNoteViewType) {
+            removeView()
             mainBibleActivity.resetSystemUi()
-            documentWebViewBuilder.removeWebView(parent)
-            myNoteViewBuilder.addMyNoteView(parent)
+            lastView = myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            myNoteViewBuilder.removeMyNoteView(parent)
-            documentWebViewBuilder.addWebViews(parent)
-        }
-        val windows = windowControl.windowRepository.visibleWindows
-        for (window in windows) {
-            mainBibleActivity.registerForContextMenu(getDocumentView(window) as View)
+            val view = buildWebViews()
+            if(lastView != view) {
+                removeView()
+                lastView = view
+                parent.addView(view,
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT)
+                )
+            }
+            ABEventBus.getDefault().post(WebViewsBuiltEvent())
         }
     }
 
     val documentView: DocumentView
         get() = getDocumentView(windowControl.activeWindow)
 
-    fun getDocumentView(window: Window?): DocumentView {
+    fun getDocumentView(window: Window): DocumentView {
         return if (myNoteViewBuilder.isMyNoteViewType) {
             myNoteViewBuilder.view
         } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            documentWebViewBuilder.getView(window!!)
+            splitBibleArea!!.bibleViewFactory.getOrCreateBibleView(window)
         }
+    }
+
+    fun clearBibleViewFactory() {
+        splitBibleArea!!.bibleViewFactory.clear()
     }
 
     init {

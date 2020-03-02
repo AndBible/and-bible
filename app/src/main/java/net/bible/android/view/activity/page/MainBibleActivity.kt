@@ -89,7 +89,6 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
@@ -125,13 +124,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     lateinit var bibleContentManager: BibleContentManager
 
     @Inject
-    lateinit var bibleViewFactory: BibleViewFactory
-
-    @Inject
     lateinit var documentViewManager: DocumentViewManager
-
-    @Inject
-    lateinit var documentWebViewBuilder: DocumentWebViewBuilder
 
     @Inject lateinit var bibleActionBarManager: BibleActionBarManager
 
@@ -196,6 +189,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
+    //val bottomOffset2 get() = 200F //bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
     val rightOffset1 get() = if (rightNavBarVisible) navigationBarHeight else 0.0F
     // Left offset with navigation bar
@@ -493,7 +487,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             windowRepository.loadFromDb(value)
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
-            documentViewManager.resetView()
+            documentViewManager.buildView()
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateVisibleWindowsTextDisplaySettings()
 
@@ -951,9 +945,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     var currentNightMode: Boolean = false
 
     private fun beforeDestroy() {
-        bibleViewFactory.clear()
         documentViewManager.destroy()
-        documentWebViewBuilder.destroy()
         bibleActionBarManager.destroy()
     }
 
@@ -1034,7 +1026,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 windowControl.windowSync.setResyncRequired()
                                 runOnUiThread {
-                                    bibleViewFactory.clear()
+                                    documentViewManager.clearBibleViewFactory()
                                     currentWorkspaceId = 0
                                 }
                             }
@@ -1120,7 +1112,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
                 if(data?.component?.className == MyNotes::class.java.name) {
                     invalidateOptionsMenu()
-                    documentViewManager.resetView()
+                    documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {

@@ -70,6 +70,7 @@ open class WindowControl @Inject constructor(
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
     fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
+    val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
 
     init {
         eventManager.register(this)
@@ -293,7 +294,7 @@ open class WindowControl @Inject constructor(
         window.isPinMode = value
         if(value && !window.isVisible) {
             restoreWindow(window)
-        } else if(windowRepository.visibleWindows.size > 1) {
+        } else if(!value && window.isVisible && windowRepository.visibleWindows.size > 1) {
             minimiseWindow(window, true)
         }
         eventManager.post(NumberOfWindowsChangedEvent())

@@ -15,31 +15,24 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.view.util
 
-package net.bible.android.view.util;
+import android.content.Context
+import android.graphics.Color
+import android.view.MotionEvent
+import android.view.View
 
-import android.content.Context;
-import android.graphics.Color;
-import android.view.MotionEvent;
-import android.view.View;
-
-/** TouchDelegate was not working with the split WebViews so created this simple replacement.  
+/** TouchDelegate was not working with the split WebViews so created this simple replacement.
  * Partially overlay another view with this to redirect touch events to a delegate View
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TouchDelegateView extends View {
-	private View delegate;
-	
-	public TouchDelegateView(Context context, View delegate) {
-		super(context);
-		this.delegate = delegate;
-		setBackgroundColor(Color.TRANSPARENT);
-	}
-	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return delegate.onTouchEvent(event);
-	}
-}
+class TouchDelegateView(context: Context?, private val delegate: View) : View(context) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return delegate.onTouchEvent(event)
+    }
 
+    init {
+        setBackgroundColor(Color.TRANSPARENT)
+    }
+}
