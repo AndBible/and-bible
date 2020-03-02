@@ -294,7 +294,7 @@ open class WindowControl @Inject constructor(
         window.isPinMode = value
         if(value && !window.isVisible) {
             restoreWindow(window)
-        } else if(windowRepository.visibleWindows.size > 1) {
+        } else if(!value && window.isVisible && windowRepository.visibleWindows.size > 1) {
             minimiseWindow(window, true)
         }
         eventManager.post(NumberOfWindowsChangedEvent())
