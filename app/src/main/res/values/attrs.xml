@@ -31,6 +31,7 @@
         <attr name="toolbarTextColor" format="color"/>
     </declare-styleable>
     <declare-styleable name="windowButtonTheme">
+        <attr name="windowButtonActiveStrokeColor" format="color"/>
         <attr name="windowButtonStrokeColor" format="color"/>
         <attr name="windowButtonBackgroundColor" format="color"/>
         <attr name="windowButtonActiveBackgroundColor" format="color"/>

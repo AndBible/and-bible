@@ -32,7 +32,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
 
 @SuppressLint("ViewConstructor")
 class WindowButtonWidget(
@@ -73,13 +72,17 @@ class WindowButtonWidget(
 
     private fun updateBackground() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            val isActive = if(isRestoreButton) {
+            val isActive = windowControl.activeWindow.id == window?.id
+            val isWindowVisible = if(isRestoreButton) {
                 window?.isVisible == true
             }
             else {
                 window?.id == windowControl.activeWindow.id
             }
-            windowButton.setBackgroundResource(if (isActive) R.drawable.window_button_active else R.drawable.window_button)
+            windowButton.setBackgroundResource(
+                if (isActive) R.drawable.window_button_active
+                else if (isWindowVisible) R.drawable.window_button_visible
+                else R.drawable.window_button)
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f
