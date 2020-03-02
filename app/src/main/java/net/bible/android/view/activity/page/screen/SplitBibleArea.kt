@@ -90,6 +90,8 @@ class SplitBibleArea(
     private val bibleFrames: MutableList<BibleFrame> = ArrayList()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val restoreButtonsList: MutableList<WindowButtonWidget> = ArrayList()
+    private var lastSplitVertically: Boolean = isSplitVertically
+    private val orientationChanges get() = lastSplitVertically != isSplitVertically
     private var bibleReferenceOverlay = TextView(context).apply {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             setBackgroundResource(R.drawable.bible_reference_overlay)
@@ -126,16 +128,18 @@ class SplitBibleArea(
     }
 
     fun update() {
-        val isSplitVertically = isSplitVertically
         biblesLinearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
 
         removeSeparators()
+        if(orientationChanges)
+            removeAllFrames()
         updateWindows()
-        updateSeparators()
+        addSeparators()
         updateRestoreButtons()
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
+        lastSplitVertically = isSplitVertically
     }
 
     private fun removeSeparators() {
@@ -171,6 +175,12 @@ class SplitBibleArea(
         }
     }
 
+    private fun removeAllFrames() {
+        for(i in bibleFrames.toList()) {
+            removeFrame(i)
+        }
+    }
+
     private fun removeFrame(frame: BibleFrame) {
         frame.destroy()
         biblesLinearLayout.removeView(frame)
@@ -188,42 +198,35 @@ class SplitBibleArea(
         bibleFrames.add(frame)
     }
 
-    private fun updateSeparators() {
+    private fun addSeparators() {
         val size = bibleFrames.size
         for(i in 0 until size - 1) {
-            updateSeparator(bibleFrames[i], bibleFrames[i+1])
+            addSeparator(bibleFrames[i], bibleFrames[i+1])
         }
     }
 
-    private fun updateSeparator(bf1: BibleFrame, bf2: BibleFrame) {
-        val pos1 = biblesLinearLayout.indexOfChild(bf1)
-        val pos2 = biblesLinearLayout.indexOfChild(bf2)
-        if(pos2 - pos1 == 1) { // Separator is missing
-            val separator = Separator(
-                context = context,
-                separatorWidth = windowSeparatorWidthPixels,
-                parentLayout = biblesLinearLayout,
-                frame1 = bf1,
-                frame2 = bf2,
-                numWindows = bibleFrames.size,
-                isPortrait = isSplitVertically,
-                windowControl = windowControl
-            )
+    private fun addSeparator(bf1: BibleFrame, bf2: BibleFrame) {
+        val separator = Separator(
+            context = context,
+            separatorWidth = windowSeparatorWidthPixels,
+            parentLayout = biblesLinearLayout,
+            frame1 = bf1,
+            frame2 = bf2,
+            numWindows = bibleFrames.size,
+            isPortrait = isSplitVertically,
+            windowControl = windowControl
+        )
 
-            addBottomOrRightSeparatorTouchExtension(isSplitVertically, bf1, separator)
-            addTopOrLeftSeparatorTouchExtension(isSplitVertically, bf2, separator)
+        addBottomOrRightSeparatorTouchExtension(isSplitVertically, bf1, separator)
+        addTopOrLeftSeparatorTouchExtension(isSplitVertically, bf2, separator)
 
-            val lp = if (isSplitVertically)
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
-            else
-                LinearLayout.LayoutParams(windowSeparatorWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, 0f)
+        val lp = if (isSplitVertically)
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, windowSeparatorWidthPixels, 0f)
+        else
+            LinearLayout.LayoutParams(windowSeparatorWidthPixels, ViewGroup.LayoutParams.MATCH_PARENT, 0f)
 
-            val currentPos = biblesLinearLayout.children.indexOf(bf1)
-            biblesLinearLayout.addView(separator, currentPos + 1, lp)
-        } else if(pos2 - pos1 == 2) { // separator is in place
-            val sep = biblesLinearLayout.getChildAt(pos1+1) as Separator
-            sep.numWindows = bibleFrames.size
-        }
+        val currentPos = biblesLinearLayout.children.indexOf(bf1)
+        biblesLinearLayout.addView(separator, currentPos + 1, lp)
     }
 
     @SuppressLint("RtlHardcoded")
