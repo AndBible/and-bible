@@ -196,6 +196,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
+    //val bottomOffset2 get() = 200F //bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
     val rightOffset1 get() = if (rightNavBarVisible) navigationBarHeight else 0.0F
     // Left offset with navigation bar

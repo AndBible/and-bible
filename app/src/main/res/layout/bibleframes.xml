@@ -30,6 +30,7 @@
         >
     </LinearLayout>
     <HorizontalScrollView
+        android:id="@+id/restoreButtonsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,12 +39,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_gravity="right"
             >
             <LinearLayout
-                android:id="@+id/pinnedRestoreButtonBar"
+                android:id="@+id/pinnedRestoreButtons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                />
+            <Space
+                android:layout_width="5dip"
+                android:layout_height="match_parent"
                 />
             <LinearLayout
                 android:id="@+id/restoreButtons"

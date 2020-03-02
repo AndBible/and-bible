@@ -29,6 +29,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder
+import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
@@ -45,7 +46,8 @@ class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
 	private val documentWebViewBuilder: DocumentWebViewBuilder,
 	private val myNoteViewBuilder: MyNoteViewBuilder,
-	private val windowControl: WindowControl
+	private val windowControl: WindowControl,
+    private val bibleViewFactory: BibleViewFactory
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
 	fun destroy() {
@@ -88,11 +90,11 @@ class DocumentViewManager @Inject constructor(
     val documentView: DocumentView
         get() = getDocumentView(windowControl.activeWindow)
 
-    fun getDocumentView(window: Window?): DocumentView {
+    fun getDocumentView(window: Window): DocumentView {
         return if (myNoteViewBuilder.isMyNoteViewType) {
             myNoteViewBuilder.view
         } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            documentWebViewBuilder.getView(window!!)
+            bibleViewFactory.getOrCreateBibleView(window)
         }
     }
 
