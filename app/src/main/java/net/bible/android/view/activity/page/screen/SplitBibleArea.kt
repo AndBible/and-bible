@@ -40,7 +40,6 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
 import kotlinx.android.synthetic.main.split_bible_area.view.*
-import kotlinx.android.synthetic.main.window_button.*
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -157,14 +156,16 @@ class SplitBibleArea(
 
         for((i, w) in windows.withIndex()) {
             var firstIs = false
+            var bf: BibleFrame
             do {
-                val first = getBf(i) ?: break
-                if(first.window.id == w.id) {
+                bf = getBf(i) ?: break
+                if(bf.window.id == w.id) {
                     firstIs = true
+                    bf.updateWindowButton()
                     break
                 }
-                if (first.window.id != w.id) {
-                    removeFrame(first)
+                if (bf.window.id != w.id) {
+                    removeFrame(bf)
                 }
             } while(true)
             if(!firstIs) {
@@ -268,8 +269,6 @@ class SplitBibleArea(
         restoreButtonsContainer.translationY = -mainBibleActivity.bottomOffset2
         restoreButtonsContainer.translationX = -mainBibleActivity.rightOffset1
 
-        if(windowControl.isSingleWindow) return
-
         val maxWindow = windowRepository.maximizedWindow
         if(maxWindow != null) {
             val restoreButton = createUnmaximiseButton(maxWindow)
@@ -278,6 +277,8 @@ class SplitBibleArea(
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             return
         }
+
+        if(windowControl.isSingleWindow) return
 
         val pinnedWindows = windowRepository.windows.filter { it.isPinMode }
         val nonPinnedWindows = windowRepository.windows.filter { !it.isPinMode }

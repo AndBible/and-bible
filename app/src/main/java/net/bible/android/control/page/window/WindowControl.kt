@@ -132,7 +132,7 @@ open class WindowControl @Inject constructor(
     fun addNewWindow(): Window {
         val window = windowRepository.addNewWindow()
 
-        restoreWindow(window)
+        restoreWindow(window, true)
 
         return window
     }
@@ -192,8 +192,8 @@ open class WindowControl @Inject constructor(
         return window.isLinksWindow || normalWindows > 1
     }
 
-    fun restoreWindow(window: Window) {
-        if(window.isVisible) {
+    fun restoreWindow(window: Window, force: Boolean = false) {
+        if(window.isVisible && !force) {
             minimiseWindow(window)
         } else {
             if (window == activeWindow) return

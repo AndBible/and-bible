@@ -64,10 +64,8 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        this.visibility = if(isMaximised && !isUnmaximiseButton) View.GONE else View.VISIBLE
         synchronize.visibility = if(window?.isSynchronised == true && !isMaximised) View.VISIBLE else View.GONE
         pinMode.visibility = if(window?.isPinMode == true && !isMaximised) View.VISIBLE else View.GONE
-        unMaximiseImage.visibility = if(isMaximised) View.VISIBLE else View.GONE
     }
 
     private fun updateBackground() {
@@ -89,6 +87,9 @@ class WindowButtonWidget(
         } else {
             buttonText.visibility = View.GONE
         }
+        //this.visibility = if(isMaximised && !isUnmaximiseButton) View.GONE else View.VISIBLE
+        unMaximiseImage.visibility = if(isMaximised) View.VISIBLE else View.GONE
+
     }
 
     override fun setOnClickListener(l: OnClickListener?) {

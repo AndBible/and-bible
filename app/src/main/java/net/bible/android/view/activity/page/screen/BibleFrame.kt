@@ -71,11 +71,14 @@ class BibleFrame(
         val bibleView = bibleViewFactory.getOrCreateBibleView(window)
         this.bibleView = bibleView
         bibleView.updateBackgroundColor()
-        val isSingleWindow = windowControl.isSingleWindow
 
         addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         MainBibleActivity.mainBibleActivity.registerForContextMenu(bibleView as View)
+        addWindowButton()
+    }
 
+    private fun addWindowButton() {
+        val isSingleWindow = windowControl.isSingleWindow
         val defaultWindowActionButton =
             if (isSingleWindow) {
                 createSingleWindowButton(window)
@@ -138,5 +141,10 @@ class BibleFrame(
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
         }
+    }
+
+    fun updateWindowButton() {
+        removeView(windowButton)
+        addWindowButton()
     }
 }
