@@ -25,6 +25,11 @@
 			android:summary="@string/auto_fullscreen_summary"
 			android:defaultValue="false"
 			/>
+		<SwitchPreferenceCompat android:key="hide_window_buttons"
+			android:title="@string/hide_window_buttons_title"
+			android:summary="@string/hide_window_buttons_summary"
+			android:defaultValue="false"
+			/>
 		<SwitchPreferenceCompat android:key="swipe_to_change_chapter"
 			android:title="@string/pref_swipe_to_change_chapter_title"
 			android:summary="@string/pref_swipe_to_change_chapter_summary"

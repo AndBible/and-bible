@@ -359,7 +359,7 @@ class SplitBibleArea(
         sleepTimer.schedule(timerTask, 2000L)
     }
 
-    private val windowButtons get() = bibleFrames.map { it.windowButton }
+    private val windowButtons get() = bibleFrames.map { it.windowButton }.filterNotNull()
 
     private fun toggleWindowButtonVisibility(show: Boolean, force: Boolean = false) {
         if(buttonsVisible == show && !force) {

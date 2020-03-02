@@ -33,6 +33,7 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.widget.WindowButtonWidget
+import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
 
@@ -65,12 +66,13 @@ class BibleFrame(
     }
 
     lateinit var bibleView: BibleView
-    lateinit var windowButton: WindowButtonWidget
+    var windowButton: WindowButtonWidget? = null
 
     private fun build() {
         val bibleView = bibleViewFactory.getOrCreateBibleView(window)
         this.bibleView = bibleView
         bibleView.updateBackgroundColor()
+        setBackgroundColor(bibleView.backgroundColor)
 
         addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         MainBibleActivity.mainBibleActivity.registerForContextMenu(bibleView as View)
@@ -79,13 +81,12 @@ class BibleFrame(
 
     private fun addWindowButton() {
         val isSingleWindow = windowControl.isSingleWindow
+        if(!isSingleWindow && CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)) return
         val defaultWindowActionButton =
-            if (isSingleWindow) {
-                createSingleWindowButton(window)
-            } else if (window.defaultOperation == Window.WindowOperation.CLOSE) {
-                createCloseButton(window)
-            } else {
-                createMinimiseButton(window)
+            when {
+                isSingleWindow -> createSingleWindowButton(window)
+                window.isLinksWindow -> createCloseButton(window)
+                else -> createMinimiseButton(window)
             }
 
         if (!isSplitVertically) {

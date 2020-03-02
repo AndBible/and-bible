@@ -247,9 +247,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** may need updating depending on environmental brightness
      */
     override fun updateBackgroundColor() {
+        setBackgroundColor(backgroundColor)
+    }
+
+    val backgroundColor: Int get() {
         val colors = window.pageManager.actualTextDisplaySettings.colors
-        val color = (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
-        setBackgroundColor(color)
+        return (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
     }
 
     var lastUpdated = 0L
