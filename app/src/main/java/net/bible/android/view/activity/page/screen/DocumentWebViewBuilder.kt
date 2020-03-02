@@ -726,37 +726,3 @@ class AllBibleViewsContainer(
     }
 
 }
-
-@MainBibleActivityScope
-class DocumentWebViewBuilder @Inject constructor() {
-    private var allBibleViewsContainer: AllBibleViewsContainer? = null
-
-    @SuppressLint("RtlHardcoded")
-    fun buildWebViews(): AllBibleViewsContainer {
-        Log.d(TAG, "Layout web views")
-
-        val topView = allBibleViewsContainer?: AllBibleViewsContainer().also {
-            allBibleViewsContainer = it
-        }
-        topView.update()
-        return topView
-    }
-
-    fun destroy() {
-        allBibleViewsContainer?.destroy()
-    }
-
-    fun getBibleView(window: Window): BibleView {
-        return allBibleViewsContainer!!.bibleViewFactory.getOrCreateBibleView(window)
-    }
-
-    fun clearBibleViewFactory() {
-        allBibleViewsContainer!!.bibleViewFactory.clear()
-    }
-
-    companion object {
-        private const val TAG = "DocumentWebViewBuilder"
-    }
-
-
-}

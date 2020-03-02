@@ -17,6 +17,8 @@
  */
 package net.bible.android.view.activity.page.screen
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -29,12 +31,44 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder
-import net.bible.android.view.activity.page.BibleViewFactory
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
 class WebViewsBuiltEvent
 class AfterRemoveWebViewEvent
+
+@MainBibleActivityScope
+class DocumentWebViewBuilder @Inject constructor() {
+    private var allBibleViewsContainer: AllBibleViewsContainer? = null
+
+    @SuppressLint("RtlHardcoded")
+    fun buildWebViews(): AllBibleViewsContainer {
+        Log.d(TAG, "Layout web views")
+
+        val topView = allBibleViewsContainer?: AllBibleViewsContainer().also {
+            allBibleViewsContainer = it
+        }
+        topView.update()
+        return topView
+    }
+
+    fun destroy() {
+        allBibleViewsContainer?.destroy()
+    }
+
+    fun getBibleView(window: Window): BibleView {
+        return allBibleViewsContainer!!.bibleViewFactory.getOrCreateBibleView(window)
+    }
+
+    fun clearBibleViewFactory() {
+        allBibleViewsContainer!!.bibleViewFactory.clear()
+    }
+
+    companion object {
+        private const val TAG = "DocumentWebViewBuilder"
+    }
+}
 
 /**
  * Create Views for displaying documents
