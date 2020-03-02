@@ -36,8 +36,6 @@ import net.bible.android.view.activity.navigation.GridChoosePassageChapter;
 import net.bible.android.view.activity.navigation.GridChoosePassageVerse;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase;
-import net.bible.android.view.activity.page.screen.AllBibleViewsContainer;
-import net.bible.android.view.activity.page.screen.BibleViewFrame;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;

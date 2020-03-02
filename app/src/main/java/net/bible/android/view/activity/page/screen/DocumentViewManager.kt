@@ -17,8 +17,6 @@
  */
 package net.bible.android.view.activity.page.screen
 
-import android.annotation.SuppressLint
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -31,44 +29,11 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder
-import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
 class WebViewsBuiltEvent
 class AfterRemoveWebViewEvent
-
-@MainBibleActivityScope
-class DocumentWebViewBuilder @Inject constructor() {
-    private var allBibleViewsContainer: AllBibleViewsContainer? = null
-
-    @SuppressLint("RtlHardcoded")
-    fun buildWebViews(): AllBibleViewsContainer {
-        Log.d(TAG, "Layout web views")
-
-        val topView = allBibleViewsContainer?: AllBibleViewsContainer().also {
-            allBibleViewsContainer = it
-        }
-        topView.update()
-        return topView
-    }
-
-    fun destroy() {
-        allBibleViewsContainer?.destroy()
-    }
-
-    fun getBibleView(window: Window): BibleView {
-        return allBibleViewsContainer!!.bibleViewFactory.getOrCreateBibleView(window)
-    }
-
-    fun clearBibleViewFactory() {
-        allBibleViewsContainer!!.bibleViewFactory.clear()
-    }
-
-    companion object {
-        private const val TAG = "DocumentWebViewBuilder"
-    }
-}
 
 /**
  * Create Views for displaying documents
@@ -78,15 +43,16 @@ class DocumentWebViewBuilder @Inject constructor() {
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
-	private val documentWebViewBuilder: DocumentWebViewBuilder,
 	private val myNoteViewBuilder: MyNoteViewBuilder,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
     private var lastView: View? = null
+    private var splitBibleArea: SplitBibleArea? = null
 
 	fun destroy() {
         ABEventBus.getDefault().unregister(this)
+        splitBibleArea?.destroy()
     }
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
@@ -106,6 +72,14 @@ class DocumentViewManager @Inject constructor(
         myNoteViewBuilder.afterRemove()
     }
 
+    private fun buildWebViews(): SplitBibleArea {
+        val topView = splitBibleArea?: SplitBibleArea().also {
+            splitBibleArea = it
+        }
+        topView.update()
+        return topView
+    }
+
     @Synchronized
     fun buildView() {
         if (myNoteViewBuilder.isMyNoteViewType) {
@@ -113,7 +87,7 @@ class DocumentViewManager @Inject constructor(
             mainBibleActivity.resetSystemUi()
             lastView = myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            val view = documentWebViewBuilder.buildWebViews()
+            val view = buildWebViews()
             if(lastView != view) {
                 removeView()
                 lastView = view
@@ -134,12 +108,12 @@ class DocumentViewManager @Inject constructor(
         return if (myNoteViewBuilder.isMyNoteViewType) {
             myNoteViewBuilder.view
         } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            documentWebViewBuilder.getBibleView(window)
+            splitBibleArea!!.bibleViewFactory.getOrCreateBibleView(window)
         }
     }
 
     fun clearBibleViewFactory() {
-        documentWebViewBuilder.clearBibleViewFactory()
+        splitBibleArea!!.bibleViewFactory.clear()
     }
 
     init {

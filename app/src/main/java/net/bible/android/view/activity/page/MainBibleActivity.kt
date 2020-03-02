@@ -89,7 +89,6 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
@@ -126,9 +125,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     @Inject
     lateinit var documentViewManager: DocumentViewManager
-
-    @Inject
-    lateinit var documentWebViewBuilder: DocumentWebViewBuilder
 
     @Inject lateinit var bibleActionBarManager: BibleActionBarManager
 
@@ -950,7 +946,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun beforeDestroy() {
         documentViewManager.destroy()
-        documentWebViewBuilder.destroy()
         bibleActionBarManager.destroy()
     }
 

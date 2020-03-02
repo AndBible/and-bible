@@ -21,8 +21,8 @@ package net.bible.android.view.activity;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.page.MenuCommandHandler;
-import net.bible.android.view.activity.page.screen.AllBibleViewsContainer;
-import net.bible.android.view.activity.page.screen.BibleViewFrame;
+import net.bible.android.view.activity.page.screen.SplitBibleArea;
+import net.bible.android.view.activity.page.screen.BibleFrame;
 
 import dagger.Component;
 
@@ -38,6 +38,6 @@ public interface MainBibleActivityComponent {
 
 	void inject(MainBibleActivity activity);
 	void inject(MenuCommandHandler menuCommandHandler);
-	void inject(AllBibleViewsContainer c);
-	void inject(BibleViewFrame c);
+	void inject(SplitBibleArea c);
+	void inject(BibleFrame c);
 }

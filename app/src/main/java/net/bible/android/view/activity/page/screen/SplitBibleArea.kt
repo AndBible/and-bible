@@ -46,12 +46,10 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
-import net.bible.android.control.page.window.Window.WindowOperation
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.CommandPreference
@@ -72,115 +70,11 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
 
-private val isSplitVertically get() = CommonUtils.isSplitVertically
+internal val isSplitVertically get() = CommonUtils.isSplitVertically
 
 
 @SuppressLint("ViewConstructor")
-class BibleViewFrame(
-    val window: Window,
-    private val allViews: AllBibleViewsContainer
-): FrameLayout(allViews.context) {
-    @Inject lateinit var windowControl: WindowControl
-    private val bibleViewFactory: BibleViewFactory = allViews.bibleViewFactory
-
-    init {
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
-            .build()
-            .inject(this)
-   }
-
-    private val windowRepository = windowControl.windowRepository
-
-    init {
-        build()
-    }
-
-    fun destroy() {
-        mainBibleActivity.unregisterForContextMenu(bibleView as View)
-        removeView(bibleView)
-    }
-
-    lateinit var bibleView: BibleView
-    lateinit var windowButton: WindowButtonWidget
-
-    private fun build() {
-        val bibleView = bibleViewFactory.getOrCreateBibleView(window)
-        this.bibleView = bibleView
-        bibleView.updateBackgroundColor()
-        val isSingleWindow = windowControl.isSingleWindow
-
-        addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        mainBibleActivity.registerForContextMenu(bibleView as View)
-
-        val defaultWindowActionButton =
-            if (isSingleWindow) {
-                createSingleWindowButton(window)
-            } else if (window.defaultOperation == WindowOperation.CLOSE) {
-                createCloseButton(window)
-            } else {
-                createMinimiseButton(window)
-            }
-
-        if (!isSplitVertically) {
-            defaultWindowActionButton.translationY = mainBibleActivity.topOffset2
-            if (windowRepository.lastVisibleWindow.id == window.id) {
-                defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-            }
-        } else {
-            if (windowRepository.firstVisibleWindow.id == window.id) {
-                defaultWindowActionButton.translationY =
-                    if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2
-                    else mainBibleActivity.topOffset2
-            }
-            defaultWindowActionButton.translationX = -mainBibleActivity.rightOffset1
-        }
-
-        windowButton = defaultWindowActionButton
-        addView(defaultWindowActionButton,
-            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
-    }
-
-    private fun createSingleWindowButton(window: Window): WindowButtonWidget {
-        return createTextButton("⊕",
-            { v -> windowControl.addNewWindow()},
-            { v -> false},
-            window
-        )
-    }
-
-    private fun createCloseButton(window: Window): WindowButtonWidget {
-        return createTextButton("X",
-            { v -> allViews.showPopupWindow(window, v)},
-            { v -> windowControl.closeWindow(window); true},
-            window
-        )
-    }
-
-    private fun createMinimiseButton(window: Window): WindowButtonWidget {
-        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
-        return createTextButton(text,
-            { v -> allViews.showPopupWindow(window, v) },
-            { v -> windowControl.minimiseWindow(window); true },
-            window
-        )
-    }
-
-    private fun createTextButton(text: String, onClickListener: (View) -> Unit,
-                                 onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
-            this.text = text
-            setOnClickListener(onClickListener)
-            setOnLongClickListener(onLongClickListener)
-        }
-    }
-}
-
-@SuppressLint("ViewConstructor")
-class AllBibleViewsContainer(
+class SplitBibleArea(
 ): FrameLayout(mainBibleActivity) {
 
     @Inject lateinit var windowControl: WindowControl
@@ -193,7 +87,7 @@ class AllBibleViewsContainer(
 
     private val bibleRefOverlayOffset: Int = res.getDimensionPixelSize(R.dimen.bible_ref_overlay_offset)
 
-    private val bibleFrames: MutableList<BibleViewFrame> = ArrayList()
+    private val bibleFrames: MutableList<BibleFrame> = ArrayList()
     private val hiddenAlpha get() = if(ScreenSettings.nightMode) HIDDEN_ALPHA_NIGHT else HIDDEN_ALPHA
     private val restoreButtonsList: MutableList<WindowButtonWidget> = ArrayList()
     private var bibleReferenceOverlay = TextView(context).apply {
@@ -269,7 +163,7 @@ class AllBibleViewsContainer(
                 }
             } while(true)
             if(!firstIs) {
-                addBibleFrame(BibleViewFrame(w, this))
+                addBibleFrame(BibleFrame(w, this))
             }
         }
         while(bibleFrames.size > windows.size) {
@@ -277,13 +171,13 @@ class AllBibleViewsContainer(
         }
     }
 
-    private fun removeFrame(frame: BibleViewFrame) {
+    private fun removeFrame(frame: BibleFrame) {
         frame.destroy()
         biblesLinearLayout.removeView(frame)
         bibleFrames.remove(frame)
     }
 
-    private fun addBibleFrame(frame: BibleViewFrame) {
+    private fun addBibleFrame(frame: BibleFrame) {
         val windowWeight = max(frame.window.weight, 0.1F)
         val lp = if (isSplitVertically)
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, windowWeight)
@@ -301,7 +195,7 @@ class AllBibleViewsContainer(
         }
     }
 
-    private fun updateSeparator(bf1: BibleViewFrame, bf2: BibleViewFrame) {
+    private fun updateSeparator(bf1: BibleFrame, bf2: BibleFrame) {
         val pos1 = biblesLinearLayout.indexOfChild(bf1)
         val pos2 = biblesLinearLayout.indexOfChild(bf2)
         if(pos2 - pos1 == 1) { // Separator is missing
@@ -334,7 +228,7 @@ class AllBibleViewsContainer(
 
     @SuppressLint("RtlHardcoded")
     private fun addBottomOrRightSeparatorTouchExtension(isPortrait: Boolean,
-                                                        frame: BibleViewFrame,
+                                                        frame: BibleFrame,
                                                         separator: Separator) {
         // add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
         val layoutParams = if (isPortrait)
@@ -348,7 +242,7 @@ class AllBibleViewsContainer(
 
     @SuppressLint("RtlHardcoded")
     private fun addTopOrLeftSeparatorTouchExtension(isPortrait: Boolean,
-                                                    frame: BibleViewFrame,
+                                                    frame: BibleFrame,
                                                     separator: Separator) {
         // add separator handle touch delegate to framelayout
         val layoutParams = if (isPortrait)
@@ -719,7 +613,7 @@ class AllBibleViewsContainer(
     }
 
     companion object {
-        private const val TAG = "BibleViewsContainer"
+        private const val TAG = "SplitBibleArea"
         private const val HIDDEN_ALPHA = 0.2F
         private const val HIDDEN_ALPHA_NIGHT = 0.5F
         private const val VISIBLE_ALPHA = 1.0F

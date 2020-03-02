@@ -30,7 +30,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
-import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.util.TouchDelegateView
 import net.bible.android.view.util.TouchOwner
@@ -40,14 +39,14 @@ import net.bible.android.view.util.TouchOwner
  */
 @SuppressLint("ViewConstructor")
 class Separator(
-		context: Context,
-		private val separatorWidth: Int,
-		private val parentLayout: View,
-		val frame1: BibleViewFrame,
-        val frame2: BibleViewFrame,
-		internal var numWindows: Int,
-		private val isPortrait: Boolean,
-		private val windowControl: WindowControl
+    context: Context,
+    private val separatorWidth: Int,
+    private val parentLayout: View,
+    val frame1: BibleFrame,
+    val frame2: BibleFrame,
+    internal var numWindows: Int,
+    private val isPortrait: Boolean,
+    private val windowControl: WindowControl
 ) : View(context) {
     private val activeWindow get() = windowControl.windowRepository.activeWindow
 
