@@ -207,9 +207,7 @@ open class WindowControl @Inject constructor(
 
             window.windowState = WindowState.SPLIT
 
-            // causes BibleViews to be created and laid out
             windowSync.synchronizeWindows()
-            windowSync.reloadAllWindows()
 
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
