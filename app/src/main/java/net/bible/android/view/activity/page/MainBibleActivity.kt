@@ -44,6 +44,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
@@ -208,6 +209,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        }
 
         // This is singleton so we can do this.
         mainBibleActivity = this

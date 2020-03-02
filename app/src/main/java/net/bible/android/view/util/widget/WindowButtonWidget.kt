@@ -25,6 +25,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.appcompat.content.res.AppCompatResources
 import kotlinx.android.synthetic.main.window_button.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -68,18 +69,25 @@ class WindowButtonWidget(
     }
 
     private fun updateBackground() {
+        val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
+        val isWindowVisible = if(isRestoreButton) {
+            window?.isVisible == true
+        }
+        else {
+            window?.id == windowControl.activeWindow.id && !isMaximised
+        }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            val isActive = windowControl.activeWindow.id == window?.id && !isMaximised
-            val isWindowVisible = if(isRestoreButton) {
-                window?.isVisible == true
-            }
-            else {
-                window?.id == windowControl.activeWindow.id && !isMaximised
-            }
             windowButton.setBackgroundResource(
                 if (isActive) R.drawable.window_button_active
                 else if (isWindowVisible) R.drawable.window_button_visible
                 else R.drawable.window_button)
+        } else {
+//            val drawable = AppCompatResources.getDrawable(context,
+//                if (isActive) R.drawable.window_button_active
+//                else if (isWindowVisible) R.drawable.window_button_visible
+//                else R.drawable.window_button)
+//
+//            windowButton.background = drawable
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f
