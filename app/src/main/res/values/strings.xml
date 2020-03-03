@@ -654,4 +654,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
+    <string name="font_size">Font size</string>
 </resources>
