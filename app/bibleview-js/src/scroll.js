@@ -88,10 +88,7 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
 }
 
 export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor, noiseOpacity, lineSpacing, justifyText, hyphenation} = {}, doNotReCalc = false) {
-    console.log(`JustifyText ${justifyText}`);
-    $("#content")
-        .css('margin-left', `${marginLeft}mm`)
-        .css('margin-right', `${marginRight}mm`);
+
     $(":root")
         .css("--max-width", `${maxWidth}mm`)
         .css("--text-color", textColor)
@@ -99,7 +96,18 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
         .css("--noise-opacity", noiseOpacity/100)
         .css("--line-spacing", `${lineSpacing/10}em`)
         .css("--text-align", justifyText? "justify" : "left");
-    console.log("noiseOpacity", noiseOpacity/100);
+
+    $("#content")
+        .css('margin-left', `${marginLeft}mm`)
+        .css('margin-right', `${marginRight}mm`)
+        .css("max-width", `${maxWidth}mm`)
+        .css("hyphens", hyphenation ? "auto": "none")
+        .css("text-align", justifyText? "justify" : "left");
+
+    $("body")
+        .css("color", textColor)
+        .css("line-height", `${lineSpacing/10}em`);
+
     if(!doNotReCalc) {
         registerVersePositions()
     }
