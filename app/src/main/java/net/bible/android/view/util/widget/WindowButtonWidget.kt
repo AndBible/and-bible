@@ -94,7 +94,7 @@ class WindowButtonWidget(
         } else {
             buttonText.visibility = View.GONE
         }
-        unMaximiseImage.visibility = if(isMaximised) View.VISIBLE else View.GONE
+        unMaximiseImage.visibility = if(isMaximised && !(window?.isLinksWindow == true)) View.VISIBLE else View.GONE
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
