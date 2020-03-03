@@ -32,6 +32,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.isVisible
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -619,6 +620,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             // may have returned from MyNote view
             resumeTiltScroll()
+        }
+        if(contentVisible) {
+            updateTextDisplaySettings()
         }
     }
 
