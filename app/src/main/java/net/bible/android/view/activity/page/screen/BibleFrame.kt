@@ -88,7 +88,7 @@ class BibleFrame(
             when {
                 isSingleWindow -> createSingleWindowButton(window)
                 window.isLinksWindow -> createCloseButton(window)
-                else -> createMinimiseButton(window)
+                else -> createWindowMenuButton(window)
             }
 
         if (!isSplitVertically) {
@@ -127,8 +127,8 @@ class BibleFrame(
         )
     }
 
-    private fun createMinimiseButton(window: Window): WindowButtonWidget {
-        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "━━"
+    private fun createWindowMenuButton(window: Window): WindowButtonWidget {
+        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
             { v -> allViews.showPopupWindow(window, v) },
             { v -> windowControl.minimiseWindow(window); true },

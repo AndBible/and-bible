@@ -25,7 +25,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import androidx.appcompat.content.res.AppCompatResources
 import kotlinx.android.synthetic.main.window_button.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -33,6 +32,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
+import net.bible.service.common.CommonUtils.getResourceColor
 
 @SuppressLint("ViewConstructor")
 class WindowButtonWidget(
@@ -82,12 +82,15 @@ class WindowButtonWidget(
                 else if (isWindowVisible) R.drawable.window_button_visible
                 else R.drawable.window_button)
         } else {
-//            val drawable = AppCompatResources.getDrawable(context,
-//                if (isActive) R.drawable.window_button_active
-//                else if (isWindowVisible) R.drawable.window_button_visible
-//                else R.drawable.window_button)
-//
-//            windowButton.background = drawable
+            val activeColor = getResourceColor(R.color.window_button_background_colour_active)
+            val visibleColor = getResourceColor(R.color.window_button_background_colour_visible)
+            val defaultColor = getResourceColor(R.color.window_button_background_colour)
+
+            windowButton.setBackgroundColor(
+                if (isActive) activeColor
+                else if (isWindowVisible) visibleColor
+                else defaultColor
+            )
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f
