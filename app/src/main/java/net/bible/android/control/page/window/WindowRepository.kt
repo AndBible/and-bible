@@ -161,7 +161,7 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun addLinksWindowIfVisible(windows: MutableList<Window>) {
-        if (dedicatedLinksWindow.isVisible) {
+        if (dedicatedLinksWindow.isVisible && !windows.contains(dedicatedLinksWindow)) {
             windows.add(dedicatedLinksWindow)
         }
     }

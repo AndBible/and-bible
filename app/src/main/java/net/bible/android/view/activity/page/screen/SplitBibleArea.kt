@@ -633,7 +633,7 @@ class SplitBibleArea(
             )
             R.id.windowMaximise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.maximiseWindow(window)},
-                visible = !isMaximised
+                visible = !isMaximised && !window.isLinksWindow
             )
             R.id.allTextOptions -> CommandPreference(
                 launch = {_, _, _ ->
