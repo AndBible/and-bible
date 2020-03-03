@@ -39,6 +39,8 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
 import kotlinx.android.synthetic.main.split_bible_area.view.*
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -185,6 +187,8 @@ class SplitBibleArea(
 
     private fun removeFrame(frame: BibleFrame) {
         frame.destroy()
+        val fade = Fade(Fade.OUT)
+        TransitionManager.beginDelayedTransition(biblesLinearLayout, fade)
         biblesLinearLayout.removeView(frame)
         bibleFrames.remove(frame)
     }
@@ -195,7 +199,8 @@ class SplitBibleArea(
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, windowWeight)
         else
             LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, windowWeight)
-
+        val fade = Fade(Fade.IN)
+        TransitionManager.beginDelayedTransition(biblesLinearLayout, fade)
         biblesLinearLayout.addView(frame, lp)
         bibleFrames.add(frame)
     }
