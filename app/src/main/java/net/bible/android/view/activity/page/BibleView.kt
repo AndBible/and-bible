@@ -286,7 +286,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     jumpToYOffsetRatio = currentPage.currentYOffsetRatio
                 }
             }
-            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
 
             // either enable verse selection or the default text selection
             enableSelection()
@@ -308,6 +307,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
                 "toolBarOffset: $toolbarOffset," +
                 "displaySettings: $displaySettingsJson}"
+
+            val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
+            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window, settings: $settingsString, \n actualSettings: $actualSettingsJson")
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestHtml = finalHtml
