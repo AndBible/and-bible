@@ -83,7 +83,7 @@ open class WindowRepository @Inject constructor(
             field = value
         }
 
-    val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.db.workspaceDao()
 
     private val logger = Logger(this.javaClass.name)
 
@@ -150,7 +150,7 @@ open class WindowRepository @Inject constructor(
     private fun getDefaultActiveWindow() =
         windows.find { it.isVisible } ?: createNewWindow(true)
 
-    fun setDefaultActiveWindow(): Window {
+    private fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
         activeWindow = newWindow
         return newWindow
@@ -240,17 +240,6 @@ open class WindowRepository @Inject constructor(
         this.windowList.addAll(unPinnedWindows)
     }
 
-    fun swapWindowPositions(w1: Window, w2: Window) {
-        val i1 = windowList.indexOf(w1)
-        val i2 = windowList.indexOf(w2)
-
-        windowList.add(i1+1, w2)
-        windowList.removeAt(i1)
-
-        windowList.add(i2+1, w1)
-        windowList.removeAt(i2)
-    }
-
     private fun createNewWindow(first: Boolean = false): Window {
         val pageManager = currentPageManagerProvider.get()
         val winEntity = WorkspaceEntities.Window(
@@ -283,7 +272,7 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    val contentText: String get() {
+    private val contentText: String get() {
         val keyTitle = ArrayList<String>()
         val prevFullBookNameValue = BookName.isFullBookName()
         BookName.setFullBookName(false)
@@ -374,7 +363,7 @@ open class WindowRepository @Inject constructor(
             dedicatedLinksWindow.restoreFrom(linksWindowEntity, linksPageManagerEntity, textDisplaySettings)
         }
         val historyManager = historyManagerProvider.get()
-        dao.windows(id).forEach {
+        for (it in dao.windows(id)) {
             val pageManager = currentPageManagerProvider.get()
             pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
             val window = Window(it, pageManager, this)
@@ -390,7 +379,7 @@ open class WindowRepository @Inject constructor(
         orderNumber = 0
         id = 0
         lastSyncWindowId = null
-        windowList.forEach {
+        for (it in windowList) {
             it.bibleView?.listenEvents = false
             if(destroy)
                 it.destroy()
@@ -404,8 +393,8 @@ open class WindowRepository @Inject constructor(
     }
 
     fun updateWindowTextDisplaySettingsValues(types: Set<WorkspaceEntities.TextDisplaySettings.Types>, settings: WorkspaceEntities.TextDisplaySettings) {
-        windowList.forEach {
-            types.forEach {t ->
+        for (it in windowList) {
+            for (t in types) {
                 val winValue = it.pageManager.textDisplaySettings.getValue(t)
                 if (winValue == settings.getValue(t)) {
                     it.pageManager.textDisplaySettings.setNonSpecific(t)
@@ -415,7 +404,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun updateVisibleWindowsTextDisplaySettings() {
-        visibleWindows.forEach {
+        for (it in visibleWindows) {
             it.bibleView?.updateTextDisplaySettings()
         }
     }
