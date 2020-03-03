@@ -27,7 +27,7 @@ body:after {
     content: "";
     opacity: 0.0;
     opacity: var(--noise-opacity);
-    background-image: url(noise.png);
+    background-image: url(noise.svg);
     position: absolute;
     z-index: -1;
     top: 0;
