@@ -276,7 +276,6 @@ private val MIGRATION_20_21 = object : Migration(20, 21) {
 }
 
 fun getColumnNames(db: SupportSQLiteDatabase, tableName: String): String {
-    db.execSQL("PRAGMA foreign_keys=OFF;")
     val cursor = db.query("PRAGMA table_info($tableName)")
     val columnNameIdx = cursor.getColumnIndex("name")
     cursor.moveToFirst()
@@ -293,6 +292,7 @@ private val MIGRATION_21_22 = object : Migration(21, 22) {
     override fun migrate(db: SupportSQLiteDatabase) {
         val colNameStr = getColumnNames(db, "Workspace")
         db.apply {
+            execSQL("PRAGMA foreign_keys=OFF;")
             execSQL("ALTER TABLE Workspace RENAME TO Workspace_old;")
             execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_font_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT 0, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `window_behavior_settings_autoPin` INTEGER DEFAULT 1)")
             execSQL("INSERT INTO Workspace ($colNameStr) SELECT $colNameStr from Workspace_old;")
@@ -338,6 +338,76 @@ private val MIGRATION_25_26 = object : Migration(25, 26) {
     }
 }
 
+private val MIGRATION_26_27_CLEANUP = object : Migration(26, 27) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        val wsOldCols = "`name`,`contentsText`,`id`,`orderNumber`,`text_display_settings_showStrongs`,`text_display_settings_showMorphology`," +
+            "`text_display_settings_showFootNotes`,`text_display_settings_showRedLetters`,`text_display_settings_showSectionTitles`,`text_display_settings_showVerseNumbers`,`text_display_settings_showVersePerLine`," +
+            "`text_display_settings_showBookmarks`,`text_display_settings_showMyNotes`,`text_display_settings_justifyText`,`text_display_settings_font_lineSpacing`,`text_display_settings_margin_size_marginLeft`," +
+            "`text_display_settings_margin_size_marginRight`,`text_display_settings_margin_size_maxWidth`,`text_display_settings_colors_dayTextColor`," +
+            "`text_display_settings_colors_dayBackground`,`text_display_settings_colors_dayNoise`,`text_display_settings_colors_nightTextColor`,`text_display_settings_colors_nightBackground`," +
+            "`text_display_settings_colors_nightNoise`,`text_display_settings_font_fontSize`,`text_display_settings_font_fontFamily`,`window_behavior_settings_enableTiltToScroll`," +
+            "`window_behavior_settings_enableReverseSplitMode`,`window_behavior_settings_autoPin`,`unPinnedWeight`,`text_display_settings_hyphenation`,`maximizedWindowId`"
+
+
+        val wsNewCols = "`name`,`contentsText`,`id`,`orderNumber`,`text_display_settings_showStrongs`,`text_display_settings_showMorphology`," +
+            "`text_display_settings_showFootNotes`,`text_display_settings_showRedLetters`,`text_display_settings_showSectionTitles`,`text_display_settings_showVerseNumbers`,`text_display_settings_showVersePerLine`," +
+            "`text_display_settings_showBookmarks`,`text_display_settings_showMyNotes`,`text_display_settings_justifyText`,`text_display_settings_lineSpacing`,`text_display_settings_margin_size_marginLeft`," +
+            "`text_display_settings_margin_size_marginRight`,`text_display_settings_margin_size_maxWidth`,`text_display_settings_colors_dayTextColor`," +
+            "`text_display_settings_colors_dayBackground`,`text_display_settings_colors_dayNoise`,`text_display_settings_colors_nightTextColor`,`text_display_settings_colors_nightBackground`," +
+            "`text_display_settings_colors_nightNoise`,`text_display_settings_font_fontSize`,`text_display_settings_font_fontFamily`,`window_behavior_settings_enableTiltToScroll`," +
+            "`window_behavior_settings_enableReverseSplitMode`,`window_behavior_settings_autoPin`,`unPinnedWeight`,`text_display_settings_hyphenation`,`maximizedWindowId`"
+
+
+        val pgOldCols = "`windowId`,`currentCategoryName`,`bible_document`,`bible_verse_versification`,`bible_verse_bibleBook`,`bible_verse_chapterNo`,`bible_verse_verseNo`," +
+            "`commentary_document`,`commentary_currentYOffsetRatio`,`dictionary_document`,`dictionary_key`,`dictionary_currentYOffsetRatio`,`general_book_document`,`general_book_key`," +
+            "`general_book_currentYOffsetRatio`,`map_document`,`map_key`,`map_currentYOffsetRatio`,`text_display_settings_showStrongs`," +
+            "`text_display_settings_showMorphology`,`text_display_settings_showFootNotes`,`text_display_settings_showRedLetters`,`text_display_settings_showSectionTitles`," +
+            "`text_display_settings_showVerseNumbers`,`text_display_settings_showVersePerLine`,`text_display_settings_showBookmarks`,`text_display_settings_showMyNotes`," +
+            "`text_display_settings_margin_size_marginLeft`,`text_display_settings_margin_size_marginRight`,`text_display_settings_colors_dayTextColor`," +
+            "`text_display_settings_colors_dayBackground`,`text_display_settings_colors_dayNoise`,`text_display_settings_colors_nightTextColor`," +
+            "`text_display_settings_colors_nightBackground`,`text_display_settings_colors_nightNoise`,`text_display_settings_justifyText`,`text_display_settings_margin_size_maxWidth`," +
+            "`text_display_settings_font_fontSize`,`text_display_settings_font_fontFamily`,`text_display_settings_font_lineSpacing`,`text_display_settings_hyphenation`"
+
+        val pgNewCols = "`windowId`,`currentCategoryName`,`bible_document`,`bible_verse_versification`,`bible_verse_bibleBook`,`bible_verse_chapterNo`,`bible_verse_verseNo`," +
+            "`commentary_document`,`commentary_currentYOffsetRatio`,`dictionary_document`,`dictionary_key`,`dictionary_currentYOffsetRatio`,`general_book_document`,`general_book_key`," +
+            "`general_book_currentYOffsetRatio`,`map_document`,`map_key`,`map_currentYOffsetRatio`,`text_display_settings_showStrongs`," +
+            "`text_display_settings_showMorphology`,`text_display_settings_showFootNotes`,`text_display_settings_showRedLetters`,`text_display_settings_showSectionTitles`," +
+            "`text_display_settings_showVerseNumbers`,`text_display_settings_showVersePerLine`,`text_display_settings_showBookmarks`,`text_display_settings_showMyNotes`," +
+            "`text_display_settings_margin_size_marginLeft`,`text_display_settings_margin_size_marginRight`,`text_display_settings_colors_dayTextColor`," +
+            "`text_display_settings_colors_dayBackground`,`text_display_settings_colors_dayNoise`,`text_display_settings_colors_nightTextColor`," +
+            "`text_display_settings_colors_nightBackground`,`text_display_settings_colors_nightNoise`,`text_display_settings_justifyText`,`text_display_settings_margin_size_maxWidth`," +
+            "`text_display_settings_font_fontSize`,`text_display_settings_font_fontFamily`,`text_display_settings_lineSpacing`,`text_display_settings_hyphenation`"
+
+        val winNewCols = "workspaceId, isSynchronized, isPinMode, isLinksWindow, window_layout_state, window_layout_weight, id, orderNumber"
+        val winOldCols = "workspaceId, isSynchronized, isSwapMode, isLinksWindow, window_layout_state, window_layout_weight, id, orderNumber"
+        db.apply {
+            execSQL("PRAGMA foreign_keys=OFF;")
+
+            execSQL("ALTER TABLE Window RENAME TO Window_old;")
+            execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("INSERT INTO Window ($winNewCols) SELECT $winOldCols from Window_old;")
+            execSQL("DROP INDEX `index_Window_workspaceId`")
+            execSQL("DROP TABLE Window_old;")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `Window` (`workspaceId`)")
+
+
+            execSQL("ALTER TABLE Workspace RENAME TO Workspace_old;")
+            execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` INTEGER, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT 0, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `window_behavior_settings_autoPin` INTEGER DEFAULT 1)")
+            execSQL("INSERT INTO Workspace ($wsNewCols) SELECT $wsOldCols from Workspace_old;")
+            execSQL("DROP TABLE Workspace_old;")
+
+            execSQL("ALTER TABLE PageManager RENAME TO PageManager_old;")
+            execSQL("CREATE TABLE IF NOT EXISTS `PageManager` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_currentYOffsetRatio` REAL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_currentYOffsetRatio` REAL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_currentYOffsetRatio` REAL, `map_document` TEXT, `map_key` TEXT, `map_currentYOffsetRatio` REAL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("INSERT INTO PageManager ($pgNewCols) SELECT $pgOldCols from PageManager_old;")
+            execSQL("DROP INDEX `index_PageManager_windowId`")
+            execSQL("DROP TABLE PageManager_old;")
+            execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)")
+
+            execSQL("PRAGMA foreign_keys=ON;")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -374,7 +444,8 @@ object DatabaseContainer {
                         MIGRATION_22_23,
                         MIGRATION_23_24,
                         MIGRATION_24_25,
-                        MIGRATION_25_26
+                        MIGRATION_25_26,
+                        MIGRATION_26_27_CLEANUP
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

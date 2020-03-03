@@ -120,7 +120,6 @@ class WorkspaceEntities {
 
     @Serializable
     data class TextDisplaySettings(
-        @ColumnInfo(defaultValue = "NULL", name = "fontSize") var deprecatedFontSize: Int? = null, // TODO: remove
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
         @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
@@ -135,7 +134,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @Embedded(prefix="font_") var font: Font? = null,
-        @ColumnInfo(defaultValue = "NULL", name = "font_lineSpacing" ) var lineSpacing: Int? = null // TODO: rename column
+        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null
     ) {
         enum class Types {
             FONT,
@@ -342,11 +341,9 @@ class WorkspaceEntities {
     data class Window(
         var workspaceId: Long,
         val isSynchronized: Boolean,
-        @ColumnInfo(name="isSwapMode") val isPinMode: Boolean, // TODO: rename column
-        @ColumnInfo(name="wasMinimised") val wasMinimisedDeprecated: Boolean = false, // TODO: drop column
+        val isPinMode: Boolean,
         val isLinksWindow: Boolean,
         @Embedded(prefix="window_layout_") val windowLayout: WindowLayout,
-
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var orderNumber: Int = 0
     )
