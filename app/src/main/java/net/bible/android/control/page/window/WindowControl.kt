@@ -143,7 +143,7 @@ open class WindowControl @Inject constructor(
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        restoreWindow(window)
+        restoreWindow(window, true)
 
         return window
     }

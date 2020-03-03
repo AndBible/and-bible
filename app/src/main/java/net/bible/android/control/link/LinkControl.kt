@@ -235,15 +235,8 @@ class LinkControl @Inject constructor(
     private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
         var document = document
         val currentPageManager = currentPageManager
-        val firstWindow = windowControl.windowRepository.firstVisibleWindow
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
-        if (windowMode == WINDOW_MODE_MAIN) {
-            if (document == null) {
-                document = defaultDocument
-            }
-            windowControl.activeWindow = firstWindow
-            firstWindow.pageManager.setCurrentDocumentAndKey(document, key)
-        } else if (windowMode == WINDOW_MODE_NEW) {
+        if (windowMode == WINDOW_MODE_NEW) {
             if (document == null) {
                 document = defaultDocument
             }
@@ -284,7 +277,6 @@ class LinkControl @Inject constructor(
         const val WINDOW_MODE_THIS = "this"
         const val WINDOW_MODE_SPECIAL = "special"
         const val WINDOW_MODE_NEW = "new"
-        const val WINDOW_MODE_MAIN = "main"
         const val WINDOW_MODE_UNDEFINED = "undefined"
     }
 
