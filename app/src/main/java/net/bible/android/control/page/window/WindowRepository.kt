@@ -175,7 +175,8 @@ open class WindowRepository @Inject constructor(
         newWindow.weight = activeWindow.weight
 
         activeWindow.windowState = WindowState.SPLIT
-        newWindow.isPinMode = windowBehaviorSettings.autoPin
+        if(windowBehaviorSettings.autoPin)
+            newWindow.isPinMode = true
 
         return newWindow
     }
@@ -246,13 +247,8 @@ open class WindowRepository @Inject constructor(
 
     private fun createNewWindow(first: Boolean = false): Window {
         val pageManager = currentPageManagerProvider.get()
-        val winEntity = WorkspaceEntities.Window(
-            id,
-            isSynchronized = true,
-            isPinMode = false,
-            isLinksWindow = false,
-            windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString())
-        ).apply {
+        val winEntity = activeWindow.entity.copy().apply {
+            id = 0
             id = dao.insertWindow(this)
         }
 
