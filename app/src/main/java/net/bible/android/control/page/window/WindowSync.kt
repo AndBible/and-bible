@@ -80,7 +80,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             lastForceSyncAll = System.currentTimeMillis()
         }
 
-        if(isSynchronizableVerseKey(activePage) && (sourceWindow.isSynchronised)) {
+        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
             for (inactiveWindow in inactiveWindowList) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey

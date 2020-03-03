@@ -152,6 +152,8 @@ open class Window (
 
         if(!isVisible) return
 
+        lastUpdated = System.currentTimeMillis()
+
         if(documentViewManager != null) {
             UpdateMainTextTask(documentViewManager).execute(this)
 

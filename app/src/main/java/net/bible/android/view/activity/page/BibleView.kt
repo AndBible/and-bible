@@ -294,7 +294,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
             contentVisible = false
-            lastUpdated = System.currentTimeMillis()
             loadedChapters.clear()
 
             val chapter = jumpToChapterVerse?.chapter
