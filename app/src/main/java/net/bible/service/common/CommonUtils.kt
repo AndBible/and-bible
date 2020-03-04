@@ -46,7 +46,6 @@ import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
-import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateUtils
 import org.crosswire.common.util.IOUtil
@@ -71,7 +70,7 @@ object CommonUtils {
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
-	val JSON_CONFIG = JsonConfiguration(strictMode = false)
+	val JSON_CONFIG = JsonConfiguration(ignoreUnknownKeys = true)
 
     private val TAG = "CommonUtils"
     var isAndroid = true

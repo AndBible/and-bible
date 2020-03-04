@@ -26,7 +26,7 @@ android {
 
 dependencies {
     implementation "androidx.room:room-runtime:$room_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.20.0'
     kapt "androidx.room:room-compiler:$room_version"
 }
 
