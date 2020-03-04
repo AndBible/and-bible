@@ -201,8 +201,10 @@ open class WindowControl @Inject constructor(
             if (windowRepository.windowBehaviorSettings.autoPin)
                 window.isPinMode = true
 
-            for (it in windowRepository.windowList.filter { !it.isPinMode }) {
-                it.windowState = WindowState.MINIMISED
+            if(!window.isPinMode) {
+                for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+                    it.windowState = WindowState.MINIMISED
+                }
             }
 
             window.windowState = WindowState.SPLIT
