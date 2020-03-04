@@ -56,8 +56,14 @@ class WindowTest {
 
         // initialise Window
         var window = Window(
-            WorkspaceEntities.Window(0,true, false, false, false,
-                WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()), 2),
+            WorkspaceEntities.Window(
+                workspaceId = 0,
+                isSynchronized = true,
+                isPinMode = false,
+                isLinksWindow = false,
+                windowLayout = WorkspaceEntities.WindowLayout(WindowState.MINIMISED.toString()),
+                id = 2
+            ),
             mockCurrentPageManager,
             windowRepository
         )

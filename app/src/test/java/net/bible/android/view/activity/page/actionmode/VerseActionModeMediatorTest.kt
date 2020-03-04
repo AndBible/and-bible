@@ -95,8 +95,14 @@ class VerseActionModeMediatorTest {
         // setup actionmode
         verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE)
 
-        val windowEntity = WorkspaceEntities.Window(0,true, false, false, false,
-            WorkspaceEntities.WindowLayout(WindowLayout.WindowState.SPLIT.toString()), 3)
+        val windowEntity = WorkspaceEntities.Window(
+            workspaceId = 0,
+            isSynchronized = true,
+            isPinMode = false,
+            isLinksWindow = false,
+            windowLayout = WorkspaceEntities.WindowLayout(WindowLayout.WindowState.SPLIT.toString()),
+            id = 3
+        )
         // publish window change event
         val windowRepository: WindowRepository = mock()
         ABEventBus.getDefault().post(CurrentWindowChangedEvent(
