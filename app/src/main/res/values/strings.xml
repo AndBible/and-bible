@@ -162,7 +162,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
     <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
     <string name="prefs_text_size_pt_title">Font preferences</string>
-    <string name="prefs_text_size_summary">Adjust text appearance settings, like font family, font size and line spacing.</string>
+    <string name="prefs_text_size_summary">Adjust font family and font size</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
