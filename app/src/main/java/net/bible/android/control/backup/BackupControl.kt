@@ -95,6 +95,7 @@ class BackupControl @Inject constructor() {
             out.close()
             val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
             if(sqlDb.version <= DATABASE_VERSION) {
+                Log.d(TAG, "Loading from backup database with version ${sqlDb.version}")
                 DatabaseContainer.reset()
                 BibleApplication.application.deleteDatabase(DATABASE_NAME)
                 ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
