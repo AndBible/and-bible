@@ -34,9 +34,13 @@ object SharedConstants {
     private const val BACKUP_SUBDIR_NAME = "andbible_backup"
     private const val CSS_SUBDIR_NAME = "css"
 
+    private const val MANUAL_INSTALL_SUBDIR = "jsword"
+    private const val MANUAL_INSTALL_SUBDIR2 = "sword"
+
     val MODULE_DIR = moduleDir
     val MANUAL_INSTALL_DIR = manualInstallDir
-    private const val MANUAL_INSTALL_SUBDIR = "jsword"
+    val MANUAL_INSTALL_DIR2 = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
+
     private const val FONT_SUBDIR_NAME = "fonts"
     val FONT_DIR = File(MODULE_DIR, FONT_SUBDIR_NAME)
     val MANUAL_FONT_DIR = File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME)
@@ -49,8 +53,8 @@ object SharedConstants {
     val MANUAL_CSS_NIGHT_MODE_STYLESHEET = File(MANUAL_CSS_DIR, NIGHT_MODE_STYLESHEET)
     val LINE_SEPARATOR = System.getProperty("line.separator")
 
-    private val moduleDir: File?
-        get() = application.getExternalFilesDir(null)
+    private val moduleDir: File
+        get() = application.getExternalFilesDir(null)!!
 
     private val manualInstallDir: File
         get() {

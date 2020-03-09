@@ -391,8 +391,8 @@ open class SwordContentFacade @Inject constructor(
 				}
 			}
 			// which font, if any
-			osisToHtmlParameters.font = FontControl.getInstance().getFontForBook(book)
-			osisToHtmlParameters.cssClassForCustomFont = FontControl.getInstance().getCssClassForCustomFont(book)
+			osisToHtmlParameters.font = FontControl.instance.getFontForBook(book)
+			osisToHtmlParameters.cssClassForCustomFont = FontControl.instance.getCssClassForCustomFont(book)
 			// indent depth - larger screens have a greater indent
 			osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
 		}
