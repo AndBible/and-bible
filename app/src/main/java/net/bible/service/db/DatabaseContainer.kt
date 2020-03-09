@@ -446,6 +446,8 @@ private val SQUASH_MIGRATION_10_27 = object : Migration(10, 27) {
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `PageManager` (`windowId`)")
 
             execSQL("PRAGMA foreign_keys=ON;")
+
+            execSQL("UPDATE `Window` SET window_layout_state = 'SPLIT' WHERE window_layout_state = 'MAXIMISED'")
         }
     }
 }
