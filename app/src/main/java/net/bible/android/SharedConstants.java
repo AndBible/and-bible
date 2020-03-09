@@ -22,13 +22,15 @@ import java.io.File;
 
 import android.os.Environment;
 
+import net.bible.android.activity.BuildConfig;
+
 /** Not used much yet but need to move the some of the more generic constants here
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class SharedConstants {
 
-	public static final String PACKAGE_NAME = "net.bible.android.activity";
+	public static final String PACKAGE_NAME = BuildConfig.APPLICATION_ID;
     /**
      * Forms storage path
      */
