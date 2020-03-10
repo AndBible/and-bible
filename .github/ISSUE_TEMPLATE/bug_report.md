@@ -4,7 +4,6 @@ about: Create a report to help us improve
 title: ''
 labels: 'Prio: Major, Type: Bug'
 assignees: bvahedy
-milestone: 'v3.3'
 
 ---
 
