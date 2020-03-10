@@ -43,30 +43,7 @@
 		<item>@string/prefs_night_mode_manual</item>
 	</string-array>
 
-	<string-array name="prefs_night_mode_descriptions_noauto">
-		<item>@string/night_mode_disabled</item>
-		<item>@string/night_mode_enabled</item>
-	</string-array>
-	<string-array name="prefs_night_mode_values_noauto">
-		<item>false</item>
-		<item>true</item>
-	</string-array>
-
-	<!-- Split mode: vertical, horizontal, automatic -->
-	<string-array name="prefs_split_mode_descriptions">
-		<item>@string/prefs_split_mode_vertical</item>
-		<item>@string/prefs_split_mode_horizontal</item>
-		<item>@string/prefs_split_mode_automatic</item>
-	</string-array>
-	<string-array name="prefs_split_mode_values">
-		<item>vertical</item>
-		<item>horizontal</item>
-		<item>automatic</item>
-	</string-array>
 	<!-- Screen colors: automatic night mode, day, night -->
-
-    <!-- Split mode: vertical, horizontal, automatic -->
-
 
     <!-- These languages must be in the same order as the language codes below -->
 	<string-array name="prefs_interface_locale_descriptions">

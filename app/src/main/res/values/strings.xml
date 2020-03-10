@@ -48,8 +48,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         Swipe down from toolbar to show workspace selector.
         Long-click window button to quickly minimize.
         Long-click speak toolbar button to quickly go to speak settings.
-        Long-click bible verse location text in toolbar to jump to document selector.
-        Long-click bible/commentary/dictionary quick-switch toolbar buttons to show popup menu of documents of each type.
+        Long-click verse location title in toolbar to jump to document selector.
     </string>
 
     <string name="help_contextmenus_title">Context Menus</string>
@@ -99,7 +98,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rebuild_index">Rebuild index</string>
     <string name="search_in">Find in %s</string>
     <string name="do_in_background">Continue in background</string>
-    <string name="index_finished">Index creation finished</string>
     <string name="rebuild_index_button">Rebuild</string>
 
     <!-- Tasks -->
@@ -146,16 +144,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_section_title_title">Section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
-    <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
     <string name="prefs_night_mode_title">Night mode switching</string>
     <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
     <string name="prefs_night_mode_manual">Manual</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
     <string name="options_menu_night_mode">Night mode</string>
-
-    <string name="night_mode_disabled">Disabled manually</string>
-    <string name="night_mode_enabled">Enabled manually</string>
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
@@ -170,25 +164,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="reset_fontsize">Reset</string>
 
-    <string name="prefs_split_mode_vertical">Vertical</string>
-    <string name="prefs_split_mode_horizontal">Horizontal</string>
-    <string name="prefs_split_mode_automatic">Automatic</string>
-
-    <string name="prefs_split_mode_summary">How to split multiple screens on the window layout?</string>
-    <string name="prefs_split_mode_title">Split mode</string>
-
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
-    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
+    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword/sword folder on internal storage</string>
 
     <string name="all_text_options_window_menutitle">All text options…</string>
     <string name="all_text_options_window_menutitle_alone">Text options…</string>
     <string name="text_options_window_menutitle">Text options</string>
-    <string name="text_options_workspace_menutitle">Text options</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
-    <string name="switch_split_mode">Switch split mode</string>
     <string name="reversed_split_mode">Reversed split mode</string>
-    <string name="prefs_auto_night_mode_title">Automatic night mode</string>
-    <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
 
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
@@ -196,10 +179,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
     <string name="margin_size_mm">Margins left %d mm right %d mm.
         \nMaximum text width: %d mm.</string>
-    <string name="left_margin">Left margin</string>
-    <string name="right_margin">Right margin</string>
-    <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
-    <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
@@ -213,32 +192,24 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="window_text_display_settings_title">Text options - Window %d</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
-    <string name="prefs_apply_all_workspaces_title">Apply to all workspaces</string>
-    <string name="prefs_apply_all_workspaces_summary">Apply current settings to all workspaces</string>
-    <string name="reset_settings">Reset</string>
 
     <string name="prefs_justify_title">Justify-align text</string>
     <string name="prefs_justify_summary">Align text in \'justify\' style, meaning left and right margins of the text are in line</string>
     <string name="pref_left_margin_label">Left margin</string>
     <string name="pref_right_margin_label">Right margin</string>
     <string name="pref_maximum_width_of_text_label">Maximum width of text</string>
-    <string name="pref_line_spacing_label">Line spacing</string>
     <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
     <string name="prefs_hyphenation_title">Hyphenation</string>
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
-
     <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
     <string name="line_spacing_title">Line spacing</string>
     <string name="line_spacing_summary">Set the space between lines</string>
-
     <string name="select_none">Select none</string>
     <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
-
     <string name="window_pinning_menutitle">Window pinning</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
-
     <string name="font_size_title">Font size</string>
 
     <!-- Colors preferences -->
@@ -265,7 +236,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="windowMaximise">Maximise</string>
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
-    <string name="windowMoveFirst">Move first</string>
     <string name="move_window">Move to…</string>
     <string name="move_window_to_position">Position %s</string>
 
@@ -536,11 +506,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup">Backup to…</string>
-    <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
     <string name="restore">Restore from…</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Reading Plans and Workspaces?</string>
     <string name="restore_success">My Notes, Bookmarks, Reading Plans and Workspaces restored successfully</string>
-    <string name="error_no_backup_file">A backup file could not be found</string>
     <string name="loading_backup">Loading database from backup…</string>
 
     <string name="backup_email_subject">And Bible database backup</string>
@@ -609,18 +577,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
 
     <!-- Workspaces -->
-    <string name="workspaces">Workspaces</string>
     <string name="new_workspace">New</string>
     <string name="switch_to_workspace">Workspaces…</string>
     <string name="delete_workspace">Remove</string>
-    <string name="choose_workspace_to_open">Choose workspace to open</string>
     <string name="new_copied_workspace">Copy as new</string>
     <string name="workspace_number">Workspace %d</string>
-    <string name="workspace_name_contents">%s: %s</string>
     <string name="rename_workspace">Rename</string>
-    <string name="rename_workspace_title">Give a name for this workspace</string>
-    <string name="new_workspace_from_dialog">New</string>
-    <string name="delete_workspace_from_dialog">Delete current</string>
     <string name="workspace_selector_title">Select workspace</string>
     <string name="workspace_settings">Settings…</string>
     <string name="give_name_workspace">Give name for new workspace</string>
@@ -632,7 +594,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="copy_settings_title">Which settings do you want to copy?</string>
     <string name="select_all">Select all</string>
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
-
+    <string name="reset_settings">Reset</string>
+    <string name="workspace_dismiss">Dismiss</string>
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
@@ -655,8 +618,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- History -->
     <string name="history_for">History (%s: Window %d)</string>
-    <string name="history_title">History (%s)</string>
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
-    <string name="workspace_dismiss">Dismiss</string>
 </resources>
