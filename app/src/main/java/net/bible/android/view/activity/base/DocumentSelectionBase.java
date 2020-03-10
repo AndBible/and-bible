@@ -429,8 +429,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 									}
 								}
 						)
-						.create()
-						.show();
+					.setNegativeButton(R.string.cancel, null)
+					.create()
+					.show();
 			}
 		}
 	}
@@ -452,8 +453,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 								}
 							}
 					)
-					.create()
-					.show();
+				.setNegativeButton(R.string.cancel, null)
+				.create()
+				.show();
 		}
 	}
 
