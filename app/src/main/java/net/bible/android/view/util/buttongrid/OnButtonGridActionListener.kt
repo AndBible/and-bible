@@ -15,15 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.android.view.util.buttongrid;
-
-import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
+package net.bible.android.view.util.buttongrid
 
 /** Interface to allow call back when a Grid button is pressed
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public interface OnButtonGridActionListener {
-	public void buttonPressed(ButtonInfo buttonInfo);
+interface OnButtonGridActionListener {
+    fun buttonPressed(buttonInfo: ButtonInfo)
 }
