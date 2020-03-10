@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="5dip"
-            android:text="@string/font_size" />
+            android:text="@string/font_size_title" />
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="0dp"

@@ -225,6 +225,21 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="pref_line_spacing_label">Line spacing</string>
     <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
     <string name="pref_font_family_label">Font family</string>
+    <string name="prefs_hyphenation_title">Hyphenation</string>
+    <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
+
+    <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
+    <string name="line_spacing_title">Line spacing</string>
+    <string name="line_spacing_summary">Set the space between lines</string>
+
+    <string name="select_none">Select none</string>
+    <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
+
+    <string name="window_pinning_menutitle">Window pinning</string>
+    <string name="hide_window_buttons_title">Hide window buttons</string>
+    <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
+
+    <string name="font_size_title">Font size</string>
 
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
@@ -644,15 +659,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
     <string name="workspace_dismiss">Dismiss</string>
-    <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
-    <string name="line_spacing_title">Line spacing</string>
-    <string name="line_spacing_summary">Set the space between lines</string>
-    <string name="select_none">Select none</string>
-    <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
-    <string name="window_pinning">Window pinning</string>
-    <string name="prefs_hyphenation_title">Hyphenation</string>
-    <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
-    <string name="hide_window_buttons_title">Hide window buttons</string>
-    <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
-    <string name="font_size">Font size</string>
 </resources>
