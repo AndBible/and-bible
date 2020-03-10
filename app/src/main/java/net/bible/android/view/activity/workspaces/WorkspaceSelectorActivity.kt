@@ -52,6 +52,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.db.DatabaseContainer
+import org.w3c.dom.Text
 import javax.inject.Inject
 
 
@@ -270,8 +271,11 @@ class WorkspaceSelectorActivity: ActivityBase() {
         when(item?.itemId) {
             R.id.settings -> {
                 val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
-                val settings = SettingsBundle(workspaceId = workspaceId, workspaceName = workspace.name,
-                    workspaceSettings = dataSet.find {it.id == workspaceId}!!.textDisplaySettings!!)
+                val settings = SettingsBundle(
+                    workspaceId = workspaceId,
+                    workspaceName = workspace.name,
+                    workspaceSettings = dataSet.find {it.id == workspaceId}!!.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default
+                )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
             }
