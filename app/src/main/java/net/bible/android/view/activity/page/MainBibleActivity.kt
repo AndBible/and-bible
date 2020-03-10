@@ -432,17 +432,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = StrongsPreference(
-                SettingsBundle(
-                    pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
-                    workspaceId = windowRepository.id,
-                    workspaceName = windowRepository.name,
-                    workspaceSettings = windowRepository.textDisplaySettings,
-                    windowId = windowControl.activeWindow.id
-                ))
+            val prefOptions = dummyStrongsPrefOption
             prefOptions.value = !(prefOptions.value == true)
             prefOptions.handle()
             invalidateOptionsMenu()
+            updateStrongsButton()
         }
 
         strongsButton.setOnLongClickListener {
@@ -458,11 +452,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             true
         }
         searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
-        bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
-        commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
         bookmarkButton.setOnClickListener { startActivityForResult(Intent(this, Bookmarks::class.java), STD_REQUEST_CODE) }
-        dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
+
+    private val dummyStrongsPrefOption
+        get() = StrongsPreference(
+            SettingsBundle(
+                pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
+                workspaceId = windowRepository.id,
+                workspaceName = windowRepository.name,
+                workspaceSettings = windowRepository.textDisplaySettings,
+                windowId = windowControl.activeWindow.id
+            ))
+
 
     val workspaces get() = dao.allWorkspaces()
     val windowRepository get() = windowControl.windowRepository
@@ -638,17 +640,26 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             Log.e(TAG, "Key is null, not updating", e)
         }
         documentTitle.text = documentTitleText
+        updateStrongsButton()
     }
 
-    private val titleSplitter = TitleSplitter()
-    private val actionButtonMaxChars = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
+    private fun updateStrongsButton() {
+        if(documentControl.isNewTestament) {
+            strongsButton.setImageResource(R.drawable.ic_strongs_greek)
+        } else {
+            strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
+        }
+        if(dummyStrongsPrefOption.value == false) {
+            strongsButton.alpha = 0.7F
+        } else
+            strongsButton.alpha = 1.0F
+    }
 
     override fun updateActions() {
         updateTitle()
 
         val suggestedBible = documentControl.suggestedBible
         val suggestedCommentary = documentControl.suggestedCommentary
-        val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
         val screenWidth = resources.displayMetrics.widthPixels
@@ -657,23 +668,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
-
         bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
-            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
-            bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+            bibleButton.setOnClickListener { menuForDocs(it, documentControl.biblesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
         commentaryButton.visibility = if (suggestedCommentary != null && visibleButtonCount < maxButtons) {
-            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
-            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+            commentaryButton.setOnClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
         strongsButton.visibility = if (visibleButtonCount < maxButtons && documentControl.isStrongsInBook) {
             visibleButtonCount += 1
+
             View.VISIBLE
         } else View.GONE
 
@@ -713,12 +722,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             p.second()
         }
 
-        dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < maxButtons) {
-            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
-            dictionaryButton.setOnLongClickListener { menuForDocs(it, swordDocumentFacade.getBooks(BookCategory.DICTIONARY)) }
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
         invalidateOptionsMenu()
 
         val btn = navigationView.menu.findItem(R.id.searchButton)

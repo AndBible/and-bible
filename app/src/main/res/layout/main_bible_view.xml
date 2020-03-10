@@ -119,35 +119,33 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/bookmarks"
-                        app:srcCompat="@drawable/ic_collections_bookmark_24dp" />
-                    <Button
+                        app:srcCompat="@drawable/ic_collections_bookmark_24dp"
+                        />
+                    <ImageButton
                         android:id="@+id/strongsButton"
                         style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/prefs_show_strongs_title"
-                        android:text="nnnn"
+                        app:srcCompat="@drawable/ic_strongs_hebrew"
                         />
-                    <Button
+                    <ImageButton
                         android:id="@+id/bibleButton"
                         style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_bible" />
+                        android:contentDescription="@string/doc_type_bible"
+                        app:srcCompat="@drawable/ic_bible"
+                        />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/commentaryButton"
                         style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_commentary" />
-
-                    <Button
-                        android:id="@+id/dictionaryButton"
-                        style="@style/MyActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_dictionary" />
+                        android:contentDescription="@string/doc_type_commentary"
+                        app:srcCompat="@drawable/ic_commentary"
+                        />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>

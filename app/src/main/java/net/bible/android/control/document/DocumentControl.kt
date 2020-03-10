@@ -53,6 +53,8 @@ class DocumentControl @Inject constructor(
         private val windowControl: WindowControl)
 {
 
+    val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
+
     /**
      * Suggest an alternative dictionary to view or return null
      */

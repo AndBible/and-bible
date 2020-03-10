@@ -38,9 +38,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
-        Workspaces allow having context-dependent working environments. Workspace functions
-        can be accessed via options menu (top-right corner). Quick way to access workspaces is
-        by swipe-down gesture from toolbar. You may use swipe-left and swipe-right gestures to
+        Workspaces allow having multiple context-dependent working environments. Workspace functions
+        can be accessed via Workspaces item in options menu (top-right corner). Quick way to access workspaces is
+        by swipe-down gesture from toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
         switch to previous / next workspace.
     </string>
     <string name="help_hidden_features_title">Hidden shortcuts</string>
