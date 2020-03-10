@@ -22,4 +22,21 @@
 		android:gravity="center_horizontal"
 		android:paddingTop="16dip"
 		android:text="@string/empty_list"/>
+
+	<LinearLayout android:id="@+id/button_panel"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:layout_alignParentBottom="true"
+		>
+		<Button android:id="@+id/closeButton"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:text="@string/close"
+			android:onClick="onClose"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"/>
+
+	</LinearLayout>
+
 </LinearLayout>

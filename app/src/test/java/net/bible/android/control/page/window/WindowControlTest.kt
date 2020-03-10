@@ -70,6 +70,8 @@ class WindowControlTest {
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
         reset<EventManager>(eventManager)
+        windowRepository!!.windowBehaviorSettings.autoPin = true
+        windowControl!!.activeWindow.isPinMode = true
     }
 
     @After
@@ -90,7 +92,7 @@ class WindowControlTest {
         val window1 = windowControl!!.activeWindow
 
         val newWindow = windowControl!!.addNewWindow()
-        assertThat(window1, equalTo(windowControl!!.activeWindow))
+        assertThat(newWindow, equalTo(windowControl!!.activeWindow))
 
         windowControl!!.activeWindow = newWindow
         assertThat(newWindow, equalTo(windowControl!!.activeWindow))
@@ -111,7 +113,7 @@ class WindowControlTest {
         val linksWindow = windowRepository!!.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowLayout.state, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
     }
 
@@ -127,7 +129,7 @@ class WindowControlTest {
         val linksWindow = windowRepository!!.dedicatedLinksWindow
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         assertThat(linksWindow.pageManager.currentBible.singleKey, equalTo(PS_139_3 as Key))
-        assertThat(linksWindow.windowLayout.state, equalTo(WindowLayout.WindowState.SPLIT))
+        assertThat(linksWindow.windowState, equalTo(WindowLayout.WindowState.SPLIT))
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
         assertThat(windowControl!!.isActiveWindow(linksWindow), `is`(true))
 
@@ -160,17 +162,12 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testGetMinimisedWindows() {
-        val activeWindow = windowControl!!.activeWindow
         val newWindow1 = windowControl!!.addNewWindow()
         val newWindow2 = windowControl!!.addNewWindow()
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
         assertThat(windowRepository!!.minimisedWindows, contains(newWindow2))
-
-        // A window is maximized, the others should then all be minimized.
-        windowControl!!.maximiseWindow(activeWindow)
-        assertThat<List<Window>>(windowRepository!!.minimisedWindows, containsInAnyOrder(newWindow1, newWindow2))
     }
 
     @Test
@@ -194,51 +191,32 @@ class WindowControlTest {
         verifyZeroInteractions(eventManager)
 
         // test still prevented if links window is visible
-        windowRepository!!.dedicatedLinksWindow.windowLayout.state = WindowState.SPLIT
+        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
         windowControl!!.minimiseWindow(onlyWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(onlyWindow))
         verifyZeroInteractions(eventManager)
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testMaximiseWindow() {
-        val newWindow = windowControl!!.addNewWindow()
-        windowControl!!.activeWindow = newWindow
-        reset<EventManager>(eventManager)
-
-        windowControl!!.maximiseWindow(newWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasItem(newWindow))
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasSize<Any>(1))
-
-        verify<EventManager>(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent::class.java)))
-    }
 
     @Test
     @Throws(Exception::class)
-    fun testMaximiseAndLinksWindow() {
-        val activeWindow = windowControl!!.activeWindow
-        windowControl!!.addNewWindow() // add an extra window for good measure
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-        windowControl!!.activeWindow = activeWindow
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, hasSize<Any>(3))
-        reset<EventManager>(eventManager)
+    fun testMaximiseMinimiseWindows() {
+        // issue #373
 
-        // making window active should remove links window
-        windowControl!!.maximiseWindow(activeWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
+        val window1 = windowControl!!.activeWindow
+        val window2 = windowControl!!.addNewWindow()
+        val window3 = windowControl!!.addNewWindow()
 
-        // showing link should re-display links window despite window being maximised
-        windowControl!!.showLinkUsingDefaultBible(PS_139_3)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow, windowRepository!!.dedicatedLinksWindow))
+        windowControl!!.minimiseWindow(window1)
 
-        // maximise links window should be possible
-        val linksWindow = windowRepository!!.dedicatedLinksWindow
-        windowControl!!.maximiseWindow(linksWindow)
-        assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(linksWindow))
+
+        assertThat(window1.isVisible, equalTo(false))
+        assertThat(window2.isVisible, equalTo(true))
+        assertThat(window3.isVisible, equalTo(true))
+
     }
 
-    @Test
+        @Test
     @Throws(Exception::class)
     fun testCloseWindow() {
         val newWindow = windowControl!!.addNewWindow()
@@ -263,7 +241,7 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testCloseWindowPreventedIfOnlyOtherIsLinks() {
-        windowRepository!!.dedicatedLinksWindow.windowLayout.state = WindowState.SPLIT
+        windowRepository!!.dedicatedLinksWindow.windowState = WindowState.SPLIT
         val onlyNormalWindow = windowRepository!!.activeWindow
         windowControl!!.closeWindow(onlyNormalWindow)
         assertThat(windowRepository!!.windows, hasItem(onlyNormalWindow))
@@ -317,9 +295,7 @@ class WindowControlTest {
     fun createWindowsMenu(): Menu {
         val menu = RoboMenu(RuntimeEnvironment.application)
         menu.add(0, R.id.windowSynchronise, 0, "Synchronise")
-        menu.add(0, R.id.windowMoveFirst, 0, "First")
         menu.add(0, R.id.windowMinimise, 0, "Minimise")
-        menu.add(0, R.id.windowMaximise, 0, "Maximise")
         menu.add(0, R.id.windowClose, 0, "Close")
         return menu
     }

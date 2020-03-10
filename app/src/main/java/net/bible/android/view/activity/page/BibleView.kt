@@ -32,6 +32,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.isVisible
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -48,8 +49,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-import net.bible.android.view.activity.page.screen.DocumentWebViewBuilder
+import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
+import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -67,7 +69,7 @@ import java.lang.ref.WeakReference
  */
 
 class BibleView(val mainBibleActivity: MainBibleActivity,
-                private var windowRef: WeakReference<Window>,
+                internal var windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
@@ -235,13 +237,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun applyFontSize() {
         val fontSize = pageControl.getDocumentFontSize(window)
+        val oldFontSize = settings.defaultFontSize
         settings.defaultFontSize = fontSize
+        settings.standardFontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
+        if(oldFontSize != fontSize) {
+            doCheckWindows()
+        }
     }
 
     /** may need updating depending on environmental brightness
      */
-    override fun changeBackgroundColour() {
-        UiUtils.setBibleViewBackgroundColour(this, ScreenSettings.nightMode)
+    override fun updateBackgroundColor() {
+        setBackgroundColor(backgroundColor)
+    }
+
+    val backgroundColor: Int get() {
+        val colors = window.pageManager.actualTextDisplaySettings.colors
+        return (if(ScreenSettings.nightMode) colors?.nightBackground else colors?.dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
     }
 
     var lastUpdated = 0L
@@ -254,7 +266,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         synchronized(this) {
             var finalHtml = html
             // set background colour if necessary
-            changeBackgroundColour()
+            updateBackgroundColor()
 
             // call this from here because some documents may require an adjusted font size e.g. those using Greek font
             applyFontSize()
@@ -274,7 +286,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     jumpToYOffsetRatio = currentPage.currentYOffsetRatio
                 }
             }
-            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window")
 
             // either enable verse selection or the default text selection
             enableSelection()
@@ -283,7 +294,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
             contentVisible = false
-            lastUpdated = System.currentTimeMillis()
             loadedChapters.clear()
 
             val chapter = jumpToChapterVerse?.chapter
@@ -292,7 +302,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
 
             val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
-            val settingsString = "{jumpToChapterVerse: $jumpId, jumpToYOffsetRatio: $jumpToYOffsetRatio, toolBarOffset: $toolbarOffset}"
+
+            val settingsString = "{jumpToChapterVerse: $jumpId, " +
+                "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
+                "toolBarOffset: $toolbarOffset," +
+                "displaySettings: $displaySettingsJson}"
+
+            val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
+            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window, settings: $settingsString, \n actualSettings: $actualSettingsJson")
 
             finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestHtml = finalHtml
@@ -304,6 +321,35 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 needsUpdate = true
             }
         }
+    }
+
+    fun updateTextDisplaySettings() {
+        updateBackgroundColor()
+        applyFontSize()
+        executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
+    }
+
+    private val displaySettingsJson: String get() {
+        val colors = window.pageManager.actualTextDisplaySettings.colors!!
+        val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
+        val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
+        val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
+        val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+        val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
+        val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
+        val hyphenation = window.pageManager.actualTextDisplaySettings.hyphenation!!
+        val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
+        val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
+
+        return "{marginLeft: $marginLeft, " +
+            "marginRight: $marginRight, " +
+            "maxWidth: $maxWidth, " +
+            "textColor: '$textColorStr', " +
+            "noiseOpacity: $noise, " +
+            "justifyText: $justifyText, " +
+            "hyphenation: $hyphenation, " +
+            "lineSpacing: $lineSpacing" +
+            "}"
     }
 
     private fun loadHtml() {
@@ -337,10 +383,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var contentVisible = false
 
+    val swipeToChangeChapter get() = CommonUtils.sharedPreferences.getBoolean("swipe_to_change_chapter", true)
 
     /** prevent swipe right if the user is scrolling the page right  */
     override val isPageNextOkay: Boolean get () {
         var isOkay = true
+        if(window.pageManager.isBibleShown && !swipeToChangeChapter) return false
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
             val isAtRightEdge = scrollX >= maxHorizontalScroll
@@ -356,6 +404,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** prevent swipe left if the user is scrolling the page left  */
     override val isPagePreviousOkay: Boolean get () {
         var isOkay = true
+        if(window.pageManager.isBibleShown && !swipeToChangeChapter) return false
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
             val isAtLeftEdge = scrollX == 0
@@ -483,7 +532,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (window.id == event.updateWindowId) {
             Log.d(TAG, "UpdateSecondaryWindowEvent")
 
-            changeBackgroundColour()
+            updateBackgroundColor()
             show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
         }
     }
@@ -510,13 +559,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset);")
     }
 
-    fun onEvent(event: DocumentWebViewBuilder.WebViewsBuiltEvent) {
+    fun onEvent(event: WebViewsBuiltEvent) {
         checkWindows = true
     }
 
     val isTopWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
-            || (windowControl.windowRepository.isMaximisedState && !window.isLinksWindow)
 
     val toolbarOffset
         get() =
@@ -561,7 +609,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pauseTiltScroll()
     }
 
-    fun onEventMainThread(event: DocumentWebViewBuilder.AfterRemoveWebViewEvent) {
+    fun onEventMainThread(event: AfterRemoveWebViewEvent) {
         if(toBeDestroyed)
             doDestroy()
     }
@@ -574,6 +622,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             // may have returned from MyNote view
             resumeTiltScroll()
+        }
+        if(contentVisible) {
+            updateTextDisplaySettings()
         }
     }
 
@@ -650,7 +701,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             when (itemId) {
                 R.id.open_link_in_special_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
                 R.id.open_link_in_new_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
-                R.id.open_link_in_main_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_MAIN)
                 R.id.open_link_in_this_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
             }
             targetView.linkControl.loadApplicationUrl(targetLink)
@@ -726,7 +776,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var onDestroy: (() -> Unit)? = null
 
-    private val TAG get() = "BibleView[${window.id}]"
+    private val TAG get() = "BibleView[${windowRef.get()?.id}]"
 
     companion object {
         // never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so

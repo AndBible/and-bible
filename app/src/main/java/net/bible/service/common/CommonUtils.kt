@@ -29,14 +29,18 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
-import android.preference.PreferenceManager
 
 import android.util.Log
+import androidx.preference.PreferenceManager
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.json
 
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -66,7 +70,7 @@ object CommonUtils {
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
-	val JSON_CONFIG = JsonConfiguration(strictMode = false)
+	val JSON_CONFIG = JsonConfiguration(ignoreUnknownKeys = true)
 
     private val TAG = "CommonUtils"
     var isAndroid = true
@@ -454,5 +458,40 @@ object CommonUtils {
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
         System.exit(2)
     }
+
+    val lastDisplaySettings: List<WorkspaceEntities.TextDisplaySettings.Types> get() {
+        val lastDisplaySettingsString = sharedPreferences.getString("lastDisplaySettings", null)
+        var lastTypes = mutableListOf<WorkspaceEntities.TextDisplaySettings.Types>()
+        if(lastDisplaySettingsString!= null) {
+            try {
+                lastTypes = LastTypesSerializer.fromJson(lastDisplaySettingsString).types
+            } catch (e: SerializationException) {
+                Log.e(TAG, "Could not deserialize $lastDisplaySettingsString")
+            }
+        }
+        return lastTypes
+    }
+
+    fun displaySettingChanged(type: WorkspaceEntities.TextDisplaySettings.Types) {
+        val lastTypes = lastDisplaySettings.toMutableList()
+        lastTypes.remove(type)
+        while (lastTypes.size >= 5) {
+            lastTypes.removeAt(lastTypes.size-1)
+        }
+        lastTypes.add(0, type)
+        sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
+    }
 }
 
+@Serializable
+data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisplaySettings.Types>) {
+    fun toJson(): String {
+        return json.stringify(serializer(), this)
+    }
+
+    companion object {
+        fun fromJson(jsonString: String): LastTypesSerializer {
+            return json.parse(serializer(), jsonString)
+        }
+    }
+}

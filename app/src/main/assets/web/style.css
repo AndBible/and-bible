@@ -1,17 +1,46 @@
 /* colours:  http://www.w3schools.com/css/css_colornames.asp 
 */
 
+:root {
+    --noise-opacity: 0.0;
+    --text-color: #000000;
+    --max-width: 170mm;
+    --text-align: left;
+    --line-spacing: 1em;
+    --hyphens: auto;
+}
+
 body {
-	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
 	margin: auto;
 	padding-bottom: 100vh;
 	padding-left: 2vw;
 	padding-right: 2vw;
-	max-width: 17cm;
-	/*hyphens: auto;
-	-webkit-hyphens: auto; */
-	/*text-align: justify;*/
+
+    display: block;
+    position: relative;
+	line-height: var(--line-spacing);
+    color: var(--text-color);
+}
+
+body:after {
+    content: "";
+    opacity: 0.0;
+    opacity: var(--noise-opacity);
+    background-image: url(noise.svg);
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+div#content {
+	max-width: var(--max-width);
+	display: inline-block;
+	text-align: var(--text-align);
+	hyphens: var(--hyphens);
 }
 
 h1, .heading1 {
@@ -65,7 +94,6 @@ h1 a, .heading2, .heading3, .heading4 {
 	color: Gray;
 	vertical-align: top;
 	font-size: 0.7em;
-	line-height: 1.6em; /* need line-height repeated here because otherwise the verse no drops to the bottom */
 }
 .noteRef {
 	color: Green;

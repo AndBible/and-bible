@@ -18,7 +18,6 @@
 
 package net.bible.android.view.util
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.ActionBar
@@ -64,9 +63,12 @@ object UiUtils {
         }
     }
 
-    fun setBibleViewBackgroundColour(bibleView: View, nightMode: Boolean) {
-        bibleView.setBackgroundColor(if (nightMode) BIBLEVIEW_BACKGROUND_NIGHT else BIBLEVIEW_BACKGROUND_DAY)
-    }
+    val bibleViewDefaultBackgroundColor: Int
+        get() {
+            val nightColor = BIBLEVIEW_BACKGROUND_NIGHT
+            val dayColor = BIBLEVIEW_BACKGROUND_DAY
+            return if (ScreenSettings.nightMode) nightColor else dayColor
+        }
 
     fun getThemeBackgroundColour(context: Context): Int {
         val a = TypedValue()
@@ -80,6 +82,13 @@ object UiUtils {
             backgroundColour
         }
     }
+
+    val bibleViewDefaultTextColour: Int
+        get() {
+            val nightColor = BIBLEVIEW_TEXT_NIGHT
+            val dayColor = BIBLEVIEW_TEXT_DAY
+            return if (ScreenSettings.nightMode) nightColor else dayColor
+        }
 
     fun getThemeTextColour(context: Context): Int {
         val a = TypedValue()

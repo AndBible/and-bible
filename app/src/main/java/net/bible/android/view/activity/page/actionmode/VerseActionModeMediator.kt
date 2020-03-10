@@ -35,7 +35,6 @@ import net.bible.android.view.activity.page.ChapterVerseRange
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import java.lang.ref.WeakReference
 
 /**
  * Control the verse selection action mode

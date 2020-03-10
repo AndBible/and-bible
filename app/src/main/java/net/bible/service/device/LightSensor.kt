@@ -61,11 +61,11 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
         }
     }
 
-    val myLightListener: SensorEventListener = object : SensorEventListener {
+    private val myLightListener: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
                 mReading = sensorEvent.values[0]
-				Log.d(TAG, "Reading: $mReading")
+				// Log.d(TAG, "Reading: $mReading")
 				callBack(mReading)
             }
         }

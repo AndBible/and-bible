@@ -77,23 +77,7 @@ open class CurrentPageManager @Inject constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() {
-            val win = textDisplaySettings
-            val ws = windowRepository.textDisplaySettings
-            val def = WorkspaceEntities.TextDisplaySettings.default
-            return WorkspaceEntities.TextDisplaySettings(
-                win.fontSize?: ws.fontSize?: def.fontSize,
-                win.showStrongs?: ws.showStrongs?: def.showStrongs,
-                win.showMorphology?: ws.showMorphology?: def.showMorphology,
-                win.showFootNotes?: ws.showFootNotes?: def.showFootNotes,
-                win.showRedLetters?: ws.showRedLetters?: def.showRedLetters,
-                win.showSectionTitles?: ws.showSectionTitles?: def.showSectionTitles,
-                win.showVerseNumbers?: ws.showVerseNumbers?: def.showVerseNumbers,
-                win.showVersePerLine?: ws.showVersePerLine?: def.showVersePerLine,
-                win.showBookmarks?: ws.showBookmarks?: def.showBookmarks,
-                win.showMyNotes?: ws.showMyNotes?: def.showMyNotes
-            )
-        }
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowRepository.textDisplaySettings)
 
     lateinit var window: Window
 
@@ -233,24 +217,32 @@ open class CurrentPageManager @Inject constructor(
     val entity get() =
         WorkspaceEntities.PageManager(
             window.id,
-            currentBible.entity,
-            currentCommentary.entity,
-            currentDictionary.pageEntity,
-            currentGeneralBook.pageEntity,
-            currentMap.pageEntity,
+            currentBible.entity.copy(),
+            currentCommentary.entity.copy(),
+            currentDictionary.pageEntity.copy(),
+            currentGeneralBook.pageEntity.copy(),
+            currentMap.pageEntity.copy(),
             currentPage.bookCategory.getName(),
-            textDisplaySettings
+            textDisplaySettings.copy()
         )
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
+
+        // Order between these two following lines is critical!
+        // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
         currentBible.restoreFrom(pageManagerEntity.biblePage)
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
-        textDisplaySettings = pageManagerEntity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings()
+        val settings = pageManagerEntity.textDisplaySettings
+        if(workspaceDisplaySettings != null) {
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+            textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+        }
         currentPage = getBookPage(restoredBookCategory)
     }
 

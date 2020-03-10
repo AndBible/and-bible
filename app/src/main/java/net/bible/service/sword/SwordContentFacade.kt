@@ -359,7 +359,7 @@ open class SwordContentFacade @Inject constructor(
             osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
             val preferences = sharedPreferences
 			// prefs applying to any doc type
-			osisToHtmlParameters.isShowNotes = textDisplaySettings.showMyNotes!!
+			osisToHtmlParameters.isShowNotes = textDisplaySettings.showFootNotes!!
 			osisToHtmlParameters.isRedLetter = textDisplaySettings.showRedLetters!!
 			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
 			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
@@ -368,7 +368,7 @@ open class SwordContentFacade @Inject constructor(
 				osisToHtmlParameters.isVersePerline = textDisplaySettings.showVersePerLine!!
 				osisToHtmlParameters.isShowMyNotes = textDisplaySettings.showMyNotes!!
 				osisToHtmlParameters.isShowBookmarks = textDisplaySettings.showBookmarks!!
-				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)))
+				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!))
 				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
 				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
 				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
@@ -391,8 +391,8 @@ open class SwordContentFacade @Inject constructor(
 				}
 			}
 			// which font, if any
-			osisToHtmlParameters.font = FontControl.getInstance().getFontForBook(book)
-			osisToHtmlParameters.cssClassForCustomFont = FontControl.getInstance().getCssClassForCustomFont(book)
+			osisToHtmlParameters.font = FontControl.instance.getFontForBook(book)
+			osisToHtmlParameters.cssClassForCustomFont = FontControl.instance.getCssClassForCustomFont(book)
 			// indent depth - larger screens have a greater indent
 			osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
 		}

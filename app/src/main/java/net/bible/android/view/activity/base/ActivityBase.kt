@@ -22,13 +22,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 
 import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper
@@ -57,9 +57,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open var nightTheme = R.style.AppThemeNight
-    protected open var dayTheme = R.style.AppThemeDay
-
+    protected open val nightTheme = R.style.AppThemeNight
+    protected open val dayTheme = R.style.AppThemeDay
+    protected open val customTheme = true
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -69,9 +69,22 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     fun applyTheme() {
         if (ScreenSettings.nightMode) {
-            setTheme(nightTheme)
+            if(customTheme)
+                setTheme(nightTheme)
+            if(ScreenSettings.manualMode) {
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+                }
+            }
         } else {
-            setTheme(dayTheme)
+            if(customTheme)
+                setTheme(dayTheme)
+            if(ScreenSettings.manualMode) {
+                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                }
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {

@@ -1,0 +1,29 @@
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:tint="@color/grey_500"
+    android:height="24dp"
+    android:viewportWidth="50"
+    android:viewportHeight="50">
+  <path
+      android:pathData="m3.1799,44.2396c1.7688,-2.3804 5.6649,-7.6228 8.658,-11.6498 2.9931,-4.027 5.5038,-7.3218 5.5793,-7.3218 0.0755,0 1.4783,1.3438 3.1173,2.9861l2.98,2.9861 -11.5417,8.5834C5.6249,44.5445 0.326,48.4432 0.1975,48.4873 0.069,48.5315 1.4111,46.62 3.1799,44.2396ZM22.9413,28.2018 L13.3568,18.6154 14.5583,17.6613c2.661,-2.113 5.7734,-3.0448 9.471,-2.8354l2.2645,0.1282 3.0721,-5.6655c1.6896,-3.116 3.3181,-5.931 3.6188,-6.2554 0.7365,-0.7947 2.2516,-1.4533 3.3431,-1.4533 1.741,0 2.6683,0.675 7.4529,5.4251 2.6525,2.6333 4.817,4.9794 5.1958,5.6316 1.0999,1.8938 0.7924,4.2186 -0.7482,5.656 -0.303,0.2827 -3.1045,1.9053 -6.2257,3.6057l-5.6748,3.0917 0.0739,2.7659c0.0665,2.4902 0.0151,2.9507 -0.5157,4.6197 -0.5525,1.7372 -2.5552,5.1464 -3.1359,5.3384 -0.1234,0.0408 -4.5373,-4.2397 -9.8088,-9.5123z"
+      android:strokeWidth="0.2235653"
+      android:fillColor="@color/black"/>
+</vector>

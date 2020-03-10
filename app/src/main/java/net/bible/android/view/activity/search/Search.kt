@@ -51,7 +51,7 @@ import javax.inject.Inject
 class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
-
+    override val customTheme: Boolean = false
     private lateinit var currentBookName: String
 
     @Inject lateinit var searchControl: SearchControl
@@ -104,6 +104,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         if (!searchControl.validateIndex(documentToSearch)) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred) { finish() }
         }
+
+        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
 
         searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
             // If the event is a key-down event on the "enter" button
@@ -167,6 +169,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         return false
     }
+
+    fun onRebuildIndex(v: View?) {
+        startActivity(Intent(this, SearchIndex::class.java))
+        finish()
+    }
+
+    fun onCancel(v: View?) = finish()
 
     fun onSearch(v: View?) {
         Log.i(TAG, "CLICKED")

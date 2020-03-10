@@ -32,7 +32,6 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 
 
@@ -46,7 +45,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
 
     init {
 
-        setSingleLine(false)
+        isSingleLine = false
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT
@@ -104,13 +103,13 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     override fun applyPreferenceSettings() {
-        changeBackgroundColour()
+        updateBackgroundColor()
 
-        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.fontSize!!
+        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font!!.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 
-    override fun changeBackgroundColour() {
+    override fun updateBackgroundColor() {
         if (ScreenSettings.nightMode) {
             setBackgroundColor(Color.BLACK)
             setTextColor(Color.WHITE)

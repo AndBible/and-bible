@@ -40,7 +40,7 @@ interface DocumentView {
 
     /** may need updating depending on environmental brightness
      */
-    fun changeBackgroundColour()
+    fun updateBackgroundColor()
 
     // allow stop/start of autoscroll
     fun onScreenTurnedOn()

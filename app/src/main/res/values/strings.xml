@@ -38,10 +38,18 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     </string>
     <string name="help_workspaces_title">Workspaces</string>
     <string name="help_workspaces_text">
-        Workspaces allow having ontext-dependent working environments. Workspace functions
+        Workspaces allow having context-dependent working environments. Workspace functions
         can be accessed via options menu (top-right corner). Quick way to access workspaces is
         by swipe-down gesture from toolbar. You may use swipe-left and swipe-right gestures to
         switch to previous / next workspace.
+    </string>
+    <string name="help_hidden_features_title">Hidden shortcuts</string>
+    <string name="help_hidden_features_text">
+        Swipe down from toolbar to show workspace selector.
+        Long-click window button to quickly minimize.
+        Long-click speak toolbar button to quickly go to speak settings.
+        Long-click bible verse location text in toolbar to jump to document selector.
+        Long-click bible/commentary/dictionary quick-switch toolbar buttons to show popup menu of documents of each type.
     </string>
 
     <string name="help_contextmenus_title">Context Menus</string>
@@ -59,11 +67,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Application preferences</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
     <string name="other">Other</string>
+    <string name="help_and_tips">Help &amp; tips</string>
 
     <string name="administration">Administration</string>
 
@@ -80,12 +89,18 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!--  Search -->
     <string name="search_index">Search Index</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
-    <string name="search_index_unavailable">Unfortunately index creation is only available on Android 5.0 (Lollipop) and newer.</string>
+    <string name="create_index_for">An index is required to search. \n\nCreate index for %s?</string>
+    <string name="rebuild_index_for">Rebuild index for %s?</string>
+    <string name="search_index_unavailable">Unfortunately index creation is only available on Android 5.0 (Lollipop) and newer. Downloaded indices are available only for limited set of modules. </string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index_download">Download</string>
     <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
     <string name="rebuild_index">Rebuild index</string>
+    <string name="search_in">Find in %s</string>
+    <string name="do_in_background">Continue in background</string>
+    <string name="index_finished">Index creation finished</string>
+    <string name="rebuild_index_button">Rebuild</string>
 
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -107,6 +122,18 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_executing_search">Invalid search query</string>
 
     <!-- Preferences -->
+    <string name="prefs_show_verseno_summary">Show verse numbers</string>
+    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
+    <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
+
+    <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
+    <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
+    <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
+    <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
+    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
+    <string name="prefs_red_letter_summary">Show words of Christ in red</string>
+    <string name="prefs_text_size_title">Font preferences</string>
+
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
@@ -120,18 +147,22 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
     <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
-    <string name="prefs_night_mode_title">Night mode</string>
-    <string name="prefs_night_mode_summary">For easier reading in the dark</string>
+    <string name="prefs_night_mode_title">Night mode switching</string>
+    <string name="prefs_night_mode_summary">Whether to switch to night mode automatically (if device supports), manually or via system setting (Android 10+).</string>
+    <string name="prefs_night_mode_manual">Manual</string>
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_night_mode_system">System</string>
+    <string name="options_menu_night_mode">Night mode</string>
+
+    <string name="night_mode_disabled">Disabled manually</string>
+    <string name="night_mode_enabled">Enabled manually</string>
 
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
     <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
-    <string name="prefs_text_size_title">Text font size</string>
-    <string name="prefs_text_size_menuitem">Change font size (%d pt)</string>
-    <string name="prefs_text_size_summary">See more or see more clearly</string>
+    <string name="prefs_text_size_pt_title">Font preferences</string>
+    <string name="prefs_text_size_summary">Adjust font family and font size</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
     <string name="prefs_screen_keep_on_title">Keep screen on</string>
     <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
@@ -147,14 +178,86 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_split_mode_title">Split mode</string>
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
-    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
+    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on internal storage</string>
 
-    <string name="text_options">Text options (window)</string>
+    <string name="all_text_options_window_menutitle">All text options…</string>
+    <string name="all_text_options_window_menutitle_alone">Text options…</string>
+    <string name="text_options_window_menutitle">Text options</string>
+    <string name="text_options_workspace_menutitle">Text options</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
     <string name="switch_split_mode">Switch split mode</string>
     <string name="reversed_split_mode">Reversed split mode</string>
     <string name="prefs_auto_night_mode_title">Automatic night mode</string>
     <string name="prefs_auto_night_mode_summary">Switch to night mode automatically by sensor</string>
+
+    <string name="font_size_pt">%d pt</string>
+    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
+    <string name="prefs_margin_size_title">Change margin size</string>
+    <string name="prefs_margin_size_mm_title">Margin size (%d/%d/%d mm)</string>
+    <string name="margin_size_mm">Margins left %d mm right %d mm.
+        \nMaximum text width: %d mm.</string>
+    <string name="left_margin">Left margin</string>
+    <string name="right_margin">Right margin</string>
+    <string name="pref_swipe_to_change_chapter_title">Swipe to change chapter</string>
+    <string name="pref_swipe_to_change_chapter_summary">Swipe left/right to change chapter in bibles</string>
+    <string name="prefs_advanced_settings_cat">Advanced settings</string>
+    <string name="prefs_display_customization_cat">Look &amp; feel</string>
+    <string name="prefs_behavior_customization_cat">Application behavior</string>
+
+    <string name="prefs_margin_size_summary">Adjust left and right margin of the text view. You can also
+        adjust maximum width of the text.
+    </string>
+    <string name="prefs_text_colors_summary">Adjust text and background colors and noise effect</string>
+    <string name="text_display_settings_activity_title">Text display settings</string>
+    <string name="workspace_text_display_settings_title">Text options - %s</string>
+    <string name="window_text_display_settings_title">Text options - Window %d</string>
+    <string name="prefs_text_display_settings_title">Formatting</string>
+    <string name="prefs_text_appearance_title">Appearance</string>
+    <string name="prefs_apply_all_workspaces_title">Apply to all workspaces</string>
+    <string name="prefs_apply_all_workspaces_summary">Apply current settings to all workspaces</string>
+    <string name="reset_settings">Reset</string>
+
+    <string name="prefs_justify_title">Justify-align text</string>
+    <string name="prefs_justify_summary">Align text in \'justify\' style, meaning left and right margins of the text are in line</string>
+    <string name="pref_left_margin_label">Left margin</string>
+    <string name="pref_right_margin_label">Right margin</string>
+    <string name="pref_maximum_width_of_text_label">Maximum width of text</string>
+    <string name="pref_line_spacing_label">Line spacing</string>
+    <string name="prefs_line_spacing_pt">Line spacing %1.1fx</string>
+    <string name="pref_font_family_label">Font family</string>
+    <string name="prefs_hyphenation_title">Hyphenation</string>
+    <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
+
+    <string name="prefs_line_spacing_pt_title">Line spacing (%1.1fx)</string>
+    <string name="line_spacing_title">Line spacing</string>
+    <string name="line_spacing_summary">Set the space between lines</string>
+
+    <string name="select_none">Select none</string>
+    <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
+
+    <string name="window_pinning_menutitle">Window pinning</string>
+    <string name="hide_window_buttons_title">Hide window buttons</string>
+    <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
+
+    <string name="font_size_title">Font size</string>
+
+    <!-- Colors preferences -->
+    <string name="prefs_text_colors_menutitle">Color settings</string>
+    <string name="window_color_settings_title">Window color settings</string>
+    <string name="workspace_color_settings_title">Workspace color setting defaults</string>
+
+    <string name="color_text">Text color</string>
+    <string name="color_background">Background color</string>
+    <string name="colors_day_mode_title">Day mode</string>
+    <string name="colors_night_mode_title">Night mode</string>
+    <string name="prefs_noise_title">Background noise</string>
+    <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
+
+    <string name="cpv_default_title">Select a Color</string>
+    <string name="cpv_presets">Presets</string>
+    <string name="cpv_custom">Custom</string>
+    <string name="cpv_select">Select</string>
+    <string name="cpv_transparency">Transparency</string>
 
     <!-- Window -->
     <string name="new_window">New window</string>
@@ -163,7 +266,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
     <string name="windowMoveFirst">Move first</string>
-    
+    <string name="move_window">Move to…</string>
+    <string name="move_window_to_position">Position %s</string>
+
     <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
     <string name="no_verse_notes">No notes exist in this verse</string>
@@ -198,8 +303,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_module">Install Bible Module</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
-    <string name="extracting_zip_file">Extracting Zip file now...</string>
-    <string name="checking_zip_file">Checking given file...</string>
+    <string name="extracting_zip_file">Extracting Zip file now…</string>
+    <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
     <string name="module_already_installed">File contains a module that is already installed</string>
     <string name="install_zip_title">Please wait. Loading Zip file.</string>
@@ -208,7 +313,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
-    <string name="rdg_plan_set_start_date">Set Start Date...</string>
+    <string name="rdg_plan_set_start_date">Set Start Date…</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
@@ -269,7 +374,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Link context menu -->
     <string name="open_link_in_this_window">Open link here</string>
     <string name="open_link_in_new_window">Open link in new window</string>
-    <string name="open_link_in_main_window">Open link in main window</string>
     <string name="open_link_in_special_window">Open link in special window</string>
 
     <!-- Bookmarks -->
@@ -449,14 +553,22 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="send_backup_file">Send a backup file</string>
 
     <!-- Bug reporting -->
-    <string name="send_bug_report_title">Report a bug…</string>
+    <string name="send_bug_report_title">Report a bug</string>
     <string name="report_bug_email_subject">Bug report for And Bible %s</string>
     <string name="report_bug_email_message">
-        Please use this function to report as soon as you have noticed it taking place.\n
-        \n
+        --- WRITE BUG REPORT ABOVE THIS LINE ---\n
+        Instructions:\n
         Tell us briefly what did you do / what happened when issue
-        took place: \n
+        took place. Example: \n
         \n
+        1. Opened app\n
+        2. Clicked window menu\n
+         -> Crash\n
+        \n
+        Sometimes screenshot also is beneficial in resolving issues.
+        Please use this function to report as soon as you have noticed it taking place.
+        You can also use this function after opening app, after crash has taken place.
+        \n\n
         Device info: \n
         %s</string>
 
@@ -486,6 +598,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
+    <string name="error_occurred_with_link">An error has occurred. %s</string>
     <string name="error_no_content">No content for selected verse</string>
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
@@ -497,19 +610,29 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- Workspaces -->
     <string name="workspaces">Workspaces</string>
-    <string name="new_workspace">New workspace</string>
-    <string name="switch_to_workspace">Switch to workspace…</string>
-    <string name="delete_workspace">Delete this workspace</string>
+    <string name="new_workspace">New</string>
+    <string name="switch_to_workspace">Workspaces…</string>
+    <string name="delete_workspace">Remove</string>
     <string name="choose_workspace_to_open">Choose workspace to open</string>
-    <string name="new_copied_workspace">Copy this workspace as new</string>
+    <string name="new_copied_workspace">Copy as new</string>
     <string name="workspace_number">Workspace %d</string>
     <string name="workspace_name_contents">%s: %s</string>
-    <string name="rename_workspace">Rename workspace …</string>
+    <string name="rename_workspace">Rename</string>
     <string name="rename_workspace_title">Give a name for this workspace</string>
     <string name="new_workspace_from_dialog">New</string>
     <string name="delete_workspace_from_dialog">Delete current</string>
-    <string name="history_title">History (%s)</string>
-    <string name="workspace_text_options">Text options (workspace)</string>
+    <string name="workspace_selector_title">Select workspace</string>
+    <string name="workspace_settings">Settings…</string>
+    <string name="give_name_workspace">Give name for new workspace</string>
+    <string name="save_and_exit">Save</string>
+    <string name="current_workspace">current</string>
+    <string name="workspace_save_changes">Apply changes to workspaces?</string>
+    <string name="copy_of_workspace">Copy of %s</string>
+    <string name="copy_workspace_settings">Copy settings…</string>
+    <string name="copy_settings_title">Which settings do you want to copy?</string>
+    <string name="select_all">Select all</string>
+    <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
+
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
@@ -529,6 +652,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="beta_notice_github">Github</string>
     <string name="beta_notice_dismiss">Dismiss</string>
     <string name="beta_notice_dismiss_until_update">Dismiss until next update</string>
-    <string name="font_size_pt">%d pt</string>
-    <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text</string>
+
+    <!-- History -->
+    <string name="history_for">History (%s: Window %d)</string>
+    <string name="history_title">History (%s)</string>
+    <string name="window_pin_mode">Pin</string>
+    <string name="close">Close</string>
+    <string name="workspace_dismiss">Dismiss</string>
 </resources>

@@ -24,6 +24,7 @@ import net.bible.service.common.CommonUtils
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
 import org.jetbrains.anko.configuration
@@ -61,10 +62,14 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-    val systemModeAvailable = false // Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    const val systemModeAvailable = true
 
     private val autoNightMode	get() =
-        autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
+        autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
+    val manualMode: Boolean get() =
+        preferences.getString("night_mode_pref3", "manual") == "manual"
+    private val systemMode: Boolean get() =
+        systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor
 
@@ -85,17 +90,19 @@ object ScreenSettings {
 	val nightMode: Boolean get() =
         if (autoNightMode)
             lastNightMode
-        else if(systemModeAvailable)
-            when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+        else if(systemMode)
+            when(config.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> true
                 Configuration.UI_MODE_NIGHT_NO -> false
                 else -> false
             }
-        else
-            preferences.getString("night_mode_pref2", "false") == "true"
+        else // manual mode
+            preferences.getBoolean("night_mode_pref", false)
 
     fun setLastNightMode(value: Boolean) {
         if(autoNightMode)
             lastNightMode = value
     }
+
+    private val config get() = BibleApplication.application.configuration
 }

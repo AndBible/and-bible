@@ -16,27 +16,36 @@
 
 	<!-- Screen colors: automatic night mode, day, night -->
 	<string-array name="prefs_night_mode_descriptions">
-		<item>@string/no</item>
-		<item>@string/yes</item>
+		<item>@string/prefs_night_mode_manual</item>
 		<item>@string/prefs_night_mode_automatic</item>
 	</string-array>
-	<string-array name="prefs_night_mode_values_noyes">
-		<item>false</item>
+	<string-array name="prefs_night_mode_values_system_auto_manual">
+		<item>system</item>
 		<item>automatic</item>
+		<item>manual</item>
+	</string-array>
+	<string-array name="prefs_night_mode_values_system_manual">
+		<item>system</item>
+		<item>manual</item>
 	</string-array>
 
 	<string-array name="prefs_night_mode_values">
-		<item>false</item>
-		<item>true</item>
+		<item>manual</item>
 		<item>automatic</item>
 	</string-array>
-	<string-array name="prefs_night_mode_descriptions_noyes">
+	<string-array name="prefs_night_mode_descriptions_system_auto_manual">
 		<item>@string/prefs_night_mode_system</item>
 		<item>@string/prefs_night_mode_automatic</item>
+		<item>@string/prefs_night_mode_manual</item>
 	</string-array>
+	<string-array name="prefs_night_mode_descriptions_system_manual">
+		<item>@string/prefs_night_mode_system</item>
+		<item>@string/prefs_night_mode_manual</item>
+	</string-array>
+
 	<string-array name="prefs_night_mode_descriptions_noauto">
-		<item>@string/no</item>
-		<item>@string/yes</item>
+		<item>@string/night_mode_disabled</item>
+		<item>@string/night_mode_enabled</item>
 	</string-array>
 	<string-array name="prefs_night_mode_values_noauto">
 		<item>false</item>

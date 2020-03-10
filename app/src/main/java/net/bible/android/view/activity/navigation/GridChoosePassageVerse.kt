@@ -27,7 +27,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
-import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo
+import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 
 import org.crosswire.jsword.passage.Verse

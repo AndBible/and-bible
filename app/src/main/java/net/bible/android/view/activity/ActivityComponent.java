@@ -43,12 +43,15 @@ import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchIndexProgressStatus;
 import net.bible.android.view.activity.search.SearchResults;
+import net.bible.android.view.activity.settings.ColorSettingsActivity;
+import net.bible.android.view.activity.settings.TextDisplaySettingsActivity;
 import net.bible.android.view.activity.speak.GeneralSpeakActivity;
 import net.bible.android.view.activity.speak.BibleSpeakActivity;
 
 import dagger.Component;
 
 import net.bible.android.view.activity.speak.SpeakSettingsActivity;
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity;
 import net.bible.android.view.util.widget.SpeakTransportWidget;
 import net.bible.service.device.speak.TextToSpeechNotificationManager;
 
@@ -64,6 +67,10 @@ public interface ActivityComponent {
 
 	// don't like this but inject is called from ActivityBase and the subclasses
 	void inject(ActivityBase activityBase);
+	void inject(TextDisplaySettingsActivity activity);
+
+	void inject(ColorSettingsActivity colorSettings);
+	void inject(WorkspaceSelectorActivity activity);
 
 	void inject(StartupActivity startupActivity);
 

@@ -32,15 +32,33 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
+class WindowChangedEvent(val window: Window)
 
 open class Window (
     window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository
 ){
+    var weight: Float
+        get() =
+            if(!isPinMode) {
+                if(windowRepository.unPinnedWeight == null) {
+                    windowRepository.unPinnedWeight = windowLayout.weight
+                }
+                windowRepository.unPinnedWeight!!
+            }
+            else windowLayout.weight
+        set(value) {
+            if(!isPinMode)
+                windowRepository.unPinnedWeight = value
+            else
+                windowLayout.weight = value
+        }
 
-    val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+
     var id = window.id
+
     protected var workspaceId = window.workspaceId
 
     init {
@@ -49,36 +67,60 @@ open class Window (
     }
 
     val entity get () =
-        WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
-            WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight), id
+        WorkspaceEntities.Window(
+            workspaceId = workspaceId,
+            isSynchronized = isSynchronised,
+            isPinMode = isPinMode,
+            isLinksWindow = isLinksWindow,
+            windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
+            id = id
         )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
     open var isSynchronised = window.isSynchronized
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
 
-    var wasMinimised = window.wasMinimised
+    var isPinMode: Boolean = window.isPinMode
+        get() {
+            if(windowRepository.windowBehaviorSettings.autoPin) {
+                return true
+            } else {
+                return field
+            }
+        }
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
+
+    val isMinimised: Boolean
+        get() = windowLayout.state == WindowState.MINIMISED
+
+    val isSplit: Boolean
+        get() = windowLayout.state == WindowState.SPLIT
 
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
 
-    var isMaximised: Boolean
-        get() = windowLayout.state == WindowState.MAXIMISED
-        set(maximise) = if (maximise) {
-            windowLayout.state = WindowState.MAXIMISED
-        } else {
-            windowLayout.state = WindowState.SPLIT
+    var windowState: WindowState
+        get() = windowLayout.state
+        set(value) {
+            windowLayout.state = value
         }
 
     val isVisible: Boolean
-        get() = windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
+        get() =
+            if(!isLinksWindow && windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    // if window is maximised then default operation is always to unmaximise
     val defaultOperation: WindowOperation
         get() = when {
-            isMaximised -> WindowOperation.MAXIMISE
             isLinksWindow -> WindowOperation.CLOSE
             else -> WindowOperation.MINIMISE
         }
@@ -92,7 +134,7 @@ open class Window (
     }
 
     enum class WindowOperation {
-        MAXIMISE, MINIMISE, RESTORE, CLOSE
+        MINIMISE, RESTORE, CLOSE
     }
 
     override fun toString(): String {
@@ -116,6 +158,8 @@ open class Window (
         Log.d(TAG, "updateText, isVisible: $isVisible, stack: $stackMessage")
 
         if(!isVisible) return
+
+        lastUpdated = System.currentTimeMillis()
 
         if(documentViewManager != null) {
             UpdateMainTextTask(documentViewManager).execute(this)

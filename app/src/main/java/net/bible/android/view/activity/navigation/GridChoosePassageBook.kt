@@ -33,7 +33,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager
 import net.bible.android.view.util.buttongrid.ButtonGrid
-import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo
+import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 

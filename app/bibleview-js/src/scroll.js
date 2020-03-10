@@ -87,8 +87,36 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset} = {}) {
-    console.log("setupContent", jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset);
+export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor, noiseOpacity, lineSpacing, justifyText, hyphenation} = {}, doNotReCalc = false) {
+
+    $(":root")
+        .css("--max-width", `${maxWidth}mm`)
+        .css("--text-color", textColor)
+        .css("--hyphens", hyphenation ? "auto": "none")
+        .css("--noise-opacity", noiseOpacity/100)
+        .css("--line-spacing", `${lineSpacing/10}em`)
+        .css("--text-align", justifyText? "justify" : "left");
+
+    $("#content")
+        .css('margin-left', `${marginLeft}mm`)
+        .css('margin-right', `${marginRight}mm`)
+        .css("max-width", `${maxWidth}mm`)
+        .css("hyphens", hyphenation ? "auto": "none")
+        .css("text-align", justifyText? "justify" : "left");
+
+    $("body")
+        .css("color", textColor)
+        .css("line-height", `${lineSpacing/10}em`);
+
+    if(!doNotReCalc) {
+        registerVersePositions()
+    }
+}
+
+
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
+    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${displaySettings}`);
+    setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
     if(jumpToChapterVerse != null) {

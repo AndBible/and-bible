@@ -91,4 +91,48 @@ class WindowSynchronisationTest {
         Thread.sleep(500)
         assertThat(window2.pageManager.currentBible.currentChapterVerse, equalTo(newChapterVerse))
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testWindowSyncInMaxMode() { // old max mode is in practive new normal mode with no pinned windows
+        // Issue #371 and #536
+
+        val window0 = windowControl!!.activeWindow
+        val window1 = windowControl!!.addNewWindow()
+        val window2 = windowControl!!.addNewWindow().apply { isSynchronised = false }
+        val window3 = windowControl!!.addNewWindow().apply { isSynchronised = true }
+        val (chapter, verse) = window3.pageManager.currentBible.currentChapterVerse
+
+        windowControl!!.restoreWindow(window0)
+        Thread.sleep(100)
+        val secondNewChapterVerse = ChapterVerse(chapter, 12)
+        window0.pageManager.currentBible.currentChapterVerse = secondNewChapterVerse
+        assertThat(window2.isVisible, equalTo(false))
+        assertThat(window3.isVisible, equalTo(false))
+        assertThat(window1.isVisible, equalTo(false))
+        assertThat(window0.pageManager.currentBible.currentChapterVerse, equalTo(secondNewChapterVerse))
+
+        windowControl!!.restoreWindow(window1)
+        Thread.sleep(100)
+        assertThat(window0.isVisible, equalTo(false))
+        assertThat(window2.isVisible, equalTo(false))
+        assertThat(window3.isVisible, equalTo(false))
+        assertThat(window1.pageManager.currentBible.currentChapterVerse, equalTo(secondNewChapterVerse))
+
+        windowControl!!.restoreWindow(window2)
+        Thread.sleep(100)
+        assertThat(window0.isVisible, equalTo(false))
+        assertThat(window3.isVisible, equalTo(false))
+        assertThat(window1.isVisible, equalTo(false))
+        assertThat(window2.pageManager.currentBible.currentChapterVerse, not(equalTo(secondNewChapterVerse)))
+
+        windowControl!!.restoreWindow(window3)
+        Thread.sleep(100)
+        assertThat(window0.isVisible, equalTo(false))
+        assertThat(window2.isVisible, equalTo(false))
+        assertThat(window1.isVisible, equalTo(false))
+        assertThat(window3.isVisible, equalTo(true))
+        assertThat(window3.pageManager.currentBible.currentChapterVerse, equalTo(secondNewChapterVerse))
+
+    }
 }

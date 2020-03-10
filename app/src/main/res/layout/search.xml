@@ -3,14 +3,17 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+
 	<EditText android:id="@+id/searchText" 
 		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent" 
+		android:layout_width="match_parent"
+		app:layout_constraintTop_toTopOf="parent"
+
 		android:layout_alignParentTop="true"
 		android:padding="10dip"/>
 	
@@ -19,6 +22,7 @@
     	android:orientation="horizontal"
 	    android:layout_width="match_parent"
     	android:layout_height="wrap_content"
+		app:layout_constraintTop_toBottomOf="@id/searchText"
 		android:layout_below="@+id/searchText">
 		
 		<RadioGroup android:id="@+id/bibleSectionGroup" 
@@ -77,29 +81,42 @@
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
-	    android:layout_width="fill_parent"
+	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_alignParentBottom="true"
+		app:layout_constraintTop_toBottomOf="@id/centreAreaContainer"
 	    android:orientation="horizontal">
 	    <!-- Left spacer -->
+		<Button android:id="@+id/cancel"
+			android:text="@string/cancel"
+			android:layout_width="0dip"
+			android:layout_height="match_parent"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:onClick="onCancel"
+			android:layout_weight="2"
+			/>
+
+
+		<Button android:id="@+id/rebuildIndex"
+			android:text="@string/rebuild_index"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:onClick="onRebuildIndex"
+			android:layout_weight="2"
+			/>
+
 	    <View
 	        android:layout_width="0dip"
-	        android:layout_height="fill_parent"
+	        android:layout_height="match_parent"
 	        android:layout_weight="1"/>
 	
 	 	<Button android:id="@+id/submit"
  			android:text="@string/search"
 	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="2"
+	        android:layout_height="match_parent"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:layout_weight="2"
 			android:onClick="onSearch"/>
-
-	    <!-- Right spacer -->
-	    <View
-	        android:layout_width="0dip"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
-	    />
 	</LinearLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -131,9 +131,11 @@ open class CurrentCommentaryPage internal constructor(
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {
             Log.d(TAG, "Restored document:" + book.name)
-            // bypass setter to avoid automatic notifications
-            localSetCurrentDocument(book)
-            // allow Bible page to restore shared verse
+            // bypass setter to avoid automatic notifications.
+            // Also let's not use localSetCurrentDocument, because we don't want to set the verse.
+            // It is already set correctly when CurrentBiblePage is restored.
+            // Otherwise versification will be messed up!
+            onlySetCurrentDocument(book)
         }
         currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
     }

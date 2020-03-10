@@ -63,7 +63,14 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     fun synchronizeWindows(sourceWindow_: Window? = null) {
         ABEventBus.getDefault().post(IncrementBusyCount())
-        val sourceWindow = sourceWindow_?: windowRepository.activeWindow
+
+        // if maximized mode and current active window is not in sync, then get previous window that was in sync
+        val sourceWindow: Window = sourceWindow_ ?:
+            if (windowRepository.lastSyncWindowId != null
+                && !windowRepository.activeWindow.isSynchronised)
+                windowRepository.lastSyncWindow!!
+            else windowRepository.activeWindow
+
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
 
@@ -73,7 +80,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             lastForceSyncAll = System.currentTimeMillis()
         }
 
-        if(isSynchronizableVerseKey(activePage) && (sourceWindow.isSynchronised)) {
+        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
             for (inactiveWindow in inactiveWindowList) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey

@@ -19,6 +19,7 @@ package net.bible.android.control.page
 
 import android.util.Log
 import android.view.Menu
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
@@ -127,7 +128,11 @@ abstract class CurrentPageBase protected constructor(
             htmlText
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
-            format(R.string.error_occurred, asFragment)
+            val app = BibleApplication.application
+            val reportBug = app.getString(R.string.send_bug_report_title)
+            val link = "<a href='report://'>${reportBug}</a>."
+            val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
+            format(string)
         }
     }
 
@@ -191,6 +196,10 @@ abstract class CurrentPageBase protected constructor(
     }
 
     protected open fun localSetCurrentDocument(doc: Book?) {
+        _currentDocument = doc
+    }
+
+    fun onlySetCurrentDocument(doc: Book?) {
         _currentDocument = doc
     }
 

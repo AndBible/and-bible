@@ -5,32 +5,9 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	>
-    <item
-		android:id="@+id/workspacesSubMenu"
-        android:title="@string/workspaces">
-        <menu>
-            <item android:id="@+id/switchToWorkspace"
-                android:title="@string/switch_to_workspace"
-				/>
-			<item android:id="@+id/newWorkspace"
-                android:title="@string/new_workspace"
-				/>
-			<item android:id="@+id/cloneWorkspace"
-                android:title="@string/new_copied_workspace"
-				/>
-			<item android:id="@+id/deleteWorkspace"
-                android:title="@string/delete_workspace"
-				/>
-			<item android:id="@+id/renameWorkspace"
-                android:title="@string/rename_workspace"
-				/>
-        </menu>
-    </item>
-	<item
-		android:id="@+id/textOptionsSubMenu"
-		android:title="@string/workspace_text_options">
-		<menu/>
-	</item>
+	<item android:id="@+id/switchToWorkspace"
+		android:title="@string/switch_to_workspace"
+		/>
 
 	<item android:id="@+id/tiltToScroll"
 		android:title="@string/prefs_tilt_to_scroll_title"
@@ -42,9 +19,25 @@
 		android:checkable="true"
 		/>
 
-	<item android:id="@+id/nightMode"
-		android:title="@string/prefs_night_mode_title"
+	<item android:id="@+id/autoPinMode"
+		android:title="@string/window_pinning_menutitle"
 		android:checkable="true"
 		/>
+
+	<item android:id="@+id/nightMode"
+		android:title="@string/options_menu_night_mode"
+		android:checkable="true"
+		/>
+
+	<group
+		android:id="@+id/textOptionsGroup"
+		>
+		<item
+			android:id="@+id/allTextOptions"
+			android:icon="@drawable/ic_text_format_white_24dp"
+			android:title="@string/all_text_options_window_menutitle"
+			android:orderInCategory="1000"
+			/>
+	</group>
 
 </menu>
