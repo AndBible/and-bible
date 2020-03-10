@@ -36,6 +36,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="history">Historique</string>
   <string name="speak">Lecture audio</string>
   <string name="help">Aide</string>
+  <string name="other">Autre</string>
   <string name="administration">Gérer</string>
   <string name="rate_application">Laisser un avis sur Google Play</string>
   <string name="chooce_document">Ouvrir un document</string>
@@ -349,14 +350,24 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="error_no_backup_file">Aucun fichier de sauvegarde n\'a été trouvé</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
   <string name="backup_email_subject">Sauvegarde de la base de données de And Bible</string>
-  <string name="backup_email_message">Votre base de données And Bible comprenant Notes, Signets, Plans de lecture et Espaces est ci-jointe.</string>
+  <string name="backup_email_message">Veuillez trouver ci-jointe la base de données And Bible comprenant vos Notes, Signets, Plans de lecture et Espaces.</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
   <!--About-->
   <string name="about_copyright">Droits d\'auteur: %s</string>
   <string name="about_version">Version: %s</string>
   <string name="about_versification">Versification: %s</string>
+  <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Rapporter un bogue...</string>
+  <string name="report_bug_email_subject">Rapport de bogue pour And Bible %s</string>
+  <string name="report_bug_email_message">
+Merci d\'utiliser cette fonction pour rapporter le bogue de préférence immédiatement après l\'avoir constaté.\n
+\n
+Décrivez nous brièvement les étapes à suivre dans lesquelles le comportement incorrect est survenu et les étapes permettant de reproduire ce problème.\n
+\n
+Device info: \n
+%s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Commentaire</string>

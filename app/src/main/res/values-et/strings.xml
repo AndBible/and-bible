@@ -40,6 +40,7 @@
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
+  <string name="other">Muu</string>
   <string name="administration">Haldamine</string>
   <string name="rate_application">Hinda ja kirjuta ülevaade Google Play poes</string>
   <string name="chooce_document">Vali dokument</string>
@@ -92,6 +93,7 @@
   <string name="prefs_night_mode_title">Öörežiim</string>
   <string name="prefs_night_mode_summary">Kergemaks lugemiseks öösel</string>
   <string name="prefs_night_mode_automatic">Automaatne</string>
+  <string name="prefs_night_mode_system">Süsteem</string>
   <string name="prefs_navigate_to_verse_title">Salmi juurde liikumine</string>
   <string name="prefs_navigate_to_verse_summary">Tekstiosa valides vali salm (ja peatükk)</string>
   <string name="prefs_open_links_in_special_window_title">Ava lingid eraldi aknas</string>
@@ -158,6 +160,7 @@
   <string name="rdg_plan_title">Lugemiskava</string>
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
   <string name="rdg_plan_day">Päev %s</string>
+  <string name="rdg_plan_set_start_date">Määra alguse kuupäev...</string>
   <string name="done">Valmis</string>
   <string name="reset">Nulli</string>
   <!--Document context menu-->
@@ -340,10 +343,12 @@
   <string name="yes">Jah</string>
   <string name="no">Ei</string>
   <string name="error">Viga </string>
+  <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Muuda</string>
   <string name="watch_tutorial_video">Vaata videoõpetust (inglise keeles)</string>
+  <string name="verse_not_found">Salmi ei leitud</string>
   <!--Errors-->
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>
@@ -355,5 +360,10 @@
   <string name="notification_channel_tts_status">Tekst kõneks</string>
   <string name="notification_channel_progress_status">Edenemise teavitus näiteks dokumentide allalaadimisel jms.</string>
   <!--Workspaces-->
+  <string name="new_workspace_from_dialog">Uus</string>
+  <string name="delete_workspace_from_dialog">Kustuta praegune</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">See on beeta versioon!</string>
+  <string name="beta_notice_github_issues">Githubi probleemid</string>
+  <string name="beta_notice_github">Github</string>
 </resources>

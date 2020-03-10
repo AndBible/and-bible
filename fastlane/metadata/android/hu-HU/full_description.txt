@@ -1,0 +1,16 @@
+Olvasd vagy hallgasd a Bibliát, magyarázatokat, keresztény szótárakat és könyveket, (off-line) akár hol vagy.
+
+* Offline Bibliák, kommentárok, szótárak, térképek és keresztény könyvek több mint 50 nyelven
+* Magyar, kínai, orosz, német, francia, cseh, lengyel, héber, hindi...
+* Teljesen ingyenes, offline, nyílt forráskódú, reklám és email mentes.
+* Több mint 40 angol biblia fordítás. Többek között ESV, KJV és NET
+* 29 bibliai magyarázat
+* Szótárak és keresztény könyvek gyűjteménye
+* Strong szómagyarázat elõsegíti a görög és héber szavak tanulmányozását
+* Személyes jegyzetek írása
+* A felhasználói felület több mint 25 nyelvre le van fordítva
+* Rugalmas kereső
+* Könyvjelzõk
+* Bibliai térképek
+* Bármely dokumentum felolvasásának lehetősége
+* A CrossWire által fejlesztett erőteljes JSword motorra támaszkodik.
