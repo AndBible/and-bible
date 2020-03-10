@@ -68,10 +68,11 @@ class WindowButtonWidget(
         pinMode.visibility =
             if(!windowControl.windowRepository.windowBehaviorSettings.autoPin
                 && window?.isPinMode == true
-                && !isMaximised)
+                && !isMaximised
+            )
                 View.VISIBLE
-        else
-            View.GONE
+            else
+                View.GONE
     }
 
     private fun updateBackground() {
