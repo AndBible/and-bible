@@ -86,6 +86,13 @@ open class Window (
         }
 
     var isPinMode: Boolean = window.isPinMode
+        get() {
+            if(windowRepository.windowBehaviorSettings.autoPin) {
+                return true
+            } else {
+                return field
+            }
+        }
         set(value) {
             field = value
             ABEventBus.getDefault().post(WindowChangedEvent(this))

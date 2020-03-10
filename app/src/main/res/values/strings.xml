@@ -649,7 +649,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="line_spacing_summary">Set the space between lines</string>
     <string name="select_none">Select none</string>
     <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
-    <string name="auto_pin_mode">Auto-pin windows</string>
+    <string name="window_pinning">Window pinning</string>
     <string name="prefs_hyphenation_title">Hyphenation</string>
     <string name="prefs_hyphenation_summary">Automatically hyphenate words, if language is supported</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>

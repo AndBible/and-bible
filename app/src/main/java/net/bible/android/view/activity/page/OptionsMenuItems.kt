@@ -336,14 +336,18 @@ class SplitModePreference :
     override val visible: Boolean get() = super.visible && mainBibleActivity.windowControl.isMultiWindow
 }
 
-class AutoPinModePreference :
+class WindowPinningPreference :
     GeneralPreference() {
     private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
     override var value: Any
-        get() = wsBehaviorSettings.autoPin
+        get() = !wsBehaviorSettings.autoPin
         set(value) {
-            wsBehaviorSettings.autoPin = value == true
+            wsBehaviorSettings.autoPin = value == false
         }
+
+    override fun handle() {
+        mainBibleActivity.windowControl.windowSizesChanged()
+    }
 
     override val isBoolean = true
 }

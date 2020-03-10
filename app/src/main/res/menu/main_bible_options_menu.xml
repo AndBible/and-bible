@@ -20,7 +20,7 @@
 		/>
 
 	<item android:id="@+id/autoPinMode"
-		android:title="@string/auto_pin_mode"
+		android:title="@string/window_pinning"
 		android:checkable="true"
 		/>
 

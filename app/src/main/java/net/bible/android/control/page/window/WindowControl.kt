@@ -198,8 +198,6 @@ open class WindowControl @Inject constructor(
         } else {
             if (window == activeWindow) return
             window.restoreOngoing = true
-            if (windowRepository.windowBehaviorSettings.autoPin)
-                window.isPinMode = true
 
             if(!window.isPinMode) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
