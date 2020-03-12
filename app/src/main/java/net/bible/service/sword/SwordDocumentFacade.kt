@@ -127,11 +127,12 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
             repoBookDeduplicator.addAll(repoFactory.andBibleRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.ibtRepo.getRepoBooks(refresh))
+            repoBookDeduplicator.addAll(repoFactory.IBTRepo.getRepoBooks(refresh))
             repoBookDeduplicator.addAll(repoFactory.crosswireRepo.getRepoBooks(refresh))
             repoBookDeduplicator.addAll(repoFactory.eBibleRepo.getRepoBooks(refresh))
             // beta repo must never override live books especially if later version so use addIfNotExists
             repoBookDeduplicator.addIfNotExists(repoFactory.betaRepo.getRepoBooks(refresh))
+            repoBookDeduplicator.addAll(repoFactory.lockmanRepo.getRepoBooks(refresh))
             val bookList = repoBookDeduplicator.books
             // get them in the correct order
             Collections.sort(bookList)

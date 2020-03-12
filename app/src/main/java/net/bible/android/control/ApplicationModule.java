@@ -46,7 +46,7 @@ public class ApplicationModule {
 	@Provides
 	@ApplicationScope
 	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade, RepoFactory repoFactory) {
-		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor(), repoFactory), repoFactory, FontControl.Companion.getInstance(), swordDocumentFacade);
+		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), repoFactory, FontControl.Companion.getInstance(), swordDocumentFacade);
 	}
 
 	@Provides
