@@ -37,18 +37,14 @@ open class RepoFactory @Inject constructor() {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))
     }
 
-    private fun getRepo(repoName: String): RepoBase {
-        val repoForBook: RepoBase
-        repoForBook = when {
-            crosswireRepo.repoName == repoName -> crosswireRepo
-            andBibleRepo.repoName == repoName -> andBibleRepo
-            betaRepo.repoName == repoName -> betaRepo
-            IBTRepo.repoName == repoName -> IBTRepo
-            eBibleRepo.repoName == repoName -> eBibleRepo
-            lockmanRepo.repoName == repoName -> lockmanRepo
+    private fun getRepo(repoName: String): RepoBase =
+        when (repoName){
+            crosswireRepo.repoName -> crosswireRepo
+            andBibleRepo.repoName -> andBibleRepo
+            betaRepo.repoName -> betaRepo
+            IBTRepo.repoName -> IBTRepo
+            eBibleRepo.repoName -> eBibleRepo
+            lockmanRepo.repoName -> lockmanRepo
             else -> crosswireRepo
         }
-        return repoForBook
-    }
-
 }
