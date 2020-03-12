@@ -75,16 +75,6 @@ class AndBibleRepo : RepoBase() {
 
     override val repoName: String get() = REPOSITORY
 
-    /**
-     * Download the index of the specified document
-     */
-    @Throws(InstallException::class, BookException::class)
-    fun downloadIndex(document: Book?) {
-        val downloadManager = DownloadManager()
-        downloadManager.installIndex(repoName, document)
-    }
-
-
     companion object {
         private const val REPOSITORY = "AndBible"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
