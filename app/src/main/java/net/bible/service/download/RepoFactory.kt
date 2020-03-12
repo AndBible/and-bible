@@ -45,7 +45,7 @@ class RepoFactory @Inject constructor() {
             betaRepo.repoName == repoName -> betaRepo
             IBTRepo.repoName == repoName -> IBTRepo
             eBibleRepo.repoName == repoName -> eBibleRepo
-            eBibleRepo.repoName == repoName -> lockmanRepo
+            lockmanRepo.repoName == repoName -> lockmanRepo
             else -> crosswireRepo
         }
         return repoForBook
