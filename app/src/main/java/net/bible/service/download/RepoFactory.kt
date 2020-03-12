@@ -25,7 +25,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class RepoFactory @Inject constructor() {
+open class RepoFactory @Inject constructor() {
     val crosswireRepo = CrosswireRepo()
     val betaRepo = BetaRepo()
     val andBibleRepo = AndBibleRepo()
