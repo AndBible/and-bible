@@ -23,13 +23,10 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Logger;
-import net.bible.service.download.AndBibleRepo;
 import net.bible.service.download.RepoBase;
 import net.bible.service.download.RepoFactory;
 
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.install.InstallException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +41,6 @@ import java.util.concurrent.ExecutorService;
 public class DownloadQueue {
 
 	private final ExecutorService executorService;
-	private final RepoFactory repoFactory;
 
 	private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
 
@@ -52,9 +48,8 @@ public class DownloadQueue {
 
 	private Logger log = new Logger(this.getClass().getSimpleName());
 
-	public DownloadQueue(ExecutorService executorService, RepoFactory repoFactory) {
+	public DownloadQueue(ExecutorService executorService) {
 		this.executorService = executorService;
-		this.repoFactory = repoFactory;
 	}
 
 	public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
@@ -84,21 +79,6 @@ public class DownloadQueue {
 		ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
 		downloadError.add(document.getInitials());
 		Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
-	}
-
-	public void addDocumentIndexToDownloadQueue(final Book document) {
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				log.info("Downloading index of " + document.getInitials() + " from AndBible repo");
-				try {
-					final AndBibleRepo andBibleRepo = repoFactory.getAndBibleRepo();
-					andBibleRepo.downloadIndex(document);
-				} catch (InstallException | BookException e) {
-					Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
-				}
-			}
-		});
 	}
 
 	public boolean isInQueue(Book document) {

@@ -158,7 +158,9 @@ public class SwordDocumentFacade {
 
 			// beta repo must never override live books especially if later version so use addIfNotExists
 			repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
-	
+
+			repoBookDeduplicator.addIfNotExists(repoFactory.getLockmanRepo().getRepoBooks(refresh));
+
 	        List<Book> bookList = repoBookDeduplicator.getBooks();
 	
 	        // get them in the correct order
