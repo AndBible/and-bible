@@ -472,7 +472,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 		String about = document.getBookMetaData().getProperty("About");
 		if (about!=null) {
 			// either process the odd formatting chars in about 
-			about = about.replace("\\pard", "\n");
+			about = about.replace("\\pard", "");
 			about = about.replace("\\par", "\n");
 		} else {
 			// or default to name if there is no About
