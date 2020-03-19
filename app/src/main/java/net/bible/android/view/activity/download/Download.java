@@ -175,7 +175,7 @@ public class Download extends DocumentSelectionBase {
 
 	private void showTooManyJobsDialog() {
 		Log.i(TAG, "Too many jobs:"+JobManager.getJobCount());
-		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs);
+		Dialogs.Companion.getInstance().showErrorMsg(R.string.too_many_jobs);
 	}
 
     protected void manageDownload(final Book documentToDownload) {

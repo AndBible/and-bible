@@ -102,7 +102,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred) { finish() }
+            Dialogs.instance.showErrorMsg(R.string.error_occurred) { finish() }
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)

@@ -1029,7 +1029,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     CurrentActivityHolder.getInstance().currentActivity = this
-                    Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
+                    Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)

@@ -121,10 +121,10 @@ class BackupControl @Inject constructor() {
         if (ok) {
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
             Log.d(TAG, "Restored database successfully")
-            Dialogs.getInstance().showMsg(R.string.restore_success)
+            Dialogs.instance.showMsg(R.string.restore_success)
         } else {
             Log.e(TAG, "Error restoring database")
-            Dialogs.getInstance().showErrorMsg(R.string.restore_unsuccessfull)
+            Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
         }
         f.delete()
         return ok
@@ -224,9 +224,9 @@ class BackupControl @Inject constructor() {
             val zipFile = File(internalDbBackupDir, fileName)
             val books = selectModules(callingActivity) ?: return@withContext
 
-            Dialogs.getInstance().showHourglass()
+            Dialogs.instance.showHourglass()
             createZip(books, zipFile)
-            Dialogs.getInstance().dismissHourglass()
+            Dialogs.instance.dismissHourglass()
 
             val modulesString = books.joinToString(", ") { it.abbreviation }
             val subject = getString(R.string.backup_modules_email_subject)

@@ -22,11 +22,16 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.sdCardMegsFree
 import java.io.BufferedReader
@@ -42,7 +47,9 @@ import javax.inject.Inject
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
     fun sendErrorReportEmail(e: Exception? = null) {
-		reportBug(exception = e)
+		GlobalScope.launch {
+            reportBug(exception = e)
+        }
     }
 
     private fun createErrorText(exception: Exception?) = try {
@@ -81,50 +88,53 @@ class ErrorReportControl @Inject constructor() {
         return e.message
     }
 
-	fun reportBug(context_: Context? = null, exception: Exception? = null) {
+	suspend fun reportBug(context_: Context? = null, exception: Exception? = null) {
 		val context = context_?: CurrentActivityHolder.getInstance().currentActivity
+        val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
+        val f = File(dir, "logcat.txt.gz")
+        Dialogs.instance.showHourglass()
+        withContext(Dispatchers.IO) {
+            val log=StringBuilder()
+            try {
+                val process = Runtime.getRuntime().exec("logcat -d -t 10000")
+                val bufferedReader = BufferedReader(
+                    InputStreamReader(process.inputStream))
 
-		val log=StringBuilder()
-		try {
-			val process = Runtime.getRuntime().exec("logcat -d -t 10000")
-			val bufferedReader = BufferedReader(
-				InputStreamReader(process.inputStream))
+                var line = bufferedReader.readLine()
+                while (line != null)
+                {
+                    log.append(line + '\n');
+                    line = bufferedReader.readLine()
+                }
+            } catch (e: IOException) {}
 
-			var line = bufferedReader.readLine()
-			while (line != null)
-			{
-				log.append(line + '\n');
-				line = bufferedReader.readLine()
-			}
-		} catch (e: IOException) {}
+            dir.mkdirs()
 
+            val fOut = FileOutputStream(f)
+            val osw = GZIPOutputStream(fOut)
 
-		val subject = context.getString(R.string.report_bug_email_subject, getSubject(exception))
-		val message = context.getString(R.string.report_bug_email_message, createErrorText(exception))
+            osw.write(log.toString().toByteArray());
+            osw.flush()
+            osw.close()
+        }
+        Dialogs.instance.dismissHourglass()
 
-		val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
-		dir.mkdirs()
+        withContext(Dispatchers.Main) {
+            val subject = context.getString(R.string.report_bug_email_subject, getSubject(exception))
+            val message = context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
-		val f = File(dir, "logcat.txt.gz")
-
-		val fOut = FileOutputStream(f)
-		val osw = GZIPOutputStream(fOut)
-
-		osw.write(log.toString().toByteArray());
-		osw.flush()
-		osw.close()
-
-		val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)
-		val email = Intent(Intent.ACTION_SEND).apply {
-			putExtra(Intent.EXTRA_STREAM, uri)
-			putExtra(Intent.EXTRA_SUBJECT, subject)
-			putExtra(Intent.EXTRA_TEXT, message)
-			putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
-			type = "application/x-gzip"
-		}
-		val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
-		chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-		context.startActivity(chooserIntent)
+            val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)
+            val email = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, message)
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
+                type = "application/x-gzip"
+            }
+            val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))
+            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            context.startActivity(chooserIntent)
+        }
 	}
 
 }

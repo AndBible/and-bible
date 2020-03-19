@@ -69,7 +69,7 @@ public class DownloadManager {
 	        
 	        if (installer==null) {
 				log.error("Error getting installer for repo "+repo);
-				Dialogs.getInstance().showErrorMsg(R.string.error_occurred, new Exception("Error getting installer for repo "+repo));
+				Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, new Exception("Error getting installer for repo "+repo));
 				documents = Collections.emptyList();
 	        } else {
 		        // Now we can get the list of books
@@ -137,7 +137,7 @@ public class DownloadManager {
 			});
 
 		} catch (InstallException ex) {
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, ex);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, ex);
 		}
 	}
 

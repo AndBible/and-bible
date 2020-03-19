@@ -81,7 +81,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             // if locale is overridden then have to force title to be translated here
         } catch (e: Exception) {
             Log.e(TAG, "Error preparing preference screen", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

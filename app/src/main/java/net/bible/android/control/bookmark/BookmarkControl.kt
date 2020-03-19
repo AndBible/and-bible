@@ -105,7 +105,7 @@ open class BookmarkControl @Inject constructor(
                     .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
                 bOk = true
             } else {
-                Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
             }
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
@@ -122,7 +122,7 @@ open class BookmarkControl @Inject constructor(
                 if (deleteBookmark(bookmarkDto, true)) {
                     Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
                 } else {
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
                 }
             }
         }
@@ -377,7 +377,7 @@ open class BookmarkControl @Inject constructor(
         try {
             Collections.sort(bookmarkList, comparator)
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
         return bookmarkList
     }

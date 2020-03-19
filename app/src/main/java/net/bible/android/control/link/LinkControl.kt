@@ -104,7 +104,7 @@ class LinkControl @Inject constructor(
         } else {
             val document = swordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
-                Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials)
+                Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
             } else { //Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
                 ref = URLDecoder.decode(ref)
                 //According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
@@ -160,7 +160,7 @@ class LinkControl @Inject constructor(
     @Throws(NoSuchKeyException::class)
     private fun showStrongs(book: Book?, key: String) { // valid Strongs uri but Strongs refs not installed
         if (book == null) {
-            Dialogs.getInstance().showErrorMsg(R.string.strongs_not_installed)
+            Dialogs.instance.showErrorMsg(R.string.strongs_not_installed)
             // this uri request was handled by showing an error message
             return
         }
@@ -175,7 +175,7 @@ class LinkControl @Inject constructor(
         val robinson = swordDocumentFacade.getDocumentByInitials("robinson")
         // valid Strongs uri but Strongs refs not installed
         if (robinson == null) {
-            Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed)
+            Dialogs.instance.showErrorMsg(R.string.morph_robinson_not_installed)
             // this uri request was handled by showing an error message
             return
         }
@@ -195,7 +195,7 @@ class LinkControl @Inject constructor(
         // possibly no Strong's bible or it has not been indexed
         var needToDownloadIndex = false
         if (strongsBible == null) {
-            Dialogs.getInstance().showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.d(TAG, "Index status is NOT DONE")

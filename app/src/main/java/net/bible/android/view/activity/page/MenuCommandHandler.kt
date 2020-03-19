@@ -207,7 +207,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.bugReport -> {
-                    errorReportControl.reportBug(callingActivity)
+                    GlobalScope.launch {
+                        errorReportControl.reportBug(callingActivity)
+                    }
+                    isHandled = true
                 }
                 R.id.restore_app_database -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)

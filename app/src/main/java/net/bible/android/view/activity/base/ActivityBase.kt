@@ -188,15 +188,15 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun showErrorMsg(msgResId: Int) {
-        Dialogs.getInstance().showErrorMsg(msgResId)
+        Dialogs.instance.showErrorMsg(msgResId)
     }
 
     protected fun showHourglass() {
-        Dialogs.getInstance().showHourglass()
+        Dialogs.instance.showHourglass()
     }
 
     protected fun dismissHourglass() {
-        Dialogs.getInstance().dismissHourglass()
+        Dialogs.instance.dismissHourglass()
     }
 
     protected fun returnErrorToPreviousScreen() {

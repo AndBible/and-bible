@@ -62,7 +62,7 @@ open class PageControl @Inject constructor(
             clipboard.setPrimaryClip(ClipData.newPlainText("verseText", getCopyShareText(book, verseRange)))
         } catch (e: Exception) {
             Log.e(TAG, "Error pasting to clipboard", e)
-            Dialogs.getInstance().showErrorMsg("Error copying to clipboard")
+            Dialogs.instance.showErrorMsg("Error copying to clipboard")
         }
     }
 
@@ -80,7 +80,7 @@ open class PageControl @Inject constructor(
             activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse)))
         } catch (e: Exception) {
             Log.e(TAG, "Error sharing verse", e)
-            Dialogs.getInstance().showErrorMsg("Error sharing verse")
+            Dialogs.instance.showErrorMsg("Error sharing verse")
         }
     }
 

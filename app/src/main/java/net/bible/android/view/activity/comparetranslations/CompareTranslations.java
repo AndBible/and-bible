@@ -126,7 +126,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	    	translationSelected(mTranslations.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

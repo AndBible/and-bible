@@ -19,6 +19,10 @@ package net.bible.android.view.util
 
 import android.app.ProgressDialog
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -32,14 +36,16 @@ class Hourglass {
         private set
 
     fun show() {
-        val activity = CurrentActivityHolder.getInstance().currentActivity
-        activity?.runOnUiThread {
-            val hourglass = ProgressDialog(activity)
-            this.hourglass = hourglass
-            hourglass.setMessage(application.getText(R.string.please_wait))
-            hourglass.isIndeterminate = true
-            hourglass.setCancelable(false)
-            hourglass.show()
+        GlobalScope.launch {
+            val activity = CurrentActivityHolder.getInstance().currentActivity
+            withContext(Dispatchers.Main) {
+                val hourglass = ProgressDialog(activity)
+                this@Hourglass.hourglass = hourglass
+                hourglass.setMessage(application.getText(R.string.please_wait))
+                hourglass.isIndeterminate = true
+                hourglass.setCancelable(false)
+                hourglass.show()
+            }
         }
     }
 

@@ -60,7 +60,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
         try {
             mReadingPlanList = readingPlanControl.readingPlanList
             if (readingPlanControl.readingPlanUserDuplicates)
-                Dialogs.getInstance().showErrorMsg(getString(R.string.plan_duplicate_user_plan))
+                Dialogs.instance.showErrorMsg(getString(R.string.plan_duplicate_user_plan))
 
             mPlanArrayAdapter = ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList)
             listAdapter = mPlanArrayAdapter
@@ -68,7 +68,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
             registerForContextMenu(listView)
         } catch (e: Exception) {
             Log.e(TAG, "Error occurred analysing reading lists", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
             finish()
         }
 
@@ -86,7 +86,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
             finish()
         } catch (e: Exception) {
             Log.e(TAG, "Plan selection error", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
 
     }

@@ -247,7 +247,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
 	}
 
@@ -280,7 +280,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	        	Log.i(TAG, "Number of documents:"+allDocuments.size());
 				} catch (Exception e) {
 					Log.e(TAG, "Error getting documents", e);
-		    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 				}
 	        	return null;
 			}
@@ -404,7 +404,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			showAbout(document);
 		} catch (BookException e) {
 			Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
 
@@ -424,7 +424,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 											// the doc list should now change
 											reloadDocuments();
 										} catch (Exception e) {
-											Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+											Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 										}
 									}
 								}
@@ -448,7 +448,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 										Log.d(TAG, "Deleting index:" + document);
 										getSwordDocumentFacade().deleteDocumentIndex(document);
 									} catch (Exception e) {
-										Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+										Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 									}
 								}
 							}

@@ -60,7 +60,7 @@ public class FootnoteAndRefControl {
 		try {
 			return getCurrentPageManager().getCurrentPage().getCurrentPageFootnotesAndReferences();
 		} catch (Exception e) {
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 			return new ArrayList<>();
 		}
 	}

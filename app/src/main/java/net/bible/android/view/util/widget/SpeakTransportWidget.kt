@@ -112,7 +112,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 forwardButton -> speakControl.forward()
             }
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
     }

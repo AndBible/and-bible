@@ -495,7 +495,7 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun showError(msgId: Int, e: Exception) {
-        Dialogs.getInstance().showErrorMsg(msgId)
+        Dialogs.instance.showErrorMsg(msgId)
     }
 
     fun shutdown(willContinueAfter: Boolean) {

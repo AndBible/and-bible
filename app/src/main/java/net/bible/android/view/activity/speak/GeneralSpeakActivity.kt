@@ -118,7 +118,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
                 forwardButton -> speakControl.forward()
             }
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

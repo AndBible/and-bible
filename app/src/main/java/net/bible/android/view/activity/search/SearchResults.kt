@@ -94,7 +94,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
-            Dialogs.getInstance().showErrorMsg(R.string.error_executing_search) { onBackPressed() }
+            Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
         return isOk
     }
@@ -120,7 +120,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             verseSelected(mCurrentlyDisplayedSearchResults[position])
         } catch (e: Exception) {
             Log.e(TAG, "Selection error", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

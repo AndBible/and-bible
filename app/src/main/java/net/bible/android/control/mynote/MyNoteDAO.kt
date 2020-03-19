@@ -116,7 +116,7 @@ open class MyNoteDAO @Inject constructor() {
         try {
             Collections.sort(myNoteList, comparator)
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
         return myNoteList
     }

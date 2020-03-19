@@ -164,7 +164,7 @@ class DocumentControl @Inject constructor(
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
         } catch (e: BookException) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred)
         }
 
     }

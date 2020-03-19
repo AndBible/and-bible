@@ -78,7 +78,7 @@ public class DownloadQueue {
 	private void handleDownloadError(Book document) {
 		ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
 		downloadError.add(document.getInitials());
-		Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_downloading);
 	}
 
 	public boolean isInQueue(Book document) {
