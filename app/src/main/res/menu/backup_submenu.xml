@@ -18,10 +18,13 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/backup"
-        android:title="@string/backup"
+    <item android:id="@+id/backup_app_database"
+        android:title="@string/backup_app_database"
         android:icon="@android:drawable/ic_menu_save"/>
-    <item android:id="@+id/restore"
-        android:title="@string/restore"
+    <item android:id="@+id/restore_app_database"
+        android:title="@string/restore_app_database"
         android:icon="@android:drawable/ic_menu_set_as"/>
+    <item android:id="@+id/backup_modules"
+        android:title="@string/backup_modules"
+        android:icon="@android:drawable/ic_menu_save"/>
 </menu>

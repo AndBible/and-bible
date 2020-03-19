@@ -19,6 +19,8 @@
 package net.bible.android.control.backup
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 
@@ -33,12 +35,16 @@ import net.bible.service.common.FileManager
 
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
+import android.widget.Button
 import androidx.core.content.FileProvider
 import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
+
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -59,8 +65,8 @@ class BackupControl @Inject constructor() {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
-		val subject = callingActivity.getString(R.string.backup_email_subject)
-		val message = callingActivity.getString(R.string.backup_email_message)
+		val subject = getString(R.string.backup_email_subject)
+		val message = getString(R.string.backup_email_message)
         val f = File(internalDbBackupDir, fileName)
         val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
 		val email = Intent(Intent.ACTION_SEND).apply {
@@ -69,7 +75,7 @@ class BackupControl @Inject constructor() {
             putExtra(Intent.EXTRA_TEXT, message)
             type = "application/x-sqlite3"
         }
-		val chooserIntent = Intent.createChooser(email, callingActivity.getString(R.string.send_backup_file))
+		val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
         chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 		callingActivity.startActivity(chooserIntent)
     }
@@ -113,6 +119,66 @@ class BackupControl @Inject constructor() {
         }
         f.delete()
         return ok
+    }
+
+    private fun getString(id: Int): String {
+        return BibleApplication.application.getString(id)
+    }
+
+    private fun selectModules(context: Context, cb: (selectedBooks: List<Book>) -> Unit) {
+        val books = Books.installed().books.sortedBy { it.language }
+        val bookNames = books.map { it.name }.toTypedArray()
+
+        val checkedItems = bookNames.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(context)
+            .setPositiveButton(R.string.okay) {d,_ ->
+                val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
+                cb(selectedBooks)
+            }
+            .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all, null)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.backup_modules_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for(i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+
+    }
+
+    fun backupModulesViaIntent(callingActivity: Activity) {
+        val fileName = "modules.zip"
+        internalDbBackupDir.mkdirs()
+        val f = File(internalDbBackupDir, fileName)
+        selectModules(callingActivity) { books ->
+            val modules = books.joinToString(", ") { it.abbreviation }
+            val subject = getString(R.string.backup_modules_email_subject)
+            val message = BibleApplication.application.getString(R.string.backup_modules_email_message, modules)
+
+            val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
+            val email = Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, message)
+                type = "application/zip"
+            }
+            val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
+            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            callingActivity.startActivity(chooserIntent)
+        }
     }
 
     companion object {

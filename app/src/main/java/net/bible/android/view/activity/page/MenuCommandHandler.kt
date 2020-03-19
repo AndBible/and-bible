@@ -23,7 +23,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -34,10 +33,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
-import androidx.core.content.FileProvider
 import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
-import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
@@ -198,14 +194,18 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
-                R.id.backup -> {
+                R.id.backup_app_database -> {
                     backupControl.backupDatabaseViaIntent(callingActivity)
+                    isHandled = true
+                }
+                R.id.backup_modules -> {
+                    backupControl.backupModulesViaIntent(callingActivity)
                     isHandled = true
                 }
                 R.id.bugReport -> {
                     errorReportControl.reportBug(callingActivity)
                 }
-                R.id.restore -> {
+                R.id.restore_app_database -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "application/*"
                     callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
