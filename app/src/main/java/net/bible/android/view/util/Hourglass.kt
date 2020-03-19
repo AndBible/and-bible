@@ -35,25 +35,23 @@ class Hourglass {
     private var hourglass: ProgressDialog? = null
         private set
 
-    fun show() {
-        GlobalScope.launch {
+    suspend fun show() {
+        withContext(Dispatchers.Main) {
             val activity = CurrentActivityHolder.getInstance().currentActivity
-            withContext(Dispatchers.Main) {
-                val hourglass = ProgressDialog(activity)
-                this@Hourglass.hourglass = hourglass
-                hourglass.setMessage(application.getText(R.string.please_wait))
-                hourglass.isIndeterminate = true
-                hourglass.setCancelable(false)
-                hourglass.show()
-            }
+            val hourglass = ProgressDialog(activity)
+            this@Hourglass.hourglass = hourglass
+
+            hourglass.setMessage(application.getText(R.string.please_wait))
+            hourglass.isIndeterminate = true
+            hourglass.setCancelable(false)
+            hourglass.show()
         }
     }
 
-    fun dismiss() {
+    suspend fun dismiss() {
         try {
             if (hourglass != null) {
-                val activity = CurrentActivityHolder.getInstance().currentActivity
-                activity?.runOnUiThread {
+                withContext(Dispatchers.Main) {
                     hourglass!!.dismiss()
                     hourglass = null
                 }

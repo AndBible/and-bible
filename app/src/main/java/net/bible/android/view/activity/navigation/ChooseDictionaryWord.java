@@ -107,7 +107,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	        mMatchingKeyList));
     	
     	final Handler uiHandler = new Handler();
-    	Dialogs.Companion.getInstance().showHourglass();
+    	showHourglass();
     	
     	new Thread( new Runnable() {
 

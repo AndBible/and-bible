@@ -125,11 +125,11 @@ class Dialogs private constructor() {
         }
     }
 
-    fun showHourglass() {
+    suspend fun showHourglass() {
         hourglass.show()
     }
 
-    fun dismissHourglass() {
+    suspend fun dismissHourglass() {
         hourglass.dismiss()
     }
 
