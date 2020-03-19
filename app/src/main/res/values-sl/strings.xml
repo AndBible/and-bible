@@ -24,6 +24,15 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="help_search_text">Iskanje lahko vsebuje posebne zanke kot *, ?, AND, OR, NOT
         (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\")
     </string>
+  <string name="help_workspaces_title">Delovni prostori</string>
+  <string name="help_workspaces_text">
+        Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
+  <string name="help_hidden_features_title">Skrite bližnjice</string>
+  <string name="help_hidden_features_text">
+        Za izbiro delovnega prostora povlecite navzdol z orodne vrstice.
+        Gumb z oknom hitro zmanjšate z dolgim klikom.
+        Za nastavitve govora z dolgim klikom gumba za govor hitro odprete nastavitve govora.
+        Za izbiro biblij ali dokumentov naredite dolg klik v orodni vrstici biblijskih knjig in vrstic.</string>
   <string name="help_contextmenus_title">Kontekstni meni</string>
   <string name="help_contextmenus_text">
         Dolg pritisk na pogled Biblije odpre meni za akcije glede trenutne vrstice.
@@ -37,11 +46,12 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Knjiga</string>
   <string name="search">Išči</string>
-  <string name="settings">Nastavitve</string>
+  <string name="settings">Nastavitve aplikacije</string>
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
   <string name="other">Drugo</string>
+  <string name="help_and_tips">Pomoč &amp; namigi</string>
   <string name="administration">Upravljanje</string>
   <string name="rate_application">Ocena &amp; Recenzija na Google Play</string>
   <string name="chooce_document">Zapri dokument</string>
@@ -54,12 +64,17 @@ trackpada ali pomikom prsta preko ekrana</string>
   <!--Search-->
   <string name="search_index">Preišči indeks</string>
   <string name="index_creation_required">Za iskanje je potreben indeks.\n\nIndeksi se lahko prenesejo iz interneta ali pa se jih ustvari lokalno.\n\nPrenos iz interneta je mnogo hitrejši in preneseni indeksi imajo več iskalnih značilnosti.\n\nZa prenos indeksov je potrebna internetna povezava.\n</string>
-  <string name="search_index_unavailable">Na žalost je kreiranje kazala na voljo samo na Android 5.0 (Lollipop) in novejšem.</string>
+  <string name="create_index_for">Za iskanje je potrebno kazalo. \n\nUstvarim kazalo za %s?</string>
+  <string name="rebuild_index_for">Ponovno zgradim kazalo za %s?</string>
+  <string name="search_index_unavailable">Žal je ustvarjanje kazala na voljo samo v operacijskem sistemu Android 5.0 (Lollipop) in novejših. Naložena kazala so na voljo samo za omejen nabor modulov.</string>
   <string name="indexing_wait_msg">Ko se indeksiranje konča, se bo pojavilo okno za iskanje.</string>
   <string name="index_download">Prenos</string>
   <string name="index_not_available_for_download">Ta indeks ni na voljo za prenos</string>
   <string name="index_create">Ustvari</string>
   <string name="rebuild_index">Ponovno zgradi kazalo</string>
+  <string name="search_in">Išči v %s</string>
+  <string name="do_in_background">Nadaljuj v ozadju</string>
+  <string name="rebuild_index_button">Ponovno zgradi</string>
   <!--Tasks-->
   <string name="progress_status">Napredek</string>
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
@@ -78,6 +93,16 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="search_current_book">Trenutna knjiga</string>
   <string name="error_executing_search">Napačna iskalna poizvedba</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Prikaži številke vrstic</string>
+  <string name="prefs_verse_per_line_summary">Prikaži vsako vrstico v drugi vrsti</string>
+  <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki</string>
+  <string name="prefs_show_mynotes_summary">Prikaži ikono v vrsticah z mojimi opombami</string>
+  <string name="prefs_show_notes_summary">Prikaži zaznamke in sklice</string>
+  <string name="prefs_show_strongs_summary">Povezave na grške &amp; hebrejske definicije</string>
+  <string name="prefs_show_morphology_summary">Prikaži Robinsonovo grško oblikoslovje</string>
+  <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij</string>
+  <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi</string>
+  <string name="prefs_text_size_title">Nastavitve pisave</string>
   <string name="prefs_show_verseno_title">Številke vrstic</string>
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
@@ -90,42 +115,90 @@ trackpada ali pomikom prsta preko ekrana</string>
   <string name="prefs_section_title_title">Naslovi poglavij</string>
   <string name="prefs_red_letter_title">Rdeče črke</string>
   <string name="prefs_tilt_to_scroll_title">Nagib za pomik</string>
-  <string name="prefs_tilt_to_scroll_summary">Za pomik strani nagni napravo</string>
-  <string name="prefs_night_mode_title">Nočni način</string>
-  <string name="prefs_night_mode_summary">Za lažje branje v temi</string>
+  <string name="prefs_night_mode_title">Preklop na nočni način</string>
+  <string name="prefs_night_mode_summary">Ali naj se samodejno preklopi na nočni način (če naprava podpira), ročno ali prek sistemskih nastavitev (Android 10+).</string>
+  <string name="prefs_night_mode_manual">Ročno</string>
   <string name="prefs_night_mode_automatic">Avtomatsko</string>
   <string name="prefs_night_mode_system">Sistem</string>
+  <string name="options_menu_night_mode">Nočni način</string>
   <string name="prefs_navigate_to_verse_title">Usmeri do vrstice</string>
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico (in poglavje)</string>
   <string name="prefs_open_links_in_special_window_title">Povezave odpri v posebnem oknu</string>
   <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil</string>
-  <string name="prefs_text_size_title">Velikost besedila</string>
-  <string name="prefs_text_size_summary">Vidi več ali vidi bolj jasno</string>
+  <string name="prefs_text_size_pt_title">Nastavitve pisave</string>
+  <string name="prefs_text_size_summary">Nastavi vrsto pisave in velikost pisave</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
   <string name="prefs_screen_keep_on_summary">Prepreči ugašanje ekrana med uporabo te aplikacije</string>
   <string name="prefs_interface_locale_title">Jezik aplikacije</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika</string>
-  <string name="prefs_split_mode_vertical">Navpično</string>
-  <string name="prefs_split_mode_horizontal">Vodoravno</string>
-  <string name="prefs_split_mode_automatic">Avtomatično</string>
-  <string name="prefs_split_mode_summary">Kako naj se na zaslonu razdeli več oken?</string>
-  <string name="prefs_split_mode_title">Način delitve</string>
+  <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Obstajajo ročno nameščeni dokumenti</string>
-  <string name="prefs_request_sdcard_permission_summary">Omogoči uporabo ročno nameščenih dokumentov iz jsword mape na SD kartici</string>
-  <string name="bible_text_options">Opcije bibličnega besedila</string>
+  <string name="prefs_request_sdcard_permission_summary">Omogočite uporabo ročno nameščenih dokumentov iz jsword mape notranjega pomnilnika</string>
+  <string name="all_text_options_window_menutitle">Vse nastavitve besedila…</string>
+  <string name="all_text_options_window_menutitle_alone">Nastavitve besedila…</string>
+  <string name="text_options_window_menutitle">Nastavitve besedila</string>
   <string name="auto_fullscreen">Celoten ekran s premikanjem</string>
-  <string name="switch_split_mode">Preklopi v način delitve</string>
   <string name="reversed_split_mode">Obrnjen način delitve</string>
-  <string name="prefs_auto_night_mode_title">Avtomatični nočni način</string>
-  <string name="prefs_auto_night_mode_summary">V nočni način avtomatično preklopi s senzorjem</string>
+  <string name="font_size_pt">%d točk</string>
+  <string name="auto_fullscreen_summary">Ko se pomikate po besedilu samodejno preklopi na cel zaslon. Nasvet: na celozaslonski način lahko vedno preklopite tako, da dvakrat tapnete na zaslon.</string>
+  <string name="prefs_margin_size_title">Spremeni velikost roba</string>
+  <string name="prefs_margin_size_mm_title">Velikost roba (%d/%d/%d mm)</string>
+  <string name="margin_size_mm">Levi rob %d mm desni %d mm.
+        \nNajvečja širina besedila: %d mm.</string>
+  <string name="prefs_advanced_settings_cat">Napredne nastavitve</string>
+  <string name="prefs_display_customization_cat">Poglej &amp; začuti</string>
+  <string name="prefs_behavior_customization_cat">Vedenje aplikacije</string>
+  <string name="prefs_margin_size_summary">Prilagodite levi in desni rob prikaza besedila. Prilagodite
+        lahko tudi največjo širino besedila.
+    </string>
+  <string name="prefs_text_colors_summary">Prilagodite barve besedila in ozadja ter šum ozadja</string>
+  <string name="text_display_settings_activity_title">Nastavitve prikaza besedila</string>
+  <string name="workspace_text_display_settings_title">Nastavitve besedila - %s</string>
+  <string name="window_text_display_settings_title">Nastavitve besedila - Okno %d</string>
+  <string name="prefs_text_display_settings_title">Oblikovanje</string>
+  <string name="prefs_text_appearance_title">Videz</string>
+  <string name="prefs_justify_title">Besedilo poravnaj obojestransko</string>
+  <string name="prefs_justify_summary">Besedilo poravnaj obojestransko, kar pomeni, da sta levi in desni rob besedila v liniji</string>
+  <string name="pref_left_margin_label">Levi rob</string>
+  <string name="pref_right_margin_label">Desni rob</string>
+  <string name="pref_maximum_width_of_text_label">Največja širina besedila</string>
+  <string name="prefs_line_spacing_pt">Razmik med vrsticami %1.1fx</string>
+  <string name="pref_font_family_label">Pisava</string>
+  <string name="prefs_hyphenation_title">Deljenje besed</string>
+  <string name="prefs_hyphenation_summary">Samodejno deli besede, če je to jezik podpira</string>
+  <string name="prefs_line_spacing_pt_title">Razmik med vrsticami (%1.1fx)</string>
+  <string name="line_spacing_title">Razmik med vrsticami</string>
+  <string name="line_spacing_summary">Nastavi razmik med vrsticami</string>
+  <string name="select_none">Ne izberi ničesar</string>
+  <string name="reset_are_you_sure">Ali ste prepričani, da želite ponastaviti vse vrednosti?</string>
+  <string name="window_pinning_menutitle">Pripenjanje oken</string>
+  <string name="hide_window_buttons_title">Skrij gumbe oken</string>
+  <string name="hide_window_buttons_summary">Gumbi oken, ki so prikazani na desni strani pogledov Biblije, so skriti. Okna za krmarjenje po oknu, na dnu desno, so še vedno prikazana in pojavni meni okna lahko odprete z dolgim pritiskom na ikono.</string>
+  <string name="font_size_title">Velikost besedila</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Nastavitve barv</string>
+  <string name="window_color_settings_title">Nastavitve barv okna</string>
+  <string name="workspace_color_settings_title">Privzete nastavitve barv okna</string>
+  <string name="color_text">Barva besedila</string>
+  <string name="color_background">Barva ozadja</string>
+  <string name="colors_day_mode_title">Dnevni način</string>
+  <string name="colors_night_mode_title">Nočni način</string>
+  <string name="prefs_noise_title">Šum ozadja</string>
+  <string name="prefs_noise_summary">Če dodate nekaj šuma v ozadje, besedilo lahko naredite bolj udobno za oči.</string>
+  <string name="cpv_default_title">Izberite barvo</string>
+  <string name="cpv_presets">Prednastavitve</string>
+  <string name="cpv_custom">Po meri</string>
+  <string name="cpv_select">Izberi</string>
+  <string name="cpv_transparency">Prosojnost</string>
   <!--Window-->
   <string name="new_window">Novo okno</string>
   <string name="windowClose">Zapri</string>
   <string name="windowMaximise">Maksimiraj</string>
   <string name="windowMinimise">Minimiraj</string>
   <string name="windowSynchronise">Sinhroniziraj</string>
-  <string name="windowMoveFirst">Premakni na prvo</string>
+  <string name="move_window">Premakni na…</string>
+  <string name="move_window_to_position">Položaj %s</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">V tem poglavju ni opomb</string>
   <string name="no_verse_notes">V tej vrstici ni opomb</string>
@@ -221,7 +294,6 @@ trackpada ali pomikom prsta preko ekrana</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Povezavo odpri tukaj</string>
   <string name="open_link_in_new_window">Povezavo odpri v novem oknu</string>
-  <string name="open_link_in_main_window">Povezavo odpri v glavnem oknu</string>
   <string name="open_link_in_special_window">Povezavo odpri v posebnem oknu</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
@@ -363,11 +435,9 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <!--Backup and restore-->
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova varnostne kopije</string>
   <string name="backup">Varnostno kopiranje v…</string>
-  <string name="backup_success">Moje opombe in Zaznamki so shranjeni v %s na SD kartici</string>
   <string name="restore">Obnovi iz…</string>
   <string name="restore_confirmation">Želite prepisati moje opombe, zaznamke, načrte za branje in delovne prostore?</string>
   <string name="restore_success">Moji zapiski, zaznamki, načrti branja in delovni prostori so uspešno obnovljeni</string>
-  <string name="error_no_backup_file">Arhivske datoteke ni mogoče najti</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
   <string name="backup_email_subject">And Bible varnostno kopiranje baze podatkov</string>
   <string name="backup_email_message">Vaša And Bible baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
@@ -378,14 +448,24 @@ poglavij, toda Rimljane počasneje z zvoki ob spremembah poglavja, potem
   <string name="about_versification">Verzifikacija: %s</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Prijavite napako…</string>
+  <string name="send_bug_report_title">Prijavite napako</string>
   <string name="report_bug_email_subject">Poročilo o napaki za And Bible%s</string>
-  <string name="report_bug_email_message">Uporabite to funkcijo, da napako prijavite takoj, ko jo opazite. \n
-\n
-Na kratko nam povejte, kaj ste storili / kaj se je zgodilo: \n
-\n
-Informacije o napravi: \n
- %s</string>
+  <string name="report_bug_email_message">
+        --- POROČILO O HROŠČU NAPIŠITE NAD TO VRSTICO --- \ n
+        Navodila: \ n
+        Na kratko nam povejte, kaj ste storili / kaj se je ob napaki zgodilo.
+        Primer: \ n
+        \ n
+        1. Odprta je bila aplikacija \ n
+        2. Kliknil sem na meni okna \ n
+        Nesreča \ n
+        \ n
+        Dodate lahko posnetek zaslona, ki je koristen pri reševanju težav.
+        Uporabite to funkcijo, da prijavite napako takoj, ko opazite napako.
+        To funkcijo lahko uporabite tudi po odpiranju aplikacije, potem ko se je zrušila.
+         \ n \ n
+         Informacije o napravi: \ n
+         %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentar</string>
@@ -409,6 +489,7 @@ Informacije o napravi: \n
   <!--Errors-->
   <string name="report_error">Pošlji poročilo</string>
   <string name="error_occurred">Zgodila se je napaka</string>
+  <string name="error_occurred_with_link">Zgodila se je napaka. %s</string>
   <string name="error_no_content">Izbrana vrstica je brez vsebine</string>
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
@@ -417,19 +498,25 @@ Informacije o napravi: \n
   <string name="notification_channel_tts_status">Besedilo v govor</string>
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
   <!--Workspaces-->
-  <string name="workspaces">Delovni prostori</string>
-  <string name="new_workspace">Nov delovni prostor</string>
-  <string name="switch_to_workspace">Preklopi na delovni prostor...</string>
-  <string name="delete_workspace">Izbriši ta delovni prostor</string>
-  <string name="choose_workspace_to_open">Izberi delovni prostor</string>
-  <string name="new_copied_workspace">Kopiraj delovni prostor kot nov</string>
+  <string name="new_workspace">Novo</string>
+  <string name="switch_to_workspace">Delovni prostori…</string>
+  <string name="delete_workspace">Odstrani</string>
+  <string name="new_copied_workspace">Kopiraj kot novo</string>
   <string name="workspace_number">Delovni prostor %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Preimenuj delovni prostor …</string>
-  <string name="rename_workspace_title">Poimenuj ta delovni prostor</string>
-  <string name="new_workspace_from_dialog">Nov</string>
-  <string name="delete_workspace_from_dialog">Izbriši trenutnega</string>
-  <string name="history_title">Zgodovina (%s)</string>
+  <string name="rename_workspace">Preimenuj</string>
+  <string name="workspace_selector_title">Izberi delovni prostor</string>
+  <string name="workspace_settings">Nastavitve…</string>
+  <string name="give_name_workspace">Ime novega delovnega prostora</string>
+  <string name="save_and_exit">Shrani</string>
+  <string name="current_workspace">trenuten</string>
+  <string name="workspace_save_changes">Uporabim spremembe na delovnih prostorih?</string>
+  <string name="copy_of_workspace">Kopija %s</string>
+  <string name="copy_workspace_settings">Kopiraj nastavitve…</string>
+  <string name="copy_settings_title">Katere nastavitve želite kopirati?</string>
+  <string name="select_all">Izberi vse</string>
+  <string name="copy_settings_workspaces_title">V katere delovne prostore želite kopirati nastavitve?</string>
+  <string name="reset_settings">Reset</string>
+  <string name="workspace_dismiss">Opusti</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To je beta različica!</string>
   <string name="beta_notice_content_1">
@@ -446,4 +533,8 @@ Informacije o napravi: \n
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Opusti</string>
   <string name="beta_notice_dismiss_until_update">Opusti do naslednjega popravka</string>
+  <!--History-->
+  <string name="history_for">Zgodovina (%s: Okno %d)</string>
+  <string name="window_pin_mode">Pripni</string>
+  <string name="close">Zapri</string>
 </resources>

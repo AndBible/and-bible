@@ -21,6 +21,15 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="help_search_title">Serĉi</string>
   <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
  (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
+  <string name="help_workspaces_title">Laborspacoj</string>
+  <string name="help_workspaces_text">
+Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
+  <string name="help_hidden_features_title">Gestoj</string>
+  <string name="help_hidden_features_text">
+Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
+Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
+Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
+Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.</string>
   <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
   <string name="help_contextmenus_text">
  Premtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
@@ -33,11 +42,12 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="chooseBook">Dokumento</string>
   <string name="selectPassage">Alineo</string>
   <string name="search">Serĉi</string>
-  <string name="settings">Agordoj</string>
+  <string name="settings">Aplikaĵaj agordoj</string>
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
   <string name="other">Aliaj</string>
+  <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
   <string name="chooce_document">Elektu dokumenton</string>
@@ -50,12 +60,17 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <!--Search-->
   <string name="search_index">Serĉ-indekso</string>
   <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
-  <string name="search_index_unavailable">Bedaŭrinde kreado de indeksoj estas nur disponebla ĉe Android 5.0 (Lollipop) aŭ pli nova.</string>
+  <string name="create_index_for">Indekso estas necesa por serĉi.\n\nĈu krei indekson por %s?</string>
+  <string name="rebuild_index_for">Ĉu rekrei indekson por %s?</string>
+  <string name="search_index_unavailable">Bedaŭrinde kreado de indeksoj estas nur disponebla ĉe Android 5.0 (Lollipop) aŭ pli nova. Generitaj indeksoj estas disponeblaj nur por kelkaj moduloj.</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
   <string name="index_download">Elŝuti</string>
   <string name="index_not_available_for_download">Tiu ĉi indekso ne estas disponebla por elŝuti</string>
   <string name="index_create">Krei</string>
   <string name="rebuild_index">Rekrei indekson</string>
+  <string name="search_in">Serĉi en %s</string>
+  <string name="do_in_background">Pluigi fone</string>
+  <string name="rebuild_index_button">Rekrei</string>
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
@@ -74,6 +89,16 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="search_current_book">la nuna libro</string>
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Montri numerojn de versoj</string>
+  <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
+  <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
+  <string name="prefs_show_mynotes_summary">Montri emblemon ĉe verso en miaj notoj</string>
+  <string name="prefs_show_notes_summary">Montri piednotojn kaj internajn referencojn</string>
+  <string name="prefs_show_strongs_summary">Ligiloj al grekaj kaj hebreaj difinoj</string>
+  <string name="prefs_show_morphology_summary">Montri grekan morfologion de Robinson</string>
+  <string name="prefs_section_title_summary">Montri nekanonajn titolojn de sekcioj</string>
+  <string name="prefs_red_letter_summary">Montri vortojn de Kristo ruĝe</string>
+  <string name="prefs_text_size_title">Agordi tiparojn</string>
   <string name="prefs_show_verseno_title">Versaj numeroj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
@@ -86,42 +111,88 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
-  <string name="prefs_tilt_to_scroll_summary">Skuu aparaton por rulumi paĝon malsupren</string>
-  <string name="prefs_night_mode_title">Nokta reĝimo</string>
-  <string name="prefs_night_mode_summary">Por pli facila legado mallume</string>
+  <string name="prefs_night_mode_title">Aktivigi noktan reĝimon</string>
+  <string name="prefs_night_mode_summary">Agordi ĉu aŭtomate (mal)ŝalti noktan reĝimon (se subtenata de aparato), ĉu permane, ĉu permesi al sistemo decidi (Android 10+).</string>
+  <string name="prefs_night_mode_manual">Permane</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
   <string name="prefs_night_mode_system">Sistema</string>
+  <string name="options_menu_night_mode">Nokta reĝimo</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
   <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
   <string name="prefs_open_links_in_special_window_summary">Por pli rapida montrado de internaj referencoj kaj numeroj de Strong</string>
-  <string name="prefs_text_size_title">Teksta grando</string>
-  <string name="prefs_text_size_summary">Vidi pli da teksto aŭ pli klare</string>
+  <string name="prefs_text_size_pt_title">Agordi tiparojn</string>
+  <string name="prefs_text_size_summary">Alĝustigi tiparan familion kaj grandon</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
   <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
   <string name="prefs_interface_locale_title">Programa lingvo</string>
   <string name="prefs_interface_locale_summary">Elekti propran fasadan lingvon</string>
-  <string name="prefs_split_mode_vertical">Vertikale</string>
-  <string name="prefs_split_mode_horizontal">Horizontale</string>
-  <string name="prefs_split_mode_automatic">Aŭtomate</string>
-  <string name="prefs_split_mode_summary">Kiel dividi plurajn ekranojn en fenestra reĝimo?</string>
-  <string name="prefs_split_mode_title">Ekran-divido</string>
+  <string name="reset_fontsize">Reagordi</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
-  <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
-  <string name="bible_text_options">Agordoj pri teksto</string>
+  <string name="prefs_request_sdcard_permission_summary">Ebligi uzi permane instalitajn dokumentojn el la dosierujo jsword/sword en la interna konservejo</string>
+  <string name="all_text_options_window_menutitle">Ĉiuj tekstaj agordoj…</string>
+  <string name="all_text_options_window_menutitle_alone">Tekstaj agordoj…</string>
+  <string name="text_options_window_menutitle">Tekstaj agordoj</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
-  <string name="switch_split_mode">Reĝimo de dividita ekrano</string>
   <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
-  <string name="prefs_auto_night_mode_title">Aŭtomata nokta reĝimo</string>
-  <string name="prefs_auto_night_mode_summary">Aktivigi noktan reĝimon aŭtomate laŭ lum-sentilo</string>
+  <string name="font_size_pt">%d p.</string>
+  <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
+  <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
+  <string name="prefs_margin_size_mm_title">Grandoj de marĝenoj (%d/%d/%d mm)</string>
+  <string name="margin_size_mm">Marĝenoj maldekstra: %d mm, dekstra: %d mm.
+\nMaksimuma larĝo de teksto: %d mm.</string>
+  <string name="prefs_advanced_settings_cat">Spertulaj agordoj</string>
+  <string name="prefs_display_customization_cat">Aspekto</string>
+  <string name="prefs_behavior_customization_cat">Sinteno</string>
+  <string name="prefs_margin_size_summary">Alĝustigi dekstran kaj maldekstran marĝenojn en la vido de teksto. Vi ankaŭ povas alĝustigi maksimuman larĝon de la teksto.</string>
+  <string name="prefs_text_colors_summary">Alĝustigi kolorojn de teksto kaj fono kaj bruan efekton</string>
+  <string name="text_display_settings_activity_title">Tekstaj agordoj</string>
+  <string name="workspace_text_display_settings_title">Tekstaj agordoj – %s</string>
+  <string name="window_text_display_settings_title">Tekstaj agordoj – fenestro %d</string>
+  <string name="prefs_text_display_settings_title">Tekstaranĝo</string>
+  <string name="prefs_text_appearance_title">Aspekto</string>
+  <string name="prefs_justify_title">Ĝisrandigi tekston ambaŭflanken</string>
+  <string name="prefs_justify_summary">Ĝisrandigi tekston tiel, por ke maldekstra kaj dekstra marĝenoj estu egalaj</string>
+  <string name="pref_left_margin_label">Maldekstra marĝeno</string>
+  <string name="pref_right_margin_label">Dekstra marĝeno</string>
+  <string name="pref_maximum_width_of_text_label">Maksimuma larĝo de teksto</string>
+  <string name="prefs_line_spacing_pt">Interlinia distanco %1.1fx</string>
+  <string name="pref_font_family_label">Tipara familio</string>
+  <string name="prefs_hyphenation_title">Vortdivido</string>
+  <string name="prefs_hyphenation_summary">Aŭtomate dividi vortojn (se subtenata por lingvo)</string>
+  <string name="prefs_line_spacing_pt_title">Interlinia distanco (%1.1fx)</string>
+  <string name="line_spacing_title">Interlinia distanco</string>
+  <string name="line_spacing_summary">Alĝustigi spacon inter linioj de teksto</string>
+  <string name="select_none">Elekti neniun</string>
+  <string name="reset_are_you_sure">Ĉu vi certe volas agordi ĉion al implicitaj valoroj?</string>
+  <string name="window_pinning_menutitle">Alpingli fenestron</string>
+  <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
+  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de Biblia vido estas nun kaŝitaj. Fenestra navigadbreto ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
+  <string name="font_size_title">Grando de tiparo</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
+  <string name="window_color_settings_title">Koloro de fenestroj</string>
+  <string name="workspace_color_settings_title">Implicitaj koloroj de laborspaco</string>
+  <string name="color_text">Koloro de teksto</string>
+  <string name="color_background">Koloro de fono</string>
+  <string name="colors_day_mode_title">Taga reĝimo</string>
+  <string name="colors_night_mode_title">Nokta reĝimo</string>
+  <string name="prefs_noise_title">Bruo de fono</string>
+  <string name="prefs_noise_summary">Aldoni iom da bruo al fono por igi ĝin pli komforta por viaj okuloj.</string>
+  <string name="cpv_default_title">Elekti koloron</string>
+  <string name="cpv_presets">Skemoj</string>
+  <string name="cpv_custom">Propra</string>
+  <string name="cpv_select">Elekti</string>
+  <string name="cpv_transparency">Travideblo</string>
   <!--Window-->
   <string name="new_window">Nova fenestro</string>
   <string name="windowClose">Fermi</string>
   <string name="windowMaximise">Maksimumigi</string>
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
-  <string name="windowMoveFirst">Suprigi</string>
+  <string name="move_window">Movi al…</string>
+  <string name="move_window_to_position">Pozicio %s</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
   <string name="no_verse_notes">Neniuj notoj ekzistas ĉe tiu ĉi verso</string>
@@ -159,7 +230,7 @@ Ne povis konekti al la deponejo de moduloj Crosswire. La servilo povas ne funkci
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
-  <string name="rdg_plan_set_start_date">Agordi daton de komenco</string>
+  <string name="rdg_plan_set_start_date">Agordi daton de komenco…</string>
   <string name="done">Farita</string>
   <string name="reset">Reagordi</string>
   <string name="reset_plan_question">Ĉu vi certe volas rekomenci tiun ĉi planon?</string>
@@ -209,7 +280,6 @@ laŭ ilia permeso.</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Malfermi ligilon tie ĉi</string>
   <string name="open_link_in_new_window">Malfermi ligilon en nova fenestro</string>
-  <string name="open_link_in_main_window">Malfermi ligilon en ĉefa fenestro</string>
   <string name="open_link_in_special_window">Malfermi ligilon en speciala fenestro</string>
   <!--Bookmarks-->
   <string name="bookmarks">Legosignoj</string>
@@ -338,11 +408,9 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
   <string name="backup">Sekurkopii al…</string>
-  <string name="backup_success">Miaj notoj kaj legosignoj konservitaj en %s en SD-karto</string>
   <string name="restore">Restarigi el…</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, legplanojn kaj laborspacojn?</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, legplanojn kaj laborspacojn</string>
-  <string name="error_no_backup_file">Ne povis trovi dosieron de sekurkopio</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_email_subject">And Biblio: sekurkopio de datumbazo</string>
   <string name="backup_email_message">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo And Biblio en la kunsendaĵo</string>
@@ -353,15 +421,21 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="about_versification">Versarto: %s</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Raporti eraron…</string>
+  <string name="send_bug_report_title">Raporti eraron</string>
   <string name="report_bug_email_subject">Erar‑raporto pri And Biblio %s</string>
   <string name="report_bug_email_message">
-Bonvolu uzi tiun ĉi eblaĵon por raporti eraron tuj post kiam ĝi okazis.\n
-\n
-Koncize priskribu kion vi faris / kio okazis kiam la problemo aperis: \n
-\n
-Informoj pri aparato: \n
-%s</string>
+        --- SKRIBU RAPORTON PRI ERARO SUPER TIU ĈI LINIO ---\n
+        Instrukcioj:\n
+        Koncize priskribu kion vi faris / kio okazis kiam la problemo aperis. Ekzemplo: \n
+        \n
+        1. Startis aplikaĵon\n
+        2. Frapetis menuon de fenestro\n
+         -&gt; Paneo\n
+        \n
+        Iafoje ekrankopio helpas solvi problemon. Bonvolu raporti eraron tuj post ĝi okazis. Vi ankaŭ povas uzi tiun ĉi eblaĵon post la sekva starto de aplikaĵo kiam la paneo okazis..
+        \n\n
+        Informoj pri aparato: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblio</string>
   <string name="doc_type_commentary">Komentaro</string>
@@ -385,6 +459,7 @@ Informoj pri aparato: \n
   <!--Errors-->
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
+  <string name="error_occurred_with_link">Eraro okazis. %s</string>
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
@@ -393,19 +468,25 @@ Informoj pri aparato: \n
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
   <!--Workspaces-->
-  <string name="workspaces">Laborspacoj</string>
-  <string name="new_workspace">Nova laborspaco</string>
-  <string name="switch_to_workspace">Baskuli laborspacon…</string>
-  <string name="delete_workspace">Forigi tiun ĉi laborspacon</string>
-  <string name="choose_workspace_to_open">Elektu laborspacon por malfermi</string>
-  <string name="new_copied_workspace">Duobligi tiun ĉi laborspacon</string>
+  <string name="new_workspace">Nova</string>
+  <string name="switch_to_workspace">Laborspacoj…</string>
+  <string name="delete_workspace">Forigi</string>
+  <string name="new_copied_workspace">Duobligi</string>
   <string name="workspace_number">Laborspaco %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Alinomi laborspacon…</string>
-  <string name="rename_workspace_title">Bonvolu enigi nomon por tiu ĉi laborspaco</string>
-  <string name="new_workspace_from_dialog">Nova</string>
-  <string name="delete_workspace_from_dialog">Forigi la nunan</string>
-  <string name="history_title">Historio (%s)</string>
+  <string name="rename_workspace">Alinomi</string>
+  <string name="workspace_selector_title">Elekti laborspacon</string>
+  <string name="workspace_settings">Agordoj…</string>
+  <string name="give_name_workspace">Enigu nomon por la nova laborspaco</string>
+  <string name="save_and_exit">Konservi</string>
+  <string name="current_workspace">elektita</string>
+  <string name="workspace_save_changes">Ĉu apliki ŝanĝojn al ĉiuj laborspacoj?</string>
+  <string name="copy_of_workspace">Kopio de %s</string>
+  <string name="copy_workspace_settings">Kopii agordojn…</string>
+  <string name="copy_settings_title">Kiujn agordojn vi volas kopii?</string>
+  <string name="select_all">Elekti ĉiujn</string>
+  <string name="copy_settings_workspaces_title">Al kiuj laborspacoj vi volas kopii agordojn?</string>
+  <string name="reset_settings">Reagordi</string>
+  <string name="workspace_dismiss">Rezigni</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
   <string name="beta_notice_content_1">
@@ -417,4 +498,8 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss">Ignori</string>
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
+  <!--History-->
+  <string name="history_for">Historio (%s: fenestro %d)</string>
+  <string name="window_pin_mode">Alpingli</string>
+  <string name="close">Fermi</string>
 </resources>
