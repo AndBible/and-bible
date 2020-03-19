@@ -89,7 +89,7 @@ open class BibleApplication : MultiDexApplication() {
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
         // some changes may be required for different versions
-        upgradePersistentData()
+        upgradeSharedPreferences()
 
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()
@@ -110,12 +110,13 @@ open class BibleApplication : MultiDexApplication() {
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
 
-    private fun upgradePersistentData() {
+    private fun upgradeSharedPreferences() {
         val prefs = CommonUtils.sharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
-        if (prevInstalledVersion < CommonUtils.applicationVersionNumber && prevInstalledVersion > -1) {
-            val editor = prefs.edit()
+        val newInstall = prevInstalledVersion == -1
 
+        val editor = prefs.edit()
+        if (prevInstalledVersion < CommonUtils.applicationVersionNumber && !newInstall) {
             // there was a problematic Chinese index architecture before ver 24 so delete any old indexes
             if (prevInstalledVersion < 24) {
                 Log.d(TAG, "Deleting old Chinese indexes")
@@ -155,13 +156,29 @@ open class BibleApplication : MultiDexApplication() {
                             .apply()
                 }
             }
-
-
-
-            editor.putInt("version", CommonUtils.applicationVersionNumber)
-            editor.apply()
-            Log.d(TAG, "Finished all Upgrading")
         }
+
+        if(prevInstalledVersion <= 350) {
+            val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
+            val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
+            val pref3value = when(pref2value) {
+                "true" -> "manual"
+                "false" -> "manual"
+                "automatic" -> "automatic"
+                else -> "manual"
+            }
+            val prefValue = when(pref2value) {
+                "automatic" -> oldPrefValue
+                "true" -> true
+                "false" -> false
+                else -> oldPrefValue
+            }
+            editor.putBoolean("night_mode_pref", prefValue).apply()
+            editor.putString("night_mode_pref3", pref3value).apply()
+        }
+
+        Log.d(TAG, "Finished all Upgrading")
+        editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
 
     /**
