@@ -37,6 +37,8 @@ import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.widget.Button
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
 
@@ -45,10 +47,17 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
+import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.resume
 
 
 /**
@@ -125,50 +134,105 @@ class BackupControl @Inject constructor() {
         return BibleApplication.application.getString(id)
     }
 
-    private fun selectModules(context: Context, cb: (selectedBooks: List<Book>) -> Unit) {
-        val books = Books.installed().books.sortedBy { it.language }
-        val bookNames = books.map { it.name }.toTypedArray()
+    private suspend fun selectModules(context: Context): List<Book>? {
+        var result: List<Book>? = null
+        withContext(Dispatchers.Main) {
+            result = suspendCoroutine {
+                val books = Books.installed().books.sortedBy { it.language }
+                val bookNames = books.map { it.name }.toTypedArray()
 
-        val checkedItems = bookNames.map { false }.toBooleanArray()
-        val dialog = AlertDialog.Builder(context)
-            .setPositiveButton(R.string.okay) {d,_ ->
-                val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
-                cb(selectedBooks)
-            }
-            .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
-                checkedItems[pos] = value
-            }
-            .setNeutralButton(R.string.select_all, null)
-            .setNegativeButton(R.string.cancel, null)
-            .setTitle(getString(R.string.backup_modules_title))
-            .create()
+                val checkedItems = bookNames.map { false }.toBooleanArray()
+                val dialog = AlertDialog.Builder(context)
+                    .setPositiveButton(R.string.okay) { d, _ ->
+                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
+                        if(selectedBooks.isEmpty()) {
+                            it.resume(null)
+                        } else {
+                            it.resume(selectedBooks)
+                        }
+                    }
+                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
+                        checkedItems[pos] = value
+                    }
+                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
+                    .setTitle(getString(R.string.backup_modules_title))
+                    .create()
 
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                val allSelected = checkedItems.find { !it } == null
-                val newValue = !allSelected
-                val v = dialog.listView
-                for(i in 0 until v.count) {
-                    v.setItemChecked(i, newValue)
-                    checkedItems[i] = newValue
+                dialog.setOnShowListener {
+                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                        val allSelected = checkedItems.find { !it } == null
+                        val newValue = !allSelected
+                        val v = dialog.listView
+                        for (i in 0 until v.count) {
+                            v.setItemChecked(i, newValue)
+                            checkedItems[i] = newValue
+                        }
+                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
+                    }
                 }
-                (it as Button).text = getString(if(allSelected) R.string.select_all else R.string.select_none)
+                dialog.show()
             }
         }
-        dialog.show()
-
+        return result
     }
 
-    fun backupModulesViaIntent(callingActivity: Activity) {
-        val fileName = "modules.zip"
-        internalDbBackupDir.mkdirs()
-        val f = File(internalDbBackupDir, fileName)
-        selectModules(callingActivity) { books ->
-            val modules = books.joinToString(", ") { it.abbreviation }
-            val subject = getString(R.string.backup_modules_email_subject)
-            val message = BibleApplication.application.getString(R.string.backup_modules_email_message, modules)
+    private suspend fun createZip(books: List<Book>, zipFile: File) {
+        fun relativeFileName(rootDir: File, file: File): String {
+            val filePath = file.canonicalPath
+            val dirPath = rootDir.canonicalPath
+            assert(filePath.startsWith(dirPath))
+            return filePath.substring(dirPath.length + 1)
+        }
 
-            val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
+        fun addFile(outFile: ZipOutputStream, rootDir: File, configFile: File) {
+            FileInputStream(configFile).use {inFile ->
+                BufferedInputStream(inFile).use { origin ->
+                    val entry = ZipEntry(relativeFileName(rootDir, configFile))
+                    outFile.putNextEntry(entry)
+                    origin.copyTo(outFile)
+                }
+            }
+        }
+
+        withContext(Dispatchers.IO) {
+            ZipOutputStream(FileOutputStream(zipFile)).use {outFile ->
+                for(b in books) {
+                    val bmd = b.bookMetaData as SwordBookMetaData
+                    val configFile = bmd.configFile
+                    val rootDir = configFile.parentFile!!.parentFile!!
+
+                    addFile(outFile, rootDir, configFile)
+                    val dataPath = bmd.getProperty("DataPath")
+                    val dataDir = File(rootDir, dataPath)
+                    for(f in dataDir.walkTopDown().filter { it.isFile }) {
+                        addFile(outFile, rootDir, f)
+                    }
+                }
+            }
+        }
+    }
+
+    fun clearBackupDir() {
+        internalDbBackupDir.deleteRecursively()
+    }
+
+    suspend fun backupModulesViaIntent(callingActivity: Activity) {
+        withContext(Dispatchers.Main) {
+            val fileName = "modules.zip"
+            internalDbBackupDir.mkdirs()
+            val zipFile = File(internalDbBackupDir, fileName)
+            val books = selectModules(callingActivity) ?: return@withContext
+
+            Dialogs.getInstance().showHourglass()
+            createZip(books, zipFile)
+            Dialogs.getInstance().dismissHourglass()
+
+            val modulesString = books.joinToString(", ") { it.abbreviation }
+            val subject = getString(R.string.backup_modules_email_subject)
+            val message = BibleApplication.application.getString(R.string.backup_modules_email_message, modulesString)
+
+            val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
             val email = Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 putExtra(Intent.EXTRA_SUBJECT, subject)

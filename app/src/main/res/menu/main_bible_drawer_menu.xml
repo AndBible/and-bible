@@ -59,7 +59,6 @@
                 android:title="@string/install_zip"
                 android:icon="@drawable/ic_unarchive_white_24dp"/>
 
-
             <item android:id="@+id/manageLabels"
                 android:title="@string/manage_labels"
                 android:icon="@drawable/ic_label_multiple_24dp"/>

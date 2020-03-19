@@ -505,7 +505,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
-    <string name="backup_modules">Backup modules as a zip file to…</string>
+    <string name="backup_modules">Backup Documents…</string>
     <string name="backup_app_database">Backup application database to…</string>
     <string name="restore_app_database">Restore application database from…</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Reading Plans and Workspaces?</string>

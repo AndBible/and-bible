@@ -33,6 +33,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -199,7 +201,9 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.backup_modules -> {
-                    backupControl.backupModulesViaIntent(callingActivity)
+                    GlobalScope.launch {
+                        backupControl.backupModulesViaIntent(callingActivity)
+                    }
                     isHandled = true
                 }
                 R.id.bugReport -> {
