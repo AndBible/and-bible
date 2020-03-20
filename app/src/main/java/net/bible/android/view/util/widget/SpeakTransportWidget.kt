@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -54,7 +54,6 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.speak_transport_widget, this, true)
-        ABEventBus.getDefault().register(this)
 
         buildActivityComponent().inject(this)
 
@@ -81,7 +80,13 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         }
     }
 
+    override fun onDetachedFromWindow() {
+        ABEventBus.getDefault().register(this)
+        super.onDetachedFromWindow()
+    }
+
     override fun onAttachedToWindow() {
+        ABEventBus.getDefault().unregister(this)
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
@@ -107,7 +112,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 forwardButton -> speakControl.forward()
             }
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
     }

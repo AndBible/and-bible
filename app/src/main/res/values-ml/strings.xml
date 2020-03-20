@@ -213,6 +213,7 @@
   <string name="about_copyright">പകർപ്പവകാശ %s</string>
   <string name="about_version">പതിപ്പ്: %s</string>
   <string name="about_versification">വാക്യം ക്രമീകരണം: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">വേദപുസ്തകം </string>
   <string name="doc_type_commentary">പാഠ്യപുസ്തകം </string>

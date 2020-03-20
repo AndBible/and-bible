@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -107,7 +107,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	        mMatchingKeyList));
     	
     	final Handler uiHandler = new Handler();
-    	Dialogs.getInstance().showHourglass();
+    	showHourglass();
     	
     	new Thread( new Runnable() {
 
@@ -123,7 +123,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			    	Log.d(TAG, "Finished Initialising");
 				} catch (Exception e) {
 					Log.e(TAG, "Error creating dictionary key list");
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+					Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 				} finally {
 			    	// must dismiss hourglass in ui thread
 			    	uiHandler.post(new Runnable() {
@@ -163,7 +163,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error finding matching keys", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
     }
     
@@ -183,7 +183,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Key not found", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
 

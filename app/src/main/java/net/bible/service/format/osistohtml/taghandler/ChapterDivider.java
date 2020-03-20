@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -56,9 +56,6 @@ public class ChapterDivider implements OsisTagHandler {
 			if (chapter>1) {
 				if (parameters.isShowVerseNumbers()) {
 					writer.write("<div class='chapterNo'>&#8212; " + chapter + " &#8212;</div>");
-				} else {
-					// need some space to allow scrolling up to cause infinite-scroll to populate prior chapter
-					writer.write("<div class='chapterNo'>&nbsp;</div>");
 				}
 			}
 			// used to jump to the top of a chapter, but still allow up scroll

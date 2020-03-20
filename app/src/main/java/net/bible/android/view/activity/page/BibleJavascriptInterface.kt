@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -75,7 +75,6 @@ class BibleJavascriptInterface(
         // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
         if (notificationsEnabled
             && !addingContentAtTop
-            && !PassageChangeMediator.getInstance().isPageChanging
             && !windowControl.isSeparatorMoving()
             && bibleView.contentVisible)
         {
@@ -138,11 +137,5 @@ class BibleJavascriptInterface(
         bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
     }
 
-    @JavascriptInterface
-    fun triggerJumpToOffset() {
-        Log.d(TAG, "triggerJumpToOffset!")
-        bibleView.jumpToOffset()
-    }
-
-	private val TAG get() = "BibleView[${bibleView.window.id}] JSInt"
+	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

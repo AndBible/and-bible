@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="328"
-    android:versionName="3.2.328">
+    android:versionCode="353"
+    android:versionName="3.2.353-beta">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -19,12 +19,6 @@
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
-
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true" />
 
     <application
         android:name="net.bible.android.BibleApplication"
@@ -82,19 +76,23 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name="net.bible.android.view.activity.search.SearchResults"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndex"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />
@@ -163,7 +161,26 @@
             android:label="@string/settings"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity"
+            android:theme="@style/MyDayNightTheme"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/workspace_selector_title"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/workspace_color_settings_title"
+            android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
+            android:label="@string/text_display_settings_activity_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.navigation.History"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/history"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />

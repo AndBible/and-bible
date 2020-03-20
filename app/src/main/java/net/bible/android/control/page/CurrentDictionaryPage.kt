@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -31,9 +31,10 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentDictionaryPage internal constructor(
-	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade), CurrentPage
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
     override val bookCategory = BookCategory.DICTIONARY
 

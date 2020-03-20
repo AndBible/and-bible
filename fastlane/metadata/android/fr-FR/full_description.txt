@@ -1,0 +1,32 @@
+And Bible est un logiciel libre d'aide à l'étude de la Bible, sans pubs, gratuit, et fonctionnant hors-ligne. Toute personne, de tout pays, peut ainsi lire ou écouter, étudier l'Écriture très facilement, et d'en retirer des bienfaits personnels les plus grands.
+
+* Bibles, Commentaires, Dictionnaires, Cartes, et livres disponibles en plus de 700 langues.
+* Hors-ligne intégral (hormis le téléchargement initial), même pour l'ajout de notes, de commentaires, les recherches, etc.
+* Interface in multiple languages
+* Différents plans d'aide à la lecture de la Bible
+* Entièrement libre et gratuit, aucune publicité, pas de mail de prospection commerciale
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* Commentaires bibliques
+* Dictionnaires bibliques et livres d'étude
+* Tous les documents sont distribués de manière légale (Raison pour laquelle les Bibles sous Copyright sont absentes)
+* L'intégration des nombres de Strong permet l'analyse des mots en grec ou hébreu
+* Multiple workspaces with split screen
+* Ajoutez vos notes personnelles
+* Faites des recherches en souplesse
+* Créez des signets sur les passages qui vous intéressent
+* Visualisez les cartes des contrées bibliques (en anglais actuellement)
+* Écoutez le texte lu à voix haute pour vous
+* Défilement du texte automatique, mode jour/nuit automatique
+* Affichage parallèle de versions différentes sur un même écran
+* Une application biblique des plus rapides sur Android
+* Un Logiciel libre - Vous êtes libres d'améliorer ou de changer le code si vous le voulez
+* S’appuie sur le puissant moteur JSword de CrossWire
+
+Nous sommes tous bénévoles; nous ne vous enverrons donc pas de mails de prospection commerciale, ni de publicité. Nous n'appelons pas à recevoir, ni ne recevons de dons. Nous ne vous demandons pas de vous enregistrer sur un serveur. And Bible ne collecte aucune donnée personnelle de votre mobile.
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+<b>Notes</b>
+* And Bible sur Facebook: https://www.facebook.com/AndBible/
+* La FAQ And Bible (en anglais) : https://github.com/AndBible/and-bible/wiki/FAQ
+* La page du projet sur Github : https://github.com/AndBible/and-bible

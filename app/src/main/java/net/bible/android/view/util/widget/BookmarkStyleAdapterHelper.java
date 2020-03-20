@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -42,6 +42,10 @@ public class BookmarkStyleAdapterHelper {
 	private String sampleText = CommonUtils.INSTANCE.getResourceString(R.string.prefs_text_size_sample_text);
 
 	public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText) {
+		styleView(view, bookmarkStyle, context, overrideText, centreText, false);
+	}
+
+	public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText, boolean emphasize) {
 
 		// prepare text to be shown
 		String baseText;
@@ -53,6 +57,9 @@ public class BookmarkStyleAdapterHelper {
 			if (baseText.startsWith("*")) {
 				StringUtils.strip(baseText, "*");
 			}
+		}
+		if(emphasize) {
+			baseText = "⤇ " + baseText + " ⤆";
 		}
 
 		int backgroundColor = Color.WHITE;

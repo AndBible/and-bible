@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -61,11 +61,11 @@ class LightSensor(val callBack: (newValue: Float) -> Unit) {
         }
     }
 
-    val myLightListener: SensorEventListener = object : SensorEventListener {
+    private val myLightListener: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
             if (sensorEvent.sensor.type == Sensor.TYPE_LIGHT) {
                 mReading = sensorEvent.values[0]
-				Log.d(TAG, "Reading: $mReading")
+				// Log.d(TAG, "Reading: $mReading")
 				callBack(mReading)
             }
         }

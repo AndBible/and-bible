@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:title="@string/colors_day_mode_title"
+        >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_text_day"
+            android:key="text_color_day"
+            android:title="@string/color_text"
+            />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_background_day"
+            android:key="background_color_day"
+            android:title="@string/color_background"/>
+        <SeekBarPreference
+            android:defaultValue="0"
+            android:max="100"
+            android:key="noise_day"
+            android:title="@string/prefs_noise_title"
+            android:summary="@string/prefs_noise_summary"
+            app:showSeekBarValue="true"
+            />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/colors_night_mode_title"
+        >
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_text_night"
+            android:key="text_color_night"
+            android:title="@string/color_text"
+            />
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/bible_background_night"
+            android:key="background_color_night"
+            android:title="@string/color_background"/>
+        <SeekBarPreference
+            android:defaultValue="0"
+            android:max="100"
+            android:key="noise_night"
+            android:title="@string/prefs_noise_title"
+            android:summary="@string/prefs_noise_summary"
+            app:showSeekBarValue="true"
+            />
+
+    </PreferenceCategory>
+</PreferenceScreen>

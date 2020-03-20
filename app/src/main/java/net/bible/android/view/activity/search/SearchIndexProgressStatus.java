@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -21,6 +21,7 @@ package net.bible.android.view.activity.search;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.search.SearchControl;
@@ -39,9 +40,14 @@ import org.crosswire.jsword.index.IndexStatus;
 public class SearchIndexProgressStatus extends ProgressActivityBase {
 
 	private Book documentBeingIndexed;
-	
+
+	@Override
+	protected boolean getCustomTheme() {
+		return false;
+	}
+
 	private static final String TAG = "SearchIndexProgressStat";
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,15 +55,14 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 
 		super.buildActivityComponent().inject(this);
 
-		hideButtons();
 		setMainText(getString(R.string.indexing_wait_msg));
-		
+
 		String docInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 		documentBeingIndexed = getSwordDocumentFacade().getDocumentByInitials(docInitials);
 	}
 
 	/**
-	 * check index exists and go to search screen if index exists 
+	 * check index exists and go to search screen if index exists
 	 * if no more jobs in progress and no index then error
 	 *
 	 */
@@ -68,7 +73,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		while (!IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus()) && attempts++<6) {
 			CommonUtils.INSTANCE.pause(2);
 		}
-		
+
 		// if index is fine then goto search
 		if (IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus())) {
 			Log.i(TAG, "Index created");
@@ -85,11 +90,15 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 			finish();
 		} else {
 			// if jobs still running then just wait else error
-			
+
 			if (isAllJobsFinished()) {
 				Log.e(TAG, "Index finished but document's index is invalid");
-				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
+	}
+
+	public void onHide(View view){
+		finish();
 	}
 }

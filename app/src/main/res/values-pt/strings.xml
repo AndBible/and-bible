@@ -182,6 +182,7 @@
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versão: %s</string>
   <string name="about_versification">Versificação: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bíblia</string>
   <string name="doc_type_commentary">Comentário</string>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -29,22 +29,12 @@ import net.bible.android.control.page.window.Window;
 public class WindowSizeChangedEvent implements WindowEvent {
 
 	private boolean isFinished;
-	private Map<Window, ChapterVerse> windowChapterVerseMap;
-	
-	public WindowSizeChangedEvent(boolean isFinished, Map<Window, ChapterVerse> windowChapterVerseMap) {
+
+	public WindowSizeChangedEvent(boolean isFinished) {
 		this.isFinished = isFinished;
-		this.windowChapterVerseMap = windowChapterVerseMap;
 	}
 
 	public boolean isFinished() {
 		return isFinished;
-	}
-
-	public boolean isVerseNoSet(Window window) {
-		return windowChapterVerseMap.containsKey(window);
-	}
-
-	public ChapterVerse getChapterVerse(Window window) {
-		return windowChapterVerseMap.get(window);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -19,11 +19,13 @@
 package net.bible.android.control.page
 
 import android.content.Intent
+import android.util.Log
 
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
@@ -32,6 +34,7 @@ import net.bible.service.sword.SwordDocumentFacade
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
 import java.lang.RuntimeException
@@ -47,20 +50,38 @@ open class CurrentPageManager @Inject constructor(
         swordContentFacade: SwordContentFacade,
         swordDocumentFacade: SwordDocumentFacade,
         bibleTraverser: BibleTraverser,
-        myNoteDAO: MyNoteDAO)
+        myNoteDAO: MyNoteDAO,
+        val windowRepository: WindowRepository
+        )
 {
     // use the same verse in the commentary and bible to keep them in sync
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible: CurrentBiblePage
-    val currentCommentary: CurrentCommentaryPage
-    val currentDictionary: CurrentDictionaryPage
-    val currentGeneralBook: CurrentGeneralBookPage
-    val currentMap: CurrentMapPage
-    val currentMyNotePage: CurrentMyNotePage
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO, this)
+    val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
+    val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
+    val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
+
+    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
+
+
+    val hasStrongs: Boolean get() {
+        return try {
+            val currentBook = currentPage.currentDocument
+            currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking for strongs Numbers in book", e)
+            false
+        }
+    }
+
+    val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowRepository.textDisplaySettings)
 
     lateinit var window: Window
 
-    var currentPage: CurrentPage
+    var currentPage: CurrentPage = currentBible
         private set
 
     /**
@@ -93,17 +114,6 @@ open class CurrentPageManager @Inject constructor(
     val isMapShown: Boolean
         get() = currentMap === currentPage
 
-    init {
-        currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-        currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade)
-        currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO)
-
-        currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade)
-        currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade)
-        currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade)
-
-        currentPage = currentBible
-    }
 
     /** display a new Document and return the new Page
      */
@@ -149,15 +159,11 @@ open class CurrentPageManager @Inject constructor(
     }
 
     @JvmOverloads
-    fun setCurrentDocumentAndKey(currentBook: Book?, key: Key, updateHistory: Boolean = true): CurrentPage? {
-        return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE.toFloat(), updateHistory)
-    }
-
-    fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float): CurrentPage? {
-        return setCurrentDocumentAndKeyAndOffset(currentBook, key, yOffsetRatio, true)
-    }
-
-    private fun setCurrentDocumentAndKeyAndOffset(currentBook: Book?, key: Key, yOffsetRatio: Float, updateHistory: Boolean): CurrentPage? {
+    fun setCurrentDocumentAndKey(currentBook: Book?,
+                                 key: Key,
+                                 updateHistory: Boolean = true,
+                                 yOffsetRatio: Float = SharedConstants.NO_VALUE.toFloat()
+    ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
         val nextPage = getBookPage(currentBook)
@@ -173,7 +179,7 @@ open class CurrentPageManager @Inject constructor(
             }
         }
         // valid key has been set so do not need to show a key chooser therefore just update main view
-        PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+        PassageChangeMediator.getInstance().onCurrentPageChanged(window)
 
         return nextPage
     }
@@ -211,22 +217,34 @@ open class CurrentPageManager @Inject constructor(
     val entity get() =
         WorkspaceEntities.PageManager(
             window.id,
-            currentBible.entity,
-            currentCommentary.entity,
-            currentDictionary.pageEntity,
-            currentGeneralBook.pageEntity,
-            currentMap.pageEntity,
-            currentPage.bookCategory.getName()
+            currentBible.entity.copy(),
+            currentCommentary.entity.copy(),
+            currentDictionary.pageEntity.copy(),
+            currentGeneralBook.pageEntity.copy(),
+            currentMap.pageEntity.copy(),
+            currentPage.bookCategory.getName(),
+            textDisplaySettings.copy()
         )
 
-    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?) {
+    fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
+
+        // Order between these two following lines is critical!
+        // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
         currentBible.restoreFrom(pageManagerEntity.biblePage)
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
+
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+        val settings = pageManagerEntity.textDisplaySettings
+        if(workspaceDisplaySettings != null) {
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+            textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+        }
         currentPage = getBookPage(restoredBookCategory)
     }
+
+    val TAG get() = "PageManager[${window.id}]"
 }

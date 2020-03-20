@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -30,6 +30,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.WarmUp
+import net.bible.android.view.activity.base.Callback
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.FirstDownload
@@ -73,7 +74,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         // show fatal startup msg and close app
         if (abortErrorMsgId != 0) {
-            Dialogs.getInstance().showErrorMsg(abortErrorMsgId) {
+            Dialogs.instance.showErrorMsg(abortErrorMsgId) {
                 // this causes the blue splashscreen activity to finish and since it is the top the app closes
                 finish()
             }
@@ -133,7 +134,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val handlerIntent = Intent(this, FirstDownload::class.java)
             startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
         } else {
-            Dialogs.getInstance().showErrorMsg(errorMessage) { finish() }
+            Dialogs.instance.showErrorMsg(errorMessage) { finish() }
         }
     }
 

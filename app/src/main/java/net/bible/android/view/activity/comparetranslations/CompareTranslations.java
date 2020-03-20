@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -126,7 +126,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	    	translationSelected(mTranslations.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+			Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

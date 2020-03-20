@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/prefs_text_display_settings_title"
+        >
+        <SwitchPreferenceCompat
+            android:key="STRONGS"
+            android:title="@string/prefs_show_strongs_title"
+            android:summary="@string/prefs_show_strongs_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="MORPH"
+            android:title="@string/prefs_show_morphology_title"
+            android:summary="@string/prefs_show_morphology_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="FOOTNOTES"
+            android:title="@string/prefs_show_notes_title"
+            android:summary="@string/prefs_show_notes_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="SECTIONTITLES"
+            android:title="@string/prefs_section_title_title"
+            android:summary="@string/prefs_section_title_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="VERSENUMBERS"
+            android:title="@string/prefs_show_verseno_title"
+            android:summary="@string/prefs_show_verseno_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="BOOKMARKS"
+            android:title="@string/prefs_show_bookmarks_title"
+            android:summary="@string/prefs_show_bookmarks_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="MYNOTES"
+            android:title="@string/prefs_show_mynotes_title"
+            android:summary="@string/prefs_show_mynotes_summary"
+            />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_text_appearance_title"
+        >
+        <Preference
+            android:key="COLORS"
+            android:title="@string/prefs_text_colors_menutitle"
+            android:summary="@string/prefs_text_colors_summary"
+            />
+
+        <Preference
+            android:key="FONT"
+            android:title="@string/prefs_text_size_title"
+            android:summary="@string/prefs_text_size_summary"
+            />
+
+        <Preference
+            android:key="MARGINSIZE"
+            android:title="@string/prefs_margin_size_title"
+            android:summary="@string/prefs_margin_size_summary"
+            />
+
+        <Preference
+            android:key="LINE_SPACING"
+            android:title="@string/line_spacing_title"
+            android:summary="@string/line_spacing_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="REDLETTERS"
+            android:title="@string/prefs_red_letter_title"
+            android:summary="@string/prefs_red_letter_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="VERSEPERLINE"
+            android:title="@string/prefs_verse_per_line_title"
+            android:summary="@string/prefs_verse_per_line_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="JUSTIFY"
+            android:title="@string/prefs_justify_title"
+            android:summary="@string/prefs_justify_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="HYPHENATION"
+            android:title="@string/prefs_hyphenation_title"
+            android:summary="@string/prefs_hyphenation_summary"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

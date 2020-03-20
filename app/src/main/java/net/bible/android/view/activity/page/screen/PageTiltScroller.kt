@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -135,11 +135,7 @@ class PageTiltScroller(
      */
     private class ScrollMsgHandler internal constructor(pageTiltScroller: PageTiltScroller) : Handler() {
         // avoid potential memory leak.  See http://stackoverflow.com/questions/11407943/this-handler-class-should-be-static-or-leaks-might-occur-incominghandler
-        private val pageTiltScrollerRef: WeakReference<PageTiltScroller>
-
-        init {
-            this.pageTiltScrollerRef = WeakReference(pageTiltScroller)
-        }
+        private val pageTiltScrollerRef: WeakReference<PageTiltScroller> = WeakReference(pageTiltScroller)
 
         /** scroll the window 1 pixel up
          */

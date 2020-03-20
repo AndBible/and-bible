@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.content.SharedPreferences
 import android.util.Log
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
@@ -37,7 +38,7 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private val scaledMinimumFullScreenScrollDistance: Int
 
     private var minScaledVelocity: Int = 0
-    private var autoFullScreen: Boolean = false
+    private val autoFullScreen: Boolean get() = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
     private var disableSingleTapOnce = false
@@ -66,7 +67,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
         ABEventBus.getDefault().register(this)
-        autoFullScreen = CommonUtils.sharedPreferences.getBoolean("auto_fullscreen_pref", false)
     }
 
     override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -102,10 +102,6 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             }
         }
         return false
-    }
-
-    fun onEvent(event: MainBibleActivity.AutoFullScreenChanged) {
-        autoFullScreen = event.newValue
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

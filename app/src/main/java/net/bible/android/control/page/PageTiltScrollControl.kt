@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -17,27 +17,25 @@
  */
 package net.bible.android.control.page
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.os.Build
 import android.util.Log
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import java.util.*
+import kotlin.math.PI
 
 /** Manage the logic behind tilt-to-scroll
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-//Tilt-scroll is disabled on 2.1/ only enabled on 2.2+
-@TargetApi(Build.VERSION_CODES.FROYO)
+
 class PageTiltScrollControl {
     var isTiltScrollEnabled = false
         private set
@@ -49,7 +47,6 @@ class PageTiltScrollControl {
     private var mSensorsTriggered = false
     private var mLastNormalisedPitchValue = 0
     // current pitch of phone - varies dynamically
-    private var mOrientationValues: FloatArray? = null
     private var mRotation = Surface.ROTATION_0
     // needed to find if screen switches to landscape and must different sensor value
     private var mDisplay: Display? = null
@@ -78,21 +75,20 @@ class PageTiltScrollControl {
         get() {
             val tiltScrollInfo = tiltScrollInfoSingleton.reset()
             var delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS
-            if (mOrientationValues != null) {
-                val normalisedPitch = getNormalisedPitch(mRotation, mOrientationValues!!)
-                if (normalisedPitch != INVALID_STATE) {
-                    val devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch)
-                    if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
-                        tiltScrollInfo.forward = normalisedPitch < mNoScrollViewingPitch
-                        // speedUp if tilt screen beyond a certain amount
-                        if (tiltScrollInfo.forward) {
-                            delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle - NO_SCROLL_VIEWING_TOLERANCE - NO_SPEED_INCREASE_VIEWING_TOLERANCE - 1)
-                            // speedup could be done by increasing scroll amount but that leads to a jumpy screen
-                            tiltScrollInfo.scrollPixels = 1
-                        } else { // TURNED OFF UPSCROLL
-                            delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS
-                            tiltScrollInfo.scrollPixels = 0
-                        }
+
+            val normalisedPitch = getNormalisedPitch(mRotation, rotationValues)
+            if (normalisedPitch != INVALID_STATE) {
+                val devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch)
+                if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
+                    tiltScrollInfo.forward = normalisedPitch < mNoScrollViewingPitch
+                    // speedUp if tilt screen beyond a certain amount
+                    if (tiltScrollInfo.forward) {
+                        delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle - NO_SCROLL_VIEWING_TOLERANCE - NO_SPEED_INCREASE_VIEWING_TOLERANCE - 1)
+                        // speedup could be done by increasing scroll amount but that leads to a jumpy screen
+                        tiltScrollInfo.scrollPixels = 1
+                    } else { // TURNED OFF UPSCROLL
+                        delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS
+                        tiltScrollInfo.scrollPixels = 0
                     }
                 }
             }
@@ -105,8 +101,8 @@ class PageTiltScrollControl {
     /** start or stop tilt to scroll functionality
      */
     fun enableTiltScroll(enable: Boolean): Boolean {
-        return if (!sharedPreferences.getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) ||
-            !isTiltSensingPossible) {
+        val enabled = mainBibleActivity.windowRepository.windowBehaviorSettings.enableTiltToScroll
+        return if (!enabled || !isTiltSensingPossible) {
             false
         } else if (isTiltScrollEnabled != enable) {
             isTiltScrollEnabled = enable
@@ -194,8 +190,8 @@ class PageTiltScrollControl {
     private fun connectListeners() {
         mDisplay = (application.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val oSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION)
-        sm.registerListener(myOrientationListener, oSensor, SensorManager.SENSOR_DELAY_UI)
+        val rSensor = sm.getDefaultSensor(SENSOR_TYPE)
+        sm.registerListener(myOrientationListener, rSensor, SensorManager.SENSOR_DELAY_UI)
     }
 
     private fun disconnectListeners() {
@@ -209,13 +205,22 @@ class PageTiltScrollControl {
         }
     }
 
-    val myOrientationListener: SensorEventListener = object : SensorEventListener {
+    var rotationValues = FloatArray(4)
+
+    private val myOrientationListener: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
-            if (sensorEvent.sensor.type == Sensor.TYPE_ORIENTATION) {
-                mOrientationValues = sensorEvent.values
-                mRotation = mDisplay!!.rotation
-                mSensorsTriggered = true
+            val type = sensorEvent.sensor.type
+            if (type == SENSOR_TYPE) {
+                val rotationMatrix = FloatArray(9)
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values)
+                SensorManager.getOrientation(rotationMatrix, rotationValues)
+                for(i in 0..3) {
+                    rotationValues[i] = rotationValues[i] / (2.0f * PI.toFloat()) * 360.0f
+                }
             }
+
+            mRotation = mDisplay!!.rotation
+            mSensorsTriggered = true
         }
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
@@ -236,6 +241,7 @@ class PageTiltScrollControl {
     }
 
     companion object {
+        const val SENSOR_TYPE = Sensor.TYPE_GAME_ROTATION_VECTOR
         // must be null initially
         private var mIsOrientationSensor: Boolean? = null
         private const val NO_SCROLL_VIEWING_TOLERANCE = 2 //3;
@@ -272,7 +278,6 @@ class PageTiltScrollControl {
         private const val MAX_SPEED = 0.2f
         // calculated to ensure even speed up of scrolling
 		private lateinit var mTimeBetweenScrolls: Array<Int>
-        const val TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref"
         private const val TAG = "TiltScrollControl"
         /** return true if both a sensor and android support are available to sense device tilt
          */
@@ -282,14 +287,11 @@ class PageTiltScrollControl {
         /**
          * Returns true if at least one Orientation sensor is available
          */
-        val isOrientationSensor: Boolean
+        private val isOrientationSensor: Boolean
             get() {
                 if (mIsOrientationSensor == null) {
                     val sm = application.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-                    mIsOrientationSensor = run {
-						val sensors = sm.getSensorList(Sensor.TYPE_ORIENTATION)
-						java.lang.Boolean.valueOf(sensors.size > 0)
-					}
+                    mIsOrientationSensor = sm.getDefaultSensor(SENSOR_TYPE) != null
                 }
                 return mIsOrientationSensor!!
             }

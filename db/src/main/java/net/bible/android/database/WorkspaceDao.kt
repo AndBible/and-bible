@@ -39,7 +39,8 @@ interface WorkspaceDao {
             ?: return WorkspaceEntities.Workspace(newName).apply {
                 id = insertWorkspace(this)
             }
-        val newWorkspace = WorkspaceEntities.Workspace(newName)
+        val newWorkspace = WorkspaceEntities.Workspace(newName, oldWorkspace.contentsText, 0,
+            oldWorkspace.orderNumber, oldWorkspace.textDisplaySettings, oldWorkspace.windowBehaviorSettings)
         newWorkspace.id = insertWorkspace(newWorkspace)
 
         val windows = windows(oldWorkspace.id)
@@ -88,7 +89,7 @@ interface WorkspaceDao {
     @Query("SELECT * from Workspace LIMIT 1")
     fun firstWorkspace(): WorkspaceEntities.Workspace?
 
-    @Query("SELECT * from Workspace")
+    @Query("SELECT * from Workspace ORDER BY orderNumber, name")
     fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId AND NOT isLinksWindow ORDER BY orderNumber ")
@@ -108,4 +109,18 @@ interface WorkspaceDao {
         deleteHistoryItems(windowId)
         insertHistoryItems(entities)
     }
+
+    @Transaction
+    fun applyTextToDisplaySettingsToAllWorkspaces(displaySettings: WorkspaceEntities.TextDisplaySettings) {
+        for(w in allWorkspaces()) {
+            w.textDisplaySettings = displaySettings
+            updateWorkspace(w)
+        }
+    }
+
+    @Query("SELECT count() from Workspace")
+    fun workspacesCount(): Int
+
+    @Update
+    fun updateWorkspaces(items: List<WorkspaceEntities.Workspace>)
 }

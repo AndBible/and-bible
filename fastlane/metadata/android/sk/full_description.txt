@@ -1,0 +1,32 @@
+And Bible je open-source, offlin a úplne bezplatný biblický program bez reklamy, aby umožnil čo najväčšiemu množstvu ľudí všetkých krajín čítať, počúvať a študovať Sväté Písmo tak ľahko ako to len ide a tiež s čo najväčším osobným požehnaním.
+
+Preklady Biblie, komentáre, Teologické slovníky, Mapy, kresťanské knihy vo viac ako 700 jazykoch.
+Offline pre všetko po úvodnom stiahnutí vrátane vyhľadávania, poznámok, komentárov, atď.
+* Interface in multiple languages
+Rôzne plány čítania Biblie
+Úplne zadarmo, žiadne reklamy, žiadne otravné emaily.
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+29 biblických komentárov
+Rozsiahly slovník a zbierka kresťanských kníh.
+Všetky dokumenty sú legálne distribuované (dôvod prečo verzie ako NKJV a NIV nie sú dostupné)
+Podpora Strongových čísel pre analýzu slov gréckeho a hebrejského textu.
+* Multiple workspaces with split screen
+Zapisuj si osobné poznámky
+Prispôsobivé vyhľadávanie
+Záložky
+Mapy biblických zemí
+Vypočuj si každý dokument čítaný pre teba
+Automatické posúvanie, automatický režim deň/noc
+Porovnávaj všetky biblické preklady priamo na jednej obrazovke
+Jedna z najrýchlejších aplikácií pre prácu s Bibliou pre Android
+Open source - možnosť vylepšťi alebo zmeniť zdrojový kód
+Použi silný JSword engine z biblického projektu CrossWire
+
+My všetci sme dobrovoľníci; neposielame blbé emaily; nepodporujeme otravné reklamy; nepýtame finančnú podporu; nie je potrebná registrácia; And Bible nezbiera žiadne údaje z vášho telefónu.
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+<b>Poznámky</b>
+Postavte páčik na Facebooku: https://www.facebook.com/AndBible/
+Odkaz na často kladené otázky FAQ: https://github.com/AndBible/and-bible/wiki/FAQ
+Stránka projektu na GitHub: https://github.com/AndBible/and-bible

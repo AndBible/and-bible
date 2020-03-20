@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -25,7 +25,6 @@ import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.window.Window;
-import net.bible.service.device.ScreenSettings;
 import android.util.Log;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
@@ -36,8 +35,6 @@ import android.util.Log;
 public class PassageChangeMediator {
 
 	private BibleContentManager mBibleContentManager;
-
-	private boolean isPageChanging = false;
 
 	private static final String TAG = "PassageChangeMediator";
 	
@@ -54,8 +51,6 @@ public class PassageChangeMediator {
 	/** first time we know a page or doc will imminently change
 	 */
 	public void onBeforeCurrentPageChanged(boolean updateHistory) {
-		isPageChanging = true;
-
 		ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
 		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
 	}
@@ -84,21 +79,14 @@ public class PassageChangeMediator {
 	/** The thread which fetches the new page html has started
 	 */
 	public void contentChangeStarted() {
-		isPageChanging = true;
 		ABEventBus.getDefault().post(new PassageChangeStartedEvent());
 	}
 	/** finished fetching html so should hide hourglass
 	 */
 	public void contentChangeFinished() {
 		ABEventBus.getDefault().post(new PassageChangedEvent());
-
-		isPageChanging = false;
 	}
 	
-	public boolean isPageChanging() {
-		return isPageChanging;
-	}
-
 	public void setBibleContentManager(BibleContentManager bibleContentManager) {
 		this.mBibleContentManager = bibleContentManager;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -152,7 +152,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 			}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
 	}
 
@@ -280,7 +280,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 					loadBookmarkList();
 				} catch (Exception e) {
 					Log.e(TAG, "Error sorting bookmarks", e);
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+					Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 				}
 
 				break;

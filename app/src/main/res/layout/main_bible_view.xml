@@ -23,7 +23,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constrainedHeight="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             />
@@ -53,6 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/menu"
+                    android:tint="?attr/toolbarTextColor"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/pageTitleContainer"
                     app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +100,7 @@
 
                     <ImageButton
                         android:id="@+id/searchButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/search"
@@ -108,46 +108,44 @@
 
                     <ImageButton
                         android:id="@+id/speakButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/speak"
                         app:srcCompat="@drawable/ic_hearing_24dp" />
                     <ImageButton
                         android:id="@+id/bookmarkButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/bookmarks"
-                        app:srcCompat="@drawable/ic_collections_bookmark_24dp" />
-                    <Button
+                        app:srcCompat="@drawable/ic_collections_bookmark_24dp"
+                        />
+                    <ImageButton
                         android:id="@+id/strongsButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:contentDescription="@string/prefs_show_strongs_title"
-                        android:text="nnnn"
+                        app:srcCompat="@drawable/ic_strongs_hebrew"
                         />
-                    <Button
+                    <ImageButton
                         android:id="@+id/bibleButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_bible" />
+                        android:contentDescription="@string/doc_type_bible"
+                        app:srcCompat="@drawable/ic_bible"
+                        />
 
-                    <Button
+                    <ImageButton
                         android:id="@+id/commentaryButton"
-                        style="@style/Widget.AppCompat.ActionButton"
+                        style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_commentary" />
-
-                    <Button
-                        android:id="@+id/dictionaryButton"
-                        style="@style/Widget.AppCompat.ActionButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@string/doc_type_dictionary" />
+                        android:contentDescription="@string/doc_type_commentary"
+                        app:srcCompat="@drawable/ic_commentary"
+                        />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.appcompat.widget.Toolbar>

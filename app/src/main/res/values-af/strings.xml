@@ -23,6 +23,20 @@ Die konteks kieslys van Bookmark Manager laat boekmerke saam met etikette gegroe
   <string name="help_search_title">Soek</string>
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
+  <string name="help_workspaces_title">Werkruimtes</string>
+  <string name="help_workspaces_text">
+Met werkruimtes kan daar verskeie konteksafhanklike werksomgewings wees. Werkruimtefunksies kan
+verkry word via Werkruimte-item in die keusemenu (regs bo). Vinnige manier om toegang tot 
+werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook vee-links-en-regs-gebare oor die werkbalk gebruik om oor te 
+skakel na vorige / volgende werkruimte.
+
+</string>
+  <string name="help_hidden_features_title">Verborge kortpaaie</string>
+  <string name="help_hidden_features_text">
+Swiep van die werkbalk af om die werkruimte-selector te wys. 
+Langklik op die vensterknoppie om vinnig te verminder.
+ Langklik spreek balk knoppie om vinnig na praatinstellings te gaan.
+Langklik vers plek  se titel op die werkbalk om na die dokumente-keurder te gaan.</string>
   <string name="help_contextmenus_title">Konteks Kieslys</string>
   <string name="help_contextmenus_text">
 Druk lank op die Bybelbeskouing om die konteks kieslys oop te maak vir aksies wat die huidige vers raak.
@@ -36,10 +50,12 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Teks</string>
   <string name="search">Vind</string>
-  <string name="settings">Stellings</string>
+  <string name="settings">Toepassing voorkeure</string>
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
+  <string name="other">Ander</string>
+  <string name="help_and_tips">Hulp &amp; wenke</string>
   <string name="administration">Administrasie</string>
   <string name="rate_application">Be-oordeel &amp; hersien in Google Play</string>
   <string name="chooce_document">Kies Dokument</string>
@@ -52,12 +68,17 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <!--Search-->
   <string name="search_index">Soek Indeks</string>
   <string name="index_creation_required">\'n Indeks word benodig om te soek. \n\nIndekse kan van die internet afgelaai of plaaslik geskep word.\n\nAflaai is baie vinniger, en afgelaaide indekse het meer soek funksies.\n\n \'n Internet aansluiting is nodig om indekse af te laai.</string>
-  <string name="search_index_unavailable">Ongelukkig is die skepping van indeks slegs beskikbaar op Android 5.0 (Lollipop) en nuwer.</string>
+  <string name="create_index_for">\'n Indeks is nodig om te soek. \ n \ n Skep indeks vir %s?</string>
+  <string name="rebuild_index_for">Herbou indeks vir %s?</string>
+  <string name="search_index_unavailable">Ongelukkig is indekskepping slegs beskikbaar op Android 5.0 (Lollipop) en nuwer. Afgelaaide indekse is slegs beskikbaar vir beperkte stel modules.</string>
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
   <string name="index_download">Laai af</string>
   <string name="index_not_available_for_download">Hierdie indeks is nie beskikbaar vir aflaai</string>
   <string name="index_create">Skep</string>
   <string name="rebuild_index">Herbou indeks</string>
+  <string name="search_in">Vind in %s</string>
+  <string name="do_in_background">Gaan voort in die agtergrond</string>
+  <string name="rebuild_index_button">Herbou</string>
   <!--Tasks-->
   <string name="progress_status">Vordering</string>
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
@@ -76,6 +97,16 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Wys vers nommers</string>
+  <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
+  <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
+  <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
+  <string name="prefs_show_notes_summary">Wys voetnotas en kruisverwysings</string>
+  <string name="prefs_show_strongs_summary">Skakels na Griekse |&amp;  Hebreeus definisies</string>
+  <string name="prefs_show_morphology_summary">Wys Robinson se Griekse morfologie</string>
+  <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
+  <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
+  <string name="prefs_text_size_title">Skrif voorkeure</string>
   <string name="prefs_show_verseno_title">Vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
@@ -88,41 +119,90 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_section_title_title">Afdeling Titels</string>
   <string name="prefs_red_letter_title">Rooi woorde</string>
   <string name="prefs_tilt_to_scroll_title">Kantel om te skuif</string>
-  <string name="prefs_tilt_to_scroll_summary">Kantel toestel om bladsy af te skuif</string>
-  <string name="prefs_night_mode_title">Nag mode</string>
-  <string name="prefs_night_mode_summary">Om makliker in die donker te lees\n</string>
+  <string name="prefs_night_mode_title">Nag mode skakel</string>
+  <string name="prefs_night_mode_summary">Of u outomaties oorskakel na die nag mode (as die toestel ondersteun word), met die hand of via die stelselinstelling (Android 10+).</string>
+  <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
+  <string name="prefs_night_mode_system">Stelsel</string>
+  <string name="options_menu_night_mode">Nag mode</string>
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Maak skakels in \'n spesiale venster</string>
   <string name="prefs_open_links_in_special_window_summary">Vir vinniger vertoon van die kruis-verwysings en Strongs</string>
-  <string name="prefs_text_size_title">Teks grootte</string>
-  <string name="prefs_text_size_summary">Wys meer of sien meer duidelik</string>
+  <string name="prefs_text_size_pt_title">Skrif voorkeure</string>
+  <string name="prefs_text_size_summary">Pas skrif familie en skrif grootte aan</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
   <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
   <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
-  <string name="prefs_split_mode_vertical">Vertikal</string>
-  <string name="prefs_split_mode_horizontal">Horisontal</string>
-  <string name="prefs_split_mode_automatic">Outomaties</string>
-  <string name="prefs_split_mode_summary">Hoe om verskeie skerms op die venster uitleg te verdeel?</string>
-  <string name="prefs_split_mode_title">Split modus</string>
+  <string name="reset_fontsize">Herstel</string>
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
-  <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van handmatig geïnstalleerde dokumente uit die jsword-lêergids op die SD-kaart</string>
-  <string name="bible_text_options">Bybel teks opsies</string>
+  <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van dokumente wat met die hand geïnstalleer is, vanaf die jsword- / swaardmap op interne berging</string>
+  <string name="all_text_options_window_menutitle">Alle teks opsies ...</string>
+  <string name="all_text_options_window_menutitle_alone">Teks opsies...</string>
+  <string name="text_options_window_menutitle">Teks opsies</string>
   <string name="auto_fullscreen">Volskerm deur te blaai</string>
-  <string name="switch_split_mode">Skakel verdeel modus</string>
   <string name="reversed_split_mode">Omgekeerde verdeel modus</string>
-  <string name="prefs_auto_night_mode_title">Outomatiese nag mode</string>
-  <string name="prefs_auto_night_mode_summary">Skakel outomaties na nag mode deur die censor</string>
+  <string name="font_size_pt">%dpt</string>
+  <string name="auto_fullscreen_summary">Skakel outomaties oor na volskerm wanneer u teks blaai. Wenk: u kan ook altyd oorskakel na die volledige skerm deur te dubbel klik op die skerm.</string>
+  <string name="prefs_margin_size_title">Verander kantruimte grootte</string>
+  <string name="prefs_margin_size_mm_title">Kantruimte grootte (%d/%d/%dmm)</string>
+  <string name="margin_size_mm">Kantruimte links %d mm regs %dmm.
+\nMaksimum teks  wydte: %dmm.</string>
+  <string name="prefs_advanced_settings_cat">Gevorderde instellings</string>
+  <string name="prefs_display_customization_cat">Aanskou &amp; voel</string>
+  <string name="prefs_behavior_customization_cat">Toepassings gedrag</string>
+  <string name="prefs_margin_size_summary">Verstel links en regs kantruimte teks uitsig. Jy kan ook
+         die maksimum breedte van die teks verstel.</string>
+  <string name="prefs_text_colors_summary">Verstel teks en agtergrond kleure en geraas effek</string>
+  <string name="text_display_settings_activity_title">teks vertoon instelling</string>
+  <string name="workspace_text_display_settings_title">Teks opsies - %s</string>
+  <string name="window_text_display_settings_title">Teks opsies - Venster %d</string>
+  <string name="prefs_text_display_settings_title">Formateer</string>
+  <string name="prefs_text_appearance_title">Voorkoms</string>
+  <string name="prefs_justify_title">teksformaat-lyn teks</string>
+  <string name="prefs_justify_summary">Belyn teks in \'teksformaat\' -styl, wat beteken dat linker en regter kantruimte teks ooreenstem</string>
+  <string name="pref_left_margin_label">Linker kantruimte</string>
+  <string name="pref_right_margin_label">Regter kantruimte </string>
+  <string name="pref_maximum_width_of_text_label">Maksimum breedte van teks</string>
+  <string name="prefs_line_spacing_pt">Lyn spasiëring %1.1fx</string>
+  <string name="pref_font_family_label">Skrif familie</string>
+  <string name="prefs_hyphenation_title"> 
+Woordafbreking</string>
+  <string name="prefs_hyphenation_summary">Outomaties koppel woorde met koppelteken, as taal ondersteun word</string>
+  <string name="prefs_line_spacing_pt_title">Lyn spasiëring (%1.1fx)</string>
+  <string name="line_spacing_title">Lyn spasiëring</string>
+  <string name="line_spacing_summary">Stel die spasie tussen lyne</string>
+  <string name="select_none">Kies geen</string>
+  <string name="reset_are_you_sure">Is jy seker dat jy alle waardes wil terugstel?</string>
+  <string name="window_pinning_menutitle">Venster vasgespeld</string>
+  <string name="hide_window_buttons_title">Versteek venster knoppies</string>
+  <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel -aansigte vertoon word, is versteek. Venster navigasie balk aan die onderkant word nog steeds vertoon en u kan die opspringkieslys van die venster oopmaak deur lank daarop te klik.</string>
+  <string name="font_size_title">Skrif grootte</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Kleur instellings</string>
+  <string name="window_color_settings_title">Venster kleur instellings</string>
+  <string name="workspace_color_settings_title">Werkruimte kleur Standaard instellings</string>
+  <string name="color_text">Teks kleur</string>
+  <string name="color_background">Agtergrond kleur</string>
+  <string name="colors_day_mode_title">Dag mode</string>
+  <string name="colors_night_mode_title">Nag mode</string>
+  <string name="prefs_noise_title">Agtergrond kleur</string>
+  <string name="prefs_noise_summary">Voeg \'n bietjie geraas by agtergrond dit mag dalk dit beter maak vir jou oë.</string>
+  <string name="cpv_default_title">Kies \'n kleur</string>
+  <string name="cpv_presets">Voorafbepaalde</string>
+  <string name="cpv_custom">Gebruik</string>
+  <string name="cpv_select">Kies</string>
+  <string name="cpv_transparency">Deursigtigheid</string>
   <!--Window-->
   <string name="new_window">Nuwe venster</string>
   <string name="windowClose">Maak Toe</string>
   <string name="windowMaximise">Vermeeder</string>
   <string name="windowMinimise">Verminder</string>
   <string name="windowSynchronise">Sinchroniseer</string>
-  <string name="windowMoveFirst">Skuif eerste</string>
+  <string name="move_window">Skuif na...</string>
+  <string name="move_window_to_position">Posisie %s</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Daar is geen notas vir hierdie hoofstuk nie</string>
   <string name="no_verse_notes">Daar is geen notas ​​vir hierdie vers nie</string>
@@ -153,8 +233,8 @@ Probeer asseblief later weer.</string>
   <string name="install_zip">Laai dokument van Zip </string>
   <string name="install_zip_module">Installeer Bybel Module</string>
   <string name="install_zip_successfull">Module is suksesvol geïnstalleer</string>
-  <string name="extracting_zip_file">Onttrek Zip lêer nou ...</string>
-  <string name="checking_zip_file">Nagaan van gegewe lêer ...</string>
+  <string name="extracting_zip_file">Haal uit inligting  van zip lêer nou...</string>
+  <string name="checking_zip_file">Kontroleer die gegewe lêer ...</string>
   <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
   <string name="module_already_installed">Lêer bevat \'n module wat reeds geïnstalleer is</string>
   <string name="install_zip_title">Wag asseblief. Besig om zip-lêer te laai.</string>
@@ -162,7 +242,7 @@ Probeer asseblief later weer.</string>
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
   <string name="rdg_plan_day">Dag %s</string>
-  <string name="rdg_plan_set_start_date">Stel Begin Datum ...</string>
+  <string name="rdg_plan_set_start_date">Stel die begin datum ...</string>
   <string name="done">Klaar</string>
   <string name="reset">Herstel</string>
   <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
@@ -218,7 +298,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <!--Link context menu-->
   <string name="open_link_in_this_window">Maak skakel hier oop</string>
   <string name="open_link_in_new_window">Maak skakel oop in \'n nuwe venster</string>
-  <string name="open_link_in_main_window">Maak skakel oop in hoof venster</string>
   <string name="open_link_in_special_window">Maak skakel oop in spesiale venster</string>
   <!--Bookmarks-->
   <string name="bookmarks">Boekmerke</string>
@@ -349,11 +428,9 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup">Rugsteun na ...</string>
-  <string name="backup_success">My Notas en Boekmerke word gestoor in %s op die SD-kaart</string>
   <string name="restore">Herstel vanaf ...</string>
   <string name="restore_confirmation">Ooskryf My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes?</string>
   <string name="restore_success">My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes is suksesvol herstel</string>
-  <string name="error_no_backup_file">\'n Rugsteunlêer kon nie gevind word nie</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_email_subject">And Bible databasis rugsteun</string>
   <string name="backup_email_message">Jou And Bible databasis met boekmerke, aantekeninge, lees planne en werkruimtes is aangeheg</string>
@@ -363,6 +440,26 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
   <string name="about_versification">Beryming: %s</string>
+  <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Rapporteer \'n fout</string>
+  <string name="report_bug_email_subject">Foutverslag vir And Bible %s</string>
+  <string name="report_bug_email_message">
+--- SKRYF FOUT VERSLAG BO HIERDIE LYN --- \ n
+Instruksies: \ n
+Vertel kortliks wat jy gedoen het / wat tydens die gebruik
+  gebeur het. Voorbeeld: \ n
+\n
+1. Toep oopegemaak \ n
+ 2. Klik op die venstermenu \ n
+-&gt; ongeluk\n
+\n
+Soms is \'n skermkiekie ook voordelig in die oplossing van probleme.
+  Gebruik hierdie funksie om verslag te doen sodra jy agtergekom het dat dit plaasvind.
+Jy kan ook hierdie funksie gebruik nadat jy die toep oopgemaak het, nadat die ongeluk plaasgevind het.
+\n\n
+Toestel inligting: \n
+%s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>
@@ -386,6 +483,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <!--Errors-->
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
+  <string name="error_occurred_with_link">\'n Fout het voorgekom. %s</string>
   <string name="error_no_content">Geen inhoud vir geselekteerde vers</string>
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
@@ -394,19 +492,25 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
   <!--Workspaces-->
-  <string name="workspaces">Werkruimtes</string>
-  <string name="new_workspace">Nuwe Werkruimete</string>
-  <string name="switch_to_workspace">Skakel oor na werkruimte ...</string>
-  <string name="delete_workspace">Verwyder Werkruimte</string>
-  <string name="choose_workspace_to_open">Kies werkruimte om oop te maak</string>
-  <string name="new_copied_workspace">Kopieer hierdie werkruimte as nuut</string>
+  <string name="new_workspace">Nuut</string>
+  <string name="switch_to_workspace">Werkruimtes ...</string>
+  <string name="delete_workspace">Verwyder</string>
+  <string name="new_copied_workspace">Kopieer as nuut</string>
   <string name="workspace_number">Werkruimte %d</string>
-  <string name="workspace_name_contents">%s:%s</string>
-  <string name="rename_workspace">Hernoem Werkruimte ...</string>
-  <string name="rename_workspace_title">Gee werkruimte \'n naam</string>
-  <string name="new_workspace_from_dialog">Nuut</string>
-  <string name="delete_workspace_from_dialog">Verwyder huidige</string>
-  <string name="history_title">Geskiedenis (%s)</string>
+  <string name="rename_workspace">Hernoem</string>
+  <string name="workspace_selector_title">Kies werkruimte</string>
+  <string name="workspace_settings">Instellings ...</string>
+  <string name="give_name_workspace">Gee naam vir nuwe werkruimte</string>
+  <string name="save_and_exit">Bêre</string>
+  <string name="current_workspace">Huidige</string>
+  <string name="workspace_save_changes">Pas veranderinge toe op werkruimtes?</string>
+  <string name="copy_of_workspace">kopieer van %s</string>
+  <string name="copy_workspace_settings">kopieer instellings ...</string>
+  <string name="copy_settings_title">Watter instellings wil u kopieer?</string>
+  <string name="select_all">Kies Alles</string>
+  <string name="copy_settings_workspaces_title">Na watter werkruimtes wil u instellings kopieer?</string>
+  <string name="reset_settings">Herstel</string>
+  <string name="workspace_dismiss">Verdaag</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
   <string name="beta_notice_content_1">
@@ -425,4 +529,8 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Los</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
+  <!--History-->
+  <string name="history_for">Geskiedenis (%s:Venster %d)</string>
+  <string name="window_pin_mode">Speld</string>
+  <string name="close">Eindig</string>
 </resources>

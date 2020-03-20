@@ -1,0 +1,16 @@
+Les eller lytt til Bibel, bibelkommentarer og bibelske ordbøker. Alt materialet kan lastes ned og er tilgjengelig uten internettforbindelse, og er søkbart igjennom en svært rask og brukervennlig søkefunksjon. Perfekt til bruk i bibelgrupper og oppslag når du lytter til undervisning.
+
+* Last ned Bibler (tilgjengelig når du er frakoblet internett), bibelkommentarer, ordbøker, kart og kristne bøker på over 50 språk
+* Norsk (bokmål, nynorsk), engelsk, tysk, fransk, spansk, hebraisk og mange flere språk
+* Fullstendig gratis, tilgjengelig når du er frakoblet internett, åpen kildekode, ingen reklame, ingen eposter
+* Norsk og nynorsk bibel, over 40 engelske Bibler, bl.a. KJV, ESV og NET
+* 29 bibelkommentarer
+* Stort utvalg i bibelordbøker og kristne bøker
+* Integrasjon med Strongs ordbøker tillater greske og hebraiske ordanalyser
+* Skriv personlige notater
+* Bibel-appen er oversatt til mer enn 25 forskjellige språk
+* Svært fleksibel og rask søkefunksjon
+* Lag bokmerker
+* Kart over Bibelske land
+* Alle dokumenter kan lyttes til (opplesing)
+* Bygd på den kraftige JSword-motoren fra CrossWire

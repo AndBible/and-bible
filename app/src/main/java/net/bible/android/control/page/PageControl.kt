@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -62,7 +62,7 @@ open class PageControl @Inject constructor(
             clipboard.setPrimaryClip(ClipData.newPlainText("verseText", getCopyShareText(book, verseRange)))
         } catch (e: Exception) {
             Log.e(TAG, "Error pasting to clipboard", e)
-            Dialogs.getInstance().showErrorMsg("Error copying to clipboard")
+            Dialogs.instance.showErrorMsg("Error copying to clipboard")
         }
     }
 
@@ -80,7 +80,7 @@ open class PageControl @Inject constructor(
             activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse)))
         } catch (e: Exception) {
             Log.e(TAG, "Error sharing verse", e)
-            Dialogs.getInstance().showErrorMsg("Error sharing verse")
+            Dialogs.instance.showErrorMsg("Error sharing verse")
         }
     }
 
@@ -110,7 +110,7 @@ open class PageControl @Inject constructor(
                 val bible = bibles[0]
                 for (verse in defaultVerses) {
                     if (bible.contains(verse)) {
-                        currentPageManager.currentBible.setKey(verse)
+                        currentPageManager.currentBible.doSetKey(verse)
                         return
                     }
                 }
@@ -126,23 +126,13 @@ open class PageControl @Inject constructor(
     /** font size may be adjusted for certain fonts e.g. SBLGNT
      */
     fun getDocumentFontSize(window: Window): Int { // get base font size
-        val preferences = sharedPreferences
-        val fontSize = preferences.getInt("text_size_pref", 16)
+        val fontSize = window.pageManager.actualTextDisplaySettings.font!!.fontSize!!
         // if book has a special font it may require an adjusted font size
         val book = window.pageManager.currentPage.currentDocument
-        val font = FontControl.getInstance().getFontForBook(book)
-        val fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book)
+        val font = FontControl.instance.getFontForBook(book)
+        val fontSizeAdjustment = FontControl.instance.getFontSizeAdjustment(font, book!!)
         return fontSize + fontSizeAdjustment
     }
-
-    /** return true if Strongs numbers are shown  */
-    val isStrongsShown: Boolean
-        get() = isStrongsRelevant &&
-            sharedPreferences.getBoolean("show_strongs_pref", true)
-
-    /** return true if Strongs are relevant to this doc & screen  */
-    val isStrongsRelevant: Boolean
-        get() = documentControl.isStrongsInBook// Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book
 
     /**
      * Return false if current page is not scripture, but only if the page is valid

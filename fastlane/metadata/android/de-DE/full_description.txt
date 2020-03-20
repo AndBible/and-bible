@@ -1,0 +1,32 @@
+And Bible ist eine freie, opensource, offline Bibelsoftware ohne jede Werbung. Das Ziel ist, sie viele Menschen wie möglich auf aller Welt zu befähigen, die Heilige Schrift zu lesen, zu hören und zu studieren, um größtmöglichen persönlichen Segen zu bekommen.
+
+* Bibeln, Kommentare, theologische Wörterbücher, Landkarten und christliche Bücher in über 700 Sprachen
+* Nach dem Herunterladen der benötigten Module absolut offline, inklusive allen Suchfunktionen, Notizen, Kommentaren etc.
+Benutzeroberfläche in vielen Sprachen
+* verschiedenste Bibellesepläne
+* Absolut frei, keine Werbung, keine E-Mails
+* Über 15 deutsche Bibelübersetzungen
+* 29 Bibelkommentare
+* Große Sammlung an Wörterbüchern und christlicher Literatur
+* Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NKJV und NIV nicht enthalten)
+* Die Integration des Strong Wörterbuches erlaubt das Nachschlagen von griechischen und hebräischen Wörtern
+Mehrere Arbeitsplätze mit aufgeteilten Fenstern
+* Erstelle persönliche Notizen
+* Flexible Suchfunktion
+* Lesezeichen
+* Landkarten der biblischen Länder
+* Lass dir jedes Dokument laut vorlesen
+* automatischer Bildvorlauf, automatischer Tag/Nacht Modus
+* Vergleiche alle Bibelübersetzungen auf einem Bildschirm
+* Eine der schnellsten Bibel - Apps auf Android
+* Open Source - verbessere oder verändere den Source Code wie du willst
+* Verwendet die mächtige JSword Engine von CrossWire
+
+* Alle Mitarbeiter sind Freiwillige; wir versenden keine lästigen E-Mails; blenden keine störenden Werbungen ein; fragen nie nach finanzieller Unterstützung; verlangen keine Registrierung; And Bible sammelt keine Daten von deinem Telefon
+
+Die Herkunft aller Dokumente wird sorgfältig untersucht, damit sichergestellt werden kann, dass alle Dokumente legal verbreitet werden können bzw. die Erlaubnis des Rechteinhabers eingeholt wurde. Das ist auch der Grund, warum Übersetzungen wie die neue Luther Übersetzung oder die Neue Genfer Übersetzung nicht enthalten sind.
+
+<b>Notizen</b>
+* Klicke "Gefällt mir" auf Facebook: https://www.facebook.com/AndBible/
+* The And Bible FAQ befindet sich hier: https://github.com/AndBible/and-bible/wiki/FAQ
+* Projektseite auf Github: https://github.com/AndBible/and-bible

@@ -23,6 +23,13 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="help_search_title">Paieška</string>
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
 (Išsamios informacijos ieškokite \"Apache Lucene - Query Parser Syntax\")</string>
+  <string name="help_workspaces_title">Darbo sritys</string>
+  <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
+  <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
+  <string name="help_hidden_features_text">Nuo įrankių juostos braukite žemyn, norėdami pasiekti darbalaukių pasirinkimo meniu.
+Paspauskite ir palaikykite lango mygtuką, norėdami greitai sumažinti.
+Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėti klausymo nuostatas.
+Paspauskite ir palaikykite vietos pavadinimą, kad pasiektumėte dokumentų meniu.</string>
   <string name="help_contextmenus_title">Kontekstiniai meniu</string>
   <string name="help_contextmenus_text">Biblijos rodinyje ilgiau paspaudę ant tam tikros eilutės, pateiksite į jos kontekstinio meniu.
 Dokumentų rodinyje ilgai paspaudę ant dokumento, galėsite jį pašalinti arba gauti daugiau informacijos apie jį.
@@ -35,10 +42,10 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Ištrauka</string>
   <string name="search">Paieška</string>
-  <string name="settings">Nuostatos</string>
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
+  <string name="other">Kita</string>
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
@@ -51,7 +58,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti atsisiųsti iš interneto arba sukurti vietoje.\n\nAtsisiuntimas yra žymiai greitesnis, o ir atsisiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų atsisiuntimui reikia interneto ryšio.\n</string>
-  <string name="search_index_unavailable">Deja, indekso kūrimas galimas tik Android 5.0 (Lollipop) arba naujesnėje sistemoje.</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index_download">Atsisiųsti</string>
   <string name="index_not_available_for_download">Šio indekso negalima atsisiųsti.</string>
@@ -75,6 +81,8 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="search_current_book">Esamoje knygoje</string>
   <string name="error_executing_search">Neteisinga paieškos užklausa</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
+  <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
   <string name="prefs_show_verseno_title">Eilučių numeriai</string>
   <string name="prefs_verse_per_line_title">Po vieną eilutę eilutėje</string>
   <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
@@ -87,41 +95,37 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
   <string name="prefs_red_letter_title">Raudonas laiškas</string>
   <string name="prefs_tilt_to_scroll_title">Pastačius įrenginį, slinkti žemyn</string>
-  <string name="prefs_tilt_to_scroll_summary">Pastatykite įrenginį, kad būtų slenkama žemyn</string>
-  <string name="prefs_night_mode_title">Naktinė veiksena</string>
-  <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
+  <string name="prefs_night_mode_system">Sistema</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Atverti nuorodas atskirame lange</string>
   <string name="prefs_open_links_in_special_window_summary">Greitesniai nuorodų ir Strongo peržiūrai</string>
-  <string name="prefs_text_size_title">Teksto dydis</string>
-  <string name="prefs_text_size_summary">Matykite daugiau arba aiškiau</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>
   <string name="prefs_interface_locale_title">Programos kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkite naudotojo sąsajos kalbą</string>
-  <string name="prefs_split_mode_vertical">Vertikaliai</string>
-  <string name="prefs_split_mode_horizontal">Horizontaliai</string>
-  <string name="prefs_split_mode_automatic">Automatiškai</string>
-  <string name="prefs_split_mode_summary">Kaip padalinti kelis ekranus pagrindiniame lange?</string>
-  <string name="prefs_split_mode_title">Dalinimo būdas</string>
+  <string name="reset_fontsize">Atstatyti</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
-  <string name="prefs_request_sdcard_permission_summary">Leidžia naudoti SD kortelės jsword kataloge rankiniu būdu įdiegtus dokumentus</string>
-  <string name="bible_text_options">Biblijos teksto parametrai</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
-  <string name="switch_split_mode">Perjungti dalinimo būdą</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
-  <string name="prefs_auto_night_mode_title">Automatinė naktinė veiksena</string>
-  <string name="prefs_auto_night_mode_summary">Automatiškai perjungti į naktinę veikseną pagal jutiklį</string>
+  <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
+  <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
+  <string name="prefs_text_appearance_title">Išvaizda</string>
+  <string name="reset_are_you_sure">Ar tikrai norite atstatyti visas reikšmes?</string>
+  <string name="font_size_title">Šrifto dydis</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Spalvos nuostatos</string>
+  <string name="color_text">Teksto spalva</string>
+  <string name="color_background">Fono spalva</string>
   <!--Window-->
   <string name="new_window">Naujas langas</string>
   <string name="windowClose">Užverti</string>
   <string name="windowMaximise">Išdidinti</string>
   <string name="windowMinimise">Sumažinti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
-  <string name="windowMoveFirst">Padaryti pagrindiniu</string>
+  <string name="move_window">Perkelti į…</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
   <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
@@ -153,8 +157,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="install_zip">Įkelti dokumentą iš zip</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
-  <string name="extracting_zip_file">Išgaunami duomenys iš zip...</string>
-  <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
   <string name="invalid_module">Faile nėra SWORD modulio</string>
   <string name="module_already_installed">Faile esantis SWORD modulis jau yra įdiegtas</string>
   <string name="install_zip_title">Prašome palaukti. Įkeliamas Zip failas.</string>
@@ -162,7 +164,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
-  <string name="rdg_plan_set_start_date">Nustatyti pradžios datą...</string>
   <string name="done">Atlikta</string>
   <string name="reset">Atstatyti</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
@@ -222,7 +223,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Link context menu-->
   <string name="open_link_in_this_window">Atverti nuorodą čia</string>
   <string name="open_link_in_new_window">Atverti nuorodą naujame lange</string>
-  <string name="open_link_in_main_window">Atverti nuorodą pagrindiniame lange</string>
   <string name="open_link_in_special_window">Atverti nuorodą specialiame lange</string>
   <!--Bookmarks-->
   <string name="bookmarks">Žymės</string>
@@ -359,11 +359,9 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
   <string name="backup">Daryti atsarginę kopiją į…</string>
-  <string name="backup_success">Mano pastabos ir žymės išsaugotos %s SD kortelėje</string>
   <string name="restore">Atkurti iš…</string>
   <string name="restore_confirmation">Perrašyti Mano pastabas, Žymes, Skaitymo planus ir Darbo sritis?</string>
   <string name="restore_success">Mano pastabos, Žymės, Skaitymo planai ir Darbo sritys sėkmingai atkurtos</string>
-  <string name="error_no_backup_file">Atsarginė kopija nerasta</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="backup_email_subject">And Bible duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message">Jūsų And Bible duomenų bazė su pridėtomis žymelėmis, pastabomis, skaitymo planais ir darbo sritimis</string>
@@ -372,6 +370,9 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="about_copyright">Autorinės teisės: %s</string>
   <string name="about_version">Versija: %s</string>
   <string name="about_versification">Versijavimas: %s</string>
+  <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
+  <!--Bug reporting-->
+  <string name="report_bug_email_subject">Pranešimas apie klaidą And Bible %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
@@ -395,6 +396,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <!--Errors-->
   <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>
+  <string name="error_occurred_with_link">Įvyko klaida. %s</string>
   <string name="error_no_content">Šiai eilutei nėra teksto</string>
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
@@ -403,19 +405,15 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Eigos būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
   <!--Workspaces-->
-  <string name="workspaces">Darbo sritys</string>
-  <string name="new_workspace">Nauja darbo sritis</string>
-  <string name="switch_to_workspace">Perjungti į darbo sritį…</string>
-  <string name="delete_workspace">Ištrinti šią darbo sritį</string>
-  <string name="choose_workspace_to_open">Pasirinkite norimą atverti darbo sritį</string>
-  <string name="new_copied_workspace">Kopijuoti šią darbo sritį kaip naują</string>
+  <string name="new_workspace">Nauja</string>
+  <string name="switch_to_workspace">Darbo sritys…</string>
+  <string name="delete_workspace">Šalinti</string>
+  <string name="new_copied_workspace">Kopijuoti kaip naują</string>
   <string name="workspace_number">Darbo sritis %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Pervadinti darbo sritį…</string>
-  <string name="rename_workspace_title">Suteikite šiai darbo sričiai pavadinimą</string>
-  <string name="new_workspace_from_dialog">Nauja</string>
-  <string name="delete_workspace_from_dialog">Ištrinti esamą</string>
-  <string name="history_title">Istorija (%s)</string>
+  <string name="rename_workspace">Pervadinti</string>
+  <string name="workspace_settings">Nuostatos…</string>
+  <string name="copy_of_workspace">%s kopija</string>
+  <string name="reset_settings">Atstatyti</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
   <string name="beta_notice_content_1">
@@ -434,4 +432,8 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Atmesti</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
+  <!--History-->
+  <string name="history_for">Istorija (%s: Langas %d)</string>
+  <string name="window_pin_mode">Prisegti</string>
+  <string name="close">Užverti</string>
 </resources>

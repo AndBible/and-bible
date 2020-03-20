@@ -1,0 +1,32 @@
+And Bible açıq mənbədir, offlayn, reklamsız və tamamilə pulsuz Müqəddəs Kitab proqramıdır, bütün ölkələrdə yaşayan adamların Müqəddəs Yazıları tam asanlıqla oxuması, dinləməsi və tədqiq etməsi üçün nəzərdə tutulur ki, ən böyük şəxsi xeyir-duanı ala bilsinlər.  
+
+700 dildən çox Müqəddəs Kitablar, Şərhlər, İlahiyyat üzrə Lüğətlər, Xəritələr, Məsinçi kitablar
+Əvvəlcə yükləyəndən sonra axtarış, qeydlər, şərhlər və s. kimi hər şey offlayndır.
+* Interface in multiple languages
+Müqəddəs Kitabın fərqli oxuma planları
+Tamamilə pulsuz, reklamsız, emeylsız
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+Müqəddəs Kitab üzrə 29 Şərh kitabları
+Böyük lüğət və məsihçi kitablarının kolleksiyası
+Bütün materiallar qanuni tərzdə paylanılır (bu səbəblə NKJV and NIV daxil deyil)
+Stronqun istifadəsi Yunan və İbrani dilində olan sözlərin təhlilini mümkün edir
+* Multiple workspaces with split screen
+Şəxsi qeydləri yazın
+Asan axtarış
+Əlfəçinlər
+Müqəddəs Kitabın tarixi torpaqlarına aid xəritələr
+Sizin üçün oxunan istənilən mətni dinləyin
+Avtomatik fırlanma, avtomatik gündüz/gecə rejimi
+Bir ekranda Müqəddəs Kitabın bütün tərcümələrini müqaisə edin
+Androidda ən tez Müqəddəs Kitab proqramlarından biri
+Açıq mənbə - istəsəniz kodu mükəmməlləşdirin və ya dəyişin
+CrossWire-nin güclü JSword vasitəsindən istifadə olunur
+
+Biz hamımız könüllü çalışırıq; bezdirici emeyllar göndərmirik; təngə gətirən reklamları göstərmirik; heç vaxt nəzir istəmirik; qeydiyyat tələb etmirik, And Bible mobil telefonunuzdan heç bir məlumatı götürmür. 
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+1 Qeydlər 1 
+And Bible-ni Facebook-da Layk edin: https://www.facebook.com/AndBible/
+* And Bible-nin tez-tez verilən sualları buradadır: https://github.com/AndBible/and-bible/wiki/FAQ
+* Github-da layihənin səhifəsi: https://github.com/AndBible/and-bible

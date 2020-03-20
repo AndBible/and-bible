@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -44,7 +44,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
     }
 
     fun reloadAllWindows(force: Boolean = false) {
-        windowRepository.updateBusyCount(1)
+        ABEventBus.getDefault().post(IncrementBusyCount())
         if(force)
             setResyncRequired()
 
@@ -55,15 +55,22 @@ class WindowSync(private val windowRepository: WindowRepository) {
             if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
                 window.updateText()
         }
-        windowRepository.updateBusyCount(-1)
+        ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required
      */
 
     fun synchronizeWindows(sourceWindow_: Window? = null) {
-        windowRepository.updateBusyCount(1)
-        val sourceWindow = sourceWindow_?: windowRepository.activeWindow
+        ABEventBus.getDefault().post(IncrementBusyCount())
+
+        // if maximized mode and current active window is not in sync, then get previous window that was in sync
+        val sourceWindow: Window = sourceWindow_ ?:
+            if (windowRepository.lastSyncWindowId != null
+                && !windowRepository.activeWindow.isSynchronised)
+                windowRepository.lastSyncWindow!!
+            else windowRepository.activeWindow
+
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
 
@@ -73,7 +80,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             lastForceSyncAll = System.currentTimeMillis()
         }
 
-        if(isSynchronizableVerseKey(activePage) && (sourceWindow.isSynchronised)) {
+        if(isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
             for (inactiveWindow in inactiveWindowList) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey
@@ -110,7 +117,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
         }
 
         lastSynchWasInNightMode = ScreenSettings.nightMode
-        windowRepository.updateBusyCount(-1)
+        ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
@@ -141,8 +148,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
             } else {
                 if (isBible && currentVerse != null && targetVerse != null) {
-                    val targetV11n = targetVerse.versification
-                    if(targetV11n.isSameChapter(targetVerse, currentVerse)) {
+                    if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
                         ABEventBus.getDefault()
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)))
                     } else if(targetVerse != currentVerse) {

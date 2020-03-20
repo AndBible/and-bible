@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -85,10 +85,10 @@ public class DownloadControl {
 		boolean okay = true;
 		
     	if (CommonUtils.INSTANCE.getSdCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-        	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+        	Dialogs.Companion.getInstance().showErrorMsg(R.string.storage_space_warning);
         	okay = false;
     	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
-        	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
+        	Dialogs.Companion.getInstance().showErrorMsg(R.string.no_internet_connection);
         	okay = false;
     	}
     	

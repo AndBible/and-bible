@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -65,6 +65,10 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 
 	public void onEvent(SpeakEvent e) {
 		updateButtons();
+	}
+
+	public void destroy() {
+		ABEventBus.getDefault().unregister(this);
 	}
 
 	/* (non-Javadoc)

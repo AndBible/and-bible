@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -263,7 +263,7 @@ class ReadingPlanDao {
                 cachedPlanProperties = properties
 
             } catch (e: IOException) {
-                System.err.println("Failed to open reading plan property file")
+                Log.e(TAG, "Failed to open reading plan property file")
                 e.printStackTrace()
             } finally {
                 IOUtil.close(inputStreamRaw)

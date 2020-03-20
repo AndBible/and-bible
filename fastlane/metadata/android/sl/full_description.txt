@@ -1,0 +1,32 @@
+And Bible je odprtokoden projekt, ki za običajno delovanje ne potrebuje povezave s spletom, popolnoma brezplačna Biblija, brez oglasov, ki omogoča čim večjemu številu ljudi v vseh državah, da berejo, poslušajo in preučujejo Sveto pismo na najpreprostejši način in z največjim osebnim blagoslovom.
+
+* Biblije, komentarji, teološki slovarji, zemljevidi in krščanske knjige v več kot 700 jezikih
+* Po začetnem prenosu podatkov iz spleta, je vse, vključno z iskanjem, opombami in komentarji dostopno brez povezave s spletom.
+* Vmesnik v različnih jezikih
+* Različni načrti za branje Biblije
+* Popolnoma brezplačno, brez oglasov, brez e-pošte
+* Preko 40 angleških biblij, vključno z KJV in NET (tudi ESV je bil včasih tukaj, poskušamo ga vrniti, glejte Pogosta vprašanja: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 komentarjev iz Biblije
+* Obsežna zbirka slovarjev in krščanskih knjig
+* Vsi dokumenti so zakonito razdeljeni (razlog zakaj dokumenti NKJV in NIV niso na voljo) (in v slovenščini Chraskova Biblija do 15. marca leta 2023 ni na voljo)
+* Strong-ova števila omogočajo grško in hebrejsko besedno analizo
+* Več delovnih prostorov z deljenim zaslonom
+* Zapišite osebne beležke
+* Prilagodljivo iskanje
+* Zaznamki
+* Zemljevidi biblijskih dežel
+* Poslušajte kateri koli dokument, ki vam bo na glas prebran (slovenski jezik še ni podprt)
+* Samodejno pomikanje, samodejni dnevni / nočni način
+* Vse biblijske prevode primerjajte na enem zaslonu
+* Ena najhitrejših Biblijskih aplikacij na Androidu
+* Open source - izboljšajte ali spremenite izvorno kodo, če želite
+* Uporablja zmogljivo JSword programsko knjižnico iz spletne strani CrossWire
+
+Vsi smo prostovoljci; ne pošiljamo motečih elektronskih sporočil; aplikacija ne prikazujte nadležnih oglasov; nikoli ne zahtevamo ali prejemamo donacij; ne prosimo za registracijo; And Biblija ne zbira podatkov iz vašega mobilnega telefona.
+
+Poreklo vseh dokumentov je temeljito raziskano, da se zagotovi zakonita distribucija vseh dokumentov ali da je bilo dano dovoljenje imetnikov avtorskih pravic. To je tudi razlog, da Biblija ne more vsebovati dokumentov, kot sta NIV in NKJV.
+
+<b>Zaznamki</b>
+Všeč mi je in Sveto pismo na Facebooku: https://www.facebook.com/AndBible/
+* Pogosta vprašanja, glede And Bible aplikacije, so tukaj: https://github.com/AndBible/and-bible/wiki/FAQ
+* Stran projekta na Githubu: https://github.com/AndBible/and-bible

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -40,11 +40,8 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
 
-    fun updateText(window: Window?) {
-        updateText(false, window)
-    }
-
-    fun updateText(forceUpdate: Boolean, window_: Window?) {
+    @JvmOverloads
+    fun updateText(window_: Window?, forceUpdate: Boolean = false) {
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
@@ -59,7 +56,8 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             && document?.bookCategory == BookCategory.BIBLE
             && prevVerse is VerseRange
             && prevVerse.start?.book == book
-            && prevVerse.start?.chapter == verse.chapter)
+            && window.hasChapterLoaded(verse.chapter)
+        )
         {
             window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
             PassageChangeMediator.getInstance().contentChangeFinished()

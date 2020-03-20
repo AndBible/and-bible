@@ -29,7 +29,7 @@ class ReadingPlanEntities {
         @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
         @ColumnInfo(name = "plan_code") val planCode: String,
         @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
-        @ColumnInfo(name = "plan_current_day") val planCurrentDay: Int = 1
+        @ColumnInfo(name = "plan_current_day", defaultValue = "1") val planCurrentDay: Int = 1
     )
 
     @Entity(tableName = "readingplan_status",

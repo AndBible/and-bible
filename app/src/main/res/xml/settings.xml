@@ -3,46 +3,61 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
-			android:key="bible_display_pref">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="bible_display_pref">
+	<PreferenceCategory
+		android:title="@string/prefs_behavior_customization_cat"
+		>
+		<SwitchPreferenceCompat android:key="navigate_to_verse_pref"
+			android:title="@string/prefs_navigate_to_verse_title"
+			android:summary="@string/prefs_navigate_to_verse_summary"
+			android:defaultValue="false"/>
+		<SwitchPreferenceCompat android:key="open_links_in_special_window_pref"
+			android:title="@string/prefs_open_links_in_special_window_title"
+			android:summary="@string/prefs_open_links_in_special_window_summary"
+			android:defaultValue="true"/>
+		<SwitchPreferenceCompat android:key="screen_keep_on_pref"
+			android:title="@string/prefs_screen_keep_on_title"
+			android:summary="@string/prefs_screen_keep_on_summary"
+			android:defaultValue="false"/>
+		<SwitchPreferenceCompat android:key="auto_fullscreen_pref"
+			android:title="@string/auto_fullscreen"
+			android:summary="@string/auto_fullscreen_summary"
+			android:defaultValue="false"
+			/>
+		<SwitchPreferenceCompat android:key="hide_window_buttons"
+			android:title="@string/hide_window_buttons_title"
+			android:summary="@string/hide_window_buttons_summary"
+			android:defaultValue="false"
+			/>
+		<ListPreference android:key="night_mode_pref3"
+			android:title="@string/prefs_night_mode_title"
+			android:summary="@string/prefs_night_mode_summary"
+			android:entries="@array/prefs_night_mode_descriptions"
+			android:entryValues="@array/prefs_night_mode_values"
+			android:defaultValue="@string/prefs_night_mode_manual"/>
 
-	<ListPreference android:key="night_mode_pref2"
-		android:title="@string/prefs_night_mode_title"
-		android:summary="@string/prefs_night_mode_summary"
-		android:entries="@array/prefs_night_mode_descriptions"
-		android:entryValues="@array/prefs_night_mode_values"
-		android:defaultValue="false"/>
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/prefs_display_customization_cat">
 
-	<net.bible.android.view.util.BookmarkColourPreference
-				android:key="default_bookmark_style_pref"
-				android:title="@string/prefs_default_bookmark_style_title"
-				android:summary="@string/prefs_default_bookmark_style_summary"/>
-	<net.bible.android.view.util.TextSizePreference android:key="text_size_pref"
-				android:title="@string/prefs_text_size_title"
-				android:summary="@string/prefs_text_size_summary"
-				android:defaultValue="16"
-				android:max="60"/> 
-	<CheckBoxPreference android:key="navigate_to_verse_pref"
-				android:title="@string/prefs_navigate_to_verse_title"
-				android:summary="@string/prefs_navigate_to_verse_summary"
-				android:defaultValue="false"/>
-	<CheckBoxPreference android:key="open_links_in_special_window_pref"
-				android:title="@string/prefs_open_links_in_special_window_title"
-				android:summary="@string/prefs_open_links_in_special_window_summary"
-				android:defaultValue="true"/>
-	<CheckBoxPreference android:key="screen_keep_on_pref"
-				android:title="@string/prefs_screen_keep_on_title"
-				android:summary="@string/prefs_screen_keep_on_summary"
-				android:defaultValue="false"/>
-	<CheckBoxPreference android:key="request_sdcard_permission_pref"
-				android:title="@string/prefs_request_sdcard_permission_title"
-				android:summary="@string/prefs_request_sdcard_permission_summary"
-				android:defaultValue="false"/>
-	<!--suppress AndroidDomInspection -->
-	<ListPreference android:key="locale_pref"
-				android:title="@string/prefs_interface_locale_title"
-				android:summary="@string/prefs_interface_locale_summary"
-				android:entries="@array/prefs_interface_locale_descriptions"
-				android:entryValues="@array/prefs_interface_locale_values"
-				android:defaultValue=""/>
+		<net.bible.android.view.util.BookmarkColourPreference
+			android:key="default_bookmark_style_pref"
+			android:title="@string/prefs_default_bookmark_style_title"
+			android:summary="@string/prefs_default_bookmark_style_summary"/>
+
+		<ListPreference android:key="locale_pref"
+			android:title="@string/prefs_interface_locale_title"
+			android:summary="@string/prefs_interface_locale_summary"
+			android:entries="@array/prefs_interface_locale_descriptions"
+			android:entryValues="@array/prefs_interface_locale_values"
+			android:defaultValue=""/>
+
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
+		<SwitchPreferenceCompat android:key="request_sdcard_permission_pref"
+			android:title="@string/prefs_request_sdcard_permission_title"
+			android:summary="@string/prefs_request_sdcard_permission_summary"
+			android:defaultValue="false"/>
+	</PreferenceCategory>
 </PreferenceScreen>

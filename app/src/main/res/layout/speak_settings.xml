@@ -10,7 +10,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
+        android:layout_above="@+id/transportWidget"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="0dp"
+        >
 
         <LinearLayout
             android:id="@+id/panel"
@@ -135,6 +138,7 @@
     </ScrollView>
 
     <net.bible.android.view.util.widget.SpeakTransportWidget
+        android:id="@+id/transportWidget"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

@@ -1,7 +1,7 @@
 import "libs/jquery.longpress"
 import "jquery-nearest"
 
-import {hideContent, jsonscroll, scrollToVerse, setToolbarOffset, setupContent} from "./scroll";
+import {scrollToVerse, setDisplaySettings, setToolbarOffset, setupContent} from "./scroll";
 import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
 import {
     registerVersePositions,
@@ -14,16 +14,12 @@ import {
     highlightVerse,
     unhighlightVerse
 } from "./highlighting";
-import {sleep, whenReady} from "./utils";
 
-window.addEventListener("DOMContentLoaded",  async (event) => {
-    console.log("js-side load!", event.timeStamp, event);
-    registerVersePositions();
+function initialize(settings) {
     initializeListeners();
     initializeInfiniScroll();
-    jsInterface.triggerJumpToOffset();
-    // this will eventually call back setupContent
-});
+    setupContent(settings)
+}
 
 window.andbible = {
     registerVersePositions,
@@ -39,9 +35,8 @@ window.andbible = {
     disableVerseTouchSelection,
 
     setToolbarOffset,
-    jsonscroll,
     scrollToVerse,
-    whenReady,
     setupContent,
-    hideContent
+    setDisplaySettings,
+    initialize
 };

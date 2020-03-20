@@ -1,8 +1,7 @@
-import {addWaiter, Deferred} from "./utils";
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
+import {registerVersePositions} from "./bibleview";
 
-let currentAnimation = null;
-let stopAnimation = false;
+let currentScrollAnimation = null;
 let contentReady = false;
 export let toolbarOffset = 0;
 
@@ -17,28 +16,26 @@ export function setToolbarOffset(value, {doNotScroll = false, immediate = false}
     }
 }
 
-export function jsonscroll() {
-    if(currentAnimation == null) {
+export function updateLocation() {
+    if(currentScrollAnimation == null) {
         jsInterface.onScroll(window.pageYOffset);
+    }
+}
+
+export function stopScrolling() {
+    if(currentScrollAnimation != null) {
+        window.cancelAnimationFrame(currentScrollAnimation);
+        currentScrollAnimation = null;
+        console.log("Animation ends");
     }
 }
 
 export function doScrolling(elementY, duration) {
     console.log("doScrolling", elementY, duration);
-    stopAnimation = false;
+    stopScrolling();
     const startingY = window.pageYOffset;
     const diff = elementY - startingY;
     let start;
-
-    function endAnimation() {
-        if(currentAnimation != null) {
-            window.cancelAnimationFrame(currentAnimation);
-            currentAnimation = null;
-            console.log("Animation ends");
-        }
-    }
-
-    endAnimation();
 
     if(duration === 0) {
         window.scrollTo(0, elementY);
@@ -47,7 +44,7 @@ export function doScrolling(elementY, duration) {
 
     // Bootstrap our animation - it will get called right before next frame shall be rendered.
     console.log("Animation starts");
-    currentAnimation = window.requestAnimationFrame(function step(timestamp) {
+    currentScrollAnimation = window.requestAnimationFrame(function step(timestamp) {
         if (!start) start = timestamp;
         // Elapsed milliseconds since start of scrolling.
         const time = timestamp - start;
@@ -57,19 +54,18 @@ export function doScrolling(elementY, duration) {
         window.scrollTo(0, startingY + diff * percent);
 
         // Proceed with animation as long as we wanted it to.
-        if (time < duration && stopAnimation === false) {
-            currentAnimation = window.requestAnimationFrame(step);
+        if (time < duration) {
+            currentScrollAnimation = window.requestAnimationFrame(step);
         }
         else {
-            endAnimation();
-            jsonscroll();
+            updateLocation();
         }
     })
 }
 
 export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
-    stopAnimation = true;
+    stopScrolling();
     if(delta !== toolbarOffset) {
         toolbarOffset = delta;
     }
@@ -91,13 +87,40 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export const isReady = new Deferred();
-addWaiter(isReady);
+export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor, noiseOpacity, lineSpacing, justifyText, hyphenation} = {}, doNotReCalc = false) {
 
-export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset} = {}) {
+    $(":root")
+        .css("--max-width", `${maxWidth}mm`)
+        .css("--text-color", textColor)
+        .css("--hyphens", hyphenation ? "auto": "none")
+        .css("--noise-opacity", noiseOpacity/100)
+        .css("--line-spacing", `${lineSpacing/10}em`)
+        .css("--text-align", justifyText? "justify" : "left");
+
+    $("#content")
+        .css('margin-left', `${marginLeft}mm`)
+        .css('margin-right', `${marginRight}mm`)
+        .css("max-width", `${maxWidth}mm`)
+        .css("hyphens", hyphenation ? "auto": "none")
+        .css("text-align", justifyText? "justify" : "left");
+
+    $("body")
+        .css("color", textColor)
+        .css("line-height", `${lineSpacing/10}em`);
+
+    if(!doNotReCalc) {
+        registerVersePositions()
+    }
+}
+
+
+export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
+    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${displaySettings}`);
+    setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
-    if(isBible) {
+    if(jumpToChapterVerse != null) {
+        scrollToVerse(jumpToChapterVerse, true);
         enableVerseLongTouchSelectionMode();
     } else if(doScroll) {
         console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
@@ -109,14 +132,12 @@ export function setupContent({isBible = false, jumpToYOffsetRatio, toolBarOffset
         console.log("scrolling to beginning of document (now)");
         scrollToVerse(null, true);
     }
-
-    isReady.resolve();
-
     // requestAnimationFrame should make sure that contentReady is set only after
     // initial scrolling has been performed so that we don't get onScroll during initialization
     // in Java side.
     requestAnimationFrame(() => {
         $("#content").css('visibility', 'visible');
+        registerVersePositions();
         contentReady = true;
         jsInterface.setContentReady();
     });
@@ -126,7 +147,3 @@ export function hideContent() {
     $("#content").css('visibility', 'hidden');
 }
 
-
-export function stopScrolling() {
-    stopAnimation = true;
-}

@@ -39,6 +39,7 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
   <string name="help">Ayuda</string>
+  <string name="other">Otro</string>
   <string name="administration">Administración</string>
   <string name="rate_application">Valorar y comentar en Google Play</string>
   <string name="chooce_document">Elegir documento</string>
@@ -91,6 +92,7 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_night_mode_title">Modo nocturno</string>
   <string name="prefs_night_mode_summary">Para facilitar la lectura en la oscuridad</string>
   <string name="prefs_night_mode_automatic">Automático</string>
+  <string name="prefs_night_mode_system">Sistema</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
   <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>
@@ -374,6 +376,17 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versión: %s</string>
   <string name="about_versification">Versificación: %s</string>
+  <string name="send_backup_file">Enviar un archivo de copia de seguridad</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Informar de un fallo...</string>
+  <string name="report_bug_email_subject">Informe de fallo en And Bible %s</string>
+  <string name="report_bug_email_message">
+        Por favor use esta función para informar tan pronto como experimente el fallo.\n
+        \n
+        Díganos brevemente, a ser posible en inglés, qué hizo o qué ocurrió cuando ocurrió el fallo: \n
+        \n
+        Información del dispositivo: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Comentario</string>

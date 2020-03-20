@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -22,8 +22,6 @@ import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
-import net.bible.android.control.email.Emailer;
-import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -48,7 +46,7 @@ public class ApplicationModule {
 	@Provides
 	@ApplicationScope
 	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade, RepoFactory repoFactory) {
-		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor(), repoFactory), repoFactory, FontControl.getInstance(), swordDocumentFacade);
+		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), repoFactory, FontControl.Companion.getInstance(), swordDocumentFacade);
 	}
 
 	@Provides
@@ -67,11 +65,5 @@ public class ApplicationModule {
 	@ApplicationScope
 	public EventManager eventManagerProvider() {
 		return ABEventBus.getDefault();
-	}
-
-	@Provides
-	@ApplicationScope
-	public Emailer emailer(EmailerImpl emailerImpl) {
-		return emailerImpl;
 	}
 }

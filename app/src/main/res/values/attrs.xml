@@ -27,10 +27,19 @@
         <attr name="speakTransportBackground" format="color" />
         <attr name="transportBarHeight" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="myToolbarTheme">
+        <attr name="toolbarTextColor" format="color"/>
+    </declare-styleable>
     <declare-styleable name="windowButtonTheme">
+        <attr name="windowButtonActiveStrokeColor" format="color"/>
         <attr name="windowButtonStrokeColor" format="color"/>
         <attr name="windowButtonBackgroundColor" format="color"/>
         <attr name="windowButtonActiveBackgroundColor" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="separatorTheme">
+        <attr name="separatorBackgroundColor" format="color"/>
+        <attr name="separatorActiveBackgroundColor" format="color"/>
+        <attr name="separatorDragBackgroundColor" format="color"/>
     </declare-styleable>
     <declare-styleable name="bibleReferenceOverlayTheme">
         <attr name="bibleReferenceOverlayBackgroundColor" format="color"/>

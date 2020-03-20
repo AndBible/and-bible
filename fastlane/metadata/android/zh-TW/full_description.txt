@@ -1,0 +1,32 @@
+And 聖經是一個開源、離線、完全免費且沒有廣告的聖經程式。我們希望不同語言的使用者都可以容易閱讀、聆讀及研究經文，並因此得福。
+
+* 超過700種語言的聖經注釋、神學字典、地圖以及基督教書籍
+* 下載後可離線存取所有功能。如搜尋、筆記、注釋等
+* Interface in multiple languages
+* 多個聖經閱讀計劃
+* 完全免費。沒有廣告或電郵
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29本聖經注釋
+* 豐富的字典及基督教書籍
+* 所有文件都是合法發佈（所以沒有包含NKJV或NIV等）
+* 包括Strong's索引，方便查考希臘文或希伯來文
+* Multiple workspaces with split screen
+* 摘寫個人筆記
+* 具彈性的搜尋功能
+* 書籤
+* 聖經地圖
+* 聆聽任何文件
+* 自動捲動、自動日間/夜晚模式
+* 在同一螢幕對照聖經譯本
+* 其中一個最快速的聖經程式
+* 開源 - 你可以修改或改良源代碼
+* 使用CrossWire功能強大的JSword引擎
+
+我們都是義務參與。我們不會發出煩人的電郵、廣告，也不會要求或接受捐款，亦不需註冊。And 聖經不會收集手機的任個資料。
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+<b>備註</b>
+* 在Facebook上讚好And 聖經：https://www.facebook.com/AndBible/
+* And 聖經的常見問題：https://github.com/AndBible/and-bible/wiki/FAQ
+* Github專頁：https://github.com/AndBible/and-bible

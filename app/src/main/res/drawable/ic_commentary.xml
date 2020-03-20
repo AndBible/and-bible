@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<vector android:height="24dp" android:viewportHeight="45"
+    android:viewportWidth="45" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#000000"
+        android:pathData="m5.3658,2.6289c-3.906,0 -4.9879,1.0328 -4.9879,4.7585v2.9151h4.9879,4.9879v-2.9151c0,-3.7257 -1.0819,-4.7585 -4.9879,-4.7585zM20.0611,2.7083c-0.5618,-0.0083 -1.2681,0.0192 -2.1642,0.0704l-4.0901,0.2338 -0.2338,3.645 -0.2338,3.645h4.9384,4.9384l3.6615,14.7717c2.0136,8.1245 3.9449,15.5487 4.2924,16.4983 0.7754,2.1187 1.4318,2.1435 5.0733,0.1918 1.5749,-0.8441 4.1432,-1.5347 5.7073,-1.5347 1.564,0 3.0497,-0.3318 3.3003,-0.7374 0.5564,-0.9002 -8.4781,-35.3059 -9.5531,-36.3808 -0.5095,-0.5095 -1.8882,-0.2042 -4.1216,0.9112 -4.4179,2.2064 -8.6155,2.2513 -9.1784,0.0989 -0.2711,-1.0367 -0.6511,-1.3884 -2.3366,-1.4133zM31.3977,9.2848c1.4581,0.0768 1.8456,1.4691 4.7451,12.1444 1.834,6.7528 3.344,12.8429 3.3527,13.5323 0.0097,0.6893 -0.7589,1.4616 -1.7086,1.7161 -2.627,0.704 -2.7028,0.6598 -3.5416,-2.0113 -2.0349,-6.4802 -6.4277,-24.4332 -6.067,-24.7939 0.2234,-0.2234 1.356,-0.477 2.5179,-0.5635 0.2624,-0.0195 0.4931,-0.0349 0.7014,-0.024zM0.378,12.6046v10.3594,10.3594h4.9879,4.9879v-10.3594,-10.3594h-4.9879zM13.4231,12.6046v10.3594,10.3594h4.6042,4.6042v-10.3594,-10.3594h-4.6042zM0.378,35.6255v2.9166c0,1.6038 0.4138,3.3304 0.9202,3.8368 0.5064,0.5065 2.3372,0.9202 4.0676,0.9202 3.906,0 4.9879,-1.0314 4.9879,-4.7571v-2.9166h-4.9879zM13.4231,35.6255v3.3257c0,1.8289 0.2452,3.571 0.5455,3.8713h0.0015c0.3003,0.3003 2.2859,0.4437 4.4123,0.3192l3.8653,-0.2263 0.2338,-3.645 0.2338,-3.645h-4.6461z" android:strokeWidth="0.76736295"/>
+</vector>

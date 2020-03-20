@@ -1,0 +1,32 @@
+And Bible is een open source, offline en volledig gratis bijbelapp. De app bevat geen reclame zodat iedereen, uit welk land dan ook, bijbelteksten kan lezen en bestuderen en er zelfs naar luisteren.
+
+* Bijbels, commentaar, theologische woordenboeken, kaarten en christelijke boeken in meer dan 700 talen
+* Na een eenmalige download volledig offline, inclusief zoeken, aantekeningen, commentaar, etc.
+* Interface in multiple languages
+* Verschillende leesplannen
+* Volledig gratis - geen reclame, geen e-mails
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 bijbelcommentaren
+* Uitgebreid woordenboeken en christelijke boekenverzameling
+* Alle documenten zijn legaal te verspreiden (daarom zijn documenten als het NKJV en NIV niet beschikbaar)
+* Door Strong's integratie is Griekse en Hebreeuwse woordanalyse mogelijk
+* Multiple workspaces with split screen
+* Schrijf persoonlijke aantekeningen
+* Flexibel zoeken
+* Bladwijzers
+* Kaarten van bijbelse landen
+* Documenten kunnen worden voorgelezen
+* Automatisch scrollen, automatische dag-/nachtmodus
+* Vergelijk alle bijbelvertalingen op één scherm
+* Eén van de snelste bijbelapps op Android
+* Open source - verbeter of wijzig de code, indien gewenst
+Gebruik de krachtige JSword-aandrijving van CrossWire
+
+We zijn een groep vrijwilligers en versturen je geen vervelende e-mails. Daarnaast is de app reclamevrij, vragen we nooit om donaties of registratie en worden er geen telefoongegevens verzameld.
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+<b>Aantekeningen</b>
+* Like And Bible op Facebook: https://www.facebook.com/AndBible/
+* Veelgestelde vragen vind je hier: https://github.com/AndBible/and-bible/wiki/FAQ
+* Projectpagina op GitHub: https://github.com/AndBible/and-bible

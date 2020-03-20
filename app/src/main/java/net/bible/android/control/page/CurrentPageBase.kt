@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -19,6 +19,7 @@ package net.bible.android.control.page
 
 import android.util.Log
 import android.view.Menu
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.service.common.ParseException
@@ -40,7 +41,8 @@ import org.crosswire.jsword.passage.Key
 abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
 	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
+	swordDocumentFacade: SwordDocumentFacade,
+    override val pageManager: CurrentPageManager
 ) : CurrentPage {
 
     override var isInhibitChangeNotifications: Boolean = false
@@ -67,6 +69,7 @@ abstract class CurrentPageBase protected constructor(
             return field
         }
         set(currentYOffsetRatio) {
+            key ?: return
             docWhenYOffsetRatioSet = currentDocument
             keyWhenYOffsetRatioSet = key
             field = currentYOffsetRatio
@@ -118,20 +121,24 @@ abstract class CurrentPageBase protected constructor(
 
     protected fun getPageContent(key: Key?, asFragment: Boolean): String {
         return try {
-            var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment)
+            var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment, pageManager.actualTextDisplaySettings)
             if (StringUtils.isEmpty(htmlText)) {
                 htmlText = format(R.string.error_no_content)
             }
             htmlText
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
-            format(R.string.error_occurred, asFragment)
+            val app = BibleApplication.application
+            val reportBug = app.getString(R.string.send_bug_report_title)
+            val link = "<a href='report://'>${reportBug}</a>."
+            val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
+            format(string)
         }
     }
 
     @get:Throws(ParseException::class)
     override val currentPageFootnotesAndReferences: List<Note?>?
-        get() = swordContentFacade.readFootnotesAndReferences(currentDocument, key)
+        get() = swordContentFacade.readFootnotesAndReferences(currentDocument, key, pageManager.actualTextDisplaySettings)
 
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {
@@ -189,6 +196,10 @@ abstract class CurrentPageBase protected constructor(
     }
 
     protected open fun localSetCurrentDocument(doc: Book?) {
+        _currentDocument = doc
+    }
+
+    fun onlySetCurrentDocument(doc: Book?) {
         _currentDocument = doc
     }
 

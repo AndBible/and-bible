@@ -204,6 +204,7 @@
   <string name="about_copyright">זכויות יוצרים: %s</string>
   <string name="about_version">גרסה: %s</string>
   <string name="about_versification">חריזה: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">תנ\"ך</string>
   <string name="doc_type_commentary">פרשנות</string>

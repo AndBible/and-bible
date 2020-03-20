@@ -181,6 +181,7 @@
   <string name="about_copyright">Автордук укук %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Аятка бөлүү: %s</string>
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Түшүндүрмө</string>

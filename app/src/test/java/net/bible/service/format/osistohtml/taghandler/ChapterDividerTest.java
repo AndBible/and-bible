@@ -44,7 +44,7 @@ public class ChapterDividerTest {
 	public void noVerseOrChapters() {
 		osisToHtmlParameters.setShowVerseNumbers(false);
 		chapterDivider.start(null);
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div class='chapterNo'>&nbsp;</div><div id='3'></div>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<div id='3'></div>"));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class ChapterDividerTest {
 		// then some verse content which stays after the verse
 		htmlTextWriter.write("Verse content");
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div class='chapterNo'>&nbsp;</div><div id='3'></div><h1 class='heading1'>Title</h1>v1Verse content"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<div id='3'></div><h1 class='heading1'>Title</h1>v1Verse content"));
 
 	}
 }

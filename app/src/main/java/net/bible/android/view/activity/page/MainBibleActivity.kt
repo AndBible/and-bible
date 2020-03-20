@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -27,8 +27,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.text.InputType
-import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
@@ -43,14 +41,14 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.ArrayAdapter
-import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.MenuCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -63,7 +61,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
@@ -73,7 +70,9 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.base.ActivityBase
@@ -88,10 +87,16 @@ import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.activity.settings.DirtyTypesSerializer
+import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
@@ -120,10 +125,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     lateinit var bibleContentManager: BibleContentManager
 
     @Inject
-    lateinit var bibleViewFactory: BibleViewFactory
-
-    @Inject
     lateinit var documentViewManager: DocumentViewManager
+
+    @Inject lateinit var bibleActionBarManager: BibleActionBarManager
+
     @Inject
     lateinit var windowControl: WindowControl
     @Inject
@@ -185,6 +190,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
+    //val bottomOffset2 get() = 200F //bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
     // Right offset with navigation bar
     val rightOffset1 get() = if (rightNavBarVisible) navigationBarHeight else 0.0F
     // Left offset with navigation bar
@@ -203,6 +209,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
 
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        }
+
         // This is singleton so we can do this.
         mainBibleActivity = this
         ScreenSettings.refreshNightMode()
@@ -215,6 +225,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .mainBibleActivityModule(MainBibleActivityModule(this))
             .build()
             .inject(this)
+        // When I mess up database, I can re-create database like this.
+        //backupControl.resetDatabase()
+
+        backupControl.clearBackupDir()
         windowRepository.initialize()
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
@@ -249,18 +263,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
         drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerStateChanged(newState: Int) {
+                if(newState == DrawerLayout.STATE_SETTLING) {
+                    showSystemUI(false)
+                }
+
+            }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
-            override fun onDrawerOpened(drawerView: View) {
-                if (isFullScreen) {
-                    showSystemUI()
-                }
-            }
+            override fun onDrawerOpened(drawerView: View) {}
 
             override fun onDrawerClosed(drawerView: View) {
                 if (isFullScreen) {
                     hideSystemUI()
+                } else {
+                    showSystemUI()
+
                 }
             }
 
@@ -341,7 +359,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val horizontal = Math.abs(e1.x - e2.x).toDouble()
 
                 if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
-                    chooseWorkspace()
+                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
                     return true
 
                 } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
@@ -415,10 +434,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         strongsButton.setOnClickListener {
-            val prefOptions = getItemOptions(R.id.showStrongsOption)
-            prefOptions.value = !prefOptions.value
+            val prefOptions = dummyStrongsPrefOption
+            prefOptions.value = !(prefOptions.value == true)
             prefOptions.handle()
             invalidateOptionsMenu()
+            updateStrongsButton()
         }
 
         strongsButton.setOnLongClickListener {
@@ -434,117 +454,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             true
         }
         searchButton.setOnClickListener { startActivityForResult(searchControl.getSearchIntent(documentControl.currentDocument), ActivityBase.STD_REQUEST_CODE) }
-        bibleButton.setOnClickListener { setCurrentDocument(documentControl.suggestedBible) }
-        commentaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedCommentary) }
         bookmarkButton.setOnClickListener { startActivityForResult(Intent(this, Bookmarks::class.java), STD_REQUEST_CODE) }
-        dictionaryButton.setOnClickListener { setCurrentDocument(documentControl.suggestedDictionary) }
     }
 
-    class AutoFullScreenChanged(val newValue: Boolean)
+    private val dummyStrongsPrefOption
+        get() = StrongsPreference(
+            SettingsBundle(
+                pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
+                workspaceId = windowRepository.id,
+                workspaceName = windowRepository.name,
+                workspaceSettings = windowRepository.textDisplaySettings,
+                windowId = windowControl.activeWindow.id
+            ))
+
 
     val workspaces get() = dao.allWorkspaces()
-
-    private fun deleteWorkspace() {
-        val nextWorkspace = workspaces.reversed().find { it.id < currentWorkspaceId } ?: workspaces[0]
-        dao.deleteWorkspace(currentWorkspaceId)
-        windowRepository.clear(true)
-        currentWorkspaceId = nextWorkspace.id
-    }
-
-    private fun renameWorkspace() {
-        val input = EditText(this)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        input.text = SpannableStringBuilder(windowRepository.name)
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.rename_workspace_title))
-            .setView(input)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.okay) { dialog, _ ->
-                dialog.dismiss()
-                windowRepository.name = input.text.toString()
-                ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
-                invalidateOptionsMenu()
-            }
-            .show()
-    }
-
     val windowRepository get() = windowControl.windowRepository
-
-    private val newWorkspaceName get () = getString(R.string.workspace_number, numWorkspaces + 1)
-
-    private fun newWorkspace() {
-        val defaultDocument = pageControl.currentPageManager.currentBible.currentDocument
-        windowRepository.saveIntoDb()
-
-        val newWorkspaceEntity = WorkspaceEntities.Workspace(newWorkspaceName).apply {
-            id = dao.insertWorkspace(this)
-        }
-
-        currentWorkspaceId = newWorkspaceEntity.id
-        pageControl.currentPageManager.currentBible.setCurrentDocument(defaultDocument)
-    }
-
-    private fun cloneWorkspace() {
-        val newWorkspace = dao.cloneWorkspace(currentWorkspaceId, newWorkspaceName)
-        currentWorkspaceId = newWorkspace.id
-        ABEventBus.getDefault().post(ToastEvent(newWorkspace.name))
-        invalidateOptionsMenu()
-    }
-
-    private fun chooseWorkspace() {
-        windowRepository.saveIntoDb()
-
-        val workspaceTitles = ArrayList<String>()
-        val pageManager = windowRepository.currentPageManagerProvider.get()
-        val workspaces = workspaces
-
-        for(workspace in workspaces) {
-            val windows = dao.windows(workspace.id)
-
-            val name = workspace.name
-            val keyTitle = ArrayList<String>()
-            val prevFullBookNameValue = BookName.isFullBookName()
-            BookName.setFullBookName(false)
-
-            windows.forEach {
-                pageManager.restoreFrom(dao.pageManager(it.id))
-                keyTitle.add("${pageManager.currentPage.singleKey?.name} (${pageManager.currentPage.currentDocument?.abbreviation})")
-            }
-
-            BookName.setFullBookName(prevFullBookNameValue)
-            val text = if(name.isNotEmpty())
-                getString(R.string.workspace_name_contents, name, keyTitle.joinToString(", "))
-            else
-                keyTitle.joinToString(", ")
-
-            val prefix = if(currentWorkspaceId == workspace.id) {
-                "• ⭐ "
-            } else "• "
-
-            workspaceTitles.add(prefix + text)
-        }
-
-        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, workspaceTitles)
-        val builder = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.choose_workspace_to_open))
-            .setPositiveButton(getString(R.string.new_workspace_from_dialog)) { _, _ ->
-                newWorkspace()
-            }
-            .setAdapter(adapter) {_, which ->
-                val now = workspaces[which]
-                if(currentWorkspaceId != now.id) {
-                    currentWorkspaceId = now.id
-                }
-            }
-            .setNeutralButton(R.string.cancel, null)
-
-        if(workspaces.size > 1) {
-            builder.setNegativeButton(getString(R.string.delete_workspace_from_dialog)) { _, _ ->
-                deleteWorkspace()
-            }
-        }
-        builder.show()
-    }
 
     private fun previousWorkspace() {
         val workspaces = workspaces
@@ -565,17 +490,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         currentWorkspaceId = if(currentWorkspacePos < workspaces.size - 1) workspaces[currentWorkspacePos + 1].id else workspaces[0].id
     }
 
-    private val haveWorkspaces: Boolean get() = numWorkspaces > 1
-    private val numWorkspaces: Int get() = workspaces.size
-
     private var currentWorkspaceId
         get() = windowRepository.id
         set(value) {
             windowRepository.loadFromDb(value)
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
-            documentViewManager.resetView()
+            documentViewManager.buildView()
             windowControl.windowSync.reloadAllWindows()
+            windowRepository.updateVisibleWindowsTextDisplaySettings()
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
@@ -584,47 +507,58 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             updateToolbar()
         }
 
-   private fun getItemOptions(itemId: Int) =  when(itemId) {
-        R.id.showBookmarksOption -> TextContentMenuItemPreference("show_bookmarks_pref", true)
-        R.id.redLettersOption -> TextContentMenuItemPreference("red_letter_pref", false)
-        R.id.sectionTitlesOption -> TextContentMenuItemPreference("section_title_pref", true)
-        R.id.verseNumbersOption -> TextContentMenuItemPreference("show_verseno_pref", true)
-        R.id.versePerLineOption -> TextContentMenuItemPreference("verse_per_line_pref", false)
-        R.id.footnoteOption -> TextContentMenuItemPreference("show_notes_pref", false)
-        R.id.myNotesOption -> TextContentMenuItemPreference("show_mynotes_pref", true)
-        R.id.showStrongsOption -> StrongsMenuItemPreference()
-        R.id.morphologyOption -> MorphologyMenuItemPreference()
-        R.id.autoFullscreen -> AutoFullscreenMenuItemPreference()
-        R.id.tiltToScroll -> TiltToScrollMenuItemPreference()
-        R.id.nightMode -> NightModeMenuItemPreference()
-        R.id.splitMode -> SplitModeMenuItemPreference()
-        R.id.textOptionsSubMenu -> SubMenuMenuItemPreference(true)
-        R.id.workspacesSubMenu -> WorkspacesSubmenu()
-        R.id.newWorkspace -> CommandItem({newWorkspace()})
-        R.id.cloneWorkspace -> CommandItem({cloneWorkspace()})
-        R.id.deleteWorkspace -> CommandItem({deleteWorkspace()}, haveWorkspaces)
-        R.id.renameWorkspace -> CommandItem({renameWorkspace()})
-        R.id.switchToWorkspace -> CommandItem({chooseWorkspace()})
-        else -> throw RuntimeException("Illegal menu item")
-   }
+    private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
+        val settingsBundle = SettingsBundle(workspaceId = windowRepository.id, workspaceName = windowRepository.name, workspaceSettings = windowRepository.textDisplaySettings)
+        return when(item.itemId) {
+            R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
+                val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+                intent.putExtra("settingsBundle", settingsBundle.toJson())
+                startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+            })
+            R.id.textOptionsSubMenu -> SubMenuPreference(false)
+            R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
+            R.id.splitMode -> SplitModePreference()
+            R.id.autoPinMode -> WindowPinningPreference()
+
+            R.id.tiltToScroll -> TiltToScrollPreference()
+            R.id.nightMode -> NightModePreference()
+            R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
+                val intent = Intent(this, WorkspaceSelectorActivity::class.java)
+                startActivityForResult(intent, WORKSPACE_CHANGED)
+            })
+            else -> throw RuntimeException("Illegal menu item")
+        }
+    }
 
     private val preferences = CommonUtils.sharedPreferences
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_bible_options_menu, menu)
+
+        val lastSettings = CommonUtils.lastDisplaySettings
+        if(lastSettings.isNotEmpty()) {
+            for ((idx, t) in lastSettings.withIndex()) {
+                menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
+            }
+        }
+        MenuCompat.setGroupDividerEnabled(menu, true)
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
-                val itmOptions = getItemOptions(item.itemId)
+                val itmOptions = getItemOptions(item)
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
-                item.title = itmOptions.getTitle(item.title)
+                item.isCheckable = itmOptions.isBoolean
+                if(itmOptions.title != null) {
+                    item.title = itmOptions.title
+                }
 
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
                     continue;
                 }
 
-                item.isChecked = itmOptions.value
+                item.isChecked = itmOptions.value == true
             }
         }
         handleMenu(menu)
@@ -632,19 +566,38 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun handlePrefItem(item: MenuItem) {
-        val itemOptions = getItemOptions(item.itemId)
-        if(itemOptions is SubMenuMenuItemPreference)
+        val itemOptions = getItemOptions(item)
+        if(itemOptions is SubMenuPreference)
             return
-
-        itemOptions.value = !itemOptions.value
-        itemOptions.handle()
-        item.isChecked = itemOptions.value
+        if(itemOptions.isBoolean) {
+            itemOptions.value = !(itemOptions.value == true)
+            itemOptions.handle()
+            item.isChecked = itemOptions.value == true
+            invalidateOptionsMenu()
+        } else {
+            val onReady = {
+                if(itemOptions is Preference) {
+                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
+                }
+                if(itemOptions.requiresReload) {
+                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateVisibleWindowsTextDisplaySettings()
+                }
+                invalidateOptionsMenu()
+            }
+            val onReset = {
+                if(itemOptions is Preference) {
+                    itemOptions.value = TextDisplaySettings.default.getValue(itemOptions.type)!!
+                }
+                onReady()
+            }
+            itemOptions.openDialog(this, {onReady()}, onReset)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         handlePrefItem(item)
-        if(item.itemId == R.id.showStrongsOption)
-            invalidateOptionsMenu()
         return true
     }
 
@@ -680,25 +633,35 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             pageTitle.text = pageTitleText
             val layout = pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
+                val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 pageTitle.text = pageTitleText
-                BookName.setFullBookName(true)
+                BookName.setFullBookName(oldValue)
             }
         } catch (e: KeyIsNull) {
             Log.e(TAG, "Key is null, not updating", e)
         }
         documentTitle.text = documentTitleText
+        updateStrongsButton()
     }
 
-    private val titleSplitter = TitleSplitter()
-    private val actionButtonMaxChars = CommonUtils.getResourceInteger(R.integer.action_button_max_chars)
+    private fun updateStrongsButton() {
+        if(documentControl.isNewTestament) {
+            strongsButton.setImageResource(R.drawable.ic_strongs_greek)
+        } else {
+            strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
+        }
+        if(dummyStrongsPrefOption.value == false) {
+            strongsButton.alpha = 0.7F
+        } else
+            strongsButton.alpha = 1.0F
+    }
 
     override fun updateActions() {
         updateTitle()
 
         val suggestedBible = documentControl.suggestedBible
         val suggestedCommentary = documentControl.suggestedCommentary
-        val suggestedDictionary = documentControl.suggestedDictionary
 
         var visibleButtonCount = 0
         val screenWidth = resources.displayMetrics.widthPixels
@@ -707,23 +670,21 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
-
         bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
-            bibleButton.text = titleSplitter.shorten(suggestedBible.abbreviation, actionButtonMaxChars)
-            bibleButton.setOnLongClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+            bibleButton.setOnClickListener { menuForDocs(it, documentControl.biblesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
         commentaryButton.visibility = if (suggestedCommentary != null && visibleButtonCount < maxButtons) {
-            commentaryButton.text = titleSplitter.shorten(suggestedCommentary.abbreviation, actionButtonMaxChars)
-            commentaryButton.setOnLongClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+            commentaryButton.setOnClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
         strongsButton.visibility = if (visibleButtonCount < maxButtons && documentControl.isStrongsInBook) {
             visibleButtonCount += 1
+
             View.VISIBLE
         } else View.GONE
 
@@ -763,12 +724,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             p.second()
         }
 
-        dictionaryButton.visibility = if(suggestedDictionary != null && visibleButtonCount < maxButtons) {
-            dictionaryButton.text = titleSplitter.shorten(suggestedDictionary.abbreviation, actionButtonMaxChars)
-            dictionaryButton.setOnLongClickListener { menuForDocs(it, swordDocumentFacade.getBooks(BookCategory.DICTIONARY)) }
-            visibleButtonCount += 1
-            View.VISIBLE
-        } else View.GONE
         invalidateOptionsMenu()
 
         val btn = navigationView.menu.findItem(R.id.searchButton)
@@ -873,28 +828,30 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         window.decorView.systemUiVisibility = uiFlags
     }
 
-    private fun showSystemUI() {
+    private fun showSystemUI(setNavBarColor: Boolean=true) {
         var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if(ScreenSettings.nightMode) {
-                window.navigationBarColor = resources.getColor(R.color.black, theme)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    window.navigationBarDividerColor = resources.getColor(R.color.grey_800, theme)
-                }
-            } else {
+            if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.navigationBarColor = resources.getColor(R.color.white, theme)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    window.navigationBarDividerColor = resources.getColor(R.color.nav_bar_divider_grey, theme)
-                }
             }
         }
 
         // only need to un-hide navigation bar in portrait mode
         if (CommonUtils.isPortrait)
             uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(setNavBarColor) {
+                val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
+                val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
+                window.navigationBarColor = color?: UiUtils.bibleViewDefaultBackgroundColor
+                UiUtils.bibleViewDefaultBackgroundColor
+            } else {
+                val typedValue = TypedValue()
+                val found = theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                window.navigationBarColor = typedValue.data
+            }
+        }
         window.decorView.systemUiVisibility = uiFlags
     }
 
@@ -930,6 +887,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onDestroy() {
         super.onDestroy()
+        beforeDestroy()
         ABEventBus.getDefault().unregister(this)
     }
 
@@ -996,9 +954,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     var currentNightMode: Boolean = false
 
+    private fun beforeDestroy() {
+        documentViewManager.destroy()
+        bibleActionBarManager.destroy()
+    }
+
     fun refreshIfNightModeChange(): Boolean {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
+        ScreenSettings.checkMonitoring()
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
@@ -1065,20 +1029,78 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             REQUEST_PICK_FILE_FOR_BACKUP_RESTORE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     CurrentActivityHolder.getInstance().currentActivity = this
-                    Dialogs.getInstance().showMsg(R.string.restore_confirmation, true) {
+                    Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
                         thread {
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 windowControl.windowSync.setResyncRequired()
-                                bibleViewFactory.clear()
                                 runOnUiThread {
+                                    documentViewManager.clearBibleViewFactory()
                                     currentWorkspaceId = 0
                                 }
                             }
                         }
                     }
                 }
+            }
+            WORKSPACE_CHANGED -> {
+                val extras = data?.extras
+                val workspaceId = extras?.getLong("workspaceId")
+                val changed = extras?.getBoolean("changed")
+
+                if(resultCode == Activity.RESULT_OK) {
+                    if(workspaceId != 0L && workspaceId != currentWorkspaceId) {
+                        currentWorkspaceId = workspaceId!!
+                    } else if(changed == true) {
+                        currentWorkspaceId = currentWorkspaceId
+                    }
+                }
+                return
+            }
+            COLORS_CHANGED -> {
+                val extras = data?.extras!!
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val windowId = extras.getLong("windowId")
+                val colorsStr = extras.getString("colors")
+
+                if(!edited && !reset) return
+
+                val colors = if(reset)
+                    if(windowId != 0L) {
+                        null
+                    } else TextDisplaySettings.default.colors
+                else
+                    WorkspaceEntities.Colors.fromJson(colorsStr!!)
+
+                if(windowId != 0L) {
+                    val window = windowRepository.getWindow(windowId)!!
+                    window.pageManager.textDisplaySettings.colors = colors
+                    window.bibleView?.updateTextDisplaySettings()
+                } else {
+                    windowRepository.textDisplaySettings.colors = colors
+                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
+                    windowRepository.updateVisibleWindowsTextDisplaySettings()
+                }
+                resetSystemUi()
+                invalidateOptionsMenu()
+            }
+            TEXT_DISPLAY_SETTINGS_CHANGED -> {
+                val extras = data?.extras!!
+
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+
+                val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
+                val requiresReload = extras.getBoolean("requiresReload")
+
+                if(!edited && !reset) return
+
+                val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
+
+                workspaceSettingsChanged(settingsBundle, requiresReload, reset, dirtyTypes)
+                return
             }
             STD_REQUEST_CODE -> {
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
@@ -1100,7 +1122,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
                 if(data?.component?.className == MyNotes::class.java.name) {
                     invalidateOptionsMenu()
-                    documentViewManager.resetView()
+                    documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
@@ -1122,6 +1144,39 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     }
 
+    private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
+                                         reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
+        val windowId = settingsBundle.windowId
+        if(windowId != null) {
+            val window = windowRepository.getWindow(windowId)!!
+            window.pageManager.textDisplaySettings = if(reset)
+                TextDisplaySettings()
+            else
+                settingsBundle.pageManagerSettings!!
+
+            if(requiresReload)
+                window.updateText()
+            else {
+                window.bibleView?.updateTextDisplaySettings()
+            }
+        } else {
+            if(reset) {
+                windowRepository.textDisplaySettings = TextDisplaySettings.default
+            } else {
+                windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+            }
+            if(dirtyTypes != null) {
+                windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+            }
+            if(requiresReload) {
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            } else {
+                windowRepository.updateVisibleWindowsTextDisplaySettings()
+            }
+        }
+        invalidateOptionsMenu()
+        resetSystemUi()
+    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
@@ -1136,10 +1191,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     fun preferenceSettingsChanged() {
-        documentViewManager.documentView.applyPreferenceSettings()
+        resetSystemUi()
         if(!refreshIfNightModeChange()) {
             requestSdcardPermission()
             invalidateOptionsMenu()
+            documentViewManager.buildView()
             ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
         }
     }
@@ -1168,13 +1224,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         invalidateOptionsMenu()
-    }
-
-    /**
-     * called just before starting work to change the current passage
-     */
-    fun onEventMainThread(event: PassageChangeStartedEvent) {
-        documentViewManager.buildView()
     }
 
     /**
@@ -1252,6 +1301,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // ActivityBase.STD_REQUEST_CODE = 1
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
+        const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
+        const val COLORS_CHANGED = 5
+        const val WORKSPACE_CHANGED = 6
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

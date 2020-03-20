@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -33,13 +33,13 @@ import org.crosswire.jsword.passage.Verse
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class CurrentCommentaryPage  /* default */
-internal constructor(
-	currentBibleVerse: CurrentBibleVerse,
-	bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade), CurrentPage
+open class CurrentCommentaryPage internal constructor(
+    currentBibleVerse: CurrentBibleVerse,
+    bibleTraverser: BibleTraverser,
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
 
     override val bookCategory = BookCategory.COMMENTARY
@@ -131,9 +131,11 @@ internal constructor(
         val book = swordDocumentFacade.getDocumentByInitials(document)
         if (book != null) {
             Log.d(TAG, "Restored document:" + book.name)
-            // bypass setter to avoid automatic notifications
-            localSetCurrentDocument(book)
-            // allow Bible page to restore shared verse
+            // bypass setter to avoid automatic notifications.
+            // Also let's not use localSetCurrentDocument, because we don't want to set the verse.
+            // It is already set correctly when CurrentBiblePage is restored.
+            // Otherwise versification will be messed up!
+            onlySetCurrentDocument(book)
         }
         currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
     }

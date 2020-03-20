@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -17,6 +17,7 @@
  */
 
 package net.bible.service.common
+import android.util.Log
 import net.bible.android.BibleApplication
 
 import org.apache.commons.lang3.StringUtils
@@ -120,11 +121,13 @@ object FileManager {
             returnProperties.load(inputStream)
             log.debug("The properties are now loaded from: $filename")
         } catch (e: IOException) {
-            System.err.println("Failed to open property file:$filename")
+            Log.e(TAG, "Failed to open property file:$filename")
             e.printStackTrace()
         } finally {
             IOUtil.close(inputStream)
         }
         return returnProperties
     }
+
+    private const val TAG = "FileManager"
 }

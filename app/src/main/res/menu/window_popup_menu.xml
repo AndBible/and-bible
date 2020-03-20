@@ -4,19 +4,22 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
+	>
 
 	<item android:id="@+id/windowNew"
 		  android:title="@string/new_window"
 		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
-	<item android:id="@+id/windowMaximise"
-		  android:title="@string/windowMaximise"
-		  android:checkable="true"
-		  android:checked="false"
-		  android:icon="@drawable/ic_zoom_out_map_white_24dp"/>
+	<item android:id="@+id/pinMode"
+		android:title="@string/window_pin_mode"
+		android:icon="@drawable/ic_pin"
+		android:checkable="true"
+		android:checked="true"/>
 	<item android:id="@+id/windowMinimise"
 		  android:title="@string/windowMinimise"
 		  android:icon="@drawable/ic_photo_size_select_small_white_24dp"/>
+	<item android:id="@+id/windowMaximise"
+		android:title="@string/windowMaximise"
+		android:icon="@drawable/ic_zoom_out_map_white_24dp"/>
 	<item android:id="@+id/windowClose"
 		  android:title="@string/windowClose"
 		  android:icon="@drawable/ic_close_white_24dp"/>
@@ -25,7 +28,30 @@
 		  android:icon="@drawable/ic_sync_white_24dp"
 		  android:checkable="true"
 		  android:checked="true"/>
-	<item android:id="@+id/windowMoveFirst"
-		  android:title="@string/windowMoveFirst"
-		  android:icon="@drawable/ic_arrow_drop_up_white_24dp"/>
+	<item
+		android:id="@+id/moveWindowSubMenu"
+		android:icon="@drawable/ic_compare_arrows_black_24dp"
+		android:title="@string/move_window">
+		<menu>
+			<item android:id="@+id/moveItem"
+				android:title=""
+				/>
+		</menu>
+	</item>
+	<item
+		android:id="@+id/textOptionsSubMenu"
+		android:icon="@drawable/ic_text_format_white_24dp"
+		android:title="@string/text_options_window_menutitle">
+		<menu>
+			<item android:id="@+id/textOptionItem"
+				android:title=""
+				/>
+			<item
+				android:id="@+id/allTextOptions"
+				android:icon="@drawable/ic_text_format_white_24dp"
+				android:title="@string/all_text_options_window_menutitle"
+				android:orderInCategory="1000"
+				/>
+		</menu>
+	</item>
 </menu>

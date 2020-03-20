@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -19,8 +19,6 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
-import android.view.Menu
-import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
@@ -70,64 +68,12 @@ open class WindowControl @Inject constructor(
             windowRepository.activeWindow = currentActiveWindow
         }
 
-    /**
-     * Get current chapter.verse for each window displaying a Bible
-     *
-     * @return Map of window num to verse num
-     */
-    private// get page offsets to maintain for each window
-    val windowChapterVerseMap: Map<Window, ChapterVerse>
-        get() {
-            val windowVerseMap = HashMap<Window, ChapterVerse>()
-            for (window in windowRepository.windows) {
-                val currentPage = window.pageManager.currentPage
-                if (BookCategory.BIBLE == currentPage.currentDocument?.bookCategory) {
-                    val chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.singleKey))
-                    windowVerseMap[window] = chapterVerse
-                }
-            }
-            return windowVerseMap
-        }
+    val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
+    fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
+    val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
 
     init {
         eventManager.register(this)
-    }
-
-    /**
-     * Add the Window sub-menu resource which is not included in the main.xml for the main menu
-     * Set the synchronised checkbox in the app menu before displayed
-     * Disable various menu items if links window selected
-     */
-    fun updateOptionsMenu(menu: Menu) {
-        // when updating main menu rather than Window options menu
-
-        val synchronisedMenuItem = menu.findItem(R.id.windowSynchronise)
-        val moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst)
-        val closeMenuItem = menu.findItem(R.id.windowClose)
-        val minimiseMenuItem = menu.findItem(R.id.windowMinimise)
-        val maximiseMenuItem = menu.findItem(R.id.windowMaximise)
-        val window = activeWindow
-
-        if (synchronisedMenuItem != null && moveFirstMenuItem != null) {
-            // set synchronised & maximised checkbox state
-            synchronisedMenuItem.isChecked = window.isSynchronised
-            maximiseMenuItem.isChecked = window.isMaximised
-
-            // the dedicated links window cannot be treated as a normal window
-            val isDedicatedLinksWindowActive = isActiveWindow(windowRepository.dedicatedLinksWindow)
-            synchronisedMenuItem.isEnabled = !isDedicatedLinksWindowActive
-            moveFirstMenuItem.isEnabled = !isDedicatedLinksWindowActive
-
-            // cannot close last normal window
-            closeMenuItem.isEnabled = isWindowRemovable(window)
-            minimiseMenuItem.isEnabled = isWindowMinimisable(window)
-
-            // if window is already first then cannot promote
-            val visibleWindows = windowRepository.visibleWindows
-            if (visibleWindows.size > 0 && window == visibleWindows[0]) {
-                moveFirstMenuItem.isEnabled = false
-            }
-        }
     }
 
     fun isActiveWindow(window: Window): Boolean {
@@ -171,35 +117,22 @@ open class WindowControl @Inject constructor(
 
         // redisplay the current page
         if (!linksWindowWasVisible) {
-            linksWindow.windowLayout.state = WindowState.SPLIT
+            linksWindow.windowState = WindowState.SPLIT
         }
 
         linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         if (!linksWindowWasVisible) {
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
         }
         linksWindow.restoreOngoing = false
     }
 
 
     fun addNewWindow(): Window {
-        val oldActiveWindow = activeWindow
         val window = windowRepository.addNewWindow()
 
-        // default state to active window
-        if (!isActiveWindow(window)) {
-            window.pageManager.restoreFrom(oldActiveWindow.pageManager.entity)
-            window.isSynchronised = oldActiveWindow.isSynchronised
-            if (windowRepository.isMaximisedState) {
-                activeWindow = window
-            }
-        }
-
-        window.updateText()
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        restoreWindow(window, true)
 
         return window
     }
@@ -210,72 +143,18 @@ open class WindowControl @Inject constructor(
         window.isSynchronised = false
         pageManager.setCurrentDocumentAndKey(document, key)
 
-        if (windowRepository.isMaximisedState) {
-            activeWindow = window
-        }
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        restoreWindow(window, true)
 
         return window
     }
 
-
-    /**
-     * Minimise window if possible
-     */
-    fun minimiseCurrentWindow() {
-        minimiseWindow(activeWindow)
-    }
-
-    fun minimiseWindow(window: Window) {
-        if (isWindowMinimisable(window)) {
+    fun minimiseWindow(window: Window, force: Boolean = false) {
+        if(force || isWindowMinimisable(window)) {
             windowRepository.minimise(window)
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
         }
-    }
-
-    fun maximiseWindow(window: Window) {
-        windowRepository.minimisedWindows.forEach {
-            it.wasMinimised = true
-        }
-        windowRepository.visibleWindows.forEach {
-            if (it != window) {
-                it.windowLayout.state = WindowState.MINIMISED
-            }
-        }
-
-        window.isMaximised = true
-        activeWindow = window
-
-        // also remove the links window because it may possibly displayed even though a window is
-        // maximised if a link is pressed
-        if (!window.isLinksWindow) {
-            windowRepository.dedicatedLinksWindow.windowLayout.state = WindowState.CLOSED
-        }
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-    }
-
-    fun unmaximiseWindow(window: Window) {
-        window.isMaximised = false
-
-        windowRepository.minimisedWindows.forEach {
-            it.windowLayout.state = if(it.wasMinimised) WindowState.MINIMISED else WindowState.SPLIT
-            it.wasMinimised = false
-        }
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-
-        windowSync.synchronizeWindows()
-    }
-
-    fun closeCurrentWindow() {
-        closeWindow(activeWindow)
     }
 
     fun closeWindow(window: Window) {
@@ -285,76 +164,69 @@ open class WindowControl @Inject constructor(
             windowRepository.close(window)
 
             val visibleWindows = windowRepository.visibleWindows
-            if (visibleWindows.count() == 1) visibleWindows[0].windowLayout.weight = 1.0F
+            if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
-            eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+            eventManager.post(NumberOfWindowsChangedEvent())
+            windowSync.reloadAllWindows()
         }
     }
 
-    private fun isWindowMinimisable(window: Window): Boolean {
-        return !windowRepository.isMaximisedState && isWindowRemovable(window) && !window.isLinksWindow
-    }
-
-    private fun isWindowRemovable(window: Window): Boolean {
-        if(windowRepository.isMaximisedState && windowRepository.minimisedAndMaximizedScreens.size > 1) return true
+    fun isWindowMinimisable(window: Window): Boolean {
         var normalWindows = windowRepository.visibleWindows.size
         if (windowRepository.dedicatedLinksWindow.isVisible) {
             normalWindows--
         }
 
-        return window.isLinksWindow || normalWindows > 1 || !window.isVisible
+        val canMinimize =  normalWindows > 1
+
+        return !window.isMinimised && canMinimize && !window.isLinksWindow
     }
 
-    fun restoreWindow(window: Window) {
-        if (window == activeWindow) return
-        window.restoreOngoing = true
-        var switchingMaximised = false
-        windowRepository.maximisedScreens.forEach {
-            switchingMaximised = true
-            it.windowLayout.state = WindowState.MINIMISED
+    fun isWindowRemovable(window: Window): Boolean {
+        var normalWindows = windowRepository.windows.size
+        if (windowRepository.dedicatedLinksWindow.isVisible) {
+            normalWindows--
         }
 
-        window.isMaximised = switchingMaximised
+        return window.isLinksWindow || normalWindows > 1
+    }
 
-        // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-        windowSync.synchronizeWindows()
-        windowSync.reloadAllWindows()
+    fun restoreWindow(window: Window, force: Boolean = false) {
+        if(window.isVisible && !force) {
+            minimiseWindow(window)
+        } else {
+            if (window == activeWindow) return
+            window.restoreOngoing = true
 
-        if (switchingMaximised) {
+            if(!window.isPinMode) {
+                for (it in windowRepository.windowList.filter { !it.isPinMode }) {
+                    it.windowState = WindowState.MINIMISED
+                }
+            }
+
+            window.windowState = WindowState.SPLIT
+
+            windowSync.synchronizeWindows()
+            windowSync.reloadAllWindows()
+
+            if (activeWindow.isSynchronised)
+                windowRepository.lastSyncWindowId = activeWindow.id
+
             activeWindow = window
+            eventManager.post(NumberOfWindowsChangedEvent())
+            window.restoreOngoing = false
         }
-        window.restoreOngoing = false
-    }
-
-    fun synchroniseCurrentWindow() {
-        activeWindow.isSynchronised = true
-
-        windowSync.synchronizeWindows()
-    }
-
-    fun unsynchroniseCurrentWindow() {
-        activeWindow.isSynchronised = false
     }
 
     /*
 	 * Move the current window to first
 	 */
-    fun moveCurrentWindowToFirst() {
-        val window = activeWindow
-
-        windowRepository.moveWindowToPosition(window, 0)
-
-        // redisplay the current page
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
-    }
-
 
     /** screen orientation has changed  */
     fun orientationChange() {
         // causes BibleViews to be created and laid out
-        eventManager.post(NumberOfWindowsChangedEvent(windowChapterVerseMap))
+        eventManager.post(NumberOfWindowsChangedEvent())
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -392,7 +264,7 @@ open class WindowControl @Inject constructor(
 
         val isMoveFinished = !isSeparatorMoving
 
-        eventManager.post(WindowSizeChangedEvent(isMoveFinished, windowChapterVerseMap))
+        eventManager.post(WindowSizeChangedEvent(isMoveFinished))
     }
 
     fun windowSizesChanged() {
@@ -400,6 +272,45 @@ open class WindowControl @Inject constructor(
             // need to layout multiple windows differently
             orientationChange()
         }
+    }
+
+    fun setSynchronised(window: Window, value: Boolean) {
+        if(value == window.isSynchronised) return
+        if(value) {
+            window.isSynchronised = true
+            windowSync.synchronizeWindows()
+        } else {
+            window.isSynchronised = false
+        }
+    }
+
+    fun moveWindow(window: Window, position: Int) {
+        windowRepository.moveWindowToPosition(window, position)
+
+        // redisplay the current page
+        eventManager.post(NumberOfWindowsChangedEvent())
+    }
+
+    fun setPinMode(window: Window, value: Boolean) {
+        window.isPinMode = value
+        if(value && !window.isVisible) {
+            restoreWindow(window)
+        } else if(!value && window.isVisible && windowRepository.visibleWindows.filter {!it.isPinMode}.size > 1) {
+            minimiseWindow(window, true)
+        }
+        eventManager.post(NumberOfWindowsChangedEvent())
+    }
+
+    fun maximiseWindow(window: Window) {
+        windowRepository.maximizedWindowId = window.id
+        windowSync.reloadAllWindows()
+        eventManager.post(NumberOfWindowsChangedEvent())
+    }
+
+    fun unMaximise() {
+        windowRepository.maximizedWindowId = null
+        windowSync.reloadAllWindows()
+        eventManager.post(NumberOfWindowsChangedEvent())
     }
 
     companion object {

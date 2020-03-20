@@ -59,7 +59,6 @@
                 android:title="@string/install_zip"
                 android:icon="@drawable/ic_unarchive_white_24dp"/>
 
-
             <item android:id="@+id/manageLabels"
                 android:title="@string/manage_labels"
                 android:icon="@drawable/ic_label_multiple_24dp"/>
@@ -77,13 +76,22 @@
     <item
         android:title="@string/help">
         <menu>
+            <item android:id="@+id/helpButton"
+                android:title="@string/help_and_tips"
+                android:icon="@drawable/ic_help_white_24dp"/>
+
+        </menu>
+    </item>
+    <item
+        android:title="@string/other">
+        <menu>
             <item android:id="@+id/rateButton"
                 android:title="@string/rate_application"
                 android:icon="@drawable/ic_rate_review_white_24dp"/>
 
-            <item android:id="@+id/helpButton"
-                android:title="@string/help"
-                android:icon="@drawable/ic_help_white_24dp"/>
+            <item android:id="@+id/bugReport"
+                android:title="@string/send_bug_report_title"
+                android:icon="@drawable/ic_bug_report_white_24dp"/>
         </menu>
     </item>
 </menu>

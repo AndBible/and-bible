@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -26,19 +26,4 @@ import net.bible.android.control.page.window.Window;
 /**
  * 	Window has been minimized/restored/closed/added
  */
-public class NumberOfWindowsChangedEvent implements WindowEvent {
-	
-	private Map<Window, ChapterVerse> windowChapterVerseMap;
-
-	public NumberOfWindowsChangedEvent(Map<Window, ChapterVerse> windowChapterVerseMap) {
-		this.windowChapterVerseMap = windowChapterVerseMap;
-	}
-
-	public boolean isVerseNoSet(Window window) {
-		return windowChapterVerseMap.containsKey(window);
-	}
-
-	public ChapterVerse getChapterVerse(Window window) {
-		return windowChapterVerseMap.get(window);
-	}
-}
+public class NumberOfWindowsChangedEvent implements WindowEvent {}

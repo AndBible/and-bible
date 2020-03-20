@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -27,6 +27,7 @@ import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
 
 import javax.inject.Inject
 
+const val NO_OPTIONS_MENU = 0
 
 /**
  * Base class for activities with a custom title bar
@@ -82,8 +83,6 @@ abstract class CustomTitlebarActivityBase(private val optionsMenuId: Int = NO_OP
     }
 
     companion object {
-
-        protected const val NO_OPTIONS_MENU = 0
 
         private const val TAG = "CTActivityBase"
     }

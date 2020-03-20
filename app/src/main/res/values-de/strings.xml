@@ -20,6 +20,16 @@
   <string name="help_bookmarks_text">Lesezeichen können über das Kontextmenü hinzugefügt werden. Die Lesezeichenverwaltung wird über das Hauptmenü aktiviert. Die Lesezeichenverwaltung erlaubt das Gruppieren von Lesezeichen über Labels.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
+  <string name="help_workspaces_title">Arbeitsplatz</string>
+  <string name="help_workspaces_text">
+Mit Arbeitsplätzen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
+Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsplätze erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsplatz.</string>
+  <string name="help_hidden_features_title">Verborgene Kürzel</string>
+  <string name="help_hidden_features_text">
+Von der Werkzeugleiste herunterwischen, um die Arbeitsplatzauswahl anzuzeigen
+Den Fensterknopf lang drücken, um sofort zu minimieren
+Den Vorlese-Knopf lang drücken, um zu den Vorlese-Einstellungen zu gelangen
+Die Versauswahl lang drücken, um zur Dokumentauswahl zu gelangen</string>
   <string name="help_contextmenus_title">Kontextmenüs</string>
   <string name="help_contextmenus_text">Ein langer Druck auf den Bibeltext öffnet das Kontextmenü für den aktuellen Vers. 
 Ein langer Druck auf ein Dokument öffnet den Auswahldialog zum Löschen oder zum Anzeigen weiterer Informationen.
@@ -32,10 +42,12 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Navigation</string>
   <string name="search">Suche</string>
-  <string name="settings">Einstellungen</string>
+  <string name="settings">Voreinstellungen</string>
   <string name="history">Verlauf</string>
   <string name="speak">Vorlesen</string>
   <string name="help">Hilfe</string>
+  <string name="other">Anderes</string>
+  <string name="help_and_tips">Hilfe &amp; Tipps</string>
   <string name="administration">Verwaltung</string>
   <string name="rate_application">Bewerten &amp; Beschreiben in Google Play</string>
   <string name="chooce_document">Dokument auswählen</string>
@@ -48,12 +60,18 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <!--Search-->
   <string name="search_index">Suchindex</string>
   <string name="index_creation_required">Für die Suche ist ein Index nötig.\n\nIndices können heruntergeladen oder lokal erzeugt werden.\n\nHerunterladen ist schneller und ermöglicht mehr Suchfunktionen.\n\nEine funktionierende Internetverbindung ist zum Herunterladen von Indices nötig.\n</string>
-  <string name="search_index_unavailable">Leider ist die Indexerstellung nur unter Android 5.0 (Lollipop) oder höher möglich.</string>
+  <string name="create_index_for">Ein Index ist für die Suche nötig \n\nIndex für %serstellen?</string>
+  <string name="rebuild_index_for">Index für %serneut erstellen?</string>
+  <string name="search_index_unavailable">Leider ist die Indexerstellung nur auf Geräten mit Android 5.0 (Lollipop) oder neuer möglich.
+Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
   <string name="index_download">Download</string>
   <string name="index_not_available_for_download">Dieser Index kann nicht heruntergeladen werden.</string>
   <string name="index_create">Erzeuge</string>
   <string name="rebuild_index">Index neu erstellen</string>
+  <string name="search_in">Finde in %s</string>
+  <string name="do_in_background">Im Hintergrund fertigstellen</string>
+  <string name="rebuild_index_button">Erneut aufbauen</string>
   <!--Tasks-->
   <string name="progress_status">Fortschritt</string>
   <string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
@@ -72,6 +90,16 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="search_current_book">Derzeitiges Buch</string>
   <string name="error_executing_search">Ungültige Suchabfrage</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Versnummern anzeigen</string>
+  <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
+  <string name="prefs_show_bookmarks_summary">Anklicken um alle Lesezeichen zu verbergen</string>
+  <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
+  <string name="prefs_show_notes_summary">Fußnoten und Querverweise anzeigen</string>
+  <string name="prefs_show_strongs_summary">Verknüpfungen zu griechischen &amp; hebräischen Definitionen</string>
+  <string name="prefs_show_morphology_summary">Griechische Morphologie nach Robinson anzeigen</string>
+  <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
+  <string name="prefs_red_letter_summary">Zeige Worte Christi in roter Farbe</string>
+  <string name="prefs_text_size_title">Schriftarteinstellungen</string>
   <string name="prefs_show_verseno_title">Versnummer</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
@@ -84,41 +112,88 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="prefs_section_title_title">Überschriften</string>
   <string name="prefs_red_letter_title">Jesu Worte markieren</string>
   <string name="prefs_tilt_to_scroll_title">Bildvorlauf</string>
-  <string name="prefs_tilt_to_scroll_summary">Kippe Gerät um Bildvorlauf ein- und auszuschalten</string>
-  <string name="prefs_night_mode_title">Nachtmodus</string>
-  <string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
+  <string name="prefs_night_mode_title">Nachtmodus an- und ausschalten</string>
+  <string name="prefs_night_mode_summary">Wie der Nachtmodus eingeschaltet werden soll: Automatisch (soweit vom Gerät unterstützt), manuell oder wie in den Systemeinstellungen (ab Android 10).</string>
+  <string name="prefs_night_mode_manual">Manuell</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
+  <string name="prefs_night_mode_system">System</string>
+  <string name="options_menu_night_mode">Nachtmodus</string>
   <string name="prefs_navigate_to_verse_title">Versauswahl</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
   <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
   <string name="prefs_open_links_in_special_window_summary">Für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
-  <string name="prefs_text_size_title">Zeichengröße</string>
-  <string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
+  <string name="prefs_text_size_pt_title">Schriftarteinstellungen</string>
+  <string name="prefs_text_size_summary">Schriftart und -größe anpassen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
   <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
   <string name="prefs_screen_keep_on_summary">Ruhemodus während dem Gebrauch dieser Anwendung verhindern</string>
   <string name="prefs_interface_locale_title">Sprache umschalten</string>
   <string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
-  <string name="prefs_split_mode_vertical"> Vertikal</string>
-  <string name="prefs_split_mode_horizontal">Horizontal</string>
-  <string name="prefs_split_mode_automatic">Automatisch</string>
-  <string name="prefs_split_mode_summary">Wie zeigt man mehrere Module auf dem Bildschirm an?</string>
-  <string name="prefs_split_mode_title">Geteilter Modus</string>
+  <string name="reset_fontsize">Zurücksetzen</string>
   <string name="prefs_request_sdcard_permission_title">Es gibt händisch installierte Dokumente</string>
-  <string name="prefs_request_sdcard_permission_summary">Die Verwendung von eigenhändig im Ordner jsword auf der SD-Karte installierten Dokumenten  aktivieren</string>
-  <string name="bible_text_options">Bibeltextoptionen</string>
+  <string name="prefs_request_sdcard_permission_summary">Die Verwendung manuell installierte Dokumente aus dem Ordner /jsword/sword des internen Speichers ermöglichen</string>
+  <string name="all_text_options_window_menutitle">Alle Textoptionen...</string>
+  <string name="all_text_options_window_menutitle_alone">Textoptionen...</string>
+  <string name="text_options_window_menutitle">Textoptionen</string>
   <string name="auto_fullscreen">Vollbildschirmmodus durch Scrollen</string>
-  <string name="switch_split_mode">Fenstermodus wechseln</string>
   <string name="reversed_split_mode">Umgedrehter Fenstermodus</string>
-  <string name="prefs_auto_night_mode_title">Automatischer Nachtmodus</string>
-  <string name="prefs_auto_night_mode_summary">Nachtmodus automatisch de-/aktivieren</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="auto_fullscreen_summary">Bei aktiviertem Textvorlauf automatisch in den Vollbildmodus wechseln, Tipp: Man kann den Vollbildmodus auch durch Doppeltippen auf den Bildschirm aktivieren.</string>
+  <string name="prefs_margin_size_title">Randgröße verändern</string>
+  <string name="prefs_margin_size_mm_title">Randgröße (%d/%d/%d mm)</string>
+  <string name="margin_size_mm">Rand links %d mm rechtst %d mm.
+        \nMaximale Textbreite: %d mm.</string>
+  <string name="prefs_advanced_settings_cat">Erweiterte Einstellungen</string>
+  <string name="prefs_display_customization_cat">Look &amp; feel</string>
+  <string name="prefs_behavior_customization_cat">Verhalten der Anwendung</string>
+  <string name="prefs_margin_size_summary">Die Breite des linken und rechten Textrandes sowie die maximale Textbreite können hier eingestellt werden.</string>
+  <string name="prefs_text_colors_summary">Einstellungen für Schrift und Hintergrundfarben sowie den Noise-Effekt</string>
+  <string name="text_display_settings_activity_title">Anzeigeeinstellungen für die Schrift</string>
+  <string name="workspace_text_display_settings_title">Textoptionen - %s</string>
+  <string name="window_text_display_settings_title">Textoptionen für das Fenster %d</string>
+  <string name="prefs_text_display_settings_title">Formatierung</string>
+  <string name="prefs_text_appearance_title">Erscheinungsbild</string>
+  <string name="prefs_justify_title">Blocktext</string>
+  <string name="prefs_justify_summary">\'Blocktext\' heißt, dass der rechte und linke Textrand gerade verlaufen</string>
+  <string name="pref_left_margin_label">Linker Rand</string>
+  <string name="pref_right_margin_label">Rechter Rand</string>
+  <string name="pref_maximum_width_of_text_label">Maximale Textbreite</string>
+  <string name="prefs_line_spacing_pt">Zeilenabstand %1.1fx</string>
+  <string name="pref_font_family_label">Schriftart</string>
+  <string name="prefs_hyphenation_title">Silbentrennung</string>
+  <string name="prefs_hyphenation_summary">Automatische Silbentrennung, wenn die Sprache unterstützt wird</string>
+  <string name="prefs_line_spacing_pt_title">Zeilenabstand (%1.1fx)</string>
+  <string name="line_spacing_title">Zeilenabstand</string>
+  <string name="line_spacing_summary">Den Abstand zwischen Textzeilen einstellen</string>
+  <string name="select_none">Nichts auswählen</string>
+  <string name="reset_are_you_sure">Sind Sie sicher, dass Sie alle Einstellungen zurücksetzen wollen?</string>
+  <string name="window_pinning_menutitle">Fensterverankerung</string>
+  <string name="hide_window_buttons_title">Fenstersymbole verbergen</string>
+  <string name="hide_window_buttons_summary">Die Fenstersymbole, die auf der rechten Seite der Bibeltexte angezeigt werden, werden verborgen. Die Navigationsleiste am unteren Bildschirmrand wird immer noch angezeigt, und das Fenstermenü kann durch langes Drücken angezeigt werden.</string>
+  <string name="font_size_title">Schriftgröße</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
+  <string name="window_color_settings_title">Fensterfarben</string>
+  <string name="workspace_color_settings_title">Voreinstellungen der Arbeitsplatzfarben</string>
+  <string name="color_text">Textfarbe</string>
+  <string name="color_background">Hintergrundfarbe</string>
+  <string name="colors_day_mode_title">Tagmodus</string>
+  <string name="colors_night_mode_title">Nachtmodus</string>
+  <string name="prefs_noise_title">Hintergrundrauschen</string>
+  <string name="prefs_noise_summary">Etwas Bildschirmrauschen im Hintergrund kann das Lesen für die Augen angenehmer machen.</string>
+  <string name="cpv_default_title">Farbe auswählen</string>
+  <string name="cpv_presets">Voreinstellungen</string>
+  <string name="cpv_custom">Benutzerdefiniert</string>
+  <string name="cpv_select">Auswählen</string>
+  <string name="cpv_transparency">Transparenz</string>
   <!--Window-->
   <string name="new_window">Neues Fenster</string>
   <string name="windowClose">Schließen</string>
   <string name="windowMaximise">Maximiere</string>
   <string name="windowMinimise">Minimiere</string>
   <string name="windowSynchronise">Synchronisierung</string>
-  <string name="windowMoveFirst">Als Hauptfenster festlegen</string>
+  <string name="move_window">Verschieben nach...</string>
+  <string name="move_window_to_position">Position %s</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
   <string name="no_verse_notes">Keine Anmerkungen zu diesem Vers</string>
@@ -139,7 +214,9 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
   <string name="no_internet_connection">
-Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht. Bitte versuchen Sie es später noch einmal.</string>
+Verbindung zur Modulquelle von Crosswire fehlgeschlagen.
+Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht.
+Bitte versuchen Sie es später noch einmal.</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
@@ -147,8 +224,8 @@ Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server
   <string name="install_zip">Lade Dokument aus Zip-Datei</string>
   <string name="install_zip_module">Bibelmodul installieren</string>
   <string name="install_zip_successfull">Modul wurde erfolgreich installiert</string>
-  <string name="extracting_zip_file">Zip-Datei wird entpackt...</string>
-  <string name="checking_zip_file">Datei wird überprüft...</string>
+  <string name="extracting_zip_file">Das Zip-Archiv wird entpackt...</string>
+  <string name="checking_zip_file">Die angegebene Datei wird überprüft...</string>
   <string name="invalid_module">Datei enthält kein SWORD Modul</string>
   <string name="module_already_installed">Datei enthält ein bereits installiertes Modul</string>
   <string name="install_zip_title">Bitte warten, Zip-Datei wird geladen.</string>
@@ -156,6 +233,7 @@ Verbindung zur Modulquelle von Crosswire fehlgeschlagen. Entweder ist der Server
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
   <string name="rdg_plan_day">Tag %s</string>
+  <string name="rdg_plan_set_start_date">Setze Startdatum...</string>
   <string name="done">Fertig</string>
   <string name="reset">Zurücksetzen</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
@@ -166,6 +244,23 @@ jsword/readingplan, der denselben Namen wie ein vordefinierter Leseplan hat. Dar
   <string name="plan_description_y1ntpspr">
 Mit freundlicher Genehmigung von HEARTLIGHT Internet Magazine,
 http://www.heartlight.org</string>
+  <string name="plan_name_y1ot1nt1_chronological">In 1 Jahr chronologisch durch die Bibel</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Leseplan, der versucht, annähernd der zeitlichen Abfolge der Ereignisse in der Bibel zu folgen.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">In 1 Jahr durchs AT und NT</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+In 1 Jahr die ganze Bibel lesen. Jeden Tag eine Stelle aus dem AT und dem NT.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">In 1 Jahr durch die Bibel</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Die ganze Bibel in einem Jahr, beginnend mit 1. Mose fortlaufend bis zur Offenbarung.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Die ganze Bibel in 1 Jahr nach M\'Cheyne: 4 Kapitel pro Tag</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Dieser Leseplan basiert auf dem System von M\'Cheyne und beinhaltet vier Lesungen für die Familie und die private Andacht. Jeder Tag hat zwei Abschnitte aus dem AT, einen aus dem NT und einen aus den Psalmen oder den Evangelien. In einem Jahr kommt man so einmal durch das AT und zweimal durch das NT und die Psalmen.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">10 Kapitel pro Tag nach Prof. Horner</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Mit freundlicher Genehmigung von Prof. Horner</string>
+  <string name="plan_name_y2ot1ntps2">In 2 Jahren durch die Bibel, NT und Ps zwei Mal</string>
+  <string name="plan_description_y2ot1ntps2">
+Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. Mit freundlicher Genehmigung von http://www.wholesomewords.org/.</string>
   <!--Document context menu-->
   <string name="delete">Löschen</string>
   <string name="delete_index">Suchindex löschen</string>
@@ -181,7 +276,6 @@ http://www.heartlight.org</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Verknüpfung hier öffnen</string>
   <string name="open_link_in_new_window">Verknüpfung in neuem Fenster öffnen</string>
-  <string name="open_link_in_main_window">Verknüpfung im Hauptfenster öffnen</string>
   <string name="open_link_in_special_window">Verknüpfung in temporären Fenster öffnen</string>
   <!--Bookmarks-->
   <string name="bookmarks">Lesezeichen</string>
@@ -306,12 +400,37 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
-  <string name="backup_success">Notizen und Lesezeichen wurden in %s auf der SD-Karte gespeichert</string>
-  <string name="error_no_backup_file">Eine Sicherungskopie konnte nicht gefunden werden</string>
+  <string name="backup">Sicherung auf...</string>
+  <string name="restore">Wiederherstellen von...</string>
+  <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
+  <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
+  <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
+  <string name="backup_email_subject">And Bible Datenbanksicherung</string>
+  <string name="backup_email_message">Die And Bible Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
+  <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version %s</string>
   <string name="about_versification">Versnummerierung: %s</string>
+  <string name="send_backup_file">Sende Backup</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Fehlermeldung</string>
+  <string name="report_bug_email_subject">Fehlermeldung für And Bible %s</string>
+  <string name="report_bug_email_message">
+        --- DIE FEHLERMELDUNG OBERHALB DIESER LINIE EINFÜGEN ---\n
+        Anleitung:\n
+        Sagen Sie uns kurz, was sie machten/ was passierte, als der Fehler auftrat. Z.B.: \n
+        \n
+        1. Anwendung geöffnet\n
+        2. Fenstermenü angeklickt\n
+         -&gt; Absturz\n
+        \n
+        Manchmal ist ein Bildschirmfoto hilfreich um Probleme zu lösen.
+        Bitte verwenden Sie diese Funktion um Fehler zu melden, sobald Sie sie bemerken.
+        Sie können diese Funktion auch verwenden, wenn Sie die Anwendung nach einem Absturz wieder neu öffnen.
+        \n\n
+        Device info: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>
@@ -326,13 +445,16 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
+  <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Bearbeiten</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
+  <string name="verse_not_found">Vers wurde nicht gefunden</string>
   <!--Errors-->
   <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
+  <string name="error_occurred_with_link">Ein Fehler ist aufgetreten. %s</string>
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
@@ -341,5 +463,40 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="notification_channel_tts_status">Text zu Sprache</string>
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
   <!--Workspaces-->
+  <string name="new_workspace">Neu</string>
+  <string name="switch_to_workspace">Arbeitsplätze...</string>
+  <string name="delete_workspace">Entfernen</string>
+  <string name="new_copied_workspace">Als neu kopieren</string>
+  <string name="workspace_number">Arbeitsbereich %d </string>
+  <string name="rename_workspace">Umbenennen</string>
+  <string name="workspace_selector_title">Arbeitsplatz auswählen</string>
+  <string name="workspace_settings">Einstellungen...</string>
+  <string name="give_name_workspace">Geben Sie dem neuen Arbeitsplatz einen Namen</string>
+  <string name="save_and_exit">Speichern</string>
+  <string name="current_workspace">Aktuell</string>
+  <string name="workspace_save_changes">Änderungen auf den Arbeitsplatz anwenden?</string>
+  <string name="copy_of_workspace">Kopie von %s</string>
+  <string name="copy_workspace_settings">Kopiere Einstellungen...</string>
+  <string name="copy_settings_title">Welche Einstellungen möchten Sie kopieren?</string>
+  <string name="select_all">Alles auswählen</string>
+  <string name="copy_settings_workspaces_title">Auf welchen Arbeitsplatz wollen Sie die Einstellungen kopieren?</string>
+  <string name="reset_settings">Zurücksetzen</string>
+  <string name="workspace_dismiss">Verwerfen</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Das ist eine Beta-Version!</string>
+  <string name="beta_notice_content_1">
+In Beta-Versionen gibt es Funktionen, die noch nicht ausreichend getestet wurden.
+Daher können Beta-Versionen unerwartetes Verhalten aufweisen, wie z.B. Fehler.
+Es wird empfohlen, dass normale Bibelleser die stabile Version verwenden.</string>
+  <string name="beta_notice_content_2">
+Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzugt) über %s zu melden.</string>
+  <string name="beta_notice_content_3">Wenn Sie Programmierer sind, wäre es schön, wenn Sie über %s selbst Fehlerbereinigungen beitragen könnten ;-)</string>
+  <string name="beta_notice_github_issues">Fehlermeldungen auf Github </string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Verwerfen</string>
+  <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
+  <!--History-->
+  <string name="history_for">Chronik (%s: Fenster %d)</string>
+  <string name="window_pin_mode">Fixieren</string>
+  <string name="close">Schließen</string>
 </resources>

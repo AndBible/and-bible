@@ -133,6 +133,7 @@
   <string name="mynote_saved">マイメモが保存された</string>
   <!--Backup and restore-->
   <!--About-->
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">聖書</string>
   <string name="doc_type_commentary">解説</string>

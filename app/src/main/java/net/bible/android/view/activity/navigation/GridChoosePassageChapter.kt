@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -30,7 +30,6 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
-import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 
@@ -43,6 +42,7 @@ import java.util.ArrayList
 import javax.inject.Inject
 
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.BOOK_NO
+import net.bible.android.view.util.buttongrid.ButtonInfo
 
 /**
  * Choose a chapter to view

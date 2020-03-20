@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -161,7 +161,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             Log.d(TAG, "Finished displaying Reading view")
         } catch (e: Exception) {
             Log.e(TAG, "Error showing daily readings", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
 
     }
@@ -234,7 +234,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             isIntegrateWithHistoryManager = true
         } catch (e: Exception) {
             Log.e(TAG, "Error when Done daily reading", e)
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
 
     }
@@ -320,12 +320,12 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     updateTicksAndDone()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error when Done daily reading", e)
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
                 }
 
             }
             R.id.reset -> {
-                Dialogs.getInstance().showMsg(R.string.reset_plan_question, true)
+                Dialogs.instance.showMsg(R.string.reset_plan_question, true)
                 {
                     readingPlanControl.reset(mReadings.readingPlanInfo)
                     finish()

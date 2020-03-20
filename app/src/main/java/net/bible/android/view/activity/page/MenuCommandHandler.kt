@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -33,6 +33,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -40,6 +42,7 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -53,7 +56,6 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -73,12 +75,12 @@ class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
             private val readingPlanControl: ReadingPlanControl,
             private val searchControl: SearchControl,
-            private val windowMenuCommandHandler: WindowMenuCommandHandler,
             private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val documentViewManager: DocumentViewManager
+            private val documentViewManager: DocumentViewManager,
+            private val errorReportControl: ErrorReportControl
 ) {
 
     /**
@@ -160,18 +162,22 @@ constructor(private val callingActivity: MainBibleActivity,
                     val app = BibleApplication.application
                     val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
 
-                    val helpTitles = arrayOf(R.string.help_nav_title, R.string.help_speech_title,
-                            R.string.help_mynote_title, R.string.help_bookmarks_title, R.string.help_search_title,
-                            R.string.help_contextmenus_title)
-                    val helpTexts = arrayOf(R.string.help_nav_text, R.string.help_speech_text,
-                            R.string.help_mynote_text, R.string.help_bookmarks_text, R.string.help_search_text,
-                            R.string.help_contextmenus_text)
+                    val help = arrayOf(
+                        Pair(R.string.help_nav_title, R.string.help_nav_text),
+                        Pair(R.string.help_speech_title, R.string.help_speech_text),
+                        Pair(R.string.help_mynote_title,R.string.help_mynote_text),
+                        Pair(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
+                        Pair(R.string.help_search_title,R.string.help_search_text),
+                        Pair(R.string.help_workspaces_title,R.string.help_workspaces_text),
+                        Pair(R.string.help_hidden_features_title,R.string.help_hidden_features_text),
+                        Pair(R.string.help_contextmenus_title, R.string.help_contextmenus_text)
+                    )
 
                     var htmlMessage = ""
 
-                    for(idx in 0 until helpTitles.size) {
-                        val helpText = app.getString(helpTexts[idx]).replace("\n", "<br>")
-                        htmlMessage += "<b>${app.getString(helpTitles[idx])}</b><br>$helpText<br><br>"
+                    for(helpPair in help) {
+                        val helpText = app.getString(helpPair.second).replace("\n", "<br>")
+                        htmlMessage += "<b>${app.getString(helpPair.first)}</b><br>$helpText<br><br>"
                     }
                     htmlMessage += "<i>$versionMsg</i>"
 
@@ -190,20 +196,28 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.show()
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
-                R.id.backup -> {
+                R.id.backup_app_database -> {
                     backupControl.backupDatabaseViaIntent(callingActivity)
                     isHandled = true
                 }
-                R.id.restore -> {
+                R.id.backup_modules -> {
+                    GlobalScope.launch {
+                        backupControl.backupModulesViaIntent(callingActivity)
+                    }
+                    isHandled = true
+                }
+                R.id.bugReport -> {
+                    GlobalScope.launch {
+                        errorReportControl.reportBug(callingActivity)
+                    }
+                    isHandled = true
+                }
+                R.id.restore_app_database -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "application/*"
                     callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
                     isHandled = true
                 }
-            }
-
-            if (!isHandled) {
-                isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem)
             }
 
             if (handlerIntent != null) {

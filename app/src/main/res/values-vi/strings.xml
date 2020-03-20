@@ -159,6 +159,7 @@
   <!--Backup and restore-->
   <string name="backup_success">Các ghi chú và đánh dấu đã được lưu vào %s trên thẻ nhớ.</string>
   <!--About-->
+  <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Kinh Thánh</string>
   <string name="doc_type_commentary">Lời dẫn giải</string>

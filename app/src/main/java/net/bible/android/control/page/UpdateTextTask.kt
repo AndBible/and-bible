@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -71,7 +71,6 @@ abstract class UpdateTextTask: AsyncTask<Window, Int, String>() {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
             text = HtmlMessageFormatter.format(R.string.error_page_too_large)
-			window?.updateOngoing = false
         }
 
         return text

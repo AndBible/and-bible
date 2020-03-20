@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -32,15 +32,33 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
+class WindowChangedEvent(val window: Window)
 
 open class Window (
     window: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
     val windowRepository: WindowRepository
 ){
+    var weight: Float
+        get() =
+            if(!isPinMode) {
+                if(windowRepository.unPinnedWeight == null) {
+                    windowRepository.unPinnedWeight = windowLayout.weight
+                }
+                windowRepository.unPinnedWeight!!
+            }
+            else windowLayout.weight
+        set(value) {
+            if(!isPinMode)
+                windowRepository.unPinnedWeight = value
+            else
+                windowLayout.weight = value
+        }
 
-    val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
+
     var id = window.id
+
     protected var workspaceId = window.workspaceId
 
     init {
@@ -49,36 +67,60 @@ open class Window (
     }
 
     val entity get () =
-        WorkspaceEntities.Window(workspaceId, isSynchronised, wasMinimised, isLinksWindow,
-            WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight), id
+        WorkspaceEntities.Window(
+            workspaceId = workspaceId,
+            isSynchronized = isSynchronised,
+            isPinMode = isPinMode,
+            isLinksWindow = isLinksWindow,
+            windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
+            id = id
         )
     var restoreOngoing: Boolean = false
     var displayedKey: Key? = null
     var displayedBook: Book? = null
 
     open var isSynchronised = window.isSynchronized
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
 
-    var wasMinimised = window.wasMinimised
+    var isPinMode: Boolean = window.isPinMode
+        get() {
+            if(windowRepository.windowBehaviorSettings.autoPin) {
+                return true
+            } else {
+                return field
+            }
+        }
+        set(value) {
+            field = value
+            ABEventBus.getDefault().post(WindowChangedEvent(this))
+        }
+
+    val isMinimised: Boolean
+        get() = windowLayout.state == WindowState.MINIMISED
+
+    val isSplit: Boolean
+        get() = windowLayout.state == WindowState.SPLIT
 
     val isClosed: Boolean
         get() = windowLayout.state == WindowState.CLOSED
 
-    var isMaximised: Boolean
-        get() = windowLayout.state == WindowState.MAXIMISED
-        set(maximise) = if (maximise) {
-            windowLayout.state = WindowState.MAXIMISED
-        } else {
-            windowLayout.state = WindowState.SPLIT
+    var windowState: WindowState
+        get() = windowLayout.state
+        set(value) {
+            windowLayout.state = value
         }
 
     val isVisible: Boolean
-        get() = windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
+        get() =
+            if(!isLinksWindow && windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
-    // if window is maximised then default operation is always to unmaximise
     val defaultOperation: WindowOperation
         get() = when {
-            isMaximised -> WindowOperation.MAXIMISE
             isLinksWindow -> WindowOperation.CLOSE
             else -> WindowOperation.MINIMISE
         }
@@ -92,19 +134,12 @@ open class Window (
     }
 
     enum class WindowOperation {
-        MAXIMISE, MINIMISE, RESTORE, CLOSE
+        MINIMISE, RESTORE, CLOSE
     }
 
     override fun toString(): String {
         return "Window[$id]"
     }
-
-    var updateOngoing = false
-        set(value) {
-            windowRepository.updateBusyCount(if(value) 1 else -1)
-            field = value
-            Log.d(TAG, "updateOngoing set to $value")
-        }
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -118,20 +153,24 @@ open class Window (
         if(pageManager.currentPage is CurrentMyNotePage) return
 
         val stackMessage: String? = Log.getStackTraceString(Exception())
-        val updateOngoing = updateOngoing
         val isVisible = isVisible
 
-        Log.d(TAG, "updateText, updateOngoing: $updateOngoing isVisible: $isVisible, stack: $stackMessage")
+        Log.d(TAG, "updateText, isVisible: $isVisible, stack: $stackMessage")
 
-        if(updateOngoing || !isVisible) return
+        if(!isVisible) return
 
-        this.updateOngoing = true;
+        lastUpdated = System.currentTimeMillis()
+
         if(documentViewManager != null) {
             UpdateMainTextTask(documentViewManager).execute(this)
 
         } else {
             UpdateInactiveScreenTextTask().execute(this)
         }
+    }
+
+    fun hasChapterLoaded(chapter: Int): Boolean {
+        return bibleView?.hasChapterLoaded(chapter) == true
     }
 
     private val TAG get() = "BibleView[${id}] WIN"
@@ -160,7 +199,7 @@ class UpdateMainTextTask(private val documentViewManager: DocumentViewManager) :
 
     /** callback from base class when result is ready  */
     override fun showText(text: String, screenToUpdate: Window) {
-        val view = documentViewManager.getDocumentView(screenToUpdate)
+        val view = documentViewManager.getDocumentView(screenToUpdate) as BibleView
         view.show(text, true)
     }
 }

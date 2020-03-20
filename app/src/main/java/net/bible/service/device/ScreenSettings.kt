@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -34,7 +34,7 @@ import org.jetbrains.anko.configuration
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object ScreenSettings {
-    private val mLightSensor: LightSensor = LightSensor { reading ->
+    private val lightSensor: LightSensor = LightSensor { reading ->
         if(autoNightMode) {
             val oldValue = lastNightMode
             if(reading <= MAX_DARK_READING) {
@@ -62,16 +62,24 @@ object ScreenSettings {
             return pm.isScreenOn
         }
 
-    val systemModeAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    const val systemModeAvailable = true
 
     private val autoNightMode	get() =
-        autoModeAvailable && preferences.getString("night_mode_pref2", "false") == "automatic"
+        autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
+    val manualMode: Boolean get() =
+        preferences.getString("night_mode_pref3", "manual") == "manual"
+    private val systemMode: Boolean get() =
+        systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
 
-    val autoModeAvailable = mLightSensor.isLightSensor
+    val autoModeAvailable = lightSensor.isLightSensor
+
+    fun checkMonitoring() {
+        lightSensor.reading
+    }
 
     fun refreshNightMode(): Boolean {
         lastNightMode = if(autoNightMode) {
-            mLightSensor.reading < DARK_READING_THRESHOLD
+            lightSensor.reading < DARK_READING_THRESHOLD
         } else
             nightMode
         return lastNightMode
@@ -82,17 +90,19 @@ object ScreenSettings {
 	val nightMode: Boolean get() =
         if (autoNightMode)
             lastNightMode
-        else if(systemModeAvailable)
-            when(BibleApplication.application.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+        else if(systemMode)
+            when(config.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> true
                 Configuration.UI_MODE_NIGHT_NO -> false
                 else -> false
             }
-        else
-            preferences.getString("night_mode_pref2", "false") == "true"
+        else // manual mode
+            preferences.getBoolean("night_mode_pref", false)
 
     fun setLastNightMode(value: Boolean) {
         if(autoNightMode)
             lastNightMode = value
     }
+
+    private val config get() = BibleApplication.application.configuration
 }

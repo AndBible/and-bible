@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/transportWidget"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="0dp">
+        android:layout_marginBottom="0dp"
+        >
 
         <LinearLayout
             android:id="@+id/panel"

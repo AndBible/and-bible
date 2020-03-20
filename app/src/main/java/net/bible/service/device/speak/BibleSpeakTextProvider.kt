@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -334,19 +334,19 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         isSpeaking = false
     }
 
-    private fun updateBookmark() {
+    private fun updateBookmark(doNotSync: Boolean = false) {
         removeBookmark()
-        saveBookmark()
+        saveBookmark(doNotSync)
     }
 
     override fun savePosition(fractionCompleted: Float) {}
 
     override var isSpeaking: Boolean = false
 
-    override fun stop() {
+    override fun stop(doNotSync: Boolean) {
         reset()
         if(isSpeaking) {
-            updateBookmark()
+            updateBookmark(doNotSync)
         }
         isSpeaking = false
         bookmarkDto = null
@@ -403,7 +403,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    private fun saveBookmark(){
+    private fun saveBookmark(doNotSync: Boolean){
         val labelList = ArrayList<LabelDto>()
         if(settings.autoBookmark) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
@@ -426,7 +426,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
             labelList.add(bookmarkControl.orCreateSpeakLabel)
 
-            bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
+            bookmarkControl.setBookmarkLabels(bookmarkDto, labelList, doNotSync)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmarkDto, ${settings.playbackSettings.speed}")
             this.bookmarkDto = bookmarkDto
         }

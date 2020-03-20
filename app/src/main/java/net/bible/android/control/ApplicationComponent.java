@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -41,7 +41,6 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.activity.navigation.biblebookactionbar.SortActionBarButton;
 import net.bible.android.view.activity.page.BibleKeyHandler;
-import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
 import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton;
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager;
@@ -101,5 +100,4 @@ public interface ApplicationComponent {
 	ReadingPlanActionBarManager readingPlanActionBarManager();
 	SearchResultsActionBarManager searchResultsActionBarManager();
 	BibleBookActionBarManager bibleBookActionBarManager();
-	WindowMenuCommandHandler windowMenuCommandHandler();
 }

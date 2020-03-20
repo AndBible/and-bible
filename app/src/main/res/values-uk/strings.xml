@@ -37,6 +37,7 @@
   <string name="history">Журнал</string>
   <string name="speak">Озвучити</string>
   <string name="help">Довідка</string>
+  <string name="other">Інше</string>
   <string name="administration">Адміністрування</string>
   <string name="rate_application">Оцінити &amp;  Написати відгук в Google Play</string>
   <string name="chooce_document">Вибрати модуль</string>
@@ -89,6 +90,7 @@
   <string name="prefs_night_mode_title">Нічний режим</string>
   <string name="prefs_night_mode_summary">Для зручного читання в темряві</string>
   <string name="prefs_night_mode_automatic">Автоматично</string>
+  <string name="prefs_night_mode_system">Система</string>
   <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
   <string name="prefs_navigate_to_verse_summary">Вибір вірша (і розділу) при виборі місця з Біблії</string>
   <string name="prefs_open_links_in_special_window_title">Відкрити посилання в окремому вікні</string>
@@ -369,6 +371,18 @@
   <string name="about_copyright">Авторське право: %s</string>
   <string name="about_version">Версія: %s</string>
   <string name="about_versification">Версифікація: %s</string>
+  <string name="send_backup_file">Надіслати файл резервної копії</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Повідомити про помилку...</string>
+  <string name="report_bug_email_subject">Звіт помилки And Bible %s</string>
+  <string name="report_bug_email_message">
+        Будь ласка, використовуйте цю функцію, щоб повідомити, як тільки ви помітили, що це відбувається.\n
+        \n
+        Розкажіть нам коротко, що ви робили / що сталося коли помилка
+        виникла: \n
+        \n
+        Інформація про пристрій: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Біблія</string>
   <string name="doc_type_commentary">Коментар</string>

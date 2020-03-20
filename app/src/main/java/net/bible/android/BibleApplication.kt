@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -50,6 +50,10 @@ import java.util.Locale
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class BibleApplication : MultiDexApplication() {
+    init {
+        // save to a singleton to allow easy access from anywhere
+        application = this
+    }
     lateinit var applicationComponent: ApplicationComponent
         private set
 
@@ -58,13 +62,10 @@ open class BibleApplication : MultiDexApplication() {
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
 
-    val appStateSharedPreferences: SharedPreferences
+    private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
     override fun onCreate() {
-        // save to a singleton to allow easy access from anywhere
-        application = this
-
         super.onCreate()
         ABEventBus.getDefault().register(this)
 
@@ -88,7 +89,7 @@ open class BibleApplication : MultiDexApplication() {
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
         // some changes may be required for different versions
-        upgradePersistentData()
+        upgradeSharedPreferences()
 
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()
@@ -109,35 +110,13 @@ open class BibleApplication : MultiDexApplication() {
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
 
-    private fun upgradePersistentData() {
+    private fun upgradeSharedPreferences() {
         val prefs = CommonUtils.sharedPreferences
         val prevInstalledVersion = prefs.getInt("version", -1)
-        if (prevInstalledVersion < CommonUtils.applicationVersionNumber && prevInstalledVersion > -1) {
-            val editor = prefs.edit()
+        val newInstall = prevInstalledVersion == -1
 
-            // ver 16 and 17 needed text size pref to be changed to int from string
-            if (prevInstalledVersion < 16) {
-                Log.d(TAG, "Upgrading preference")
-                var textSize: String? = "16"
-                if (prefs.contains(TEXT_SIZE_PREF)) {
-                    Log.d(TAG, "text size pref exists")
-                    textSize = try {
-                        prefs.getString(TEXT_SIZE_PREF, "16")
-                    } catch (e: Exception) {
-                        // maybe the conversion has already taken place e.g. in debug environment
-                        Integer.toString(prefs.getInt(TEXT_SIZE_PREF, 16))
-                    }
-
-                    Log.d(TAG, "existing value:" + textSize!!)
-                    editor.remove(TEXT_SIZE_PREF)
-                }
-
-                val textSizeInt = Integer.parseInt(textSize!!)
-                editor.putInt(TEXT_SIZE_PREF, textSizeInt)
-
-                Log.d(TAG, "Finished Upgrading preference")
-            }
-
+        val editor = prefs.edit()
+        if (prevInstalledVersion < CommonUtils.applicationVersionNumber && !newInstall) {
             // there was a problematic Chinese index architecture before ver 24 so delete any old indexes
             if (prevInstalledVersion < 24) {
                 Log.d(TAG, "Deleting old Chinese indexes")
@@ -177,13 +156,29 @@ open class BibleApplication : MultiDexApplication() {
                             .apply()
                 }
             }
-
-
-
-            editor.putInt("version", CommonUtils.applicationVersionNumber)
-            editor.apply()
-            Log.d(TAG, "Finished all Upgrading")
         }
+
+        if(prevInstalledVersion <= 350) {
+            val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
+            val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
+            val pref3value = when(pref2value) {
+                "true" -> "manual"
+                "false" -> "manual"
+                "automatic" -> "automatic"
+                else -> "manual"
+            }
+            val prefValue = when(pref2value) {
+                "automatic" -> oldPrefValue
+                "true" -> true
+                "false" -> false
+                else -> oldPrefValue
+            }
+            editor.putBoolean("night_mode_pref", prefValue).apply()
+            editor.putString("night_mode_pref3", pref3value).apply()
+        }
+
+        Log.d(TAG, "Finished all Upgrading")
+        editor.putInt("version", CommonUtils.applicationVersionNumber).apply()
     }
 
     /**
@@ -213,9 +208,6 @@ open class BibleApplication : MultiDexApplication() {
     }
 
     companion object {
-
-        private const val TEXT_SIZE_PREF = "text_size_pref"
-
         // this was moved from the MainBibleActivity and has always been called this
         private const val saveStateTag = "MainBibleActivity"
 

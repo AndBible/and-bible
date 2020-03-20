@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -37,20 +37,21 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
      */
     fun initialisePageStateIfClosed(activeWindow: Window) {
         // set links window state from active window if it was closed
-        if (windowLayout.state == WindowState.CLOSED && !activeWindow.isLinksWindow) {
+        if (windowState == WindowState.CLOSED && !activeWindow.isLinksWindow) {
             // initialise links window documents from active window
             pageManager.restoreFrom(activeWindow.pageManager.entity)
         }
     }
 
     fun restoreFrom(windowEntity: WorkspaceEntities.Window,
-                    pageManagerEntity: WorkspaceEntities.PageManager?)
+                    pageManagerEntity: WorkspaceEntities.PageManager?,
+                    workspaceTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+                    )
     {
         id = windowEntity.id
-        wasMinimised = windowEntity.wasMinimised
         workspaceId = windowEntity.workspaceId
 
         windowLayout.restoreFrom(windowEntity.windowLayout)
-        pageManager.restoreFrom(pageManagerEntity)
+        pageManager.restoreFrom(pageManagerEntity, workspaceTextDisplaySettings)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -51,7 +51,7 @@ import javax.inject.Inject
 class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
-
+    override val customTheme: Boolean = false
     private lateinit var currentBookName: String
 
     @Inject lateinit var searchControl: SearchControl
@@ -102,8 +102,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred) { finish() }
+            Dialogs.instance.showErrorMsg(R.string.error_occurred) { finish() }
         }
+
+        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
 
         searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
             // If the event is a key-down event on the "enter" button
@@ -167,6 +169,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         return false
     }
+
+    fun onRebuildIndex(v: View?) {
+        startActivity(Intent(this, SearchIndex::class.java))
+        finish()
+    }
+
+    fun onCancel(v: View?) = finish()
 
     fun onSearch(v: View?) {
         Log.i(TAG, "CLICKED")

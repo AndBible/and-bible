@@ -3,9 +3,30 @@
   <string name="app_name">Киелі Кітап</string>
   <!--Startup & Help-->
   <string name="splash_top_text">Сонда Құдай: «Жарық пайда болсын!» — деп бұйырды. Осылай жарық пайда болды.</string>
+  <string name="help_text">Әрекеттер үшін мәзір түймесін басыңыз. Қадағалау құралын,  бас саусақ сенсор құралын пайдаланып немесе бейнені бармақпен сілтеп келесі не алдыңғы тарауға өтіңіз</string>
+  <string name="help_nav_title">Навигация</string>
+  <string name="help_nav_text">Бейнені бармақпен сілтеп келесі не алдыңғы тарауға өтіңіз. Бейнені толықтай ашу үшін, Киелі Кітап жазбасын екі рет басыңыз. Оң жақ жоғары бұрышында Киелі Кітап мәзір терезесінің түймесі бар, әрі түймені ұзақ басу арқылы негізгі терезе мәзірінеде кіре аласыз. </string>
+  <string name="help_speech_title">Сөз</string>
+  <string name="help_speech_text">Сөйлеу түймесін басу арқылы сұхбаттасуға өтіңіз немесе оқуды тоқтатыңыз</string>
+  <string name="help_mynote_title">Нұсқауым</string>
+  <string name="help_mynote_text">Нұсқауларды Менің Нұсқауларым мәзірі арқылы аят мәтінмәндік мәзірінде қосуға болады.
+Бар нұсқалар тізіміне негізгі мәзір арқылы қол жеткізуге болады.</string>
+  <string name="help_bookmarks_title">Бет белгілері</string>
+  <string name="help_bookmarks_text">Бет белгілерін аят мәтінмәндік мәзірі арқылы қосуға болады.
+Бет белгі Бақылауына негізгі мәзір арқылы қол жеткізе аласыз.
+Бет белгі Бақылау мәтінмәндік мәзірі - түсті таңбаларды пайдаланып бет белгілерді топтауға мүмкіндік береді.
+ </string>
+  <string name="help_search_title">Іздеу</string>
+  <string name="help_search_text">Жазбаларды іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
+(толығырақ мәліметтер үшін  \"Апачи Люцен - Сұрау Талдағыш Синтаксті\" көріңіз)</string>
+  <string name="help_contextmenus_title">Мәтінмәндік Мәзірлер</string>
+  <string name="help_contextmenus_text">Контекст мәзірінде, қазіргі аятқа әсер ету үшін, Киелі Кітап көрінісін ұзақ басып тұрыңыз.
+Ақпаратты жою немесе көру үшін, таңдау құралындағы құжатты ұзақ басып тұрыңыз.
+Тарих тізіміне кіру үшін, Артқа түймесін ұзақ басыңыз.</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және Киелі Кітап қайта қосыңыз.</string>
   <!--Main menu-->
+  <string name="menu">Мәзір</string>
   <string name="chooseBook">Құжат</string>
   <string name="selectPassage">Аят (Үзінді)</string>
   <string name="search">Табу</string>
@@ -13,20 +34,25 @@
   <string name="history">Тарих</string>
   <string name="speak">Дауыстап оқу</string>
   <string name="help">Көмек</string>
+  <string name="other">Басқасы</string>
   <string name="administration">Басқару</string>
+  <string name="rate_application">Бағалау мен күшейту; Google Ойнауда қайта шолыңыз</string>
+  <string name="chooce_document">Құжатты таңдаңыз</string>
   <!--Passage navigation-->
-  <string name="choosePassageBookName">Кітапті Таңдау</string>
-  <string name="choosePassageChapterName">Тарауды Таңдау</string>
-  <string name="choosePassageVerseName">Аятты Таңдау</string>
+  <string name="choosePassageBookName">Кітапті Таңдаңыз</string>
+  <string name="choosePassageChapterName">Тарауды Таңдаңыз</string>
+  <string name="choosePassageVerseName">Аятты Таңдаңыз</string>
   <string name="bible">Киелі Кітап</string>
   <string name="deuterocanonical">Екінші Жинақ Ережелері</string>
   <!--Search-->
   <string name="search_index">Индекс Іздеу</string>
   <string name="index_creation_required">Индекс іздеуді талап етеді.⏎\n⏎\nИндекстер интернет арқылы жүктелуі мүмкін немесе жергілікті орында жасалынады.⏎\n⏎\nЖүктелуі жылдамрақ және жүктелген индекстердің іздеу ерекшеліктері көбірек болады.⏎\n⏎\nИнтернет косылуы индекстердің жүктелуін талап етеді.⏎</string>
+  <string name="search_index_unavailable">Өкінішке орай, индекс құралуы тек Андроид 5.0 (Чупа Чупс) не бұдан жаңарақ Андроидтарда қол жетімді.</string>
   <string name="indexing_wait_msg">Индекстеу біткенде іздеу экран орнына ауыстырласыз.</string>
   <string name="index_download">Жүктеу</string>
   <string name="index_not_available_for_download">Бұл индексті жүктеуге мүмкін емес</string>
   <string name="index_create">Жасау</string>
+  <string name="rebuild_index">Қайта құралған индекс</string>
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Ұзақ жұмыс істейтін тапсырмалар тоқтатылу мүмкін егер сіз тапсырмалардың соңына жетпей басқасына ауыстарсаңыз.</string>
@@ -54,6 +80,7 @@
 Тус немесе белгішені анықтап бояу</string>
   <string name="prefs_show_mynotes_title">Менің Жазбаларым таңбасын көрсет</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
+  <string name="prefs_show_strongs_title">Стронг сандары</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
   <string name="prefs_section_title_title">Бастамалар секция</string>
   <string name="prefs_red_letter_title">Қызыл Хат</string>
@@ -62,6 +89,7 @@
   <string name="prefs_night_mode_title">Түнгі режим</string>
   <string name="prefs_night_mode_summary">Қараңғыда жеңілрек оқұ үшін</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
+  <string name="prefs_night_mode_system">Жүйе</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні белгілегенде аятты таңдаңыз (әрі тарауды)</string>
   <string name="prefs_open_links_in_special_window_title">Линктерді айрықша терезеде ашу</string>
@@ -80,7 +108,14 @@
   <string name="prefs_split_mode_title">Бөлу әдісі</string>
   <string name="prefs_request_sdcard_permission_title">Қолмен басқарлатын түрде орнатылған құжаттар бар</string>
   <string name="prefs_request_sdcard_permission_summary">jsword қалтадан SD картаға қолмен басқарлатын құжаттарды пайдалануды қосыңыз </string>
+  <string name="bible_text_options">Киелі Кітап текст опциялары</string>
+  <string name="auto_fullscreen">Аналдыру арқылы толық бейнені ашу</string>
+  <string name="switch_split_mode">Бөлу түзіміне ауысу</string>
+  <string name="reversed_split_mode">Кері бөлу түзімі</string>
+  <string name="prefs_auto_night_mode_title">Түнгі автоматты түзімі</string>
+  <string name="prefs_auto_night_mode_summary">Сенсор арқылы түнгі автоматты түзіміне ауысу</string>
   <!--Window-->
+  <string name="new_window">Жаңа терезе</string>
   <string name="windowClose">Жабу</string>
   <string name="windowMaximise">Шегіне дейін ұлғайту</string>
   <string name="windowMinimise">Шегіне дейін азайту</string>
@@ -120,6 +155,7 @@
   <string name="rdg_plan_title">Оқу жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
+  <string name="rdg_plan_set_start_date">Бастау күнді орнатыңыз</string>
   <string name="done">Орындалды</string>
   <string name="reset">Қайта бастау</string>
   <!--Document context menu-->
@@ -184,17 +220,31 @@
   <string name="speak_queue">Кезек</string>
   <string name="speak_repeat">Қайталау</string>
   <!--Speak - Bible-->
+  <string name="conf_change_chapter">Тараудың өзгерулері</string>
+  <string name="conf_change_title">Атаулары</string>
+  <string name="conf_speak_footnotes">Сілтемелер</string>
+  <string name="speak_next">Келесі</string>
+  <string name="speak_previous">Адыңғы</string>
+  <string name="speak_status_stopped">Тоқтатылған</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original"/>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string name="speak_book_changed">Кітап ауыстырылды.</string>
+  <string name="speak_chapter_changed">Тарау</string>
+  <string name="speak_first">Бірінші</string>
+  <string name="speak_second">Екінші</string>
+  <string name="speak_third">Үшінші</string>
+  <string name="speak_fourth">Төртінші</string>
+  <string name="speak_fifth">Бесінші</string>
   <!--User Notes-->
   <string name="mynotes">Ескертпелер</string>
   <string name="mynote_add">Менің Жазбамды Қосу</string>
@@ -206,6 +256,8 @@
   <string name="about_copyright">Авторлық құқық: %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Аят шығаруы: %s</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">Қате тұралы хабарласыңыз</string>
   <!--Document types-->
   <string name="doc_type_bible">Киелі Кітап</string>
   <string name="doc_type_commentary">Түсініктеме</string>
@@ -220,9 +272,12 @@
   <string name="yes">Иә</string>
   <string name="no">Жоқ</string>
   <string name="error">Қате</string>
+  <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Редакциялау</string>
+  <string name="watch_tutorial_video">Үйрету видеосын көріңіз (Ағылшын тілінде)</string>
+  <string name="verse_not_found">Аят табылмады</string>
   <!--Errors-->
   <string name="report_error">Есеп Жіберу</string>
   <string name="error_occurred">Қате пайда болды</string>
@@ -233,5 +288,18 @@
   <!--Notifications-->
   <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты үшін хабарлама растауды дамыту</string>
   <!--Workspaces-->
+  <string name="workspaces">Жұмыс кеңістіктері</string>
+  <string name="new_workspace">Жаңа жұмыс кеңістігі</string>
+  <string name="switch_to_workspace">Жұмыс кеңістігіне ауысу</string>
+  <string name="delete_workspace">Жұмыс кеңістігін жою</string>
+  <string name="choose_workspace_to_open">Ашу үшін жұмыс кеңістігін таңдаңыз</string>
+  <string name="new_copied_workspace">Жаңа ретінде осы жұмыс кеңістікті көшіріп алыңыз</string>
+  <string name="rename_workspace">Жұмыс кеңістігін қайта атаңыз</string>
+  <string name="rename_workspace_title">Осы жұмыс кеңістігіне атауын беріңіз</string>
+  <string name="new_workspace_from_dialog">Жаңа</string>
+  <string name="delete_workspace_from_dialog">Кәзіргісін жойыңыз</string>
   <!--Beta notice-->
+  <string name="beta_notice_github_issues">Github мәселелері</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Босату</string>
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -22,13 +22,15 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper
@@ -57,9 +59,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open var nightTheme = R.style.AppThemeNight
-    protected open var dayTheme = R.style.AppThemeDay
-
+    protected open val nightTheme = R.style.AppThemeNight
+    protected open val dayTheme = R.style.AppThemeDay
+    protected open val customTheme = true
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -69,10 +71,30 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     fun applyTheme() {
         if (ScreenSettings.nightMode) {
-            setTheme(nightTheme)
+            if(customTheme)
+                setTheme(nightTheme)
+            if(ScreenSettings.manualMode) {
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+                }
+            }
         } else {
-            setTheme(dayTheme)
+            if(customTheme)
+                setTheme(dayTheme)
+            if(ScreenSettings.manualMode) {
+                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
+                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+                }
+            }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!ScreenSettings.nightMode) {
+                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.decorView.systemUiVisibility = uiFlags
+            }
+        }
+
     }
 
     /** Called when the activity is first created.  */
@@ -168,15 +190,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun showErrorMsg(msgResId: Int) {
-        Dialogs.getInstance().showErrorMsg(msgResId)
+        Dialogs.instance.showErrorMsg(msgResId)
     }
 
     protected fun showHourglass() {
-        Dialogs.getInstance().showHourglass()
+        GlobalScope.launch {
+            Dialogs.instance.showHourglass()
+        }
     }
 
     protected fun dismissHourglass() {
-        Dialogs.getInstance().dismissHourglass()
+        GlobalScope.launch {
+            Dialogs.instance.dismissHourglass()
+        }
     }
 
     protected fun returnErrorToPreviousScreen() {

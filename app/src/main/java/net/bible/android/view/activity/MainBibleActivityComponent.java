@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -21,6 +21,8 @@ package net.bible.android.view.activity;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.page.MenuCommandHandler;
+import net.bible.android.view.activity.page.screen.SplitBibleArea;
+import net.bible.android.view.activity.page.screen.BibleFrame;
 
 import dagger.Component;
 
@@ -36,4 +38,6 @@ public interface MainBibleActivityComponent {
 
 	void inject(MainBibleActivity activity);
 	void inject(MenuCommandHandler menuCommandHandler);
+	void inject(SplitBibleArea c);
+	void inject(BibleFrame c);
 }

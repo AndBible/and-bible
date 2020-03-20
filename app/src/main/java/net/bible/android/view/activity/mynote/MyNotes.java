@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -113,7 +113,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 			}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
 	}
 
@@ -172,7 +172,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 	    		loadUserNoteList();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error sorting notes", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+	        	Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
 	        }
 			break;
         }
@@ -214,7 +214,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
         	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to show note", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+    		Dialogs.Companion.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
 

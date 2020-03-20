@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -18,7 +18,9 @@
 
 package net.bible.android.view.activity.page.screen
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -26,7 +28,8 @@ import android.widget.LinearLayout
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.page.window.Window
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.util.TouchDelegateView
 import net.bible.android.view.util.TouchOwner
@@ -34,16 +37,21 @@ import net.bible.android.view.util.TouchOwner
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@SuppressLint("ViewConstructor")
 class Separator(
-		context: Context,
-		private val separatorWidth: Int,
-		private val parentLayout: View,
-		private val window1: Window,
-		private val window2: Window,
-		private val numWindows: Int,
-		private val isPortrait: Boolean,
-		private val windowControl: WindowControl
+    context: Context,
+    private val separatorWidth: Int,
+    private val parentLayout: View,
+    val frame1: BibleFrame,
+    val frame2: BibleFrame,
+    internal var numWindows: Int,
+    private val isPortrait: Boolean,
+    private val windowControl: WindowControl
 ) : View(context) {
+    private val activeWindow get() = windowControl.windowRepository.activeWindow
+
+    private val window1 get() = frame1.window
+    private val window2 get() = frame2.window
 
     // offset absolute points from top of layout to enable correct calculation of screen weights in layout
     private var parentStartRawPx: Float = 0.toFloat()
@@ -73,11 +81,37 @@ class Separator(
         get() = if (isPortrait) parentLayout.height else parentLayout.width
 
 	private val res = BibleApplication.application.resources
-	private val separatorColor = res.getColor(R.color.window_separator_colour)
-	private val separatorDragColor = res.getColor(R.color.window_separator_drag_colour)
 
-	init {
-        setBackgroundColor(separatorColor)
+    private val isActive get() = activeWindow.id == window1.id || activeWindow.id == window2.id
+
+    private val separatorResource get () = if (isActive) R.drawable.separator_active else R.drawable.separator
+	private val dragResource = R.drawable.separator_drag
+
+    private fun updateBackground() {
+        setBackgroundResource(separatorResource)
+    }
+
+    override fun setBackgroundResource(backgroundResource: Int) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            super.setBackgroundResource(backgroundResource)
+        } else {
+            setBackgroundColor(res.getColor(R.color.grey_500))
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        ABEventBus.getDefault().unregister(this)
+        super.onDetachedFromWindow()
+    }
+
+    override fun onAttachedToWindow() {
+        updateBackground()
+        ABEventBus.getDefault().register(this)
+        super.onAttachedToWindow()
+    }
+
+    fun onEvent(event: CurrentWindowChangedEvent) {
+        updateBackground()
     }
 
     /**
@@ -89,7 +123,7 @@ class Separator(
                 Log.d(TAG, " y:" + event.rawY)
                 touchOwner.setTouchOwner(this)
                 windowControl.setSeparatorMoving(true)
-                setBackgroundColor(separatorDragColor)
+                setBackgroundResource(dragResource)
 
                 val rawParentLocation = IntArray(2)
                 parentLayout.getLocationOnScreen(rawParentLocation)
@@ -101,9 +135,9 @@ class Separator(
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
-                setBackgroundColor(separatorColor)
-                window1.windowLayout.weight = view1LayoutParams.weight
-                window2.windowLayout.weight = view2LayoutParams.weight
+                setBackgroundResource(separatorResource)
+                window1.weight = view1LayoutParams.weight
+                window2.weight = view2LayoutParams.weight
                 windowControl.setSeparatorMoving(false)
                 touchOwner.releaseOwnership(this)
             }

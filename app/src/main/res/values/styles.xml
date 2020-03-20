@@ -3,7 +3,7 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="ChoosePassageBookGridFont">
         <item name="android:textSize">40sp</item>
@@ -42,5 +42,10 @@
     <style name="TransportButtonTheme">
         <item name="android:tint">?attr/transportButtonColor</item>
     </style>
+
+    <style name="MyDayNightTheme" parent="Theme.AppCompat.DayNight">
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/white</item>
+    </style>
+
 
 </resources>

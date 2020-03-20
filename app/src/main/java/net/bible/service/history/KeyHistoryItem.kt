@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -57,7 +57,7 @@ class KeyHistoryItem(
 	 * @see net.bible.service.history.HistoryItem#revertTo()
 	 */
     override fun revertTo() {
-        window.pageManager.setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio)
+        window.pageManager.setCurrentDocumentAndKey(document, key, yOffsetRatio=yOffsetRatio)
     }
 
     override fun toString(): String {

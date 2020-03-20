@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -30,6 +30,10 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.RangedPassage
+import java.lang.Exception
+import java.lang.IndexOutOfBoundsException
 
 
 import java.util.ArrayList
@@ -78,21 +82,34 @@ constructor(private val windowControl: WindowControl) {
         }
 
 
-    fun getEntities(windowId: Long) =
-        windowHistoryStackMap[windowId]?.mapNotNull {
-            if(it is KeyHistoryItem) {
-                WorkspaceEntities.HistoryItem(
-                    windowId, it.createdAt, it.document.initials, it.key.osisID,
-                    if(it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
-                )
+    fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
+        var lastItem: KeyHistoryItem? = null
+        return windowHistoryStackMap[windowId]?.mapNotNull {
+            if (it is KeyHistoryItem) {
+                if(it.document == lastItem?.document && it.key == lastItem?.key) {
+                    null
+                } else {
+                    lastItem = it
+                    WorkspaceEntities.HistoryItem(
+                        windowId, it.createdAt, it.document.initials, it.key.osisID,
+                        if (it.yOffsetRatio.isNaN()) null else it.yOffsetRatio
+                    )
+                }
             } else null
         } ?: emptyList()
+    }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
         val stack = Stack<HistoryItem>()
         for(entity in historyItems) {
             val doc = Books.installed().getBook(entity.document) ?: continue
-            val key = doc.getKey(entity.key)
+            val key = try {
+                val k = doc.getKey(entity.key)
+                if(k is RangedPassage) k[0] else k
+            } catch (e: NoSuchKeyException) {
+                Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
+                continue
+            }
             stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window))
         }
         windowHistoryStackMap[window.id] = stack
@@ -145,7 +162,10 @@ constructor(private val windowControl: WindowControl) {
             val key = currentPage.singleKey
             val yOffsetRatio = currentPage.currentYOffsetRatio
             if(doc == null) return null
-            historyItem = if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow) else null
+            historyItem =
+                if(key != null) KeyHistoryItem(doc, key, yOffsetRatio, windowControl.activeWindow)
+                else null
+
         } else if (currentActivity is AndBibleActivity) {
             val andBibleActivity = currentActivity as AndBibleActivity
             if (andBibleActivity.isIntegrateWithHistoryManager) {
@@ -204,7 +224,7 @@ constructor(private val windowControl: WindowControl) {
 
     companion object {
 
-        private val MAX_HISTORY = 80
+        private const val MAX_HISTORY = 500
 
         private val TAG = "HistoryManager"
     }

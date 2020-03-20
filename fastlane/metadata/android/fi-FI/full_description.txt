@@ -1,0 +1,32 @@
+And Bible on täysin ilmainen avoimen lähdekoodin raamattuohjelmisto. Se toimii ilman internetyhteyttä, ei sisällä mainoksia ja sen tarkoituksena on että mahdollisimman monet voisivat lukea, kuunnella ja tutkia kirjoituksia mahdollisimman helposti ja että tämä koituisi heille suureksi siunaukseksi.
+
+* Raamattuja, kommentaareja, teologisia sanakirjoja, karttoja ja kristillisiä kirjoja yli 700 kielellä
+* Toimii ilman internetyhteyttä sen jälkeen kun dokumentit on ladattu, mukaanlukien hakutoiminto, muistiinpanot, kommentaarit jne.
+* Käyttöliittymä usealla kielellä
+*  Useita raamatunlukuohjelmia
+* Täysin ilmainen, ei mainoksia, ei sähköposteja
+* Yli 40 englanninkielistä raamattua, mukaan lukien KJV ja NET (ESV oli mukana aiemmin ja yritämme saada sen takaisin, katso FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 raamattukommentaaria
+*  Laaja kokoelma sanakirjoja ja kristillistä kirjallisuutta
+* Kaikki dokumentit laillisia (tästä syystä joitain raamatunkäännöksiä kuten NKJV ja NIV, ei ole saatavilla)
+Strongin sanakirjan integraatio joka mahdollistaa kreikan ja heprean sanojen analysoinnin
+* Useita työtiloja ja jaetun näytön mahdollisuus
+* Kirjoita henkilökohtaisia muistiinpanoja
+* Joustava hakutoiminto
+* Kirjanmerkit
+* Raamatun maiden karttoja
+* Kuuntele mitä tahansa dokumenttia ääneen luettuna
+* Automaattinen vieritys, automaattinen päivä/yö-tila
+* Vertaa kaikkia raamatunkäännöksiä yhdessä näkymässä
+* Yksi nopeimpia raamattuohjelmia Androidille
+* Avointa lähdekoodia - kehitä tai muuta lähdekoodia mieleiseksesi
+* Käyttää CrossWiren tehokasta JSword-raamattumoottoria 
+
+Me olemme kaikki vapaaehtoistyöntekijöitä; emme näytä ärsyttäviä mainoksia, lähetä  sähköposteja, emme pyydä tai vastaanota lahjoituksia, emme pyydä rekisteröitymistä. And Bible ei kerää mitään tietoja puhelimestasi.
+
+Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä And Biblessä ei ole dokumentteja kuten NIV ja NKJV.
+
+<b>Huomioita</b>
+* Tykkää And Biblestä Facebookissa: https://www.facebook.com/AndBible/
+* And BIble FAQ (englanniksi): https://github.com/AndBible/and-bible/wiki/FAQ
+* Projektin sivu Githubissa: https://github.com/AndBible/and-bible

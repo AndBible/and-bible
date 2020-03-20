@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -37,12 +37,13 @@ import org.crosswire.jsword.passage.Verse
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class CurrentBiblePage(
-	currentBibleVerse: CurrentBibleVerse,
-	bibleTraverser: BibleTraverser,
-	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
+    currentBibleVerse: CurrentBibleVerse,
+    bibleTraverser: BibleTraverser,
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
-        swordDocumentFacade), CurrentPage {
+        swordDocumentFacade, pageManager), CurrentPage {
 
     override val bookCategory = BookCategory.BIBLE
 
@@ -175,8 +176,11 @@ class CurrentBiblePage(
     var currentChapterVerse: ChapterVerse
         get() = currentBibleVerse.chapterVerse
         set(chapterVerse) {
-            currentBibleVerse.chapterVerse = chapterVerse
-            onVerseChange()
+            val oldChapterVerse = currentBibleVerse.chapterVerse
+            if(chapterVerse != oldChapterVerse) {
+                currentBibleVerse.chapterVerse = chapterVerse
+                onVerseChange()
+            }
         }
 
     //TODO allow japanese search - japanese bibles use smartcn which is not available

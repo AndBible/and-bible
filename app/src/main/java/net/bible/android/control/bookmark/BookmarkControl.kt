@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -105,7 +105,7 @@ open class BookmarkControl @Inject constructor(
                     .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
                 bOk = true
             } else {
-                Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
             }
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
@@ -122,7 +122,7 @@ open class BookmarkControl @Inject constructor(
                 if (deleteBookmark(bookmarkDto, true)) {
                     Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
                 } else {
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
                 }
             }
         }
@@ -274,7 +274,8 @@ open class BookmarkControl @Inject constructor(
     }
 
     /** label the bookmark with these and only these labels  */
-    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>) { // never save LABEL_ALL
+    @JvmOverloads
+    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>, doNotSync: Boolean = false) { // never save LABEL_ALL
 		val labels = labels_.toMutableList()
         labels.remove(LABEL_ALL)
         labels.remove(LABEL_UNLABELLED)
@@ -294,7 +295,9 @@ open class BookmarkControl @Inject constructor(
                 db.insertBookmarkLabelJoin(bookmark, label)
             }
         } finally {}
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        }
     }
 
     fun saveOrUpdateLabel(label: LabelDto): LabelDto {
@@ -374,7 +377,7 @@ open class BookmarkControl @Inject constructor(
         try {
             Collections.sort(bookmarkList, comparator)
         } catch (e: Exception) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
         }
         return bookmarkList
     }

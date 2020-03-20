@@ -3,32 +3,43 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
 	<TextView android:id="@+id/indexCreationRequired"
 		android:text="@string/index_creation_required" 
 		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
+		app:layout_constraintTop_toTopOf="parent"
 		style="@style/InfoText"/>
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+		android:orientation="horizontal"
+		app:layout_constraintTop_toBottomOf="@id/indexCreationRequired"
 	    android:layout_alignParentBottom="true">
+		<Button android:id="@+id/cancelButton"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:text="@string/cancel"
+			android:onClick="onCancel"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"/>
 
 	  	<Button android:id="@+id/downloadButton"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 	 		android:text="@string/index_download"
 			android:onClick="onDownload"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
-	        android:layout_weight="2"/>
+	        android:layout_weight="1"/>
 
 	  	<Button android:id="@+id/createButton"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 	 		android:text="@string/index_create"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
@@ -36,4 +47,4 @@
 			android:onClick="onIndex"/>
 
 	</LinearLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

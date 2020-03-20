@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -33,8 +33,9 @@ import java.util.*
 abstract class CachedKeyPage internal constructor(
 	shareKeyBetweenDocs: Boolean,
 	swordContentFacade: SwordContentFacade,
-	swordDocumentFacade: SwordDocumentFacade
-) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade) {
+	swordDocumentFacade: SwordDocumentFacade,
+    pageManager: CurrentPageManager
+) : CurrentPageBase(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
 
@@ -72,7 +73,7 @@ abstract class CachedKeyPage internal constructor(
                     keylist = null
                     System.gc()
                     Log.e(TAG, "Error getting keys for $currentDocument", e)
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
                 }
                 Log.d(TAG, "Finished creating cached key list len:" + keylist!!.size)
             }

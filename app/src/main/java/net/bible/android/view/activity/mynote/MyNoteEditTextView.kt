@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -32,7 +32,6 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 
 
@@ -55,7 +54,6 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         gravity = Gravity.TOP
         isVerticalScrollBarEnabled = true
         updatePadding()
-        applyPreferenceSettings()
     }
 
     private fun updatePadding() {
@@ -97,10 +95,6 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         myNoteControl.saveMyNoteText(text!!.toString())
     }
 
-    override fun show(html: String, updateLocation: Boolean) {
-        // NO-OP. 
-    }
-
     fun load() {
         applyPreferenceSettings()
         val currentPage = myNoteControl.activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage
@@ -109,14 +103,13 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     override fun applyPreferenceSettings() {
-        changeBackgroundColour()
+        updateBackgroundColor()
 
-        val preferences = CommonUtils.sharedPreferences
-        val fontSize = preferences.getInt("text_size_pref", 16)
+        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font!!.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 
-    override fun changeBackgroundColour() {
+    override fun updateBackgroundColor() {
         if (ScreenSettings.nightMode) {
             setBackgroundColor(Color.BLACK)
             setTextColor(Color.WHITE)

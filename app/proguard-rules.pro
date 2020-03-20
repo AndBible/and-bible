@@ -51,6 +51,9 @@
     public void onEvent*(**);
 }
 
+
+-keep class net.bible.android.view.activity.settings.ColorSettingsFragment
+
 # keep dynamically loaded Jsword classes
 -keep class org.crosswire.jsword.book.install.sword.AndBibleHttpSwordInstallerFactory
 -keep class org.crosswire.jsword.index.lucene.analysis.**

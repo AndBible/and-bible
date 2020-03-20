@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -53,21 +53,13 @@ class DocumentControl @Inject constructor(
         private val windowControl: WindowControl)
 {
 
+    val isNewTestament get() = activeWindowPageManagerProvider.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
+
     /**
      * Suggest an alternative dictionary to view or return null
      */
     // very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
-    val isStrongsInBook: Boolean
-        get() {
-            return try {
-                val currentBook = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-                currentBook!!.bookMetaData.hasFeature(FeatureType.STRONGS_NUMBERS)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error checking for strongs Numbers in book", e)
-                false
-            }
-
-        }
+    val isStrongsInBook get() = activeWindowPageManagerProvider.activeWindowPageManager.hasStrongs
 
     /**
      * Are we currently in Bible, Commentary, Dict, or Gen Book mode
@@ -172,7 +164,7 @@ class DocumentControl @Inject constructor(
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
         } catch (e: BookException) {
-            Dialogs.getInstance().showErrorMsg(R.string.error_occurred)
+            Dialogs.instance.showErrorMsg(R.string.error_occurred)
         }
 
     }
