@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import kotlinx.android.synthetic.main.document_selection.*
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
@@ -54,11 +55,11 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        documentDownloadItemAdapter = DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, getDisplayedDocuments(), this)
+        documentDownloadItemAdapter = DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, displayedDocuments, this)
         listAdapter = documentDownloadItemAdapter
 
         // in the basic flow we force the user to download a bible
-        documentTypeSpinner!!.isEnabled = true
+        documentTypeSpinner.isEnabled = true
         val firstTime = swordDocumentFacade.bibles.size == 0
         // if first time
         if (firstTime) {
@@ -100,7 +101,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show()
     }
 
-    override fun getDocumentsFromSource(refresh: Boolean): List<Book>? {
+    override fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         return downloadControl.getDownloadableDocuments(refresh)
     }
 
@@ -117,7 +118,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
     /**
      * Get normally sorted list of languages for the language selection spinner
      */
-    override fun sortLanguages(languages: Collection<Language>?): List<Language?> {
+    override fun sortLanguages(languages: Collection<Language>?): List<Language> {
         return downloadControl.sortLanguages(languages)
     }
 

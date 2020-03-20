@@ -45,7 +45,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        val documentItemAdapter = DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this)
+        val documentItemAdapter = DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, this)
         listAdapter = documentItemAdapter
         populateMasterDocumentList(false)
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
@@ -54,7 +54,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     /** load list of docs to display
      *
      */
-    override fun getDocumentsFromSource(refresh: Boolean): List<Book>? {
+    override fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.d(TAG, "get document list from source")
         return swordDocumentFacade.documents
     }
@@ -62,21 +62,21 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     /**
      * Get normally sorted list of languages for the language selection spinner
      */
-    override fun sortLanguages(languages: Collection<Language>?): List<Language?> {
-        val languageList: MutableList<Language?> = ArrayList()
+    override fun sortLanguages(languages: Collection<Language>?): List<Language> {
+        val languageList: MutableList<Language> = ArrayList()
         if (languages != null) {
             languageList.addAll(languages)
 
             // sort languages alphabetically
-            Collections.sort(languageList)
+            languageList.sort()
         }
         return languageList
     }
 
-    override fun handleDocumentSelection(selectedBook: Book?) {
-        Log.d(TAG, "Book selected:" + selectedBook!!.initials)
+    override fun handleDocumentSelection(selectedDocument: Book?) {
+        Log.d(TAG, "Book selected:" + selectedDocument!!.initials)
         try {
-            documentControl!!.changeDocument(selectedBook)
+            documentControl!!.changeDocument(selectedDocument)
 
             // if key is valid then the new doc will have been shown already
             returnToPreviousScreen()

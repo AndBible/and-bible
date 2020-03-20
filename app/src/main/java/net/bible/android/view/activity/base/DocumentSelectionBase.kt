@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Spinner
 import android.widget.Toast
+import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -61,34 +62,29 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
-    // document type spinner
-    var documentTypeSpinner: Spinner? = null
-        private set
     private var selectedDocumentFilterNo = 0
 
     // language spinner
-    private var langSpinner: Spinner? = null
-    private var languageList: MutableList<Language?>? = null
+    private val languageList = ArrayList<Language>()
     private var selectedLanguageNo = -1
-    private var langArrayAdapter: ArrayAdapter<Language?>? = null
+    lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     // the document list
-    var allDocuments: List<Book>? = null
-        private set
+    private var allDocuments = ArrayList<Book>()
 
     //TODO just use displayedDocuments with a model giving 2 lines in list
-    private var displayedDocuments: MutableList<Book>? = null
+    var displayedDocuments = ArrayList<Book>()
 
-    @set:Inject
-    protected var documentControl: DocumentControl? = null
-    private var listActionModeHelper: ListActionModeHelper? = null
+    @Inject lateinit var documentControl: DocumentControl
+
+    lateinit var listActionModeHelper: ListActionModeHelper
     private var layoutResource = R.layout.document_selection
 
     /** ask subclass for documents to be displayed
      */
-    protected abstract fun getDocumentsFromSource(refresh: Boolean): List<Book>?
+    protected abstract fun getDocumentsFromSource(refresh: Boolean): List<Book>
     protected abstract fun handleDocumentSelection(selectedDocument: Book?)
-    protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language?>
+    protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,14 +97,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)
         // trigger action mode on long press
         listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper!!.startActionMode(this@DocumentSelectionBase, position) }
-        languageList = ArrayList()
-        displayedDocuments = ArrayList()
+        languageList.clear()
+        displayedDocuments.clear()
 
         //prepare the documentType spinner
-        documentTypeSpinner = findViewById<View>(R.id.documentTypeSpinner) as Spinner
         setInitialDocumentType()
-        documentTypeSpinner!!.setSelection(selectedDocumentFilterNo)
-        documentTypeSpinner!!.onItemSelectedListener = object : OnItemSelectedListener {
+        documentTypeSpinner.setSelection(selectedDocumentFilterNo)
+        documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
                 selectedDocumentFilterNo = position
                 filterDocuments()
@@ -118,39 +113,37 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
 
         //prepare the language spinner
-        run {
-            langSpinner = findViewById<View>(R.id.languageSpinner) as Spinner
-            langSpinner!!.onItemSelectedListener = object : OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                    selectedLanguageNo = position
-                    lastSelectedLanguage = languageList!![selectedLanguageNo]
-                    this@DocumentSelectionBase.filterDocuments()
-                }
-
-                override fun onNothingSelected(arg0: AdapterView<*>?) {}
+        languageSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+                selectedLanguageNo = position
+                lastSelectedLanguage = languageList[selectedLanguageNo]
+                this@DocumentSelectionBase.filterDocuments()
             }
-            langArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList!!)
-            langArrayAdapter!!.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            langSpinner!!.adapter = langArrayAdapter
+
+            override fun onNothingSelected(arg0: AdapterView<*>?) {}
         }
+        langArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList)
+        langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = langArrayAdapter
     }
 
     private fun setDefaultLanguage() {
         if (selectedLanguageNo == -1) {
             val lang: Language?
             // make selected language sticky
-            lang = if (lastSelectedLanguage != null && languageList!!.contains(lastSelectedLanguage)) {
+            val lastSelectedLanguage = lastSelectedLanguage
+            lang = if (lastSelectedLanguage != null && languageList.contains(lastSelectedLanguage)) {
                 lastSelectedLanguage
             } else {
                 // set default lang to lang of mobile
                 defaultLanguage
             }
-            selectedLanguageNo = languageList!!.indexOf(lang)
+            selectedLanguageNo = languageList.indexOf(lang)
         }
 
         // if last doc in last lang was just deleted then need to adjust index
         checkSpinnerIndexesValid()
-        langSpinner!!.setSelection(selectedLanguageNo)
+        languageSpinner.setSelection(selectedLanguageNo)
     }
 
     // get the current language code
@@ -161,7 +154,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     // if no bibles exist in current lang then fall back to one of the languages that have books
     // so the user will not see an initially empty list
-    protected val defaultLanguage: Language
+    private val defaultLanguage: Language
         get() {
             // get the current language code
             var langCode = Locale.getDefault().language
@@ -176,7 +169,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             // check a bible exists in current lang otherwise use english
             var foundBibleInLocalLanguage = false
             var existingLanguage: Language? = null
-            for (book in allDocuments!!) {
+            for (book in allDocuments) {
                 if (book.bookCategory == BookCategory.BIBLE) {
                     if (localLanguage == book.language) {
                         foundBibleInLocalLanguage = true
@@ -196,8 +189,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
-            if (position >= 0 && position < displayedDocuments!!.size) {
-                val selectedBook = displayedDocuments!![position]
+            if (position >= 0 && position < displayedDocuments.size) {
+                val selectedBook = displayedDocuments[position]
                 if (selectedBook != null) {
                     Log.d(TAG, "Selected " + selectedBook.initials)
                     handleDocumentSelection(selectedBook)
@@ -212,7 +205,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    protected fun reloadDocuments() {
+    private fun reloadDocuments() {
         populateMasterDocumentList(false)
     }
 
@@ -233,8 +226,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 try {
                     // Prevent occasional class loading errors on Samsung devices
                     Thread.currentThread().contextClassLoader = javaClass.classLoader
-                    allDocuments = getDocumentsFromSource(refresh)
-                    Log.i(TAG, "Number of documents:" + allDocuments!!.size)
+                    allDocuments.clear()
+                    val docsFromSource = getDocumentsFromSource(refresh)
+                    allDocuments.addAll(docsFromSource)
+                    Log.i(TAG, "Number of documents:" + allDocuments.size)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error getting documents", e)
                     instance.showErrorMsg(R.string.error_occurred, e)
@@ -242,13 +237,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
             withContext(Dispatchers.Main) {
                 try {
-                    if (allDocuments != null) {
-                        populateLanguageList()
+                    populateLanguageList()
 
-                        // default language depends on doc availability so must do in onPostExecute
-                        setDefaultLanguage()
-                        filterDocuments()
-                    }
+                    // default language depends on doc availability so must do in onPostExecute
+                    setDefaultLanguage()
+                    filterDocuments()
                 } finally {
                     //todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
                     instance.dismissHourglass()
@@ -262,22 +255,22 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private fun filterDocuments() {
         try {
             // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
-            listActionModeHelper!!.exitActionMode()
+            listActionModeHelper.exitActionMode()
 
             // re-filter documents
-            if (allDocuments != null && allDocuments!!.size > 0) {
+            if (allDocuments.size > 0) {
                 Log.d(TAG, "filtering documents")
-                displayedDocuments!!.clear()
+                displayedDocuments.clear()
                 val lang = selectedLanguage
-                for (doc in allDocuments!!) {
+                for (doc in allDocuments) {
                     val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
                     if (filter.test(doc) && doc.language == lang) {
-                        displayedDocuments!!.add(doc)
+                        displayedDocuments.add(doc)
                     }
                 }
 
                 // sort by initials because that is field 1
-                Collections.sort(displayedDocuments) { o1, o2 -> o1.abbreviation.compareTo(o2.abbreviation, ignoreCase = true) }
+                displayedDocuments.sortWith(Comparator { o1, o2 -> o1.abbreviation.compareTo(o2.abbreviation, ignoreCase = true) })
                 notifyDataSetChanged()
             }
         } catch (e: Exception) {
@@ -291,16 +284,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private fun populateLanguageList() {
         try {
             // temporary Set to remove duplicate Languages
-            val langSet: MutableSet<Language> = HashSet()
-            if (allDocuments != null && allDocuments!!.size > 0) {
+            val langSet = HashSet<Language>()
+            if (allDocuments.size > 0) {
                 Log.d(TAG, "initialising language list")
-                for (doc in allDocuments!!) {
+                for (doc in allDocuments) {
                     langSet.add(doc.language)
                 }
                 val sortedLanguages = sortLanguages(langSet)
-                languageList!!.clear()
-                languageList!!.addAll(sortedLanguages)
-                langArrayAdapter!!.notifyDataSetChanged()
+                languageList.clear()
+                languageList.addAll(sortedLanguages)
+                langArrayAdapter.notifyDataSetChanged()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising view", e)
@@ -310,9 +303,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
         val documents: MutableList<Book> = ArrayList()
-        val displayedDocuments = getDisplayedDocuments()
         for (posn in selectedItemPositions) {
-            if (posn < displayedDocuments!!.size) {
+            if (posn < displayedDocuments.size) {
                 documents.add(displayedDocuments[posn])
             }
         }
@@ -350,9 +342,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    protected fun handleDelete(documents: List<Book>) {
+    private fun handleDelete(documents: List<Book>) {
         for (document in documents) {
-            if (documentControl!!.canDelete(document)) {
+            if (documentControl.canDelete(document)) {
                 val msg: CharSequence = getString(R.string.delete_doc, document.name)
                 AlertDialog.Builder(this)
                     .setMessage(msg).setCancelable(true)
@@ -360,7 +352,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     ) { dialog, buttonId ->
                         try {
                             Log.d(TAG, "Deleting:$document")
-                            documentControl!!.deleteDocument(document)
+                            documentControl.deleteDocument(document)
 
                             // the doc list should now change
                             reloadDocuments()
@@ -375,7 +367,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    protected fun handleDeleteIndex(documents: List<Book>) {
+    private fun handleDeleteIndex(documents: List<Book>) {
         for (document in documents) {
             val msg: CharSequence = getString(R.string.delete_search_index_doc, document.name)
             AlertDialog.Builder(this)
@@ -401,7 +393,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     /** about display is generic so handle it here
      */
-    protected fun showAbout(document: Book) {
+    private fun showAbout(document: Book) {
 
         //get about text
         var about = document.bookMetaData.getProperty("About")
@@ -479,22 +471,18 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
      * deletion may have removed a language or document type so need to check current spinner selection is still valid
      */
     private fun checkSpinnerIndexesValid() {
-        if (selectedLanguageNo >= languageList!!.size) {
-            selectedLanguageNo = languageList!!.size - 1
+        if (selectedLanguageNo >= languageList.size) {
+            selectedLanguageNo = languageList.size - 1
         }
     }
 
     private val selectedLanguage: Language?
-        private get() {
+        get() {
             if (selectedLanguageNo == -1) {
                 setDefaultLanguage()
             }
-            return languageList!![selectedLanguageNo]
+            return languageList[selectedLanguageNo]
         }
-
-    fun getDisplayedDocuments(): List<Book>? {
-        return displayedDocuments
-    }
 
     /** allow selection of initial doc type
      */
