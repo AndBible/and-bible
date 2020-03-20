@@ -187,7 +187,7 @@ internal class ZipHandler(
     }
 
     override fun onPostExecute(result: Int?) {
-        var finishResult = Download.RESULT_CANCELED
+        var finishResult = Activity.RESULT_CANCELED
         val bus = ABEventBus.getDefault()
         when (result) {
             R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
@@ -195,7 +195,7 @@ internal class ZipHandler(
             R_MODULE_EXISTS -> bus.post(ToastEvent(R.string.module_already_installed))
             R_OK -> {
                 bus.post(ToastEvent(R.string.install_zip_successfull))
-                finishResult = Download.RESULT_OK
+                finishResult = Activity.RESULT_OK
             }
         }
         finish(finishResult)
