@@ -30,6 +30,10 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Spinner
 import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
@@ -158,7 +162,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     // if no bibles exist in current lang then fall back to one of the languages that have books
     // so the user will not see an initially empty list
     protected val defaultLanguage: Language
-        protected get() {
+        get() {
             // get the current language code
             var langCode = Locale.getDefault().language
             if (!Language(langCode).isValidLanguage) {
@@ -218,13 +222,14 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     protected fun populateMasterDocumentList(refresh: Boolean) {
         Log.d(TAG, "populate Master Document List")
-        object : AsyncTask<Void?, Boolean?, Void?>() {
-            override fun onPreExecute() {
-                showHourglass()
+        GlobalScope.launch {
+
+            withContext(Dispatchers.Main) {
+                instance.showHourglass()
                 showPreLoadMessage()
             }
 
-            override fun doInBackground(vararg noparam: Void?): Void? {
+            withContext(Dispatchers.IO) {
                 try {
                     // Prevent occasional class loading errors on Samsung devices
                     Thread.currentThread().contextClassLoader = javaClass.classLoader
@@ -234,10 +239,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     Log.e(TAG, "Error getting documents", e)
                     instance.showErrorMsg(R.string.error_occurred, e)
                 }
-                return null
             }
-
-            override fun onPostExecute(result: Void?) {
+            withContext(Dispatchers.Main) {
                 try {
                     if (allDocuments != null) {
                         populateLanguageList()
@@ -248,10 +251,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 } finally {
                     //todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-                    dismissHourglass()
+                    instance.dismissHourglass()
                 }
             }
-        }.execute(null)
+        }
     }
 
     /** a spinner has changed so refilter the doc list
