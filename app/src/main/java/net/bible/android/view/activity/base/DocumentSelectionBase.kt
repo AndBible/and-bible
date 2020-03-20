@@ -69,6 +69,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var selectedLanguageNo = -1
     lateinit var langArrayAdapter: ArrayAdapter<Language>
 
+    var isPopulated = false
+
     // the document list
     private var allDocuments = ArrayList<Book>()
 
@@ -214,6 +216,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     protected fun populateMasterDocumentList(refresh: Boolean) {
+        isPopulated = false
         Log.d(TAG, "populate Master Document List")
         GlobalScope.launch {
 
@@ -238,12 +241,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             withContext(Dispatchers.Main) {
                 try {
                     populateLanguageList()
-
-                    // default language depends on doc availability so must do in onPostExecute
+                    isPopulated = true
                     setDefaultLanguage()
                     filterDocuments()
                 } finally {
-                    //todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
                     instance.dismissHourglass()
                 }
             }
@@ -253,6 +254,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     /** a spinner has changed so refilter the doc list
      */
     private fun filterDocuments() {
+        if(!isPopulated) return
         try {
             // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
             listActionModeHelper.exitActionMode()

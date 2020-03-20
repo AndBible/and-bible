@@ -60,7 +60,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
 
         // in the basic flow we force the user to download a bible
         documentTypeSpinner.isEnabled = true
-        val firstTime = swordDocumentFacade.bibles.size == 0
+        val firstTime = swordDocumentFacade.bibles.isEmpty()
         // if first time
         if (firstTime) {
             // prepare the document list view - done in another thread

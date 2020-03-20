@@ -47,15 +47,16 @@ class Hourglass {
     }
 
     suspend fun dismiss() {
-        try {
-            if (hourglass != null) {
-                withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
+            try {
+                if (hourglass != null) {
                     hourglass!!.dismiss()
                     hourglass = null
                 }
+                null
+            } catch (e: Exception) {
+                Log.e(TAG, "Error dismissing hourglass", e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error dismissing hourglass", e)
         }
     }
 
