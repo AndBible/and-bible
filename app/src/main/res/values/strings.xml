@@ -625,4 +625,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
     <string name="backup_modules_title">Select which modules to backup</string>
+    <string name="key_book_parenthesis">\"%s (%s)\"</string>
 </resources>

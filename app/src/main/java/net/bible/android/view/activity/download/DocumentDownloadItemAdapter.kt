@@ -22,9 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import net.bible.android.activity.R
+import kotlinx.android.synthetic.main.document_download_list_item.view.*
 import net.bible.android.control.download.DownloadControl
-import net.bible.service.common.CommonUtils.getResourceColor
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -79,9 +78,4 @@ class DocumentDownloadItemAdapter(
         }
         return view
     }
-
-    companion object {
-        private val ACTIVATED_COLOUR = getResourceColor(R.color.list_item_activated)
-    }
-
 }

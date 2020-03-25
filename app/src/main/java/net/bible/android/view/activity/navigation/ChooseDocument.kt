@@ -45,7 +45,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        val documentItemAdapter = DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments)
+        val documentItemAdapter = DocumentItemAdapter(this, displayedDocuments)
         listAdapter = documentItemAdapter
         populateMasterDocumentList(false)
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
@@ -120,6 +120,5 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
 
     companion object {
         private const val TAG = "ChooseDocument"
-        private const val LIST_ITEM_TYPE = R.layout.list_item_2_highlighted
     }
 }
