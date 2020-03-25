@@ -15,46 +15,35 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.view.activity.navigation.genbookmap
 
-package net.bible.android.view.activity.navigation.genbookmap;
-
-import android.util.Log;
-
-import net.bible.android.control.page.CurrentMapPage;
-
-import org.crosswire.jsword.passage.Key;
-
-import java.util.List;
+import android.util.Log
+import net.bible.android.control.page.CurrentMapPage
+import org.crosswire.jsword.passage.Key
 
 /** show a key list and allow to select item
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class ChooseMapKey extends ChooseKeyBase {
+class ChooseMapKey : ChooseKeyBase() {
+    override val currentKey: Key?
+        get() = currentMapPage.key
 
-	private static final String TAG = "ChooseMapKey";
-	
-	@Override
-	protected Key getCurrentKey() {
-		
-		return getCurrentMapPage().getKey();
-	}
+    override val keyList: List<Key>?
+        get() = currentMapPage.cachedGlobalKeyList
 
-	@Override
-	protected List<Key> getKeyList() {
-		return getCurrentMapPage().getCachedGlobalKeyList();
-	}
-
-	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentMapPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
+    override fun itemSelected(key: Key) {
+        try {
+            currentMapPage.setKey(key)
+        } catch (e: Exception) {
+            Log.e(TAG, "error on select of gen book key", e)
+        }
     }
 
-	private CurrentMapPage getCurrentMapPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
+    private val currentMapPage: CurrentMapPage
+        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentMap
+
+    companion object {
+        private const val TAG = "ChooseMapKey"
     }
 }

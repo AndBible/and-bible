@@ -15,46 +15,35 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.view.activity.navigation.genbookmap
 
-package net.bible.android.view.activity.navigation.genbookmap;
-
-import android.util.Log;
-
-import net.bible.android.control.page.CurrentGeneralBookPage;
-
-import org.crosswire.jsword.passage.Key;
-
-import java.util.List;
+import android.util.Log
+import net.bible.android.control.page.CurrentGeneralBookPage
+import org.crosswire.jsword.passage.Key
 
 /** show a list of keys and allow to select an item
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class ChooseGeneralBookKey extends ChooseKeyBase {
+class ChooseGeneralBookKey : ChooseKeyBase() {
+    override val currentKey: Key?
+        get() = currentGeneralBookPage.key
 
-	private static final String TAG = "ChooseGeneralBookKey";
-	
-	@Override
-	protected Key getCurrentKey() {
-		
-		return getCurrentGeneralBookPage().getKey();
-	}
 
-	@Override
-	protected List<Key> getKeyList() {
-		return getCurrentGeneralBookPage().getCachedGlobalKeyList();
-	}
+    override val keyList: List<Key> = currentGeneralBookPage.cachedGlobalKeyList!!
 
-	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentGeneralBookPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
+    override fun itemSelected(key: Key) {
+        try {
+            currentGeneralBookPage.setKey(key)
+        } catch (e: Exception) {
+            Log.e(TAG, "error on select of gen book key", e)
+        }
     }
 
-	private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
+    private val currentGeneralBookPage: CurrentGeneralBookPage
+        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentGeneralBook
+
+    companion object {
+        private const val TAG = "ChooseGeneralBookKey"
     }
 }
