@@ -15,38 +15,17 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.android.control.download;
+package net.bible.android.control.download
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public class DocumentStatus {
-
-	public enum DocumentInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING}
-
-	private final String initials;
-
-	private final DocumentInstallStatus documentInstallStatus;
-
-	private final int percentDownloaded;
-
-	public DocumentStatus(String initials, DocumentInstallStatus documentInstallStatus, int percentDownloaded) {
-		this.initials = initials;
-		this.documentInstallStatus = documentInstallStatus;
-		this.percentDownloaded = percentDownloaded;
-	}
-
-	public String getInitials() {
-		return initials;
-	}
-
-	public DocumentInstallStatus getDocumentInstallStatus() {
-		return documentInstallStatus;
-	}
-
-	public int getPercentDone() {
-		return percentDownloaded;
-	}
+class DocumentStatus(
+    val initials: String,
+    val documentInstallStatus: DocumentInstallStatus,
+    val percentDone: Int)
+{
+    enum class DocumentInstallStatus {
+        INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING
+    }
 }
