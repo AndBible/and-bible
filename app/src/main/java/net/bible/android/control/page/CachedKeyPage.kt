@@ -54,18 +54,18 @@ abstract class CachedKeyPage internal constructor(
     val cachedGlobalKeyList: List<Key>?
         get() {
 			var keylist = mCachedGlobalKeyList
+            val currentDocument = currentDocument
 			if (currentDocument != null && keylist == null) {
                 try {
                     Log.d(TAG, "Start to create cached key list for $currentDocument")
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
-                    for (key in currentDocument!!.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
+                    for (key in currentDocument.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
                         if (!StringUtils.isEmpty(key.name)) {
                             keylist.add(key)
                         }
                     }
                 } catch (oom: OutOfMemoryError) {
-                    keylist = null
                     System.gc()
                     Log.e(TAG, "out of memory", oom)
                     throw oom
@@ -78,7 +78,7 @@ abstract class CachedKeyPage internal constructor(
                 Log.d(TAG, "Finished creating cached key list len:" + keylist!!.size)
             }
 			mCachedGlobalKeyList = keylist
-            return mCachedGlobalKeyList
+            return keylist
         }
 
     /** add or subtract a number of pages from the current position and return Verse

@@ -34,7 +34,9 @@ class CurrentMapPage internal constructor(
     swordContentFacade: SwordContentFacade,
     swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-    ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage {
+    ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),
+    CurrentPage
+{
 
     override val bookCategory = BookCategory.MAPS
 

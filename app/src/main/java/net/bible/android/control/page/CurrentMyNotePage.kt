@@ -52,7 +52,7 @@ class CurrentMyNotePage internal constructor(
     private var fakeMyNoteBookVersification: Versification? = null
     override val currentPageContent: String get() = myNoteDAO.getMyNoteTextByKey(key)
 
-    override val currentDocument: Book?
+    override val currentDocument: Book
 		get () {
 			try {
 				if (fakeMyNoteBook == null || fakeMyNoteBookVersification == null || fakeMyNoteBookVersification != currentVersification) {
@@ -65,7 +65,7 @@ class CurrentMyNotePage internal constructor(
 			} catch (e: BookException) {
 				Log.e(TAG, "Error creating fake MyNote book", e)
 			}
-			return fakeMyNoteBook
+			return fakeMyNoteBook!!
 		}
 
     /** can we enable the main menu search button
