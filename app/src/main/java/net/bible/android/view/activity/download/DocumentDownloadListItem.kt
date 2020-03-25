@@ -22,6 +22,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import kotlinx.android.synthetic.main.document_download_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
@@ -42,11 +43,6 @@ class DocumentDownloadListItem : TwoLineListItem {
             ensureRegisteredForDownloadEvents()
         }
 
-
-    var icon: ImageView? = null
-    var progressBar: ProgressBar? = null
-        private set
-
     constructor(context: Context?) : super(context) {}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
     constructor(context: Context?, attrs: AttributeSet?,
@@ -55,8 +51,6 @@ class DocumentDownloadListItem : TwoLineListItem {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        icon = findViewById<View>(R.id.icon) as ImageView
-        progressBar = findViewById<View>(R.id.progressBar) as ProgressBar
         ensureRegisteredForDownloadEvents()
     }
 
@@ -81,25 +75,25 @@ class DocumentDownloadListItem : TwoLineListItem {
         if (icon != null && progressBar != null) {
             when (documentStatus.documentInstallStatus) {
                 DocumentInstallStatus.INSTALLED -> {
-                    icon!!.setImageResource(R.drawable.ic_check_green_24dp)
-                    progressBar!!.visibility = View.INVISIBLE
+                    icon.setImageResource(R.drawable.ic_check_green_24dp)
+                    progressBar.visibility = View.INVISIBLE
                 }
                 DocumentInstallStatus.NOT_INSTALLED -> {
-                    icon!!.setImageDrawable(null)
-                    progressBar!!.visibility = View.INVISIBLE
+                    icon.setImageDrawable(null)
+                    progressBar.visibility = View.INVISIBLE
                 }
                 DocumentInstallStatus.BEING_INSTALLED -> {
-                    icon!!.setImageResource(R.drawable.ic_arrow_downward_green_24dp)
+                    icon.setImageResource(R.drawable.ic_arrow_downward_green_24dp)
                     setProgressPercent(documentStatus.percentDone)
-                    progressBar!!.visibility = View.VISIBLE
+                    progressBar.visibility = View.VISIBLE
                 }
                 DocumentInstallStatus.UPGRADE_AVAILABLE -> {
-                    icon!!.setImageResource(R.drawable.ic_arrow_upward_amber_24dp)
-                    progressBar!!.visibility = View.INVISIBLE
+                    icon.setImageResource(R.drawable.ic_arrow_upward_amber_24dp)
+                    progressBar.visibility = View.INVISIBLE
                 }
                 DocumentInstallStatus.ERROR_DOWNLOADING -> {
-                    icon!!.setImageResource(R.drawable.ic_warning_red_24dp)
-                    progressBar!!.visibility = View.INVISIBLE
+                    icon.setImageResource(R.drawable.ic_warning_red_24dp)
+                    progressBar.visibility = View.INVISIBLE
                 }
             }
         }
@@ -109,9 +103,7 @@ class DocumentDownloadListItem : TwoLineListItem {
      * Should not need to check the initials but other items were being updated and I don't know why
      */
     private fun setProgressPercent(percentDone: Int) {
-        if (progressBar != null) {
-            progressBar!!.progress = percentDone
-        }
+        progressBar.progress = percentDone
     }
 
     /**
