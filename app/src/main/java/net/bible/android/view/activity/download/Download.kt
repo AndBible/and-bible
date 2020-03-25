@@ -55,7 +55,8 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        documentDownloadItemAdapter = DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, displayedDocuments, this)
+        documentDownloadItemAdapter = DocumentDownloadItemAdapter(
+            this, downloadControl, LIST_ITEM_TYPE, displayedDocuments)
         listAdapter = documentDownloadItemAdapter
 
         // in the basic flow we force the user to download a bible

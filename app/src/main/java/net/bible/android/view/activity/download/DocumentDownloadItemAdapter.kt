@@ -18,15 +18,12 @@
 package net.bible.android.view.activity.download
 
 import android.content.Context
-import android.graphics.Color
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.service.common.CommonUtils.getResourceColor
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -37,9 +34,15 @@ import org.crosswire.jsword.versification.system.SystemKJV
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DocumentDownloadItemAdapter(_context: Context?, private val downloadControl: DownloadControl, private val resource: Int, items: List<Book?>?, private val actionModeActivity: ActionModeActivity) : ArrayAdapter<Book?>(_context!!, resource, items!!) {
+class DocumentDownloadItemAdapter(
+    context: Context,
+    private val downloadControl: DownloadControl,
+    private val resource: Int,
+    items: List<Book>
+) : ArrayAdapter<Book>(context, resource, items)
+{
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val document = getItem(position)
+        val document = getItem(position)!!
 
         // Pick up the TwoLineListItem defined in the xml file
         val view: DocumentDownloadListItem
@@ -58,13 +61,13 @@ class DocumentDownloadItemAdapter(_context: Context?, private val downloadContro
         if (view.text1 != null) {
             // eBible repo uses abbreviation for initials and initials now contains the repo name!!!
             // but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
-            val initials = document!!.abbreviation
+            val initials = document.abbreviation
             view.text1.text = initials
         }
 
         // set value for the second text field
         if (view.text2 != null) {
-            var name = document!!.name
+            var name = document.name
             if (document is AbstractPassageBook) {
                 val bible = document
                 // display v11n name if not KJV
@@ -73,13 +76,6 @@ class DocumentDownloadItemAdapter(_context: Context?, private val downloadContro
                 }
             }
             view.text2.text = name
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            if (actionModeActivity.isItemChecked(position)) {
-                view.setBackgroundColor(ACTIVATED_COLOUR)
-            } else {
-                view.setBackgroundColor(Color.TRANSPARENT)
-            }
         }
         return view
     }

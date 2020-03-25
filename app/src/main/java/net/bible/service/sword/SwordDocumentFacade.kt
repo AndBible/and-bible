@@ -119,7 +119,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
     }
 
     @Throws(InstallException::class)
-    fun getDownloadableDocuments(refresh: Boolean): List<Book> {
+    fun getDownloadableDocuments(refresh: Boolean): MutableList<Book> {
         log.debug("Getting downloadable documents.  Refresh:$refresh")
         return try {
 			// there are so many sbmd's to load that we can only load what is required for the display list.
@@ -135,7 +135,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
             repoBookDeduplicator.addAll(repoFactory.lockmanRepo.getRepoBooks(refresh))
             val bookList = repoBookDeduplicator.books
             // get them in the correct order
-            Collections.sort(bookList)
+            bookList.sort()
             bookList
         } finally {
             SwordBookMetaData.setPartialLoading(false)
