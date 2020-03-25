@@ -38,14 +38,14 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
-    private var downloadControl: DownloadControl? = null
+    @Inject lateinit var downloadControl: DownloadControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        val documentItemAdapter = DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, this)
+        val documentItemAdapter = DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments)
         listAdapter = documentItemAdapter
         populateMasterDocumentList(false)
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
@@ -76,7 +76,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     override fun handleDocumentSelection(selectedDocument: Book?) {
         Log.d(TAG, "Book selected:" + selectedDocument!!.initials)
         try {
-            documentControl!!.changeDocument(selectedDocument)
+            documentControl.changeDocument(selectedDocument)
 
             // if key is valid then the new doc will have been shown already
             returnToPreviousScreen()
@@ -86,7 +86,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun setInitialDocumentType() {
-        setSelectedBookCategory(documentControl!!.currentCategory)
+        setSelectedBookCategory(documentControl.currentCategory)
     }
 
     /**
@@ -98,7 +98,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             R.id.downloadButton -> {
                 isHandled = true
                 try {
-                    if (downloadControl!!.checkDownloadOkay()) {
+                    if (downloadControl.checkDownloadOkay()) {
                         val handlerIntent = Intent(this, Download::class.java)
                         val requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                         startActivityForResult(handlerIntent, requestCode)
@@ -116,11 +116,6 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
             isHandled = super.onOptionsItemSelected(item)
         }
         return isHandled
-    }
-
-    @Inject
-    fun setDownloadControl(downloadControl: DownloadControl?) {
-        this.downloadControl = downloadControl
     }
 
     companion object {
