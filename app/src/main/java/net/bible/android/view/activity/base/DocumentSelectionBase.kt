@@ -98,7 +98,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         // prepare action mode
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)
         // trigger action mode on long press
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper!!.startActionMode(this@DocumentSelectionBase, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper.startActionMode(this@DocumentSelectionBase, position) }
         languageList.clear()
         displayedDocuments.clear()
 
