@@ -106,7 +106,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         setInitialDocumentType()
         documentTypeSpinner.setSelection(selectedDocumentFilterNo)
         documentTypeSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedDocumentFilterNo = position
                 filterDocuments()
             }
@@ -116,7 +116,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         //prepare the language spinner
         languageSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedLanguageNo = position
                 lastSelectedLanguage = languageList[selectedLanguageNo]
                 this@DocumentSelectionBase.filterDocuments()
