@@ -306,7 +306,9 @@ open class WindowRepository @Inject constructor(
 
         val historyManager = historyManagerProvider.get()
         val allWindows = ArrayList(windowList)
-        allWindows.add(dedicatedLinksWindow)
+        if(::dedicatedLinksWindow.isInitialized) {
+            allWindows.add(dedicatedLinksWindow)
+        }
 
         val windowEntities = allWindows.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
