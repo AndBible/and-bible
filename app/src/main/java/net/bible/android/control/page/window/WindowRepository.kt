@@ -335,7 +335,7 @@ open class WindowRepository @Inject constructor(
      */
 
     fun loadFromDb(workspaceId: Long) {
-        Log.d(TAG, "onLoadDb $workspaceId")
+        Log.d(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
                 id = dao.insertWorkspace(this)
