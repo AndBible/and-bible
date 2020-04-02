@@ -20,7 +20,7 @@
 			android:layout_height="match_parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			android:layout_marginTop="18dip"
+			android:layout_marginTop="13dip"
 			android:layout_marginEnd="10dip"
 			>
 			<ImageView android:id="@+id/documentTypeIcon"
@@ -55,7 +55,7 @@
 				app:srcCompat="@drawable/ic_star_black_24dp"
 				app:tint="@color/yellow_600" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
-		<TextView android:id="@+id/text1"
+		<TextView android:id="@+id/documentAbbreviation"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="6dip"
@@ -65,19 +65,27 @@
 			app:layout_constraintTop_toTopOf="parent"
 			/>
 		
-		<TextView android:id="@+id/text2"
+		<TextView android:id="@+id/documentName"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			app:layout_constraintStart_toStartOf="@id/text1"
-			app:layout_constraintTop_toBottomOf="@id/text1"
+			app:layout_constraintStart_toStartOf="@id/documentAbbreviation"
+			app:layout_constraintTop_toBottomOf="@id/documentAbbreviation"
 			android:textAppearance="?android:textAppearanceSmall" />
-
+		<TextView android:id="@+id/documentLanguage"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="@id/icons"
+			app:layout_constraintTop_toBottomOf="@id/icons"
+			android:maxLines="1"
+			android:ellipsize="end"
+			android:textAppearance="?android:textAppearanceSmall" />
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			app:layout_constraintTop_toBottomOf="@id/text2"
-			app:layout_constraintStart_toStartOf="@id/text2"
+			app:layout_constraintTop_toBottomOf="@id/documentName"
+			app:layout_constraintStart_toStartOf="@id/documentName"
 			app:layout_constraintEnd_toEndOf="parent"
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>

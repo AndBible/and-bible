@@ -303,8 +303,15 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                 displayedDocuments.sortWith(
                     compareBy (
-                        {it.bookCategory},
                         {!it.isRecommended(recommendedDocuments)},
+                        {when(it.bookCategory) {
+                            BookCategory.BIBLE -> 0
+                            BookCategory.COMMENTARY -> 1
+                            BookCategory.DICTIONARY -> 2
+                            BookCategory.GENERAL_BOOK -> 4
+                            BookCategory.MAPS -> 5
+                            else -> 6
+                        } },
                         {it.abbreviation.toLowerCase(Locale(it.language.code))}
                     )
                 )

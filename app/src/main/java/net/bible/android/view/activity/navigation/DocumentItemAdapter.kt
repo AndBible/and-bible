@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.main.list_item_2_highlighted.view.*
+import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
@@ -53,15 +53,14 @@ class DocumentItemAdapter(
         view.setIcons()
 
         // Set value for the first text field
-        if (view.text1 != null) {
+        if (view.documentAbbreviation != null) {
             // eBible repo uses abbreviation for initials and initials now contains the repo name!!!
             // but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
-            val initials = document.abbreviation
-            view.text1.text = initials
+            view.documentAbbreviation.text = document.abbreviation
         }
 
         // set value for the second text field
-        if (view.text2 != null) {
+        if (view.documentName != null) {
             var name = document.name
             if (document is AbstractPassageBook) {
                 val bible = document
@@ -70,7 +69,7 @@ class DocumentItemAdapter(
                     name += " (" + bible.versification.name + ")"
                 }
             }
-            view.text2.text = name
+            view.documentName.text = name
         }
         return view
     }

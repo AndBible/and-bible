@@ -61,15 +61,15 @@ class DocumentDownloadItemAdapter(
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field
-        if (view.text1 != null) {
+        if (view.documentAbbreviation != null) {
             // eBible repo uses abbreviation for initials and initials now contains the repo name!!!
             // but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
             val initials = document.abbreviation
-            view.text1.text = initials
+            view.documentAbbreviation.text = initials
         }
 
         // set value for the second text field
-        if (view.text2 != null) {
+        if (view.documentName != null) {
             var name = document.name
             if (document is AbstractPassageBook) {
                 val bible = document
@@ -78,7 +78,7 @@ class DocumentDownloadItemAdapter(
                     name += " (" + bible.versification.name + ")"
                 }
             }
-            view.text2.text = name
+            view.documentName.text = name
         }
         return view
     }

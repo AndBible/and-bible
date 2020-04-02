@@ -42,15 +42,10 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments): Boolean
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DocumentListItem : LinearLayout {
+class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
     lateinit var recommendedDocuments: RecommendedDocuments
 
     lateinit var document: Book
-
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?,
-                defStyle: Int) : super(context, attrs, defStyle)
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -59,15 +54,9 @@ class DocumentListItem : LinearLayout {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-
-        // View is now detached, and about to be destroyed.
-        // de-register from EventBus
         ABEventBus.getDefault().unregister(this)
     }
 
-    /**
-     * Download progress event
-     */
     fun onEventMainThread(event: DocumentDownloadEvent) {
         if (event.initials == document.initials) {
             updateControlState(event.documentStatus)
@@ -78,7 +67,7 @@ class DocumentListItem : LinearLayout {
         val docImage = when(document.bookCategory) {
             BookCategory.BIBLE -> R.drawable.ic_bible
             BookCategory.COMMENTARY -> R.drawable.ic_commentary
-            BookCategory.DICTIONARY -> R.drawable.ic_list_black_24dp
+            BookCategory.DICTIONARY -> R.drawable.ic_dictionary
             BookCategory.MAPS -> R.drawable.ic_map_black_24dp
             BookCategory.GENERAL_BOOK -> R.drawable.ic_book
             else -> null
@@ -89,6 +78,7 @@ class DocumentListItem : LinearLayout {
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
+        documentLanguage.text = document.language.name
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {
