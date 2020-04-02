@@ -14,25 +14,45 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		>
-		<ImageView android:id="@+id/downloadStatusIcon"
-			android:layout_width="24dp"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginStart="2dip"
-			android:duplicateParentState="true"
-			android:layout_centerVertical="true"
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/icons"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintBottom_toBottomOf="parent"
-			/>
-    
+			android:layout_marginTop="18dip"
+			android:layout_marginEnd="10dip"
+			>
+			<ImageView android:id="@+id/documentTypeIcon"
+				android:layout_width="24dp"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginStart="2dip"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:tint="@color/grey_600" />
+			<ImageView android:id="@+id/downloadStatusIcon"
+				android:layout_width="24dp"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginStart="2dip"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent"
+				/>
+		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/text1"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="6dip"
 			android:layout_marginTop="6dip"
 			android:textAppearance="?attr/textAppearanceListItem"
-			app:layout_constraintStart_toEndOf="@id/downloadStatusIcon"
+			app:layout_constraintStart_toEndOf="@id/icons"
 			app:layout_constraintTop_toTopOf="parent"
 			/>
 		
@@ -48,7 +68,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintTop_toBottomOf="@id/text2"
-			app:layout_constraintStart_toEndOf="@id/downloadStatusIcon"
+			app:layout_constraintStart_toStartOf="@id/text2"
 			app:layout_constraintEnd_toEndOf="parent"
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,6 +28,7 @@ import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 
 /** Add an image to the normal 2 line list item
  *
@@ -70,6 +71,14 @@ class DocumentDownloadListItem : LinearLayout {
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {
+        val docImage = when(document?.bookCategory) {
+            BookCategory.BIBLE -> R.drawable.ic_bible
+            BookCategory.COMMENTARY -> R.drawable.ic_commentary
+            else -> null
+        }
+        if(docImage != null) {
+            documentTypeIcon.setImageResource(docImage)
+        }
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
