@@ -19,6 +19,8 @@ package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -27,7 +29,6 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.MultiAutoCompleteTextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -65,8 +66,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-val ALL_LANGUAGES = "*all*"
-
 @Serializable
 data class RecommendedDocuments(
     val bibles: Map<String, List<String>>,
@@ -92,7 +91,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     // language spinner
     private val languageList = ArrayList<Language>()
-    private var selectedLanguageNo = -1
+    protected var selectedLanguageNo = -1
     lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     var isPopulated = false
@@ -148,26 +147,44 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
 
         languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-
             val lang = parent.adapter.getItem(position) as Language
             lastSelectedLanguage = lang
             selectedLanguageNo = languageList.indexOf(lang)
             this@DocumentSelectionBase.filterDocuments()
         }
 
+        languageSpinner.setOnClickListener {languageSpinner.showDropDown()}
+        languageSpinner.addTextChangedListener( object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val langString = s.toString()
+                if(langString.isEmpty()) {
+                    selectedLanguageNo = -1
+                    this@DocumentSelectionBase.filterDocuments()
+                } else {
+                    val langIdx = languageList.indexOfFirst {it.name == langString}
+                    if(langIdx != -1) {
+                        selectedLanguageNo = langIdx
+                        this@DocumentSelectionBase.filterDocuments()
+                    }
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+        })
+
         langArrayAdapter = ArrayAdapter(this,
             android.R.layout.simple_spinner_dropdown_item,
             languageList
         )
-        languageSpinner.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                languageSpinner.showDropDown()
-            }
-        }
         languageSpinner.setAdapter(langArrayAdapter)
     }
 
-    private fun setDefaultLanguage() {
+    open fun setDefaultLanguage() {
         if (selectedLanguageNo == -1) {
             val lang: Language?
             // make selected language sticky
@@ -179,6 +196,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 defaultLanguage
             }
             selectedLanguageNo = languageList.indexOf(lang)
+            languageSpinner.setText(lang.name)
         }
 
         // if last doc in last lang was just deleted then need to adjust index
@@ -304,7 +322,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val lang = selectedLanguage
                 for (doc in allDocuments) {
                     val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                    if (filter.test(doc) && (doc.language == lang || lang?.code == ALL_LANGUAGES) ) {
+                    if (filter.test(doc) && (lang == null || doc.language == lang) ) {
                         displayedDocuments.add(doc)
                     }
                 }
@@ -342,7 +360,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 for (doc in allDocuments) {
                     langSet.add(doc.language)
                 }
-                langSet.add(Language(ALL_LANGUAGES))
                 val sortedLanguages = sortLanguages(langSet)
                 languageList.clear()
                 languageList.addAll(sortedLanguages)
@@ -539,13 +556,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private val selectedLanguage: Language?
-        get() {
-            if (selectedLanguageNo == -1) {
-                setDefaultLanguage()
-            }
-            return languageList[selectedLanguageNo]
-        }
+    private val selectedLanguage: Language? get() {
+        if(selectedLanguageNo == -1) return null
+        return languageList[selectedLanguageNo]
+    }
 
     /** allow selection of initial doc type
      */
