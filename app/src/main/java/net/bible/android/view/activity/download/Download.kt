@@ -26,15 +26,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import java.util.*
 import javax.inject.Inject
 
@@ -46,9 +50,32 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+@Serializable
+data class RecommendedDocuments(
+    val bibles: Map<String, List<String>>,
+    val commentaries: Map<String, List<String>>,
+    val dictionaries: Map<String, List<String>>,
+    val books: Map<String, List<String>>,
+    val maps: Map<String, List<String>>
+)
+
+data class DocumentFilter(
+    val languages: List<Language>,
+    val documentTypes: List<BookCategory>
+)
+
+
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     private var documentDownloadItemAdapter: DocumentDownloadItemAdapter? = null
     @Inject lateinit var downloadControl: DownloadControl
+
+    private val recommendedDocuments : RecommendedDocuments by lazy {
+        val jsonString = String(
+            assets.open("recommended_documents.json").readBytes()
+        )
+        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    }
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {

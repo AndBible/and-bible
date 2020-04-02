@@ -1,0 +1,14 @@
+{
+  "bibles":  {
+    "en": ["NASB", "KJV"],
+    "fi": ["FinRK", "FinSTLK2017"]
+  },
+  "commentaries": {
+    "en": ["Gill", "MHC", "TSK"]
+  },
+  "dictionaries": {
+    "en": ["StrongsGreek", "StrongsHebrew"]
+  },
+  "books": {},
+  "maps": {}
+}

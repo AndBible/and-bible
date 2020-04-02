@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -28,7 +27,6 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Spinner
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -459,6 +457,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
 
                 $versificationMsg
+                """.trimIndent()
+        }
+
+        // add id
+        if (document is SwordBook) {
+            val osisIdMessage = BibleApplication.application.getString(R.string.about_osisId, document.osisID)
+            about += """
+
+
+                $osisIdMessage
                 """.trimIndent()
         }
         AlertDialog.Builder(this)

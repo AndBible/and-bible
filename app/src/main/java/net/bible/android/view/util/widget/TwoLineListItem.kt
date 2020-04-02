@@ -36,10 +36,9 @@ import android.widget.RelativeLayout
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class TwoLineListItem @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
+open class TwoLineListItem constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+    : RelativeLayout(context, attrs, defStyleAttr) {
     override fun getAccessibilityClassName(): CharSequence {
         return TwoLineListItem::class.java.name
     }
