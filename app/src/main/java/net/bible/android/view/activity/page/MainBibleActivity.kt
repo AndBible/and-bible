@@ -660,8 +660,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun updateActions() {
         updateTitle()
 
-        val suggestedBible = documentControl.suggestedBible
-        val suggestedCommentary = documentControl.suggestedCommentary
+        val biblesForVerse = documentControl.biblesForVerse
+        val commentariesForVerse = documentControl.commentariesForVerse
 
         var visibleButtonCount = 0
         val screenWidth = resources.displayMetrics.widthPixels
@@ -670,14 +670,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
-        bibleButton.visibility = if (visibleButtonCount < maxButtons && suggestedBible != null) {
-            bibleButton.setOnClickListener { menuForDocs(it, documentControl.biblesForVerse) }
+        bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
+            bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
-        commentaryButton.visibility = if (suggestedCommentary != null && visibleButtonCount < maxButtons) {
-            commentaryButton.setOnClickListener { menuForDocs(it, documentControl.commentariesForVerse) }
+        commentaryButton.visibility = if (commentariesForVerse.isNotEmpty() && visibleButtonCount < maxButtons) {
+            commentaryButton.setOnClickListener { menuForDocs(it, commentariesForVerse) }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE

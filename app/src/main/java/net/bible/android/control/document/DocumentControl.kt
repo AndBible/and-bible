@@ -84,9 +84,10 @@ class DocumentControl @Inject constructor(
     }
 
     val biblesForVerse : List<Book>
-        get () = swordDocumentFacade.bibles.filter { it -> bookFilter.test(it) }
+        get () = swordDocumentFacade.bibles.sortedBy { it -> bookFilter.test(it) }
+
     val commentariesForVerse: List<Book>
-        get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).filter { it -> commentaryFilter.test(it) }
+        get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { it -> commentaryFilter.test(it) }
 
     val isMyNotes: Boolean
         get () = currentPage.isMyNoteShown
@@ -103,46 +104,13 @@ class DocumentControl @Inject constructor(
     val currentDocument: Book?
         get () = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
 
-    val suggestedBible: Book?
-        get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
-            val currentBible = currentPageManager.currentBible.currentDocument
-
-            return getSuggestedBook(swordDocumentFacade.bibles, currentBible, bookFilter, currentPageManager.isBibleShown)
-        }
-
-    /** Suggest an alternative commentary to view or return null
-     */
-    // only show commentaries that contain verse - extra checks for TDavid because it always returns true
-    // book claims to contain the verse but
-    // TDavid has a flawed index and incorrectly claims to contain contents for all books of the
-    // bible so only return true if !TDavid or is Psalms
-    val suggestedCommentary: Book?
-        get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
-            val currentCommentary = currentPageManager.currentCommentary.currentDocument
-
-            return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY),
-                    currentCommentary, commentaryFilter, currentPageManager.isCommentaryShown)
-        }
-
-    /** Suggest an alternative dictionary to view or return null
-     */
-    val suggestedDictionary: Book?
-        get() {
-            val currentPageManager = activeWindowPageManagerProvider.activeWindowPageManager
-            val currentDictionary = currentPageManager.currentDictionary.currentDocument
-            return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.DICTIONARY),
-                    currentDictionary, null, currentPageManager.isDictionaryShown)
-        }
-
     /**
      * Possible books will often not include the current verse but most will include chap 1 verse 1
      */
     private val requiredVerseForSuggestions: ConvertibleVerse
         get() {
             val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey
-            return ConvertibleVerse(currentVerse.book, 1, 1)
+            return ConvertibleVerse(currentVerse)
         }
 
     /**
