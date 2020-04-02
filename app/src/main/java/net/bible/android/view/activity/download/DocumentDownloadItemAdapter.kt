@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.view.activity.base.RecommendedDocuments
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -37,7 +38,8 @@ class DocumentDownloadItemAdapter(
     context: Context,
     private val downloadControl: DownloadControl,
     private val resource: Int,
-    items: List<Book>
+    items: List<Book>,
+    private val recommendedDocuments: RecommendedDocuments
 ) : ArrayAdapter<Book>(context, resource, items)
 {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -54,7 +56,8 @@ class DocumentDownloadItemAdapter(
 
         // remember which item is being shown
         view.document = document
-        view.setDocumentTypeIcon()
+        view.recommendedDocuments = recommendedDocuments
+        view.setIcons()
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field

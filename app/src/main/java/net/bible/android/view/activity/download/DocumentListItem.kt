@@ -27,26 +27,30 @@ import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
+import net.bible.android.view.activity.base.RecommendedDocuments
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+
+fun Book.isRecommended(recommendedDocuments: RecommendedDocuments): Boolean
+{
+    val osisIdKey = osisID.split(".")[1]
+    return recommendedDocuments
+        .getForBookCategory(bookCategory)[language.code]?.contains(osisIdKey) == true
+}
 
 /** Add an image to the normal 2 line list item
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentListItem : LinearLayout {
-    /** document being shown  */
-    var document: Book? = null
-        set(document: Book?) {
-            field = document
-            ensureRegisteredForDownloadEvents()
-        }
+    lateinit var recommendedDocuments: RecommendedDocuments
 
-    constructor(context: Context) : super(context) {}
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+    lateinit var document: Book
+
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet?,
-                defStyle: Int) : super(context, attrs, defStyle) {
-    }
+                defStyle: Int) : super(context, attrs, defStyle)
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -65,13 +69,13 @@ class DocumentListItem : LinearLayout {
      * Download progress event
      */
     fun onEventMainThread(event: DocumentDownloadEvent) {
-        if (document != null && event.initials == document!!.initials) {
+        if (event.initials == document.initials) {
             updateControlState(event.documentStatus)
         }
     }
 
-    fun setDocumentTypeIcon() {
-        val docImage = when(document?.bookCategory) {
+    fun setIcons() {
+        val docImage = when(document.bookCategory) {
             BookCategory.BIBLE -> R.drawable.ic_bible
             BookCategory.COMMENTARY -> R.drawable.ic_commentary
             else -> null
@@ -79,6 +83,9 @@ class DocumentListItem : LinearLayout {
         if(docImage != null) {
             documentTypeIcon.setImageResource(docImage)
         }
+
+        val isRecommended = document.isRecommended(recommendedDocuments)
+        recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {

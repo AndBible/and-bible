@@ -50,7 +50,7 @@ class DocumentItemAdapter(
             convertView as DocumentListItem
         }
         view.document = document
-        view.setDocumentTypeIcon()
+        view.setIcons()
 
         // Set value for the first text field
         if (view.text1 != null) {

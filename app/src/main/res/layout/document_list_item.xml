@@ -36,7 +36,7 @@
 				app:tint="@color/grey_600" />
 			<ImageView android:id="@+id/downloadStatusIcon"
 				android:layout_width="24dp"
-				android:layout_height="wrap_content"
+				android:layout_height="24dp"
 				android:layout_gravity="center_vertical"
 				android:layout_marginStart="2dip"
 				android:duplicateParentState="true"
@@ -45,6 +45,15 @@
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintBottom_toBottomOf="parent"
 				/>
+			<ImageView android:id="@+id/recommendedIcon"
+				android:layout_width="15dp"
+				android:layout_height="15dp"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toStartOf="@id/downloadStatusIcon"
+				app:layout_constraintTop_toTopOf="@id/downloadStatusIcon"
+				app:srcCompat="@drawable/ic_star_black_24dp"
+				app:tint="@color/yellow_600" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		<TextView android:id="@+id/text1"
 			android:layout_width="0dp"

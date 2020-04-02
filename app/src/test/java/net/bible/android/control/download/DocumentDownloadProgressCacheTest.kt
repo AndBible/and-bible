@@ -83,7 +83,7 @@ class DocumentDownloadProgressCacheTest {
             progress.work = 33
             val activity = Robolectric.buildActivity(Activity::class.java).create().get()
             documentDownloadListItem = LayoutInflater.from(activity).inflate(R.layout.document_list_item, null) as DocumentListItem
-            documentDownloadListItem!!.document = document
+            documentDownloadListItem!!.document = document!!
             progressBar = documentDownloadListItem!!.progressBar
         }
     }

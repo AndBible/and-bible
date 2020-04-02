@@ -33,11 +33,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
+import net.bible.android.view.activity.download.isRecommended
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
@@ -59,6 +63,27 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+@Serializable
+data class RecommendedDocuments(
+    val bibles: Map<String, List<String>>,
+    val commentaries: Map<String, List<String>>,
+    val dictionaries: Map<String, List<String>>,
+    val books: Map<String, List<String>>,
+    val maps: Map<String, List<String>>
+) {
+    fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
+        return when(c) {
+            BookCategory.BIBLE -> bibles
+            BookCategory.COMMENTARY -> commentaries
+            BookCategory.GENERAL_BOOK -> books
+            BookCategory.MAPS -> maps
+            BookCategory.DICTIONARY -> dictionaries
+            else -> emptyMap()
+        }
+    }
+}
+
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
     private var selectedDocumentFilterNo = 0
 
@@ -68,6 +93,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     var isPopulated = false
+
+    protected val recommendedDocuments : RecommendedDocuments by lazy {
+        val jsonString = String(
+            assets.open("recommended_documents.json").readBytes()
+        )
+        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    }
 
     // the document list
     private var allDocuments = ArrayList<Book>()
@@ -269,8 +301,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 }
 
-                // sort by initials because that is field 1
-                displayedDocuments.sortWith(Comparator { o1, o2 -> o1.abbreviation.compareTo(o2.abbreviation, ignoreCase = true) })
+                displayedDocuments.sortWith(
+                    compareBy (
+                        {!it.isRecommended(recommendedDocuments)},
+                        {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                    )
+                )
                 notifyDataSetChanged()
             }
         } catch (e: Exception) {
