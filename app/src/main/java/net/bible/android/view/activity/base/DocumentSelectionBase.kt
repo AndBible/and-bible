@@ -201,7 +201,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         // if last doc in last lang was just deleted then need to adjust index
         checkSpinnerIndexesValid()
-        //languageSpinner.setSelection(selectedLanguageNo)
     }
 
     // get the current language code

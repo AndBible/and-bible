@@ -48,11 +48,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-data class DocumentFilter(
-    val languages: List<Language>,
-    val documentTypes: List<BookCategory>
-)
-
 
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     private var documentDownloadItemAdapter: DocumentDownloadItemAdapter? = null
