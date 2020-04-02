@@ -54,6 +54,7 @@ class DocumentDownloadItemAdapter(
 
         // remember which item is being shown
         view.document = document
+        view.setDocumentTypeIcon()
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field

@@ -70,7 +70,7 @@ class DocumentListItem : LinearLayout {
         }
     }
 
-    fun updateControlState(documentStatus: DocumentStatus) {
+    fun setDocumentTypeIcon() {
         val docImage = when(document?.bookCategory) {
             BookCategory.BIBLE -> R.drawable.ic_bible
             BookCategory.COMMENTARY -> R.drawable.ic_commentary
@@ -79,6 +79,9 @@ class DocumentListItem : LinearLayout {
         if(docImage != null) {
             documentTypeIcon.setImageResource(docImage)
         }
+    }
+
+    fun updateControlState(documentStatus: DocumentStatus) {
         when (documentStatus.documentInstallStatus) {
             DocumentInstallStatus.INSTALLED -> {
                 downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
