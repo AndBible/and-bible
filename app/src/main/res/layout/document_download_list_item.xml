@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.bible.android.view.activity.download.DocumentDownloadListItem xmlns:android="http://schemas.android.com/apk/res/android"
+<net.bible.android.view.activity.download.DocumentListItem xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:paddingTop="2dip"
 	android:paddingBottom="2dip"
@@ -73,4 +73,4 @@
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-</net.bible.android.view.activity.download.DocumentDownloadListItem>
+</net.bible.android.view.activity.download.DocumentListItem>

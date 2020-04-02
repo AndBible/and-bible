@@ -34,7 +34,7 @@ import org.crosswire.jsword.book.BookCategory
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DocumentDownloadListItem : LinearLayout {
+class DocumentListItem : LinearLayout {
     /** document being shown  */
     var document: Book? = null
         set(document: Book?) {

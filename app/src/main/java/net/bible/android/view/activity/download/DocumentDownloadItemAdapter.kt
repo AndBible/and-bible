@@ -44,12 +44,12 @@ class DocumentDownloadItemAdapter(
         val document = getItem(position)!!
 
         // Pick up the TwoLineListItem defined in the xml file
-        val view: DocumentDownloadListItem
+        val view: DocumentListItem
         view = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(resource, parent, false) as DocumentDownloadListItem
+            inflater.inflate(resource, parent, false) as DocumentListItem
         } else {
-            convertView as DocumentDownloadListItem
+            convertView as DocumentListItem
         }
 
         // remember which item is being shown
