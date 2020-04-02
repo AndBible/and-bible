@@ -18,8 +18,9 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.os.AsyncTask
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -28,18 +29,21 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Spinner
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
+import net.bible.android.view.activity.download.isRecommended
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
@@ -61,15 +65,43 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+@Serializable
+data class RecommendedDocuments(
+    val bibles: Map<String, List<String>>,
+    val commentaries: Map<String, List<String>>,
+    val dictionaries: Map<String, List<String>>,
+    val books: Map<String, List<String>>,
+    val maps: Map<String, List<String>>
+) {
+    fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
+        return when(c) {
+            BookCategory.BIBLE -> bibles
+            BookCategory.COMMENTARY -> commentaries
+            BookCategory.GENERAL_BOOK -> books
+            BookCategory.MAPS -> maps
+            BookCategory.DICTIONARY -> dictionaries
+            else -> emptyMap()
+        }
+    }
+}
+
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
     private var selectedDocumentFilterNo = 0
 
     // language spinner
     private val languageList = ArrayList<Language>()
-    private var selectedLanguageNo = -1
+    protected var selectedLanguageNo = -1
     lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     var isPopulated = false
+
+    protected val recommendedDocuments : RecommendedDocuments by lazy {
+        val jsonString = String(
+            assets.open("recommended_documents.json").readBytes()
+        )
+        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    }
 
     // the document list
     private var allDocuments = ArrayList<Book>()
@@ -114,22 +146,45 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             override fun onNothingSelected(arg0: AdapterView<*>?) {}
         }
 
-        //prepare the language spinner
-        languageSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedLanguageNo = position
-                lastSelectedLanguage = languageList[selectedLanguageNo]
-                this@DocumentSelectionBase.filterDocuments()
+        languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            val lang = parent.adapter.getItem(position) as Language
+            lastSelectedLanguage = lang
+            selectedLanguageNo = languageList.indexOf(lang)
+            this@DocumentSelectionBase.filterDocuments()
+        }
+
+        languageSpinner.setOnClickListener {languageSpinner.showDropDown()}
+        languageSpinner.addTextChangedListener( object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val langString = s.toString()
+                if(langString.isEmpty()) {
+                    selectedLanguageNo = -1
+                    this@DocumentSelectionBase.filterDocuments()
+                } else {
+                    val langIdx = languageList.indexOfFirst {it.name == langString}
+                    if(langIdx != -1) {
+                        selectedLanguageNo = langIdx
+                        this@DocumentSelectionBase.filterDocuments()
+                    }
+                }
             }
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
-        }
-        langArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList)
-        langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = langArrayAdapter
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+        })
+
+        langArrayAdapter = ArrayAdapter(this,
+            android.R.layout.simple_spinner_dropdown_item,
+            languageList
+        )
+        languageSpinner.setAdapter(langArrayAdapter)
     }
 
-    private fun setDefaultLanguage() {
+    open fun setDefaultLanguage() {
         if (selectedLanguageNo == -1) {
             val lang: Language?
             // make selected language sticky
@@ -141,11 +196,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 defaultLanguage
             }
             selectedLanguageNo = languageList.indexOf(lang)
+            languageSpinner.setText(lang.name)
         }
 
         // if last doc in last lang was just deleted then need to adjust index
         checkSpinnerIndexesValid()
-        languageSpinner.setSelection(selectedLanguageNo)
     }
 
     // get the current language code
@@ -266,13 +321,25 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val lang = selectedLanguage
                 for (doc in allDocuments) {
                     val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                    if (filter.test(doc) && doc.language == lang) {
+                    if (filter.test(doc) && (lang == null || doc.language == lang) ) {
                         displayedDocuments.add(doc)
                     }
                 }
 
-                // sort by initials because that is field 1
-                displayedDocuments.sortWith(Comparator { o1, o2 -> o1.abbreviation.compareTo(o2.abbreviation, ignoreCase = true) })
+                displayedDocuments.sortWith(
+                    compareBy (
+                        {!it.isRecommended(recommendedDocuments)},
+                        {when(it.bookCategory) {
+                            BookCategory.BIBLE -> 0
+                            BookCategory.COMMENTARY -> 1
+                            BookCategory.DICTIONARY -> 2
+                            BookCategory.GENERAL_BOOK -> 4
+                            BookCategory.MAPS -> 5
+                            else -> 6
+                        } },
+                        {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                    )
+                )
                 notifyDataSetChanged()
             }
         } catch (e: Exception) {
@@ -461,6 +528,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 $versificationMsg
                 """.trimIndent()
         }
+
+        // add id
+        if (document is SwordBook) {
+            val osisIdMessage = BibleApplication.application.getString(R.string.about_osisId, document.osisID)
+            about += """
+
+
+                $osisIdMessage
+                """.trimIndent()
+        }
         AlertDialog.Builder(this)
             .setMessage(about)
             .setCancelable(false)
@@ -478,13 +555,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private val selectedLanguage: Language?
-        get() {
-            if (selectedLanguageNo == -1) {
-                setDefaultLanguage()
-            }
-            return languageList[selectedLanguageNo]
-        }
+    private val selectedLanguage: Language? get() {
+        if(selectedLanguageNo == -1) return null
+        return languageList[selectedLanguageNo]
+    }
 
     /** allow selection of initial doc type
      */
@@ -510,11 +584,14 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     companion object {
-        private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(BookFilters.getBibles(),
+        private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
+            BookFilters.getAll(),
+            BookFilters.getBibles(),
             BookFilters.getCommentaries(),
             BookFilters.getDictionaries(),
             BookFilters.getGeneralBooks(),
-            BookFilters.getMaps())
+            BookFilters.getMaps()
+        )
         private var lastSelectedLanguage // allow sticky language selection
             : Language? = null
         private const val TAG = "DocumentSelectionBase"

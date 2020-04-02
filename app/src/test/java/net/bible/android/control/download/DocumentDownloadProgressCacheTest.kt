@@ -3,11 +3,11 @@ package net.bible.android.control.download
 import android.app.Activity
 import android.view.LayoutInflater
 import android.widget.ProgressBar
-import kotlinx.android.synthetic.main.document_download_list_item.view.*
+import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.view.activity.download.DocumentDownloadListItem
+import net.bible.android.view.activity.download.DocumentListItem
 import net.bible.service.download.FakeSwordBookFactory
 import net.bible.test.DatabaseResetter
 import org.crosswire.common.progress.JobManager
@@ -68,7 +68,7 @@ class DocumentDownloadProgressCacheTest {
         var initials = "KJV"
         var document: Book? = null
         var progress = JobManager.createJob("INSTALL_BOOK-$initials", "Installing King James Version", null)
-        var documentDownloadListItem: DocumentDownloadListItem? = null
+        var documentDownloadListItem: DocumentListItem? = null
         var progressBar: ProgressBar? = null
 
         init {
@@ -82,8 +82,8 @@ class DocumentDownloadProgressCacheTest {
             progress.totalWork = 100
             progress.work = 33
             val activity = Robolectric.buildActivity(Activity::class.java).create().get()
-            documentDownloadListItem = LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null) as DocumentDownloadListItem
-            documentDownloadListItem!!.document = document
+            documentDownloadListItem = LayoutInflater.from(activity).inflate(R.layout.document_list_item, null) as DocumentListItem
+            documentDownloadListItem!!.document = document!!
             progressBar = documentDownloadListItem!!.progressBar
         }
     }

@@ -103,8 +103,7 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
         if (languages != null) {
             languageList.addAll(languages)
 
-            // sort languages alphabetically
-            Collections.sort(languageList, RelevantLanguageSorter(Books.installed().books))
+            RelevantLanguageSorter.sort(languageList, Books.installed().books)
         }
         return languageList
     }

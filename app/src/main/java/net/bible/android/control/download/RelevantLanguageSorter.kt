@@ -47,6 +47,14 @@ class RelevantLanguageSorter(installedDocuments: List<Book>) : Comparator<Langua
     }
 
     companion object {
+        fun sort(languageList: MutableList<Language>, books: List<Book>) {
+            val sorter = RelevantLanguageSorter(books)
+            languageList.sortWith(compareBy(
+                {!sorter.relevantLanguages.contains(it.code)},
+                {it.name}
+            ))
+        }
+
         private val MAJOR_LANGUAGE_CODES = arrayOf("en", "de", "fr", "grc", "he", "ru", "ar", "zh", "pt")
     }
 

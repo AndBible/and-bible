@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.bible.android.view.activity.download.DocumentListItem xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:paddingTop="2dip"
+	android:paddingBottom="2dip"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:minHeight="?android:attr/listPreferredItemHeight"
+	android:mode="twoLine"
+	android:paddingLeft="16dp"
+	android:paddingRight="16dp"
+	android:background="@drawable/selectable_background">
+    <androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		>
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:id="@+id/icons"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			android:layout_marginTop="13dip"
+			android:layout_marginEnd="10dip"
+			>
+			<ImageView android:id="@+id/documentTypeIcon"
+				android:layout_width="24dp"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginStart="2dip"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:tint="@color/grey_600" />
+			<ImageView android:id="@+id/downloadStatusIcon"
+				android:layout_width="24dp"
+				android:layout_height="24dp"
+				android:layout_gravity="center_vertical"
+				android:layout_marginStart="2dip"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toBottomOf="parent"
+				/>
+			<ImageView android:id="@+id/recommendedIcon"
+				android:layout_width="15dp"
+				android:layout_height="15dp"
+				android:duplicateParentState="true"
+				android:layout_centerVertical="true"
+				app:layout_constraintStart_toStartOf="@id/downloadStatusIcon"
+				app:layout_constraintTop_toTopOf="@id/downloadStatusIcon"
+				app:srcCompat="@drawable/ic_star_black_24dp"
+				app:tint="@color/yellow_600" />
+		</androidx.constraintlayout.widget.ConstraintLayout>
+		<TextView android:id="@+id/documentAbbreviation"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="6dip"
+			android:layout_marginTop="6dip"
+			android:textAppearance="?attr/textAppearanceListItem"
+			app:layout_constraintStart_toEndOf="@id/icons"
+			app:layout_constraintTop_toTopOf="parent"
+			/>
+		<TextView android:id="@+id/documentName"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="@id/documentAbbreviation"
+			app:layout_constraintTop_toBottomOf="@id/documentAbbreviation"
+			app:layout_constraintEnd_toEndOf="parent"
+			android:textAppearance="?android:textAppearanceSmall" />
+		<TextView android:id="@+id/documentLanguage"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="@id/icons"
+			app:layout_constraintTop_toBottomOf="@id/icons"
+			android:maxLines="1"
+			android:ellipsize="end"
+			android:textAppearance="?android:textAppearanceSmall" />
+		<ProgressBar android:id="@+id/progressBar"
+			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintTop_toBottomOf="@id/documentName"
+			app:layout_constraintStart_toStartOf="@id/documentName"
+			app:layout_constraintEnd_toEndOf="parent"
+			android:visibility="invisible"/>
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</net.bible.android.view.activity.download.DocumentListItem>

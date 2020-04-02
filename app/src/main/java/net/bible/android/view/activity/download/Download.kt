@@ -35,6 +35,7 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import java.util.*
 import javax.inject.Inject
 
@@ -46,6 +47,8 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     private var documentDownloadItemAdapter: DocumentDownloadItemAdapter? = null
     @Inject lateinit var downloadControl: DownloadControl
@@ -56,7 +59,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         buildActivityComponent().inject(this)
         initialiseView()
         documentDownloadItemAdapter = DocumentDownloadItemAdapter(
-            this, downloadControl, LIST_ITEM_TYPE, displayedDocuments)
+            this, downloadControl, LIST_ITEM_TYPE, displayedDocuments, recommendedDocuments)
         listAdapter = documentDownloadItemAdapter
 
         // in the basic flow we force the user to download a bible
@@ -210,7 +213,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
     }
 
     companion object {
-        private const val LIST_ITEM_TYPE = R.layout.document_download_list_item
+        private const val LIST_ITEM_TYPE = R.layout.document_list_item
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
