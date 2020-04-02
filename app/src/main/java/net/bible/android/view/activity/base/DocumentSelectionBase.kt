@@ -303,6 +303,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                 displayedDocuments.sortWith(
                     compareBy (
+                        {it.bookCategory},
                         {!it.isRecommended(recommendedDocuments)},
                         {it.abbreviation.toLowerCase(Locale(it.language.code))}
                     )
@@ -554,11 +555,14 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     companion object {
-        private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(BookFilters.getBibles(),
+        private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
+            BookFilters.getAll(),
+            BookFilters.getBibles(),
             BookFilters.getCommentaries(),
             BookFilters.getDictionaries(),
             BookFilters.getGeneralBooks(),
-            BookFilters.getMaps())
+            BookFilters.getMaps()
+        )
         private var lastSelectedLanguage // allow sticky language selection
             : Language? = null
         private const val TAG = "DocumentSelectionBase"

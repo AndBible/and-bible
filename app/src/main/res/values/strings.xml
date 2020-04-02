@@ -545,6 +545,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         %s</string>
 
     <!-- Document types -->
+    <string name="doc_type_all">All</string>
     <string name="doc_type_bible">Bible</string>
     <string name="doc_type_commentary">Commentary</string>
     <string name="doc_type_dictionary">Dictionary</string>

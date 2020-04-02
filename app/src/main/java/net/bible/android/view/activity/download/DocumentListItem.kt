@@ -78,9 +78,12 @@ class DocumentListItem : LinearLayout {
         val docImage = when(document.bookCategory) {
             BookCategory.BIBLE -> R.drawable.ic_bible
             BookCategory.COMMENTARY -> R.drawable.ic_commentary
+            BookCategory.DICTIONARY -> R.drawable.ic_list_black_24dp
+            BookCategory.MAPS -> R.drawable.ic_map_black_24dp
+            BookCategory.GENERAL_BOOK -> R.drawable.ic_book
             else -> null
         }
-        if(docImage != null) {
+        if (docImage != null) {
             documentTypeIcon.setImageResource(docImage)
         }
 
