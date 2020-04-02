@@ -64,12 +64,12 @@
 			app:layout_constraintStart_toEndOf="@id/icons"
 			app:layout_constraintTop_toTopOf="parent"
 			/>
-		
 		<TextView android:id="@+id/documentName"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintStart_toStartOf="@id/documentAbbreviation"
 			app:layout_constraintTop_toBottomOf="@id/documentAbbreviation"
+			app:layout_constraintEnd_toEndOf="parent"
 			android:textAppearance="?android:textAppearanceSmall" />
 		<TextView android:id="@+id/documentLanguage"
 			android:layout_width="0dp"

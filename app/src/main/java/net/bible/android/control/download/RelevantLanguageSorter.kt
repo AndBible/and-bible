@@ -17,6 +17,7 @@
  */
 package net.bible.android.control.download
 
+import net.bible.android.view.activity.base.ALL_LANGUAGES
 import org.apache.commons.lang3.ObjectUtils
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
@@ -47,6 +48,15 @@ class RelevantLanguageSorter(installedDocuments: List<Book>) : Comparator<Langua
     }
 
     companion object {
+        fun sort(languageList: MutableList<Language>, books: List<Book>) {
+            val sorter = RelevantLanguageSorter(books)
+            languageList.sortWith(compareBy(
+                {it.code != ALL_LANGUAGES},
+                {!sorter.relevantLanguages.contains(it.code)},
+                {it.name}
+            ))
+        }
+
         private val MAJOR_LANGUAGE_CODES = arrayOf("en", "de", "fr", "grc", "he", "ru", "ar", "zh", "pt")
     }
 

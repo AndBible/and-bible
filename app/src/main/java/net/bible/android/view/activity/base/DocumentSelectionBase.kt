@@ -64,6 +64,8 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
+val ALL_LANGUAGES = "*all*"
+
 @Serializable
 data class RecommendedDocuments(
     val bibles: Map<String, List<String>>,
@@ -296,7 +298,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val lang = selectedLanguage
                 for (doc in allDocuments) {
                     val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                    if (filter.test(doc) && doc.language == lang) {
+                    if (filter.test(doc) && (doc.language == lang || lang?.code == ALL_LANGUAGES) ) {
                         displayedDocuments.add(doc)
                     }
                 }
@@ -334,6 +336,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 for (doc in allDocuments) {
                     langSet.add(doc.language)
                 }
+                langSet.add(Language(ALL_LANGUAGES))
                 val sortedLanguages = sortLanguages(langSet)
                 languageList.clear()
                 languageList.addAll(sortedLanguages)
