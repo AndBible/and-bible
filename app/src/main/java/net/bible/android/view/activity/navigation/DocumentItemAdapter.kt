@@ -24,7 +24,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.list_item_2_highlighted.view.*
 import net.bible.android.activity.R
-import net.bible.android.view.util.widget.TwoLineListItem
+import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -42,13 +42,15 @@ class DocumentItemAdapter(
         val document = getItem(position)!!
 
         // Pick up the TwoLineListItem defined in the xml file
-        val view: TwoLineListItem
+        val view: DocumentListItem
         view = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(R.layout.list_item_2_highlighted, parent, false) as TwoLineListItem
+            inflater.inflate(R.layout.document_list_item, parent, false) as DocumentListItem
         } else {
-            convertView as TwoLineListItem
+            convertView as DocumentListItem
         }
+        view.document = document
+        view.setDocumentTypeIcon()
 
         // Set value for the first text field
         if (view.text1 != null) {

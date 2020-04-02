@@ -21,7 +21,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
-import kotlinx.android.synthetic.main.document_download_list_item.view.*
+import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus

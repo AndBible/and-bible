@@ -237,7 +237,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
     }
 
     companion object {
-        private const val LIST_ITEM_TYPE = R.layout.document_download_list_item
+        private const val LIST_ITEM_TYPE = R.layout.document_list_item
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()

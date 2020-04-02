@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.main.document_download_list_item.view.*
+import kotlinx.android.synthetic.main.document_list_item.view.*
 import net.bible.android.control.download.DownloadControl
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
