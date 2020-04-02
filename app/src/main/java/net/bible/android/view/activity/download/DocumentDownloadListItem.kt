@@ -70,29 +70,27 @@ class DocumentDownloadListItem : LinearLayout {
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {
-        if (icon != null && progressBar != null) {
-            when (documentStatus.documentInstallStatus) {
-                DocumentInstallStatus.INSTALLED -> {
-                    icon.setImageResource(R.drawable.ic_check_green_24dp)
-                    progressBar.visibility = View.INVISIBLE
-                }
-                DocumentInstallStatus.NOT_INSTALLED -> {
-                    icon.setImageDrawable(null)
-                    progressBar.visibility = View.INVISIBLE
-                }
-                DocumentInstallStatus.BEING_INSTALLED -> {
-                    icon.setImageResource(R.drawable.ic_arrow_downward_green_24dp)
-                    setProgressPercent(documentStatus.percentDone)
-                    progressBar.visibility = View.VISIBLE
-                }
-                DocumentInstallStatus.UPGRADE_AVAILABLE -> {
-                    icon.setImageResource(R.drawable.ic_arrow_upward_amber_24dp)
-                    progressBar.visibility = View.INVISIBLE
-                }
-                DocumentInstallStatus.ERROR_DOWNLOADING -> {
-                    icon.setImageResource(R.drawable.ic_warning_red_24dp)
-                    progressBar.visibility = View.INVISIBLE
-                }
+        when (documentStatus.documentInstallStatus) {
+            DocumentInstallStatus.INSTALLED -> {
+                downloadStatusIcon.setImageResource(R.drawable.ic_check_green_24dp)
+                progressBar.visibility = View.INVISIBLE
+            }
+            DocumentInstallStatus.NOT_INSTALLED -> {
+                downloadStatusIcon.setImageDrawable(null)
+                progressBar.visibility = View.INVISIBLE
+            }
+            DocumentInstallStatus.BEING_INSTALLED -> {
+                downloadStatusIcon.setImageResource(R.drawable.ic_arrow_downward_green_24dp)
+                setProgressPercent(documentStatus.percentDone)
+                progressBar.visibility = View.VISIBLE
+            }
+            DocumentInstallStatus.UPGRADE_AVAILABLE -> {
+                downloadStatusIcon.setImageResource(R.drawable.ic_arrow_upward_amber_24dp)
+                progressBar.visibility = View.INVISIBLE
+            }
+            DocumentInstallStatus.ERROR_DOWNLOADING -> {
+                downloadStatusIcon.setImageResource(R.drawable.ic_warning_red_24dp)
+                progressBar.visibility = View.INVISIBLE
             }
         }
     }

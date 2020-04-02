@@ -14,7 +14,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		>
-		<ImageView android:id="@+id/icon"
+		<ImageView android:id="@+id/downloadStatusIcon"
 			android:layout_width="24dp"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
@@ -32,7 +32,7 @@
 			android:layout_marginStart="6dip"
 			android:layout_marginTop="6dip"
 			android:textAppearance="?attr/textAppearanceListItem"
-			app:layout_constraintStart_toEndOf="@id/icon"
+			app:layout_constraintStart_toEndOf="@id/downloadStatusIcon"
 			app:layout_constraintTop_toTopOf="parent"
 			/>
 		
@@ -48,7 +48,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			app:layout_constraintTop_toBottomOf="@id/text2"
-			app:layout_constraintStart_toEndOf="@id/icon"
+			app:layout_constraintStart_toEndOf="@id/downloadStatusIcon"
 			app:layout_constraintEnd_toEndOf="parent"
 			android:visibility="invisible"/>
 	</androidx.constraintlayout.widget.ConstraintLayout>
