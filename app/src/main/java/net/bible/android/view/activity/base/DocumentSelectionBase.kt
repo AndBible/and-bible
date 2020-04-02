@@ -27,6 +27,7 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.MultiAutoCompleteTextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -146,19 +147,24 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             override fun onNothingSelected(arg0: AdapterView<*>?) {}
         }
 
-        //prepare the language spinner
-        languageSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedLanguageNo = position
-                lastSelectedLanguage = languageList[selectedLanguageNo]
-                this@DocumentSelectionBase.filterDocuments()
-            }
+        languageSpinner.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
 
-            override fun onNothingSelected(arg0: AdapterView<*>?) {}
+            val lang = parent.adapter.getItem(position) as Language
+            lastSelectedLanguage = lang
+            selectedLanguageNo = languageList.indexOf(lang)
+            this@DocumentSelectionBase.filterDocuments()
         }
-        langArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList)
-        langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = langArrayAdapter
+
+        langArrayAdapter = ArrayAdapter(this,
+            android.R.layout.simple_spinner_dropdown_item,
+            languageList
+        )
+        languageSpinner.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                languageSpinner.showDropDown()
+            }
+        }
+        languageSpinner.setAdapter(langArrayAdapter)
     }
 
     private fun setDefaultLanguage() {
@@ -177,7 +183,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         // if last doc in last lang was just deleted then need to adjust index
         checkSpinnerIndexesValid()
-        languageSpinner.setSelection(selectedLanguageNo)
+        //languageSpinner.setSelection(selectedLanguageNo)
     }
 
     // get the current language code

@@ -15,7 +15,9 @@
 		android:paddingBottom="5dip"
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp">
-    	<Spinner android:id="@+id/languageSpinner"
+    	<AutoCompleteTextView android:id="@+id/languageSpinner"
+			android:maxLines="1"
+			android:hint="@string/chooce_language_hint"
     		android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
 	    	android:layout_weight="50"/>

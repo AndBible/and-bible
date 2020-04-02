@@ -628,4 +628,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="key_book_parenthesis">\"%s (%s)\"</string>
     <string name="about_osisId">OSIS ID: %s</string>
+    <string name="chooce_language_hint">Language</string>
 </resources>
