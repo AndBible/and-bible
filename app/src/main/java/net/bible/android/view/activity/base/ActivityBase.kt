@@ -195,7 +195,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     protected fun showHourglass() {
         GlobalScope.launch {
-            Dialogs.instance.showHourglass()
+            Dialogs.instance.showHourglass(CurrentActivityHolder.getInstance().currentActivity)
         }
     }
 

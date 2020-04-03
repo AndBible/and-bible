@@ -92,7 +92,7 @@ class ErrorReportControl @Inject constructor() {
 		val context = context_?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
         val f = File(dir, "logcat.txt.gz")
-        Dialogs.instance.showHourglass()
+        Dialogs.instance.showHourglass(context)
         withContext(Dispatchers.IO) {
             val log=StringBuilder()
             try {

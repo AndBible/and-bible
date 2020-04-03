@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import net.bible.android.BibleApplication.Companion.application
@@ -125,8 +126,8 @@ class Dialogs private constructor() {
         }
     }
 
-    suspend fun showHourglass() {
-        hourglass.show()
+    suspend fun showHourglass(context: Context) {
+        hourglass.show(context)
     }
 
     suspend fun dismissHourglass() {

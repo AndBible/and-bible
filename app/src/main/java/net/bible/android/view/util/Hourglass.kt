@@ -18,6 +18,7 @@
 package net.bible.android.view.util
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,10 +34,9 @@ class Hourglass {
     private var hourglass: ProgressDialog? = null
         private set
 
-    suspend fun show() {
+    suspend fun show(context: Context) {
         withContext(Dispatchers.Main) {
-            val activity = CurrentActivityHolder.getInstance().currentActivity
-            val hourglass = ProgressDialog(activity)
+            val hourglass = ProgressDialog(context)
             this@Hourglass.hourglass = hourglass
 
             hourglass.setMessage(application.getText(R.string.please_wait))

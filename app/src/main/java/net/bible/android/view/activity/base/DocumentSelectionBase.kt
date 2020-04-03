@@ -276,17 +276,13 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         GlobalScope.launch {
 
             withContext(Dispatchers.Main) {
-                instance.showHourglass()
+                instance.showHourglass(this@DocumentSelectionBase)
                 showPreLoadMessage()
             }
-
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Default) {
                 try {
-                    // Prevent occasional class loading errors on Samsung devices
-                    Thread.currentThread().contextClassLoader = javaClass.classLoader
                     allDocuments.clear()
-                    val docsFromSource = getDocumentsFromSource(refresh)
-                    allDocuments.addAll(docsFromSource)
+                    allDocuments.addAll(getDocumentsFromSource(refresh))
                     Log.i(TAG, "Number of documents:" + allDocuments.size)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error getting documents", e)

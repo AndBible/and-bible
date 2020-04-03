@@ -224,7 +224,7 @@ class BackupControl @Inject constructor() {
             val zipFile = File(internalDbBackupDir, fileName)
             val books = selectModules(callingActivity) ?: return@withContext
 
-            Dialogs.instance.showHourglass()
+            Dialogs.instance.showHourglass(callingActivity)
             createZip(books, zipFile)
             Dialogs.instance.dismissHourglass()
 
