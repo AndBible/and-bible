@@ -66,22 +66,26 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         documentTypeSpinner.isEnabled = true
         val firstTime = swordDocumentFacade.bibles.isEmpty()
         // if first time
-        if (firstTime) {
-            // prepare the document list view - done in another thread
-            populateMasterDocumentList(false)
-            updateLastRepoRefreshDate()
-        } else if (isRepoBookListOld) {
-            // normal user downloading but need to refresh the document list
-            Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
+        when {
+            firstTime -> {
+                // prepare the document list view - done in another thread
+                populateMasterDocumentList(false)
+                updateLastRepoRefreshDate()
+            }
+            isRepoBookListOld -> {
+                // normal user downloading but need to refresh the document list
+                Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 
-            // prepare the document list view - done in another thread
-            populateMasterDocumentList(true)
+                // prepare the document list view - done in another thread
+                populateMasterDocumentList(true)
 
-            // restart refresh timeout
-            updateLastRepoRefreshDate()
-        } else {
-            // normal user downloading with recent doc list
-            populateMasterDocumentList(false)
+                // restart refresh timeout
+                updateLastRepoRefreshDate()
+            }
+            else -> {
+                // normal user downloading with recent doc list
+                populateMasterDocumentList(false)
+            }
         }
     }
 
