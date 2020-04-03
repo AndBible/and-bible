@@ -40,7 +40,6 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
@@ -104,7 +103,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             labelSpinner.setSelection(selectedLabelNo)
         }
         labelSpinner.onItemSelectedListener = object : OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedLabelNo = position
                 loadBookmarkList()
             }
