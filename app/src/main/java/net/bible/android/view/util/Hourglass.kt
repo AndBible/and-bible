@@ -32,7 +32,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
  */
 class Hourglass {
     private var hourglass: ProgressDialog? = null
-        private set
 
     suspend fun show(context: Context) {
         withContext(Dispatchers.Main) {

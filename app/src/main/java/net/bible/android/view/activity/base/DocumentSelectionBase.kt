@@ -248,10 +248,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         try {
             if (position >= 0 && position < displayedDocuments.size) {
                 val selectedBook = displayedDocuments[position]
-                if (selectedBook != null) {
-                    Log.d(TAG, "Selected " + selectedBook.initials)
-                    handleDocumentSelection(selectedBook)
-                }
+                Log.d(TAG, "Selected " + selectedBook.initials)
+                handleDocumentSelection(selectedBook)
 
                 // prevent the item remaining highlighted.  Unfortunately the highlight is cleared before the selection is handled.
                 listView.setItemChecked(position, false)
@@ -276,7 +274,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         GlobalScope.launch {
 
             withContext(Dispatchers.Main) {
-                instance.showHourglass(this@DocumentSelectionBase)
+                loadingIndicator.visibility = View.VISIBLE
                 showPreLoadMessage()
             }
             withContext(Dispatchers.Default) {
@@ -296,7 +294,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     setDefaultLanguage()
                     filterDocuments()
                 } finally {
-                    instance.dismissHourglass()
+                    loadingIndicator.visibility = View.GONE
                 }
             }
         }
