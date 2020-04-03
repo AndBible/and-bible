@@ -30,6 +30,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.mynote.MyNoteControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.device.ScreenSettings
@@ -105,7 +106,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     override fun applyPreferenceSettings() {
         updateBackgroundColor()
 
-        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font!!.fontSize!!
+        val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font?.fontSize?: WorkspaceEntities.TextDisplaySettings.default.font!!.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 
