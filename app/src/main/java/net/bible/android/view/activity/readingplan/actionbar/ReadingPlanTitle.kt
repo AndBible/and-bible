@@ -126,6 +126,8 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     }
 
     private fun update(everything: Boolean) {
+        if (!::pageTitle.isInitialized || !::pageSubtitle.isInitialized) return
+
         CurrentActivityHolder.getInstance().runOnUiThread {
             // always update verse number
             val pageParts = twoPageTitleParts
@@ -134,7 +136,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
             pageSubtitle.visibility = if (pageParts.size > 1) View.VISIBLE else View.GONE
 
             // don't always need to redisplay document name
-            if (everything) {
+            if (everything && ::documentTitle.isInitialized && ::documentSubtitle.isInitialized) {
                 val documentParts = twoDocumentTitleParts
                 if (documentParts.isNotEmpty()) documentTitle.text = documentParts[0]
                 if (documentParts.size > 1) documentSubtitle.text = documentParts[1]
@@ -161,7 +163,7 @@ constructor(private val readingPlanControl: ReadingPlanControl) {
     private fun unsplitIfLandscape(parts: Array<String>): Array<String> {
         var parts = parts
         // un-split if in landscape because landscape actionBar has more width but less height
-        if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (::activity.isInitialized && activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             parts = arrayOf(StringUtils.join(parts, " "))
         }
         return parts
