@@ -153,7 +153,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             this@DocumentSelectionBase.filterDocuments()
         }
 
-        languageSpinner.setOnClickListener {languageSpinner.showDropDown()}
         languageSpinner.addTextChangedListener( object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val langString = s.toString()
@@ -176,6 +175,16 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
 
         })
+
+        languageSpinner.setOnClickListener {
+            languageSpinner.setText("")
+        }
+
+        languageSpinner.setOnFocusChangeListener { i, hasFocus ->
+            if(hasFocus) {
+                languageSpinner.setText("")
+            }
+        }
 
         langArrayAdapter = ArrayAdapter(this,
             android.R.layout.simple_spinner_dropdown_item,

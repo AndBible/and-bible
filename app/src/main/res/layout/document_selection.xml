@@ -20,7 +20,7 @@
 		>
     	<AutoCompleteTextView android:id="@+id/languageSpinner"
 			android:maxLines="1"
-			android:completionThreshold="1"
+			android:completionThreshold="0"
 			android:hint="@string/chooce_language_hint"
     		android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
