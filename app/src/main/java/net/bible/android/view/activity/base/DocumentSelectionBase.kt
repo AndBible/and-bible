@@ -181,7 +181,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             android.R.layout.simple_spinner_dropdown_item,
             languageList
         )
-        languageSpinner.setAdapter(langArrayAdapter)
     }
 
     open fun setDefaultLanguage() {
@@ -293,6 +292,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     isPopulated = true
                     setDefaultLanguage()
                     filterDocuments()
+                    languageSpinner.setAdapter(langArrayAdapter)
                 } finally {
                     loadingIndicator.visibility = View.GONE
                 }
