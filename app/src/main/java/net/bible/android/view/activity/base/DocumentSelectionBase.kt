@@ -18,12 +18,14 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.database.DataSetObserver
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
@@ -44,6 +46,7 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.Logger
 import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
@@ -151,6 +154,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             lastSelectedLanguage = lang
             selectedLanguageNo = languageList.indexOf(lang)
             this@DocumentSelectionBase.filterDocuments()
+            languageSpinner.clearFocus()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
         }
 
         languageSpinner.addTextChangedListener( object: TextWatcher {
@@ -178,6 +184,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         languageSpinner.setOnClickListener {
             languageSpinner.setText("")
+            languageSpinner.showDropDown()
         }
 
         languageSpinner.setOnFocusChangeListener { i, hasFocus ->
@@ -186,11 +193,19 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
         }
 
+        // Note: on Android 8 (API 26 and lower), it looks like languageList does not
+        // remain the source data set after filtering. If changes to dataset are made
+        // (in populate), they need to be made to adapter too, otherwise in
+        // ArrayAdapter's publishResult they will be overwritten.
+
         langArrayAdapter = ArrayAdapter(this,
             android.R.layout.simple_spinner_dropdown_item,
             languageList
         )
+
         languageSpinner.setAdapter(langArrayAdapter)
+        list.requestFocus()
+        Log.d(TAG, "Initialize finished")
     }
 
     open fun setDefaultLanguage() {
@@ -206,6 +221,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             }
             selectedLanguageNo = languageList.indexOf(lang)
             languageSpinner.setText(lang.name)
+            Log.d(TAG, "Default language set to ${lang}")
         }
 
         // if last doc in last lang was just deleted then need to adjust index
@@ -365,7 +381,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val sortedLanguages = sortLanguages(langSet)
                 languageList.clear()
                 languageList.addAll(sortedLanguages)
-                langArrayAdapter.notifyDataSetChanged()
+                langArrayAdapter.clear()
+                langArrayAdapter.addAll(sortedLanguages)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising view", e)

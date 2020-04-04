@@ -7,6 +7,18 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<!-- Workaround for API 28 and lower so that keyboard is not shown at startup -->
+	<LinearLayout android:focusable="true"
+		android:id="@+id/focusStealer"
+		android:focusableInTouchMode="true"
+		android:layout_width="0px"
+		android:layout_height="0px"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		>
+		<requestFocus />
+	</LinearLayout>
     <LinearLayout
 		android:id="@+id/filters"
 		android:orientation="horizontal"
