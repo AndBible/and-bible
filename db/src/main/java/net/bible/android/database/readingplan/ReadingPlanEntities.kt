@@ -24,6 +24,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 class ReadingPlanEntities {
+    
+    /** Stores information for plan, like start date and current day user is on.
+     * Plans that exist are determined by text files. Row will only exist here for plan
+     * that has already been started */
     @Entity(tableName = "readingplan",
         indices = [Index(name = "index_readingplan_plan_code",value=["plan_code"], unique = true)])
     data class ReadingPlan(
