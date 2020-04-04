@@ -44,7 +44,7 @@ import kotlin.math.max
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanDao {
+class ReadingPlanTextFileDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
     private var cachedReadingList: List<OneDaysReadingsDto>? = null
 

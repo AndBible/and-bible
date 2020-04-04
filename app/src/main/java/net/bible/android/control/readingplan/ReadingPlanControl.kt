@@ -29,7 +29,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.OneDaysReadingsDto
-import net.bible.service.readingplan.ReadingPlanDao
+import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 import org.apache.commons.lang3.StringUtils
@@ -54,7 +54,7 @@ class ReadingPlanControl @Inject constructor(
 		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider)
 {
 
-    private val readingPlanDao = ReadingPlanDao()
+    private val readingPlanDao = ReadingPlanTextFileDao()
     private var readingStatus: ReadingStatus? = null
 
     /** allow front end to determine if a plan needs has been selected
