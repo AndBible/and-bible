@@ -46,6 +46,7 @@ import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureTo
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
+import net.bible.service.db.readingplan.ReadingPlanRepository;
 import net.bible.service.history.HistoryManager;
 import net.bible.service.history.HistoryTraversalFactory;
 import net.bible.service.sword.SwordContentFacade;
@@ -87,6 +88,7 @@ public interface ApplicationComponent {
 	DownloadControl downloadControl();
 	PageControl pageControl();
 	ReadingPlanControl readingPlanControl();
+	ReadingPlanRepository readingPlanRepo();
 	SearchControl searchControl();
 	CompareTranslationsControl compareTranslationsControl();
 	FootnoteAndRefControl footnoteAndRefControl();
