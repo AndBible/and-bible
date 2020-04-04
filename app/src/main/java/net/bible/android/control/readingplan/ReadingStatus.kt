@@ -20,14 +20,23 @@ package net.bible.android.control.readingplan
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import net.bible.android.BibleApplication
 import net.bible.service.common.CommonUtils.JSON_CONFIG
 import net.bible.service.db.readingplan.ReadingPlanDbAdapter
+import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
+import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
+    @Inject
+    lateinit var readingPlanRepo: ReadingPlanRepository
+
+    init {
+        BibleApplication.application.applicationComponent.inject(this)
+    }
 
     private val rAdapter: ReadingPlanDbAdapter get() = ReadingPlanDbAdapter.instance
 
@@ -97,7 +106,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     }
 
     open fun reloadStatus() {
-        val status: String? = rAdapter.getReadingPlanStatus(planCode, day)
+        val status: String? = readingPlanRepo.getReadingPlanStatus(planCode, day)
         status?.let { this.status = ReadingStatus(status) }
     }
 

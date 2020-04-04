@@ -18,6 +18,9 @@
 
 package net.bible.service.db.readingplan
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import net.bible.android.control.ApplicationScope
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.service.db.DatabaseContainer
@@ -27,5 +30,8 @@ import javax.inject.Inject
 class ReadingPlanRepository @Inject constructor() {
     private val readingPlanDao: ReadingPlanDao = DatabaseContainer.db.readingPlanDao()
 
-    
+    fun getReadingPlanStatus(planCode: String, planDay: Int): String? = runBlocking {
+        readingPlanDao.getReadingPlanStatus(planCode, planDay)?.readingStatus }
+
+
 }
