@@ -15,30 +15,26 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.view.activity
 
-package net.bible.android.view.activity;
-
-import net.bible.android.view.activity.page.MainBibleActivity;
-
-import dagger.Module;
-import dagger.Provides;
+import dagger.Component
+import net.bible.android.control.ApplicationComponent
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MenuCommandHandler
+import net.bible.android.view.activity.page.screen.BibleFrame
+import net.bible.android.view.activity.page.screen.SplitBibleArea
 
 /**
- * Dagger module to create MainBibleActivity related dependencies
+ * Dagger Component to allow injection of dependencies into activities.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@Module
-public class MainBibleActivityModule {
-
-	private final MainBibleActivity mainBibleActivity;
-
-	public MainBibleActivityModule(MainBibleActivity mainBibleActivity) {
-		this.mainBibleActivity = mainBibleActivity;
-	}
-
-	@Provides @MainBibleActivityScope
-	MainBibleActivity provideMainBibleActivity() {
-		return mainBibleActivity;
-	}
+@Component(modules = [MainBibleActivityModule::class], dependencies = [ApplicationComponent::class])
+@MainBibleActivityScope
+interface MainBibleActivityComponent {
+    // Activities that are permitted to be injected
+    fun inject(activity: MainBibleActivity)
+    fun inject(menuCommandHandler: MenuCommandHandler)
+    fun inject(c: SplitBibleArea)
+    fun inject(c: BibleFrame)
 }
