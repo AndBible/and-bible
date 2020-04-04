@@ -22,7 +22,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.JSON_CONFIG
-import net.bible.service.db.readingplan.ReadingPlanDbAdapter
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import javax.inject.Inject
@@ -37,8 +36,6 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     init {
         CommonUtils.buildActivityComponent().inject(this)
     }
-
-    private val rAdapter: ReadingPlanDbAdapter get() = ReadingPlanDbAdapter.instance
 
     @Serializable
     private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)
@@ -102,7 +99,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     /** do not leave prefs around for historic days
      */
     open fun delete(planInfo: ReadingPlanInfoDto) {
-        rAdapter.deleteOldStatuses(planInfo, day)
+        readingPlanRepo.deleteOldStatuses(planInfo, day)
     }
 
     open fun reloadStatus() {
@@ -111,7 +108,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     }
 
     private fun saveStatus() {
-        rAdapter.setReadingPlanStatus(planCode, day, status.toString())
+        readingPlanRepo.setReadingPlanStatus(planCode, day, status.toString())
     }
 
     override fun toString(): String {

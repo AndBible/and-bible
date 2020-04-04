@@ -19,11 +19,13 @@
 package net.bible.service.db.readingplan
 
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.bible.android.control.ApplicationScope
 import net.bible.android.database.readingplan.ReadingPlanDao
+import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.readingplan.ReadingPlanInfoDto
 import javax.inject.Inject
 
 @ApplicationScope
@@ -31,7 +33,26 @@ class ReadingPlanRepository @Inject constructor() {
     private val readingPlanDao: ReadingPlanDao = DatabaseContainer.db.readingPlanDao()
 
     fun getReadingPlanStatus(planCode: String, planDay: Int): String? = runBlocking {
-        readingPlanDao.getReadingPlanStatus(planCode, planDay)?.readingStatus }
+        readingPlanDao.getStatus(planCode, planDay)?.readingStatus }
 
+    /**
+     * All reading statuses will be deleted that are before the [day] parameter given.
+     * Date-based plan statuses are never deleted
+     * @param day The current day, all day statuses before this day will be deleted
+     */
+    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) {
+        if (!planInfo.isDateBasedPlan) GlobalScope.launch {
+            readingPlanDao.deleteStatusesBeforeDay(planInfo.planCode, day)
+        }
+    }
+
+    @Synchronized
+    fun setReadingPlanStatus(planCode: String, dayNo: Int, status: String) {
+        GlobalScope.launch {
+            readingPlanDao.addPlanStatus(
+                ReadingPlanStatus(planCode, dayNo, status)
+            )
+        }
+    }
 
 }

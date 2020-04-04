@@ -19,11 +19,19 @@
 package net.bible.android.database.readingplan
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
 
 @Dao
 interface ReadingPlanDao {
     @Query("SELECT * FROM readingplan_status WHERE plan_code = :planCode AND plan_day = :planDay")
-    suspend fun getReadingPlanStatus(planCode: String, planDay: Int): ReadingPlanStatus?
+    suspend fun getStatus(planCode: String, planDay: Int): ReadingPlanStatus?
+
+    @Query("DELETE FROM readingplan_status WHERE plan_code = :planCode AND plan_day < :planDay")
+    suspend fun deleteStatusesBeforeDay(planCode: String, planDay: Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addPlanStatus(status: ReadingPlanStatus)
 }
