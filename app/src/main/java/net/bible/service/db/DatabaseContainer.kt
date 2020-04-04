@@ -25,6 +25,7 @@ import net.bible.android.database.AppDatabase
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
+import java.sql.SQLException
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -452,6 +453,41 @@ private val SQUASH_MIGRATION_10_27 = object : Migration(10, 27) {
     }
 }
 
+private val MIGRATION_27_28 = object : Migration(27, 28) {
+    // Added autogenerate=true for readingplan and readingplan_status. Some db schemas may already have this, but makes sure
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            // readingplan recreate to add AUTOINCREMENT. MIGRATION_9_10 removed it
+            execSQL("CREATE TABLE `readingplan_new` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1);")
+            execSQL("INSERT INTO readingplan_new SELECT * FROM readingplan;")
+            execSQL("DROP TABLE readingplan;")
+            execSQL("ALTER TABLE readingplan_new RENAME TO readingplan;")
+
+            // readingplan make index unique
+            execSQL("DROP INDEX IF EXISTS index_readingplan_plan_code;")
+            try {
+                execSQL("CREATE UNIQUE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
+            } catch (e: SQLException) {
+                // in case table already has data that prevents unique index from being created (should never be)
+                try {
+                    execSQL("CREATE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
+                } finally { }
+            }
+
+            // readingplan_status make index unique
+            execSQL("DROP INDEX IF EXISTS `code_day`;")
+            try {
+                execSQL("CREATE UNIQUE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
+            } catch (e: SQLException) {
+                // in case table already has data that prevents unique index from being created (should never be)
+                try {
+                    execSQL("CREATE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
+                } finally { }
+            }
+        }
+    }
+}
+
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -491,7 +527,8 @@ object DatabaseContainer {
                         MIGRATION_24_25,
                         MIGRATION_25_26,
                         CLEANUP_MIGRATION_26_27,
-                        SQUASH_MIGRATION_10_27
+                        SQUASH_MIGRATION_10_27,
+                        MIGRATION_27_28
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
