@@ -21,6 +21,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import net.bible.android.database.readingplan.ReadingPlanDao
+import net.bible.android.database.readingplan.ReadingPlanEntities
 
 import java.util.*
 
@@ -51,6 +53,7 @@ class Converters {
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
+    abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
 
     fun sync() { // Sync all data so far into database file
