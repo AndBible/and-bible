@@ -34,6 +34,7 @@ import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -100,4 +101,7 @@ interface ApplicationComponent {
     fun readingPlanActionBarManager(): ReadingPlanActionBarManager
     fun searchResultsActionBarManager(): SearchResultsActionBarManager
     fun bibleBookActionBarManager(): BibleBookActionBarManager
+
+    // Inject (done in ActivityComponent before)
+    fun inject(readingStatus: ReadingStatus)
 }
