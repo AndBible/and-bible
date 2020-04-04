@@ -16,7 +16,7 @@
  *
  */
 
-package net.bible.android.database
+package net.bible.android.database.readingplan
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
