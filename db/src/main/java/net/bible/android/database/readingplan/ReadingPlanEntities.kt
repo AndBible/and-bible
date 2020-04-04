@@ -22,6 +22,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.Date
 
 class ReadingPlanEntities {
 
@@ -32,7 +33,7 @@ class ReadingPlanEntities {
         indices = [Index(name = "index_readingplan_plan_code",value=["plan_code"], unique = true)])
     data class ReadingPlan(
         @ColumnInfo(name = "plan_code") val planCode: String,
-        @ColumnInfo(name = "plan_start_date") var planStartDate: Int,
+        @ColumnInfo(name = "plan_start_date") var planStartDate: Date,
         @ColumnInfo(name = "plan_current_day", defaultValue = "1") var planCurrentDay: Int = 1,
         @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
     )

@@ -41,7 +41,7 @@ class ReadingPlanRepository @Inject constructor() {
         readingPlanDao.getStatus(planCode, planDay)?.readingStatus }
 
     fun getStartDate(planCode: String) = runBlocking {
-        readingPlanDao.getPlan(planCode)?.planStartDate?.toLong()
+        readingPlanDao.getPlan(planCode)?.planStartDate
     }
 
     /**
@@ -64,7 +64,7 @@ class ReadingPlanRepository @Inject constructor() {
     @Synchronized
     fun startPlan(planCode: String, date: Date = CommonUtils.truncatedDate) = GlobalScope.launch {
         var readPlan = readingPlanDao.getPlan(planCode)
-        readPlan = readPlan?.apply { planStartDate = date.time.toInt() } ?: ReadingPlan(planCode, date.time.toInt())
+        readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
         readingPlanDao.updatePlan(readPlan)
     }
@@ -83,7 +83,7 @@ class ReadingPlanRepository @Inject constructor() {
     fun setCurrentDay(planCode: String, dayNo: Int) = GlobalScope.launch {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
-            ReadingPlan(planCode, CommonUtils.truncatedDate.time.toInt(), dayNo)
+            ReadingPlan(planCode, CommonUtils.truncatedDate, dayNo)
 
         readingPlanDao.updatePlan(readPlan)
     }

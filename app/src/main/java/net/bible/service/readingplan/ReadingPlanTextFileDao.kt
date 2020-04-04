@@ -201,9 +201,7 @@ class ReadingPlanTextFileDao {
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
         info.versification = getReadingPlanVersification(planCode)
         info.isDateBasedPlan = getPlanProperties(planCode).isDateBasedPlan
-
-        val date = readingPlanRepo.getStartDate(planCode)
-        info.startDate = date?.let { Date(date) }
+        info.startDate = readingPlanRepo.getStartDate(planCode)
 
         return info
     }
