@@ -42,10 +42,12 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Ištrauka</string>
   <string name="search">Paieška</string>
+  <string name="settings">Programos nustatymai</string>
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
   <string name="other">Kita</string>
+  <string name="help_and_tips">Pagalba ir patarimai</string>
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti Google Play parduotuvėje</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
@@ -58,11 +60,17 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti atsisiųsti iš interneto arba sukurti vietoje.\n\nAtsisiuntimas yra žymiai greitesnis, o ir atsisiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų atsisiuntimui reikia interneto ryšio.\n</string>
+  <string name="create_index_for">Paieškai reikalingas indeksas. \n\nSukurti  %s indeksą?</string>
+  <string name="rebuild_index_for">Iš naujo sukurti %s indeksą?</string>
+  <string name="search_index_unavailable">Deja, indekso kūrimas įmanomas tik Android 5.0 (Lollipop) ir naujesniems įrenginiams. Parsisiųsti indeksus galima tik kai kuriems moduliams. </string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index_download">Atsisiųsti</string>
   <string name="index_not_available_for_download">Šio indekso negalima atsisiųsti.</string>
   <string name="index_create">Sukurti</string>
   <string name="rebuild_index">Perkurti indeksą</string>
+  <string name="search_in">Ieškoti čia: %s</string>
+  <string name="do_in_background">Tęsti fone</string>
+  <string name="rebuild_index_button">Perkurti</string>
   <!--Tasks-->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
@@ -83,6 +91,14 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Preferences-->
   <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
   <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
+  <string name="prefs_show_bookmarks_summary">Atžymėti, norint paslėpti visas žymes</string>
+  <string name="prefs_show_mynotes_summary">Prie mano pastabų rodyti paveiksliuką</string>
+  <string name="prefs_show_notes_summary">Rodyti išnašas ir nuorodas</string>
+  <string name="prefs_show_strongs_summary">Nuorodos į graikų ir hebrajų apibrėžtis</string>
+  <string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string>
+  <string name="prefs_section_title_summary">Rodyti nekanonines skyrių antraštes</string>
+  <string name="prefs_red_letter_summary">Kristaus žodžius rodyti raudonai</string>
+  <string name="prefs_text_size_title">Šrifto nustatymai</string>
   <string name="prefs_show_verseno_title">Eilučių numeriai</string>
   <string name="prefs_verse_per_line_title">Po vieną eilutę eilutėje</string>
   <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
@@ -95,12 +111,18 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
   <string name="prefs_red_letter_title">Raudonas laiškas</string>
   <string name="prefs_tilt_to_scroll_title">Pastačius įrenginį, slinkti žemyn</string>
+  <string name="prefs_night_mode_title">Nakties režimo perjungimas</string>
+  <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys gali), rankiniu būdu, arba per sisteminius nustatymus (Android 10+).</string>
+  <string name="prefs_night_mode_manual">Rankiniu būdu</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>
+  <string name="options_menu_night_mode">Nakties režimas</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Atverti nuorodas atskirame lange</string>
   <string name="prefs_open_links_in_special_window_summary">Greitesniai nuorodų ir Strongo peržiūrai</string>
+  <string name="prefs_text_size_pt_title">Šrifto nustatymai</string>
+  <string name="prefs_text_size_summary">Nustatyti šrifto šeimą ir šrifto dydį</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>
@@ -108,17 +130,61 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_interface_locale_summary">Pasirinkite naudotojo sąsajos kalbą</string>
   <string name="reset_fontsize">Atstatyti</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
+  <string name="prefs_request_sdcard_permission_summary">Leisti naudoti rankiniu būdu įdiegtus dokumentus iš jsword/sword katalogo arba vidinės atmintinės</string>
+  <string name="all_text_options_window_menutitle">Visi nustatymai tekstui...</string>
+  <string name="all_text_options_window_menutitle_alone">Teksto nustatymai...</string>
+  <string name="text_options_window_menutitle">Teksto nustatymai</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
+  <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
+  <string name="prefs_margin_size_mm_title">Paraščių dydis (%d/%d/%d mm)</string>
+  <string name="margin_size_mm">Paraštės: kairėje %d mm, dešinėje %d mm.
+        \nMaksimalus teksto plotis: %d mm.</string>
+  <string name="prefs_advanced_settings_cat">Papildomi nustatymai</string>
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
+  <string name="prefs_margin_size_summary">Derinti teksto paraštes kairėje ir dešinėje. Taip pat galima derinti maksimalų teksto plotį.</string>
+  <string name="prefs_text_colors_summary">Keisti toksto ir fono splavas, triukšmo efektą</string>
+  <string name="text_display_settings_activity_title">Teksto rodymo nustatymai</string>
+  <string name="workspace_text_display_settings_title">Teksto nustatymai - %s</string>
+  <string name="window_text_display_settings_title">Teksto nustatymai - Langas %d</string>
+  <string name="prefs_text_display_settings_title">Formatavimas</string>
   <string name="prefs_text_appearance_title">Išvaizda</string>
+  <string name="prefs_justify_title">Abipusė teksto lygiuotė</string>
+  <string name="prefs_justify_summary">Lygiuokite tekstą abiejose pusėse, t.y. kai kairys ir dešinys testo kraštas yra toje pačioje linijoje.</string>
+  <string name="pref_left_margin_label">Kairė paraštė</string>
+  <string name="pref_right_margin_label">Dešinė paraštė</string>
+  <string name="pref_maximum_width_of_text_label">Maksimalus teksto plotis</string>
+  <string name="prefs_line_spacing_pt">Tarpai tarp eilučių %1.1fx</string>
+  <string name="pref_font_family_label">Šrifto šeima</string>
+  <string name="prefs_hyphenation_title">Kėlyba</string>
+  <string name="prefs_hyphenation_summary">Naudoti automatinę kėlybą, jei kalba yra palaikoma</string>
+  <string name="prefs_line_spacing_pt_title">Atstumai tarp eilučių (%1.1fx)</string>
+  <string name="line_spacing_title">Atstumai tarp eilučių</string>
+  <string name="line_spacing_summary">Nustatyti atstumą tarp eilučių</string>
+  <string name="select_none">Pasirinkti nieko</string>
   <string name="reset_are_you_sure">Ar tikrai norite atstatyti visas reikšmes?</string>
+  <string name="window_pinning_menutitle">Lango prisegimas</string>
+  <string name="hide_window_buttons_title">Paslėpti lango mygtukus</string>
+  <string name="hide_window_buttons_summary">Lango mygtukai, kurie paprastai rodomi dešinėje biblijos rodinio pusėje, yra paslėpti. Langų navigatorius apačioje vis dar rodomas. Lango meniu gali atidaryti paspaudęs ir palaikęs ant jo.</string>
   <string name="font_size_title">Šrifto dydis</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nuostatos</string>
+  <string name="window_color_settings_title">Lango spalvų nustatymai</string>
+  <string name="workspace_color_settings_title">Įprasti darbalaukio spalvų nustatymai</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
+  <string name="colors_day_mode_title">Dienos veiksena</string>
+  <string name="colors_night_mode_title">Nakties veiksena</string>
+  <string name="prefs_noise_title">Fono triukšmas</string>
+  <string name="prefs_noise_summary">Fonui pridėjus triukšmo, padidėja komfortas akims.</string>
+  <string name="cpv_default_title">Pasirinkti spalvą</string>
+  <string name="cpv_presets">Išankstinė parinktis</string>
+  <string name="cpv_custom">Pritaikytas</string>
+  <string name="cpv_select">Rinktis</string>
+  <string name="cpv_transparency">Permatomumas</string>
   <!--Window-->
   <string name="new_window">Naujas langas</string>
   <string name="windowClose">Užverti</string>
@@ -126,6 +192,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="windowMinimise">Sumažinti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
   <string name="move_window">Perkelti į…</string>
+  <string name="move_window_to_position">Pozicija %s</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
   <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
@@ -157,6 +224,8 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="install_zip">Įkelti dokumentą iš zip</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
+  <string name="extracting_zip_file">Išpakuojamas Zip failas...</string>
+  <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
   <string name="invalid_module">Faile nėra SWORD modulio</string>
   <string name="module_already_installed">Faile esantis SWORD modulis jau yra įdiegtas</string>
   <string name="install_zip_title">Prašome palaukti. Įkeliamas Zip failas.</string>
@@ -164,6 +233,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
   <string name="rdg_plan_day">Diena %s</string>
+  <string name="rdg_plan_set_start_date">Nustatyti pradžios datą</string>
   <string name="done">Atlikta</string>
   <string name="reset">Atstatyti</string>
   <string name="reset_plan_question">Ar tikrai norite atstatyti šį planą?</string>
@@ -372,7 +442,23 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="about_versification">Versijavimas: %s</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Pranešti apie klaidą</string>
   <string name="report_bug_email_subject">Pranešimas apie klaidą And Bible %s</string>
+  <string name="report_bug_email_message">
+        --- RAŠYKITE PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS ---\n
+        Instrukcijos:\n
+        Trumpai parašykite ką darėte, kai įvyko klaida. Pavyzdžiui: \n
+        \n
+        1. Atvėriau programą\n
+        2. Paspaudžiau ant lango meniu\n
+         -&gt; programa užstrigo\n
+        \n
+        Kartais ekrano vaizdas taip pat yra būtinas sėkmingam problemos sprendimui.
+        Prašome naudoti šią funkciją tuoj pat pastebėjus klaidą.
+        Šią funkciją galite naudoti ir iš naujo atvėrus programą tuoj po to, kai dėl klaidos programa užsidarė.
+        \n\n
+        Įrenginio informacija: \n
+        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
@@ -411,9 +497,19 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="new_copied_workspace">Kopijuoti kaip naują</string>
   <string name="workspace_number">Darbo sritis %d</string>
   <string name="rename_workspace">Pervadinti</string>
+  <string name="workspace_selector_title">Rinktis darbalaukį</string>
   <string name="workspace_settings">Nuostatos…</string>
+  <string name="give_name_workspace">Priskirkite naujam darbalaukiui pavadinimą</string>
+  <string name="save_and_exit">Išsaugoti</string>
+  <string name="current_workspace">dabartinis</string>
+  <string name="workspace_save_changes">Darbalaukiui pritaikyti pakeitimus?</string>
   <string name="copy_of_workspace">%s kopija</string>
+  <string name="copy_workspace_settings">Kopijuoti nustatymus</string>
+  <string name="copy_settings_title">Kuriuos nustatymus kopijuoti?</string>
+  <string name="select_all">Pasirinkti visus</string>
+  <string name="copy_settings_workspaces_title">Į kuriuos darbalaukius kopijuoti nustatymus?</string>
   <string name="reset_settings">Atstatyti</string>
+  <string name="workspace_dismiss">Atšaukti</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
   <string name="beta_notice_content_1">

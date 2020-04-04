@@ -23,6 +23,7 @@ El menú contextual del gestor de marcadores permite agrupar los marcadores usan
   <string name="help_search_title">Búsqueda</string>
   <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
 (vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
+  <string name="help_workspaces_title">Espacios</string>
   <string name="help_contextmenus_title">Menús contextuales</string>
   <string name="help_contextmenus_text">
 Realice una presión larga en la vista de la Biblia para abrir el menú contextual para acciones que afectan al versículo actual.
@@ -35,7 +36,6 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Pasaje</string>
   <string name="search">Encuentra</string>
-  <string name="settings">Ajustes</string>
   <string name="history">Historia</string>
   <string name="speak">Con voz</string>
   <string name="help">Ayuda</string>
@@ -52,7 +52,6 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <!--Search-->
   <string name="search_index">Indice de búsqueda</string>
   <string name="index_creation_required">Se requiere un índice para buscar.\n\nLos índices se pueden descargar de internet o crearse localmente.\n\nDescargarlos es mucho más rápido y los índices descargados tienen más características de búsqueda.\n\nSe necesita una conexión a internet para descargar índices.\n</string>
-  <string name="search_index_unavailable">Desgraciadamente la creación de índices solo está disponible en Android 5.0 (Lollipop) o posterior.</string>
   <string name="indexing_wait_msg">Cuando la indexación se haya completado, se redireccionará a la pantalla de búsqueda.</string>
   <string name="index_download">Descarga</string>
   <string name="index_not_available_for_download">Este indice no está disponible para descargar</string>
@@ -88,42 +87,29 @@ Realice presión larga en el botón \"Atrás\" para acceder el listado del histo
   <string name="prefs_section_title_title">Títulos de sección</string>
   <string name="prefs_red_letter_title">Letra roja</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para desplazar</string>
-  <string name="prefs_tilt_to_scroll_summary">Incline el dispositivo para avanzar página abajo</string>
-  <string name="prefs_night_mode_title">Modo nocturno</string>
-  <string name="prefs_night_mode_summary">Para facilitar la lectura en la oscuridad</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>
+  <string name="options_menu_night_mode">Modo nocturno</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
   <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>
   <string name="prefs_open_links_in_special_window_summary">Para mostrar más rápido las referencias cruzadas o negritas</string>
-  <string name="prefs_text_size_title">Tamaño del texto</string>
-  <string name="prefs_text_size_summary">Ver más o más claramente</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
   <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
   <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
   <string name="prefs_interface_locale_title">Idioma de la aplicación</string>
   <string name="prefs_interface_locale_summary">Selecciona lenguaje de interfaz personalizado</string>
-  <string name="prefs_split_mode_vertical">Vertical</string>
-  <string name="prefs_split_mode_horizontal">Horizontal</string>
-  <string name="prefs_split_mode_automatic">Automático</string>
-  <string name="prefs_split_mode_summary">¿Cómo dividir múltiples pantallas en la disposición de ventanas?</string>
-  <string name="prefs_split_mode_title">Modo de división</string>
+  <string name="reset_fontsize">Resetea</string>
   <string name="prefs_request_sdcard_permission_title">Existen documentos instalados manualmente</string>
-  <string name="prefs_request_sdcard_permission_summary">Habilitar el uso de documentos instalados manualmente desde la carpeta jsword en la tarjeta SD</string>
-  <string name="bible_text_options">Opciones de texto Bíblico</string>
   <string name="auto_fullscreen">Pantalla completa desplazándose</string>
-  <string name="switch_split_mode">Cambiar modo dividido</string>
   <string name="reversed_split_mode">Modo dividido invertido</string>
-  <string name="prefs_auto_night_mode_title">Modo nocturno automático</string>
-  <string name="prefs_auto_night_mode_summary">Cambiar al modo nocturno automáticamente por sensor</string>
+  <!--Colors preferences-->
   <!--Window-->
   <string name="new_window">Nueva ventana</string>
   <string name="windowClose">Cerrar</string>
   <string name="windowMaximise">Maximizar</string>
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
-  <string name="windowMoveFirst">Mover al prinicipio</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">No existen notas en este capítulo</string>
   <string name="no_verse_notes">No existen notas en este verso</string>
@@ -155,8 +141,6 @@ Por favor, inténtelo de nuevo más tarde.
   <string name="install_zip">Cargar documento desde zip</string>
   <string name="install_zip_module">Instalar módulo de Biblia</string>
   <string name="install_zip_successfull">El módulo se ha instalado correctamente</string>
-  <string name="extracting_zip_file">Extrayendo Zip...</string>
-  <string name="checking_zip_file">Comprobando el archivo...</string>
   <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
   <string name="module_already_installed">El archivo contiene un módulo que ya está instalado</string>
   <string name="install_zip_title">Por favor, espere. Cargando archivo Zip.</string>
@@ -222,7 +206,6 @@ Cortesía de Wholesome Words, http://www.wholesomewords.org/, permiso otorgado
   <!--Link context menu-->
   <string name="open_link_in_this_window">Abrir enlace aquí</string>
   <string name="open_link_in_new_window">Abrir enlace en nueva ventana</string>
-  <string name="open_link_in_main_window">Abrir enlace en la ventana principal</string>
   <string name="open_link_in_special_window">Abrir enlace en una ventana especial</string>
   <!--Bookmarks-->
   <string name="bookmarks">Marcadores</string>
@@ -363,11 +346,9 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Copia de seguridad y restauración</string>
   <string name="backup">Guardar copia de seguridad en...</string>
-  <string name="backup_success">Se han guardado Mis Notas y Marcadores en %s en la tarjeta SD</string>
   <string name="restore">Restaurar copia de seguridad desde...</string>
   <string name="restore_confirmation">¿Sobreescribir Mis Notas, Marcadores, Planes de Lectura y Espacios?</string>
   <string name="restore_success">Mis notas, marcadores, planes de lectura y espacios restaurados con éxito</string>
-  <string name="error_no_backup_file">No se pudo encontrar una copia de seguridad</string>
   <string name="loading_backup">Cargando base de datos desde la copia de seguridad...</string>
   <string name="backup_email_subject">Copia de seguridad de la base de datos de And Bible</string>
   <string name="backup_email_message">Se adjunta su base de datos de And Bible que contiene marcadores, mis notas, planes de lectura y espacios</string>
@@ -378,15 +359,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="about_versification">Versificación: %s</string>
   <string name="send_backup_file">Enviar un archivo de copia de seguridad</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title">Informar de un fallo...</string>
+  <string name="send_bug_report_title">Informar de un fallo</string>
   <string name="report_bug_email_subject">Informe de fallo en And Bible %s</string>
-  <string name="report_bug_email_message">
-        Por favor use esta función para informar tan pronto como experimente el fallo.\n
-        \n
-        Díganos brevemente, a ser posible en inglés, qué hizo o qué ocurrió cuando ocurrió el fallo: \n
-        \n
-        Información del dispositivo: \n
-        %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Comentario</string>
@@ -418,19 +392,20 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="notification_channel_tts_status">Texto a voz</string>
   <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
   <!--Workspaces-->
-  <string name="workspaces">Espacios</string>
-  <string name="new_workspace">Nuevo espacio</string>
-  <string name="switch_to_workspace">Cambiar al espacio...</string>
-  <string name="delete_workspace">Eliminar este espacio</string>
-  <string name="choose_workspace_to_open">Elige espacio para abrir</string>
-  <string name="new_copied_workspace">Copia este espacio como nuevo</string>
+  <string name="new_workspace">Nuevo</string>
+  <string name="switch_to_workspace">Espacios...</string>
+  <string name="delete_workspace">Eliminar</string>
+  <string name="new_copied_workspace">Copia como nuevo</string>
   <string name="workspace_number">Espacio %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Renombrar espacio…</string>
-  <string name="rename_workspace_title">Dale un nombre a este espacio</string>
-  <string name="new_workspace_from_dialog">Nuevo</string>
-  <string name="delete_workspace_from_dialog">Eliminar actual</string>
-  <string name="history_title">Historia (%s)</string>
+  <string name="rename_workspace">Renombrar</string>
+  <string name="workspace_settings">Ajustes...</string>
+  <string name="save_and_exit">Guarda</string>
+  <string name="current_workspace">actual</string>
+  <string name="copy_of_workspace">Copia de %s</string>
+  <string name="copy_workspace_settings">Copia ajustes...</string>
+  <string name="select_all">Seleccionar todo</string>
+  <string name="reset_settings">Resetea</string>
+  <string name="workspace_dismiss">Descartar</string>
   <!--Beta notice-->
   <string name="beta_notice_title">¡Esta es la versión beta!</string>
   <string name="beta_notice_content_1">
@@ -447,4 +422,7 @@ a través de %s usted mismo. :-)</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Descartar</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
+  <!--History-->
+  <string name="history_for">Historia (%s: Ventana %d)</string>
+  <string name="close">Cerrar</string>
 </resources>
