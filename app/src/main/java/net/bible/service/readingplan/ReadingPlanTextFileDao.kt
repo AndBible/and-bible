@@ -38,6 +38,7 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.ArrayList
+import java.util.Date
 import java.util.Properties
 import kotlin.math.max
 
@@ -47,6 +48,7 @@ import kotlin.math.max
 class ReadingPlanTextFileDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
     private var cachedReadingList: List<OneDaysReadingsDto>? = null
+    private val readingPlanRepo = BibleApplication.application.applicationComponent.readingPlanRepo()
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {
@@ -199,6 +201,9 @@ class ReadingPlanTextFileDao {
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
         info.versification = getReadingPlanVersification(planCode)
         info.isDateBasedPlan = getPlanProperties(planCode).isDateBasedPlan
+
+        val date = readingPlanRepo.getStartDate(planCode)
+        info.startDate = date?.let { Date(date) }
 
         return info
     }

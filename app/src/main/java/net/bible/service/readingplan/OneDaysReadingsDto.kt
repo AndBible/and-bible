@@ -59,7 +59,7 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
                 SimpleDateFormat.getDateInstance().format(readingDate)
             } else {
                 var dateString = ""
-                val startDate = readingPlanInfo.startdate
+                val startDate = readingPlanInfo.startDate
                 if (startDate != null) {
                     val cal = Calendar.getInstance()
                     cal.time = startDate

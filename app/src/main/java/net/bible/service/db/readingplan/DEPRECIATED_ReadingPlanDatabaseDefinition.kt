@@ -31,9 +31,11 @@ import kotlin.collections.ArrayList
 import kotlin.math.max
 
 /** @author Timmy Braun [tim.bze at gmail dot com] (Oct. 21, 2019)
+ * UPDATE 2020-04-04 TB - The only reason this class continues to exist is for
+ * old versions of AB with db version 5 or less. MIGRATION_5_6 is the only
+ * place that uses this
+
  */
-
-
 object ReadingPlanDatabaseDefinition {
 
     /** Table to keep track of plan start date and current day progress

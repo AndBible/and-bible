@@ -18,9 +18,6 @@
 
 package net.bible.service.readingplan
 
-import net.bible.service.common.CommonUtils
-import net.bible.service.db.readingplan.ReadingPlanDbAdapter
-
 import org.crosswire.jsword.versification.Versification
 
 import java.util.Date
@@ -34,34 +31,7 @@ class ReadingPlanInfoDto(var planCode: String) {
     var versification: Versification? = null
     var numberOfPlanDays: Int = 0
     var isDateBasedPlan: Boolean = false
-    val rAdapter = ReadingPlanDbAdapter.instance
-
-    /** a persistent start date
-     * return the date the plan was started or null if not started
-     */
-    val startdate: Date?
-        get() {
-            val startDate = rAdapter.getReadingStartDate(planCode)
-            startDate ?: return null
-            return Date(startDate)
-        }
-
-    /** set a persistent start date
-     */
-    fun start() {
-        startOn(CommonUtils.truncatedDate, false)
-    }
-
-    fun setStartDate(startDate: Date) {
-        startOn(startDate, true)
-    }
-
-    private fun startOn(date: Date, force: Boolean) {
-
-        // if changing plan
-        if (startdate == null || force)
-            rAdapter.setReadingStartDate(planCode, date.time)
-    }
+    var startDate: Date? = null
 
     override fun toString(): String {
         return "$planName"

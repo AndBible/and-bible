@@ -24,7 +24,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 class ReadingPlanEntities {
-    
+
     /** Stores information for plan, like start date and current day user is on.
      * Plans that exist are determined by text files. Row will only exist here for plan
      * that has already been started */
@@ -32,8 +32,8 @@ class ReadingPlanEntities {
         indices = [Index(name = "index_readingplan_plan_code",value=["plan_code"], unique = true)])
     data class ReadingPlan(
         @ColumnInfo(name = "plan_code") val planCode: String,
-        @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
-        @ColumnInfo(name = "plan_current_day", defaultValue = "1") val planCurrentDay: Int = 1,
+        @ColumnInfo(name = "plan_start_date") var planStartDate: Int,
+        @ColumnInfo(name = "plan_current_day", defaultValue = "1") var planCurrentDay: Int = 1,
         @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
     )
 

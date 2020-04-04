@@ -103,12 +103,12 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     }
 
     open fun reloadStatus() {
-        val status: String? = readingPlanRepo.getReadingPlanStatus(planCode, day)
+        val status: String? = readingPlanRepo.getReadingStatus(planCode, day)
         status?.let { this.status = ReadingStatus(status) }
     }
 
     private fun saveStatus() {
-        readingPlanRepo.setReadingPlanStatus(planCode, day, status.toString())
+        readingPlanRepo.setReadingStatus(planCode, day, status.toString())
     }
 
     override fun toString(): String {
