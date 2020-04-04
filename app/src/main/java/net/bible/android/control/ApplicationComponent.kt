@@ -101,7 +101,4 @@ interface ApplicationComponent {
     fun readingPlanActionBarManager(): ReadingPlanActionBarManager
     fun searchResultsActionBarManager(): SearchResultsActionBarManager
     fun bibleBookActionBarManager(): BibleBookActionBarManager
-
-    // Inject (done in ActivityComponent before)
-    fun inject(readingStatus: ReadingStatus)
 }
