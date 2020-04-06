@@ -16,29 +16,35 @@
  *
  */
 
-package net.bible.android.database
+package net.bible.android.database.readingplan
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.Date
 
 class ReadingPlanEntities {
-    @Entity(tableName = "readingplan", indices = [Index(value=["plan_code"])])
+
+    /** Stores information for plan, like start date and current day user is on.
+     * Plans that exist are determined by text files. Row will only exist here for plan
+     * that has already been started */
+    @Entity(tableName = "readingplan",
+        indices = [Index(name = "index_readingplan_plan_code",value=["plan_code"], unique = true)])
     data class ReadingPlan(
-        @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
         @ColumnInfo(name = "plan_code") val planCode: String,
-        @ColumnInfo(name = "plan_start_date") val planStartDate: Int,
-        @ColumnInfo(name = "plan_current_day", defaultValue = "1") val planCurrentDay: Int = 1
+        @ColumnInfo(name = "plan_start_date") var planStartDate: Date,
+        @ColumnInfo(name = "plan_current_day", defaultValue = "1") var planCurrentDay: Int = 1,
+        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
     )
 
     @Entity(tableName = "readingplan_status",
-        indices = [Index(name="code_day", value = ["plan_code", "plan_day"])]
+        indices = [Index(name="code_day", value = ["plan_code", "plan_day"], unique = true)]
     )
     data class ReadingPlanStatus(
-        @PrimaryKey @ColumnInfo(name="_id") val id: Int?,
         @ColumnInfo(name = "plan_code") val planCode: String,
         @ColumnInfo(name = "plan_day") val planDay: Int,
-        @ColumnInfo(name = "reading_status") val readingStatus: String
+        @ColumnInfo(name = "reading_status") val readingStatus: String,
+        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
     )
 }

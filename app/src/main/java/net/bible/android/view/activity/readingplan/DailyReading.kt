@@ -336,7 +336,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
                 val nowTime = Calendar.getInstance()
                 val planStartDate = Calendar.getInstance()
-                planStartDate.time = mReadings.readingPlanInfo.startdate ?: nowTime.time
+                planStartDate.time = mReadings.readingPlanInfo.startDate ?: nowTime.time
                 val yearSet = planStartDate.get(Calendar.YEAR)
                 val monthSet = planStartDate.get(Calendar.MONTH)
                 val daySet = planStartDate.get(Calendar.DAY_OF_MONTH)

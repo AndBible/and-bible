@@ -20,16 +20,22 @@ package net.bible.android.control.readingplan
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.JSON_CONFIG
-import net.bible.service.db.readingplan.ReadingPlanDbAdapter
+import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
+import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
+    @Inject
+    lateinit var readingPlanRepo: ReadingPlanRepository
 
-    private val rAdapter: ReadingPlanDbAdapter get() = ReadingPlanDbAdapter.instance
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
 
     @Serializable
     private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)
@@ -93,16 +99,16 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
     /** do not leave prefs around for historic days
      */
     open fun delete(planInfo: ReadingPlanInfoDto) {
-        rAdapter.deleteOldStatuses(planInfo, day)
+        readingPlanRepo.deleteOldStatuses(planInfo, day)
     }
 
     open fun reloadStatus() {
-        val status: String? = rAdapter.getReadingPlanStatus(planCode, day)
+        val status: String? = readingPlanRepo.getReadingStatus(planCode, day)
         status?.let { this.status = ReadingStatus(status) }
     }
 
     private fun saveStatus() {
-        rAdapter.setReadingPlanStatus(planCode, day, status.toString())
+        readingPlanRepo.setReadingStatus(planCode, day, status.toString())
     }
 
     override fun toString(): String {

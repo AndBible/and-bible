@@ -28,8 +28,9 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.OneDaysReadingsDto
-import net.bible.service.readingplan.ReadingPlanDao
+import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 import org.apache.commons.lang3.StringUtils
@@ -51,10 +52,11 @@ import kotlin.math.roundToLong
 @ApplicationScope
 class ReadingPlanControl @Inject constructor(
 		private val speakControl: SpeakControl,
-		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider)
+		private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+        private val readingPlanRepo: ReadingPlanRepository)
 {
 
-    private val readingPlanDao = ReadingPlanDao()
+    private val readingPlanTextDao = ReadingPlanTextFileDao()
     private var readingStatus: ReadingStatus? = null
 
     /** allow front end to determine if a plan needs has been selected
@@ -65,7 +67,7 @@ class ReadingPlanControl @Inject constructor(
     /** get a list of plans so the user can choose one
      */
     val readingPlanList: List<ReadingPlanInfoDto>
-        get() = readingPlanDao.readingPlanList
+        get() = readingPlanTextDao.readingPlanList
 
     /**
      * Check if any user plans in jsword/readingplan have same file
@@ -73,8 +75,8 @@ class ReadingPlanControl @Inject constructor(
      */
     val readingPlanUserDuplicates: Boolean
     get() {
-        val userPlanList = readingPlanDao.userPlanCodes(false) ?: return false
-        val internalPlanList = readingPlanDao.internalPlanCodes
+        val userPlanList = readingPlanTextDao.userPlanCodes(false) ?: return false
+        val internalPlanList = readingPlanTextDao.internalPlanCodes
         userPlanList.forEach { userPlan ->
             if (internalPlanList.find { internalPlan -> internalPlan == userPlan } != null)
                 return true
@@ -85,31 +87,29 @@ class ReadingPlanControl @Inject constructor(
     /** get list of days and readings for a plan so user can see the plan in advance
      */
     val currentPlansReadingList: List<OneDaysReadingsDto>
-        get() = readingPlanDao.getReadingList(currentPlanCode)
+        get() = readingPlanTextDao.getReadingList(currentPlanCode)
 
     var currentPlanDay: Int
         get() {
             val planCode = currentPlanCode
-            return if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) {
+            return if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) {
                 val todayDate = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
-                readingPlanDao.getReadingList(planCode).find {
+                readingPlanTextDao.getReadingList(planCode).find {
                     it.readingDate == todayDate.time
                 }?.day ?: 1
             } else {
-                readingPlanDao.getReadingPlanInfoDto(planCode)
-                    .rAdapter.getReadingCurrentDay(planCode)
+                readingPlanRepo.getCurrentDay(planCode)
             }
         }
         private set(day) {
             val planCode = currentPlanCode
-            if (readingPlanDao.getReading(planCode, 1).isDateBasedPlan) return
-            readingPlanDao.getReadingPlanInfoDto(planCode)
-                .rAdapter.setReadingCurrentDay(planCode, day)
+            if (readingPlanTextDao.getReading(planCode, 1).isDateBasedPlan) return
+            readingPlanRepo.setCurrentDay(planCode, day)
         }
 
     val shortTitle: String
@@ -140,14 +140,15 @@ class ReadingPlanControl @Inject constructor(
         setReadingPlan(plan.planCode)
 
         // tell the plan to set a start date
-        plan.start()
+        if (plan.startDate == null)
+            readingPlanRepo.startPlan(plan.planCode)
     }
 
     /** Adjust the plan start date
      */
     fun setStartDate(plan: ReadingPlanInfoDto, startDate: Date) {
         // tell the plan to set a start date
-        plan.setStartDate(startDate)
+        readingPlanRepo.startPlan(plan.planCode, startDate)
     }
 
     /** change default plan
@@ -166,7 +167,7 @@ class ReadingPlanControl @Inject constructor(
         val planCode = currentPlanCode
         var readingStatus = readingStatus
         if (readingStatus == null || readingStatus.planCode != planCode || readingStatus.day != day) {
-            val oneDaysReadingsDto = readingPlanDao.getReading(planCode, day)
+            val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
             readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay) {
                 HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
@@ -180,7 +181,7 @@ class ReadingPlanControl @Inject constructor(
 
     private fun getDueDay(planInfo: ReadingPlanInfoDto): Long {
         val today = CommonUtils.truncatedDate
-        val startDate = planInfo.startdate ?: return 0
+        val startDate = planInfo.startDate ?: return 0
         // on final day, after done the startDate will be null
 
         // should not need to round as we use truncated dates, but safety first
@@ -216,7 +217,7 @@ class ReadingPlanControl @Inject constructor(
             getReadingStatus(day).delete(planInfo)
 
             // was this the last day in the plan
-            if (readingPlanDao.getNumberOfPlanDays(currentPlanCode) == day) {
+            if (readingPlanTextDao.getNumberOfPlanDays(currentPlanCode) == day) {
                 // last plan day is just Done so clear all plan status
                 reset(planInfo)
                 nextDayToShow = -1
@@ -264,7 +265,7 @@ class ReadingPlanControl @Inject constructor(
     /** get readings due for current plan on specified day
      */
     fun getDaysReading(day: Int): OneDaysReadingsDto {
-        return readingPlanDao.getReading(currentPlanCode, day)
+        return readingPlanTextDao.getReading(currentPlanCode, day)
     }
 
     /** User wants to read a passage from the daily reading
@@ -326,7 +327,7 @@ class ReadingPlanControl @Inject constructor(
             CommonUtils.sharedPreferences.edit().remove(READING_PLAN).apply()
         }
 
-        plan.rAdapter.resetPlan(plan.planCode)
+        readingPlanRepo.resetPlan(plan.planCode)
     }
 
     private fun convertReadingVersification(readingKey: Key, bibleToBeUsed: AbstractPassageBook): List<Key> {
