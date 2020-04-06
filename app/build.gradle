@@ -122,7 +122,7 @@ dependencies {
     // Appcompat:
     // 1.1.0 crashes WebView on API 21..22. Waiting for 1.2.0 (alpha02 fixes)
     // https://issuetracker.google.com/issues/141132133
-    implementation 'androidx.appcompat:appcompat:1.2.0-alpha03'
+    implementation 'androidx.appcompat:appcompat:1.2.0-beta01'
     implementation 'androidx.drawerlayout:drawerlayout:1.0.0'
     implementation 'androidx.media:media:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
