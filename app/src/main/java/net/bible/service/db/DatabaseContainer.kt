@@ -276,6 +276,7 @@ private val MIGRATION_20_21 = object : Migration(20, 21) {
     }
 }
 
+
 fun getColumnNames(db: SupportSQLiteDatabase, tableName: String): String {
     val cursor = db.query("PRAGMA table_info($tableName)")
     val columnNameIdx = cursor.getColumnIndex("name")
@@ -488,6 +489,14 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
     }
 }
 
+private val MIGRATION_28_29 = object : Migration(28, 29) {
+    // Added autogenerate=true for readingplan and readingplan_status. Some db schemas may already have this, but makes sure
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Document` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL)")
+        }
+    }
+}
 
 object DatabaseContainer {
     private var instance: AppDatabase? = null
@@ -528,7 +537,8 @@ object DatabaseContainer {
                         MIGRATION_25_26,
                         CLEANUP_MIGRATION_26_27,
                         SQUASH_MIGRATION_10_27,
-                        MIGRATION_27_28
+                        MIGRATION_27_28,
+                        MIGRATION_28_29
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

@@ -26,7 +26,7 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 
 import java.util.*
 
-const val DATABASE_VERSION = 28
+const val DATABASE_VERSION = 29
 
 class Converters {
     @TypeConverter
@@ -47,7 +47,8 @@ class Converters {
         WorkspaceEntities.Workspace::class,
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
-        WorkspaceEntities.PageManager::class
+        WorkspaceEntities.PageManager::class,
+        Document::class
     ],
     version = DATABASE_VERSION
 )
@@ -55,6 +56,7 @@ class Converters {
 abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
+    abstract fun documentDao(): DocumentDao
 
     fun sync() { // Sync all data so far into database file
         val cur = openHelper.writableDatabase

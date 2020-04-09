@@ -35,7 +35,6 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import java.util.*
 import javax.inject.Inject
 
@@ -197,6 +196,9 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         when (item.itemId) {
             R.id.refresh -> {
                 // normal user downloading but need to refresh the document list
+                freeTextSearch.setText("")
+                languageSpinner.setText("")
+
                 Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 
                 // prepare the document list view - done in another thread

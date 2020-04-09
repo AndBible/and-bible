@@ -4,6 +4,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -17,32 +18,56 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		>
-		<requestFocus />
+		<requestFocus/>
 	</LinearLayout>
-    <LinearLayout
+
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/filters"
+		android:layout_width="match_parent"
+		android:layout_height="50dip"
 		android:orientation="horizontal"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:paddingTop="5dip"
-		android:paddingBottom="5dip"
 		android:paddingLeft="8dp"
+		android:paddingTop="5dip"
 		android:paddingRight="8dp"
-		app:layout_constraintTop_toTopOf="parent"
-		>
-    	<AutoCompleteTextView android:id="@+id/languageSpinner"
-			android:maxLines="1"
+		android:paddingBottom="5dip"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<AutoCompleteTextView
+			android:id="@+id/languageSpinner"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
 			android:completionThreshold="0"
 			android:hint="@string/chooce_language_hint"
-    		android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:layout_weight="50"/>
-    	<Spinner android:id="@+id/documentTypeSpinner"
-    		android:entries="@array/documentTypes"
-    		android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-			android:layout_weight="50"/>
-    </LinearLayout>
+			android:maxLines="1"
+			app:layout_constraintEnd_toStartOf="@+id/freeTextSearch"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toStartOf="parent"
+			tools:layout_editor_absoluteY="9dp" />
+
+		<EditText
+			android:id="@+id/freeTextSearch"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:hint="@string/free_text_search_documents"
+			android:maxLines="1"
+
+			app:layout_constraintStart_toEndOf="@+id/languageSpinner"
+			app:layout_constraintEnd_toStartOf="@+id/documentTypeSpinner"
+			app:layout_constraintHorizontal_bias="0.5"
+			tools:layout_editor_absoluteY="5dp" />
+
+		<Spinner
+			android:id="@+id/documentTypeSpinner"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:entries="@array/documentTypes"
+
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@+id/freeTextSearch"
+			tools:layout_editor_absoluteY="9dp"
+			/>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 	<ListView android:id="@android:id/list"
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
@@ -50,7 +75,7 @@
 		android:visibility="visible"
 		app:layout_constraintTop_toBottomOf="@id/filters"
 		app:layout_constraintBottom_toBottomOf="parent"
-		/>
+		></ListView>
 	<ProgressBar
 		android:id="@+id/loadingIndicator"
 		android:layout_width="match_parent"

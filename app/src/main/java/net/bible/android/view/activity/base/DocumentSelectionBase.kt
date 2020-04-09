@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.database.DataSetObserver
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -42,11 +41,14 @@ import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
+import net.bible.android.database.Document
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.Logger
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.Language
@@ -97,7 +99,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     protected var selectedLanguageNo = -1
     lateinit var langArrayAdapter: ArrayAdapter<Language>
 
-    var isPopulated = false
+    private var isPopulated = false
+    private val dao = DatabaseContainer.db.documentDao()
 
     protected val recommendedDocuments : RecommendedDocuments by lazy {
         val jsonString = String(
@@ -153,7 +156,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             val lang = parent.adapter.getItem(position) as Language
             lastSelectedLanguage = lang
             selectedLanguageNo = languageList.indexOf(lang)
-            this@DocumentSelectionBase.filterDocuments()
+            filterDocuments()
             languageSpinner.clearFocus()
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(languageSpinner.windowToken, 0)
@@ -164,22 +167,24 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val langString = s.toString()
                 if(langString.isEmpty()) {
                     selectedLanguageNo = -1
-                    this@DocumentSelectionBase.filterDocuments()
+                    filterDocuments()
                 } else {
                     val langIdx = languageList.indexOfFirst {it.name == langString}
                     if(langIdx != -1) {
                         selectedLanguageNo = langIdx
-                        this@DocumentSelectionBase.filterDocuments()
+                        filterDocuments()
                     }
                 }
             }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        freeTextSearch.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                filterDocuments()
             }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
         languageSpinner.setOnClickListener {
@@ -306,6 +311,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 try {
                     allDocuments.clear()
                     allDocuments.addAll(getDocumentsFromSource(refresh))
+                    dao.clear()
+                    dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name) })
+
                     Log.i(TAG, "Number of documents:" + allDocuments.size)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error getting documents", e)
@@ -315,8 +323,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             withContext(Dispatchers.Main) {
                 try {
                     populateLanguageList()
-                    isPopulated = true
                     setDefaultLanguage()
+                    isPopulated = true
                     filterDocuments()
                 } finally {
                     loadingIndicator.visibility = View.GONE
@@ -329,41 +337,54 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
      */
     private fun filterDocuments() {
         if(!isPopulated) return
-        try {
-            // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
-            listActionModeHelper.exitActionMode()
+        // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
+        listActionModeHelper.exitActionMode()
+        synchronized(this) {
+            GlobalScope.launch {
+                withContext(Dispatchers.Default) {
+                    try {
+                        // re-filter documents
+                        if (allDocuments.size > 0) {
+                            Log.d(TAG, "filtering documents")
+                            displayedDocuments.clear()
+                            val lang = selectedLanguage
+                            val searchString = "*${freeTextSearch.text}*"
+                            val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
-            // re-filter documents
-            if (allDocuments.size > 0) {
-                Log.d(TAG, "filtering documents")
-                displayedDocuments.clear()
-                val lang = selectedLanguage
-                for (doc in allDocuments) {
-                    val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                    if (filter.test(doc) && (lang == null || doc.language == lang) ) {
-                        displayedDocuments.add(doc)
+                            for (doc in allDocuments) {
+                                val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
+                                if (filter.test(doc) && (lang == null || doc.language == lang) && (osisIds == null || osisIds.contains(doc.osisID))) {
+                                    displayedDocuments.add(doc)
+                                }
+                            }
+
+                            displayedDocuments.sortWith(
+                                compareBy (
+                                    {!it.isRecommended(recommendedDocuments)},
+                                    {when(it.bookCategory) {
+                                        BookCategory.BIBLE -> 0
+                                        BookCategory.COMMENTARY -> 1
+                                        BookCategory.DICTIONARY -> 2
+                                        BookCategory.GENERAL_BOOK -> 4
+                                        BookCategory.MAPS -> 5
+                                        else -> 6
+                                    } },
+                                    {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                                )
+                            )
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error initialising view", e)
+                        ABEventBus.getDefault().post(
+                            ToastEvent(getString(R.string.error) + " " + e.message,
+                                Toast.LENGTH_SHORT)
+                        )
                     }
                 }
-
-                displayedDocuments.sortWith(
-                    compareBy (
-                        {!it.isRecommended(recommendedDocuments)},
-                        {when(it.bookCategory) {
-                            BookCategory.BIBLE -> 0
-                            BookCategory.COMMENTARY -> 1
-                            BookCategory.DICTIONARY -> 2
-                            BookCategory.GENERAL_BOOK -> 4
-                            BookCategory.MAPS -> 5
-                            else -> 6
-                        } },
-                        {it.abbreviation.toLowerCase(Locale(it.language.code))}
-                    )
-                )
-                notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    notifyDataSetChanged()
+                }
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initialising view", e)
-            Toast.makeText(this, getString(R.string.error) + " " + e.message, Toast.LENGTH_SHORT).show()
         }
     }
 

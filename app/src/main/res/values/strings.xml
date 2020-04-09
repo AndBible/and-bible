@@ -630,4 +630,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="about_osisId">OSIS ID: %s</string>
     <string name="chooce_language_hint">Language</string>
     <string name="one_more_back_press">One more pressing of back button will close app</string>
+    <string name="free_text_search_documents">Search</string>
 </resources>
