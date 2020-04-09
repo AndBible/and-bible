@@ -179,6 +179,15 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+        freeTextSearch.setOnClickListener {
+            languageSpinner.setText("")
+        }
+        freeTextSearch.setOnFocusChangeListener { i, hasFocus ->
+            if(hasFocus) {
+                languageSpinner.setText("")
+                freeTextSearch.setText("")
+            }
+        }
         freeTextSearch.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 filterDocuments()
