@@ -236,6 +236,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
+                R.id.restore_modules -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
                 R.id.restore_app_database -> {
                     AlertDialog.Builder(callingActivity)
                         .setTitle(callingActivity.getString(R.string.backup_restore_title))

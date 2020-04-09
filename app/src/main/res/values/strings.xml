@@ -268,7 +268,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
-    
+    <string name="free_text_search_documents">Search</string>
+
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_module">Install Bible Module</string>
@@ -505,7 +506,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
-    <string name="backup_modules">Backup Documents…</string>
+    <string name="backup_modules">Backup Documents to…</string>
     <string name="backup_app_database">Backup application database to…</string>
     <string name="restore_app_database">Restore application database from…</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Reading Plans and Workspaces?</string>
@@ -520,11 +521,20 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_email_subject">And Bible database backup</string>
     <string name="backup_email_message">Your And Bible database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
+    <string name="backup_restore_title">Restore from where?</string>
+    <string name="backup_restore_message">Restore from phone storage or choose location manually (you can choose also from Google Drive etc.)?</string>
+    <string name="backup_phone_storage">Phone storage</string>
+    <string name="backup_manually">Manually</string>
+    <string name="backup_backup_title">Backup to where?</string>
+    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
+    <string name="backup_share">Share</string>
+    <string name="restore_modules">Restore Documents from…</string>
+    <string name="send_backup_file">Send a backup file</string>
+
     <!-- About -->
     <string name="about_copyright">Copyright: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="about_versification">Versification: %s</string>
-    <string name="send_backup_file">Send a backup file</string>
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
@@ -632,15 +642,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="about_osisId">OSIS ID: %s</string>
     <string name="chooce_language_hint">Language</string>
     <string name="one_more_back_press">One more pressing of back button will close app</string>
-    <string name="free_text_search_documents">Search</string>
-    <string name="backup_restore_title">Restore from where?</string>
-    <string name="backup_restore_message">Restore from phone storage or choose location manually (you can choose also from Google Drive etc.)?</string>
-    <string name="backup_phone_storage">Phone storage</string>
-    <string name="backup_manually">Manually</string>
-    <string name="backup_backup_title">Backup to where?</string>
-    <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
-    <string name="backup_share">Share</string>
-    <string name="restore_modules">Restore modules from...</string>
-
-
 </resources>
