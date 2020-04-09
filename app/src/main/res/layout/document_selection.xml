@@ -75,7 +75,7 @@
 		android:visibility="visible"
 		app:layout_constraintTop_toBottomOf="@id/filters"
 		app:layout_constraintBottom_toBottomOf="parent"
-		></ListView>
+		/>
 	<ProgressBar
 		android:id="@+id/loadingIndicator"
 		android:layout_width="match_parent"
