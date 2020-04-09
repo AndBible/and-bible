@@ -1,10 +1,12 @@
 {
   "bibles":  {
-    "en": ["NASB", "KJV"],
-    "fi": ["FinRK", "FinSTLK2017"]
+    "en": ["NASB", "KJV", "engNET2016eb"],
+    "fi": ["FinRK", "FinSTLK2017"],
+    "es": ["spaRV1909eb"],
+    "de": ["deu1912eb"]
   },
   "commentaries": {
-    "en": ["Gill", "MHC", "TSK"]
+    "en": ["Gill", "MHC", "TSK", "NETnotesfree"]
   },
   "dictionaries": {
     "en": ["StrongsGreek", "StrongsHebrew"]
