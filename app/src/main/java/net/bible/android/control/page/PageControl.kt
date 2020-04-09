@@ -130,7 +130,7 @@ open class PageControl @Inject constructor(
         // if book has a special font it may require an adjusted font size
         val book = window.pageManager.currentPage.currentDocument
         val font = FontControl.instance.getFontForBook(book)
-        val fontSizeAdjustment = FontControl.instance.getFontSizeAdjustment(font, book!!)
+        val fontSizeAdjustment = FontControl.instance.getFontSizeAdjustment(font, book)
         return fontSize + fontSizeAdjustment
     }
 

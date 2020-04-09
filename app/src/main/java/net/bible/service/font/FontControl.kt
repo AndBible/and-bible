@@ -65,7 +65,7 @@ class FontControl private constructor() {
      * fontname.fontSizeAdjustment=2
      * will increase the size when fontname is used
      */
-    fun getFontSizeAdjustment(font: String?, book: Book): Int {
+    fun getFontSizeAdjustment(font: String?, book: Book?): Int {
         var sizeAdjustment = 0
         try {
             if (!StringUtils.isEmpty(font)) {
@@ -81,8 +81,8 @@ class FontControl private constructor() {
         return sizeAdjustment
     }
 
-    fun getCssClassForCustomFont(book: Book): String {
-        return fontProperties.getProperty(book.abbreviation + CSS_CLASS, "")
+    fun getCssClassForCustomFont(book: Book?): String {
+        return fontProperties.getProperty(book?.abbreviation?:"" + CSS_CLASS, "")
     }
 
     fun exists(font: String?): Boolean {

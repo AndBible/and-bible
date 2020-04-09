@@ -151,7 +151,6 @@ class CurrentBiblePage(
 
 	override val key: Key get() = doGetKey(false)
 
-
     private val verseSelected: Verse get() = currentBibleVerse.getVerseSelected(versification)
 
     override val isSingleKey = false
@@ -163,13 +162,11 @@ class CurrentBiblePage(
         val document = entity.document
         if (StringUtils.isNotEmpty(document)) {
             Log.d(TAG, "State document:$document")
-            val book = swordDocumentFacade.getDocumentByInitials(document)
-            if (book != null) {
-                Log.d(TAG, "Restored document:" + book.name)
-                // bypass setter to avoid automatic notifications
-                localSetCurrentDocument(book)
-                currentBibleVerse.restoreFrom(entity.verse)
-            }
+            val book = swordDocumentFacade.getDocumentByInitials(document)?: swordDocumentFacade.bibles.first()
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            currentBibleVerse.restoreFrom(entity.verse)
         }
     }
 
