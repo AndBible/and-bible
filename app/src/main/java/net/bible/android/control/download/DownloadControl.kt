@@ -42,7 +42,7 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DownloadControl(private val downloadQueue: DownloadQueue, private val repoFactory: RepoFactory, private val fontControl: FontControl, private val swordDocumentFacade: SwordDocumentFacade) {
-    private val documentDownloadProgressCache: DocumentDownloadProgressCache
+    private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
 
     /** pre-download document checks
      */
@@ -175,11 +175,5 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
 
     companion object {
         private const val TAG = "DownloadControl"
-    }
-
-    init {
-
-        // Listen for Progress changes and update the ui
-        documentDownloadProgressCache = DocumentDownloadProgressCache()
     }
 }

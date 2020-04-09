@@ -38,7 +38,7 @@
 				android:layout_width="24dp"
 				android:layout_height="24dp"
 				android:layout_gravity="center_vertical"
-				android:layout_marginStart="2dip"
+				android:layout_marginStart="7dip"
 				android:duplicateParentState="true"
 				android:layout_centerVertical="true"
 				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
@@ -50,8 +50,8 @@
 				android:layout_height="15dp"
 				android:duplicateParentState="true"
 				android:layout_centerVertical="true"
-				app:layout_constraintStart_toStartOf="@id/downloadStatusIcon"
-				app:layout_constraintTop_toTopOf="@id/downloadStatusIcon"
+				app:layout_constraintStart_toEndOf="@id/documentTypeIcon"
+				app:layout_constraintTop_toTopOf="parent"
 				app:srcCompat="@drawable/ic_star_black_24dp"
 				app:tint="@color/yellow_600" />
 		</androidx.constraintlayout.widget.ConstraintLayout>

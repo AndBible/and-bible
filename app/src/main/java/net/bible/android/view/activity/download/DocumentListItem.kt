@@ -57,8 +57,8 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
     lateinit var document: Book
 
-    override fun onFinishInflate() {
-        super.onFinishInflate()
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
         ensureRegisteredForDownloadEvents()
     }
 
@@ -75,9 +75,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
     fun setIcons() {
         val docImage = document.imageResource
-        if (docImage != null) {
-            documentTypeIcon.setImageResource(docImage)
-        }
+        documentTypeIcon.setImageResource(docImage)
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE

@@ -360,6 +360,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
                             displayedDocuments.sortWith(
                                 compareBy (
+                                    { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
                                     {!it.isRecommended(recommendedDocuments)},
                                     {when(it.bookCategory) {
                                         BookCategory.BIBLE -> 0
