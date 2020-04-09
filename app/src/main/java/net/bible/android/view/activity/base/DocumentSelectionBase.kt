@@ -97,7 +97,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     // language spinner
     private val languageList = ArrayList<Language>()
     protected var selectedLanguageNo = -1
-    lateinit var langArrayAdapter: ArrayAdapter<Language>
+    private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     private var isPopulated = false
     private val dao = DatabaseContainer.db.documentDao()
@@ -615,19 +615,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
      */
     protected open fun setInitialDocumentType() {
         selectedDocumentFilterNo = 0
-    }
-
-    /** map between book category and item no
-     */
-    fun setSelectedBookCategory(bookCategory: BookCategory?) {
-        selectedDocumentFilterNo = when (bookCategory) {
-            BookCategory.BIBLE -> 0
-            BookCategory.COMMENTARY -> 1
-            BookCategory.DICTIONARY -> 2
-            BookCategory.GENERAL_BOOK -> 3
-            BookCategory.MAPS -> 4
-            else -> 0
-        }
     }
 
     fun setLayoutResource(layoutResource: Int) {

@@ -89,10 +89,6 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         }
     }
 
-    override fun setInitialDocumentType() {
-        setSelectedBookCategory(documentControl.currentCategory)
-    }
-
     /**
      * on Click handlers
      */
