@@ -43,12 +43,7 @@ interface DocumentDao {
     @Insert
     fun insertDocuments(documents: List<Document>)
 
-    @Query("""SELECT osisId from Document WHERE 
-                        language MATCH :search OR 
-                        osisId MATCH :search OR 
-                        abbreviation MATCH :search OR 
-                        name MATCH :search
-                    """)
+    @Query("""SELECT osisId from Document WHERE Document MATCH :search""")
     fun search(search: String): List<String>
 
     @Query("DELETE FROM Document")

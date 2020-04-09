@@ -49,7 +49,6 @@ import javax.inject.Inject
 
 
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
-    private var documentDownloadItemAdapter: DocumentDownloadItemAdapter? = null
     @Inject lateinit var downloadControl: DownloadControl
 
     /** Called when the activity is first created.  */
@@ -57,10 +56,6 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        documentDownloadItemAdapter = DocumentDownloadItemAdapter(
-            this, downloadControl, LIST_ITEM_TYPE, displayedDocuments, recommendedDocuments)
-        listAdapter = documentDownloadItemAdapter
-
         // in the basic flow we force the user to download a bible
         documentTypeSpinner.isEnabled = true
         val firstTime = swordDocumentFacade.bibles.isEmpty()

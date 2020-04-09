@@ -45,7 +45,6 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         initialiseView()
-        val documentItemAdapter = DocumentItemAdapter(this, displayedDocuments, recommendedDocuments)
         listAdapter = documentItemAdapter
         populateMasterDocumentList(false)
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")

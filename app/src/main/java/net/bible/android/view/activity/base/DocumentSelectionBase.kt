@@ -35,6 +35,8 @@ import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -47,6 +49,7 @@ import net.bible.android.database.Document
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.navigation.DocumentItemAdapter
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -92,8 +95,9 @@ data class RecommendedDocuments(
 }
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
+    protected lateinit var documentItemAdapter: DocumentItemAdapter
     private var selectedDocumentFilterNo = 0
-
+    private val filterMutex = Mutex()
     // language spinner
     private val languageList = ArrayList<Language>()
     protected var selectedLanguageNo = -1
@@ -102,7 +106,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao = DatabaseContainer.db.documentDao()
 
-    protected val recommendedDocuments : RecommendedDocuments by lazy {
+    private val recommendedDocuments : RecommendedDocuments by lazy {
         val jsonString = String(
             assets.open("recommended_documents.json").readBytes()
         )
@@ -133,6 +137,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     protected fun initialiseView() {
+        documentItemAdapter = DocumentItemAdapter(this, recommendedDocuments)
+        listAdapter = documentItemAdapter
         // prepare action mode
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)
         // trigger action mode on long press
@@ -348,8 +354,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
         listActionModeHelper.exitActionMode()
-        synchronized(this) {
-            GlobalScope.launch {
+        GlobalScope.launch {
+            filterMutex.withLock {
                 withContext(Dispatchers.Default) {
                     try {
                         // re-filter documents
@@ -392,7 +398,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    notifyDataSetChanged()
+                    documentItemAdapter.clear()
+                    documentItemAdapter.addAll(displayedDocuments)
                 }
             }
         }
