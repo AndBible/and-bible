@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
@@ -67,6 +68,28 @@ import kotlin.coroutines.resume
  */
 @ApplicationScope
 class BackupControl @Inject constructor() {
+
+    /** return true if a backup has been done and the file is on the sd card.
+     */
+    private val isBackupFileExists: Boolean
+        get() = File(SharedConstants.backupDir, DATABASE_NAME).exists()
+
+    /** backup database to sd card
+     */
+    fun backupDatabase() {
+        mainBibleActivity.windowRepository.saveIntoDb()
+        db.sync()
+        val ok = FileManager.copyFile(DATABASE_NAME, internalDbDir, SharedConstants.backupDir)
+
+        if (ok) {
+            Log.d(TAG, "Copied database to SD card successfully")
+            Dialogs.instance.showMsg(R.string.backup_success, SharedConstants.backupDir.absolutePath)
+        } else {
+            Log.e(TAG, "Error copying database to SD card")
+            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+        }
+    }
+
     /** backup database to custom target (email, drive etc.)
      */
     fun backupDatabaseViaIntent(callingActivity: Activity) {
@@ -242,6 +265,29 @@ class BackupControl @Inject constructor() {
             val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
             chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             callingActivity.startActivity(chooserIntent)
+        }
+    }
+
+    /** restore database from sd card
+     */
+    fun restoreDatabase() {
+        if (!isBackupFileExists) {
+            Dialogs.instance.showErrorMsg(R.string.error_no_backup_file)
+        } else {
+            Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
+                BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.backupDir, internalDbDir)
+
+                if (ok) {
+                    DatabaseContainer.reset()
+                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                    Log.d(TAG, "Copied database from SD card successfully")
+                    Dialogs.instance.showMsg(R.string.restore_success, SharedConstants.backupDir.name)
+                } else {
+                    Log.e(TAG, "Error copying database from SD card")
+                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
+                }
+            }
         }
     }
 

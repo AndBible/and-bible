@@ -18,9 +18,11 @@
 
 package net.bible.android.view.activity.page
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.text.Html
@@ -35,6 +37,8 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -54,6 +58,8 @@ import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -66,6 +72,7 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 /** Handle requests from the main menu
  *
@@ -199,7 +206,22 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.backup_app_database -> {
                     mainBibleActivity.windowRepository.saveIntoDb()
-                    backupControl.backupDatabaseViaIntent(callingActivity)
+
+                    AlertDialog.Builder(callingActivity)
+                        .setTitle(callingActivity.getString(R.string.backup_backup_title))
+                        .setMessage(callingActivity.getString(R.string.backup_backup_message))
+                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) {dialog, which ->
+                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
+                            } else {
+                                backupControl.backupDatabase()
+                            }
+                        }
+                        .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
+                            backupControl.backupDatabaseViaIntent(callingActivity)
+                        }
+                        .setNeutralButton(callingActivity.getString(R.string.cancel), null)
+                        .show()
                     isHandled = true
                 }
                 R.id.backup_modules -> {
@@ -215,9 +237,23 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.restore_app_database -> {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "application/*"
-                    callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                    AlertDialog.Builder(callingActivity)
+                        .setTitle(callingActivity.getString(R.string.backup_restore_title))
+                        .setMessage(callingActivity.getString(R.string.backup_restore_message))
+                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
+                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
+                            } else {
+                                backupControl.restoreDatabase()
+                            }
+                        }
+                        .setPositiveButton(callingActivity.getString(R.string.backup_manually)) { dialog, which ->
+                            val intent = Intent(Intent.ACTION_GET_CONTENT)
+                            intent.type = "application/*"
+                            callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                        }
+                        .setNeutralButton(callingActivity.getString(R.string.cancel), null)
+                        .show()
                     isHandled = true
                 }
             }

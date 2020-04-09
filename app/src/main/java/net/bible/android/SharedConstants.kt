@@ -62,7 +62,7 @@ object SharedConstants {
             return File(sdcard, MANUAL_INSTALL_SUBDIR)
         }
 
-    private val backupDir: File
+    val backupDir: File
         get() {
             val sdcard = Environment.getExternalStorageDirectory()
             return File(sdcard, BACKUP_SUBDIR_NAME)

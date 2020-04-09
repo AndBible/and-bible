@@ -27,4 +27,7 @@
     <item android:id="@+id/backup_modules"
         android:title="@string/backup_modules"
         android:icon="@drawable/ic_backup_black_24dp"/>
+    <item android:id="@+id/restore_modules"
+        android:title="@string/restore_modules"
+        android:icon="@drawable/ic_settings_backup_restore_black_24dp"/>
 </menu>
