@@ -55,6 +55,7 @@ import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -197,6 +198,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
                 R.id.backup_app_database -> {
+                    mainBibleActivity.windowRepository.saveIntoDb()
                     backupControl.backupDatabaseViaIntent(callingActivity)
                     isHandled = true
                 }
