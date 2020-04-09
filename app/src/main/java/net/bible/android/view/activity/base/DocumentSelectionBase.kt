@@ -95,7 +95,7 @@ data class RecommendedDocuments(
 }
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
-    protected lateinit var documentItemAdapter: DocumentItemAdapter
+    protected lateinit var documentItemAdapter: ArrayAdapter<Book>
     private var selectedDocumentFilterNo = 0
     private val filterMutex = Mutex()
     // language spinner
@@ -106,7 +106,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao = DatabaseContainer.db.documentDao()
 
-    private val recommendedDocuments : RecommendedDocuments by lazy {
+    protected val recommendedDocuments : RecommendedDocuments by lazy {
         val jsonString = String(
             assets.open("recommended_documents.json").readBytes()
         )
@@ -137,7 +137,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     protected fun initialiseView() {
-        documentItemAdapter = DocumentItemAdapter(this, recommendedDocuments)
         listAdapter = documentItemAdapter
         // prepare action mode
         listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId)

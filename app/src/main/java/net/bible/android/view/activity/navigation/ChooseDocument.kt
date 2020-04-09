@@ -44,8 +44,8 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
+        documentItemAdapter = DocumentItemAdapter(this, recommendedDocuments)
         initialiseView()
-        listAdapter = documentItemAdapter
         populateMasterDocumentList(false)
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
     }

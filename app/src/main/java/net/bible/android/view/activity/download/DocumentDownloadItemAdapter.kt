@@ -38,9 +38,8 @@ class DocumentDownloadItemAdapter(
     context: Context,
     private val downloadControl: DownloadControl,
     private val resource: Int,
-    items: List<Book>,
     private val recommendedDocuments: RecommendedDocuments
-) : ArrayAdapter<Book>(context, resource, items)
+) : ArrayAdapter<Book>(context, resource, ArrayList<Book>())
 {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val document = getItem(position)!!

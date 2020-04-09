@@ -31,6 +31,7 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
+import net.bible.android.view.activity.navigation.DocumentItemAdapter
 import net.bible.service.common.CommonUtils.sharedPreferences
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
@@ -55,6 +56,8 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
+        documentItemAdapter = DocumentDownloadItemAdapter(
+            this, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
         initialiseView()
         // in the basic flow we force the user to download a bible
         documentTypeSpinner.isEnabled = true
