@@ -152,6 +152,13 @@ class SplitBibleArea(
 
     private fun updateWindows() {
         val windows = windowRepository.visibleWindows
+
+        // Normalize weights
+        val averageWeight = windows.map { it.weight }.sum() / windows.size
+        for(w in windows) {
+            w.weight /= averageWeight
+        }
+
         fun getBf(i: Int) = try {bibleFrames[i] } catch (e: IndexOutOfBoundsException) {null}
 
         for((i, w) in windows.withIndex()) {
