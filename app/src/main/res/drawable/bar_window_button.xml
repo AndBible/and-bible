@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   ~
   ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
   ~
@@ -21,12 +21,13 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle"
     >
-    <corners android:radius="6dp" />
+    <corners android:topRightRadius="6dp" android:topLeftRadius="6dp"/>
+    <stroke android:width="1dp" android:color="?attr/barWindowButtonStrokeColor" />
 
-    <solid android:color="?attr/windowButtonBackgroundColor"/>
-    <padding android:left="8dp"
+    <solid android:color="?attr/barWindowButtonBackgroundColor"/>
+    <padding android:left="0dp"
         android:top="4dp"
-        android:right="8dp"
+        android:right="0dp"
         android:bottom="4dp" />
 </shape>
 

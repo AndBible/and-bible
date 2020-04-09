@@ -22,7 +22,6 @@
     android:shape="rectangle"
     >
     <corners android:radius="6dp" />
-    <stroke android:width="3dp" android:color="?attr/windowButtonStrokeColor" />
 
     <solid android:color="?attr/windowButtonActiveBackgroundColor"/>
     <padding android:left="8dp"

@@ -39,6 +39,7 @@ import kotlinx.serialization.json.JsonConfiguration
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
+import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.json
 
@@ -326,9 +327,19 @@ object CommonUtils {
         return BibleApplication.application.resources.getBoolean(resourceId)
     }
 
-    fun getResourceColor(resourceId: Int): Int {
-        return BibleApplication.application.resources.getColor(resourceId)
-    }
+    fun getResourceColor(resourceId: Int): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val theme = try {
+                mainBibleActivity.theme
+            } catch (e: UninitializedPropertyAccessException) {
+                BibleApplication.application.resources.newTheme().apply {
+                    applyStyle(R.style.MyDayNightTheme, true)
+                }
+            }
+            BibleApplication.application.resources.getColor(resourceId, theme)
+        } else {
+            BibleApplication.application.resources.getColor(resourceId)
+        }
 
     /**
      * convert dip measurements to pixels

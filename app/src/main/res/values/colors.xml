@@ -9,11 +9,19 @@
 	<color name="bible_text_day">#000000</color>
 	<color name="bible_text_night">#b0b0b0</color>
 
-	<color name="window_button_icon_tint">#000000</color>
-	<color name="window_button_text_colour">#7FFFFFFF</color>
-	<color name="window_button_background_colour">#466b6b6b</color>
-	<color name="window_button_background_colour_visible">#8F6B6B6B</color>
-	<color name="window_button_background_colour_active">#ED6B6B6B</color>
+	<color name="bar_window_button_text_colour">#E8E8E8</color>
+	<color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
+	<color name="bar_window_button_category_tint">#AAAAAA</color>
+	<color name="bar_window_button_background_colour">#878787</color>
+	<color name="bar_window_button_background_colour_visible">#686868</color>
+	<color name="bar_window_button_stroke_color">#686868</color>
+
+	<color name="window_button_text_colour">#86FFFFFF</color>
+	<color name="window_button_background_colour_visible">#454545</color>
+	<color name="window_button_background_colour">#6B6B6B</color>
+	<color name="window_button_background_colour_active">#BABABA</color>
+
+	<color name="window_button_area_background">#00424242</color>
 
 	<!-- matches background_holo_dark -->
 	<color name="actionbar_background_night">#ff000000</color>

@@ -31,15 +31,17 @@
     </LinearLayout>
     <HorizontalScrollView
         android:id="@+id/restoreButtonsContainer"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:background="@drawable/window_bar_background"
         >
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             >
             <LinearLayout
                 android:id="@+id/pinnedRestoreButtons"

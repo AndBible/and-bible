@@ -22,7 +22,6 @@ import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.ActionBar
 import android.util.TypedValue
-import android.view.View
 
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.CurrentActivityHolder

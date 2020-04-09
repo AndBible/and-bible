@@ -32,6 +32,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.download.imageResource
 import net.bible.service.common.CommonUtils.getResourceColor
 
 @SuppressLint("ViewConstructor")
@@ -64,7 +65,9 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        synchronize.visibility = if(window?.isSynchronised == true && !isMaximised) View.VISIBLE else View.GONE
+        synchronize.visibility = if(window?.isSynchronised == true && !isMaximised)
+            View.VISIBLE
+        else View.INVISIBLE
         pinMode.visibility =
             if(!windowControl.windowRepository.windowBehaviorSettings.autoPin
                 && window?.isPinMode == true
@@ -72,7 +75,7 @@ class WindowButtonWidget(
             )
                 View.VISIBLE
             else
-                View.GONE
+                View.INVISIBLE
     }
 
     private fun updateBackground() {
@@ -84,10 +87,17 @@ class WindowButtonWidget(
             window?.id == windowControl.activeWindow.id && !isMaximised
         }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            windowButton.setBackgroundResource(
-                if (isActive) R.drawable.window_button_active
-                else if (isWindowVisible) R.drawable.window_button_visible
-                else R.drawable.window_button)
+            if(isRestoreButton) {
+                windowButton.setBackgroundResource(
+                    if (isActive) R.drawable.bar_window_button_active
+                    else if (isWindowVisible) R.drawable.bar_window_button_visible
+                    else R.drawable.bar_window_button)
+            } else {
+                windowButton.setBackgroundResource(
+                    if (isActive) R.drawable.window_button_active
+                    else if (isWindowVisible) R.drawable.window_button_visible
+                    else R.drawable.window_button)
+            }
         } else {
             val activeColor = getResourceColor(R.color.window_button_background_colour_active)
             val visibleColor = getResourceColor(R.color.window_button_background_colour_visible)
@@ -101,8 +111,16 @@ class WindowButtonWidget(
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f
+            val color = getResourceColor(R.color.bar_window_button_text_colour)
+            buttonText.setTextColor(color)
+            val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
+            if(image != null)
+                docType.setImageResource(image)
         } else {
+            buttonText.setTextColor(getResourceColor(R.color.window_button_text_colour))
+            windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
             buttonText.visibility = View.GONE
+            docType.visibility = View.GONE
         }
         unMaximiseImage.visibility = if(isMaximised && !(window?.isLinksWindow == true)) View.VISIBLE else View.GONE
     }
@@ -113,6 +131,7 @@ class WindowButtonWidget(
         buttonText.setOnClickListener(l)
         synchronize.setOnClickListener(l)
         pinMode.setOnClickListener(l)
+        docType.setOnClickListener(l)
         super.setOnClickListener(l)
     }
 
@@ -122,6 +141,7 @@ class WindowButtonWidget(
         buttonText.setOnLongClickListener(l)
         synchronize.setOnLongClickListener(l)
         pinMode.setOnLongClickListener(l)
+        docType.setOnLongClickListener(l)
         super.setOnLongClickListener(l)
     }
 

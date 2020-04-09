@@ -31,6 +31,16 @@ import net.bible.android.view.activity.base.RecommendedDocuments
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 
+val Book.imageResource: Int
+    get() = when(bookCategory) {
+            BookCategory.BIBLE -> R.drawable.ic_bible
+            BookCategory.COMMENTARY -> R.drawable.ic_commentary
+            BookCategory.DICTIONARY -> R.drawable.ic_dictionary
+            BookCategory.MAPS -> R.drawable.ic_map_black_24dp
+            BookCategory.GENERAL_BOOK -> R.drawable.ic_book
+            else -> R.drawable.ic_book
+        }
+
 fun Book.isRecommended(recommendedDocuments: RecommendedDocuments): Boolean
 {
     val osisIdKey = osisID.split(".")[1]
@@ -64,14 +74,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     }
 
     fun setIcons() {
-        val docImage = when(document.bookCategory) {
-            BookCategory.BIBLE -> R.drawable.ic_bible
-            BookCategory.COMMENTARY -> R.drawable.ic_commentary
-            BookCategory.DICTIONARY -> R.drawable.ic_dictionary
-            BookCategory.MAPS -> R.drawable.ic_map_black_24dp
-            BookCategory.GENERAL_BOOK -> R.drawable.ic_book
-            else -> null
-        }
+        val docImage = document.imageResource
         if (docImage != null) {
             documentTypeIcon.setImageResource(docImage)
         }
