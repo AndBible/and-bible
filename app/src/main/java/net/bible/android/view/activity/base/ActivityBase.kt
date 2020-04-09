@@ -53,7 +53,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     private var allowThemeChange = true
 
     private lateinit var _contentView: View
-    private lateinit var historyTraversal: HistoryTraversal
+    protected lateinit var historyTraversal: HistoryTraversal
 
     private var integrateWithHistoryManagerInitialValue: Boolean = false
 

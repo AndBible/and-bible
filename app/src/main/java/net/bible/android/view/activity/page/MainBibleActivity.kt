@@ -43,6 +43,7 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
@@ -98,7 +99,6 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.TitleSplitter
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -398,11 +398,22 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onPause()
     }
 
+    private var lastBackPressed = false
+
     override fun onBackPressed() {
         if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawers()
         } else {
-            super.onBackPressed()
+            if (!historyTraversal.goBack()) {
+                if(!lastBackPressed) {
+                    lastBackPressed = true
+                    Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
+                } else {
+                    super.onBackPressed()
+                }
+            } else {
+                lastBackPressed = false
+            }
         }
     }
 

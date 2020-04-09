@@ -29,8 +29,6 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
  */
 class HistoryTraversal(private val historyManager: HistoryManager, var isIntegrateWithHistoryManager: Boolean) {
 
-    private var lastBackNavTime: Long = 0
-
     /**
      * about to change activity so tell the HistoryManager so it can register the old activity in its list
      */
@@ -41,12 +39,7 @@ class HistoryTraversal(private val historyManager: HistoryManager, var isIntegra
     }
 
     fun goBack(): Boolean {
-        val prevBackNavTime = lastBackNavTime
-        lastBackNavTime = System.currentTimeMillis()
-        if (lastBackNavTime - prevBackNavTime < MIN_BACK_SEPERATION_MILLIS) {
-            // swallow back key if it seems like a phantom repeat to prevent history item jumping
-            return true
-        } else if (isIntegrateWithHistoryManager && historyManager.canGoBack()) {
+        if (isIntegrateWithHistoryManager && historyManager.canGoBack()) {
             Log.d(TAG, "Go back")
             historyManager.goBack()
             return true
