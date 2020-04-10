@@ -54,6 +54,14 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
     }
 
+    override fun setInitialDocumentType() {
+        selectedDocumentFilterNo = when(intent.extras?.getString("type")) {
+            "BIBLE" -> 1
+            "COMMENTARY" -> 2
+            else -> 0
+        }
+    }
+
     override fun setDefaultLanguage() {
         selectedLanguageNo = -1
     }

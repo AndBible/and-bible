@@ -683,12 +683,24 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
             bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
+            bibleButton.setOnLongClickListener {
+                val intent = Intent(this, ChooseDocument::class.java)
+                intent.putExtra("type", "BIBLE")
+                startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                true
+            }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE
 
         commentaryButton.visibility = if (commentariesForVerse.isNotEmpty() && visibleButtonCount < maxButtons) {
             commentaryButton.setOnClickListener { menuForDocs(it, commentariesForVerse) }
+            commentaryButton.setOnLongClickListener {
+                val intent = Intent(this, ChooseDocument::class.java)
+                intent.putExtra("type", "COMMENTARY")
+                startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+                true
+            }
             visibleButtonCount += 1
             View.VISIBLE
         } else View.GONE

@@ -96,7 +96,7 @@ data class RecommendedDocuments(
 
 abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeMenuId: Int) : ListActivityBase(optionsMenuId), ActionModeActivity {
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
-    private var selectedDocumentFilterNo = 0
+    protected var selectedDocumentFilterNo = 0
     private val filterMutex = Mutex()
     // language spinner
     private val languageList = ArrayList<Language>()
