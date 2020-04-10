@@ -5,10 +5,16 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-    
+
+	<item android:id="@+id/backupButton"
+		android:title="@string/backup_modules"
+		appcompat:iconTint="@color/white"
+		android:icon="@drawable/ic_backup_black_24dp"
+		appcompat:showAsAction="ifRoom"/>
+
     <item android:id="@+id/downloadButton"
 		  android:title="@string/download"
+		  appcompat:iconTint="@color/white"
 		  android:icon="@drawable/ic_file_download_24dp"
 		  appcompat:showAsAction="always"/>
-    
 </menu>

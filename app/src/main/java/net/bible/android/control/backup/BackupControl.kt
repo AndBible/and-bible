@@ -162,7 +162,9 @@ class BackupControl @Inject constructor() {
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
                 val books = Books.installed().books.sortedBy { it.language }
-                val bookNames = books.map { it.name }.toTypedArray()
+                val bookNames = books.map {
+                    context.getString(R.string.backup_modules_listing, it.name, it.language.code)
+                }.toTypedArray()
 
                 val checkedItems = bookNames.map { false }.toBooleanArray()
                 val dialog = AlertDialog.Builder(context)

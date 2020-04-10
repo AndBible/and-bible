@@ -21,7 +21,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
@@ -39,6 +42,7 @@ import javax.inject.Inject
  */
 class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu.document_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
+    @Inject lateinit var backupControl: BackupControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,6 +112,11 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
                     instance.showErrorMsg(R.string.error_occurred, e)
+                }
+            }
+            R.id.backupButton -> {
+                GlobalScope.launch {
+                    backupControl.backupModulesViaIntent(this@ChooseDocument)
                 }
             }
         }
