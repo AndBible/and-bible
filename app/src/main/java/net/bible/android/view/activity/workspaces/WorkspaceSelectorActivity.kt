@@ -82,7 +82,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         title.typeface = Typeface.DEFAULT
         if(activity.windowControl.windowRepository.id == workspaceEntity.id) {
             title.typeface = Typeface.DEFAULT_BOLD
-            titleText += " (${activity.getString(R.string.current_workspace)})"
+            titleText = activity.getString(R.string.workspace_listing_with_current, titleText)
         }
         title.text = titleText
         summary.text = workspaceEntity.contentsText

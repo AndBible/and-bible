@@ -604,7 +604,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="workspace_settings">Settings…</string>
     <string name="give_name_workspace">Give name for new workspace</string>
     <string name="save_and_exit">Save</string>
-    <string name="current_workspace">current</string>
     <string name="workspace_save_changes">Apply changes to workspaces?</string>
     <string name="copy_of_workspace">Copy of %s</string>
     <string name="copy_workspace_settings">Copy settings…</string>
@@ -644,4 +643,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="one_more_back_press">One more pressing of back button will close app</string>
     <string name="document_filter_results">%d documents</string>
     <string name="backup_modules_listing">%s (%s)</string>
+    <string name="menu_for_docs_listing">%s (%s)</string>
+    <string name="workspace_listing_with_current">%s (current)</string>
 </resources>
