@@ -160,14 +160,12 @@ class CurrentBiblePage(
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
         val document = entity.document
-        if (StringUtils.isNotEmpty(document)) {
-            Log.d(TAG, "State document:$document")
-            val book = swordDocumentFacade.getDocumentByInitials(document)?: swordDocumentFacade.bibles.first()
-            Log.d(TAG, "Restored document:" + book.name)
-            // bypass setter to avoid automatic notifications
-            localSetCurrentDocument(book)
-            currentBibleVerse.restoreFrom(entity.verse)
-        }
+        Log.d(TAG, "State document:$document")
+        val book = swordDocumentFacade.getDocumentByInitials(document)?: swordDocumentFacade.bibles.first()
+        Log.d(TAG, "Restored document:" + book.name)
+        // bypass setter to avoid automatic notifications
+        localSetCurrentDocument(book)
+        currentBibleVerse.restoreFrom(entity.verse)
     }
 
     var currentChapterVerse: ChapterVerse

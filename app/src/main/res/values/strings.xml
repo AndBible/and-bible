@@ -522,9 +522,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_email_message">Your And Bible database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="backup_restore_title">Restore from where?</string>
-    <string name="backup_restore_message">Restore from phone storage or choose location manually (you can choose also from Google Drive etc.)?</string>
+    <string name="backup_restore_message">Restore from phone storage or pick backup file manually (you can choose also from Google Drive etc.)?</string>
     <string name="backup_phone_storage">Phone storage</string>
-    <string name="backup_manually">Manually</string>
+    <string name="backup_manually">Pick file</string>
     <string name="backup_backup_title">Backup to where?</string>
     <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
     <string name="backup_share">Share</string>

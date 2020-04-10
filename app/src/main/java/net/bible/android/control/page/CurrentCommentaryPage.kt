@@ -128,14 +128,16 @@ open class CurrentCommentaryPage internal constructor(
     fun restoreFrom(entity: WorkspaceEntities.CommentaryPage?) {
         if(entity == null) return
         val document = entity.document
-        val book = swordDocumentFacade.getDocumentByInitials(document) ?: swordDocumentFacade.bibles.first()
-        Log.d(TAG, "Restored document:" + book.name)
-        // bypass setter to avoid automatic notifications.
-        // Also let's not use localSetCurrentDocument, because we don't want to set the verse.
-        // It is already set correctly when CurrentBiblePage is restored.
-        // Otherwise versification will be messed up!
-        onlySetCurrentDocument(book)
-        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if(book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications.
+            // Also let's not use localSetCurrentDocument, because we don't want to set the verse.
+            // It is already set correctly when CurrentBiblePage is restored.
+            // Otherwise versification will be messed up!
+            onlySetCurrentDocument(book)
+            currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
+        }
     }
 
     companion object {

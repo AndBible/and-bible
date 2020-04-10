@@ -196,8 +196,8 @@ open class CurrentPageManager @Inject constructor(
 
     }
 
-    private fun getBookPage(bookCategory: BookCategory): CurrentPage {
-        return when (bookCategory) {
+    private fun getBookPage(bookCategory: BookCategory): CurrentPage =
+        when (bookCategory) {
             BookCategory.BIBLE -> currentBible
             BookCategory.COMMENTARY -> currentCommentary
             BookCategory.DICTIONARY -> currentDictionary
@@ -206,7 +206,6 @@ open class CurrentPageManager @Inject constructor(
             BookCategory.OTHER -> currentMyNotePage
             else -> throw RuntimeException("Unsupported book category")
         }
-    }
 
     fun showBible() {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
@@ -244,6 +243,9 @@ open class CurrentPageManager @Inject constructor(
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
         }
         currentPage = getBookPage(restoredBookCategory)
+        if(currentPage.key == null) {
+            currentPage = currentBible
+        }
     }
 
     val TAG get() = "PageManager[${window.id}]"
