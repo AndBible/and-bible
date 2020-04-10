@@ -403,6 +403,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     documentItemAdapter.clear()
                     documentItemAdapter.addAll(displayedDocuments)
                     loadingIndicator.visibility = View.GONE
+                    resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
                 }
             }
         }
