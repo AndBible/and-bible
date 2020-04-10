@@ -36,7 +36,6 @@ import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.math.max
 import kotlin.math.min
 
 class IncrementBusyCount
@@ -99,32 +98,34 @@ open class WindowRepository @Inject constructor(
     }
 
     fun initialize() {
-        if(::_activeWindow.isInitialized) return
-        id = sharedPreferences.getLong("current_workspace_id", 0)
-        if(id == 0L || dao.workspace(id) == null) {
-            id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
-            sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+        if(initialized) return
+        if(id == 0L) {
+            id = sharedPreferences.getLong("current_workspace_id", 0)
+            if (id == 0L || dao.workspace(id) == null) {
+                id = dao.insertWorkspace(WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1)))
+                sharedPreferences.edit().putLong("current_workspace_id", id).apply()
+            }
         }
         loadFromDb(id)
     }
 
-    private lateinit var _activeWindow: Window
+    private var _activeWindow: Window? = null
 
     // 1 based screen no
     var activeWindow: Window
         get() {
-            initialize()
-            return _activeWindow
+            if(!initialized) initialize()
+            return _activeWindow!!
         }
         set (newActiveWindow) {
-            if (!::_activeWindow.isInitialized || newActiveWindow != this.activeWindow) {
+            if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.d(TAG, "Active window: ${newActiveWindow}")
-                ABEventBus.getDefault().post(CurrentWindowChangedEvent(this.activeWindow))
+                ABEventBus.getDefault().post(CurrentWindowChangedEvent(this._activeWindow))
             }
         }
 
-    val initialized get() = ::_activeWindow.isInitialized
+    private val initialized get() = _activeWindow != null
 
     // When in maximized mode, keep track of last used
     // window that was synchronized
@@ -382,6 +383,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        _activeWindow = null
         maximizedWindowId = null
         unPinnedWeight = null
         orderNumber = 0
