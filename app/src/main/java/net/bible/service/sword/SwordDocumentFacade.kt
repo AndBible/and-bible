@@ -76,7 +76,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
 
     /** prefer the Real alternatives to the default versions because they contain the native Greek Hebrew words
      */
-    val defaultStrongsGreekDictionary: Book
+    val defaultStrongsGreekDictionary: Book?
         get() { // default to StrongsRealGreek or StrongsGreek
             val preferredBooks = arrayOf("StrongsRealGreek", "StrongsGreek")
             for (prefBook in preferredBooks) {
@@ -89,7 +89,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
         }
 
     // default to StrongsRealHebrew or StrongsHebrew
-    val defaultStrongsHebrewDictionary: Book
+    val defaultStrongsHebrewDictionary: Book?
         get() { // default to StrongsRealHebrew or StrongsHebrew
             val preferredBooks = arrayOf("StrongsRealHebrew", "StrongsHebrew")
             for (prefBook in preferredBooks) {
