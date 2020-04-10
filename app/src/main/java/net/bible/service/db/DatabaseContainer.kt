@@ -490,7 +490,6 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
 }
 
 private val MIGRATION_28_29 = object : Migration(28, 29) {
-    // Added autogenerate=true for readingplan and readingplan_status. Some db schemas may already have this, but makes sure
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Document` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL)")
