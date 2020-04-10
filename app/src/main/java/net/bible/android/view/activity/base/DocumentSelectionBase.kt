@@ -355,6 +355,9 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper.exitActionMode()
         GlobalScope.launch {
             filterMutex.withLock {
+                withContext(Dispatchers.Main) {
+                    loadingIndicator.visibility = View.VISIBLE
+                }
                 withContext(Dispatchers.Default) {
                     try {
                         // re-filter documents
@@ -399,6 +402,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 withContext(Dispatchers.Main) {
                     documentItemAdapter.clear()
                     documentItemAdapter.addAll(displayedDocuments)
+                    loadingIndicator.visibility = View.GONE
                 }
             }
         }
