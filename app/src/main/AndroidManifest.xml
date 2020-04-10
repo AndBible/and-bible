@@ -4,7 +4,7 @@
     package="net.bible.android.activity"
     android:installLocation="auto"
     android:versionCode="359"
-    android:versionName="3.2.359-beta">
+    android:versionName="3.2.359.1-beta">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

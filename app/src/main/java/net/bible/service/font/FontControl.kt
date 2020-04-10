@@ -82,7 +82,7 @@ class FontControl private constructor() {
     }
 
     fun getCssClassForCustomFont(book: Book?): String {
-        return fontProperties.getProperty(book?.abbreviation?:"" + CSS_CLASS, "")
+        return fontProperties.getProperty((book?.abbreviation?:"") + CSS_CLASS, "")
     }
 
     fun exists(font: String?): Boolean {
