@@ -68,6 +68,7 @@ class WindowButtonWidget(
         synchronize.visibility = if(window?.isSynchronised == true && !isMaximised)
             View.VISIBLE
         else View.INVISIBLE
+        docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
         pinMode.visibility =
             if(!windowControl.windowRepository.windowBehaviorSettings.autoPin
                 && window?.isPinMode == true
