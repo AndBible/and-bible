@@ -398,21 +398,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onPause()
     }
 
-    private var lastBackPressed = false
+    private var lastBackPressed: Long? = null
 
     override fun onBackPressed() {
+        val lastBackPressed = lastBackPressed
         if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
             drawerLayout.closeDrawers()
         } else {
             if (!historyTraversal.goBack()) {
-                if(!lastBackPressed) {
-                    lastBackPressed = true
+                if(lastBackPressed == null || lastBackPressed < System.currentTimeMillis() - 1000) {
+                    this.lastBackPressed = System.currentTimeMillis()
                     Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
                 } else {
+                    this.lastBackPressed = null
                     super.onBackPressed()
                 }
             } else {
-                lastBackPressed = false
+                this.lastBackPressed = null
             }
         }
     }
