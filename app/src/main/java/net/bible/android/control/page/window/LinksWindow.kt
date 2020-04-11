@@ -30,6 +30,7 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
 {
     override val isLinksWindow = true
     override var isSynchronised = false
+    override var isPinMode: Boolean = false
 
     /**
      * Page state should reflect active window when links window is being used after being closed.

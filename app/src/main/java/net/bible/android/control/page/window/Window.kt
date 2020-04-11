@@ -85,7 +85,7 @@ open class Window (
             ABEventBus.getDefault().post(WindowChangedEvent(this))
         }
 
-    var isPinMode: Boolean = window.isPinMode
+    open var isPinMode: Boolean = window.isPinMode
         get() {
             if(windowRepository.windowBehaviorSettings.autoPin) {
                 return true
