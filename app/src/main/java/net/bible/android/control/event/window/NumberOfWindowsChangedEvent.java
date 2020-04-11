@@ -18,10 +18,6 @@
 
 package net.bible.android.control.event.window;
 
-import java.util.Map;
-
-import net.bible.android.control.page.ChapterVerse;
-import net.bible.android.control.page.window.Window;
 
 /**
  * 	Window has been minimized/restored/closed/added

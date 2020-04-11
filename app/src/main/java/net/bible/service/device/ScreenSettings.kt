@@ -27,6 +27,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import org.jetbrains.anko.configuration
 
 /** Manage screen related functions
@@ -88,21 +89,25 @@ object ScreenSettings {
     private var lastNightMode: Boolean = refreshNightMode()
 
 	val nightMode: Boolean get() =
-        if (autoNightMode)
-            lastNightMode
-        else if(systemMode)
-            when(config.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+        when {
+            autoNightMode -> lastNightMode
+            systemMode -> when(config.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> true
                 Configuration.UI_MODE_NIGHT_NO -> false
                 else -> false
             }
-        else // manual mode
-            preferences.getBoolean("night_mode_pref", false)
+            else // manual mode
+            -> preferences.getBoolean("night_mode_pref", false)
+        }
 
     fun setLastNightMode(value: Boolean) {
         if(autoNightMode)
             lastNightMode = value
     }
 
-    private val config get() = BibleApplication.application.configuration
+    private val config: Configuration get() {
+        val res = CurrentActivityHolder.getInstance().currentActivity?.resources?:
+                             BibleApplication.application.resources
+        return res.configuration
+    }
 }

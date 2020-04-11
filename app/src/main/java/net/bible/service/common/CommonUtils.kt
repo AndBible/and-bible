@@ -45,6 +45,7 @@ import net.bible.android.database.json
 
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import org.apache.commons.lang3.StringUtils
@@ -114,7 +115,10 @@ object CommonUtils {
         return if(reverse) !isPortrait else isPortrait
     }
 
-    val isPortrait get() = BibleApplication.application.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    val isPortrait: Boolean get() {
+        val res = CurrentActivityHolder.getInstance().currentActivity?.resources?: BibleApplication.application.resources
+        return res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    }
 
     val sdCardMegsFree: Long
         get() {
