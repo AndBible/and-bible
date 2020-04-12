@@ -24,6 +24,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.service.common.AndRuntimeException
+import net.bible.service.common.CommonUtils
 
 import org.crosswire.common.util.IOUtil
 import org.crosswire.jsword.versification.Versification
@@ -38,7 +39,6 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.ArrayList
-import java.util.Date
 import java.util.Properties
 import kotlin.math.max
 
@@ -90,7 +90,7 @@ class ReadingPlanTextFileDao {
     val internalPlanCodes: List<String>
         @Throws(IOException::class)
         get() {
-            val resources = BibleApplication.application.resources
+            val resources = CommonUtils.resources
             val assetManager = resources.assets
             val internalPlans = assetManager.list(READING_PLAN_FOLDER)
             return getReadingPlanCodes(internalPlans!!)
@@ -233,7 +233,7 @@ class ReadingPlanTextFileDao {
     @Synchronized
     private fun getPlanProperties(planCode: String): ReadingPlanProperties {
         if (planCode != cachedPlanProperties?.planCode) {
-            val resources = BibleApplication.application.resources
+            val resources = CommonUtils.resources
             val assetManager = resources.assets
             val filename = planCode + DOT_PROPERTIES
 

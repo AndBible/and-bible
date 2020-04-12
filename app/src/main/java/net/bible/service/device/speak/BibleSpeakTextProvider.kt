@@ -135,11 +135,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun setupBook(book: SwordBook) {
         this.book = book
-        localizedResources =  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            BibleApplication.application.getLocalizedResources(book.language.code)
-        } else {
-            BibleApplication.application.resources
-        }
+        localizedResources = BibleApplication.application.getLocalizedResources(book.language.code)
 
         val locale = Locale(book.language.code)
         bibleBooks.clear()

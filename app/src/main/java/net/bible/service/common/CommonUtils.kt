@@ -26,6 +26,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
@@ -320,29 +321,33 @@ object CommonUtils {
     }
 
     fun getResourceString(resourceId: Int, vararg formatArgs: Any): String {
-        return BibleApplication.application.resources.getString(resourceId, *formatArgs)
+        return resources.getString(resourceId, *formatArgs)
     }
 
     fun getResourceInteger(resourceId: Int): Int {
-        return BibleApplication.application.resources.getInteger(resourceId)
+        return resources.getInteger(resourceId)
     }
 
     fun getResourceBoolean(resourceId: Int): Boolean {
-        return BibleApplication.application.resources.getBoolean(resourceId)
+        return resources.getBoolean(resourceId)
     }
+
+    val resources: Resources get() =
+        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: BibleApplication.application.resources
+
 
     fun getResourceColor(resourceId: Int): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val theme = try {
                 mainBibleActivity.theme
             } catch (e: UninitializedPropertyAccessException) {
-                BibleApplication.application.resources.newTheme().apply {
+                resources.newTheme().apply {
                     applyStyle(R.style.MyDayNightTheme, true)
                 }
             }
-            BibleApplication.application.resources.getColor(resourceId, theme)
+            resources.getColor(resourceId, theme)
         } else {
-            BibleApplication.application.resources.getColor(resourceId)
+            resources.getColor(resourceId)
         }
 
     /**
@@ -350,7 +355,7 @@ object CommonUtils {
      */
     fun convertDipsToPx(dips: Int): Int {
         // Converts 14 dip into its equivalent px
-        val scale = BibleApplication.application.resources.displayMetrics.density
+        val scale = resources.displayMetrics.density
         return (dips * scale + 0.5f).toInt()
     }
 
@@ -358,7 +363,7 @@ object CommonUtils {
      * convert dip measurements to pixels
      */
     fun convertPxToDips(px: Int): Int {
-        val scale = BibleApplication.application.resources.displayMetrics.density
+        val scale = resources.displayMetrics.density
         return Math.round(px / scale)
     }
 

@@ -18,7 +18,6 @@
 
 package net.bible.service.common
 import android.util.Log
-import net.bible.android.BibleApplication
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.util.IOUtil
@@ -103,13 +102,13 @@ object FileManager {
         var filename = filename
         val returnProperties = Properties()
 
-        val resources = BibleApplication.application.resources
+        val resources = CommonUtils.resources
         val assetManager = resources.assets
         if (!filename.endsWith(DOT_PROPERTIES)) {
-            filename = filename + DOT_PROPERTIES
+            filename += DOT_PROPERTIES
         }
         if (StringUtils.isNotEmpty(folder)) {
-            filename = folder + File.separator + filename
+            filename = "$folder${File.separator}$filename"
         }
 
         // Read from the /assets directory
