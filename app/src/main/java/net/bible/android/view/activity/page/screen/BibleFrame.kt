@@ -20,11 +20,13 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import net.bible.android.BibleApplication
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
@@ -32,6 +34,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
@@ -49,19 +52,38 @@ class BibleFrame(
     init {
         DaggerMainBibleActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(MainBibleActivity.mainBibleActivity))
+            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
             .build()
             .inject(this)
     }
+
+    fun updatePaddings() {
+        val left = if(isLeftWindow) mainBibleActivity.leftOffset1 else 0
+        val right = if(isRightWindow) mainBibleActivity.rightOffset1 else 0
+        Log.d(TAG, "updating padding for $window: $left $right")
+        setPadding(left, 0, right, 0)
+    }
+
+    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
+        updatePaddings()
+    }
+
+    private val isLeftWindow
+        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+
+    private val isRightWindow
+        get() = CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     private val windowRepository = windowControl.windowRepository
 
     init {
         build()
+        ABEventBus.getDefault().safelyRegister(this)
     }
 
     fun destroy() {
-        MainBibleActivity.mainBibleActivity.unregisterForContextMenu(bibleView as View)
+        ABEventBus.getDefault().unregister(this)
+        mainBibleActivity.unregisterForContextMenu(bibleView as View)
         removeView(bibleView)
     }
 
@@ -75,7 +97,7 @@ class BibleFrame(
         setBackgroundColor(bibleView.backgroundColor)
 
         addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        MainBibleActivity.mainBibleActivity.registerForContextMenu(bibleView as View)
+        mainBibleActivity.registerForContextMenu(bibleView as View)
         addWindowButton()
     }
 
@@ -84,7 +106,7 @@ class BibleFrame(
         if(!isSingleWindow && CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false) && !window.isLinksWindow) return
         if (windowRepository.isMaximized && !window.isLinksWindow) return
 
-        val defaultWindowActionButton =
+        val button =
             when {
                 isSingleWindow -> createSingleWindowButton(window)
                 window.isLinksWindow -> createCloseButton(window)
@@ -92,21 +114,17 @@ class BibleFrame(
             }
 
         if (!isSplitVertically) {
-            defaultWindowActionButton.translationY = MainBibleActivity.mainBibleActivity.topOffset2
-            if (windowRepository.lastVisibleWindow.id == window.id) {
-                defaultWindowActionButton.translationX = -MainBibleActivity.mainBibleActivity.rightOffset1
-            }
+            button.translationY = mainBibleActivity.topOffset2.toFloat()
         } else {
             if (windowRepository.firstVisibleWindow.id == window.id) {
-                defaultWindowActionButton.translationY =
-                    if (windowControl.isSingleWindow) -MainBibleActivity.mainBibleActivity.bottomOffset2
-                    else MainBibleActivity.mainBibleActivity.topOffset2
+                button.translationY =
+                    if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2.toFloat()
+                    else mainBibleActivity.topOffset2.toFloat()
             }
-            defaultWindowActionButton.translationX = -MainBibleActivity.mainBibleActivity.rightOffset1
         }
 
-        windowButton = defaultWindowActionButton
-        addView(defaultWindowActionButton,
+        windowButton = button
+        addView(button,
             LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
     }
@@ -139,7 +157,7 @@ class BibleFrame(
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
                                  window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, MainBibleActivity.mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
@@ -151,4 +169,6 @@ class BibleFrame(
         windowButton = null
         addWindowButton()
     }
+
+    private val TAG = "BibleFrame[${window.id}]"
 }

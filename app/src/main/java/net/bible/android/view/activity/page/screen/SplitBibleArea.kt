@@ -135,7 +135,7 @@ class SplitBibleArea(
             removeAllFrames()
         updateWindows()
         addSeparators()
-        updateRestoreButtons()
+        rebuildRestoreButtons()
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
@@ -182,6 +182,7 @@ class SplitBibleArea(
         while(bibleFrames.size > windows.size) {
             removeFrame(getBf(windows.size)!!)
         }
+        for(f in bibleFrames) f.updatePaddings()
     }
 
     private fun removeAllFrames() {
@@ -266,14 +267,15 @@ class SplitBibleArea(
         separator.view2LayoutParams = frame.layoutParams as LinearLayout.LayoutParams
     }
 
-    private fun updateRestoreButtons() {
+    private fun rebuildRestoreButtons() {
+        Log.d(TAG, "rebuildRestoreButtons")
         restoreButtonsList.clear()
         restoreButtons.removeAllViews()
         pinnedRestoreButtons.removeAllViews()
 
 
-        restoreButtonsContainer.translationY = -mainBibleActivity.bottomOffset2
-        restoreButtonsContainer.translationX = -mainBibleActivity.rightOffset1
+        restoreButtonsContainer.translationY = -mainBibleActivity.bottomOffset2.toFloat()
+        restoreButtonsContainer.translationX = -mainBibleActivity.rightOffset1.toFloat()
 
         val maxWindow = windowRepository.maximizedWindow
         if(maxWindow != null) {
@@ -337,7 +339,7 @@ class SplitBibleArea(
         resetTouchTimer()
     }
 
-    fun onEvent(event: MainBibleActivity.TransportBarVisibilityChanged) {
+    fun onEvent(event: MainBibleActivity.UpdateWindowButtons) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
     }
@@ -373,22 +375,31 @@ class SplitBibleArea(
         if(buttonsVisible == show && !force) {
             return
         }
+        Log.d(TAG, "toggleWindowButtonVisibility")
         mainBibleActivity.runOnUiThread {
             for ((idx, b) in windowButtons.withIndex()) {
                 if(b == null) continue
                 b.animate().apply {
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
-                        if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2
-                        else (
-                            if(CommonUtils.isSplitVertically) {
-                                if(idx == 0)
-                                    mainBibleActivity.topOffset2
-                                else 0.0F
-                            }
-                            else mainBibleActivity.topOffset2
-                            )
+                        (
+                            if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2
+                            else (
+                                if(CommonUtils.isSplitVertically) {
+                                    if(idx == 0)
+                                        mainBibleActivity.topOffset2
+                                    else 0
+                                }
+                                else mainBibleActivity.topOffset2
+                                )
+                            ).toFloat()
                     )
+//                    translationX((
+//                            if(CommonUtils.isSplitVertically)
+//                                mainBibleActivity.rightOffset1
+//                            else 0
+//                            ).toFloat()
+//                    )
 
                     if(show) {
                         alpha(VISIBLE_ALPHA)
@@ -408,17 +419,20 @@ class SplitBibleArea(
     }
 
     private fun updateRestoreButtons(show: Boolean) {
+        Log.d(TAG, "updateRestoreButtons")
         if(show) {
             restoreButtonsContainer.visibility = View.VISIBLE
             restoreButtonsContainer.animate()
                 .alpha(VISIBLE_ALPHA)
-                .translationY(-mainBibleActivity.bottomOffset2)
+                .translationY(-mainBibleActivity.bottomOffset2.toFloat())
+                //.translationX(-mainBibleActivity.rightOffset1.toFloat())
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }  else {
             if(mainBibleActivity.fullScreen) {
                 restoreButtonsContainer.animate().alpha(hiddenAlpha)
                     .setInterpolator(AccelerateInterpolator())
+                    //.translationX(-mainBibleActivity.rightOffset1.toFloat())
                     .start()
             }
         }

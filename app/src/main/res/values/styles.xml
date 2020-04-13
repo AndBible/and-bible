@@ -44,7 +44,7 @@
     </style>
 
     <style name="MyDayNightTheme" parent="Theme.AppCompat.DayNight">
-        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/white</item>
+        <item name="android:navigationBarColor" tools:targetApi="o">@color/white</item>
     </style>
 
 

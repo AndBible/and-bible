@@ -50,6 +50,8 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -121,45 +123,30 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject
-    lateinit var bibleContentManager: BibleContentManager
-
-    @Inject
-    lateinit var documentViewManager: DocumentViewManager
-
+    @Inject lateinit var bibleContentManager: BibleContentManager
+    @Inject lateinit var documentViewManager: DocumentViewManager
     @Inject lateinit var bibleActionBarManager: BibleActionBarManager
-
-    @Inject
-    lateinit var windowControl: WindowControl
-    @Inject
-    lateinit var speakControl: SpeakControl
+    @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var speakControl: SpeakControl
 
     // handle requests from main menu
-    @Inject
-    lateinit var mainMenuCommandHandler: MenuCommandHandler
-    @Inject
-    lateinit var bibleKeyHandler: BibleKeyHandler
-    @Inject
-    lateinit var backupControl: BackupControl
-    @Inject
-    lateinit var searchControl: SearchControl
-    @Inject
-    lateinit var documentControl: DocumentControl
-    @Inject
-    lateinit var navigationControl: NavigationControl
+    @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
+    @Inject lateinit var bibleKeyHandler: BibleKeyHandler
+    @Inject lateinit var backupControl: BackupControl
+    @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var documentControl: DocumentControl
+    @Inject lateinit var navigationControl: NavigationControl
 
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
-    private var statusBarHeight = 0.0F
-    private var navigationBarHeight = 0.0F
-    private var actionBarHeight = 0.0F
-    private var transportBarHeight = 0.0F
+    private var statusBarHeight = 0
+    private var navigationBarHeight = 0
+    private var actionBarHeight = 0
+    private var transportBarHeight = 0
 
     private var hasHwKeys: Boolean = false
-    private val bottomNavBarVisible get() = CommonUtils.isPortrait && !hasHwKeys
-    private val rightNavBarVisible get() = false
-    private val leftNavBarVisible get() = false
+
     private var transportBarVisible = false
 
     val dao get() = DatabaseContainer.db.workspaceDao()
@@ -174,27 +161,48 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
-    // Top offset with only statusbar
-    val topOffset1 get() = if (!isFullScreen) statusBarHeight else 0.0F
     // Top offset with only statusbar and toolbar
-    val topOffset2 get() = topOffset1 + if (!isFullScreen) actionBarHeight else 0.0F
+    val topOffset2 get() = topOffset1 + if (!isFullScreen) actionBarHeight else 0
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
-    // Bottom offset with only navigation bar
-    val bottomOffset1
+    // Offsets with system insets only
+    private var topOffset1 = 0
         get() =
-            if (CommonUtils.isPortrait && bottomNavBarVisible && !isFullScreen && !multiWinMode) navigationBarHeight - 2 else 0.0F
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(isFullScreen) 0 else field
+            } else {
+                if(isFullScreen || hasHwKeys) 0 else statusBarHeight
+            }
+
+    private var bottomOffset1 = 0
+        get() =
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(multiWinMode || isFullScreen) 0 else field
+            } else {
+                if(isFullScreen || !CommonUtils.isPortrait) 0 else navigationBarHeight
+            }
+
+    var rightOffset1 = 0
+        get() =
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(multiWinMode || isFullScreen) 0 else field
+            } else {
+                if(CommonUtils.isPortrait || isFullScreen) 0 else navigationBarHeight
+            }
+
+    var leftOffset1 = 0
+        get() =
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(multiWinMode || isFullScreen) 0 else field
+            } else {
+                0
+            }
 
     // Bottom offset with navigation bar and transport bar
-    val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
-    //val bottomOffset2 get() = 200F //bottomOffset1 + if (transportBarVisible) transportBarHeight else 0.0F
-    // Right offset with navigation bar
-    val rightOffset1 get() = if (rightNavBarVisible) navigationBarHeight else 0.0F
-    // Left offset with navigation bar
-    val leftOffset1 get() = if (leftNavBarVisible) navigationBarHeight else 0.0F
+    val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
 
     /**
      * return percentage scrolled down page
@@ -230,30 +238,43 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         backupControl.clearBackupDir()
         windowRepository.initialize()
+
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
+            bottomOffset1 = insets.systemWindowInsetBottom
+            topOffset1 = insets.systemWindowInsetTop
+            leftOffset1 = insets.systemWindowInsetLeft
+            rightOffset1 = insets.systemWindowInsetRight
+            Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
+            displaySizeChanged()
+            ViewCompat.onApplyWindowInsets(view, insets)
+        }
+
+
+        // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
 
         val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
         if (statusBarId > 0) {
-            statusBarHeight = resources.getDimensionPixelSize(statusBarId).toFloat()
+            statusBarHeight = resources.getDimensionPixelSize(statusBarId)
         }
 
         val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         if (navBarId > 0) {
-            navigationBarHeight = resources.getDimensionPixelSize(navBarId).toFloat()
+            navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
         setSupportActionBar(toolbar)
-        showSystemUI()
-
-        updateToolbar()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            displaySizeChanged()
+        }
 
         val tv = TypedValue()
         if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
 
         if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
-            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics).toFloat()
+            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
 
         toolbar.setContentInsetsAbsolute(0, 0)
@@ -278,10 +299,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     hideSystemUI()
                 } else {
                     showSystemUI()
-
                 }
             }
-
         })
 
         // create related objects
@@ -298,12 +317,19 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         setupToolbarButtons()
 
         speakTransport.visibility = View.GONE
-        updateSpeakTransportVisibility()
+        updateBottomBars()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         if(!initialized)
             showBetaNotice()
         initialized = true
+    }
+
+    private fun displaySizeChanged() {
+        updateToolbar()
+        updateBottomBars()
+        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+        windowControl.windowSizesChanged()
     }
 
     private fun showBetaNotice() {
@@ -517,7 +543,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             invalidateOptionsMenu()
             updateTitle()
-            updateToolbar()
+            //updateToolbar()
         }
 
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
@@ -761,7 +787,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     fun onEventMainThread(speakEvent: SpeakEvent) {
         if(!speakEvent.isTemporarilyStopped) {
-            updateSpeakTransportVisibility()
+            updateBottomBars()
         }
         updateActions()
     }
@@ -807,25 +833,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         sharedActivityState.toggleFullScreen()
         isFullScreen = sharedActivityState.isFullScreen
         ABEventBus.getDefault().post(FullScreenEvent(isFullScreen))
-
-        if (!isFullScreen) {
-            showSystemUI()
-            Log.d(TAG, "Fullscreen off")
-            toolbar.translationY = -toolbar.height.toFloat()
-            supportActionBar?.show()
-            toolbar.animate().translationY(topOffset1)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
-            updateActions()
-        } else {
-            Log.d(TAG, "Fullscreen on")
-            hideSystemUI()
-            toolbar.animate().translationY(-toolbar.height.toFloat())
-                .setInterpolator(AccelerateInterpolator())
-                .withEndAction { supportActionBar?.hide() }
-                .start()
-        }
-        updateSpeakTransportVisibility()
+        updateToolbar()
+        updateBottomBars()
     }
 
     fun resetSystemUi() {
@@ -833,8 +842,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             hideSystemUI()
         else
             showSystemUI()
-
-        updateToolbar()
     }
 
     private val sharedActivityState = SharedActivityState.instance
@@ -843,18 +850,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var uiFlags = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_FULLSCREEN)
-
-        // only hide navigation bar in portrait mode
-        if (CommonUtils.isPortrait)
-            uiFlags = (uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-
-        window.decorView.systemUiVisibility = uiFlags
-    }
-
-    private fun showSystemUI(setNavBarColor: Boolean=true) {
-        var uiFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
@@ -862,10 +861,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
         }
 
-        // only need to un-hide navigation bar in portrait mode
-        if (CommonUtils.isPortrait)
-            uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        window.decorView.systemUiVisibility = uiFlags
+    }
+
+    private fun showSystemUI(setNavBarColor: Boolean=true) {
+        var uiFlags = (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!ScreenSettings.nightMode) {
+                uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+            }
             if(setNavBarColor) {
                 val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
                 val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
@@ -874,32 +883,31 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             } else {
                 val typedValue = TypedValue()
                 val found = theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
-                window.navigationBarColor = typedValue.data
+                if(found) window.navigationBarColor = typedValue.data
             }
         }
         window.decorView.systemUiVisibility = uiFlags
     }
 
-    private fun updateSpeakTransportVisibility() {
+    private fun updateBottomBars() {
         if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
             transportBarVisible = false
             speakTransport.animate().translationY(speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { speakTransport.visibility = View.GONE }
                 .start()
-            ABEventBus.getDefault().post(TransportBarVisibilityChanged(false))
         } else if (speakTransport.visibility == View.GONE && !speakControl.isStopped){
             transportBarVisible = true
             speakTransport.translationY = speakTransport.height.toFloat()
             speakTransport.visibility = View.VISIBLE
-            speakTransport.animate().translationY(-bottomOffset1)
+            speakTransport.animate().translationY(-bottomOffset1.toFloat())
                 .setInterpolator(DecelerateInterpolator())
                 .start()
-            ABEventBus.getDefault().post(TransportBarVisibilityChanged(true))
         }
+        ABEventBus.getDefault().post(UpdateWindowButtons())
     }
 
-    class TransportBarVisibilityChanged(val visible: Boolean)
+    class UpdateWindowButtons
 
     private fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
@@ -1008,27 +1016,39 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
     }
 
-    /**
-     * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
-     */
     private fun updateToolbar() {
-        navigationView.setPadding(0, 0, 0, bottomOffset1.roundToInt())
-        speakTransport.translationY = -bottomOffset1
-        toolbar.translationY = topOffset1
-        toolbar.setPadding(leftOffset1.roundToInt(), 0, rightOffset1.roundToInt(), 0)
-        if(isFullScreen)
+        toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
+        navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
+        speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
+        speakTransport.translationY = -bottomOffset1.toFloat()
+        if(isFullScreen) {
             hideSystemUI()
-        else
+            Log.d(TAG, "Fullscreen on")
+            toolbar.animate().translationY(-toolbar.height.toFloat())
+                .setInterpolator(AccelerateInterpolator())
+                .withEndAction { supportActionBar?.hide() }
+                .start()
+        }
+        else {
             showSystemUI()
+            Log.d(TAG, "Fullscreen off")
+            toolbar.translationY = -toolbar.height.toFloat()
+            supportActionBar?.show()
+            toolbar.animate().translationY(topOffset1.toFloat())
+                .setInterpolator(DecelerateInterpolator())
+                .start()
+            updateActions()
+        }
     }
 
     class ConfigurationChanged(val configuration: Configuration)
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateToolbar()
-        ABEventBus.getDefault().post(ConfigurationChanged(newConfig))
-        windowControl.windowSizesChanged()
+        Log.d(TAG, "Configuration changed")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            displaySizeChanged()
+
         refreshIfNightModeChange()
     }
 
@@ -1336,7 +1356,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        // ActivityBase.STD_REQUEST_CODE = 1
         const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
         const val COLORS_CHANGED = 5

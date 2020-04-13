@@ -58,10 +58,10 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     private fun updatePadding() {
-        setPadding(mainBibleActivity.leftOffset1.toInt(),
-                mainBibleActivity.topOffsetWithActionBar.toInt(),
-                mainBibleActivity.rightOffset1.toInt(),
-                mainBibleActivity.bottomOffset2.toInt())
+        setPadding(mainBibleActivity.leftOffset1,
+                mainBibleActivity.topOffsetWithActionBar,
+                mainBibleActivity.rightOffset1,
+                mainBibleActivity.bottomOffset2)
     }
 
     override fun onAttachedToWindow() {
