@@ -32,11 +32,14 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.isVisible
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.*
+import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
+import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
+import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
@@ -271,7 +274,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // call this from here because some documents may require an adjusted font size e.g. those using Greek font
             applyFontSize()
 
-            val startPaddingHeight = mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density
+            val startPaddingHeight = (
+                mainBibleActivity.topOffsetWithActionBarAndStatusBar
+                    / mainBibleActivity.resources.displayMetrics.density
+                    // Add some extra extra so that infinite scrolling can activate
+                    + 20)
             finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
             val currentPage = window.pageManager.currentPage
