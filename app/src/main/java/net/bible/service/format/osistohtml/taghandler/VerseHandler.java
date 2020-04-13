@@ -164,7 +164,7 @@ public class VerseHandler implements OsisTagHandler {
 			// We really want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms
 			// So use something that will hopefully interfere as little as possible - a zero-width-space
 			// The verseNo class is required here because the default yellow-star positions itself after verseNo
-			verseNoSB.append("<span class='verseNo'>").append("&#x200b;").append("</span>");
+			verseNoSB.append("<span class='verseNo position-marker'>").append(HTML.EMPTY_SPACE).append("</span>");
 		}
 		return verseNoSB.toString();
 	}

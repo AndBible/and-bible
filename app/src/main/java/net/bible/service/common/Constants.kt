@@ -40,5 +40,6 @@ object Constants {
         const val NBSP = "&#160;"
         const val SPACE = " "
         const val BR = "<br />"
+        const val EMPTY_SPACE = "&#x200b;"
     }
 }

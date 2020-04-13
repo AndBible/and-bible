@@ -62,6 +62,11 @@ span[id="0"].verseNo + h1:after {
 	white-space: pre; 
 }
 
+.position-marker {
+    position:absolute;
+    margin-left: -1200px 0 0;
+}
+
 div.breakline {
     height: 0.5em;
 }

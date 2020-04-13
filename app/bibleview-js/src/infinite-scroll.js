@@ -47,7 +47,7 @@ function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
             const id = ++endId;
             const textId = 'insertedText' + id;
             // place marker for text which may take longer to load
-            const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+            const placeMarker = '<span id="' + textId + '" class="page_section">&nbsp;</span>';
             $(insertBeforeAtBottom).before(placeMarker);
 
             fnLoadTextAtEnd(id, textId);
@@ -63,7 +63,7 @@ function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
             const id = --topId;
             const textId = 'insertedText' + id;
             // place marker for text which may take longer to load
-            const placeMarker = '<div id="' + textId + '" class="page_section">&nbsp;</div>';
+            const placeMarker = '<span id="' + textId + '" class="page_section">&nbsp;</span>';
             insertAtTop($(insertAfterAtTop), placeMarker);
 
             fnLoadTextAtTop(id, textId);
