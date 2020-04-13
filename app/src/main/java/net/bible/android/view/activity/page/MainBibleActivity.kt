@@ -174,7 +174,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if(isFullScreen) 0 else field
             } else {
-                if(isFullScreen || hasHwKeys) 0 else statusBarHeight
+                if(isFullScreen) 0 else statusBarHeight
             }
 
     private var bottomOffset1 = 0
@@ -182,7 +182,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if(multiWinMode || isFullScreen) 0 else field
             } else {
-                if(isFullScreen || !CommonUtils.isPortrait) 0 else navigationBarHeight
+                if(hasHwKeys || isFullScreen || !CommonUtils.isPortrait) 0 else navigationBarHeight
             }
 
     var rightOffset1 = 0
@@ -190,7 +190,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if(multiWinMode || isFullScreen) 0 else field
             } else {
-                if(CommonUtils.isPortrait || isFullScreen) 0 else navigationBarHeight
+                if(hasHwKeys || CommonUtils.isPortrait || isFullScreen) 0 else navigationBarHeight
             }
 
     var leftOffset1 = 0
