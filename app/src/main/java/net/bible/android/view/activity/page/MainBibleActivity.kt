@@ -1030,7 +1030,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
         navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
         speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
-        //speakTransport.translationY = -bottomOffset1.toFloat()
         if(isFullScreen) {
             hideSystemUI()
             Log.d(TAG, "Fullscreen on")
