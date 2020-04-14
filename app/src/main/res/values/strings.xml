@@ -535,6 +535,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="about_copyright">Copyright: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="about_versification">Versification: %s</string>
+    <string name="about_repository">Distribution repository: %s</string>
+    <string name="about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
@@ -636,9 +638,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="history_for">History (%s: Window %d)</string>
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
+    <!-- Uncatogorized -->
+
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="key_book_parenthesis">\"%s (%s)\"</string>
-    <string name="about_osisId">OSIS ID: %s</string>
     <string name="chooce_language_hint">Language</string>
     <string name="one_more_back_press">One more pressing of back button will close app</string>
     <string name="document_filter_results">%d documents</string>

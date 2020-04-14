@@ -80,6 +80,14 @@
 			android:maxLines="1"
 			android:ellipsize="end"
 			android:textAppearance="?android:textAppearanceSmall" />
+		<TextView android:id="@+id/documentSource"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintBottom_toBottomOf="@id/documentAbbreviation"
+			android:maxLines="1"
+			android:ellipsize="end"
+			android:textAppearance="?android:textAppearanceSmall" />
 		<ProgressBar android:id="@+id/progressBar"
 			style="@style/Widget.AppCompat.ProgressBar.Horizontal"
 			android:layout_width="0dp"

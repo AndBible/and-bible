@@ -28,6 +28,7 @@ import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 
@@ -80,6 +81,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
         documentLanguage.text = document.language.name
+        documentSource.text = document.getProperty(DownloadManager.REPOSITORY_KEY)
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {

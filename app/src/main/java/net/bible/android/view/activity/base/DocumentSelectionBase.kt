@@ -595,11 +595,15 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
         // add id
         if (document is SwordBook) {
-            val osisIdMessage = BibleApplication.application.getString(R.string.about_osisId, document.osisID)
+            val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
+            val repoMessage = if(repoName != null) BibleApplication.application.getString(R.string.about_repository, repoName) else ""
+            val osisIdMessage = BibleApplication.application.getString(R.string.about_osisId, document.initials)
             about += """
 
 
                 $osisIdMessage
+                
+                $repoMessage
                 """.trimIndent()
         }
         AlertDialog.Builder(this)
