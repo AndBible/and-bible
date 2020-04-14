@@ -48,6 +48,6 @@
 		  android:title="@string/notes"/>
 
 	<item android:id="@+id/copy"
-		  android:title="@string/copy"/>
+		  android:title="@string/verse_action_copy"/>
 
 </menu>
