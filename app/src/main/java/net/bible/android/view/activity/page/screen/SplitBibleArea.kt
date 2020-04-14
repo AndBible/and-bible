@@ -340,9 +340,8 @@ class SplitBibleArea(
         updateRestoreButtons()
     }
 
-    fun onEvent(event: MainBibleActivity.UpdateWindowButtons) {
-        toggleWindowButtonVisibility(true, force=true)
-        resetTouchTimer()
+    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
+        updateRestoreButtons()
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
@@ -412,8 +411,7 @@ class SplitBibleArea(
     }
 
     private fun updateRestoreButtons() {
-        val stackMessage: String? = Log.getStackTraceString(Exception())
-        Log.d(TAG, "updateRestoreButtons, $stackMessage")
+        Log.d(TAG, "updateRestoreButtons")
         val transX =
             (if(restoreButtonsVisible) 0 else
                 restoreButtonsContainer.width -

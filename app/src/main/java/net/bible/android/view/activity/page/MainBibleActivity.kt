@@ -883,16 +883,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
             }
-            if(setNavBarColor) {
+            val color = if(setNavBarColor) {
                 val colors = windowRepository.lastVisibleWindow.pageManager.actualTextDisplaySettings.colors!!
                 val color = if(ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
-                window.navigationBarColor = color?: UiUtils.bibleViewDefaultBackgroundColor
-                UiUtils.bibleViewDefaultBackgroundColor
+                color?: UiUtils.bibleViewDefaultBackgroundColor
             } else {
                 val typedValue = TypedValue()
-                val found = theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
-                if(found) window.navigationBarColor = typedValue.data
+                theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                typedValue.data
             }
+            window.navigationBarColor = color
+            speakTransport.setBackgroundColor(color)
         }
         window.decorView.systemUiVisibility = uiFlags
     }
@@ -900,22 +901,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private fun updateBottomBars() {
         if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
             transportBarVisible = false
-            speakTransport.animate().translationY(speakTransport.height.toFloat())
+            speakTransport.animate()
+                .translationY(speakTransport.height.toFloat())
                 .setInterpolator(AccelerateInterpolator())
                 .withEndAction { speakTransport.visibility = View.GONE }
                 .start()
-        } else if (speakTransport.visibility == View.GONE && !speakControl.isStopped){
+        } else {
             transportBarVisible = true
-            speakTransport.translationY = speakTransport.height.toFloat()
             speakTransport.visibility = View.VISIBLE
-            speakTransport.animate().translationY(-bottomOffset1.toFloat())
+            speakTransport.animate()
+                .translationY(-bottomOffset1.toFloat())
                 .setInterpolator(DecelerateInterpolator())
                 .start()
         }
-        ABEventBus.getDefault().post(UpdateWindowButtons())
+        ABEventBus.getDefault().post(UpdateRestoreWindowButtons())
     }
 
-    class UpdateWindowButtons
+    class UpdateRestoreWindowButtons
 
     private fun refreshScreenKeepOn() {
         val keepOn = preferences.getBoolean(SCREEN_KEEP_ON_PREF, false)
@@ -1028,7 +1030,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
         navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
         speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
-        speakTransport.translationY = -bottomOffset1.toFloat()
+        //speakTransport.translationY = -bottomOffset1.toFloat()
         if(isFullScreen) {
             hideSystemUI()
             Log.d(TAG, "Fullscreen on")

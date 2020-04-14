@@ -154,6 +154,7 @@
             android:id="@+id/speakTransport"
             android:layout_width="match_parent"
             android:layout_height="?transportBarHeight"
+            android:background="?attr/speakTransportBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             custom:hideStatus="false"
             custom:showConfig="true"
