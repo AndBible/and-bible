@@ -24,11 +24,11 @@
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/filters"
 		android:layout_width="match_parent"
-		android:layout_height="50dip"
+		android:layout_height="55dip"
 		android:orientation="horizontal"
-		android:paddingLeft="8dp"
-		android:paddingTop="5dip"
-		android:paddingRight="8dp"
+		android:paddingLeft="8dip"
+		android:paddingTop="8dip"
+		android:paddingRight="8dip"
 		android:paddingBottom="5dip"
 		app:layout_constraintTop_toTopOf="parent">
 
