@@ -32,6 +32,7 @@ data class Document(
     var abbreviation: String,
     var name: String,
     var language: String,
+    var repository: String,
 
     @PrimaryKey
     @ColumnInfo(name="rowid")

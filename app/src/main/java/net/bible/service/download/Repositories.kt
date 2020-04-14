@@ -140,7 +140,7 @@ class LockmanRepo : RepoBase() {
     override val repoName: String get() = REPOSITORY
 
     companion object {
-        private const val REPOSITORY = "Lockman Foundation"
+        private const val REPOSITORY = "Lockman (CrossWire)"
         private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
     }
 }

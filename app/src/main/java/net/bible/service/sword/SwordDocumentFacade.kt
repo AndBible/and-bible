@@ -146,7 +146,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
     fun isIndexDownloadAvailable(document: Book): Boolean { // not sure how to integrate reuse this in JSword index download
         val version = document.bookMetaData.getProperty("Version")
         val versionSuffix = if (version != null) "-" + Version(version).toString() else ""
-        val url = "http://www.crosswire.org/and-bible/indices/v1/" + document.initials + versionSuffix + ".zip"
+        val url = "https://www.crosswire.org/and-bible/indices/v1/" + document.initials + versionSuffix + ".zip"
         return isHttpUrlAvailable(url)
     }
 

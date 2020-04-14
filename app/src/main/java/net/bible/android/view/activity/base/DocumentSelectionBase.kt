@@ -326,7 +326,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                     allDocuments.clear()
                     allDocuments.addAll(getDocumentsFromSource(refresh))
                     dao.clear()
-                    dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name) })
+                    dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
 
                     Log.i(TAG, "Number of documents:" + allDocuments.size)
                 } catch (e: Exception) {
@@ -355,9 +355,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper.exitActionMode()
         GlobalScope.launch {
             filterMutex.withLock {
-                withContext(Dispatchers.Main) {
-                    loadingIndicator.visibility = View.VISIBLE
-                }
                 withContext(Dispatchers.Default) {
                     try {
                         // re-filter documents
@@ -402,7 +399,6 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 withContext(Dispatchers.Main) {
                     documentItemAdapter.clear()
                     documentItemAdapter.addAll(displayedDocuments)
-                    loadingIndicator.visibility = View.GONE
                     resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
                 }
             }

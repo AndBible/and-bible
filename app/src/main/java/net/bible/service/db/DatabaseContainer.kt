@@ -497,6 +497,15 @@ private val MIGRATION_28_29 = object : Migration(28, 29) {
     }
 }
 
+private val MIGRATION_29_30 = object : Migration(29, 30) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("DROP TABLE IF EXISTS `Document`")
+            execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Document` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL)")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -537,7 +546,8 @@ object DatabaseContainer {
                         CLEANUP_MIGRATION_26_27,
                         SQUASH_MIGRATION_10_27,
                         MIGRATION_27_28,
-                        MIGRATION_28_29
+                        MIGRATION_28_29,
+                        MIGRATION_29_30
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
