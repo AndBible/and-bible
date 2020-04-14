@@ -317,7 +317,7 @@ class SplitBibleArea(
 
     fun onEvent(event: CurrentVerseChangedEvent) {
         updateBibleReference()
-        if (event.window != null) updateMinimizedButtonLetter(event.window)
+        if (event.window != null) updateMinimizedButtonText(event.window)
     }
 
     private fun updateBibleReference() {
@@ -330,8 +330,8 @@ class SplitBibleArea(
         }
     }
 
-    private fun updateMinimizedButtonLetter(w: Window) {
-        restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentInitial(w)
+    private fun updateMinimizedButtonText(w: Window) {
+        restoreButtonsList.find { it.window?.id == w.id }?.text = getDocumentAbbreviation(w)
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
@@ -455,7 +455,7 @@ class SplitBibleArea(
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
         return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
-            text = getDocumentInitial(window)
+            text = getDocumentAbbreviation(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupWindow(window, v); true }
         }
@@ -477,7 +477,7 @@ class SplitBibleArea(
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getDocumentInitial(window: Window): String {
+    private fun getDocumentAbbreviation(window: Window): String {
         return try {
             val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
             return abbrv ?: ""
