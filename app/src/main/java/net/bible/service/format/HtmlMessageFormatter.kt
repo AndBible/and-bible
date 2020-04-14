@@ -32,27 +32,31 @@ class HtmlMessageFormatter {
     companion object {
 
 		private var jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/loader.js'></script>\n"
+        private var JS_BOTTOM = "<div id='bottomOfBibleText'></div></div>$jsTag<script type='text/javascript'>andbible.initialize(INITIALIZE_SETTINGS);</script>"
+        private val DAY_STYLESHEET = ("<link href='file:///android_asset/web/"
+            + SharedConstants.DEFAULT_STYLESHEET
+            + "' rel='stylesheet' type='text/css'/>")
+
 		private val NIGHT_STYLESHEET = ("<link href='file:///android_asset/web/"
                 + SharedConstants.NIGHT_MODE_STYLESHEET
                 + "' rel='stylesheet' type='text/css'/>")
-        private val NIGHT_HEADER = "<html><head>$NIGHT_STYLESHEET$jsTag</head><body><div id='start'></div>"
-        private val NIGHT_FOOTER = "</body></html>"
+        private val NIGHT_HEADER = """<html><head>$DAY_STYLESHEET$NIGHT_STYLESHEET</head><body><div id='start'></div>
+            <div id='content' style='visibility: hidden;'><div id='topOfBibleText'></div>"""
+        private val NIGHT_FOOTER = "<div id='bottomOfBibleText'></div></div>$JS_BOTTOM</body></html>"
 
-        private val DAY_HEADER = "<html><head>$jsTag</head><body><div id='start'></div>"
-        private val DAY_FOOTER = "</body></html>"
+
+        private val DAY_HEADER = """<html><head>$DAY_STYLESHEET</head><body><div id='start'></div>
+            <div id='content' style='visibility: hidden;'><div id='topOfBibleText'></div>""".trimMargin()
+        private val DAY_FOOTER = "<div id='bottomOfBibleText'></div></div>$JS_BOTTOM</body></html>"
 
         private val TAG = "HtmlmessageFormatter"
 
         /** wrap text with nightmode css if required
          */
-        @JvmOverloads
-        fun format(msgId: Int, simpleHtmlOnly: Boolean = false): String {
+
+        fun format(msgId: Int): String {
             val errorMsg = BibleApplication.application.resources.getString(msgId)
-            return if (simpleHtmlOnly) {
-                errorMsg
-            } else {
-                format(errorMsg)
-            }
+            return format(errorMsg)
         }
 
         /** wrap text with nightmode css if required
@@ -72,5 +76,3 @@ class HtmlMessageFormatter {
         }
     }
 }
-/** wrap text with nightmode css if required
- */
