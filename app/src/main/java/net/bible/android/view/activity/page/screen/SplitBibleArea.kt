@@ -633,7 +633,7 @@ class SplitBibleArea(
             )
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
-                visible = windowControl.isWindowRemovable(window) && !isMaximised
+                visible = windowControl.isWindowRemovable(window)
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},

@@ -106,7 +106,7 @@ class BibleFrame(
 
     private fun addWindowButton() {
         val isSingleWindow = windowControl.isSingleWindow
-        if(!isSingleWindow && CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false) && !window.isLinksWindow) return
+        if(!isSingleWindow && CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)) return
         if (windowRepository.isMaximized && !window.isLinksWindow) return
 
         val button =
@@ -141,9 +141,10 @@ class BibleFrame(
     }
 
     private fun createCloseButton(window: Window): WindowButtonWidget {
-        return createTextButton("X",
+        val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
+        return createTextButton(text,
             { v -> allViews.showPopupWindow(window, v)},
-            { v -> windowControl.minimiseWindow(window); true},
+            { v -> windowControl.closeWindow(window); true},
             window
         )
     }

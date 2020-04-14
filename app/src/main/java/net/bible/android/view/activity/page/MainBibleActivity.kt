@@ -899,7 +899,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun updateBottomBars() {
-        if(speakTransport.visibility == View.VISIBLE && (isFullScreen || speakControl.isStopped)) {
+        if(isFullScreen || speakControl.isStopped) {
             transportBarVisible = false
             speakTransport.animate()
                 .translationY(speakTransport.height.toFloat())

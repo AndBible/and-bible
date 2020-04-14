@@ -41,7 +41,7 @@ open class Window (
 ){
     var weight: Float
         get() =
-            if(!isPinMode) {
+            if(!isPinMode && !isLinksWindow) {
                 if(windowRepository.unPinnedWeight == null) {
                     windowRepository.unPinnedWeight = windowLayout.weight
                 }
@@ -49,7 +49,7 @@ open class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(!isPinMode)
+            if(!isPinMode && !isLinksWindow)
                 windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
