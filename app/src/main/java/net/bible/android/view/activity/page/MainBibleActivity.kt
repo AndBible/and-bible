@@ -240,12 +240,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowRepository.initialize()
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
+            val heightChanged =
+                bottomOffset1 != insets.systemWindowInsetBottom || topOffset1 != insets.systemWindowInsetTop
+            val widthChanged =
+                leftOffset1 != insets.systemWindowInsetLeft || rightOffset1 != insets.systemWindowInsetRight
             bottomOffset1 = insets.systemWindowInsetBottom
             topOffset1 = insets.systemWindowInsetTop
             leftOffset1 = insets.systemWindowInsetLeft
             rightOffset1 = insets.systemWindowInsetRight
             Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
-            displaySizeChanged()
+            if(widthChanged || heightChanged)
+                displaySizeChanged()
+            else
+                ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+
             ViewCompat.onApplyWindowInsets(view, insets)
         }
 

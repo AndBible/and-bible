@@ -25,17 +25,13 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
-
-import java.util.HashMap
 
 import javax.inject.Inject
 

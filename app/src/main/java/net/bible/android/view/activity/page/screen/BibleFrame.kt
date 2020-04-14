@@ -61,7 +61,10 @@ class BibleFrame(
         val left = if(isLeftWindow) mainBibleActivity.leftOffset1 else 0
         val right = if(isRightWindow) mainBibleActivity.rightOffset1 else 0
         Log.d(TAG, "updating padding for $window: $left $right")
-        setPadding(left, 0, right, 0)
+        if(left != paddingLeft || right != paddingRight) {
+            setPadding(left, 0, right, 0)
+            window.updateText()
+        }
     }
 
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {

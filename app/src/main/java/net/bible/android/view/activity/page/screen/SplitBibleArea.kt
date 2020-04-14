@@ -115,6 +115,10 @@ class SplitBibleArea(
 
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.split_bible_area, this, true)
+        hideRestoreButton.setOnClickListener {
+            restoreButtonsVisible = !restoreButtonsVisible
+            updateRestoreButtons()
+        }
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
@@ -311,8 +315,7 @@ class SplitBibleArea(
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        toggleWindowButtonVisibility(true, force=true)
-        resetTouchTimer()
+        restoreButtonsVisible = !event.isFullScreen
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -337,6 +340,7 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
+        updateRestoreButtons()
     }
 
     fun onEvent(event: MainBibleActivity.UpdateWindowButtons) {
@@ -394,13 +398,6 @@ class SplitBibleArea(
                                 )
                             ).toFloat()
                     )
-//                    translationX((
-//                            if(CommonUtils.isSplitVertically)
-//                                mainBibleActivity.rightOffset1
-//                            else 0
-//                            ).toFloat()
-//                    )
-
                     if(show) {
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
@@ -412,31 +409,29 @@ class SplitBibleArea(
                 }
             }
 
-            updateRestoreButtons(show)
             updateBibleReferenceOverlay(show)
         }
         buttonsVisible = show
     }
 
-    private fun updateRestoreButtons(show: Boolean) {
-        Log.d(TAG, "updateRestoreButtons")
-        if(show) {
-            restoreButtonsContainer.visibility = View.VISIBLE
-            restoreButtonsContainer.animate()
-                .alpha(VISIBLE_ALPHA)
-                .translationY(-mainBibleActivity.bottomOffset2.toFloat())
-                //.translationX(-mainBibleActivity.rightOffset1.toFloat())
-                .setInterpolator(DecelerateInterpolator())
-                .start()
+    private fun updateRestoreButtons() {
+        val stackMessage: String? = Log.getStackTraceString(Exception())
+        Log.d(TAG, "updateRestoreButtons, $stackMessage")
+        val transX = (if(restoreButtonsVisible) 0 else restoreButtonsContainer.width - hideRestoreButton.width).toFloat() - mainBibleActivity.rightOffset1
+
+        if(restoreButtonsVisible) {
+            hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_right_black_24dp)
         }  else {
-            if(mainBibleActivity.fullScreen) {
-                restoreButtonsContainer.animate().alpha(hiddenAlpha)
-                    .setInterpolator(AccelerateInterpolator())
-                    //.translationX(-mainBibleActivity.rightOffset1.toFloat())
-                    .start()
-            }
+            hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_left_black_24dp)
         }
+        restoreButtonsContainer.animate()
+            .translationY(-mainBibleActivity.bottomOffset2.toFloat())
+            .translationX(transX)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
     }
+
+    private var restoreButtonsVisible = true
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
         val show = mainBibleActivity.fullScreen && _show
