@@ -42,6 +42,10 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_install_zip.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import java.io.InputStream
@@ -66,15 +70,15 @@ internal class InvalidModule : Exception() {
 
 internal const val TAG = "InstallZip"
 
-internal class ZipHandler(
+class ZipHandler(
         private val newInputStream: () -> InputStream?,
         private val updateProgress: (progress: Int) -> Unit,
         private val finish: (finishResult: Int) -> Unit
-) : AsyncTask<Void, Int, Int>() {
+) {
     private var totalEntries = 0
 
     @Throws(IOException::class, ModuleExists::class, InvalidModule::class)
-    private fun checkZipFile() {
+    private suspend fun checkZipFile() = withContext(Dispatchers.IO) {
         var modsDirFound = false
         var modulesFound = false
         var entry: ZipEntry?
@@ -117,8 +121,10 @@ internal class ZipHandler(
         zin.close()
     }
 
+
     @Throws(IOException::class, BookException::class)
-    private fun installZipFile() {
+    private suspend fun installZipFile() = withContext(Dispatchers.IO) {
+
         val zin = ZipInputStream(newInputStream())
 
         val confFiles = ArrayList<File>()
@@ -153,7 +159,7 @@ internal class ZipHandler(
                         count = zin.read(buffer)
                     }
                 }
-                publishProgress(++entryNum)
+                onProgressUpdate(++entryNum)
                 ze = zin.nextEntry
             }
         }
@@ -164,29 +170,25 @@ internal class ZipHandler(
             me.driver = bookDriver
             SwordBookDriver.registerNewBook(me)
         }
-
     }
 
-    override fun doInBackground(vararg params: Void): Int? {
-        try {
+    suspend fun execute() = withContext(Dispatchers.Main) {
+        val result = try {
             checkZipFile()
             installZipFile()
+            R_OK
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred", e)
-            return R_ERROR
+            R_ERROR
         } catch (e: BookException) {
             Log.e(TAG, "Error occurred", e)
-            return R_ERROR
+            R_ERROR
         } catch (e: InvalidModule) {
-            return R_INVALID_MODULE
+            R_INVALID_MODULE
         } catch (e: ModuleExists) {
-            return R_MODULE_EXISTS
+            R_MODULE_EXISTS
         }
 
-        return R_OK
-    }
-
-    override fun onPostExecute(result: Int?) {
         var finishResult = Activity.RESULT_CANCELED
         val bus = ABEventBus.getDefault()
         when (result) {
@@ -199,9 +201,10 @@ internal class ZipHandler(
             }
         }
         finish(finishResult)
+
     }
 
-    override fun onProgressUpdate(vararg values: Int?) {
+    private suspend fun onProgressUpdate(vararg values: Int?)  = withContext(Dispatchers.Main) {
         val firstValue = values[0] as Int
         val progressNow = Math
                 .round(firstValue.toFloat() / totalEntries.toFloat() * 100)
@@ -254,7 +257,9 @@ class InstallZip : Activity() {
                 {percent -> updateProgress(percent)},
                 {finishResult -> setResult(finishResult); finish() }
         )
-        zh.execute()
+        GlobalScope.launch {
+            zh.execute()
+        }
     }
 
     override fun onBackPressed() {}
