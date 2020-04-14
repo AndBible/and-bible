@@ -44,6 +44,12 @@
             android:layout_gravity="end"
             >
             <Button
+                android:id="@+id/hideRestoreButtonExtension"
+                android:layout_width="20dip"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                />
+            <Button
                 android:id="@+id/hideRestoreButton"
                 android:layout_width="30dip"
                 android:background="@drawable/ic_keyboard_arrow_right_black_24dp"

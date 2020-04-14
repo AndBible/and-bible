@@ -119,6 +119,7 @@ class SplitBibleArea(
             restoreButtonsVisible = !restoreButtonsVisible
             updateRestoreButtons()
         }
+        hideRestoreButtonExtension.setOnClickListener {hideRestoreButton.performClick()}
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
@@ -417,7 +418,10 @@ class SplitBibleArea(
     private fun updateRestoreButtons() {
         val stackMessage: String? = Log.getStackTraceString(Exception())
         Log.d(TAG, "updateRestoreButtons, $stackMessage")
-        val transX = (if(restoreButtonsVisible) 0 else restoreButtonsContainer.width - hideRestoreButton.width).toFloat() - mainBibleActivity.rightOffset1
+        val transX =
+            (if(restoreButtonsVisible) 0 else
+                restoreButtonsContainer.width -
+                    (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
 
         if(restoreButtonsVisible) {
             hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_right_black_24dp)
