@@ -81,12 +81,12 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().register(this)
+        ABEventBus.getDefault().unregister(this)
         super.onDetachedFromWindow()
     }
 
     override fun onAttachedToWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.getDefault().safelyRegister(this)
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
