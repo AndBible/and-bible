@@ -488,6 +488,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                             // the doc list should now change
                             reloadDocuments()
                         } catch (e: Exception) {
+                            Log.e(TAG, "Deleting document crashed", e)
                             instance.showErrorMsg(R.string.error_occurred, e)
                         }
                     }
@@ -509,6 +510,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                         Log.d(TAG, "Deleting index:$document")
                         swordDocumentFacade.deleteDocumentIndex(document)
                     } catch (e: Exception) {
+                        Log.e(TAG, "Deleting index crashed", e)
                         instance.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
