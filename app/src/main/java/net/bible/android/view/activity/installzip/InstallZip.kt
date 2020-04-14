@@ -26,7 +26,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 import net.bible.android.activity.R
-import net.bible.android.view.activity.download.Download
 
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.BookException
@@ -36,9 +35,9 @@ import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_install_zip.*
@@ -49,6 +48,9 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import java.io.InputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import kotlin.math.roundToInt
 
 /**
  * Install SWORD module from a zip file
@@ -56,28 +58,21 @@ import java.io.InputStream
  * @author Tuomas Airaksinen [tuomas.airaksinen at gmail dot com]
  */
 
-internal class ModuleExists : Exception() {
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+class ModulesExists(val files: List<String>) : Exception()
 
-internal class InvalidModule : Exception() {
-    companion object {
-        private const val serialVersionUID = 1L
-    }
-}
+class InvalidModule : Exception()
 
-internal const val TAG = "InstallZip"
+const val TAG = "InstallZip"
 
 class ZipHandler(
         private val newInputStream: () -> InputStream?,
         private val updateProgress: (progress: Int) -> Unit,
-        private val finish: (finishResult: Int) -> Unit
+        private val finish: (finishResult: Int) -> Unit,
+        private val activity: Activity
 ) {
     private var totalEntries = 0
 
-    @Throws(IOException::class, ModuleExists::class, InvalidModule::class)
+    @Throws(IOException::class, ModulesExists::class, InvalidModule::class)
     private suspend fun checkZipFile() = withContext(Dispatchers.IO) {
         var modsDirFound = false
         var modulesFound = false
@@ -90,14 +85,14 @@ class ZipHandler(
         } catch (e: IllegalArgumentException) {
             throw InvalidModule()
         }
+        val existingFiles = mutableListOf<String>()
 
         while (entry != null) {
             totalEntries++
             val name = entry.name.replace('\\', '/')
             val targetFile = File(targetDirectory, name)
             if (!entry.isDirectory && targetFile.exists()) {
-                zin.close()
-                throw ModuleExists()
+                existingFiles.add(targetFile.relativeTo(targetDirectory).canonicalPath)
             }
             if (name.startsWith(SwordConstants.DIR_CONF + "/") && name.endsWith(SwordConstants.EXTENSION_CONF))
                 modsDirFound = true
@@ -105,10 +100,8 @@ class ZipHandler(
             } else if (name.startsWith(SwordConstants.DIR_DATA + "/"))
                 modulesFound = true
             else {
-                run {
-                    zin.close()
-                    throw InvalidModule()
-                }
+                zin.close()
+                throw InvalidModule()
             }
             entry = zin.nextEntry
         }
@@ -117,14 +110,14 @@ class ZipHandler(
             zin.close()
             throw InvalidModule()
         }
-
         zin.close()
+        if(existingFiles.isNotEmpty())
+            throw ModulesExists(existingFiles)
     }
 
 
     @Throws(IOException::class, BookException::class)
     private suspend fun installZipFile() = withContext(Dispatchers.IO) {
-
         val zin = ZipInputStream(newInputStream())
 
         val confFiles = ArrayList<File>()
@@ -173,48 +166,61 @@ class ZipHandler(
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
-        val result = try {
+        var finishResult = Activity.RESULT_CANCELED
+        var doInstall = false
+
+        var result = try {
             checkZipFile()
-            installZipFile()
+            doInstall = true
             R_OK
         } catch (e: IOException) {
             Log.e(TAG, "Error occurred", e)
             R_ERROR
-        } catch (e: BookException) {
-            Log.e(TAG, "Error occurred", e)
-            R_ERROR
         } catch (e: InvalidModule) {
             R_INVALID_MODULE
-        } catch (e: ModuleExists) {
-            R_MODULE_EXISTS
+        } catch (e: ModulesExists) {
+            doInstall = suspendCoroutine<Boolean> {
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.overwrite_files_title)
+                    .setMessage(activity.getString(R.string.overwrite_files, "\n" + e.files.joinToString("\n")))
+                    .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
+                    .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
+                    .show()
+            }
         }
 
-        var finishResult = Activity.RESULT_CANCELED
+        if(doInstall) {
+            result = try {
+                installZipFile()
+                finishResult = Activity.RESULT_OK
+                R_OK
+            } catch (e: BookException) {
+                Log.e(TAG, "Error occurred", e)
+                R_ERROR
+            } catch (e: IOException) {
+                Log.e(TAG, "Error occurred", e)
+                R_ERROR
+            }
+        }
+
         val bus = ABEventBus.getDefault()
         when (result) {
             R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
             R_INVALID_MODULE -> bus.post(ToastEvent(R.string.invalid_module))
-            R_MODULE_EXISTS -> bus.post(ToastEvent(R.string.module_already_installed))
-            R_OK -> {
-                bus.post(ToastEvent(R.string.install_zip_successfull))
-                finishResult = Activity.RESULT_OK
-            }
+            R_OK -> bus.post(ToastEvent(R.string.install_zip_successfull))
         }
         finish(finishResult)
 
     }
 
-    private suspend fun onProgressUpdate(vararg values: Int?)  = withContext(Dispatchers.Main) {
-        val firstValue = values[0] as Int
-        val progressNow = Math
-                .round(firstValue.toFloat() / totalEntries.toFloat() * 100)
+    private suspend fun onProgressUpdate(value: Int)  = withContext(Dispatchers.Main) {
+        val progressNow = (value.toFloat() / totalEntries.toFloat() * 100).roundToInt()
         updateProgress(progressNow/totalEntries)
     }
 
     companion object {
         private const val R_ERROR = 1
         private const val R_INVALID_MODULE = 2
-        private const val R_MODULE_EXISTS = 3
         private const val R_OK = 4
     }
 }
@@ -255,7 +261,8 @@ class InstallZip : Activity() {
         val zh = ZipHandler(
                 {contentResolver.openInputStream(uri)},
                 {percent -> updateProgress(percent)},
-                {finishResult -> setResult(finishResult); finish() }
+                {finishResult -> setResult(finishResult); finish() },
+            this
         )
         GlobalScope.launch {
             zh.execute()
