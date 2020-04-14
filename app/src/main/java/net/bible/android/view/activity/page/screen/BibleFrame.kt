@@ -143,7 +143,7 @@ class BibleFrame(
     private fun createCloseButton(window: Window): WindowButtonWidget {
         return createTextButton("X",
             { v -> allViews.showPopupWindow(window, v)},
-            { v -> windowControl.closeWindow(window); true},
+            { v -> windowControl.minimiseWindow(window); true},
             window
         )
     }

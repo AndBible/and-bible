@@ -89,7 +89,7 @@ open class WindowRepository @Inject constructor(
     val windows: List<Window>
         get() {
             val windows = ArrayList(windowList)
-            addLinksWindowIfVisible(windows)
+            addLinksWindow(windows)
             return windows.sortedWith(compareBy { !it.isPinMode })
         }
 
@@ -138,7 +138,7 @@ open class WindowRepository @Inject constructor(
     val visibleWindows get() =
         if(isMaximized) {
             val windows = mutableListOf(getWindow(maximizedWindowId)!!)
-            addLinksWindowIfVisible(windows)
+            addLinksWindow(windows)
             windows
         }
         else getWindows(WindowState.SPLIT)
@@ -161,8 +161,8 @@ open class WindowRepository @Inject constructor(
         return newWindow
     }
 
-    private fun addLinksWindowIfVisible(windows: MutableList<Window>) {
-        if (dedicatedLinksWindow.isVisible && !windows.contains(dedicatedLinksWindow)) {
+    private fun addLinksWindow(windows: MutableList<Window>) {
+        if (!dedicatedLinksWindow.isClosed && !windows.contains(dedicatedLinksWindow)) {
             windows.add(dedicatedLinksWindow)
         }
     }

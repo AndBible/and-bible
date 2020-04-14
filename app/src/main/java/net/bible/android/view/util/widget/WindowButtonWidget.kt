@@ -114,9 +114,14 @@ class WindowButtonWidget(
             buttonText.textSize = 13.0f
             val color = getResourceColor(R.color.bar_window_button_text_colour)
             buttonText.setTextColor(color)
-            val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
-            if(image != null)
-                docType.setImageResource(image)
+            if(window?.isLinksWindow == true) {
+                docType.setImageResource(R.drawable.ic_link_black_24dp)
+                docType.setColorFilter(getResourceColor(R.color.blue_A200))
+            } else {
+                val image = window?.pageManager?.currentPage?.currentDocument?.imageResource
+                if (image != null)
+                    docType.setImageResource(image)
+            }
         } else {
             buttonText.setTextColor(getResourceColor(R.color.window_button_text_colour))
             windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))

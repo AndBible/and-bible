@@ -170,13 +170,13 @@ open class WindowControl @Inject constructor(
 
     fun isWindowMinimisable(window: Window): Boolean {
         var normalWindows = windowRepository.visibleWindows.size
-        if (windowRepository.dedicatedLinksWindow.isVisible) {
+        if (windowRepository.dedicatedLinksWindow.isVisible && !window.isLinksWindow) {
             normalWindows--
         }
 
         val canMinimize =  normalWindows > 1
 
-        return !window.isMinimised && canMinimize && !window.isLinksWindow
+        return !window.isMinimised && canMinimize
     }
 
     fun isWindowRemovable(window: Window): Boolean {

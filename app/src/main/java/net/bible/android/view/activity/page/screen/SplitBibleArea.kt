@@ -289,7 +289,7 @@ class SplitBibleArea(
 
         if(windowControl.isSingleWindow) return
 
-        val windows = windowRepository.windows.filter {!it.isLinksWindow}
+        val windows = windowRepository.windows
 
         val pinnedWindows = windows.filter { it.isPinMode }
         val nonPinnedWindows = windows.filter { !it.isPinMode }
