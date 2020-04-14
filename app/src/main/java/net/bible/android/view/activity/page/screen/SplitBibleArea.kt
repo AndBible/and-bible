@@ -278,10 +278,6 @@ class SplitBibleArea(
         restoreButtons.removeAllViews()
         pinnedRestoreButtons.removeAllViews()
 
-
-        restoreButtonsContainer.translationY = -mainBibleActivity.bottomOffset2.toFloat()
-        restoreButtonsContainer.translationX = -mainBibleActivity.rightOffset1.toFloat()
-
         val maxWindow = windowRepository.maximizedWindow
         if(maxWindow != null) {
             val restoreButton = createUnmaximiseButton(maxWindow)
