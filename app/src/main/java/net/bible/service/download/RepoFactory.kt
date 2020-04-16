@@ -29,6 +29,7 @@ open class RepoFactory @Inject constructor() {
     val crosswireRepo = CrosswireRepo()
     val betaRepo = BetaRepo()
     val andBibleRepo = AndBibleRepo()
+    val extraRepo = AndBibleExtraRepo()
     val IBTRepo = IBTRepo()
     val eBibleRepo = EBibleRepo()
     val lockmanRepo = LockmanRepo()
@@ -41,6 +42,7 @@ open class RepoFactory @Inject constructor() {
         when (repoName){
             crosswireRepo.repoName -> crosswireRepo
             andBibleRepo.repoName -> andBibleRepo
+            extraRepo.repoName -> extraRepo
             betaRepo.repoName -> betaRepo
             IBTRepo.repoName -> IBTRepo
             eBibleRepo.repoName -> eBibleRepo

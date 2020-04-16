@@ -79,6 +79,25 @@ class AndBibleRepo : RepoBase() {
     }
 }
 
+class AndBibleExtraRepo : RepoBase() {
+    private val log = Logger(this.javaClass.name)
+
+    @Throws(InstallException::class)
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
+        val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
+        storeRepoNameInMetaData(bookList)
+        return bookList
+    }
+
+    override val repoName: String get() = REPOSITORY
+
+    companion object {
+        private const val REPOSITORY = "AndBible Extra"
+        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
+    }
+}
+
+
 class BetaRepo : RepoBase() {
     /** get a list of good books that are available in Beta repo and seem to work in And Bible
      */
@@ -128,8 +147,6 @@ class CrosswireRepo : RepoBase() {
 }
 
 class LockmanRepo : RepoBase() {
-    /** get a list of books that are available in default repo and seem to work in And Bible
-     */
     @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)

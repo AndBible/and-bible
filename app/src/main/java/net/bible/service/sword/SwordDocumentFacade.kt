@@ -133,6 +133,7 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
             // beta repo must never override live books especially if later version so use addIfNotExists
             repoBookDeduplicator.addIfNotExists(repoFactory.betaRepo.getRepoBooks(refresh))
             repoBookDeduplicator.addAll(repoFactory.lockmanRepo.getRepoBooks(refresh))
+            repoBookDeduplicator.addAll(repoFactory.extraRepo.getRepoBooks(refresh))
             val bookList = repoBookDeduplicator.books
             // get them in the correct order
             bookList.sort()
