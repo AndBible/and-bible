@@ -75,7 +75,7 @@ object CommonUtils {
     private const val ELLIPSIS = "..."
 	val JSON_CONFIG = JsonConfiguration(ignoreUnknownKeys = true)
 
-    private val TAG = "CommonUtils"
+    private const val TAG = "CommonUtils"
     var isAndroid = true
         private set
 
