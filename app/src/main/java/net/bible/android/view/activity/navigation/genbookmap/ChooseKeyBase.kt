@@ -40,8 +40,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
     private val mKeyList: MutableList<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
 
-    @set:Inject
-    lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     abstract val currentKey: Key?
     abstract val keyList: List<Key>?
     abstract fun itemSelected(key: Key)

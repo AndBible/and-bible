@@ -30,7 +30,7 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
         get() = currentGeneralBookPage.key
 
 
-    override val keyList: List<Key> = currentGeneralBookPage.cachedGlobalKeyList!!
+    override val keyList: List<Key> get() = currentGeneralBookPage.cachedGlobalKeyList!!
 
     override fun itemSelected(key: Key) {
         try {
