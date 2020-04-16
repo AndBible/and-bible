@@ -5,7 +5,7 @@
 Offline Bible on Android
 
 ## Users
-Please see the [Home Page](http://andbible.github.io/and-bible/).
+Please see the [Home Page](https://andbible.github.io/).
 
 For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the 
 [FAQ](https://github.com/andbible/and-bible/wiki/FAQ).
@@ -23,12 +23,12 @@ easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
 
 ## Project responsibilities
 
-- Project Lead (development etc.): [Tuomas Airaksinen](http://github.com/tuomas2) (Since 11/2018)
-- Quality Assurance Lead: [Ben Vahedy](http://github.com/bvahedy) (Since 1/2019)
+- Project Lead (development etc.): [Tuomas Airaksinen](https://github.com/tuomas2) (Since 11/2018)
+- Quality Assurance Lead: [Ben Vahedy](https://github.com/bvahedy) (Since 1/2019)
 
 ## Acknowledgements
 
-And Bible was originally developed by [Martin Denham](http://github.com/mjdenham) (2010-2018)
+And Bible was originally developed by [Martin Denham](https://github.com/mjdenham) (2010-2018)
 
 ## Licence
 
@@ -39,4 +39,4 @@ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WAR
 of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with And Bible. 
-If not, see http://www.gnu.org/licenses/.
+If not, see https://www.gnu.org/licenses/.
