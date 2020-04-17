@@ -30,10 +30,10 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class Hourglass {
+class Hourglass(val context: Context) {
     private var hourglass: ProgressDialog? = null
 
-    suspend fun show(context: Context) {
+    suspend fun show() {
         withContext(Dispatchers.Main) {
             val hourglass = ProgressDialog(context)
             this@Hourglass.hourglass = hourglass
@@ -47,19 +47,8 @@ class Hourglass {
 
     suspend fun dismiss() {
         withContext(Dispatchers.Main) {
-            try {
-                if (hourglass != null) {
-                    hourglass!!.dismiss()
-                    hourglass = null
-                }
-                null
-            } catch (e: Exception) {
-                Log.e(TAG, "Error dismissing hourglass", e)
-            }
+            hourglass!!.dismiss()
+            hourglass = null
         }
-    }
-
-    companion object {
-        private const val TAG = "HourGlass"
     }
 }

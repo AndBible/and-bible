@@ -32,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.sdCardMegsFree
 import java.io.BufferedReader
@@ -92,7 +93,8 @@ class ErrorReportControl @Inject constructor() {
 		val context = context_?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
         val f = File(dir, "logcat.txt.gz")
-        Dialogs.instance.showHourglass(context)
+        val hourglass = Hourglass(context)
+        hourglass.show()
         withContext(Dispatchers.IO) {
             val log=StringBuilder()
             try {
@@ -117,7 +119,7 @@ class ErrorReportControl @Inject constructor() {
             osw.flush()
             osw.close()
         }
-        Dialogs.instance.dismissHourglass()
+        hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
             val subject = context.getString(R.string.report_bug_email_subject, getSubject(exception))

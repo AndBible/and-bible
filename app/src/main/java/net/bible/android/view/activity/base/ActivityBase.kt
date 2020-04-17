@@ -193,18 +193,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Dialogs.instance.showErrorMsg(msgResId)
     }
 
-    protected fun showHourglass() {
-        GlobalScope.launch {
-            Dialogs.instance.showHourglass(CurrentActivityHolder.getInstance().currentActivity)
-        }
-    }
-
-    protected fun dismissHourglass() {
-        GlobalScope.launch {
-            Dialogs.instance.dismissHourglass()
-        }
-    }
-
     protected fun returnErrorToPreviousScreen() {
         // just pass control back to the previous screen
         val resultIntent = Intent(this, this.javaClass)

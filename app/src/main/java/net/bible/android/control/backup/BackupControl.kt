@@ -42,6 +42,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.util.Hourglass
 
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
@@ -249,9 +250,10 @@ class BackupControl @Inject constructor() {
             val zipFile = File(internalDbBackupDir, fileName)
             val books = selectModules(callingActivity) ?: return@withContext
 
-            Dialogs.instance.showHourglass(callingActivity)
+            val hourglass = Hourglass(callingActivity)
+            hourglass.show()
             createZip(books, zipFile)
-            Dialogs.instance.dismissHourglass()
+            hourglass.dismiss()
 
             val modulesString = books.joinToString(", ") { it.abbreviation }
             val subject = getString(R.string.backup_modules_email_subject)

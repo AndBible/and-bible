@@ -18,13 +18,11 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.view.util.Hourglass
 
 /**
  * Class to manage the display of various dialogs
@@ -33,7 +31,6 @@ import net.bible.android.view.util.Hourglass
  */
 class Dialogs private constructor() {
     private val errorReportControl: ErrorReportControl = application.applicationComponent.errorReportControl()
-    private val hourglass = Hourglass()
     private val doNothingCallback = Callback {
         // by default do nothing when user clicks okay
     }
@@ -124,14 +121,6 @@ class Dialogs private constructor() {
         } catch (e: Exception) {
             Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
         }
-    }
-
-    suspend fun showHourglass(context: Context) {
-        hourglass.show(context)
-    }
-
-    suspend fun dismissHourglass() {
-        hourglass.dismiss()
     }
 
     companion object {
