@@ -131,7 +131,7 @@ object CommonUtils {
 
     val isInternetAvailable: Boolean
         get() {
-            val testUrl = "https://www.crosswire.org/ftpmirror/pub/sword/packages/"
+            val testUrl = "https://andbible.github.io/"
             return isHttpUrlAvailable(testUrl)
         }
 
