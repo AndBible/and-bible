@@ -9,8 +9,10 @@
     "en": ["Gill", "MHC", "TSKe"]
   },
   "dictionaries": {
-    "en": ["StrongsGreek", "StrongsHebrew"]
+    "en": ["StrongsRealGreek", "StrongsRealHebrew"]
   },
   "books": {},
-  "maps": {}
+  "maps": {
+    "en": ["SmithBibleAtlas"]
+  }
 }
