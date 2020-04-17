@@ -650,4 +650,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_modules_listing">%s (%s)</string>
     <string name="menu_for_docs_listing">%s (%s)</string>
     <string name="workspace_listing_with_current">%s (current)</string>
+    <string name="install_zip_canceled">Module install cancelled</string>
 </resources>

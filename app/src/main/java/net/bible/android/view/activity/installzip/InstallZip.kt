@@ -184,9 +184,10 @@ class ZipHandler(
                     .setTitle(R.string.overwrite_files_title)
                     .setMessage(activity.getString(R.string.overwrite_files, "\n" + e.files.joinToString("\n")))
                     .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
-                    .setNegativeButton(R.string.no) {_, _ -> it.resume(false)}
+                    .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
                     .show()
             }
+            if(doInstall) R_OK else R_CANCEL
         }
 
         if(doInstall) {
@@ -206,6 +207,7 @@ class ZipHandler(
         val bus = ABEventBus.getDefault()
         when (result) {
             R_ERROR -> bus.post(ToastEvent(R.string.error_occurred))
+            R_CANCEL -> bus.post(ToastEvent(R.string.install_zip_canceled))
             R_INVALID_MODULE -> bus.post(ToastEvent(R.string.invalid_module))
             R_OK -> bus.post(ToastEvent(R.string.install_zip_successfull))
         }
@@ -221,6 +223,7 @@ class ZipHandler(
     companion object {
         private const val R_ERROR = 1
         private const val R_INVALID_MODULE = 2
+        private const val R_CANCEL = 3
         private const val R_OK = 4
     }
 }
