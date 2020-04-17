@@ -28,6 +28,11 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
+import kotlinx.android.synthetic.main.choose_dictionary_page.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
@@ -62,8 +67,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             return
         }
         initialise()
-        val searcheditText = findViewById<View>(R.id.searchText) as EditText
-        searcheditText.addTextChangedListener(object : TextWatcher {
+        searchText.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(searchText: CharSequence, arg1: Int, arg2: Int, arg3: Int) {
                 showPossibleDictionaryKeys(searchText.toString())
             }
@@ -71,7 +75,7 @@ class ChooseDictionaryWord : ListActivityBase() {
             override fun afterTextChanged(searchText: Editable) {}
             override fun beforeTextChanged(arg0: CharSequence, arg1: Int, arg2: Int, arg3: Int) {}
         })
-        searcheditText.requestFocus()
+        searchText.requestFocus()
     }
 
     /**
@@ -85,27 +89,32 @@ class ChooseDictionaryWord : ListActivityBase() {
         listAdapter = ArrayAdapter(this@ChooseDictionaryWord,
             LIST_ITEM_TYPE,
             mMatchingKeyList)
-        val uiHandler = Handler()
-        showHourglass()
-        Thread(Runnable {
-            try {
-                // getting all dictionary keys is slow so do in another thread in order to show hourglass
-                //TODO need to optimise this using binary search of globalkeylist without caching
 
-                //already checked a dictionary exists
-                mDictionaryGlobalList = activeWindowPageManagerProvider
-                    .activeWindowPageManager
-                    .currentDictionary
-                    .cachedGlobalKeyList
-                Log.d(TAG, "Finished Initialising")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error creating dictionary key list")
-                instance.showErrorMsg(R.string.error_occurred, e)
-            } finally {
-                // must dismiss hourglass in ui thread
-                uiHandler.post { dismissHourglass() }
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+                loadingIndicator.visibility = View.VISIBLE
             }
-        }).start()
+            withContext(Dispatchers.Default) {
+                try {
+                    // getting all dictionary keys is slow so do in another thread in order to show hourglass
+                    //TODO need to optimise this using binary search of globalkeylist without caching
+
+                    //already checked a dictionary exists
+                    mDictionaryGlobalList = activeWindowPageManagerProvider
+                        .activeWindowPageManager
+                        .currentDictionary
+                        .cachedGlobalKeyList
+                    Log.d(TAG, "Finished Initialising")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error creating dictionary key list")
+                    instance.showErrorMsg(R.string.error_occurred, e)
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        loadingIndicator.visibility = View.GONE
+                    }
+                }
+            }
+        }
     }
 
     /** user has typed something so show keys starting with user's text

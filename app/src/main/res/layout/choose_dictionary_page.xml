@@ -3,20 +3,27 @@
  
  @author Martin Denham [mjdenham at gmail dot com]
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<EditText android:id="@+id/searchText" 
-		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
 		android:padding="5dip"
-		android:hint="@string/search_dictionary_hint"/>
-		
+		android:hint="@string/search_dictionary_hint"
+		app:layout_constraintTop_toTopOf="parent"
+		/>
 	<ListView android:id="@android:id/list"
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		app:layout_constraintTop_toBottomOf="@id/searchText"
+		app:layout_constraintBottom_toBottomOf="parent"
 		android:choiceMode="singleChoice"/>
-
-</LinearLayout>
+	<ProgressBar
+		android:id="@+id/loadingIndicator"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toBottomOf="parent"
+		/>
+</androidx.constraintlayout.widget.ConstraintLayout>
