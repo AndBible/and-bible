@@ -270,7 +270,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">
-        Could not connect to Crosswire\'s module repository.
+        Could not connect to module repository.
         Server might be down or you might not have internet connection.
         Please try again later.
     </string>
