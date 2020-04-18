@@ -17,6 +17,10 @@
  */
 package net.bible.service.font
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.service.common.CommonUtils.loadProperties
 import net.bible.service.common.Logger
@@ -34,9 +38,6 @@ import java.util.*
  */
 class FontControl private constructor() {
     private val fontProperties = Properties()
-    fun reloadProperties() {
-        loadFontProperties()
-    }
 
     fun getFontForBook(book: Book?): String? {
         var font: String? = null
@@ -127,7 +128,7 @@ class FontControl private constructor() {
     /** if font.properties refresh requested or does not exist then download font.properties
      */
     @Throws(InstallException::class)
-    fun checkFontPropertiesFile(refresh: Boolean) {
+    fun checkFontPropertiesFile(refresh: Boolean) = GlobalScope.launch {
         if (refresh || !File(SharedConstants.FONT_DIR, FONT_PROPERTIES_FILENAME).exists()) {
             log.debug("Downloading $FONT_PROPERTIES_FILENAME")
             val source: URI
@@ -146,7 +147,7 @@ class FontControl private constructor() {
         }
     }
 
-    private fun loadFontProperties() {
+    private suspend fun loadFontProperties() = withContext(Dispatchers.Main) {
         fontProperties.clear()
 
         // load font properties from default install dir
@@ -186,6 +187,6 @@ class FontControl private constructor() {
     }
 
     init {
-        loadFontProperties()
+        GlobalScope.launch { loadFontProperties() }
     }
 }

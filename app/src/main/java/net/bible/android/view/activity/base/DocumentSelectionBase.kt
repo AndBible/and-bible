@@ -317,8 +317,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
         withContext(Dispatchers.Default) {
             try {
-                allDocuments.clear()
-                allDocuments.addAll(getDocumentsFromSource(refresh))
+                val newDocs = getDocumentsFromSource(refresh)
+                filterMutex.withLock {
+                    allDocuments.clear()
+                    allDocuments.addAll(newDocs)
+                }
                 dao.clear()
                 dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
 

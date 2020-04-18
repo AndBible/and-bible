@@ -31,18 +31,22 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
-import net.bible.android.view.activity.navigation.DocumentItemAdapter
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.download.GenericFileDownloader
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import java.io.File
+import java.io.FileInputStream
+import java.net.URI
 import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -63,11 +67,17 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
 
     override var recommendedDocuments : RecommendedDocuments? = null
 
-    private fun loadRecommendedDocuments() {
-        val jsonString = String(
-            assets.open("recommended_documents.json").readBytes()
-        )
-        recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
+        val source = URI("https://andbible.github.io/data/sword/${SharedConstants.RECOMMENDED_JSON}")
+        val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
+        val d = GenericFileDownloader()
+        d.downloadFile(source, target, "Recommendations")
+        if(target.canRead()) {
+            val jsonString = String(FileInputStream(target).readBytes())
+            recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+        } else {
+            Log.e(TAG, "Could not load recommendations")
+        }
     }
 
     private suspend fun askIfWantToProceed(): Boolean = withContext(Dispatchers.Main) {

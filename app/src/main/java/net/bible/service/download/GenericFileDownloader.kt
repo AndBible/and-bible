@@ -18,6 +18,12 @@
 package net.bible.service.download
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.FileManager.copyFile
@@ -31,60 +37,50 @@ import org.crosswire.jsword.JSMsg
 import org.crosswire.jsword.book.install.InstallException
 import java.io.File
 import java.io.IOException
+import java.lang.ArithmeticException
 import java.net.URI
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader {
-    fun downloadFileInBackground(source: URI, target: File, description: String) {
+    fun downloadFileInBackground(source: URI, target: File, description: String) =
+        GlobalScope.launch {
+            // So now we know what we want to install - all we need to do
+            // is installer.install(name) however we are doing it in the
+            // background so we create a job for it.
 
-        // So now we know what we want to install - all we need to do
-        // is installer.install(name) however we are doing it in the
-        // background so we create a job for it.
-        val worker: Thread = object : Thread("DisplayPreLoader") {
-            /*
-             * (non-Javadoc)
-             *
-             * @see java.lang.Runnable#run()
-             */
-            /* @Override */
-            override fun run() {
-                Log.i(TAG, "Starting generic download thread - file:" + target.name)
-                try {
-                    // Delete the file, if present
-                    if (target.exists()) {
-                        Log.d(TAG, "deleting file")
-                        target.delete()
-                    }
-                    try {
-                        downloadFile(source, target, description)
-                    } catch (e: Exception) {
-                        Reporter.informUser(this, "IO Error creating index")
-                        throw RuntimeException("IO Error downloading index", e)
-                    }
-                    Log.i(TAG, "Finished index download thread")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error downloading index", e)
-                    Reporter.informUser(this, "Error downloading index")
-                }
-            }
+            downloadFileNow(source, target, description)
         }
 
-        // this actually starts the thread off
-        worker.priority = Thread.MIN_PRIORITY
-        worker.start()
+    private suspend fun downloadFileNow(source: URI, target: File, description: String) = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Starting generic download thread - file:" + target.name)
+        try {
+            // Delete the file, if present
+            if (target.exists()) {
+                Log.d(TAG, "deleting file")
+                target.delete()
+            }
+            try {
+                downloadFile(source, target, description)
+            } catch (e: Exception) {
+                Reporter.informUser(this, "IO Error creating index")
+                throw RuntimeException("IO Error downloading index", e)
+            }
+            Log.i(TAG, "Finished index download thread")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error downloading index", e)
+            Reporter.informUser(this, "Error downloading index")
+        }
     }
 
-    fun downloadFile(source: URI, target: File, description: String) {
+    suspend fun downloadFile(source: URI, target: File, description: String) = withContext(Dispatchers.IO) {
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
         val job = JobManager.createJob(jobName)
 
         // Don't bother setting a size, we'll do it later.
         job.beginJob(jobName)
 
-        // allow displays to show the new job (at least I think that is why JSword put a yield here)
-        Thread.yield()
         var temp: URI? = null
         try {
             // TRANSLATOR: Progress label indicating the Initialization of installing of a book.
@@ -135,9 +131,12 @@ class GenericFileDownloader {
         val wr = WebResource(source, null, null)
         try {
             wr.copy(dest, job)
-        } catch (le: LucidException) {
-            // TRANSLATOR: Common error condition: {0} is a placeholder for the URL of what could not be found.
-            throw InstallException(JSMsg.gettext("Unable to find: {0}", source.toString()), le)
+        } catch (le: Exception) {
+            if (le is ArithmeticException || le is LucidException) {
+                // TRANSLATOR: Common error condition: {0} is a placeholder for the URL of what could not be found.
+                throw InstallException(JSMsg.gettext("Unable to find: {0}", source.toString()), le)
+            } else
+                throw le
         } finally {
             wr.shutdown()
         }
