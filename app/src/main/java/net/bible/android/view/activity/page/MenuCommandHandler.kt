@@ -172,6 +172,7 @@ constructor(private val callingActivity: MainBibleActivity,
 
                     val help = arrayOf(
                         Pair(R.string.help_nav_title, R.string.help_nav_text),
+                        Pair(R.string.help_window_pinning_title,R.string.help_window_pinning_text),
                         Pair(R.string.help_speech_title, R.string.help_speech_text),
                         Pair(R.string.help_mynote_title,R.string.help_mynote_text),
                         Pair(R.string.help_bookmarks_title, R.string.help_bookmarks_text),

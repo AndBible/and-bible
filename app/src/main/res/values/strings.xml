@@ -57,7 +57,16 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         Long press on a document in the document selector to delete it or view information.
         Long press the Back button to access the History list.
     </string>
-
+    <string name="help_window_pinning_title">Window pinning</string>
+    <string name="help_window_pinning_text">
+        You can enable window pinning from options menu (three dots, right top corner).
+        If window pinning is enabled, you may show many pinned windows on bible view,
+        but only one non-pinned window. Pinned windows are displayed first, and then
+        unpinned windows. You might want to open bible documents as pinned windows, and
+        commentaries and maps etc. as non-pinned windows. Then you can easily
+        have bible documents always opened, and switch quickly between commentaries and
+        other extra material when you study bible.
+    </string>
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
 
