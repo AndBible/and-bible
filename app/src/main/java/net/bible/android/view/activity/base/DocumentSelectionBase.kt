@@ -371,7 +371,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                             displayedDocuments.sortWith(
                                 compareBy (
                                     { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                    {!it.isRecommended(recommendedDocuments)},
+                                    {if(lang != null) !it.isRecommended(recommendedDocuments) else 0},
                                     {when(it.bookCategory) {
                                         BookCategory.BIBLE -> 0
                                         BookCategory.COMMENTARY -> 1
