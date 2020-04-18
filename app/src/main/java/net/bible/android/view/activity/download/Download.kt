@@ -26,12 +26,15 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
+import kotlinx.serialization.json.Json
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
+import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.android.view.activity.navigation.DocumentItemAdapter
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
@@ -51,6 +54,13 @@ import javax.inject.Inject
 
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
+
+    override val recommendedDocuments : RecommendedDocuments by lazy {
+        val jsonString = String(
+            assets.open("recommended_documents.json").readBytes()
+        )
+        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    }
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {

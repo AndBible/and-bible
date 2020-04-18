@@ -38,7 +38,7 @@ import org.crosswire.jsword.versification.system.SystemKJV
 
 class DocumentItemAdapter(
     context: Context,
-    private val recommendedDocuments: RecommendedDocuments
+    private val recommendedDocuments: RecommendedDocuments? = null
 ) : ArrayAdapter<Book>(context, R.layout.list_item_2_highlighted, ArrayList<Book>()) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val document = getItem(position)!!

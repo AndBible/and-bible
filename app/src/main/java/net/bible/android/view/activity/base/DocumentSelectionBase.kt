@@ -106,12 +106,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private var isPopulated = false
     private val dao = DatabaseContainer.db.documentDao()
 
-    protected val recommendedDocuments : RecommendedDocuments by lazy {
-        val jsonString = String(
-            assets.open("recommended_documents.json").readBytes()
-        )
-        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
-    }
+    open val recommendedDocuments: RecommendedDocuments? = null
 
     // the document list
     private var allDocuments = ArrayList<Book>()

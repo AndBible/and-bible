@@ -42,11 +42,10 @@ val Book.imageResource: Int
             else -> R.drawable.ic_book
         }
 
-fun Book.isRecommended(recommendedDocuments: RecommendedDocuments): Boolean
+fun Book.isRecommended(recommendedDocuments: RecommendedDocuments?): Boolean
 {
     val osisIdKey = osisID.split(".")[1]
-    return recommendedDocuments
-        .getForBookCategory(bookCategory)[language.code]?.contains(osisIdKey) == true
+    return recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.contains(osisIdKey) == true
 }
 
 /** Add an image to the normal 2 line list item
@@ -54,7 +53,7 @@ fun Book.isRecommended(recommendedDocuments: RecommendedDocuments): Boolean
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs) {
-    lateinit var recommendedDocuments: RecommendedDocuments
+    var recommendedDocuments: RecommendedDocuments? = null
 
     lateinit var document: Book
 
