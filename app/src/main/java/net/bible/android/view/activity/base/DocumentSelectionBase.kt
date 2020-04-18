@@ -299,7 +299,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
     }
 
-    private fun reloadDocuments() {
+    private fun reloadDocuments() = GlobalScope.launch {
         populateMasterDocumentList(false)
     }
 
@@ -307,37 +307,35 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         // default to no message
     }
 
-    protected fun populateMasterDocumentList(refresh: Boolean) {
+    protected suspend fun populateMasterDocumentList(refresh: Boolean) {
         isPopulated = false
         Log.d(TAG, "populate Master Document List")
-        GlobalScope.launch {
 
-            withContext(Dispatchers.Main) {
-                loadingIndicator.visibility = View.VISIBLE
-                showPreLoadMessage()
-            }
-            withContext(Dispatchers.Default) {
-                try {
-                    allDocuments.clear()
-                    allDocuments.addAll(getDocumentsFromSource(refresh))
-                    dao.clear()
-                    dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
+        withContext(Dispatchers.Main) {
+            loadingIndicator.visibility = View.VISIBLE
+            showPreLoadMessage()
+        }
+        withContext(Dispatchers.Default) {
+            try {
+                allDocuments.clear()
+                allDocuments.addAll(getDocumentsFromSource(refresh))
+                dao.clear()
+                dao.insertDocuments(allDocuments.map { Document(it.osisID, it.abbreviation, it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "") })
 
-                    Log.i(TAG, "Number of documents:" + allDocuments.size)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error getting documents", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
-                }
+                Log.i(TAG, "Number of documents:" + allDocuments.size)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting documents", e)
+                instance.showErrorMsg(R.string.error_occurred, e)
             }
-            withContext(Dispatchers.Main) {
-                try {
-                    populateLanguageList()
-                    setDefaultLanguage()
-                    isPopulated = true
-                    filterDocuments()
-                } finally {
-                    loadingIndicator.visibility = View.GONE
-                }
+        }
+        withContext(Dispatchers.Main) {
+            try {
+                populateLanguageList()
+                setDefaultLanguage()
+                isPopulated = true
+                filterDocuments()
+            } finally {
+                loadingIndicator.visibility = View.GONE
             }
         }
     }

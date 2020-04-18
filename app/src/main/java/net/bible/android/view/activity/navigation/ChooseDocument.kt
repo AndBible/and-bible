@@ -50,7 +50,9 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         buildActivityComponent().inject(this)
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
-        populateMasterDocumentList(false)
+        GlobalScope.launch {
+            populateMasterDocumentList(false)
+        }
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
     }
 

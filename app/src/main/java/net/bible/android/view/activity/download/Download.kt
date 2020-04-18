@@ -26,6 +26,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.bible.android.activity.R
 import net.bible.android.control.download.DownloadControl
@@ -41,6 +45,8 @@ import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Choose Document (Book) to download
@@ -55,44 +61,80 @@ import javax.inject.Inject
 open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
 
-    override val recommendedDocuments : RecommendedDocuments by lazy {
+    override var recommendedDocuments : RecommendedDocuments? = null
+
+    private fun loadRecommendedDocuments() {
         val jsonString = String(
             assets.open("recommended_documents.json").readBytes()
         )
-        Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+        recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+    }
+
+    private suspend fun askIfWantToProceed(): Boolean = withContext(Dispatchers.Main) {
+        if(sharedPreferences.getBoolean("download_do_not_ask", false))
+            true
+
+        else
+            suspendCoroutine<Boolean> {
+                AlertDialog.Builder(this@Download)
+                    .setTitle(R.string.download_question_title)
+                    .setMessage(getString(R.string.download_question_message))
+                    .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
+                    .setNegativeButton(R.string.do_not_ask_again) {_, _ ->
+                        sharedPreferences.edit().putBoolean("download_do_not_ask", true).apply()
+                        it.resume(true)
+                    }
+                    .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
+                    .show()
+            }
     }
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
-        documentItemAdapter = DocumentDownloadItemAdapter(
-            this, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
-        initialiseView()
-        // in the basic flow we force the user to download a bible
-        documentTypeSpinner.isEnabled = true
-        val firstTime = swordDocumentFacade.bibles.isEmpty()
-        // if first time
-        when {
-            firstTime -> {
-                // prepare the document list view - done in another thread
-                populateMasterDocumentList(false)
-                updateLastRepoRefreshDate()
+        GlobalScope.launch {
+            if (!askIfWantToProceed()) {
+                finish()
+                return@launch
             }
-            isRepoBookListOld -> {
-                // normal user downloading but need to refresh the document list
-                Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 
-                // prepare the document list view - done in another thread
-                populateMasterDocumentList(true)
+            withContext(Dispatchers.Default) {
+                loadRecommendedDocuments()
+                withContext(Dispatchers.Main) {
+                    documentItemAdapter = DocumentDownloadItemAdapter(
+                        this@Download, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
+                    initialiseView()
+                    // in the basic flow we force the user to download a bible
+                    documentTypeSpinner.isEnabled = true
+                }
+                val firstTime = swordDocumentFacade.bibles.isEmpty()
+                // if first time
+                when {
+                    firstTime -> {
+                        // prepare the document list view - done in another thread
+                        populateMasterDocumentList(false)
+                        updateLastRepoRefreshDate()
+                    }
+                    isRepoBookListOld -> {
+                        // normal user downloading but need to refresh the document list
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@Download, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
+                        }
 
-                // restart refresh timeout
-                updateLastRepoRefreshDate()
+                        // prepare the document list view - done in another thread
+                        populateMasterDocumentList(true)
+
+                        // restart refresh timeout
+                        updateLastRepoRefreshDate()
+                    }
+                    else -> {
+                        // normal user downloading with recent doc list
+                        populateMasterDocumentList(false)
+                    }
+                }
             }
-            else -> {
-                // normal user downloading with recent doc list
-                populateMasterDocumentList(false)
-            }
+
         }
     }
 
@@ -210,13 +252,18 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
                 Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 
                 // prepare the document list view - done in another thread
-                populateMasterDocumentList(true)
+                GlobalScope.launch {
+                    populateMasterDocumentList(true)
+                    // restart refresh timeout
+                    updateLastRepoRefreshDate()
 
-                // restart refresh timeout
-                updateLastRepoRefreshDate()
+                    // update screen
+                    withContext(Dispatchers.Main) {
+                        notifyDataSetChanged()
+                    }
+                }
 
-                // update screen
-                notifyDataSetChanged()
+
                 isHandled = true
             }
         }

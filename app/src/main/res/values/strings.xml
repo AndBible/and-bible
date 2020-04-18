@@ -651,4 +651,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="menu_for_docs_listing">%s (%s)</string>
     <string name="workspace_listing_with_current">%s (current)</string>
     <string name="install_zip_canceled">Module install cancelled</string>
+    <string name="download_question_title">Do you want to proceed to Download?</string>
+    <string name="download_question_message">If you live in a persecuted country,
+        you should be careful about downloading christian material via internet.
+        Are you sure you want to proceed with downloading?
+    </string>
+    <string name="do_not_ask_again">Yes, do not ask any more</string>
 </resources>
