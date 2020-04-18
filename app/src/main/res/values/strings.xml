@@ -666,4 +666,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         Are you sure you want to proceed with downloading?
     </string>
     <string name="do_not_ask_again">Yes, do not ask any more</string>
+    <string name="bible_name_with_versification">%s (%s)</string>
+    <string name="recommended_document">Recommended!</string>
 </resources>

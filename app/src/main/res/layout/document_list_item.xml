@@ -69,7 +69,16 @@
 			android:layout_height="wrap_content"
 			app:layout_constraintStart_toStartOf="@id/documentAbbreviation"
 			app:layout_constraintTop_toBottomOf="@id/documentAbbreviation"
+			app:layout_constraintEnd_toEndOf="@id/recommendedString"
+			android:textAppearance="?android:textAppearanceSmall" />
+		<TextView android:id="@+id/recommendedString"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="@id/documentName"
+			app:layout_constraintTop_toBottomOf="@id/documentName"
 			app:layout_constraintEnd_toEndOf="parent"
+			android:text="@string/recommended_document"
+			android:textStyle="bold"
 			android:textAppearance="?android:textAppearanceSmall" />
 		<TextView android:id="@+id/documentLanguage"
 			android:layout_width="0dp"

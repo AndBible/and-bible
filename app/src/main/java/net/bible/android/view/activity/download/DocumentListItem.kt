@@ -79,6 +79,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         val isRecommended = document.isRecommended(recommendedDocuments)
         recommendedIcon.visibility = if(isRecommended) View.VISIBLE else View.INVISIBLE
+        recommendedString.visibility = if(isRecommended) View.VISIBLE else View.GONE
         documentLanguage.text = document.language.name
         documentSource.text = document.getProperty(DownloadManager.REPOSITORY_KEY)
     }
