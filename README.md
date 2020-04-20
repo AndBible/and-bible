@@ -5,7 +5,7 @@
 Offline Bible on Android
 
 ## Users
-Please see the [Home Page](https://andbible.github.io/).
+Please see the [Home Page](https://andbible.org/).
 
 For help see the [wiki](https://github.com/andbible/and-bible/wiki) or the 
 [FAQ](https://github.com/andbible/and-bible/wiki/FAQ).

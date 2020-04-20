@@ -131,7 +131,7 @@ object CommonUtils {
 
     val isInternetAvailable: Boolean
         get() {
-            val testUrl = "https://andbible.github.io/"
+            val testUrl = "https://andbible.org/"
             return isHttpUrlAvailable(testUrl)
         }
 

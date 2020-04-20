@@ -178,7 +178,7 @@ class FontControl private constructor() {
     }
 
     companion object {
-        private const val FONT_DOWNLOAD_URL = "https://andbible.github.io/data/fonts/v1/"
+        private const val FONT_DOWNLOAD_URL = "https://andbible.org/data/fonts/v1/"
         private const val FONT_PROPERTIES_FILENAME = "fonts.properties"
         private const val FONT_SIZE_ADJUSTMENT = ".fontSizeAdjustment"
         private const val CSS_CLASS = ".cssClass"
