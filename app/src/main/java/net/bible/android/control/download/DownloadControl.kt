@@ -23,7 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.CommonUtils.isInternetAvailable
-import net.bible.service.common.CommonUtils.sdCardMegsFree
+import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
 import net.bible.service.font.FontControl
@@ -48,7 +48,7 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
      */
     fun checkDownloadOkay(): Boolean {
         var okay = true
-        if (sdCardMegsFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        if (megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             instance.showErrorMsg(R.string.storage_space_warning)
             okay = false
         } else if (!isInternetAvailable) {

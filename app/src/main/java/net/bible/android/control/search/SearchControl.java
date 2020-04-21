@@ -245,7 +245,7 @@ public class SearchControl {
 	public boolean downloadIndex(Book book) {
 		boolean ok = false;
     	try {
-        	if (CommonUtils.INSTANCE.getSdCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        	if (CommonUtils.INSTANCE.getMegabytesFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             	Dialogs.Companion.getInstance().showErrorMsg(R.string.storage_space_warning);
         	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
             	Dialogs.Companion.getInstance().showErrorMsg(R.string.no_internet_connection);

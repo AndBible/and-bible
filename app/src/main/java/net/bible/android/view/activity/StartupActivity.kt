@@ -30,7 +30,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.WarmUp
-import net.bible.android.view.activity.base.Callback
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.FirstDownload
@@ -66,7 +65,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         var abortErrorMsgId = 0
 
-        // check for SD card
+        // check for external storage
         // it would be great to check in the Application but how to show dialog from Application?
         if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
             abortErrorMsgId = R.string.no_sdcard_error
@@ -126,7 +125,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         var errorMessage: String? = null
         if (!CommonUtils.isInternetAvailable) {
             errorMessage = getString(R.string.no_internet_connection)
-        } else if (CommonUtils.sdCardMegsFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        } else if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             errorMessage = getString(R.string.storage_space_warning)
         }
 

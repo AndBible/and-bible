@@ -65,7 +65,7 @@ object FileManager {
                 log.debug("Source file length:$fromFileSize")
                 if (fromFileSize > CommonUtils.getFreeSpace(toDir.path)) {
                     // not enough room on SDcard
-                    log.error("Not enough room on SD card")
+                    log.error("Not enough room on internal memory")
                     ok = false
                 } else {
                     // move the file

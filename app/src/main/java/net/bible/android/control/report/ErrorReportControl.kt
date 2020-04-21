@@ -31,10 +31,9 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils.applicationVersionName
-import net.bible.service.common.CommonUtils.sdCardMegsFree
+import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -60,7 +59,7 @@ class ErrorReportControl @Inject constructor() {
 		text.append("Android SDK version: ").append(Build.VERSION.SDK_INT).append("\n")
 		text.append("Manufacturer: ").append(Build.MANUFACTURER).append("\n")
 		text.append("Model: ").append(Build.MODEL).append("\n\n")
-		text.append("SD card Mb free: ").append(sdCardMegsFree).append("\n\n")
+		text.append("Storage Mb free: ").append(megabytesFree).append("\n\n")
 		val runtime = Runtime.getRuntime()
 		val usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L
 		val maxHeapSizeInMB = runtime.maxMemory() / 1048576L

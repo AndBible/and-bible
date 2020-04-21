@@ -121,11 +121,11 @@ object CommonUtils {
         return res.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
 
-    val sdCardMegsFree: Long
+    val megabytesFree: Long
         get() {
             val bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().path)
             val megAvailable = bytesAvailable / 1048576
-            Log.d(TAG, "Megs available on SD card :$megAvailable")
+            Log.d(TAG, "Megs available on internal memory :$megAvailable")
             return megAvailable
         }
 
