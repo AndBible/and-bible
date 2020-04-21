@@ -471,7 +471,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 val msg: CharSequence = getString(R.string.delete_doc, document.name)
                 AlertDialog.Builder(this)
                     .setMessage(msg).setCancelable(true)
-                    .setPositiveButton(R.string.okay
+                    .setPositiveButton(R.string.yes
                     ) { dialog, buttonId ->
                         try {
                             Log.d(TAG, "Deleting:$document")
@@ -484,7 +484,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                             instance.showErrorMsg(R.string.error_occurred, e)
                         }
                     }
-                    .setNegativeButton(R.string.cancel, null)
+                    .setNegativeButton(R.string.no, null)
                     .create()
                     .show()
             }
