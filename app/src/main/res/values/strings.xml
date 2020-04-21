@@ -6,6 +6,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
+    <string name="app_name_short">Bible Study</string>
     <string name="app_name">Bible Study (And Bible)</string>
 
     <!-- Startup & Help -->
