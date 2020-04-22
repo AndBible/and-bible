@@ -544,11 +544,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="send_backup_file">Send a backup file</string>
 
     <!-- About -->
-    <string name="about_copyright">Copyright: %s</string>
-    <string name="about_version">Version: %s</string>
-    <string name="about_versification">Versification: %s</string>
-    <string name="about_repository">Distribution repository: %s</string>
-    <string name="about_osisId">OSIS ID: %s</string>
+    <string name="module_about_copyright">Copyright: %s</string>
+    <string name="module_about_installed_version">Installed version: %s (%s)</string>
+    <string name="module_about_latest_version">Latest version: %s (%s)</string>
+    <string name="module_about_versification">Versification: %s</string>
+    <string name="module_about_repository">Distribution repository: %s</string>
+    <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
@@ -671,4 +672,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="do_not_ask_again">Yes, do not ask any more</string>
     <string name="bible_name_with_versification">%s (%s)</string>
     <string name="recommended_document">Recommended!</string>
+    <string name="about_version_history">Version history: %s</string>
 </resources>

@@ -39,8 +39,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
@@ -49,8 +47,6 @@ import net.bible.android.database.Document
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.isRecommended
-import net.bible.android.view.activity.navigation.DocumentItemAdapter
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import org.apache.commons.lang3.StringUtils
@@ -537,59 +533,58 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         val distributionLicense = document.bookMetaData.getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE)
         var copyrightMerged = ""
         if (StringUtils.isNotBlank(shortCopyright)) {
-            copyrightMerged += """
-                $shortCopyright
-
-                """.trimIndent()
+            copyrightMerged += shortCopyright
         } else if (StringUtils.isNotBlank(copyright)) {
-            copyrightMerged += """
-                $copyright
-
-                """.trimIndent()
+            copyrightMerged += "\n\n" + copyright
         }
         if (StringUtils.isNotBlank(distributionLicense)) {
-            copyrightMerged += """
-                $distributionLicense
-
-                """.trimIndent()
+            copyrightMerged += "\n\n" +distributionLicense
         }
         if (StringUtils.isNotBlank(copyrightMerged)) {
-            val copyrightMsg = BibleApplication.application.getString(R.string.about_copyright, copyrightMerged)
-            about += """
-
-
-                $copyrightMsg
-                """.trimIndent()
+            val copyrightMsg = getString(R.string.module_about_copyright, copyrightMerged)
+            about += "\n\n" + copyrightMsg
         }
 
         // add version
-        val version = document.bookMetaData.getProperty("Version")
-        if (version != null) {
-            val versionObj = Version(version)
-            val versionMsg = BibleApplication.application.getString(R.string.about_version, versionObj.toString())
-            about += """
+        val existingDocument = swordDocumentFacade.getDocumentByInitials(document.initials)
+        val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
+        val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
 
+        val versionLatest = document.bookMetaData.getProperty("Version")
+        val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
-                $versionMsg
-                """.trimIndent()
+        val versionMessageInstalled = if(existingVersion != null)
+            getString(R.string.module_about_installed_version, Version(existingVersion).toString(), existingVersionDate)
+        else null
+
+        val versionMessageLatest = if(versionLatest != null)
+            getString(R.string.module_about_latest_version, Version(versionLatest).toString(), versionLatestDate)
+        else null
+
+        if(versionMessageLatest != null) {
+            about += "\n\n" + versionMessageLatest
+            if(versionMessageInstalled != null)
+                about += "\n" + versionMessageInstalled
+        }
+
+        val history = document.bookMetaData.getValues("History")
+        if(history != null) {
+            about += "\n\n" + getString(R.string.about_version_history, "\n" +
+                history.reversed().joinToString("\n"))
         }
 
         // add versification
         if (document is SwordBook) {
             val versification = document.versification
-            val versificationMsg = BibleApplication.application.getString(R.string.about_versification, versification.name)
-            about += """
-
-
-                $versificationMsg
-                """.trimIndent()
+            val versificationMsg = getString(R.string.module_about_versification, versification.name)
+            about += "\n\n" + versificationMsg
         }
 
         // add id
         if (document is SwordBook) {
             val repoName = document.getProperty(DownloadManager.REPOSITORY_KEY)
-            val repoMessage = if(repoName != null) BibleApplication.application.getString(R.string.about_repository, repoName) else ""
-            val osisIdMessage = BibleApplication.application.getString(R.string.about_osisId, document.initials)
+            val repoMessage = if(repoName != null) getString(R.string.module_about_repository, repoName) else ""
+            val osisIdMessage = getString(R.string.module_about_osisId, document.initials)
             about += """
 
 
