@@ -67,7 +67,9 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLay
     }
     
     fun updateValue() {
-        fontSizeValue.text = context.getString(R.string.margin_size_mm, value.marginLeft, value.marginRight, value.maxWidth)
+        leftMarginLabel.text = context.getString(R.string.pref_left_margin_label_mm, value.marginLeft)
+        rightMarginLabel.text = context.getString(R.string.pref_right_margin_label_mm, value.marginRight)
+        maxTextWidthLabel.text = context.getString(R.string.pref_maximum_width_of_text_label_mm, value.maxWidth)
         leftMargin.progress = value.marginLeft!!
         rightMargin.progress = value.marginRight!!
         maxWidth.progress = value.maxWidth ?: WorkspaceEntities.TextDisplaySettings.default.marginSize!!.maxWidth!!

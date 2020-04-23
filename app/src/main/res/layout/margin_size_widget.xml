@@ -14,34 +14,32 @@
         >
 
         <TextView
+            android:id="@+id/leftMarginLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pref_left_margin_label" />
+            />
 
         <SeekBar android:id="@+id/leftMargin"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             />
         <TextView
+            android:id="@+id/rightMarginLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pref_right_margin_label" />
+            />
         <SeekBar android:id="@+id/rightMargin"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             />
         <TextView
+            android:id="@+id/maxTextWidthLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pref_maximum_width_of_text_label" />
+            />
         <SeekBar android:id="@+id/maxWidth"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             />
-        <TextView android:id="@+id/fontSizeValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/SmallGreyText"
-            android:maxLines="2" />
     </LinearLayout>
 </ScrollView>
