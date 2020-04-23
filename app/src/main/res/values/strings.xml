@@ -273,11 +273,6 @@
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
-    <string name="no_internet_connection">
-        Could not connect to module repository.
-        Server might be down or you might not have internet connection.
-        Please try again later.
-    </string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
