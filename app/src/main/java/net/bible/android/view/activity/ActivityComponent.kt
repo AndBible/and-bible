@@ -26,7 +26,7 @@ import net.bible.android.view.activity.bookmark.BookmarkLabels
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.comparetranslations.CompareTranslations
-import net.bible.android.view.activity.download.Download
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
 import net.bible.android.view.activity.mynote.MyNotes
@@ -78,7 +78,7 @@ interface ActivityComponent {
     fun inject(chooseKeyBase: ChooseKeyBase)
 
     fun inject(chooseDocument: ChooseDocument)
-    fun inject(download: Download)
+    fun inject(download: DownloadActivity)
 
     fun inject(speak: GeneralSpeakActivity)
     fun inject(speakBible: BibleSpeakActivity)

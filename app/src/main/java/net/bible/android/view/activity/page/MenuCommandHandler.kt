@@ -53,7 +53,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
-import net.bible.android.view.activity.download.Download
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.mynote.MyNotes
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -72,7 +72,6 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 /** Handle requests from the main menu
  *
@@ -162,7 +161,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         Intent(callingActivity, ReadingPlanSelectorList::class.java)
                     }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
-                    handlerIntent = Intent(callingActivity, Download::class.java)
+                    handlerIntent = Intent(callingActivity, DownloadActivity::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)

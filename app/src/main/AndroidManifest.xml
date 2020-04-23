@@ -204,7 +204,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/download" />
         <activity
-            android:name="net.bible.android.view.activity.download.Download"
+            android:name="net.bible.android.view.activity.download.DownloadActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/download"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />

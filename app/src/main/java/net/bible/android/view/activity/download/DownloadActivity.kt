@@ -62,7 +62,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 
 
-open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
+open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_documents_context_menu) {
     @Inject lateinit var downloadControl: DownloadControl
 
     override var recommendedDocuments : RecommendedDocuments? = null
@@ -86,7 +86,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
 
         else
             suspendCoroutine<Boolean> {
-                AlertDialog.Builder(this@Download)
+                AlertDialog.Builder(this@DownloadActivity)
                     .setTitle(R.string.download_question_title)
                     .setMessage(getString(R.string.download_question_message))
                     .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
@@ -113,7 +113,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
                 loadRecommendedDocuments()
                 withContext(Dispatchers.Main) {
                     documentItemAdapter = DocumentDownloadItemAdapter(
-                        this@Download, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
+                        this@DownloadActivity, downloadControl, LIST_ITEM_TYPE, recommendedDocuments)
                     initialiseView()
                     // in the basic flow we force the user to download a bible
                     documentTypeSpinner.isEnabled = true
@@ -129,7 +129,7 @@ open class Download : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.download_doc
                     isRepoBookListOld -> {
                         // normal user downloading but need to refresh the document list
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@Download, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@DownloadActivity, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
                         }
 
                         // prepare the document list view - done in another thread

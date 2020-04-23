@@ -31,7 +31,7 @@ import org.crosswire.common.progress.WorkListener
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class FirstDownload : Download() {
+class FirstDownload : DownloadActivity() {
     private var okayButton: Button? = null
     private var okayButtonEnabled = false
     private val downloadCompletionListener: WorkListener

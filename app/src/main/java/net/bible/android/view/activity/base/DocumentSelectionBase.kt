@@ -46,7 +46,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.Document
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
-import net.bible.android.view.activity.download.Download
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -551,7 +551,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
         val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
 
-        val inDownloadScreen = this is Download
+        val inDownloadScreen = this is DownloadActivity
 
         val versionLatest = document.bookMetaData.getProperty("Version")
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"

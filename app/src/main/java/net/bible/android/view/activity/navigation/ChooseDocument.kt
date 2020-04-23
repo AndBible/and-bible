@@ -29,7 +29,7 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.download.Download
+import net.bible.android.view.activity.download.DownloadActivity
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
@@ -112,7 +112,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 isHandled = true
                 try {
                     if (downloadControl.checkDownloadOkay()) {
-                        val handlerIntent = Intent(this, Download::class.java)
+                        val handlerIntent = Intent(this, DownloadActivity::class.java)
                         val requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                         startActivityForResult(handlerIntent, requestCode)
 
