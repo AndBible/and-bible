@@ -46,6 +46,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.Document
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
+import net.bible.android.view.activity.download.Download
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -550,6 +551,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
         val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
 
+        val inDownloadScreen = this is Download
+
         val versionLatest = document.bookMetaData.getProperty("Version")
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
@@ -558,12 +561,17 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         else null
 
         val versionMessageLatest = if(versionLatest != null)
-            getString(R.string.module_about_latest_version, Version(versionLatest).toString(), versionLatestDate)
+            getString((
+                if(inDownloadScreen)
+                    R.string.module_about_latest_version
+                else
+                    R.string.module_about_installed_version),
+                Version(versionLatest).toString(), versionLatestDate)
         else null
 
         if(versionMessageLatest != null) {
             about += "\n\n" + versionMessageLatest
-            if(versionMessageInstalled != null)
+            if(versionMessageInstalled != null && inDownloadScreen)
                 about += "\n" + versionMessageInstalled
         }
 
