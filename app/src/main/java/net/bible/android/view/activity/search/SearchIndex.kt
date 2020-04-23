@@ -69,25 +69,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
         val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
         indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
         createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
-        downloadButton.visibility = View.INVISIBLE
 
         Log.d(TAG, "Finished displaying Search Index view")
-    }
-
-    /** Download the index from the sam place that Pocket Sword uses
-     *
-     * @param v
-     */
-    fun onDownload(v: View) {
-        Log.i(TAG, "CLICKED")
-        val doc = documentToIndex
-        swordDocumentFacade.deleteDocumentIndex(doc)
-
-        val bOk = searchControl.downloadIndex(documentToIndex)
-
-        if (bOk) {
-            monitorProgress()
-        }
     }
 
     fun onCancel(v: View) = finish()

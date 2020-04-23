@@ -238,37 +238,7 @@ public class SearchControl {
     	}
     }
 
-	/** download index 
-	 * 
-	 * @return true if managed to start download in background
-	 */
-	public boolean downloadIndex(Book book) {
-		boolean ok = false;
-    	try {
-        	if (CommonUtils.INSTANCE.getMegabytesFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            	Dialogs.Companion.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	} else {
-		        
-		        if (swordDocumentFacade.isIndexDownloadAvailable(book)) {
-			        // this starts a new thread to do the indexing and returns immediately
-			        // if index creation is already in progress then nothing will happen
-			        swordDocumentFacade.downloadIndex(book);
-			        
-			        ok = true;
-		        } else {
-		        	Dialogs.Companion.getInstance().showErrorMsg(R.string.index_not_available_for_download);
-		        	ok = false;
-		        }
-        	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    		ok = false;
-    	}
-    	return ok;
-	}
-	
-	/** download index 
+	/** download index
 	 * 
 	 * @return true if managed to start download in background
 	 */

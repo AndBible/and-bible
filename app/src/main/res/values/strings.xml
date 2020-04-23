@@ -97,13 +97,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!--  Search -->
     <string name="search_index">Search Index</string>
-    <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
+    <string name="index_creation_required">An index is required to search.</string>
     <string name="create_index_for">An index is required to search. \n\nCreate index for %s?</string>
     <string name="rebuild_index_for">Rebuild index for %s?</string>
-    <string name="search_index_unavailable">Unfortunately index creation is only available on Android 5.0 (Lollipop) and newer. Downloaded indices are available only for limited set of modules. </string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-    <string name="index_download">Download</string>
-    <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
     <string name="rebuild_index">Rebuild index</string>
     <string name="search_in">Find in %s</string>

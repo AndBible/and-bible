@@ -151,12 +151,6 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
         return isHttpUrlAvailable(url)
     }
 
-    @Throws(InstallException::class, BookException::class)
-    fun downloadIndex(document: Book?) {
-        val downloadManager = DownloadManager()
-        downloadManager.installIndexInNewThread(repoFactory.andBibleRepo.repoName, document)
-    }
-
     @Throws(BookException::class)
     fun deleteDocument(document: Book) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document.initials)

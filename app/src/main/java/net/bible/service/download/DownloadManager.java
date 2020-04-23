@@ -142,42 +142,6 @@ public class DownloadManager {
 	}
 
     /**
-     * Install a book's index, overwriting it if it exists
-     * 
-     * @param repositoryName
-     *            the name of the repository from which to get the index
-     * @param book
-     *            the book to get the index for
-     * @throws BookException
-     * @throws InstallException
-     */
-    public void installIndexInNewThread(String repositoryName, Book book) throws BookException, InstallException {
-    	// An installer knows how to install indexes
-        log.debug("Install index in new thread");
-        Installer installer = installManager.getInstaller(repositoryName);
-    	IndexDownloader idt = new IndexDownloader();
-    	idt.downloadIndexInNewThread(installer, book);
-    }
-
-	/**
-	 * Install a book's index, overwriting it if it exists
-	 *
-	 * @param repositoryName
-	 *            the name of the repository from which to get the index
-	 * @param book
-	 *            the book to get the index for
-	 * @throws BookException
-	 * @throws InstallException
-	 */
-	public void installIndex(String repositoryName, Book book) throws BookException, InstallException {
-		// An installer knows how to install indexes
-		log.debug("Install index for "+book.getInitials());
-		Installer installer = installManager.getInstaller(repositoryName);
-		IndexDownloader idt = new IndexDownloader();
-		idt.downloadIndex(installer, book);
-	}
-
-    /**
      * Unregister a book from Sword registry.
      * 
      * This used to delete the book but there is an mysterious bug in deletion (see below). 
