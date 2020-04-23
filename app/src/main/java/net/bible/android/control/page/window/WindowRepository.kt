@@ -246,14 +246,14 @@ open class WindowRepository @Inject constructor(
         val sourceWindow = sourceWindow?: if(initialized) activeWindow else null
         val pageManager = currentPageManagerProvider.get()
         val winEntity =
-            sourceWindow?.entity?.copy()
+            (sourceWindow?.entity?.copy()
                 ?: WorkspaceEntities.Window(
                     isLinksWindow = false,
                     isPinMode = false,
                     isSynchronized = true,
                     windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
                     workspaceId = id
-                ).apply {
+                )).apply {
                     id = 0
                     id = dao.insertWindow(this)
                 }
