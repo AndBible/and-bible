@@ -243,29 +243,29 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun createNewWindow(sourceWindow: Window?, first: Boolean = false): Window {
-        val sourceWindow = sourceWindow?: activeWindow
+        val sourceWindow = sourceWindow?: if(initialized) activeWindow else null
         val pageManager = currentPageManagerProvider.get()
-        val winEntity = (
-            if(initialized) sourceWindow.entity.copy()
-            else WorkspaceEntities.Window(
-                isLinksWindow = false,
-                isPinMode = false,
-                isSynchronized = true,
-                windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
-                workspaceId = id
-            )).apply {
-            id = 0
-            id = dao.insertWindow(this)
-        }
+        val winEntity =
+            sourceWindow?.entity?.copy()
+                ?: WorkspaceEntities.Window(
+                    isLinksWindow = false,
+                    isPinMode = false,
+                    isSynchronized = true,
+                    windowLayout = WorkspaceEntities.WindowLayout(defaultState.toString()),
+                    workspaceId = id
+                ).apply {
+                    id = 0
+                    id = dao.insertWindow(this)
+                }
 
         val newWindow = Window(winEntity, pageManager, this)
-        if(initialized) {
+        if(sourceWindow != null) {
             pageManager.restoreFrom(sourceWindow.pageManager.entity)
         }
         dao.insertPageManager(pageManager.entity)
         val pos =
             if(first) 0
-            else if(sourceWindow.isLinksWindow) windowList.size
+            else if(sourceWindow?.isLinksWindow == true) windowList.size
             else windowList.indexOf(sourceWindow) + 1
         windowList.add(pos, newWindow)
         return newWindow
