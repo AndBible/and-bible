@@ -9,6 +9,9 @@
 	<item android:id="@+id/windowNew"
 		  android:title="@string/new_window"
 		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
+	<item android:id="@+id/changeToNormal"
+		android:title="@string/change_to_normal"
+		android:icon="@drawable/ic_link_black_24dp"/>
 	<item android:id="@+id/pinMode"
 		android:title="@string/window_pin_mode"
 		android:icon="@drawable/ic_pin"

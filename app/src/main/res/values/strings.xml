@@ -673,4 +673,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="bible_name_with_versification">%s (%s)</string>
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
+    <string name="change_to_normal">Change to normal window</string>
 </resources>
