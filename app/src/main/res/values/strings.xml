@@ -177,11 +177,12 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
     <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword/sword folder on internal storage</string>
 
-    <string name="all_text_options_window_menutitle">All text options…</string>
-    <string name="all_text_options_window_menutitle_alone">Text options…</string>
+    <string name="all_text_options_window_menutitle">All text options</string>
     <string name="text_options_window_menutitle">Text options</string>
     <string name="auto_fullscreen">Fullscreen by scrolling</string>
     <string name="reversed_split_mode">Reversed split mode</string>
+
+    <string name="add_ellipsis">%s…</string>
 
     <string name="font_size_pt">%d pt</string>
     <string name="auto_fullscreen_summary">Switch automatically to fullscreen when scrolling text. Tip: you can always also switch to full screen by doubletapping screen.</string>
@@ -249,8 +250,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="windowMaximise">Maximise</string>
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
-    <string name="move_window">Move to…</string>
+    <string name="move_window">Move to</string>
     <string name="move_window_to_position2">Position %d (%s:%s)</string>
+    <string name="copy_settings">Copy settings to</string>
+    <string name="copy_settings_to_workspace">Workspace</string>
+    <string name="copy_settings_to_window">Window %d (%s: %s)</string>
 
     <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
@@ -353,7 +357,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="verse_action_copy">Copy</string>
-    <string name="share_verse">Share …</string>
+    <string name="share_verse">Share…</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
     <string name="compare_translations">Compare translations</string>
 
@@ -613,7 +617,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- Workspaces -->
     <string name="new_workspace">New</string>
-    <string name="switch_to_workspace">Workspaces…</string>
+    <string name="switch_to_workspace">Workspaces</string>
     <string name="delete_workspace">Remove</string>
     <string name="new_copied_workspace">Copy as new</string>
     <string name="workspace_number">Workspace %d</string>
@@ -677,7 +681,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
     <string name="change_to_normal">Change to normal window</string>
-    <string name="copy_settings">Copy settings to…</string>
-    <string name="copy_settings_to_workspace">Workspace</string>
-    <string name="copy_settings_to_window">Window %d (%s:%s)</string>
 </resources>

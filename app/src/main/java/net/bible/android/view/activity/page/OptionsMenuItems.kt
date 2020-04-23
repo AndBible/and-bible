@@ -44,6 +44,7 @@ interface OptionsMenuItemInterface {
     val inherited: Boolean
     val requiresReload: Boolean
     val isBoolean: Boolean
+    val opensDialog: Boolean
     fun handle()
     fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)? = null, onReset: (() -> Unit)? = null): Boolean = false
     fun setNonSpecific() {}
@@ -65,6 +66,7 @@ abstract class GeneralPreference(
     override fun handle() {}
     override val title: String? = null
     override val requiresReload: Boolean = false
+    override val opensDialog get()  = !isBoolean
 }
 
 abstract class SharedPreferencesPreference(
@@ -127,6 +129,8 @@ open class Preference(val settings: SettingsBundle,
         get() {
             return if (window != null && onlyBibles) pageManager.isBibleShown else true
         }
+
+    override val opensDialog: Boolean = !isBoolean
 
     override fun setNonSpecific() {
         if(window != null) {
@@ -210,7 +214,8 @@ class CommandPreference(
     override var value: Any = Object(),
     override val visible: Boolean = true,
     override val inherited: Boolean = false,
-    override val requiresReload: Boolean = false
+    override val requiresReload: Boolean = false,
+    override val opensDialog: Boolean = false
 ) : OptionsMenuItemInterface {
     override fun handle() {
         handle?.invoke()

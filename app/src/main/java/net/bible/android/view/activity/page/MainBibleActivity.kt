@@ -561,18 +561,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 val intent = Intent(this, TextDisplaySettingsActivity::class.java)
                 intent.putExtra("settingsBundle", settingsBundle.toJson())
                 startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
-            })
+            }, opensDialog = true)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
             R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
-
             R.id.tiltToScroll -> TiltToScrollPreference()
             R.id.nightMode -> NightModePreference()
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
-            })
+            }, opensDialog = true)
             else -> throw RuntimeException("Illegal menu item")
         }
     }
@@ -606,6 +605,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 }
 
                 item.isChecked = itmOptions.value == true
+                if(itmOptions.opensDialog) {
+                    item.title = getString(R.string.add_ellipsis, item.title.toString())
+                }
             }
         }
         handleMenu(menu)

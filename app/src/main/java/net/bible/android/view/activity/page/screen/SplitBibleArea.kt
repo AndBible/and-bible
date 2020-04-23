@@ -611,16 +611,18 @@ class SplitBibleArea(
             }
         } else {
             menu.removeItem(R.id.textOptionsSubMenu)
-            val item = menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle_alone)
+            val item = menu.add(Menu.NONE, R.id.allTextOptions, 1000, R.string.all_text_options_window_menutitle)
             item.setIcon(R.drawable.ic_text_format_white_24dp)
         }
-
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item)
                 if(itmOptions.title != null) {
                     item.title = itmOptions.title
+                }
+                if(itmOptions.opensDialog) {
+                    item.title = mainBibleActivity.getString(R.string.add_ellipsis, item.title)
                 }
                 item.isVisible = itmOptions.visible
                 item.isEnabled = itmOptions.enabled
@@ -635,7 +637,7 @@ class SplitBibleArea(
 
                 if(item.hasSubMenu()) {
                     handleMenu(item.subMenu)
-                    continue;
+                    continue
                 }
 
                 item.isChecked = itmOptions.value == true
@@ -712,7 +714,8 @@ class SplitBibleArea(
                     intent.putExtra("settingsBundle", settingsBundle.toJson())
                     mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
                 },
-                visible = window.isVisible
+                visible = window.isVisible,
+                opensDialog = true
             )
             R.id.moveItem -> CommandPreference({_, _, _ ->
                 windowControl.moveWindow(window, item.order)
