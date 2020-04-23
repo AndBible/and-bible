@@ -74,7 +74,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         val d = GenericFileDownloader()
         d.downloadFile(source, target, "Recommendations")
         if(target.canRead()) {
-            val jsonString = String(FileInputStream(target).readBytes())
+            val jsonString = String(target.readBytes())
             recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
