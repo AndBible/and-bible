@@ -287,7 +287,9 @@ class SplitBibleArea(
             return
         }
 
-        if(windowControl.isSingleWindow) return
+        val hideWindowButtons = CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+
+        if(windowControl.isSingleWindow && !hideWindowButtons) return
 
         val windows = windowRepository.windows
 

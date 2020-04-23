@@ -106,7 +106,8 @@ class BibleFrame(
 
     private fun addWindowButton() {
         val isSingleWindow = windowControl.isSingleWindow
-        if(!isSingleWindow && CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)) return
+        val hideWindowButtons = CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+        if (hideWindowButtons) return
         if (windowRepository.isMaximized) return
 
         val button =
