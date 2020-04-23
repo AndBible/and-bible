@@ -98,9 +98,11 @@ class GenericFileDownloader {
             }
         } catch (e: IOException) {
             Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
+            Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } catch (e: InstallException) {
             Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
+            Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } finally {
             job.done()
