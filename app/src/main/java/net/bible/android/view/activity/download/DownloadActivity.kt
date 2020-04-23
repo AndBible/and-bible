@@ -69,7 +69,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     override var recommendedDocuments : RecommendedDocuments? = null
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
-        val source = URI("https://andbible.org/data/${SharedConstants.RECOMMENDED_JSON}")
+        val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
         val d = GenericFileDownloader()
         d.downloadFile(source, target, "Recommendations")

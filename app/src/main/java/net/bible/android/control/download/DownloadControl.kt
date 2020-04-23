@@ -51,9 +51,6 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
         if (megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             instance.showErrorMsg(R.string.storage_space_warning)
             okay = false
-        } else if (!isInternetAvailable) {
-            instance.showErrorMsg(R.string.no_internet_connection)
-            okay = false
         }
         return okay
     }

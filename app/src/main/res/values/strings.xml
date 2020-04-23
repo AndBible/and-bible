@@ -272,7 +272,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a Bible from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from\nhttps://www.crosswire.org\n&amp; https://ibtrussia.org\n&amp; https://ebible.org\n&amp; https://andbible.org</string>
+    <string name="download_source_message">Documents are downloaded from:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
@@ -669,9 +669,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="menu_for_docs_listing">%s (%s)</string>
     <string name="workspace_listing_with_current">%s (current)</string>
     <string name="install_zip_canceled">Module install cancelled</string>
-    <string name="download_question_title">Do you want to proceed to Download?</string>
+    <string name="download_question_title">Do you want to proceed to download documents?</string>
     <string name="download_question_message">If you live in a persecuted country,
-        you should be careful about downloading christian material via internet.
+        you might need to be careful about downloading christian material via Internet.
         Instead, you might want to obtain module zip files more securely and install them
         via "Load Documents From Zip". Are you sure you want to proceed with downloading?
         All downloads from module repositories are encrypted (HTTPS).
@@ -681,4 +681,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
     <string name="change_to_normal">Change to normal window</string>
+    <string name="download_failed">Failed to download %s</string>
 </resources>

@@ -19,19 +19,17 @@ package net.bible.service.download
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.DisposableHandle
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.FileManager.copyFile
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.NetUtil
-import org.crosswire.common.util.Reporter
 import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.JSMsg
 import org.crosswire.jsword.book.install.InstallException
@@ -64,13 +62,13 @@ class GenericFileDownloader {
             try {
                 downloadFile(source, target, description)
             } catch (e: Exception) {
-                Reporter.informUser(this, "IO Error creating index")
-                throw RuntimeException("IO Error downloading index", e)
+                Dialogs.instance.showErrorMsg(getResourceString(R.string.error_downloading, source.toString()), e)
+                throw RuntimeException("IO Error downloading file ${source}", e)
             }
             Log.i(TAG, "Finished index download thread")
         } catch (e: Exception) {
             Log.e(TAG, "Error downloading index", e)
-            Reporter.informUser(this, "Error downloading index")
+            Dialogs.instance.showErrorMsg(getResourceString(R.string.error_downloading, source.toString()), e)
         }
     }
 
@@ -94,15 +92,15 @@ class GenericFileDownloader {
                 val tempFile = NetUtil.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
-                    Reporter.informUser(this, getResourceString(R.string.error_occurred))
+                    Dialogs.instance.showErrorMsg(getResourceString(R.string.error_occurred))
                     job.cancel()
                 }
             }
         } catch (e: IOException) {
-            Reporter.informUser(this, e)
+            Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
             job.cancel()
         } catch (e: InstallException) {
-            Reporter.informUser(this, e)
+            Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
             job.cancel()
         } finally {
             job.done()

@@ -64,6 +64,7 @@ import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import java.util.Properties
+import javax.net.ssl.HttpsURLConnection
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -73,6 +74,7 @@ object CommonUtils {
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
+
 	val JSON_CONFIG = JsonConfiguration(ignoreUnknownKeys = true)
 
     private const val TAG = "CommonUtils"
@@ -131,7 +133,7 @@ object CommonUtils {
 
     val isInternetAvailable: Boolean
         get() {
-            val testUrl = "https://andbible.org/"
+            val testUrl = "https://andbible.github.io/"
             return isHttpUrlAvailable(testUrl)
         }
 
@@ -205,8 +207,6 @@ object CommonUtils {
     }
 
     /** return true if URL is accessible
-     *
-     * Since Android 3 must do on different or NetworkOnMainThreadException is thrown
      */
     fun isHttpUrlAvailable(urlString: String): Boolean {
         var isAvailable = false
@@ -217,19 +217,19 @@ object CommonUtils {
                 var checkUrlSuccess = false
 
                 override fun run() {
-                    var connection: HttpURLConnection? = null
+                    var connection: HttpsURLConnection? = null
                     try {
                         // might as well test for the url we need to access
                         val url = URL(urlString)
 
                         Log.d(TAG, "Opening test connection")
-                        connection = url.openConnection() as HttpURLConnection
+                        connection = url.openConnection() as HttpsURLConnection
                         connection.connectTimeout = TIMEOUT_MILLIS
                         connection.readTimeout = TIMEOUT_MILLIS
                         connection.requestMethod = "HEAD"
                         Log.d(TAG, "Connecting to test internet connection")
                         connection.connect()
-                        checkUrlSuccess = connection.responseCode == HttpURLConnection.HTTP_OK
+                        checkUrlSuccess = connection.responseCode == HttpsURLConnection.HTTP_OK
                         Log.d(TAG, "Url test result for:$urlString is $checkUrlSuccess")
                     } catch (e: IOException) {
                         Log.i(TAG, "No internet connection")
