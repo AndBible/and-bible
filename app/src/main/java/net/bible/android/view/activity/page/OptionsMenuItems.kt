@@ -22,6 +22,7 @@ import android.app.Activity
 import android.content.Intent
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
@@ -346,7 +347,7 @@ class WindowPinningPreference :
         }
 
     override fun handle() {
-        mainBibleActivity.windowControl.windowSizesChanged()
+        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
     }
 
     override val isBoolean = true
