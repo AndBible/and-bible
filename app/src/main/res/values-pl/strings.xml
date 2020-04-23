@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3</string>
   <string name="help_text">Naciśnij przycisk MENU, aby wyświetlić menu główne\n\n
@@ -20,6 +19,15 @@ Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
   <string name="help_search_title">Wyszukiwanie</string>
   <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
 (więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
+  <string name="help_workspaces_title">Obszary robocze</string>
+  <string name="help_workspaces_text">
+Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
+  <string name="help_hidden_features_title">Skróty</string>
+  <string name="help_hidden_features_text">
+Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
+Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
+Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
+Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.</string>
   <string name="help_contextmenus_title">Menu kontekstowe</string>
   <string name="help_contextmenus_text">
 Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić menu kontekstowe dla czynności związanych z obecnym wersetem.
@@ -32,11 +40,12 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Fragment</string>
   <string name="search">Znajdź</string>
-  <string name="settings">Ustawienia</string>
+  <string name="settings">Preferencje aplikacji</string>
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
   <string name="other">Inne</string>
+  <string name="help_and_tips">Pomoc i wskazówki</string>
   <string name="administration">Zarządzanie</string>
   <string name="rate_application">Oceń w sklepie Google Play</string>
   <string name="chooce_document">Wybór dokumentu</string>
@@ -48,13 +57,14 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="deuterocanonical">Deuterokanoniczny</string>
   <!--Search-->
   <string name="search_index">Indeks wyszukiwania</string>
-  <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połączenie z Internetem.\n</string>
-  <string name="search_index_unavailable">Tworzenie indeksu wyszukiwania dostępne jest tylko na Androidzie 5.0 (Lollipop) lub nowszym.</string>
+  <string name="create_index_for">Do wyszukiwania potrzebny jest indeks.\n\nCzy utworzyć indeks dla %s?</string>
+  <string name="rebuild_index_for">Czy utworzyć ponownie indeks dla %s?</string>
   <string name="indexing_wait_msg">Po zakończeniu indeksowania zostaniesz przeniesiony do ekranu wyszukiwania.</string>
-  <string name="index_download">Pobierz</string>
-  <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
   <string name="index_create">Utwórz</string>
   <string name="rebuild_index">Ponownie utwórz indeks</string>
+  <string name="search_in">Szukaj w %s</string>
+  <string name="do_in_background">Kontynuuj w tle</string>
+  <string name="rebuild_index_button">Utwórz ponownie</string>
   <!--Tasks-->
   <string name="progress_status">Postęp</string>
   <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
@@ -73,10 +83,20 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="search_current_book">obecnej księdze</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Wyświetl numery wersetów</string>
+  <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
+  <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
+  <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
+  <string name="prefs_show_notes_summary">Wyświetl przypisy i odsyłacze</string>
+  <string name="prefs_show_strongs_summary">Odnośniki do terminów z greki i hebrajskiego</string>
+  <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona</string>
+  <string name="prefs_section_title_summary">Wyświetl niekanoniczne tytuły sekcji</string>
+  <string name="prefs_red_letter_summary">Wyświetl słowa Chrystusa na czerwono</string>
+  <string name="prefs_text_size_title">Ustawienia czcionek</string>
   <string name="prefs_show_verseno_title">Numer wersetu</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
-  <string name="prefs_show_bookmarks_title">Pokaż ulubione</string>
-  <string name="prefs_default_bookmark_style_title">Domyślny styl ulubionych</string>
+  <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
+  <string name="prefs_default_bookmark_style_title">Domyślny styl zakładek</string>
   <string name="prefs_default_bookmark_style_summary">Kolor zaznaczenia lub ikona</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
@@ -85,42 +105,79 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="prefs_section_title_title">Tytuły sekcji</string>
   <string name="prefs_red_letter_title">Tytuł na czerwono</string>
   <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
-  <string name="prefs_tilt_to_scroll_summary">Przechyl urządzenie aby przewinąć w górę/dół</string>
-  <string name="prefs_night_mode_title">Tryb nocny</string>
-  <string name="prefs_night_mode_summary">Ułatwia czytanie po ciemku</string>
+  <string name="prefs_night_mode_title">Włącz tryb nocny</string>
+  <string name="prefs_night_mode_summary">Ustaw, czy włączać tryb nocny automatycznie (jeżeli wspierane przez urządzenie), ręcznie, czy korzystając z ustawień systemu (Android 10+).</string>
+  <string name="prefs_night_mode_manual">Ręcznie</string>
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_night_mode_system">Systemowy</string>
+  <string name="options_menu_night_mode">Tryb nocny</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
   <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
-  <string name="prefs_text_size_title">Rozmiar czcionki</string>
-  <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
+  <string name="prefs_text_size_summary">Ustaw krój i rozmiar czcionki</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
   <string name="prefs_screen_keep_on_title">Trzymaj ekran włączony</string>
   <string name="prefs_screen_keep_on_summary">Nie wyłączaj ekranu podczas korzystania z aplikacji</string>
   <string name="prefs_interface_locale_title">Język programu</string>
   <string name="prefs_interface_locale_summary">Wybierz język</string>
-  <string name="prefs_split_mode_vertical">Pionowo</string>
-  <string name="prefs_split_mode_horizontal">Poziomo</string>
-  <string name="prefs_split_mode_automatic">Automatycznie</string>
-  <string name="prefs_split_mode_summary">Jak rozdzielić wiele ekranów w trybie okienkowym?</string>
-  <string name="prefs_split_mode_title">Ułożenie okien</string>
+  <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Korzystaj z ręcznie skopiowanych dokumentów</string>
-  <string name="prefs_request_sdcard_permission_summary">Korzystaj z ręcznie zainstalowanych dokumentów w katalogu “jsword” na karcie SD</string>
-  <string name="bible_text_options">Ustawienia tekstu</string>
+  <string name="prefs_request_sdcard_permission_summary">Umożliwia korzystanie z ręcznie zainstalowanych dokumentów w katalogu jsword/sword w pamięci wewnętrznej</string>
+  <string name="text_options_window_menutitle">Ustawienia tekstu</string>
   <string name="auto_fullscreen">Pełny ekran podczas przewijania</string>
-  <string name="switch_split_mode">Tryb podwójnego ekranu</string>
   <string name="reversed_split_mode">Tryb odwróconego podwójnego ekranu</string>
-  <string name="prefs_auto_night_mode_title">Automatyczny tryb nocny</string>
-  <string name="prefs_auto_night_mode_summary">Czujnik światła aktywuje tryb nocny</string>
+  <string name="font_size_pt">%d p.</string>
+  <string name="auto_fullscreen_summary">Automatycznie przełączaj na tryb pełnego ekranu podczas przewijania tekstu. Wskazówka: zawsze możesz wejść w tryb pełnoekranowy stukając dwukrotnie w ekran.</string>
+  <string name="prefs_margin_size_title">Dostosuj rozmiary marginesów</string>
+  <string name="prefs_margin_size_mm_title">Rozmiary marginesów (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">Ustawienia zaawansowane</string>
+  <string name="prefs_display_customization_cat">Wygląd</string>
+  <string name="prefs_behavior_customization_cat">Zachowanie</string>
+  <string name="prefs_margin_size_summary">Dostosuj lewy i prawy margines dookoła tekstu. Możesz także ustawić maksymalną szerokość tekstu.</string>
+  <string name="prefs_text_colors_summary">Dostosuj kolory tekstu i tła oraz efekt rozmycia</string>
+  <string name="text_display_settings_activity_title">Ustawienia tekstu</string>
+  <string name="workspace_text_display_settings_title">Ustawienia tekstu – %s</string>
+  <string name="window_text_display_settings_title">Ustawienia tekstu – okno %d</string>
+  <string name="prefs_text_display_settings_title">Formatowanie</string>
+  <string name="prefs_text_appearance_title">Wygląd</string>
+  <string name="prefs_justify_title">Wyjustuj tekst</string>
+  <string name="prefs_justify_summary">Wyrównaj tekst w taki sposób, aby lewy i prawy margines tekstu były równe</string>
+  <string name="prefs_line_spacing_pt">Interlinia: %1.1f×</string>
+  <string name="pref_font_family_label">Rodzaj czcionki</string>
+  <string name="prefs_hyphenation_title">Dzielenie wyrazów</string>
+  <string name="prefs_hyphenation_summary">Automatycznie dziel wyrazy na końcach linii (jeżeli wspierane dla języka)</string>
+  <string name="prefs_line_spacing_pt_title">Interlinia (%1.1f×)</string>
+  <string name="line_spacing_title">Interlinia</string>
+  <string name="line_spacing_summary">Dostosuj odstęp między liniami tekstu</string>
+  <string name="select_none">Wybierz nic</string>
+  <string name="reset_are_you_sure">Czy na pewno chcesz zresetować wszystkie ustawienia do wartości domyślnych?</string>
+  <string name="window_pinning_menutitle">Przypinanie okien</string>
+  <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
+  <string name="hide_window_buttons_summary">Przyciski okna wyświetlane po prawej stronie widoku Biblii zostały ukryte. Pasek nawigacji na dole jest wciąż wyświetlany i możesz wywołać menu okna poprzez naciśnięcie i przytrzymanie okna.</string>
+  <string name="font_size_title">Rozmiar czcionki</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Ustawienia kolorów</string>
+  <string name="window_color_settings_title">Kolor okien</string>
+  <string name="workspace_color_settings_title">Domyślne kolory obszaru roboczego</string>
+  <string name="color_text">Kolor tekstu</string>
+  <string name="color_background">Kolor tła</string>
+  <string name="colors_day_mode_title">Tryb dzienny</string>
+  <string name="colors_night_mode_title">Tryb nocny</string>
+  <string name="prefs_noise_title">Rozmycie tła</string>
+  <string name="prefs_noise_summary">Dodaj trochę rozmycia tła, aby było ono bardziej komfortowe dla Twoich oczu.</string>
+  <string name="cpv_default_title">Wybierz kolor</string>
+  <string name="cpv_presets">Schematy</string>
+  <string name="cpv_custom">Własny</string>
+  <string name="cpv_select">Wybierz</string>
+  <string name="cpv_transparency">Przezroczystość</string>
   <!--Window-->
   <string name="new_window">Nowe okno</string>
   <string name="windowClose">Zamknij</string>
   <string name="windowMaximise">Maksymalizuj</string>
   <string name="windowMinimise">Minimalizuj</string>
   <string name="windowSynchronise">Synchronizuj</string>
-  <string name="windowMoveFirst">Przesuń pierwsze</string>
+  <string name="window_pin_mode">Przypnij</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
   <string name="no_verse_notes">Brak przypisów dla tego wersetu</string>
@@ -135,18 +192,17 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <!--Module download-->
   <string name="download">Pobierz moduł</string>
   <string name="download_confirmation">Pobrać moduł z Internetu?</string>
-  <string name="download_source_message">Moduł zostanie pobrany z\nhttp://www.crosswire.org\ni http://ibt.org.ru\ni http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
   <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>
   <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
-  <string name="no_internet_connection">
-Nie można połączyć się z repozytorium modułów Crosswire.
-Serwer może być wyłączony lub możesz nie mieć połączenia z internetem.
-Proszę spróbować ponownie później.</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
   <string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie. Proszę czekać na ich ukończenie.</string>
   <string name="document_not_installed">Proszę pobrać \'%s\'</string>
+  <string name="free_text_search_documents">Szukaj</string>
+  <string name="chooce_language_hint">Język</string>
+  <string name="one_more_back_press">Naciśnij ponownie przycisk wstecz, aby zamknąć aplikację</string>
+  <string name="document_filter_results">%d dokumentów</string>
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
   <string name="install_zip_module">Zainstaluj moduł Biblii</string>
@@ -156,6 +212,8 @@ Proszę spróbować ponownie później.</string>
   <string name="invalid_module">Plik nie zawiera poprawnego modułu SWORD</string>
   <string name="module_already_installed">Plik zawiera moduł, który już został zainstalowany</string>
   <string name="install_zip_title">Proszę czkać. Ładowanie pliku .zip.</string>
+  <string name="overwrite_files">Następujące pliki jeż istnieją: %s. Czy nadpisać je?</string>
+  <string name="overwrite_files_title">Czy nadpisać pliki?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan czytania</string>
   <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
@@ -194,27 +252,25 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="delete_index">Usuń indeks wyszukiwań</string>
   <string name="about">O programie</string>
   <string name="delete_doc">Czy chcesz usunąć %s?</string>
-  <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
+  <string name="delete_search_index_doc">Czy usunąć indeks dla %s?</string>
   <!--Verse context menu-->
   <string name="notes">Przypisy i odnośniki</string>
-  <string name="copy">Skopiuj</string>
-  <string name="share_verse">Udostępnij…</string>
+  <string name="verse_action_copy">Kopiuj</string>
   <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otwórz odnośnik tutaj</string>
   <string name="open_link_in_new_window">Otwórz odnośnik w nowym oknie</string>
-  <string name="open_link_in_main_window">Otwórz odnośnik w głównym oknie</string>
   <string name="open_link_in_special_window">Otwórz odnośnik w oknie specjalnym</string>
   <!--Bookmarks-->
-  <string name="bookmarks">Ulubione</string>
-  <string name="add_bookmark">Dodaj do ulubionych</string>
-  <string name="delete_bookmark">Usuń z ulubionych</string>
-  <string name="bookmark_added">Dodano do ulubionych</string>
+  <string name="bookmarks">Zakładki</string>
+  <string name="add_bookmark">Dodaj do zakładek</string>
+  <string name="delete_bookmark">Usuń z zakładek</string>
+  <string name="bookmark_added">Dodano zakładkę</string>
   <string name="bookmark_date_updated">Odświeżono dane zakładek</string>
-  <string name="bookmark_deleted">Usunięto z ulubionych</string>
+  <string name="bookmark_deleted">Usunięto zakładkę</string>
   <string name="bookmark_labels">Etykiety</string>
-  <string name="manage_labels">Zarządzaj etykietami ulubionych</string>
+  <string name="manage_labels">Zarządzaj etykietami zakładek</string>
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_label">Nowa etykieta</string>
   <string name="label_name_prompt">Nazwa</string>
@@ -332,32 +388,47 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="mynote_saved">Moja notatka zapisana</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Kopia zapasowa</string>
-  <string name="backup">Utwórz kopię zapasową…</string>
-  <string name="backup_success">Zapisz moje notatki i zakładki na karcie SD w %s</string>
-  <string name="restore">Przywróć z kopii zapasowej…</string>
+  <string name="backup_modules">Utwórz kopię zapasową dokumentów…</string>
+  <string name="backup_app_database">Utwórz kopię zapasową bazy danych aplikacji…</string>
+  <string name="restore_app_database">Przywróć kopię zapasową bazy danych aplikacji…</string>
   <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki, zakładki, plany czytania i obszary robocze?</string>
   <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, plany czytania i obszary robocze</string>
-  <string name="error_no_backup_file">Nie można odnaleźć pliku kopii zapasowej</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
-  <string name="backup_email_subject">And Bible: kopia zapasowa</string>
+  <string name="error_no_backup_file">Nie znaleziono pliku kopii zapasowej</string>
+  <string name="backup_modules_email_subject">And Bible: kopia zapasowa modułów</string>
+  <string name="backup_modules_email_message">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji And Bible: %s</string>
+  <string name="backup_email_subject">And Bible: kopia zapasowa bazy danych</string>
   <string name="backup_email_message">W załączniku znajduje się kopia zapasowa bazy danych aplikacji And Bible zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
-  <!--About-->
-  <string name="about_copyright">Prawa autorskie: %s</string>
-  <string name="about_version">Wersja: %s</string>
-  <string name="about_versification">Wersyfikacja: %s</string>
+  <string name="backup_restore_title">Przywrócić skąd?</string>
+  <string name="backup_restore_message">Czy przywrócić kopię zapasową z pamięci wewnętrznej, czy wybrać plik ręcznie (będziesz mógł także wybrać np.: Dysk Google)?</string>
+  <string name="backup_phone_storage">Pamięć wewnętrzna</string>
+  <string name="backup_manually">Wybierz plik</string>
+  <string name="backup_backup_title">Dokąd?</string>
+  <string name="backup_backup_message">Czy utworzyć kopię zapasową w pamięci wewnętrznej, czy używając funkcji „udostępnij” (poczta, Dysk Google, itp.)?</string>
+  <string name="backup_share">Udostępnij</string>
+  <string name="restore_modules">Przywróć dokumenty z…</string>
   <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
+  <string name="backup_modules_title">Wybór modułów do kopii zapasowej</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Zgłoś błąd</string>
   <string name="report_bug_email_subject">Raport o błędzie programu And Bible %s</string>
   <string name="report_bug_email_message">
-Prosimy użyć tej funkcji, aby zgłosić błąd tuż po tym jak on wystąpił.\n
+--- NAPISZ ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ ---\n
+Instrukcja:\n
+Zwięźle opisz co zrobiłeś/co się stało w momencie, kiedy błąd się pojawił. Przykład:\n
 \n
-Krótko opisz co zrobiłeś / co się stało kiedy wystąpił problem: \n
+1. Uruchomiono aplikację.\n
+2. Otwarto menu okna.\n
+-&gt; Błąd.\n
 \n
-Informacje o urządzeniu: \n
+Czasami może przydać się zrzut ekranu. Proszę użyć tej funkcji zaraz po tym, jak błąd wystąpił. Możesz również skorzystać z tej funkcji po następnym uruchomieniu aplikacji, po tym jak aplikacja uległa awarii.
+\n\n
+Informacje o urządzeniu:\n
 %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Dowolny</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentarz</string>
   <string name="doc_type_dictionary">Słownik</string>
@@ -380,6 +451,7 @@ Informacje o urządzeniu: \n
   <!--Errors-->
   <string name="report_error">Wyślij raport</string>
   <string name="error_occurred">Wystąpił błąd</string>
+  <string name="error_occurred_with_link">Wystąpił błąd: %s</string>
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>
   <string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string>
   <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
@@ -388,19 +460,24 @@ Informacje o urządzeniu: \n
   <string name="notification_channel_tts_status">Syntetyzator mowy</string>
   <string name="notification_channel_progress_status">Powiadomienie postępu stanu pobierań, itp.</string>
   <!--Workspaces-->
-  <string name="workspaces">Obszary robocze</string>
-  <string name="new_workspace">Nowy obszar roboczy</string>
-  <string name="switch_to_workspace">Przełącz obszar roboczy…</string>
-  <string name="delete_workspace">Usuń ten obszar roboczy</string>
-  <string name="choose_workspace_to_open">Wybierz obszar roboczy do otwarcia</string>
-  <string name="new_copied_workspace">Klonuj ten obszar roboczy</string>
+  <string name="new_workspace">Nowy</string>
+  <string name="delete_workspace">Usuń</string>
+  <string name="new_copied_workspace">Duplikuj</string>
   <string name="workspace_number">Obszar roboczy %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Zmień nazwę obszaru roboczego…</string>
-  <string name="rename_workspace_title">Wprowadź nazwę obszaru roboczego</string>
-  <string name="new_workspace_from_dialog">Nowy</string>
-  <string name="delete_workspace_from_dialog">Usuń obecny</string>
-  <string name="history_title">Historia (%s)</string>
+  <string name="rename_workspace">Zmień nazwę</string>
+  <string name="workspace_selector_title">Wybierz obszar roboczy</string>
+  <string name="workspace_settings">Ustawienia…</string>
+  <string name="give_name_workspace">Wprowadź nazwę dla obszaru roboczego</string>
+  <string name="save_and_exit">Zapisz</string>
+  <string name="workspace_save_changes">Czy zastosować zmiany do obszarów roboczych?</string>
+  <string name="copy_of_workspace">Kopia %s</string>
+  <string name="copy_workspace_settings">Kopiuj ustawienia…</string>
+  <string name="copy_settings_title">Które ustawienia chcesz skopiować?</string>
+  <string name="select_all">Wybierz wszystkie</string>
+  <string name="copy_settings_workspaces_title">Dla których obszarów roboczych chcesz skopiować ustawienia?</string>
+  <string name="reset_settings">Reset</string>
+  <string name="workspace_dismiss">Anuluj</string>
+  <string name="workspace_listing_with_current">%s (obecny)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">To jest wersja beta!</string>
   <string name="beta_notice_content_1">
@@ -412,4 +489,8 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="beta_notice_github">GitHub</string>
   <string name="beta_notice_dismiss">Ignoruj</string>
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
+  <!--History-->
+  <string name="history_for">Historia (%s: okno %d)</string>
+  <!--Uncategorized-->
+  <string name="close">Zamknij</string>
 </resources>

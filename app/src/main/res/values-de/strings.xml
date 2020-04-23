@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Und Gott sprach: \'\"Es werde Licht!\"\' Und es wurde Licht.\"\nGenesis 1:3</string>
   <string name="help_text">Drücken Sie die Menü-Taste für Aktionen\n\n
@@ -59,14 +58,9 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="deuterocanonical">Apokryphen</string>
   <!--Search-->
   <string name="search_index">Suchindex</string>
-  <string name="index_creation_required">Für die Suche ist ein Index nötig.\n\nIndices können heruntergeladen oder lokal erzeugt werden.\n\nHerunterladen ist schneller und ermöglicht mehr Suchfunktionen.\n\nEine funktionierende Internetverbindung ist zum Herunterladen von Indices nötig.\n</string>
   <string name="create_index_for">Ein Index ist für die Suche nötig \n\nIndex für %serstellen?</string>
   <string name="rebuild_index_for">Index für %serneut erstellen?</string>
-  <string name="search_index_unavailable">Leider ist die Indexerstellung nur auf Geräten mit Android 5.0 (Lollipop) oder neuer möglich.
-Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
-  <string name="index_download">Download</string>
-  <string name="index_not_available_for_download">Dieser Index kann nicht heruntergeladen werden.</string>
   <string name="index_create">Erzeuge</string>
   <string name="rebuild_index">Index neu erstellen</string>
   <string name="search_in">Finde in %s</string>
@@ -122,7 +116,6 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
   <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
   <string name="prefs_open_links_in_special_window_summary">Für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
-  <string name="prefs_text_size_pt_title">Schriftarteinstellungen</string>
   <string name="prefs_text_size_summary">Schriftart und -größe anpassen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
   <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
@@ -132,8 +125,6 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="reset_fontsize">Zurücksetzen</string>
   <string name="prefs_request_sdcard_permission_title">Es gibt händisch installierte Dokumente</string>
   <string name="prefs_request_sdcard_permission_summary">Die Verwendung manuell installierte Dokumente aus dem Ordner /jsword/sword des internen Speichers ermöglichen</string>
-  <string name="all_text_options_window_menutitle">Alle Textoptionen...</string>
-  <string name="all_text_options_window_menutitle_alone">Textoptionen...</string>
   <string name="text_options_window_menutitle">Textoptionen</string>
   <string name="auto_fullscreen">Vollbildschirmmodus durch Scrollen</string>
   <string name="reversed_split_mode">Umgedrehter Fenstermodus</string>
@@ -141,8 +132,6 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="auto_fullscreen_summary">Bei aktiviertem Textvorlauf automatisch in den Vollbildmodus wechseln, Tipp: Man kann den Vollbildmodus auch durch Doppeltippen auf den Bildschirm aktivieren.</string>
   <string name="prefs_margin_size_title">Randgröße verändern</string>
   <string name="prefs_margin_size_mm_title">Randgröße (%d/%d/%d mm)</string>
-  <string name="margin_size_mm">Rand links %d mm rechtst %d mm.
-        \nMaximale Textbreite: %d mm.</string>
   <string name="prefs_advanced_settings_cat">Erweiterte Einstellungen</string>
   <string name="prefs_display_customization_cat">Look &amp; feel</string>
   <string name="prefs_behavior_customization_cat">Verhalten der Anwendung</string>
@@ -155,9 +144,6 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="prefs_text_appearance_title">Erscheinungsbild</string>
   <string name="prefs_justify_title">Blocktext</string>
   <string name="prefs_justify_summary">\'Blocktext\' heißt, dass der rechte und linke Textrand gerade verlaufen</string>
-  <string name="pref_left_margin_label">Linker Rand</string>
-  <string name="pref_right_margin_label">Rechter Rand</string>
-  <string name="pref_maximum_width_of_text_label">Maximale Textbreite</string>
   <string name="prefs_line_spacing_pt">Zeilenabstand %1.1fx</string>
   <string name="pref_font_family_label">Schriftart</string>
   <string name="prefs_hyphenation_title">Silbentrennung</string>
@@ -192,8 +178,7 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <string name="windowMaximise">Maximiere</string>
   <string name="windowMinimise">Minimiere</string>
   <string name="windowSynchronise">Synchronisierung</string>
-  <string name="move_window">Verschieben nach...</string>
-  <string name="move_window_to_position">Position %s</string>
+  <string name="window_pin_mode">Fixieren</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
   <string name="no_verse_notes">Keine Anmerkungen zu diesem Vers</string>
@@ -208,15 +193,10 @@ Das Herunterladen von Indices ist nur für einige Module möglich</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
-  <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp;\nhttp://xiphos.org\nheruntergeladen</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
-  <string name="no_internet_connection">
-Verbindung zur Modulquelle von Crosswire fehlgeschlagen.
-Entweder ist der Server nicht in Betrieb oder die Internetverbindung funktioniert nicht.
-Bitte versuchen Sie es später noch einmal.</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
@@ -269,8 +249,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
-  <string name="copy">Kopiere</string>
-  <string name="share_verse">Teile...</string>
   <string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
   <!--Link context menu-->
@@ -400,19 +378,14 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
-  <string name="backup">Sicherung auf...</string>
-  <string name="restore">Wiederherstellen von...</string>
   <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
   <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
   <string name="backup_email_subject">And Bible Datenbanksicherung</string>
   <string name="backup_email_message">Die And Bible Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
-  <!--About-->
-  <string name="about_copyright">Copyright: %s</string>
-  <string name="about_version">Version %s</string>
-  <string name="about_versification">Versnummerierung: %s</string>
   <string name="send_backup_file">Sende Backup</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Fehlermeldung</string>
   <string name="report_bug_email_subject">Fehlermeldung für And Bible %s</string>
@@ -464,7 +437,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Neu</string>
-  <string name="switch_to_workspace">Arbeitsplätze...</string>
   <string name="delete_workspace">Entfernen</string>
   <string name="new_copied_workspace">Als neu kopieren</string>
   <string name="workspace_number">Arbeitsbereich %d </string>
@@ -473,7 +445,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="workspace_settings">Einstellungen...</string>
   <string name="give_name_workspace">Geben Sie dem neuen Arbeitsplatz einen Namen</string>
   <string name="save_and_exit">Speichern</string>
-  <string name="current_workspace">Aktuell</string>
   <string name="workspace_save_changes">Änderungen auf den Arbeitsplatz anwenden?</string>
   <string name="copy_of_workspace">Kopie von %s</string>
   <string name="copy_workspace_settings">Kopiere Einstellungen...</string>
@@ -497,6 +468,6 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
   <!--History-->
   <string name="history_for">Chronik (%s: Fenster %d)</string>
-  <string name="window_pin_mode">Fixieren</string>
+  <!--Uncategorized-->
   <string name="close">Schließen</string>
 </resources>

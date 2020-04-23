@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Biblio</string>
+  <string name="app_name_short">Studi Biblion</string>
+  <string name="app_name">Studi Biblion (And Biblio)</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
   <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\n
@@ -35,6 +36,9 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
  Premtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
  Premtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
  Premtenu sur reen-butonon por aliri liston de historio.</string>
+  <string name="help_window_pinning_title">Alpingli fenestron</string>
+  <string name="help_window_pinning_text">
+Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj relanĉi And Biblion.</string>
   <!--Main menu-->
@@ -59,13 +63,9 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="deuterocanonical">Dua-kanonaj libroj</string>
   <!--Search-->
   <string name="search_index">Serĉ-indekso</string>
-  <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
   <string name="create_index_for">Indekso estas necesa por serĉi.\n\nĈu krei indekson por %s?</string>
   <string name="rebuild_index_for">Ĉu rekrei indekson por %s?</string>
-  <string name="search_index_unavailable">Bedaŭrinde kreado de indeksoj estas nur disponebla ĉe Android 5.0 (Lollipop) aŭ pli nova. Generitaj indeksoj estas disponeblaj nur por kelkaj moduloj.</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
-  <string name="index_download">Elŝuti</string>
-  <string name="index_not_available_for_download">Tiu ĉi indekso ne estas disponebla por elŝuti</string>
   <string name="index_create">Krei</string>
   <string name="rebuild_index">Rekrei indekson</string>
   <string name="search_in">Serĉi en %s</string>
@@ -121,7 +121,6 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
   <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
   <string name="prefs_open_links_in_special_window_summary">Por pli rapida montrado de internaj referencoj kaj numeroj de Strong</string>
-  <string name="prefs_text_size_pt_title">Agordi tiparojn</string>
   <string name="prefs_text_size_summary">Alĝustigi tiparan familion kaj grandon</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
@@ -131,8 +130,6 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="reset_fontsize">Reagordi</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Ebligi uzi permane instalitajn dokumentojn el la dosierujo jsword/sword en la interna konservejo</string>
-  <string name="all_text_options_window_menutitle">Ĉiuj tekstaj agordoj…</string>
-  <string name="all_text_options_window_menutitle_alone">Tekstaj agordoj…</string>
   <string name="text_options_window_menutitle">Tekstaj agordoj</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
   <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
@@ -140,8 +137,6 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
   <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
   <string name="prefs_margin_size_mm_title">Grandoj de marĝenoj (%d/%d/%d mm)</string>
-  <string name="margin_size_mm">Marĝenoj maldekstra: %d mm, dekstra: %d mm.
-\nMaksimuma larĝo de teksto: %d mm.</string>
   <string name="prefs_advanced_settings_cat">Spertulaj agordoj</string>
   <string name="prefs_display_customization_cat">Aspekto</string>
   <string name="prefs_behavior_customization_cat">Sinteno</string>
@@ -154,14 +149,11 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="prefs_text_appearance_title">Aspekto</string>
   <string name="prefs_justify_title">Ĝisrandigi tekston ambaŭflanken</string>
   <string name="prefs_justify_summary">Ĝisrandigi tekston tiel, por ke maldekstra kaj dekstra marĝenoj estu egalaj</string>
-  <string name="pref_left_margin_label">Maldekstra marĝeno</string>
-  <string name="pref_right_margin_label">Dekstra marĝeno</string>
-  <string name="pref_maximum_width_of_text_label">Maksimuma larĝo de teksto</string>
-  <string name="prefs_line_spacing_pt">Interlinia distanco %1.1fx</string>
+  <string name="prefs_line_spacing_pt">Interlinia distanco %1.1f×</string>
   <string name="pref_font_family_label">Tipara familio</string>
   <string name="prefs_hyphenation_title">Vortdivido</string>
   <string name="prefs_hyphenation_summary">Aŭtomate dividi vortojn (se subtenata por lingvo)</string>
-  <string name="prefs_line_spacing_pt_title">Interlinia distanco (%1.1fx)</string>
+  <string name="prefs_line_spacing_pt_title">Interlinia distanco (%1.1f×)</string>
   <string name="line_spacing_title">Interlinia distanco</string>
   <string name="line_spacing_summary">Alĝustigi spacon inter linioj de teksto</string>
   <string name="select_none">Elekti neniun</string>
@@ -191,8 +183,7 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <string name="windowMaximise">Maksimumigi</string>
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
-  <string name="move_window">Movi al…</string>
-  <string name="move_window_to_position">Pozicio %s</string>
+  <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
   <string name="no_verse_notes">Neniuj notoj ekzistas ĉe tiu ĉi verso</string>
@@ -207,16 +198,17 @@ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekto
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
   <string name="download_confirmation">Ĉu elŝuti Biblion el la interreto?</string>
-  <string name="download_source_message">Dokumentoj estas elŝutataj el\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refreshing_book_list">Aktualigado de listo de disponeblaj dokumentoj</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
-  <string name="no_internet_connection">
-Ne povis konekti al la deponejo de moduloj Crosswire. La servilo povas ne funkcii aŭ vi ne havas interretan konekton. Bonvolu reprovi poste.</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
   <string name="too_many_jobs">Tro multe da taskoj estas lanĉataj. Bonvolu atendi ĝis iajn finiĝos kaj reprovu.</string>
   <string name="document_not_installed">Bonvolu elŝuti “%s”</string>
+  <string name="free_text_search_documents">Serĉi</string>
+  <string name="chooce_language_hint">Lingvo</string>
+  <string name="one_more_back_press">Premu denove aŭ premu REEN-butonon por fermi aplikaĵon.</string>
+  <string name="document_filter_results">%d dokumentoj</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
@@ -226,6 +218,8 @@ Ne povis konekti al la deponejo de moduloj Crosswire. La servilo povas ne funkci
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
   <string name="module_already_installed">Dosiero enhavas modulon, kiu estas jam instalita</string>
   <string name="install_zip_title">Bonvolu atendi. Ŝargado de zip-dosiero.</string>
+  <string name="overwrite_files">La jenaj dosieroj jam ekzistas: %s Ĉu anstataŭigi ilin?</string>
+  <string name="overwrite_files_title">Ĉu anstataŭigi dosierojn?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
@@ -273,8 +267,7 @@ laŭ ilia permeso.</string>
   <string name="delete_search_index_doc">Ĉu forigi indekson de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
-  <string name="copy">Kopii</string>
-  <string name="share_verse">Kunhavigi…</string>
+  <string name="verse_action_copy">Kopii</string>
   <string name="share_verse_subject">Verso de Biblio kunhavigita per la aplikaĵo And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
@@ -407,19 +400,29 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="mynote_saved">Mia noto konservita</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sekurkopio</string>
-  <string name="backup">Sekurkopii al…</string>
-  <string name="restore">Restarigi el…</string>
+  <string name="backup_modules">Sekurkopii dokumentojn al…</string>
+  <string name="backup_app_database">Sekurkopii aplikaĵan datumbazon al…</string>
+  <string name="restore_app_database">Restarigi aplikaĵan datumbazon el…</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, legplanojn kaj laborspacojn?</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, legplanojn kaj laborspacojn</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
+  <string name="error_no_backup_file">Ne trovis dosieron kun sekurkopio</string>
+  <string name="backup_modules_email_subject">And Biblio: sekurkopio de moduloj</string>
+  <string name="backup_modules_email_message">Datumbazo enhavanta la jenajn modulojn de la programo And Biblio: %s troviĝas en la kunsendaĵo</string>
   <string name="backup_email_subject">And Biblio: sekurkopio de datumbazo</string>
   <string name="backup_email_message">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo And Biblio en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
-  <!--About-->
-  <string name="about_copyright">Kopirajto: %s</string>
-  <string name="about_version">Versio: %s</string>
-  <string name="about_versification">Versarto: %s</string>
+  <string name="backup_restore_title">Restarigi el kie?</string>
+  <string name="backup_restore_message">Ĉu restarigi el la aparata konservejo aŭ ĉu permane elekti dosieron (vi ankaŭ povos elekti Google Drive)?</string>
+  <string name="backup_phone_storage">Konservejo</string>
+  <string name="backup_manually">Elekti dosieron</string>
+  <string name="backup_backup_title">Sekurkopii kien?</string>
+  <string name="backup_backup_message">Ĉu sekurkopii al konservejo aŭ ĉu per la menuo “kunhavigi” (retpoŝto, Google Drive, ktp.)?</string>
+  <string name="backup_share">Kunhavigi</string>
+  <string name="restore_modules">Restarigi dokumentojn el…</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
+  <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Raporti eraron</string>
   <string name="report_bug_email_subject">Erar‑raporto pri And Biblio %s</string>
@@ -437,6 +440,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
         Informoj pri aparato: \n
         %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Ĉiu speco</string>
   <string name="doc_type_bible">Biblio</string>
   <string name="doc_type_commentary">Komentaro</string>
   <string name="doc_type_dictionary">Vortaro</string>
@@ -469,7 +473,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nova</string>
-  <string name="switch_to_workspace">Laborspacoj…</string>
   <string name="delete_workspace">Forigi</string>
   <string name="new_copied_workspace">Duobligi</string>
   <string name="workspace_number">Laborspaco %d</string>
@@ -478,8 +481,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="workspace_settings">Agordoj…</string>
   <string name="give_name_workspace">Enigu nomon por la nova laborspaco</string>
   <string name="save_and_exit">Konservi</string>
-  <string name="current_workspace">elektita</string>
-  <string name="workspace_save_changes">Ĉu apliki ŝanĝojn al ĉiuj laborspacoj?</string>
+  <string name="workspace_save_changes">Ĉu apliki ŝanĝojn al laborspacoj?</string>
   <string name="copy_of_workspace">Kopio de %s</string>
   <string name="copy_workspace_settings">Kopii agordojn…</string>
   <string name="copy_settings_title">Kiujn agordojn vi volas kopii?</string>
@@ -487,6 +489,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="copy_settings_workspaces_title">Al kiuj laborspacoj vi volas kopii agordojn?</string>
   <string name="reset_settings">Reagordi</string>
   <string name="workspace_dismiss">Rezigni</string>
+  <string name="workspace_listing_with_current">%s (elektita)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tio ĉi estas beta-versio!</string>
   <string name="beta_notice_content_1">
@@ -500,6 +503,6 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
   <!--History-->
   <string name="history_for">Historio (%s: fenestro %d)</string>
-  <string name="window_pin_mode">Alpingli</string>
+  <!--Uncategorized-->
   <string name="close">Fermi</string>
 </resources>

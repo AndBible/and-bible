@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Ouvrez le Menu pour accéder aux différentes fonctions.\n\n
@@ -61,14 +60,9 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="deuterocanonical">Deutérocanonique</string>
   <!--Search-->
   <string name="search_index">Recherche d\'index</string>
-  <string name="index_creation_required">Un index est nécessaire pour pouvoir lancer une recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est bien plus rapide et les index téléchargés offrent plus de capacités de recherche.\n\nUne connexion internet est requise pour pouvoir télécharger les index.
-</string>
   <string name="create_index_for">Un index est requis pour effectuer des recherches.\n\nCéer un index pour 1%s?</string>
   <string name="rebuild_index_for">Reconstruire l\'index de %s?</string>
-  <string name="search_index_unavailable">La création d\'index est seulement disponible sur Android 5.0 (Lollipop) et supérieur. Le téléchargement d\'index est possible sur un nombre limité de modules.</string>
   <string name="indexing_wait_msg">Merci de patienter. Vous retrouverez l\'écran de recherche à la fin de l\'indexation.</string>
-  <string name="index_download">Télécharger</string>
-  <string name="index_not_available_for_download">Cet index n\'est pas disponible en téléchargement</string>
   <string name="index_create">Créer</string>
   <string name="rebuild_index">Reconstruire l\'index</string>
   <string name="search_in">Rechercher dans %s</string>
@@ -124,7 +118,6 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
   <string name="prefs_open_links_in_special_window_title">Ouvrir les liens dans une fenêtre spéciale</string>
   <string name="prefs_open_links_in_special_window_summary">Permet d\'afficher plus rapidement les références croisées et codes de Strong</string>
-  <string name="prefs_text_size_pt_title">Options de police</string>
   <string name="prefs_text_size_summary">Configure la famille et la taille de la police</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
   <string name="prefs_screen_keep_on_title">Maintenir activé</string>
@@ -134,8 +127,6 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="reset_fontsize">Réinitialiser</string>
   <string name="prefs_request_sdcard_permission_title">Installation manuelle de documents</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword/sword dans l\'espace de stockage interne</string>
-  <string name="all_text_options_window_menutitle">Options du texte...</string>
-  <string name="all_text_options_window_menutitle_alone">Options du texte...</string>
   <string name="text_options_window_menutitle">Options du texte</string>
   <string name="auto_fullscreen">Plein-écran par défilement</string>
   <string name="reversed_split_mode">Partage d\'écran pivoté</string>
@@ -143,8 +134,6 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="auto_fullscreen_summary">Faire défiler le texte active automatiquement le mode plein-écran. Astuce: Vous pouvez aussi activer le mode plein-écran par un double tapotement sur le texte.</string>
   <string name="prefs_margin_size_title">Taille des marges</string>
   <string name="prefs_margin_size_mm_title">Taille des marges (%d/%d/%d mm)</string>
-  <string name="margin_size_mm">Marge de gauche %d mm droite %d mm.
-\n Largeur maximum du texte : %d mm.</string>
   <string name="prefs_advanced_settings_cat">Paramètres avancés</string>
   <string name="prefs_display_customization_cat">Apparence</string>
   <string name="prefs_behavior_customization_cat">Comportement de l\'application</string>
@@ -157,9 +146,6 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="prefs_text_appearance_title">Apparence</string>
   <string name="prefs_justify_title">Justification du texte</string>
   <string name="prefs_justify_summary">Aligne le texte en mode justifié, toutes les lignes sont étirées pour avoir la même longueur </string>
-  <string name="pref_left_margin_label">Marge de gauche</string>
-  <string name="pref_right_margin_label">Marge de droite</string>
-  <string name="pref_maximum_width_of_text_label">Longueur maximum du texte</string>
   <string name="prefs_line_spacing_pt">Espace inter-lignes %1.1fx</string>
   <string name="pref_font_family_label">Famille de police</string>
   <string name="prefs_hyphenation_title">Césure des mots</string>
@@ -194,8 +180,7 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
   <string name="windowSynchronise">Synchroniser</string>
-  <string name="move_window">Déplacer vers...</string>
-  <string name="move_window_to_position">Position %s</string>
+  <string name="window_pin_mode">Épingler</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
   <string name="no_verse_notes">Aucune note pour ce verset</string>
@@ -210,15 +195,10 @@ Un Appui prolongé sur le bouton Retour ouvre l\'Historique de consultation.</st
   <!--Module download-->
   <string name="download">Télécharger des documents</string>
   <string name="download_confirmation">Télécharger une Bible par Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de ;\nhttp://www.crosswire.org\nhttp://ibt.org.ru\nhttp://xiphos.org</string>
   <string name="download_document_confirm_prefix">Télécharger </string>
   <string name="download_refreshing_book_list">Mise à jour de la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Merci de vérifier votre connexion internet.</string>
-  <string name="no_internet_connection">
-Impossible de se connecter au serveur de modules de Crosswire.
-Le serveur est peut-être hors-ligne ou vous n\'avez pas de connexion internet.
-Veuillez réessayer ultérieurement.</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
   <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
@@ -278,8 +258,6 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notes et références croisées</string>
-  <string name="copy">Copier</string>
-  <string name="share_verse">Partager ...</string>
   <string name="share_verse_subject">Un autre utilisateur de And Bible vous partage un verset de la Bible </string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Link context menu-->
@@ -415,8 +393,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
-  <string name="backup">Sauvegarder vers...</string>
-  <string name="restore">Restaurer de...</string>
   <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Espaces?</string>
   <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Espaces ont été restaurés avec succès</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
@@ -424,11 +400,8 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_email_message">Veuillez trouver ci-jointe la base de données And Bible comprenant vos Notes, Signets, Plans de lecture et Espaces.</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
-  <!--About-->
-  <string name="about_copyright">Droits d\'auteur: %s</string>
-  <string name="about_version">Version: %s</string>
-  <string name="about_versification">Versification: %s</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporter un bogue</string>
   <string name="report_bug_email_subject">Rapport de bogue pour And Bible %s</string>
@@ -481,7 +454,6 @@ Device info:\n
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nouveau</string>
-  <string name="switch_to_workspace">Espaces...</string>
   <string name="delete_workspace">Supprimer</string>
   <string name="new_copied_workspace">Copier comme un nouveau</string>
   <string name="workspace_number">Espace %d</string>
@@ -490,7 +462,6 @@ Device info:\n
   <string name="workspace_settings">Paramètres...</string>
   <string name="give_name_workspace">Donner un nom au nouvel espace</string>
   <string name="save_and_exit">Enregistrer</string>
-  <string name="current_workspace">actuel</string>
   <string name="workspace_save_changes">Appliquer les changements aux espaces?</string>
   <string name="copy_of_workspace">Copie de %s</string>
   <string name="copy_workspace_settings">Copie des paramètres...</string>
@@ -514,6 +485,6 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
   <!--History-->
   <string name="history_for">Historique (%s: Fenêtre %d)</string>
-  <string name="window_pin_mode">Épingler</string>
+  <!--Uncategorized-->
   <string name="close">Fermer</string>
 </resources>

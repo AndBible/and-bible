@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Biblija</string>
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"In Bog je rekel: \'Naj bo svetloba;\' in bila je svetloba.\"\nGeneza 1:3</string>
@@ -64,13 +63,9 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="deuterocanonical">Devterokanonične ali apokrifne knjige</string>
   <!--Search-->
   <string name="search_index">Preišči indeks</string>
-  <string name="index_creation_required">Za iskanje je potreben indeks.\n\nIndeksi se lahko prenesejo iz interneta ali pa se jih ustvari lokalno.\n\nPrenos iz interneta je mnogo hitrejši in preneseni indeksi imajo več iskalnih značilnosti.\n\nZa prenos indeksov je potrebna internetna povezava.\n</string>
   <string name="create_index_for">Za iskanje je potrebno kazalo. \n\nUstvarim kazalo za %s?</string>
   <string name="rebuild_index_for">Ponovno zgradim kazalo za %s?</string>
-  <string name="search_index_unavailable">Žal je ustvarjanje kazala na voljo samo v operacijskem sistemu Android 5.0 (Lollipop) in novejših. Naložena kazala so na voljo samo za omejen nabor modulov.</string>
   <string name="indexing_wait_msg">Ko se indeksiranje konča, se bo pojavilo okno za iskanje.</string>
-  <string name="index_download">Prenos</string>
-  <string name="index_not_available_for_download">Ta indeks ni na voljo za prenos</string>
   <string name="index_create">Ustvari</string>
   <string name="rebuild_index">Ponovno zgradi kazalo</string>
   <string name="search_in">Išči v %s</string>
@@ -126,7 +121,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico in poglavje.</string>
   <string name="prefs_open_links_in_special_window_title">Povezave v posebnem oknu</string>
   <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil.</string>
-  <string name="prefs_text_size_pt_title">Nastavitve pisave</string>
   <string name="prefs_text_size_summary">Nastavi vrsto pisave in velikost pisave.</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
   <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
@@ -136,8 +130,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Ročno nameščeni dokumenti</string>
   <string name="prefs_request_sdcard_permission_summary">Če obstajajo ročno nameščeni dokumenti iz jsword mape notranjega pomnilnika, omogočite njihovo uporabo.</string>
-  <string name="all_text_options_window_menutitle">Vse nastavitve besedila…</string>
-  <string name="all_text_options_window_menutitle_alone">Nastavitve besedila…</string>
   <string name="text_options_window_menutitle">Nastavitve besedila</string>
   <string name="auto_fullscreen">Celoten ekran s premikanjem</string>
   <string name="reversed_split_mode">Obrnjen način delitve</string>
@@ -145,8 +137,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="auto_fullscreen_summary">Ko se pomikate po besedilu samodejno preklopi na cel zaslon. Nasvet: na celozaslonski način lahko vedno preklopite tako, da dvakrat tapnete na zaslon.</string>
   <string name="prefs_margin_size_title">Spremeni velikost robu</string>
   <string name="prefs_margin_size_mm_title">Robovi (%d/%d/%d mm)</string>
-  <string name="margin_size_mm">Levi rob %d mm desni %d mm.
-        \nNajvečja širina besedila: %d mm.</string>
   <string name="prefs_advanced_settings_cat">Napredne nastavitve...</string>
   <string name="prefs_display_customization_cat">Poglej &amp; začuti</string>
   <string name="prefs_behavior_customization_cat">Vedenje aplikacije</string>
@@ -161,9 +151,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="prefs_text_appearance_title">Videz</string>
   <string name="prefs_justify_title">Besedilo poravnaj obojestransko</string>
   <string name="prefs_justify_summary">Besedilo poravnaj obojestransko, kar pomeni, da sta levi in desni rob besedila v liniji.</string>
-  <string name="pref_left_margin_label">Levi rob</string>
-  <string name="pref_right_margin_label">Desni rob</string>
-  <string name="pref_maximum_width_of_text_label">Največja širina besedila</string>
   <string name="prefs_line_spacing_pt">Razmik med vrsticami %1.1fx</string>
   <string name="pref_font_family_label">Pisava</string>
   <string name="prefs_hyphenation_title">Deljenje besed</string>
@@ -198,8 +185,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="windowMaximise">Maksimiraj</string>
   <string name="windowMinimise">Minimiraj</string>
   <string name="windowSynchronise">Sinhroniziraj</string>
-  <string name="move_window">Premakni na…</string>
-  <string name="move_window_to_position">Položaj %s</string>
+  <string name="window_pin_mode">Pripni</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">V tem poglavju ni opomb</string>
   <string name="no_verse_notes">V tej vrstici ni opomb</string>
@@ -214,16 +200,10 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <!--Module download-->
   <string name="download">Prenos dokumentov</string>
   <string name="download_confirmation">Prenos biblije iz interneta?</string>
-  <string name="download_source_message">Dokumenti se prenesejo iz\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Prenos</string>
   <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>
   <string name="error_downloading">Pri prenosu se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
-  <string name="no_internet_connection">
-        Ni se mogoče povezati s shrambo modula Crosswire.
-        Strežnik morda ne deluje ali morda nimate internetne povezave.
-        Prosim, poskusite kasneje.
-    </string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
   <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
@@ -288,8 +268,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="delete_search_index_doc">Izbriše indeks %s?</string>
   <!--Verse context menu-->
   <string name="notes">Opombe pod črto in sklici</string>
-  <string name="copy">Kopiraj</string>
-  <string name="share_verse">Deli ...</string>
   <string name="share_verse_subject">Biblijska vrstica vam je bila poslana s pomočjo aplikacije And Bible</string>
   <string name="compare_translations">Primerjaj prevode</string>
   <!--Link context menu-->
@@ -435,19 +413,14 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="mynote_saved">Moja opomba je shranjena</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
-  <string name="backup">Varnostno kopiranje v…</string>
-  <string name="restore">Obnovi iz…</string>
   <string name="restore_confirmation">Želite prepisati moje opombe, zaznamke, načrte za branje in delovne prostore?</string>
   <string name="restore_success">Moji zapiski, zaznamki, načrti branja in delovni prostori so uspešno obnovljeni</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
   <string name="backup_email_subject">And Bible varnostno kopiranje baze podatkov</string>
   <string name="backup_email_message">Vaša And Bible baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
-  <!--About-->
-  <string name="about_copyright">Avtorske pravice: %s</string>
-  <string name="about_version">Verzija: %s</string>
-  <string name="about_versification">Verzifikacija: %s</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Prijavite napako</string>
   <string name="report_bug_email_subject">Poročilo o napaki za And Bible%s</string>
@@ -500,7 +473,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
   <!--Workspaces-->
   <string name="new_workspace">Novo</string>
-  <string name="switch_to_workspace">Delovni prostori…</string>
   <string name="delete_workspace">Odstrani</string>
   <string name="new_copied_workspace">Kopiraj kot novo</string>
   <string name="workspace_number">Delovni prostor %d</string>
@@ -509,7 +481,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="workspace_settings">Nastavitve…</string>
   <string name="give_name_workspace">Ime novega delovnega prostora</string>
   <string name="save_and_exit">Shrani</string>
-  <string name="current_workspace">trenuten</string>
   <string name="workspace_save_changes">Uporabim spremembe na delovnih prostorih?</string>
   <string name="copy_of_workspace">Kopija %s</string>
   <string name="copy_workspace_settings">Kopiraj nastavitve…</string>
@@ -536,6 +507,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_dismiss_until_update">Opusti do naslednjega popravka</string>
   <!--History-->
   <string name="history_for">Zgodovina (%s: Okno %d)</string>
-  <string name="window_pin_mode">Pripni</string>
+  <!--Uncategorized-->
   <string name="close">Zapri</string>
 </resources>

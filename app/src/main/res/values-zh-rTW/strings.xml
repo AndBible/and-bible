@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And 聖經</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n創世記 1:3</string>
   <string name="help_text">按選單鍵以選取行動\n\n
@@ -23,6 +22,8 @@
   <string name="help_search_title">搜尋</string>
   <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
+  <string name="help_workspaces_title">工作檢視</string>
+  <string name="help_hidden_features_title">隱藏捷徑</string>
   <string name="help_contextmenus_title">內文選單</string>
   <string name="help_contextmenus_text">
 長按經文可以開啟本節選單
@@ -35,10 +36,12 @@
   <string name="chooseBook">文件</string>
   <string name="selectPassage">聖經段落</string>
   <string name="search">尋找</string>
-  <string name="settings">設定</string>
+  <string name="settings">程式偏好</string>
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
+  <string name="other">其他</string>
+  <string name="help_and_tips">說明與提示</string>
   <string name="administration">管理</string>
   <string name="rate_application">在Google Play中評分</string>
   <string name="chooce_document">選擇文件</string>
@@ -49,14 +52,15 @@
   <string name="bible">聖經</string>
   <string name="deuterocanonical">次經</string>
   <!--Search-->
-  <string name="search_index">查詢索引</string>
-  <string name="index_creation_required">搜尋功能需要可用的查詢索引。索引可以在手機上創建或從網上下載。從網上下載會更快，而且引功能更多。下載索引需要網絡連接。\n</string>
-  <string name="search_index_unavailable">索引創建只適用於Android 5.0 (Lollipop) 或更新版本。</string>
+  <string name="search_index">搜尋索引</string>
+  <string name="create_index_for">搜尋時需要索引。\n\n為%s建立索引嗎？</string>
+  <string name="rebuild_index_for">為%s重建索引嗎？</string>
   <string name="indexing_wait_msg">當索引創建完成時，程式會回到查詢頁面。</string>
-  <string name="index_download">下載索引</string>
-  <string name="index_not_available_for_download">無適用索引以供下載</string>
-  <string name="index_create">建立索引</string>
+  <string name="index_create">建立</string>
   <string name="rebuild_index">重建索引</string>
+  <string name="search_in">在%s中尋找</string>
+  <string name="do_in_background">背景中繼續</string>
+  <string name="rebuild_index_button">重建</string>
   <!--Tasks-->
   <string name="progress_status">進度</string>
   <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
@@ -75,6 +79,10 @@
   <string name="search_current_book">本書卷</string>
   <string name="error_executing_search">搜尋項目無效</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">顯示節數</string>
+  <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
+  <string name="prefs_red_letter_summary">以紅字顯示基督的話</string>
+  <string name="prefs_text_size_title">字型偏好</string>
   <string name="prefs_show_verseno_title">顯示節數</string>
   <string name="prefs_verse_per_line_title">每行一節</string>
   <string name="prefs_show_bookmarks_title">顯示書籤圖示</string>
@@ -87,41 +95,67 @@
   <string name="prefs_section_title_title">章節標題</string>
   <string name="prefs_red_letter_title">紅字</string>
   <string name="prefs_tilt_to_scroll_title">傾斜手機向下捲動</string>
-  <string name="prefs_tilt_to_scroll_summary">傾斜手機到下頁</string>
-  <string name="prefs_night_mode_title">夜間模式</string>
-  <string name="prefs_night_mode_summary">方便在暗處閱讀</string>
+  <string name="prefs_night_mode_title">夜間模式切換</string>
+  <string name="prefs_night_mode_manual">手動</string>
   <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
+  <string name="prefs_night_mode_system">系統</string>
+  <string name="options_menu_night_mode">夜間模式</string>
   <string name="prefs_navigate_to_verse_title">導航到經節</string>
   <string name="prefs_navigate_to_verse_summary">選擇聖經段落時挑選經文章節</string>
   <string name="prefs_open_links_in_special_window_title">在特殊視窗打開連結</string>
   <string name="prefs_open_links_in_special_window_summary">更快地顯示交叉對照和Strong\'s原文編號</string>
-  <string name="prefs_text_size_title">字體大小</string>
-  <string name="prefs_text_size_summary">調整字體</string>
+  <string name="prefs_text_size_summary">調整字型及大小</string>
   <string name="prefs_text_size_sample_text">示範文字</string>
   <string name="prefs_screen_keep_on_title">保持螢幕開啟</string>
   <string name="prefs_screen_keep_on_summary">使用此應用程式時防止螢幕睡眠</string>
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
   <string name="prefs_interface_locale_summary">選擇用戶界面語言</string>
-  <string name="prefs_split_mode_vertical">垂直</string>
-  <string name="prefs_split_mode_horizontal">水平</string>
-  <string name="prefs_split_mode_automatic">自動</string>
-  <string name="prefs_split_mode_summary">分拆多視窗的方法</string>
-  <string name="prefs_split_mode_title">分拆視窗</string>
+  <string name="reset_fontsize">重設</string>
   <string name="prefs_request_sdcard_permission_title">手動安裝文件存在</string>
-  <string name="prefs_request_sdcard_permission_summary">允許使用SD卡jsword文件夾中手動安裝的文件</string>
-  <string name="bible_text_options">經文文字選項</string>
+  <string name="text_options_window_menutitle">文字選項</string>
   <string name="auto_fullscreen">捲動以切換至全螢幕</string>
-  <string name="switch_split_mode">切換分拆視窗模式</string>
   <string name="reversed_split_mode">反轉分拆視窗模式</string>
-  <string name="prefs_auto_night_mode_title">自動夜間模式</string>
-  <string name="prefs_auto_night_mode_summary">以感應器自動切換夜間模式</string>
+  <string name="prefs_margin_size_title">更改邊界大小</string>
+  <string name="prefs_margin_size_mm_title">邊界大小 (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">進階設定</string>
+  <string name="prefs_display_customization_cat">外觀與感覺</string>
+  <string name="prefs_behavior_customization_cat">程式行為</string>
+  <string name="text_display_settings_activity_title">文字顯示設定</string>
+  <string name="workspace_text_display_settings_title">文字選項 - %s</string>
+  <string name="window_text_display_settings_title">文字選項 - 視窗 %d</string>
+  <string name="prefs_text_display_settings_title">格式</string>
+  <string name="prefs_text_appearance_title">外觀</string>
+  <string name="prefs_line_spacing_pt">行距%1.1fx</string>
+  <string name="pref_font_family_label">字型家族</string>
+  <string name="prefs_line_spacing_pt_title">行距 (%1.1fx)</string>
+  <string name="line_spacing_title">行距</string>
+  <string name="line_spacing_summary">設定每行之間距離</string>
+  <string name="select_none">全不選</string>
+  <string name="reset_are_you_sure">確定重設所有數值嗎？</string>
+  <string name="window_pinning_menutitle">視窗釘選</string>
+  <string name="hide_window_buttons_title">隱藏視窗按鍵</string>
+  <string name="font_size_title">字型大小</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">顏色設定</string>
+  <string name="window_color_settings_title">視窗顏色設定</string>
+  <string name="workspace_color_settings_title">預設工作檢視顏色設定</string>
+  <string name="color_text">文字顏色</string>
+  <string name="color_background">背景顏色</string>
+  <string name="colors_day_mode_title">日間模式</string>
+  <string name="colors_night_mode_title">夜間模式</string>
+  <string name="prefs_noise_title">背景雜訊</string>
+  <string name="cpv_default_title">選擇顏色</string>
+  <string name="cpv_presets">預設</string>
+  <string name="cpv_custom">自訂</string>
+  <string name="cpv_select">選擇</string>
+  <string name="cpv_transparency">透明度</string>
   <!--Window-->
   <string name="new_window">新視窗</string>
   <string name="windowClose">關閉</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
-  <string name="windowMoveFirst">移動至最前</string>
+  <string name="window_pin_mode">釘選</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">本章沒有備注</string>
   <string name="no_verse_notes">本節沒有備注</string>
@@ -136,7 +170,6 @@
   <!--Module download-->
   <string name="download">下載文件</string>
   <string name="download_confirmation">從互聯網上下載聖經嗎？</string>
-  <string name="download_source_message">文件來源為\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">下載</string>
   <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
@@ -144,12 +177,16 @@
   <string name="storage_space_warning">SD卡儲存空間不足</string>
   <string name="too_many_jobs">正執行太多任務。 請等候一些任務完成後再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
+  <string name="free_text_search_documents">搜尋</string>
+  <string name="chooce_language_hint">語言</string>
+  <string name="one_more_back_press">再按返回鍵關閉程式</string>
+  <string name="document_filter_results">%d文件</string>
   <!--Install zip file-->
   <string name="install_zip">從Zip載入文件</string>
   <string name="install_zip_module">安裝聖經模組</string>
   <string name="install_zip_successfull">模組已成功安裝</string>
-  <string name="extracting_zip_file">提取Zip檔案中...</string>
-  <string name="checking_zip_file">正在檢查檔案...</string>
+  <string name="extracting_zip_file">正在解壓縮Zip檔案...</string>
+  <string name="checking_zip_file">正在檢查所選文件...</string>
   <string name="invalid_module">檔案不包含兼容的SWORD模組</string>
   <string name="module_already_installed">檔案包含已安裝的模組</string>
   <string name="install_zip_title">請稍等。正在載入Zip檔案。</string>
@@ -157,8 +194,16 @@
   <string name="rdg_plan_title">閱讀計劃</string>
   <string name="rdg_plan_selector_title">選擇閱讀計劃</string>
   <string name="rdg_plan_day">第 %s 天</string>
+  <string name="rdg_plan_set_start_date">設定開始日期...</string>
   <string name="done">完成</string>
   <string name="reset">重設</string>
+  <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
+  <string name="plan_name_y1ntpspr">新約、詩篇與箴言一年計劃</string>
+  <string name="plan_name_y1ot1nt1_chronological">按時序一年完成聖經</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">一年同時讀新、舊約</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">一年完成聖經</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne每日四章一年計劃</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章計劃</string>
   <!--Document context menu-->
   <string name="delete">刪除</string>
   <string name="delete_index">刪除索引</string>
@@ -167,14 +212,12 @@
   <string name="delete_search_index_doc">刪除 %s 的索引</string>
   <!--Verse context menu-->
   <string name="notes">注腳及參考</string>
-  <string name="copy">複製</string>
-  <string name="share_verse">分享</string>
+  <string name="verse_action_copy">複製</string>
   <string name="share_verse_subject">您的朋友與您分享了如下的聖經</string>
   <string name="compare_translations">譯本比較</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">在此開啟連結</string>
   <string name="open_link_in_new_window">在新視窗開啟連結</string>
-  <string name="open_link_in_main_window">在主視窗開啟連結</string>
   <string name="open_link_in_special_window">在特殊視窗開啟連結</string>
   <!--Bookmarks-->
   <string name="bookmarks">書籤</string>
@@ -313,13 +356,27 @@
   <string name="mynote_saved">我的筆記已儲存</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">備份及回復</string>
-  <string name="backup_success">我的筆記和書籤已儲存在SD卡的%s目錄中</string>
+  <string name="backup_modules">備份文件</string>
+  <string name="backup_app_database">備份程式資料庫</string>
+  <string name="restore_app_database">回復程式資料庫</string>
+  <string name="restore_confirmation">覆寫我的筆記、書籤、閱讀計劃及工作檢視嗎？</string>
+  <string name="restore_success">成功回復我的筆記、書籤、閱讀計劃及工作檢視</string>
+  <string name="loading_backup">正在從備份載入資料庫</string>
   <string name="error_no_backup_file">找不到備份檔案</string>
+  <string name="backup_modules_email_subject">And聖經模組備份</string>
+  <string name="backup_email_subject">And聖經資料庫備份</string>
+  <string name="backup_restore_title">回復來源</string>
+  <string name="backup_phone_storage">手機容量</string>
+  <string name="backup_manually">選擇檔案</string>
+  <string name="backup_backup_title">備份目的地</string>
+  <string name="backup_backup_message">以分享功能備份至手機或其他目的地 (電郵、Google Drive等)？</string>
+  <string name="backup_share">分享</string>
+  <string name="restore_modules">回復文件</string>
+  <string name="send_backup_file">傳送備份檔案</string>
+  <string name="backup_modules_title">選擇備份模組</string>
   <!--About-->
-  <string name="about_copyright">版權：%s</string>
-  <string name="about_version">版本：%s</string>
-  <string name="about_versification">章節分段：%s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">回報程式錯誤</string>
   <!--Document types-->
   <string name="doc_type_bible">聖經</string>
   <string name="doc_type_commentary">注釋</string>
@@ -334,13 +391,16 @@
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
+  <string name="please_wait">請稍候...</string>
   <string name="all">全部</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">編輯</string>
   <string name="watch_tutorial_video">觀看示範影片 (英文)</string>
+  <string name="verse_not_found">找不到節</string>
   <!--Errors-->
   <string name="report_error">發送報告</string>
   <string name="error_occurred">發生錯誤</string>
+  <string name="error_occurred_with_link">發生錯誤。%s</string>
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
@@ -349,5 +409,27 @@
   <string name="notification_channel_tts_status">文字轉語音</string>
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>
   <!--Workspaces-->
+  <string name="new_workspace">建立</string>
+  <string name="delete_workspace">移除</string>
+  <string name="workspace_number">工作檢視%d</string>
+  <string name="rename_workspace">重新命名</string>
+  <string name="workspace_selector_title">選擇工作檢視</string>
+  <string name="workspace_settings">設定...</string>
+  <string name="give_name_workspace">命名予新工作檢視</string>
+  <string name="save_and_exit">儲存</string>
+  <string name="workspace_save_changes">套用設定至工作檢視？</string>
+  <string name="copy_of_workspace">%s的複本</string>
+  <string name="copy_workspace_settings">複製設定...</string>
+  <string name="copy_settings_title">複製哪個設定？</string>
+  <string name="select_all">全選</string>
+  <string name="copy_settings_workspaces_title">複製設定至哪個工作檢視？</string>
+  <string name="reset_settings">重設</string>
+  <string name="workspace_dismiss">取消</string>
+  <string name="workspace_listing_with_current">%s(現時)</string>
   <!--Beta notice-->
+  <string name="beta_notice_dismiss">關閉</string>
+  <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
+  <!--History-->
+  <!--Uncategorized-->
+  <string name="close">關閉</string>
 </resources>

@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
   <string name="help_text">Veiksmams atlikti, spauskite MENIU mygtuką\n\n
@@ -59,13 +58,9 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="deuterocanonical">Apokrifai</string>
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
-  <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti atsisiųsti iš interneto arba sukurti vietoje.\n\nAtsisiuntimas yra žymiai greitesnis, o ir atsisiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų atsisiuntimui reikia interneto ryšio.\n</string>
   <string name="create_index_for">Paieškai reikalingas indeksas. \n\nSukurti  %s indeksą?</string>
   <string name="rebuild_index_for">Iš naujo sukurti %s indeksą?</string>
-  <string name="search_index_unavailable">Deja, indekso kūrimas įmanomas tik Android 5.0 (Lollipop) ir naujesniems įrenginiams. Parsisiųsti indeksus galima tik kai kuriems moduliams. </string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
-  <string name="index_download">Atsisiųsti</string>
-  <string name="index_not_available_for_download">Šio indekso negalima atsisiųsti.</string>
   <string name="index_create">Sukurti</string>
   <string name="rebuild_index">Perkurti indeksą</string>
   <string name="search_in">Ieškoti čia: %s</string>
@@ -121,7 +116,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Atverti nuorodas atskirame lange</string>
   <string name="prefs_open_links_in_special_window_summary">Greitesniai nuorodų ir Strongo peržiūrai</string>
-  <string name="prefs_text_size_pt_title">Šrifto nustatymai</string>
   <string name="prefs_text_size_summary">Nustatyti šrifto šeimą ir šrifto dydį</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
@@ -131,8 +125,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="reset_fontsize">Atstatyti</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leisti naudoti rankiniu būdu įdiegtus dokumentus iš jsword/sword katalogo arba vidinės atmintinės</string>
-  <string name="all_text_options_window_menutitle">Visi nustatymai tekstui...</string>
-  <string name="all_text_options_window_menutitle_alone">Teksto nustatymai...</string>
   <string name="text_options_window_menutitle">Teksto nustatymai</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
@@ -140,8 +132,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
   <string name="prefs_margin_size_mm_title">Paraščių dydis (%d/%d/%d mm)</string>
-  <string name="margin_size_mm">Paraštės: kairėje %d mm, dešinėje %d mm.
-        \nMaksimalus teksto plotis: %d mm.</string>
   <string name="prefs_advanced_settings_cat">Papildomi nustatymai</string>
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
@@ -154,9 +144,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="prefs_text_appearance_title">Išvaizda</string>
   <string name="prefs_justify_title">Abipusė teksto lygiuotė</string>
   <string name="prefs_justify_summary">Lygiuokite tekstą abiejose pusėse, t.y. kai kairys ir dešinys testo kraštas yra toje pačioje linijoje.</string>
-  <string name="pref_left_margin_label">Kairė paraštė</string>
-  <string name="pref_right_margin_label">Dešinė paraštė</string>
-  <string name="pref_maximum_width_of_text_label">Maksimalus teksto plotis</string>
   <string name="prefs_line_spacing_pt">Tarpai tarp eilučių %1.1fx</string>
   <string name="pref_font_family_label">Šrifto šeima</string>
   <string name="prefs_hyphenation_title">Kėlyba</string>
@@ -191,8 +178,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="windowMaximise">Išdidinti</string>
   <string name="windowMinimise">Sumažinti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
-  <string name="move_window">Perkelti į…</string>
-  <string name="move_window_to_position">Pozicija %s</string>
+  <string name="window_pin_mode">Prisegti</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
   <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
@@ -207,19 +193,14 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <!--Module download-->
   <string name="download">Atsisiųsti dokumentus</string>
   <string name="download_confirmation">Atsisiųsti Bibliją iš interneto?</string>
-  <string name="download_source_message">Dokumentai atsiunčiami iš\nhttp://www.crosswire.org\nir http://ibt.org.ru\nir http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Atsisiųsti</string>
   <string name="download_refreshing_book_list">Atnaujinamas dokumentų sąrašas</string>
   <string name="download_refresh_book_list_menu_item">Atnaujinti</string>
   <string name="error_downloading">Atsisiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
-  <string name="no_internet_connection">
-        Nepavyko prisijungti prie Crosswire modulių saugyklos.
-        Gali būti, kad serveris neveikia arba nėra interneto ryšio.
-        Vėliau bandykite dar kartą.
-    </string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
   <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
+  <string name="chooce_language_hint">Kalba</string>
   <!--Install zip file-->
   <string name="install_zip">Įkelti dokumentą iš zip</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
@@ -229,6 +210,8 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="invalid_module">Faile nėra SWORD modulio</string>
   <string name="module_already_installed">Faile esantis SWORD modulis jau yra įdiegtas</string>
   <string name="install_zip_title">Prašome palaukti. Įkeliamas Zip failas.</string>
+  <string name="overwrite_files">Šie failai jau yra: %s Perrašyti?</string>
+  <string name="overwrite_files_title">Perrašyti failus?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
@@ -286,8 +269,7 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="delete_search_index_doc">Pašalinti %s indeksą?</string>
   <!--Verse context menu-->
   <string name="notes">Išnašos ir nuorodos</string>
-  <string name="copy">Kopijuoti</string>
-  <string name="share_verse">Dalintis…</string>
+  <string name="verse_action_copy">Kopijuoti</string>
   <string name="share_verse_subject">Su jumis pasidalinta Biblijos eilute per programą And Bible</string>
   <string name="compare_translations">Lyginti vertimus</string>
   <!--Link context menu-->
@@ -428,19 +410,15 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="mynote_saved">Mano pastaba išsaugota</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
-  <string name="backup">Daryti atsarginę kopiją į…</string>
-  <string name="restore">Atkurti iš…</string>
   <string name="restore_confirmation">Perrašyti Mano pastabas, Žymes, Skaitymo planus ir Darbo sritis?</string>
   <string name="restore_success">Mano pastabos, Žymės, Skaitymo planai ir Darbo sritys sėkmingai atkurtos</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="backup_email_subject">And Bible duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message">Jūsų And Bible duomenų bazė su pridėtomis žymelėmis, pastabomis, skaitymo planais ir darbo sritimis</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
-  <!--About-->
-  <string name="about_copyright">Autorinės teisės: %s</string>
-  <string name="about_version">Versija: %s</string>
-  <string name="about_versification">Versijavimas: %s</string>
+  <string name="backup_restore_title">Iš kur atkurti?</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
+  <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Pranešti apie klaidą</string>
   <string name="report_bug_email_subject">Pranešimas apie klaidą And Bible %s</string>
@@ -492,7 +470,6 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="notification_channel_progress_status">Eigos būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nauja</string>
-  <string name="switch_to_workspace">Darbo sritys…</string>
   <string name="delete_workspace">Šalinti</string>
   <string name="new_copied_workspace">Kopijuoti kaip naują</string>
   <string name="workspace_number">Darbo sritis %d</string>
@@ -501,7 +478,6 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="workspace_settings">Nuostatos…</string>
   <string name="give_name_workspace">Priskirkite naujam darbalaukiui pavadinimą</string>
   <string name="save_and_exit">Išsaugoti</string>
-  <string name="current_workspace">dabartinis</string>
   <string name="workspace_save_changes">Darbalaukiui pritaikyti pakeitimus?</string>
   <string name="copy_of_workspace">%s kopija</string>
   <string name="copy_workspace_settings">Kopijuoti nustatymus</string>
@@ -510,6 +486,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="copy_settings_workspaces_title">Į kuriuos darbalaukius kopijuoti nustatymus?</string>
   <string name="reset_settings">Atstatyti</string>
   <string name="workspace_dismiss">Atšaukti</string>
+  <string name="workspace_listing_with_current">%s (dabartinė)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Tai yra beta versija!</string>
   <string name="beta_notice_content_1">
@@ -530,6 +507,6 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
   <!--History-->
   <string name="history_for">Istorija (%s: Langas %d)</string>
-  <string name="window_pin_mode">Prisegti</string>
+  <!--Uncategorized-->
   <string name="close">Užverti</string>
 </resources>
