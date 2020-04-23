@@ -137,9 +137,7 @@ open class WindowRepository @Inject constructor(
 
     val visibleWindows get() =
         if(isMaximized) {
-            val windows = mutableListOf(getWindow(maximizedWindowId)!!)
-            addLinksWindow(windows)
-            windows
+            listOf(getWindow(maximizedWindowId)!!)
         }
         else getWindows(WindowState.SPLIT)
 

@@ -66,7 +66,7 @@ open class WindowControl @Inject constructor(
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
     fun windowPosition(windowId: Long) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
-    val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty()
+    val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
         eventManager.register(this)

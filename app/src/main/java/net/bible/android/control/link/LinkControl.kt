@@ -256,6 +256,7 @@ class LinkControl @Inject constructor(
     }
 
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
+        if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
             WINDOW_MODE_SPECIAL -> true
             WINDOW_MODE_THIS -> false
