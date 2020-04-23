@@ -309,6 +309,10 @@ open class WindowControl @Inject constructor(
         eventManager.post(NumberOfWindowsChangedEvent())
     }
 
+    fun hasMoveItems(window: Window): Boolean {
+        return windowRepository.windowList.filter {it.isPinMode == window.isPinMode}.size > 1
+    }
+
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
         const val TAG = "WindowControl"

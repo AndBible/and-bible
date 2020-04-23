@@ -625,7 +625,7 @@ class SplitBibleArea(
                 visible = !window.isLinksWindow && !isMaximised && !windowRepository.windowBehaviorSettings.autoPin
             )
             R.id.moveWindowSubMenu -> SubMenuPreference(false,
-                visible = !window.isLinksWindow && !isMaximised
+                visible = !window.isLinksWindow && !isMaximised && windowControl.hasMoveItems(window)
             )
             R.id.textOptionsSubMenu -> SubMenuPreference(
                 onlyBibles = false,
