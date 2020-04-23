@@ -62,7 +62,7 @@ class BookmarkItemAdapter(
         val key = bookmarkControl.getBookmarkVerseKey(item)
         val book = item.speakBook
         if (isSpeak && book != null) {
-            view.verseText.text = context.getString(R.string.key_book_parenthesis, key, book.abbreviation)
+            view.verseText.text = context.getString(R.string.something_with_parenthesis, key, book.abbreviation)
         } else {
             view.verseText.text = key
         }

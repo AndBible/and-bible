@@ -804,7 +804,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
         docs.forEachIndexed { i, book ->
             if(currentDocument != book) {
-                menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.menu_for_docs_listing, book.abbreviation, book.language.code))
+                menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
             }
         }
 

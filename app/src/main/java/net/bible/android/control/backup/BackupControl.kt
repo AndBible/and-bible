@@ -164,7 +164,7 @@ class BackupControl @Inject constructor() {
             result = suspendCoroutine {
                 val books = Books.installed().books.sortedBy { it.language }
                 val bookNames = books.map {
-                    context.getString(R.string.backup_modules_listing, it.name, it.language.code)
+                    context.getString(R.string.something_with_parenthesis, it.name, it.language.code)
                 }.toTypedArray()
 
                 val checkedItems = bookNames.map { false }.toBooleanArray()

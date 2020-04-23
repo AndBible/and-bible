@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!-- Application text
 
-TODO: error and download_document_confirm_prefix need to be parameterized rather than used for concatenation 
- 
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
@@ -252,6 +250,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="copy_settings">Copy settings to</string>
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %d (%s: %s)</string>
+    <string name="change_to_normal">Change to normal window</string>
 
     <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
@@ -283,6 +282,20 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="document_not_installed">Please download \'%s\'</string>
     <string name="free_text_search_documents">Search</string>
+    <string name="chooce_language_hint">Language</string>
+    <string name="one_more_back_press">One more pressing of back button will close app</string>
+    <string name="document_filter_results">%d documents</string>
+    <string name="download_question_title">Do you want to proceed to download documents?</string>
+    <string name="download_question_message">If you live in a persecuted country,
+        you might need to be careful about downloading christian material via Internet.
+        Instead, you might want to obtain module zip files more securely and install them
+        via "Load Documents From Zip". Are you sure you want to proceed with downloading?
+        All downloads from module repositories are encrypted (HTTPS).
+    </string>
+    <string name="do_not_ask_again">Yes, do not ask any more</string>
+    <string name="recommended_document">Recommended!</string>
+    <string name="about_version_history">Version history: %s</string>
+    <string name="download_failed">Failed to download %s</string>
 
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
@@ -546,6 +559,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_share">Share</string>
     <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
+    <string name="backup_modules_title">Select which modules to backup</string>
+    <string name="install_zip_canceled">Module install cancelled</string>
 
     <!-- About -->
     <string name="module_about_copyright">Copyright: %s</string>
@@ -631,6 +646,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
     <string name="reset_settings">Reset</string>
     <string name="workspace_dismiss">Dismiss</string>
+    <string name="workspace_listing_with_current">%s (current)</string>
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
@@ -655,28 +671,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="history_for">History (%s: Window %d)</string>
     <string name="window_pin_mode">Pin</string>
     <string name="close">Close</string>
-    <!-- Uncatogorized -->
 
-    <string name="backup_modules_title">Select which modules to backup</string>
-    <string name="key_book_parenthesis">\"%s (%s)\"</string>
-    <string name="chooce_language_hint">Language</string>
-    <string name="one_more_back_press">One more pressing of back button will close app</string>
-    <string name="document_filter_results">%d documents</string>
-    <string name="backup_modules_listing">%s (%s)</string>
-    <string name="menu_for_docs_listing">%s (%s)</string>
-    <string name="workspace_listing_with_current">%s (current)</string>
-    <string name="install_zip_canceled">Module install cancelled</string>
-    <string name="download_question_title">Do you want to proceed to download documents?</string>
-    <string name="download_question_message">If you live in a persecuted country,
-        you might need to be careful about downloading christian material via Internet.
-        Instead, you might want to obtain module zip files more securely and install them
-        via "Load Documents From Zip". Are you sure you want to proceed with downloading?
-        All downloads from module repositories are encrypted (HTTPS).
-    </string>
-    <string name="do_not_ask_again">Yes, do not ask any more</string>
-    <string name="bible_name_with_versification">%s (%s)</string>
-    <string name="recommended_document">Recommended!</string>
-    <string name="about_version_history">Version history: %s</string>
-    <string name="change_to_normal">Change to normal window</string>
-    <string name="download_failed">Failed to download %s</string>
+    <!-- Uncategorized -->
+    <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

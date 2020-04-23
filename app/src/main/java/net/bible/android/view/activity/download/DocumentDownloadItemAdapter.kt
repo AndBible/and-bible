@@ -76,7 +76,7 @@ class DocumentDownloadItemAdapter(
                 val bible = document
                 // display v11n name if not KJV
                 if (SystemKJV.V11N_NAME != bible.versification.name) {
-                    name = context.getString(R.string.bible_name_with_versification, name, bible.versification.name)
+                    name = context.getString(R.string.something_with_parenthesis, name, bible.versification.name)
                 }
             }
             view.documentName.text = name
