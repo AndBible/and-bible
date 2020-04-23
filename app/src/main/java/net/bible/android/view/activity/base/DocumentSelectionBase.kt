@@ -355,7 +355,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                             Log.d(TAG, "filtering documents")
                             displayedDocuments.clear()
                             val lang = selectedLanguage
-                            val searchString = "*${freeTextSearch.text}*"
+                            val searchString = "${freeTextSearch.text}*"
                             val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
                             for (doc in allDocuments) {
