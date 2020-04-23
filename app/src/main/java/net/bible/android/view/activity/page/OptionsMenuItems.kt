@@ -347,7 +347,7 @@ class WindowPinningPreference :
         }
 
     override fun handle() {
-        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
+        mainBibleActivity.windowControl.autoPinChanged()
     }
 
     override val isBoolean = true

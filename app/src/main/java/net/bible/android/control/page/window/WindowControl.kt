@@ -20,6 +20,7 @@ package net.bible.android.control.page.window
 
 import android.util.Log
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -311,6 +312,16 @@ open class WindowControl @Inject constructor(
 
     fun hasMoveItems(window: Window): Boolean {
         return windowRepository.windowList.filter {it.isPinMode == window.isPinMode}.size > 1
+    }
+
+    fun autoPinChanged() {
+        val unpinnedWindows = windowRepository.windowList.filter {!it.isPinMode}
+        if(unpinnedWindows.size > 1) {
+            for (i in 1 until unpinnedWindows.size) {
+                windowRepository.minimise(unpinnedWindows[i])
+            }
+        }
+        ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
     }
 
     companion object {
