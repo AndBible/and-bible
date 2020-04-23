@@ -123,9 +123,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     private fun doGotoDownloadActivity() {
         var errorMessage: String? = null
-        if (!CommonUtils.isInternetAvailable) {
-            errorMessage = getString(R.string.no_internet_connection)
-        } else if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+
+        if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             errorMessage = getString(R.string.storage_space_warning)
         }
 

@@ -247,9 +247,6 @@ public class SearchControl {
     	try {
         	if (CommonUtils.INSTANCE.getMegabytesFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             	Dialogs.Companion.getInstance().showErrorMsg(R.string.storage_space_warning);
-        	} else if (!CommonUtils.INSTANCE.isInternetAvailable()) {
-            	Dialogs.Companion.getInstance().showErrorMsg(R.string.no_internet_connection);
-            	ok = false;
         	} else {
 		        
 		        if (swordDocumentFacade.isIndexDownloadAvailable(book)) {
