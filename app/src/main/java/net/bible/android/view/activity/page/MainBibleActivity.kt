@@ -217,10 +217,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        }
-
         // This is singleton so we can do this.
         mainBibleActivity = this
         ScreenSettings.refreshNightMode()

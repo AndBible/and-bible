@@ -112,9 +112,7 @@ class SplitBibleArea(
     private var lastSplitVertically: Boolean = isSplitVertically
     private val orientationChanges get() = lastSplitVertically != isSplitVertically
     private var bibleReferenceOverlay = TextView(context).apply {
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            setBackgroundResource(R.drawable.bible_reference_overlay)
-        }
+        setBackgroundResource(R.drawable.bible_reference_overlay)
         visibility = View.GONE
         ellipsize = TextUtils.TruncateAt.MIDDLE
         setLines(1)

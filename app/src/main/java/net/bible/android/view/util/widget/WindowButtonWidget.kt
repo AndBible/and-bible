@@ -87,34 +87,20 @@ class WindowButtonWidget(
         else {
             window?.id == windowControl.activeWindow.id && !isMaximised
         }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            if(isRestoreButton) {
-                windowButton.setBackgroundResource(
-                    when {
-                        isActive -> R.drawable.bar_window_button_active
-                        isWindowVisible -> R.drawable.bar_window_button_visible
-                        else -> R.drawable.bar_window_button
-                    })
-            } else {
-                windowButton.setBackgroundResource(
-                    when {
-                        isActive -> R.drawable.window_button_active
-                        isWindowVisible -> R.drawable.window_button_visible
-                        else -> R.drawable.window_button
-                    })
-            }
-        } else {
-            val activeColor = getResourceColor(R.color.window_button_background_colour_active)
-            val visibleColor = getResourceColor(R.color.window_button_background_colour_visible)
-            val defaultColor = getResourceColor(R.color.window_button_background_colour)
-
-            windowButton.setBackgroundColor(
+        if(isRestoreButton) {
+            windowButton.setBackgroundResource(
                 when {
-                    isActive -> activeColor
-                    isWindowVisible -> visibleColor
-                    else -> defaultColor
-                }
-            )
+                    isActive -> R.drawable.bar_window_button_active
+                    isWindowVisible -> R.drawable.bar_window_button_visible
+                    else -> R.drawable.bar_window_button
+                })
+        } else {
+            windowButton.setBackgroundResource(
+                when {
+                    isActive -> R.drawable.window_button_active
+                    isWindowVisible -> R.drawable.window_button_visible
+                    else -> R.drawable.window_button
+                })
         }
         if(isRestoreButton) {
             buttonText.textSize = 13.0f

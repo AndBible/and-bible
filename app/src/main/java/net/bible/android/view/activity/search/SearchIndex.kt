@@ -66,18 +66,10 @@ class SearchIndex : CustomTitlebarActivityBase() {
         Log.i(TAG, "Displaying SearchIndex view")
         setContentView(R.layout.search_index)
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            createButton.isEnabled = false
-            indexCreationRequired.text = getString(R.string.index_creation_required) +
-                "\n" + getString(R.string.search_index_unavailable)
-        } else {
-            val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
-            indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
-            createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
-            downloadButton.visibility = View.INVISIBLE
-
-        }
-
+        val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
+        indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
+        createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
+        downloadButton.visibility = View.INVISIBLE
 
         Log.d(TAG, "Finished displaying Search Index view")
     }

@@ -91,14 +91,6 @@ class Separator(
         setBackgroundResource(separatorResource)
     }
 
-    override fun setBackgroundResource(backgroundResource: Int) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            super.setBackgroundResource(backgroundResource)
-        } else {
-            setBackgroundColor(res.getColor(R.color.grey_500))
-        }
-    }
-
     override fun onDetachedFromWindow() {
         ABEventBus.getDefault().unregister(this)
         super.onDetachedFromWindow()
