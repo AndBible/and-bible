@@ -96,13 +96,18 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
         .css("--noise-opacity", noiseOpacity/100)
         .css("--line-spacing", `${lineSpacing/10}em`)
         .css("--text-align", justifyText? "justify" : "left");
+    const content = $("#content")
 
-    $("#content")
-        .css('margin-left', `${marginLeft}mm`)
-        .css('margin-right', `${marginRight}mm`)
+    content
         .css("max-width", `${maxWidth}mm`)
         .css("hyphens", hyphenation ? "auto": "none")
         .css("text-align", justifyText? "justify" : "left");
+
+    if(marginLeft || marginRight) {
+        content
+            .css('margin-left', `${marginLeft}mm`)
+            .css('margin-right', `${marginRight}mm`)
+    }
 
     $("body")
         .css("color", textColor)

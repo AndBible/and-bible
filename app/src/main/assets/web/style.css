@@ -38,8 +38,9 @@ body:after {
 
 div#content {
 	max-width: var(--max-width);
-	display: inline-block;
 	text-align: var(--text-align);
+	margin-left: auto;
+	margin-right: auto;
 	hyphens: var(--hyphens);
 }
 
