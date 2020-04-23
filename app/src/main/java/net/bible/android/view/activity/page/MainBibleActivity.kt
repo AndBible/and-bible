@@ -704,11 +704,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             strongsButton.alpha = 1.0F
     }
 
+    private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
+
     override fun updateActions() {
         updateTitle()
-
-        val biblesForVerse = documentControl.biblesForVerse
-        val commentariesForVerse = documentControl.commentariesForVerse
+        val biblesForVerse = documentControl.biblesForVerse.filter {currentDocument != it}
+        val commentariesForVerse = documentControl.commentariesForVerse.filter {currentDocument != it}
 
         var visibleButtonCount = 0
         val screenWidth = resources.displayMetrics.widthPixels
@@ -804,16 +805,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val menu = PopupMenu(this, v)
         val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
         docs.forEachIndexed { i, book ->
-            if(windowControl.activeWindow.pageManager.currentPage.currentDocument != book) {
+            if(currentDocument != book) {
                 menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.menu_for_docs_listing, book.abbreviation, book.language.code))
             }
         }
 
-        menu.setOnMenuItemClickListener { item ->
-            setCurrentDocument(docs[item.itemId])
-            true
+        if (docs.size == 1) {
+            setCurrentDocument(docs[0])
+        } else {
+            menu.setOnMenuItemClickListener { item ->
+                setCurrentDocument(docs[item.itemId])
+                true
+            }
+            menu.show()
         }
-        menu.show()
         return true
     }
 
