@@ -566,12 +566,17 @@ class SplitBibleArea(
         inflater.inflate(R.menu.window_popup_menu, menu)
 
         val moveWindowsSubMenu = menu.findItem(R.id.moveWindowSubMenu).subMenu
-
         moveWindowsSubMenu.removeItem(R.id.moveItem)
 
         var count = 0
 
         val oldValue = BookName.isFullBookName()
+
+        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
+        textOptionsSubMenu.removeItem(R.id.textOptionItem)
+
+        val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
+        copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
 
         BookName.setFullBookName(false)
         val windowList = windowRepository.windowList.filter {it.isPinMode == window.isPinMode}
@@ -579,16 +584,25 @@ class SplitBibleArea(
         windowList.forEach {
             if(it.id != window.id) {
                 val p = it.pageManager.currentPage
-                val title = BibleApplication.application.getString(R.string.move_window_to_position, "${count + 1} (${p.currentDocument?.abbreviation}: ${p.key?.name})")
-                val item = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, title)
-                item.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+                val moveWindowTitle = BibleApplication.application.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
+                moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
             }
             count ++;
         }
-        BookName.setFullBookName(oldValue)
 
-        val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
-        textOptionsSubMenu.removeItem(R.id.textOptionItem)
+        val windowList2 = windowRepository.windowList
+        count = 0
+        windowList2.forEach {
+            if(it.id != window.id) {
+                val p = it.pageManager.currentPage
+                val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, count, copySettingsTitle)
+            }
+            count ++;
+        }
+
+        BookName.setFullBookName(oldValue)
 
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {
@@ -707,7 +721,13 @@ class SplitBibleArea(
                 visible = !window.isLinksWindow
             )
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettings[item.order])
-
+            R.id.copySettingsTo -> SubMenuPreference()
+            R.id.copySettingsToWorkspace -> CommandPreference({_, _, _ ->
+                windowControl.copySettingsToWorkspace(window)
+            })
+            R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
+                windowControl.copySettingsToWindow(window, item.order)
+            })
             else -> throw RuntimeException("Illegal menu item")
         }
     }

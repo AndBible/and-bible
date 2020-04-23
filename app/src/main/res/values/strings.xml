@@ -250,7 +250,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="windowMinimise">Minimise</string>
     <string name="windowSynchronise">Synchronise</string>
     <string name="move_window">Move to…</string>
-    <string name="move_window_to_position">Position %s</string>
+    <string name="move_window_to_position2">Position %d (%s:%s)</string>
 
     <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
@@ -677,4 +677,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
     <string name="change_to_normal">Change to normal window</string>
+    <string name="copy_settings">Copy settings to…</string>
+    <string name="copy_settings_to_workspace">Workspace</string>
+    <string name="copy_settings_to_window">Window %d (%s:%s)</string>
 </resources>

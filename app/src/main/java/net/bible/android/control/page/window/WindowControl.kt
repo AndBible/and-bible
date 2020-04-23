@@ -320,6 +320,17 @@ open class WindowControl @Inject constructor(
         ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
     }
 
+    fun copySettingsToWorkspace(window: Window) {
+        windowRepository.textDisplaySettings = window.pageManager.textDisplaySettings.copy()
+        windowRepository.updateVisibleWindowsTextDisplaySettings()
+    }
+
+    fun copySettingsToWindow(window: Window, order: Int) {
+        val secondWindow = windowRepository.windowList[order]
+        secondWindow.pageManager.textDisplaySettings = window.pageManager.textDisplaySettings.copy()
+        secondWindow.bibleView?.updateTextDisplaySettings()
+    }
+
     companion object {
         var SCREEN_SETTLE_TIME_MILLIS = 1000
         const val TAG = "WindowControl"
