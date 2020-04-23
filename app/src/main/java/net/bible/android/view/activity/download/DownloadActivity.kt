@@ -33,6 +33,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
@@ -209,7 +210,9 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     }
 
     protected fun manageDownload(documentToDownload: Book?) {
-        if (documentToDownload != null) {
+        if (documentToDownload != null
+            && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus
+            != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED) {
             AlertDialog.Builder(this)
                 .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
                 .setCancelable(false)
