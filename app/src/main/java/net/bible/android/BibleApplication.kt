@@ -18,6 +18,7 @@
 
 package net.bible.android
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
@@ -27,7 +28,6 @@ import android.util.Log
 import android.widget.Toast
 
 import androidx.annotation.RequiresApi
-import androidx.multidex.MultiDexApplication
 
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
@@ -49,7 +49,7 @@ import java.util.Locale
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-open class BibleApplication : MultiDexApplication() {
+open class BibleApplication : Application() {
     init {
         // save to a singleton to allow easy access from anywhere
         application = this
