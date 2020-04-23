@@ -30,7 +30,8 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
 {
     override val isLinksWindow = true
     override var isSynchronised = false
-    override var isPinMode: Boolean = false
+    override var isPinMode: Boolean = true
+        get() = windowRepository.windowBehaviorSettings.autoPin
 
     /**
      * Page state should reflect active window when links window is being used after being closed.
@@ -47,7 +48,7 @@ class LinksWindow(window: WorkspaceEntities.Window, pageManager: CurrentPageMana
     fun restoreFrom(windowEntity: WorkspaceEntities.Window,
                     pageManagerEntity: WorkspaceEntities.PageManager?,
                     workspaceTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-                    )
+    )
     {
         id = windowEntity.id
         workspaceId = windowEntity.workspaceId
