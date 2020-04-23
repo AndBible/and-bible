@@ -29,7 +29,7 @@
         android:orientation="vertical"
         >
     </LinearLayout>
-    <HorizontalScrollView
+    <net.bible.android.view.activity.page.screen.LockableHorizontalScrollView
         android:id="@+id/restoreButtonsContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -73,5 +73,5 @@
                 app:layout_constraintRight_toRightOf="parent"
                 />
         </LinearLayout>
-    </HorizontalScrollView>
+    </net.bible.android.view.activity.page.screen.LockableHorizontalScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

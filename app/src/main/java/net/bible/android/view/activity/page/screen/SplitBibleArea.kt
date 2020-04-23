@@ -23,16 +23,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.text.TextUtils
+import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
@@ -72,6 +75,20 @@ import kotlin.math.max
 
 internal val isSplitVertically get() = CommonUtils.isSplitVertically
 
+class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet):
+    HorizontalScrollView(context, attributeSet) {
+    var isScrollable: Boolean = true
+    override fun onTouchEvent(ev: MotionEvent): Boolean {
+        return when(ev.action) {
+            MotionEvent.ACTION_DOWN -> isScrollable && super.onTouchEvent(ev)
+            else -> super.onTouchEvent(ev)
+        }
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        return isScrollable && super.onInterceptTouchEvent(ev)
+    }
+}
 
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(
@@ -425,8 +442,11 @@ class SplitBibleArea(
                     (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
 
         if(restoreButtonsVisible) {
+            restoreButtonsContainer.isScrollable = true
             hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_right_black_24dp)
         }  else {
+            restoreButtonsContainer.scrollX = 0
+            restoreButtonsContainer.isScrollable = false
             hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_left_black_24dp)
         }
         restoreButtonsContainer.animate()
