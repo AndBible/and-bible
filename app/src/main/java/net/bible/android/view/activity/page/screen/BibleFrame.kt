@@ -134,7 +134,7 @@ class BibleFrame(
 
     private fun createSingleWindowButton(window: Window): WindowButtonWidget {
         return createTextButton("⊕",
-            { v -> windowControl.addNewWindow()},
+            { v -> windowControl.addNewWindow(window)},
             { v -> false},
             window
         )

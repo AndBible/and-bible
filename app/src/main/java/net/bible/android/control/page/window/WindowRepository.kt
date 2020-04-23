@@ -153,7 +153,7 @@ open class WindowRepository @Inject constructor(
     val lastVisibleWindow: Window get() = visibleWindows.last()
 
     private fun getDefaultActiveWindow() =
-        windows.find { it.isVisible } ?: createNewWindow(true)
+        windows.find { it.isVisible } ?: createNewWindow(null, true)
 
     private fun setDefaultActiveWindow(): Window {
         val newWindow = getDefaultActiveWindow()
@@ -171,9 +171,9 @@ open class WindowRepository @Inject constructor(
 
     fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
 
-    fun addNewWindow(): Window {
-        val newWindow = createNewWindow()
-        newWindow.weight = activeWindow.weight
+    fun addNewWindow(sourceWindow: Window? = null): Window {
+        val newWindow = createNewWindow(sourceWindow)
+        newWindow.weight = (sourceWindow?: activeWindow).weight
 
         activeWindow.windowState = WindowState.SPLIT
 
@@ -244,10 +244,11 @@ open class WindowRepository @Inject constructor(
         this.windowList.addAll(unPinnedWindows)
     }
 
-    private fun createNewWindow(first: Boolean = false): Window {
+    private fun createNewWindow(sourceWindow: Window?, first: Boolean = false): Window {
+        val sourceWindow = sourceWindow?: activeWindow
         val pageManager = currentPageManagerProvider.get()
         val winEntity = (
-            if(initialized) activeWindow.entity.copy()
+            if(initialized) sourceWindow.entity.copy()
             else WorkspaceEntities.Window(
                 isLinksWindow = false,
                 isPinMode = false,
@@ -261,10 +262,14 @@ open class WindowRepository @Inject constructor(
 
         val newWindow = Window(winEntity, pageManager, this)
         if(initialized) {
-            pageManager.restoreFrom(activeWindow.pageManager.entity)
+            pageManager.restoreFrom(sourceWindow.pageManager.entity)
         }
         dao.insertPageManager(pageManager.entity)
-        windowList.add(if(first) 0 else windowList.indexOf(activeWindow) + 1, newWindow)
+        val pos =
+            if(first) 0
+            else if(sourceWindow.isLinksWindow) windowList.size
+            else windowList.indexOf(sourceWindow) + 1
+        windowList.add(pos, newWindow)
         return newWindow
     }
 

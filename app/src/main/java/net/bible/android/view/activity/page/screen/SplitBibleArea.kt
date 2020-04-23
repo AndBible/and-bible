@@ -611,8 +611,8 @@ class SplitBibleArea(
         return when(item.itemId) {
 
             R.id.windowNew -> CommandPreference(
-                launch = {_, _, _ -> windowControl.addNewWindow()},
-                visible = !window.isLinksWindow && !window.isMinimised && !isMaximised
+                launch = {_, _, _ -> windowControl.addNewWindow(window)},
+                visible = !isMaximised
             )
             R.id.windowSynchronise -> CommandPreference(
                 handle = {windowControl.setSynchronised(window, !window.isSynchronised)},

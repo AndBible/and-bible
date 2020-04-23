@@ -125,8 +125,8 @@ open class WindowControl @Inject constructor(
     }
 
 
-    fun addNewWindow(): Window {
-        val window = windowRepository.addNewWindow()
+    fun addNewWindow(sourceWindow: Window): Window {
+        val window = windowRepository.addNewWindow(sourceWindow)
 
         restoreWindow(window, true)
 
