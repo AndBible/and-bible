@@ -90,14 +90,18 @@ class WindowButtonWidget(
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             if(isRestoreButton) {
                 windowButton.setBackgroundResource(
-                    if (isActive) R.drawable.bar_window_button_active
-                    else if (isWindowVisible) R.drawable.bar_window_button_visible
-                    else R.drawable.bar_window_button)
+                    when {
+                        isActive -> R.drawable.bar_window_button_active
+                        isWindowVisible -> R.drawable.bar_window_button_visible
+                        else -> R.drawable.bar_window_button
+                    })
             } else {
                 windowButton.setBackgroundResource(
-                    if (isActive) R.drawable.window_button_active
-                    else if (isWindowVisible) R.drawable.window_button_visible
-                    else R.drawable.window_button)
+                    when {
+                        isActive -> R.drawable.window_button_active
+                        isWindowVisible -> R.drawable.window_button_visible
+                        else -> R.drawable.window_button
+                    })
             }
         } else {
             val activeColor = getResourceColor(R.color.window_button_background_colour_active)
@@ -105,9 +109,11 @@ class WindowButtonWidget(
             val defaultColor = getResourceColor(R.color.window_button_background_colour)
 
             windowButton.setBackgroundColor(
-                if (isActive) activeColor
-                else if (isWindowVisible) visibleColor
-                else defaultColor
+                when {
+                    isActive -> activeColor
+                    isWindowVisible -> visibleColor
+                    else -> defaultColor
+                }
             )
         }
         if(isRestoreButton) {

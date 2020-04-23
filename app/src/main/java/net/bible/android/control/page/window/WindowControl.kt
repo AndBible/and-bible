@@ -28,7 +28,6 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
@@ -107,10 +106,7 @@ open class WindowControl @Inject constructor(
 
         linksWindow.initialisePageStateIfClosed(activeWindow)
 
-        //TODO do not set links window active -  currently need to set links window to active
-        // window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.activeWindow = linksWindow
-
 
         // redisplay the current page
         if (!linksWindowWasVisible) {
@@ -210,8 +206,8 @@ open class WindowControl @Inject constructor(
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
 
-            activeWindow = window
             eventManager.post(NumberOfWindowsChangedEvent())
+            activeWindow = window
             window.restoreOngoing = false
         }
     }

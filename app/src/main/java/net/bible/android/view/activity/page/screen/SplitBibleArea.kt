@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Build
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -72,6 +73,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 internal val isSplitVertically get() = CommonUtils.isSplitVertically
 
@@ -158,6 +160,9 @@ class SplitBibleArea(
         updateWindows()
         addSeparators()
         rebuildRestoreButtons()
+        post {
+            ensureRestoreButtonVisible()
+        }
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
@@ -372,6 +377,16 @@ class SplitBibleArea(
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
         updateBibleReference()
+        ensureRestoreButtonVisible()
+    }
+
+    private fun ensureRestoreButtonVisible() {
+        val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
+        if(restoreButton != null && restoreButtonsVisible &&
+            !restoreButton.getLocalVisibleRect(Rect().apply { getHitRect(this) }))
+        {
+            restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+        }
     }
 
     private var sleepTimer: Timer = Timer("TTS sleep timer")
