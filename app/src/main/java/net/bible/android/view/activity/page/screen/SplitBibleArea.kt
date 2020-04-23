@@ -272,6 +272,11 @@ class SplitBibleArea(
         separator.view2LayoutParams = frame.layoutParams as LinearLayout.LayoutParams
     }
 
+    internal val hideWindowButtons get() =
+        CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+    internal val autoHideWindowButtonBarInFullScreen get() =
+        CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
+
     private fun rebuildRestoreButtons() {
         Log.d(TAG, "rebuildRestoreButtons")
         restoreButtonsList.clear()
@@ -287,7 +292,6 @@ class SplitBibleArea(
             return
         }
 
-        val hideWindowButtons = CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
 
         if(windowControl.isSingleWindow && !hideWindowButtons) return
 
@@ -314,7 +318,8 @@ class SplitBibleArea(
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        restoreButtonsVisible = !event.isFullScreen
+        if(autoHideWindowButtonBarInFullScreen)
+            restoreButtonsVisible = !event.isFullScreen
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {

@@ -222,6 +222,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
     <string name="font_size_title">Font size</string>
 
+    <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
+    <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
+
     <!-- Colors preferences -->
     <string name="prefs_text_colors_menutitle">Color settings</string>
     <string name="window_color_settings_title">Window color settings</string>

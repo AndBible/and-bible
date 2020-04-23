@@ -25,6 +25,11 @@
 			android:summary="@string/auto_fullscreen_summary"
 			android:defaultValue="false"
 			/>
+		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
+			android:title="@string/full_screen_hide_buttons_pref_title"
+			android:summary="@string/full_screen_hide_buttons_pref_summary"
+			android:defaultValue="true"
+			/>
 		<SwitchPreferenceCompat android:key="hide_window_buttons"
 			android:title="@string/hide_window_buttons_title"
 			android:summary="@string/hide_window_buttons_summary"
