@@ -40,7 +40,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="speak">Puhe</string>
   <string name="help">Ohje</string>
   <string name="other">Muita</string>
-  <string name="help_and_tips">Ohjeita /amp; vinkkejä</string>
+  <string name="help_and_tips">Ohjeita &amp; vinkkejä</string>
   <string name="administration">Ylläpito</string>
   <string name="rate_application">Arvioi &amp; arvostele Google Playssa</string>
   <string name="chooce_document">Valitse teos</string>
