@@ -1,14 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3</string>
-  <string name="help_text">Naciśnij przycisk MENU, aby wyświetlić menu główne\n\n
-Aby przejść do poprzedniego lub następnego rozdziału, użyj trackballa, pada kierunkowego lub przesuń palcem po ekranie</string>
   <string name="help_nav_title">Nawigacja</string>
-  <string name="help_nav_text">Przesuń palcem po ekranie, aby przejść do następnego lub poprzedniego rozdziału.
-Stuknij dwukrotnie, aby przełączyć tryb pełnego ekranu. W prawym górnym rogu każdego okna Biblii znajduje się przycisk menu; przytrzymaj dłużej menu okna, aby wyświetlić menu okna.</string>
-  <string name="help_speech_title">Odtwarzaj</string>
-  <string name="help_speech_text">Wciśnij „odtwarzaj”, aby wyświetlić okno umożliwiające rozpoczęcie/wstrzymanie czytania na głos</string>
+  <string name="help_contextmenus_title">Menu kontekstowe</string>
   <string name="help_mynote_title">Moje notatki</string>
   <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
 Lista istniejących notatek dostępna jest poprzez menu główne.</string>
@@ -23,16 +17,6 @@ Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
   <string name="help_workspaces_text">
 Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
   <string name="help_hidden_features_title">Skróty</string>
-  <string name="help_hidden_features_text">
-Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
-Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
-Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
-Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.</string>
-  <string name="help_contextmenus_title">Menu kontekstowe</string>
-  <string name="help_contextmenus_text">
-Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić menu kontekstowe dla czynności związanych z obecnym wersetem.
-Naciśnij i przytrzymaj dokument w widoku wybory dokumentów, aby go usunąć lub wyświetlić jego właściwości.
-Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
   <!--Main menu-->
@@ -191,7 +175,6 @@ Naciśnij i przytrzymaj przycisk cofnij, aby wyświetlić widok historii.</strin
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <!--Module download-->
   <string name="download">Pobierz moduł</string>
-  <string name="download_confirmation">Pobrać moduł z Internetu?</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
   <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>

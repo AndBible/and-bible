@@ -3,15 +3,8 @@
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name">Studi Biblion (And Biblio)</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
-  <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\n
-Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
   <string name="help_nav_title">Navigi</string>
-  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon fingrumu ekranon.
-Duobla frapeto eniras/eliras plenekranon.
-Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu fenestron por montri ĝian menuon.</string>
-  <string name="help_speech_title">Parolo</string>
-  <string name="help_speech_text">Premu “paroli” por montri butonojn por komenci/haltigi aŭskultadon.</string>
+  <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
   <string name="help_mynote_title">Miaj notoj</string>
   <string name="help_mynote_text">Oni povas aldoni notojn per la funkcio “miaj notoj” en la kunteksta menuo de verso.
  La listo de ekzistaj notoj estas disponebla per la ĉefmenuo.</string>
@@ -26,16 +19,6 @@ Menu-butono de bibliaj fenestroj troviĝas ĉe supra dekstra angulo; frapetadu f
   <string name="help_workspaces_text">
 Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
   <string name="help_hidden_features_title">Gestoj</string>
-  <string name="help_hidden_features_text">
-Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
-Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
-Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
-Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.</string>
-  <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
-  <string name="help_contextmenus_text">
- Premtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
- Premtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
- Premtenu sur reen-butonon por aliri liston de historio.</string>
   <string name="help_window_pinning_title">Alpingli fenestron</string>
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
@@ -54,7 +37,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="help_and_tips">Helpo kaj konsiloj</string>
   <string name="administration">Administri</string>
   <string name="rate_application">Taksi kaj recenzi ĉe Google Play</string>
-  <string name="chooce_document">Elektu dokumenton</string>
+  <string name="chooce_document">Elekti dokumenton</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
   <string name="choosePassageChapterName">Elekti ĉapitron</string>
@@ -63,6 +46,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="deuterocanonical">Dua-kanonaj libroj</string>
   <!--Search-->
   <string name="search_index">Serĉ-indekso</string>
+  <string name="index_creation_required">Indekso estas necesa por serĉi.</string>
   <string name="create_index_for">Indekso estas necesa por serĉi.\n\nĈu krei indekson por %s?</string>
   <string name="rebuild_index_for">Ĉu rekrei indekson por %s?</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
@@ -130,9 +114,11 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="reset_fontsize">Reagordi</string>
   <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
   <string name="prefs_request_sdcard_permission_summary">Ebligi uzi permane instalitajn dokumentojn el la dosierujo jsword/sword en la interna konservejo</string>
+  <string name="all_text_options_window_menutitle">Ĉiuj tekstaj agordoj</string>
   <string name="text_options_window_menutitle">Tekstaj agordoj</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
   <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
+  <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
   <string name="prefs_margin_size_title">Ŝanĝi grandojn de marĝenoj</string>
@@ -149,6 +135,9 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="prefs_text_appearance_title">Aspekto</string>
   <string name="prefs_justify_title">Ĝisrandigi tekston ambaŭflanken</string>
   <string name="prefs_justify_summary">Ĝisrandigi tekston tiel, por ke maldekstra kaj dekstra marĝenoj estu egalaj</string>
+  <string name="pref_left_margin_label_mm">Maldekstra marĝeno (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Dekstra marĝeno (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maksimuma larĝo de teksto (%d mm)</string>
   <string name="prefs_line_spacing_pt">Interlinia distanco %1.1f×</string>
   <string name="pref_font_family_label">Tipara familio</string>
   <string name="prefs_hyphenation_title">Vortdivido</string>
@@ -160,8 +149,10 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="reset_are_you_sure">Ĉu vi certe volas agordi ĉion al implicitaj valoroj?</string>
   <string name="window_pinning_menutitle">Alpingli fenestron</string>
   <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
-  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de Biblia vido estas nun kaŝitaj. Fenestra navigadbreto ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
+  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de Biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
   <string name="font_size_title">Grando de tiparo</string>
+  <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
+  <string name="full_screen_hide_buttons_pref_summary">Kiam baskuli al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Agordoj pri koloroj</string>
   <string name="window_color_settings_title">Koloro de fenestroj</string>
@@ -183,6 +174,12 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="windowMaximise">Maksimumigi</string>
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
+  <string name="move_window">Movi al</string>
+  <string name="move_window_to_position2">Pozicio %d (%s:%s)</string>
+  <string name="copy_settings">Kopii agordojn al</string>
+  <string name="copy_settings_to_workspace">laborspaco</string>
+  <string name="copy_settings_to_window">fenestro %d (%s: %s)</string>
+  <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
@@ -197,7 +194,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="morph_robinson_not_installed">Bonvolu elŝuti la vortaron “Morfologiaj analizaj kodoj de Robinson”</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
-  <string name="download_confirmation">Ĉu elŝuti Biblion el la interreto?</string>
+  <string name="download_source_message">Dokumentoj estas elŝutataj el:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org kaj\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refreshing_book_list">Aktualigado de listo de disponeblaj dokumentoj</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
@@ -209,6 +206,12 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="chooce_language_hint">Lingvo</string>
   <string name="one_more_back_press">Premu denove aŭ premu REEN-butonon por fermi aplikaĵon.</string>
   <string name="document_filter_results">%d dokumentoj</string>
+  <string name="download_question_title">Ĉu vi vere volas elŝuti dokumentojn?</string>
+  <string name="download_question_message">Se vi loĝas en persekutanta lando, vi estu singarda pri elŝuti kristanajn materialojn per la interreto. Anstataŭ tio, vi povas akiri la zip-mudulon en pli sekura maniero kaj sekve instali ĝin uzante “ŝargi dokumenton el zip-dosiero”. Ĉu vi certe volas elŝuti dokumentojn? Ĉiuj elŝutoj el deponejoj estas ĉifrataj (HTTPS).</string>
+  <string name="do_not_ask_again">Jes, ne demandi denove</string>
+  <string name="recommended_document">Konsilinda!</string>
+  <string name="about_version_history">Historio de versio: %s</string>
+  <string name="download_failed">Fiaskis elŝuti %s</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
@@ -268,6 +271,7 @@ laŭ ilia permeso.</string>
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="verse_action_copy">Kopii</string>
+  <string name="share_verse">Kunhavigi…</string>
   <string name="share_verse_subject">Verso de Biblio kunhavigita per la aplikaĵo And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
@@ -406,6 +410,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn, legosignojn, legplanojn kaj laborspacojn?</string>
   <string name="restore_success">Sukcese restarigis miajn notojn, legosignojn, legplanojn kaj laborspacojn</string>
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
+  <string name="backup_success">Sukcese sekurkopiis miajn notojn, legosignojn, legplanojn kaj laborspacojn al %s.</string>
   <string name="error_no_backup_file">Ne trovis dosieron kun sekurkopio</string>
   <string name="backup_modules_email_subject">And Biblio: sekurkopio de moduloj</string>
   <string name="backup_modules_email_message">Datumbazo enhavanta la jenajn modulojn de la programo And Biblio: %s troviĝas en la kunsendaĵo</string>
@@ -422,7 +427,14 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="restore_modules">Restarigi dokumentojn el…</string>
   <string name="send_backup_file">Sendi dosieron de sekurkopio</string>
   <string name="backup_modules_title">Elekti modulojn por sekurkopii</string>
+  <string name="install_zip_canceled">Rezignis instali modulon</string>
   <!--About-->
+  <string name="module_about_copyright">Kopirajto: %s</string>
+  <string name="module_about_installed_version">Instalita versio: %s (%s)</string>
+  <string name="module_about_latest_version">Plej nova versio: %s (%s)</string>
+  <string name="module_about_versification">Versarto: %s</string>
+  <string name="module_about_repository">Deponejo: %s</string>
+  <string name="module_about_osisId">OSIS-identigilo: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Raporti eraron</string>
   <string name="report_bug_email_subject">Erar‑raporto pri And Biblio %s</string>
@@ -473,6 +485,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nova</string>
+  <string name="switch_to_workspace">Laborspacoj</string>
   <string name="delete_workspace">Forigi</string>
   <string name="new_copied_workspace">Duobligi</string>
   <string name="workspace_number">Laborspaco %d</string>
@@ -505,4 +518,5 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="history_for">Historio (%s: fenestro %d)</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

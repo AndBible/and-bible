@@ -1,16 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">Bybel Studie</string>
+  <string name="app_name">Bybel Studie (And Bible)</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\nGénesis 1:3\n\"En God het gesê: Laat daar lig wees, en daar was lig.\"\n \n</string>
-  <string name="help_text">Druk die knoppie KIESLYS vir aksies \n\n
-Gaan na die volgende of vorige hoofstuk deur die baanbal te gebruik,
-D-pad of sleep die skerm met jou vinger</string>
   <string name="help_nav_title">Navigasie</string>
-  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te sleep.
-Dubbelklik bybel teks om die volle skerm af te skakel. Bybelvensters het \'n Kieslys knoppie in die boonste regterhoek,
-en jy kan toegang tot die venster kieslys kry deur lank te druk.</string>
-  <string name="help_speech_title">Spraak</string>
-  <string name="help_speech_text">Druk Praat om toegang tot \'n dialoog te verkry, om te begin lees of te stop</string>
+  <string name="help_contextmenus_title">Konteks Kieslys</string>
   <string name="help_mynote_title">My Nota</string>
   <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
 Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
@@ -30,17 +24,15 @@ werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook v
 skakel na vorige / volgende werkruimte.
 </string>
   <string name="help_hidden_features_title">Verborge kortpaaie</string>
-  <string name="help_hidden_features_text">
-Swiep van die werkbalk af om die werkruimte-selector te wys. 
-Langklik op die vensterknoppie om vinnig te verminder.
- Langklik spreek balk knoppie om vinnig na praatinstellings te gaan.
-Langklik vers plek  se titel op die werkbalk om na die dokumente-keurder te gaan.</string>
-  <string name="help_contextmenus_title">Konteks Kieslys</string>
-  <string name="help_contextmenus_text">
-Druk lank op die Bybelbeskouing om die konteks kieslys oop te maak vir aksies wat die huidige vers raak.
-Druk lank op \'n dokument in die dokument selector om dit uit te vee of inligting te sien.
-Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
-</string>
+  <string name="help_window_pinning_title">Venster vaspen</string>
+  <string name="help_window_pinning_text">
+Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regs bo).
+As venster vasgespen ontsper is, kan jy baie vasgespende vensters in die Bybel aansig toon,
+maar slegs een nie-vasgespende vester.  Vasgespende vensters, word eerste vertoon en daarna
+on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde vensters, en
+ kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
+Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
+ander ekstra materiaal as jy die Bybel bestudeer.</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
   <!--Main menu-->
@@ -65,6 +57,7 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="deuterocanonical">Deuterokanonieke</string>
   <!--Search-->
   <string name="search_index">Soek Indeks</string>
+  <string name="index_creation_required">\'n Indeks is nodig om te soek.</string>
   <string name="create_index_for">\'n Indeks is nodig om te soek. \ n \ n Skep indeks vir %s?</string>
   <string name="rebuild_index_for">Herbou indeks vir %s?</string>
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
@@ -132,9 +125,11 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="reset_fontsize">Herstel</string>
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van dokumente wat met die hand geïnstalleer is, vanaf die jsword- / swaardmap op interne berging</string>
+  <string name="all_text_options_window_menutitle">Alle teks opsies</string>
   <string name="text_options_window_menutitle">Teks opsies</string>
   <string name="auto_fullscreen">Volskerm deur te blaai</string>
   <string name="reversed_split_mode">Omgekeerde verdeel modus</string>
+  <string name="add_ellipsis">%s ...</string>
   <string name="font_size_pt">%dpt</string>
   <string name="auto_fullscreen_summary">Skakel outomaties oor na volskerm wanneer u teks blaai. Wenk: u kan ook altyd oorskakel na die volledige skerm deur te dubbel klik op die skerm.</string>
   <string name="prefs_margin_size_title">Verander kantruimte grootte</string>
@@ -152,6 +147,9 @@ Druk lank op die Terug-knoppie om toegang tot die Geskiedenis lys te verkry.
   <string name="prefs_text_appearance_title">Voorkoms</string>
   <string name="prefs_justify_title">teksformaat-lyn teks</string>
   <string name="prefs_justify_summary">Belyn teks in \'teksformaat\' -styl, wat beteken dat linker en regter kantruimte teks ooreenstem</string>
+  <string name="pref_left_margin_label_mm">Linger kant (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Regter kant (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maksimum breedte van teks (%d mm)</string>
   <string name="prefs_line_spacing_pt">Lyn spasiëring %1.1fx</string>
   <string name="pref_font_family_label">Skrif familie</string>
   <string name="prefs_hyphenation_title"> 
@@ -166,6 +164,8 @@ Woordafbreking</string>
   <string name="hide_window_buttons_title">Versteek venster knoppies</string>
   <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel -aansigte vertoon word, is versteek. Venster navigasie balk aan die onderkant word nog steeds vertoon en u kan die opspringkieslys van die venster oopmaak deur lank daarop te klik.</string>
   <string name="font_size_title">Skrif grootte</string>
+  <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
+  <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
   <string name="window_color_settings_title">Venster kleur instellings</string>
@@ -187,6 +187,12 @@ Woordafbreking</string>
   <string name="windowMaximise">Vermeeder</string>
   <string name="windowMinimise">Verminder</string>
   <string name="windowSynchronise">Sinchroniseer</string>
+  <string name="move_window">Beweeg  na</string>
+  <string name="move_window_to_position2">Posisie %d (%s:%s)</string>
+  <string name="copy_settings">Kopieer instellings na</string>
+  <string name="copy_settings_to_workspace">Werkspasie</string>
+  <string name="copy_settings_to_window">Venster %d (%s: %s)</string>
+  <string name="change_to_normal">Verander na normale venster</string>
   <string name="window_pin_mode">Speld</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Daar is geen notas vir hierdie hoofstuk nie</string>
@@ -201,7 +207,7 @@ Woordafbreking</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
-  <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
+  <string name="download_source_message">Dokumente word afgelaai vanaf:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Laai af</string>
   <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
@@ -213,6 +219,16 @@ Woordafbreking</string>
   <string name="chooce_language_hint">Taal</string>
   <string name="one_more_back_press">Nog een druk op die terug knoppie sal die toep sluit</string>
   <string name="document_filter_results">%ddocumente</string>
+  <string name="download_question_title">Wil u voortgaan om dokumente af te laai?</string>
+  <string name="download_question_message">As u in \'n vervolgde land woon,
+moet jy miskien versigtig wees met die aflaai van Christelike materiaal via die internet.
+In plaas daarvan wil u miskien \'n zip-lêer van die module veiliger bekom en installeer
+via \"Laai dokumente vanaf zip\". Is jy seker dat jy wil voortgaan met die aflaai?
+Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
+  <string name="do_not_ask_again">Ja, moenie meer vra nie</string>
+  <string name="recommended_document">Aanbeveel!</string>
+  <string name="about_version_history">Weergawe geskiedenis:%s</string>
+  <string name="download_failed">Kon nie aflaai nie %s</string>
   <!--Install zip file-->
   <string name="install_zip">Laai dokument van Zip </string>
   <string name="install_zip_module">Installeer Bybel Module</string>
@@ -278,6 +294,7 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <!--Verse context menu-->
   <string name="notes">Voetnotas en verwysings</string>
   <string name="verse_action_copy">Kopieër</string>
+  <string name="share_verse">Deel...</string>
   <string name="share_verse_subject">\'n Bybelvers is gedeel met jou met And Bible Program</string>
   <string name="compare_translations">Vergelyk vertalings</string>
   <!--Link context menu-->
@@ -418,6 +435,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="restore_confirmation">Ooskryf My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes?</string>
   <string name="restore_success">My Aantekeninge, Boekmerke, Lees Planne en Werkruimtes is suksesvol herstel</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
+  <string name="backup_success">My notas, boekmerke, leesplanne en werkruimtes is suksesvol gerugsteun na %s.</string>
   <string name="error_no_backup_file">Rugsteun lêer is nie gevind nie</string>
   <string name="backup_modules_email_subject">And Bible modules rugsteun</string>
   <string name="backup_modules_email_message">Aangeheg is u rugsteun van die And Bible -modules, wat die volgende modules bevat: %s</string>
@@ -435,7 +453,14 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="restore_modules">Herstel dokumente vanaf ...</string>
   <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
   <string name="backup_modules_title">Kies watter modules om te rugsteun</string>
+  <string name="install_zip_canceled">Module installasie gekanselleer</string>
   <!--About-->
+  <string name="module_about_copyright">Kopiereg:%s</string>
+  <string name="module_about_installed_version">Geïnstalleerde weergawe:%s(%s)</string>
+  <string name="module_about_latest_version">Nuutste weergawe:%s (%s)</string>
+  <string name="module_about_versification">Verifiëring:%s</string>
+  <string name="module_about_repository">Verspreidings bewaarplek:%s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporteer \'n fout</string>
   <string name="report_bug_email_subject">Foutverslag vir And Bible %s</string>
@@ -489,6 +514,7 @@ Toestel inligting: \n
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nuut</string>
+  <string name="switch_to_workspace">Werkspasies</string>
   <string name="delete_workspace">Verwyder</string>
   <string name="new_copied_workspace">Kopieer as nuut</string>
   <string name="workspace_number">Werkruimte %d</string>
@@ -528,4 +554,5 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="history_for">Geskiedenis (%s:Venster %d)</string>
   <!--Uncategorized-->
   <string name="close">Eindig</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

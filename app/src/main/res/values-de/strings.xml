@@ -1,18 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Und Gott sprach: \'\"Es werde Licht!\"\' Und es wurde Licht.\"\nGenesis 1:3</string>
-  <string name="help_text">Drücken Sie die Menü-Taste für Aktionen\n\n
-        Kapitelnavigation mittels Track-ball,
-        D-pad oder durch Wischen</string>
   <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Kapitelnavigation durch Wischen mit dem Finger.
-        Doppeltippen des Bibeltextes schaltet den Vollbildschirmmodus an/aus.
-        Bibelfensterhaben eine Menütaste oben rechts; 
-        durch langes Drücken wird das Fenstermenü aktiviert.
-    </string>
-  <string name="help_speech_title">Sprache</string>
-  <string name="help_speech_text">\"Sprache\" antippen, um den Steuerungsdialog aufzurufen</string>
+  <string name="help_contextmenus_title">Kontextmenüs</string>
   <string name="help_mynote_title">Eigene Notiz</string>
   <string name="help_mynote_text">Notizen können über das \"Eigene Notiz\" Menü innerhalb des Kontextmenüs hinzugefügt werden. Die Liste der vorhandenen Notizen kann über das Hauptmenü angezeigt werden.</string>
   <string name="help_bookmarks_title">Lesezeichen</string>
@@ -24,16 +14,6 @@
 Mit Arbeitsplätzen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
 Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsplätze erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsplatz.</string>
   <string name="help_hidden_features_title">Verborgene Kürzel</string>
-  <string name="help_hidden_features_text">
-Von der Werkzeugleiste herunterwischen, um die Arbeitsplatzauswahl anzuzeigen
-Den Fensterknopf lang drücken, um sofort zu minimieren
-Den Vorlese-Knopf lang drücken, um zu den Vorlese-Einstellungen zu gelangen
-Die Versauswahl lang drücken, um zur Dokumentauswahl zu gelangen</string>
-  <string name="help_contextmenus_title">Kontextmenüs</string>
-  <string name="help_contextmenus_text">Ein langer Druck auf den Bibeltext öffnet das Kontextmenü für den aktuellen Vers. 
-Ein langer Druck auf ein Dokument öffnet den Auswahldialog zum Löschen oder zum Anzeigen weiterer Informationen.
-Ein langer Druck auf den Retourknopf öffnet die Chronik.
-</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten Sie And Bible neu.</string>
   <!--Main menu-->
@@ -192,7 +172,6 @@ Ein langer Druck auf den Retourknopf öffnet die Chronik.
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
-  <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>

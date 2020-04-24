@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Raamattu</string>
+  <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source projektilta</string>
   <string name="app_name">Raamattu (And Bible)</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
-  <string name="help_text">Siirry VALIKKO painikkeella toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai \'pyyhkäisemällä\' näyttöä sormella</string>
   <string name="help_nav_title">Navigointi</string>
-  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Raamattuikkunoissa on valikko-painike oikeassa yläkulmassa ja voit käyttää ikkunavalikkoa pitkällä painalluksella valikko-painikkeisiin.</string>
-  <string name="help_speech_title">Puhe</string>
-  <string name="help_speech_text">Paina Puhe kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.</string>
+  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>
+  <string name="help_contextmenus_title">Pikavalikot</string>
+  <string name="help_contextmenus_text">
+Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pitkä painallus raamattunäkymässä avaa toimintotilan toiminnoille jotka liittyvät nykyiseen jakeeseen. Pitkä painallus Valitse teos tai Lataa teos -näkymissä listauksen rivillä mahdollistaa dokumentin poistamisen ja lisätietojen katselemisen. Pitkä painalluksella kirjanmerkistä pääset ryhmittelemään kirjanmerkkejä ja poistamaan niitä. Pitkällä painalluksella linkin päältä pääset valitsemaan kontekstivalikosta haluatko avata linkin nykyisessä ikkunassa, uudessa ikkunassa vai erityisessä linkki-ikkunassa. </string>
   <string name="help_mynote_title">Omat kommentit</string>
   <string name="help_mynote_text">Voit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.</string>
   <string name="help_bookmarks_title">Kirjanmerkit</string>
@@ -18,13 +18,12 @@
   <string name="help_workspaces_title">Työtilat</string>
   <string name="help_workspaces_text">Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
   <string name="help_hidden_features_title">Piilossa olevat oikotiet</string>
-  <string name="help_hidden_features_text">Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
+  <string name="help_hidden_features_text">
+Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
 Pitkä napsautus ikkunapainikkeesta pienentää ikkunan.
 Pitkä napsautus työkalupalkin puhepainikkeesta vie puheen asetuksiin.
-Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.</string>
-  <string name="help_contextmenus_title">Pikavalikot</string>
-  <string name="help_contextmenus_text">
-Pitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen. Pitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja.  Pitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta.</string>
+Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.
+Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorialistaukseen.</string>
   <string name="help_window_pinning_title">Ikkunan kiinnitys</string>
   <string name="help_window_pinning_text">
 Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
@@ -200,7 +199,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
   <!--Module download-->
   <string name="download">Lataa teoksia</string>
-  <string name="download_confirmation">Lataa teos internetistä?</string>
+  <string name="download_confirmation">Lataa Raamattu internetistä?</string>
   <string name="download_source_message">Dokumentit ladataan :\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, ja\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Lataa</string>
   <string name="download_refreshing_book_list">Päivitetään luettelo käytettävistä teoksista</string>

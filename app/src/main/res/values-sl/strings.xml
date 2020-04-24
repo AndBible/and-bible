@@ -1,18 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Startup & Help-->
-  <string name="splash_top_text">
-\n\"In Bog je rekel: \'Naj bo svetloba;\' in bila je svetloba.\"\nGeneza 1:3</string>
-  <string name="help_text">Za aktiviranje pritisni tipko MENU\n\n
-        Na naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, 
-trackpada ali pomikom prsta preko ekrana</string>
   <string name="help_nav_title">Krmarjenje</string>
-  <string name="help_nav_text">Na naslednje ali prejšnje poglavje pojdi tako, da s prstom podrsaš po ekranu.
-        Dvojni pritisk na biblično besedilo preklopi v celozaslonski način. Okna biblij imajo meni v zgornjem desnem kotu ekrana
-        in do menija okna se dostopa z daljšim pritiskom nanj.
-    </string>
-  <string name="help_speech_title">Govor</string>
-  <string name="help_speech_text">Pritisni Govor za dostop do okna za start ali konec branja.</string>
+  <string name="help_contextmenus_title">Kontekstni meni</string>
   <string name="help_mynote_title">Moja opomba</string>
   <string name="help_mynote_text">Opombe se lahko dodajajo preko menija Moja Opomba v vrstici s številkami poglavij.
         Do seznama obstoječih opomb se lahko dostopa prek glavnega menija.</string>
@@ -28,17 +18,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="help_workspaces_text">
         Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
   <string name="help_hidden_features_title">Skrite bližnjice</string>
-  <string name="help_hidden_features_text">
-        Za izbiro delovnega prostora povlecite navzdol z orodne vrstice.
-        Gumb z oknom hitro zmanjšate z dolgim klikom.
-        Za nastavitve govora z dolgim klikom gumba za govor hitro odprete nastavitve govora.
-        Za izbiro biblij ali dokumentov naredite dolg klik v orodni vrstici biblijskih knjig in vrstic.</string>
-  <string name="help_contextmenus_title">Kontekstni meni</string>
-  <string name="help_contextmenus_text">
-        Dolg pritisk na pogled Biblije odpre meni za akcije glede trenutne vrstice.
-        Dolg pritisk na dokument v izbiri dokumentov za izbris le-tega ali ogled informacij.
-        Dolg pritisk na Nazaj za dostop do Seznama zgodovine.
-    </string>
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Prosim vstavite SD kartico in ponovno poženite And Biblijo.</string>
   <!--Main menu-->
@@ -199,7 +178,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
   <!--Module download-->
   <string name="download">Prenos dokumentov</string>
-  <string name="download_confirmation">Prenos biblije iz interneta?</string>
   <string name="download_document_confirm_prefix">Prenos</string>
   <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>

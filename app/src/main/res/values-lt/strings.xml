@@ -1,17 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
-  <string name="help_text">Veiksmams atlikti, spauskite MENIU mygtuką\n\n
-        Keiskite skyrius, naudodami ratuką,
-        D-pad ar braukdami per ekraną pirštu</string>
   <string name="help_nav_title">Navigacija</string>
-  <string name="help_nav_text">Į kitą ar ankstesnį skyrius pateksite braukdami per ekraną pirštu.
-        Du kartus bakstelėję Biblijos tekstą, perjungsite viso ekrano veikseną. Biblijų langai viršutiniame dešiniajame kampe turi meniu mygtuką,
-        kurį paspaudę ir palaikę, galėsite pasiekti lango meniu.
-    </string>
-  <string name="help_speech_title">Kalba</string>
-  <string name="help_speech_text">Spauskite Klausytis, norėdami pasiekti skaitymo pradžios ir pabaigos dialogo langą</string>
+  <string name="help_contextmenus_title">Kontekstiniai meniu</string>
   <string name="help_mynote_title">Mano pastaba</string>
   <string name="help_mynote_text">Pastabas galite pridėti per kontekstinio meniu elementą Mano pastaba, iškvietę jį atitinkamai eilutei.
 Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
@@ -25,15 +16,6 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
   <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
-  <string name="help_hidden_features_text">Nuo įrankių juostos braukite žemyn, norėdami pasiekti darbalaukių pasirinkimo meniu.
-Paspauskite ir palaikykite lango mygtuką, norėdami greitai sumažinti.
-Paspauskite ir palaikykite klausymo mygtuką, kad greitai pasiektumėti klausymo nuostatas.
-Paspauskite ir palaikykite vietos pavadinimą, kad pasiektumėte dokumentų meniu.</string>
-  <string name="help_contextmenus_title">Kontekstiniai meniu</string>
-  <string name="help_contextmenus_text">Biblijos rodinyje ilgiau paspaudę ant tam tikros eilutės, pateiksite į jos kontekstinio meniu.
-Dokumentų rodinyje ilgai paspaudę ant dokumento, galėsite jį pašalinti arba gauti daugiau informacijos apie jį.
-Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
-</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
   <!--Main menu-->
@@ -192,7 +174,6 @@ Ilgai paspaudę mygtuką Atgal, pasieksite Istorijos sąrašą.
   <string name="morph_robinson_not_installed">Prašome atsisiųsti žodyną \'Robinson\'s Morphological Analysis Codes</string>
   <!--Module download-->
   <string name="download">Atsisiųsti dokumentus</string>
-  <string name="download_confirmation">Atsisiųsti Bibliją iš interneto?</string>
   <string name="download_document_confirm_prefix">Atsisiųsti</string>
   <string name="download_refreshing_book_list">Atnaujinamas dokumentų sąrašas</string>
   <string name="download_refresh_book_list_menu_item">Atnaujinti</string>

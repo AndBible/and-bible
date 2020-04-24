@@ -1,17 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n創世記 1:3</string>
-  <string name="help_text">按選單鍵以選取行動\n\n
-使用軌跡球、觸控板或滑動螢幕
-翻閱至上一章或下一章</string>
   <string name="help_nav_title">導航</string>
-  <string name="help_nav_text">滑動螢幕以翻閱至上一章或下一章
-雙點經文文字以切換至全螢幕。
-長按經文視窗右上方選項鍵，可以選取不同的控制項。
-</string>
-  <string name="help_speech_title">語音</string>
-  <string name="help_speech_text">按下朗讀以開結或停止朗讀</string>
+  <string name="help_contextmenus_title">內文選單</string>
   <string name="help_mynote_title">我的筆記</string>
   <string name="help_mynote_text">透過經節的選單中我的筆記，可以加入筆記。
 主選單中可以找到所有筆記。</string>
@@ -24,11 +15,6 @@
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作檢視</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
-  <string name="help_contextmenus_title">內文選單</string>
-  <string name="help_contextmenus_text">
-長按經文可以開啟本節選單
-選擇文件中，長按文件可刪除或取得更多資訊
-長按後退鍵可以開啟閱讀歷史</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD卡後再次啟動本程式</string>
   <!--Main menu-->
@@ -169,7 +155,6 @@
   <string name="morph_robinson_not_installed">請下載羅氏詞形分析碼的字典</string>
   <!--Module download-->
   <string name="download">下載文件</string>
-  <string name="download_confirmation">從互聯網上下載聖經嗎？</string>
   <string name="download_document_confirm_prefix">下載</string>
   <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
