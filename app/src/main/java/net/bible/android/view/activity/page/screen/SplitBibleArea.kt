@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
-import android.os.Build
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.Log
@@ -158,9 +157,7 @@ class SplitBibleArea(
         updateWindows()
         addSeparators()
         rebuildRestoreButtons()
-        post {
-            ensureRestoreButtonVisible()
-        }
+        ensureRestoreButtonVisible()
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
@@ -378,10 +375,10 @@ class SplitBibleArea(
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() {
+    private fun ensureRestoreButtonVisible() = post {
         val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
         if(restoreButton != null && restoreButtonsVisible &&
-            !restoreButton.getLocalVisibleRect(Rect().apply { getHitRect(this) }))
+            !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) }))
         {
             restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
         }
