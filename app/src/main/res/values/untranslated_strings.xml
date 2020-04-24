@@ -6,6 +6,8 @@
 Look here for language names and codes: http://en.fr.open-tran.eu/
 -->
 <resources>
+	<string name="homepage">https://andbible.org</string>
+	<string name="github_page">https://github.com/AndBible/and-bible</string>
     <!-- Languages -->
 	<string name="lang_afrikaans">af: Afrikaans</string>
 	<string name="lang_arabic">ar: العربية</string>
