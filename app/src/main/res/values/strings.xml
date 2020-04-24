@@ -9,23 +9,23 @@
 
     <!-- Startup & Help -->
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
-    <string name="help_text">Press the MENU button for actions\n\n
-        Go to the next or previous chapter by using the track-ball,
-        D-pad or swiping the screen with your finger</string>
 
     <string name="help_nav_title">Navigation</string>
     <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap bible text to toggle full screen mode. Bible windows have menu button on the top-right corner,
-        and you can access window menu long pressing them.
+        Double-tap bible text to toggle full screen mode.
+        Split screens (called also windows) have menu button on their top-right corner,
+        which enables you to use several window-specific functions and customize window outlook and behaviour.
     </string>
-
-    <string name="help_speech_title">Speech</string>
-    <string name="help_speech_text">Press Speak to access a dialog to start or stop reading</string>
-
+    <string name="help_contextmenus_title">Context Menus</string>
+    <string name="help_contextmenus_text">
+        Long press on the Bible view to open the context menu for actions affecting the current verse.
+        You can also access some functions in several list views:
+        Long press on a document in the Choose Document or Download view to delete document or view
+        information. Long press a bookmark in bookmarks listing to add labels or delete bookmark.
+    </string>
     <string name="help_mynote_title">My Note</string>
     <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
         The list of existing notes can be accessed via the main menu.</string>
-
     <string name="help_bookmarks_title">Bookmarks</string>
     <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
         The Bookmark Manager is accessed via the main menu.
@@ -45,15 +45,9 @@
     <string name="help_hidden_features_title">Hidden shortcuts</string>
     <string name="help_hidden_features_text">
         Swipe down from toolbar to show workspace selector.
-        Long-click window button to quickly minimize.
-        Long-click speak toolbar button to quickly go to speak settings.
-        Long-click verse location title in toolbar to jump to document selector.
-    </string>
-
-    <string name="help_contextmenus_title">Context Menus</string>
-    <string name="help_contextmenus_text">
-        Long press on the Bible view to open the context menu for actions affecting the current verse.
-        Long press on a document in the document selector to delete it or view information.
+        Long press window button to quickly minimize.
+        Long press speak toolbar button to quickly go to speak settings.
+        Long press verse location title in toolbar to jump to document selector.
         Long press the Back button to access the History list.
     </string>
     <string name="help_window_pinning_title">Window pinning</string>
@@ -265,7 +259,7 @@
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
-    <string name="download_confirmation">Download a Bible from the internet?</string>
+    <string name="download_confirmation">Download a Bible from the Internet?</string>
     <string name="download_source_message">Documents are downloaded from:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
