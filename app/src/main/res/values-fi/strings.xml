@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Raamattu</string>
-  <string name="app_name_long">Raamattu, And Bible Open Source Projektilta</string>
+  <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigointi</string>
   <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>
-  <string name="help_contextmenus_title">Pikavalikot</string>
+  <string name="help_contextmenus_title">Kontekstivalikot</string>
   <string name="help_contextmenus_text">
 Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pitkä painallus raamattunäkymässä avaa toimintotilan toiminnoille jotka liittyvät nykyiseen jakeeseen. Pitkä painallus Valitse teos tai Lataa teos -näkymissä listauksen rivillä mahdollistaa dokumentin poistamisen ja lisätietojen katselemisen. Pitkä painalluksella kirjanmerkistä pääset ryhmittelemään kirjanmerkkejä ja poistamaan niitä. Pitkällä painalluksella linkin päältä pääset valitsemaan kontekstivalikosta haluatko avata linkin nykyisessä ikkunassa, uudessa ikkunassa vai erityisessä linkki-ikkunassa. </string>
   <string name="help_mynote_title">Omat kommentit</string>
@@ -15,7 +15,8 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
   <string name="help_search_title">Etsi</string>
   <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
   <string name="help_workspaces_title">Työtilat</string>
-  <string name="help_workspaces_text">Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
+  <string name="help_workspaces_text">
+Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
   <string name="help_hidden_features_title">Piilossa olevat oikotiet</string>
   <string name="help_hidden_features_text">
 Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
@@ -468,7 +469,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
         Laitteen tiedot: \n
         %s</string>
   <!--Document types-->
-  <string name="doc_type_all">Kaikki tyypit</string>
+  <string name="doc_type_all">Kaikki</string>
   <string name="doc_type_bible">Raamattu</string>
   <string name="doc_type_commentary">Kommentaari</string>
   <string name="doc_type_dictionary">Sanakirja</string>
