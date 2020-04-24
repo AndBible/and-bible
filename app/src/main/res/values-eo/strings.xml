@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studi Biblion</string>
-  <string name="app_name">Studi Biblion (And Biblio)</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigi</string>
   <string name="help_contextmenus_title">Kuntekstaj menuoj</string>

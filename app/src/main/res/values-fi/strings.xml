@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Raamattu</string>
-  <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source projektilta</string>
-  <string name="app_name">Raamattu (And Bible)</string>
+  <string name="app_name_long">Raamattu, And Bible Open Source Projektilta</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigointi</string>
   <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>

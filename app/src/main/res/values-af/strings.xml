@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bybel Studie</string>
-  <string name="app_name">Bybel Studie (And Bible)</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigasie</string>
   <string name="help_contextmenus_title">Konteks Kieslys</string>
