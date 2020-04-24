@@ -19,7 +19,7 @@
     <string name="help_contextmenus_title">Context Menus</string>
     <string name="help_contextmenus_text">
         Long pressing in opens context menu or action mode in several views.
-        Long press on the Bible view to open the context menu for actions affecting the current verse.
+        Long press on the Bible view to open the action mode for actions affecting the current verse.
         Long press on a document item in list view of Choose Document or Download to delete document or view information.
         Long press a bookmark in bookmarks listing to add labels or delete bookmark.
         Long press links to choose if you want to open them in current window, new window or special links window.
