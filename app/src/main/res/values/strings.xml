@@ -26,6 +26,7 @@
     <string name="help_mynote_title">My Note</string>
     <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
         The list of existing notes can be accessed via the main menu.</string>
+
     <string name="help_bookmarks_title">Bookmarks</string>
     <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
         The Bookmark Manager is accessed via the main menu.
