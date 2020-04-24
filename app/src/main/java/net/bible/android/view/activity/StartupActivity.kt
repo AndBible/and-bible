@@ -25,6 +25,10 @@ import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
@@ -40,6 +44,8 @@ import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /** Called first to show download screen if no documents exist
  *
@@ -47,7 +53,7 @@ import javax.inject.Inject
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
 
-    private var warmUp: WarmUp? = null
+    @Inject lateinit var warmUp: WarmUp
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,44 +87,46 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             return
         }
 
-        // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
-        // this allows the splash screen to be displayed and an hourglass to run
-        object : Thread() {
-            override fun run() {
-                try {
-                    // force Sword to initialise itself
-                    warmUp!!.warmUpSwordNow()
-                } finally {
-                    // switch back to ui thread to continue
-					runOnUiThread {
-						postBasicInitialisationControl()
-					}
+        GlobalScope.launch {
+            try {
+                // force Sword to initialise itself
+                withContext(Dispatchers.IO) {
+                    warmUp.warmUpSwordNow()
+                }
+            } finally {
+                // switch back to ui thread to continue
+                withContext(Dispatchers.Main) {
+                    postBasicInitialisationControl()
                 }
             }
-        }.start()
+        }
     }
 
-    private fun postBasicInitialisationControl() {
-        if (swordDocumentFacade.bibles.size == 0) {
+    private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
+        if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
-            askIfGotoDownloadActivity()
+            if(askIfGotoDownloadActivity()) {
+                doGotoDownloadActivity()
+            } else {
+                finish()
+                // ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised
+                System.exit(2)
+            }
+
         } else {
             Log.i(TAG, "Going to main bible view")
             gotoMainBibleActivity()
         }
     }
 
-    private fun askIfGotoDownloadActivity() {
-        AlertDialog.Builder(this@StartupActivity)
-                .setView(layoutInflater.inflate(R.layout.first_time_dialog, null))
-                .setInverseBackgroundForced(true) // prevents black text on black bkgnd on Android 2.3 (http://stackoverflow.com/questions/13266901/dark-text-on-dark-background-on-alertdialog-with-theme-sherlock-light)
+    private suspend fun askIfGotoDownloadActivity() = suspendCoroutine<Boolean> {
+        val view = layoutInflater.inflate(R.layout.first_time_dialog, null)
+        AlertDialog.Builder(this)
+                .setView(view)
                 .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, id -> doGotoDownloadActivity() }
-                .setNegativeButton(R.string.cancel) { dialog, id ->
-                    this@StartupActivity.finish()
-                    // ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised
-                    System.exit(2)
-                }.create().show()
+                .setPositiveButton(R.string.okay) { dialog, id -> it.resume(true) }
+                .setNegativeButton(R.string.cancel) { dialog, id -> it.resume(false)}
+            .create().show()
     }
 
     private fun doGotoDownloadActivity() {
@@ -162,22 +170,19 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
         if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
             Log.i(TAG, "Returned from Download")
-            if (swordDocumentFacade.bibles.size > 0) {
+            if (swordDocumentFacade.bibles.isNotEmpty()) {
                 Log.i(TAG, "Bibles now exist so go to main bible view")
                 // select appropriate default verse e.g. John 3.16 if NT only
                 pageControl.setFirstUseDefaultVerse()
 
                 gotoMainBibleActivity()
             } else {
-                Log.i(TAG, "No Bibles exist so exit")
-                finish()
+                Log.i(TAG, "No Bibles exist so start again")
+                GlobalScope.launch {
+                    postBasicInitialisationControl()
+                }
             }
         }
-    }
-
-    @Inject
-    internal fun setWarmUp(warmUp: WarmUp) {
-        this.warmUp = warmUp
     }
 
     companion object {

@@ -171,14 +171,13 @@ constructor(private val callingActivity: MainBibleActivity,
 
                     val help = arrayOf(
                         Pair(R.string.help_nav_title, R.string.help_nav_text),
+                        Pair(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
                         Pair(R.string.help_window_pinning_title,R.string.help_window_pinning_text),
-                        Pair(R.string.help_speech_title, R.string.help_speech_text),
                         Pair(R.string.help_mynote_title,R.string.help_mynote_text),
                         Pair(R.string.help_bookmarks_title, R.string.help_bookmarks_text),
                         Pair(R.string.help_search_title,R.string.help_search_text),
                         Pair(R.string.help_workspaces_title,R.string.help_workspaces_text),
-                        Pair(R.string.help_hidden_features_title,R.string.help_hidden_features_text),
-                        Pair(R.string.help_contextmenus_title, R.string.help_contextmenus_text)
+                        Pair(R.string.help_hidden_features_title,R.string.help_hidden_features_text)
                     )
 
                     var htmlMessage = ""
