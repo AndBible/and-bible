@@ -180,7 +180,7 @@ class TextToSpeechNotificationManager {
 
 
     private var app = BibleApplication.application
-    private var currentTitle = getString(R.string.app_name)
+    private var currentTitle = getString(R.string.app_name_short)
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -235,7 +235,7 @@ class TextToSpeechNotificationManager {
 
     private fun shutdown() {
         Log.d(TAG, "Shutdown")
-        currentTitle = getString(R.string.app_name)
+        currentTitle = getString(R.string.app_name_short)
         currentText = ""
         // In case service was no longer foreground, we need do this here.
         if(foreground) {
@@ -267,7 +267,7 @@ class TextToSpeechNotificationManager {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                 currentTitle = ev.speakCommand.text
                 if(currentTitle.isEmpty()) {
-                    currentTitle = getString(R.string.app_name)
+                    currentTitle = getString(R.string.app_name_short)
                 }
             }
             else {

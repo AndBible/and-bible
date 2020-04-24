@@ -25,7 +25,7 @@
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/app_name_short"
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppThemeDay"
@@ -50,7 +50,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale|uiMode"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:launchMode="singleTask"
-            android:label="@string/app_name" />
+            android:label="@string/app_name_short" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocument"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

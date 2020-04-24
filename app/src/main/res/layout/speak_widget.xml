@@ -28,7 +28,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:id="@+id/titleText"
-				android:text="@string/app_name"
+				android:text="@string/app_name_short"
 				tools:textSize="14sp"
 				android:textStyle="bold"/>
 		<TextView

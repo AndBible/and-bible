@@ -6,7 +6,6 @@
 <resources>
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
-    <string name="app_name">Bible Study (And Bible)</string>
 
     <!-- Startup & Help -->
 
