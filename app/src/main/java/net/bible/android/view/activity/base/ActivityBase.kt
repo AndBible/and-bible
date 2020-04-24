@@ -29,8 +29,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper

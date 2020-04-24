@@ -17,8 +17,8 @@
  */
 
 package net.bible.android.view.util.locale;
+import android.os.Build;
 
-import net.bible.service.common.CommonUtils;
 
 /**
  * Prevent 'Could not find method' warnings due to old Android versions not having configuration.setLocale(x)
@@ -30,7 +30,7 @@ public class LocaleChangerFactory {
 	private LocaleChanger localeChanger;
 
 	public LocaleChangerFactory() {
-		if (CommonUtils.INSTANCE.isNougatPlus()) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			localeChanger = new NougatPlusLocaleChanger();
 		} else {
 			localeChanger = new LegacyLocaleChanger();

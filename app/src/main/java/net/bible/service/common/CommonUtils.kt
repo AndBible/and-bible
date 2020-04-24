@@ -110,9 +110,6 @@ object CommonUtils {
             return versionNumber
         }
 
-    val isNougatPlus: Boolean
-        get() = Build.VERSION.SDK_INT >= 24
-
     val isSplitVertically: Boolean get() {
         val reverse = mainBibleActivity.windowRepository.windowBehaviorSettings.enableReverseSplitMode
         return if(reverse) !isPortrait else isPortrait
