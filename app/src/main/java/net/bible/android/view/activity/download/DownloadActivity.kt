@@ -298,7 +298,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                     message += getString(R.string.failed_downloads_message, genericFileDownloader.errors.joinToString(",\n"))
                 }
                 AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.download_errors_dialog_title))
+                    .setTitle(getString(R.string.download_errors))
                     .setMessage(message)
                     .setPositiveButton(R.string.okay, null)
                     .create().show()

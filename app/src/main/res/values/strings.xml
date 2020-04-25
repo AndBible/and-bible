@@ -287,7 +287,6 @@
     <string name="download_errors">Download errors</string>
     <string name="failed_repositories_message">Could not connect to the following document repositories: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
-    <string name="download_errors_dialog_title">Download errors</string>
 
     <!--  Install zip file -->
     <string name="install_zip">Load Document From Zip</string>
