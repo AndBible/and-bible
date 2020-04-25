@@ -382,7 +382,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         settings.displayZoomControls = false
         // http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
         settings.loadWithOverviewMode = isMap
-        settings.useWideViewPort = isMap
+        //settings.useWideViewPort = isMap
     }
 
 
