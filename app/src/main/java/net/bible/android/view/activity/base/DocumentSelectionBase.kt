@@ -311,11 +311,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         withContext(Dispatchers.Main) {
             loadingIndicator.visibility = View.VISIBLE
             showPreLoadMessage()
+            displayedDocuments.clear()
+            documentItemAdapter.clear()
         }
         withContext(Dispatchers.Default) {
             try {
-                displayedDocuments.clear()
-                documentItemAdapter.clear()
                 val newDocs = getDocumentsFromSource(refresh)
                 filterMutex.withLock {
                     allDocuments.clear()
