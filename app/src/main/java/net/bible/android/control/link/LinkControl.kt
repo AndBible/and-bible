@@ -27,8 +27,12 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.IntentHelper
+import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
@@ -43,6 +47,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
+import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.versification.Versification
 import java.net.URLDecoder
@@ -82,7 +87,9 @@ class LinkControl @Inject constructor(
 					UriAnalyzer.DocType.ALL_GREEK -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "g")
 					UriAnalyzer.DocType.ALL_HEBREW -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "h")
 					UriAnalyzer.DocType.SPECIFIC_DOC -> showSpecificDocRef(uriAnalyzer.book, uriAnalyzer.key)
-				}
+                    UriAnalyzer.DocType.NOTE -> showNote(uriAnalyzer.book, uriAnalyzer.key)
+                    UriAnalyzer.DocType.MYNOTE -> showMyNote(uriAnalyzer.key)
+                }
 			} else if (uriAnalyzer.protocol == Constants.REPORT_PROTOCOL) {
 				errorReportControl.sendErrorReportEmail(Exception("Error occurred in obtaining text"))
 			}
@@ -253,6 +260,26 @@ class LinkControl @Inject constructor(
             }
             currentPageManager.setCurrentDocumentAndKey(document, key)
         }
+    }
+
+    private fun showNote(osisRef: String?, note: String) {
+        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val handlerIntent = Intent(activity, FootnoteAndRefActivity::class.java)
+        val intentHelper = IntentHelper()
+        val osisParser = OsisParser()
+        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
+        intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange)
+        activity.startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE)
+    }
+
+    private fun showMyNote(osisRef: String) {
+        val activity: MainBibleActivity = CurrentActivityHolder.getInstance().currentActivity as MainBibleActivity
+        val osisParser = OsisParser()
+        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
+        activity.fullScreen = false
+        currentPageManager.showMyNote(verseRange)
+        activity.invalidateOptionsMenu()
+        activity.documentViewManager.buildView()
     }
 
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
