@@ -271,7 +271,6 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
             R.id.refresh -> {
                 // normal user downloading but need to refresh the document list
                 freeTextSearch.setText("")
-                languageSpinner.setText("")
 
                 Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
 

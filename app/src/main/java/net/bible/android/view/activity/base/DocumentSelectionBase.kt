@@ -314,6 +314,8 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         }
         withContext(Dispatchers.Default) {
             try {
+                displayedDocuments.clear()
+                documentItemAdapter.clear()
                 val newDocs = getDocumentsFromSource(refresh)
                 filterMutex.withLock {
                     allDocuments.clear()
