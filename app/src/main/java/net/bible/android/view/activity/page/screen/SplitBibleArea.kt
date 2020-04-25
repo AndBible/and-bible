@@ -375,13 +375,14 @@ class SplitBibleArea(
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() = post {
-        val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
-        if(restoreButton != null && restoreButtonsVisible &&
-            !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) }))
-        {
-            restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
-        }
+    private fun ensureRestoreButtonVisible() {
+        postDelayed({
+            val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
+            if (restoreButton != null && restoreButtonsVisible &&
+                !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) })) {
+                restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+            }
+        }, 200) // Give time for button bar to be rendered.
     }
 
     private var sleepTimer: Timer = Timer("TTS sleep timer")
