@@ -218,6 +218,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="recommended_document">Suositeltu!</string>
   <string name="about_version_history">Versiohistoria: %s</string>
   <string name="download_failed">Lataus epäonnistui: %s</string>
+  <string name="download_errors">Virheet latauksessa</string>
+  <string name="failed_repositories_message">Yhteyden otto seuraaviin moduuliservereihin epäonnistui: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Seuraavia tiedostoja ei voitu ladata\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Lataa teos Zip-tiedostosta</string>
   <string name="install_zip_module">Asenna raamattumoduuli</string>

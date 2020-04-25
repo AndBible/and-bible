@@ -1,9 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bybel Studie</string>
+  <string name="app_name_long">Bybel Studie toep, deur And Bible Open Source Project</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigasie</string>
+  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
+ Dubbel druk  op Bybelteks om oor te skakel na die volledige skerm modus 
+ Verdeelte skerms (ook vensters genoem) het die lys knoppie in die regter boonste hoek,
+waarmee jy verskillende venster-spesifieke funksies kan gebruik en vensteruitkyk en -gedrag kan aanpas.</string>
   <string name="help_contextmenus_title">Konteks Kieslys</string>
+  <string name="help_contextmenus_text">
+Lang druk, in oopgemaakte konteks lys of aksie modus in verskillende aansigte
+Lang druk op die Bybel aansig om die aksie modus te open vir aksies wat die huidige vers beïnvloed.
+Lang druk lank op \'n dokument item in die lys aansig van Kies dokument of laai af om dokument- of inligtinginligting te verwyder.
+Lang druk lank op \'n boekmerk in boekmerke lyste om etikette by te voeg of om die boekmerk te verwyder.
+Lang druk die skakels om te kies of u dit in die huidige venster, nuwe venster of spesiale venster wil oopmaak.</string>
   <string name="help_mynote_title">My Nota</string>
   <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
 Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
@@ -23,6 +34,13 @@ werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook v
 skakel na vorige / volgende werkruimte.
 </string>
   <string name="help_hidden_features_title">Verborge kortpaaie</string>
+  <string name="help_hidden_features_text">
+Sweep afwards van die werkbalk om die werkruimte selector te wys.
+Lang druk venster knoppie lank om vinnig te verklein.
+Lang druk die spreek balknoppie om vinnig na praat instellings te gaan.
+Lang druk die vers plek se titel op die werkbalk om na die dokumente keurder te gaan.
+Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
+ </string>
   <string name="help_window_pinning_title">Venster vaspen</string>
   <string name="help_window_pinning_text">
 Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regs bo).
@@ -206,6 +224,7 @@ Woordafbreking</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
+  <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
   <string name="download_source_message">Dokumente word afgelaai vanaf:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Laai af</string>
   <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
