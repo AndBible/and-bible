@@ -17,36 +17,32 @@
  */
 package net.bible.service.download
 
-import net.bible.android.control.ApplicationScope
 import org.crosswire.jsword.book.Book
-import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class RepoFactory @Inject constructor() {
-    val crosswireRepo = CrosswireRepo()
-    val betaRepo = BetaRepo()
-    val andBibleRepo = AndBibleRepo()
-    val extraRepo = AndBibleExtraRepo()
-    val IBTRepo = IBTRepo()
-    val eBibleRepo = EBibleRepo()
-    val lockmanRepo = LockmanRepo()
+class RepoFactory(val downloadManager: DownloadManager) {
+    private val defaultRepo = AndBibleRepo()
+
+    val normalRepositories = listOf(
+        defaultRepo, CrosswireRepo(), AndBibleExtraRepo(), IBTRepo(), EBibleRepo(), LockmanRepo()
+    )
+
+    val betaRepositories = listOf(BetaRepo())
+
+    val repositories = normalRepositories + betaRepositories
+
+    init {
+        for(r in repositories) {
+            r.repoFactory = this
+        }
+    }
 
     fun getRepoForBook(document: Book): RepoBase {
         return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))
     }
 
     private fun getRepo(repoName: String): RepoBase =
-        when (repoName){
-            crosswireRepo.repoName -> crosswireRepo
-            andBibleRepo.repoName -> andBibleRepo
-            extraRepo.repoName -> extraRepo
-            betaRepo.repoName -> betaRepo
-            IBTRepo.repoName -> IBTRepo
-            eBibleRepo.repoName -> eBibleRepo
-            lockmanRepo.repoName -> lockmanRepo
-            else -> crosswireRepo
-        }
+        repositories.find { it.repoName == repoName } ?: defaultRepo
 }

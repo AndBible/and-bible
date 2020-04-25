@@ -5,8 +5,12 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-	<item android:id="@+id/refresh" 
+	<item android:id="@+id/errors"
+		android:title="@string/download_errors"
+		android:icon="@drawable/ic_error_outline_black_24dp"
+		appcompat:showAsAction="always"/>
+	<item android:id="@+id/refresh"
 		  android:title="@string/download_refresh_book_list_menu_item"
 		  android:icon="@drawable/ic_action_refresh"
-		  appcompat:showAsAction="ifRoom"/>
+		  appcompat:showAsAction="always"/>
 </menu>

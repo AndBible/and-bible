@@ -20,7 +20,6 @@ package net.bible.service.sword
 import net.bible.android.control.ApplicationScope
 import net.bible.service.common.CommonUtils.isHttpUrlAvailable
 import net.bible.service.common.Logger
-import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.index.IndexCreator
@@ -38,7 +37,6 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.index.IndexManagerFactory
 import org.crosswire.jsword.index.IndexStatus
-import java.util.*
 import javax.inject.Inject
 
 /** JSword facade
@@ -46,7 +44,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFactory) {
+class SwordDocumentFacade @Inject constructor() {
     val bibles: List<Book>
         get() {
             log.debug("Getting bibles")
@@ -119,21 +117,21 @@ class SwordDocumentFacade @Inject constructor(private val repoFactory: RepoFacto
     }
 
     @Throws(InstallException::class)
-    fun getDownloadableDocuments(refresh: Boolean): MutableList<Book> {
+    fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): MutableList<Book> {
         log.debug("Getting downloadable documents.  Refresh:$refresh")
         return try {
 			// there are so many sbmd's to load that we can only load what is required for the display list.
 			// If About is selected or a document is downloaded the sbmd is then loaded fully.
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
-            repoBookDeduplicator.addAll(repoFactory.andBibleRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.IBTRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.crosswireRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.eBibleRepo.getRepoBooks(refresh))
-            // beta repo must never override live books especially if later version so use addIfNotExists
-            repoBookDeduplicator.addIfNotExists(repoFactory.betaRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.lockmanRepo.getRepoBooks(refresh))
-            repoBookDeduplicator.addAll(repoFactory.extraRepo.getRepoBooks(refresh))
+            for(r in repoFactory.normalRepositories) {
+                repoBookDeduplicator.addAll(r.getRepoBooks(refresh))
+            }
+            for(r in repoFactory.betaRepositories) {
+                // beta repo must never override live books especially if later version so use addIfNotExists
+                repoBookDeduplicator.addIfNotExists(r.getRepoBooks(refresh))
+            }
+
             val bookList = repoBookDeduplicator.books
             // get them in the correct order
             bookList.sort()

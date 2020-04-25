@@ -29,6 +29,7 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -36,16 +37,25 @@ import java.util.*
  * @author DM Smith [dmsmith555 at yahoo dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadManager {
+class DownloadManager(
+    private val onFailedReposChange: (() -> Unit)?
+) {
     private val installManager: InstallManager = InstallManager()
+    val failedRepos = TreeSet<String>()
 
-    /**
-     * @param filter
-     * @return
-     */
+    private fun markFailed(repo: String) {
+        failedRepos.add(repo)
+        onFailedReposChange?.invoke()
+    }
+
+    private fun markSuccess(repo: String) {
+        failedRepos.remove(repo)
+        onFailedReposChange?.invoke()
+    }
+
     @Throws(InstallException::class)
-    fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book?> {
-        var documents: List<Book?> = ArrayList()
+    fun getDownloadableBooks(filter: BookFilter?, repo: String, refresh: Boolean): List<Book> {
+        var documents: List<Book> = ArrayList()
         var installer: Installer? = null
         try {
             // If we know the name of the installer we can get it directly
@@ -66,10 +76,13 @@ class DownloadManager {
                 // Get a list of all the available books
                 installer.getBooks(filter) //$NON-NLS-1$
             }
+            markSuccess(repo)
         } catch (e: Exception) {
+            markFailed(repo)
             // ignore error because some minor repos are unreliable
             log.error("Fatal error downloading books from $repo", e)
         } catch (oom: OutOfMemoryError) {
+            markFailed(repo)
             // eBible repo throws OOM errors on smaller devices
             log.error("Out of memory error downloading books from $repo")
         } finally {

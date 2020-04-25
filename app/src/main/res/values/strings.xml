@@ -661,4 +661,8 @@
     <!-- Uncategorized -->
     <string name="close">Close</string>
     <string name="something_with_parenthesis">%s (%s)</string>
+    <string name="download_errors">Download errors</string>
+    <string name="failed_repositories_message">Could not connect to the following document repositories: \n\n%s\n\n</string>
+    <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
+    <string name="download_errors_dialog_title">Download errors</string>
 </resources>

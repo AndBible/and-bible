@@ -42,8 +42,8 @@ class ApplicationModule {
 
     @Provides
     @ApplicationScope
-    fun provideDownloadControl(swordDocumentFacade: SwordDocumentFacade, repoFactory: RepoFactory): DownloadControl {
-        return DownloadControl(DownloadQueue(Executors.newSingleThreadExecutor()), repoFactory, instance, swordDocumentFacade)
+    fun provideDownloadControl(swordDocumentFacade: SwordDocumentFacade): DownloadControl {
+        return DownloadControl(DownloadQueue(Executors.newSingleThreadExecutor()), instance, swordDocumentFacade)
     }
 
     @Provides

@@ -22,7 +22,6 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
-import net.bible.service.common.CommonUtils.isInternetAvailable
 import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
@@ -41,7 +40,11 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadControl(private val downloadQueue: DownloadQueue, private val repoFactory: RepoFactory, private val fontControl: FontControl, private val swordDocumentFacade: SwordDocumentFacade) {
+class DownloadControl(
+    private val downloadQueue: DownloadQueue,
+    private val fontControl: FontControl,
+    private val swordDocumentFacade: SwordDocumentFacade)
+{
     private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
 
     /** pre-download document checks
@@ -57,8 +60,8 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
 
     /** @return a list of all available docs that have not already been downloaded, have no lang, or don't work
      */
-    fun getDownloadableDocuments(refresh: Boolean): List<Book> = try {
-        val availableDocs = swordDocumentFacade.getDownloadableDocuments(refresh)
+    fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): List<Book> = try {
+        val availableDocs = swordDocumentFacade.getDownloadableDocuments(repoFactory, refresh)
 
         // there are a number of books we need to filter out of the download list for various reasons
         val iter = availableDocs.iterator()
@@ -106,7 +109,7 @@ class DownloadControl(private val downloadQueue: DownloadQueue, private val repo
     }
 
     @Throws(LucidException::class)
-    fun downloadDocument(document: Book) {
+    fun downloadDocument(repoFactory: RepoFactory, document: Book) {
         Log.d(TAG, "Download requested")
 
         // ensure SBMD is fully, not just partially, loaded

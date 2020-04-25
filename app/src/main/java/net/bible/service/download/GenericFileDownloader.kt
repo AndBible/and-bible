@@ -37,11 +37,26 @@ import java.io.File
 import java.io.IOException
 import java.lang.ArithmeticException
 import java.net.URI
+import java.util.*
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class GenericFileDownloader {
+class GenericFileDownloader(
+    private val onErrorsChange: (() -> Unit)? = null
+) {
+    val errors = TreeSet<URI>()
+
+    private fun addError(uri: URI) {
+        errors.add(uri)
+        onErrorsChange?.invoke()
+    }
+
+    private fun removeError(uri: URI) {
+        errors.remove(uri)
+        onErrorsChange?.invoke()
+    }
+
     fun downloadFileInBackground(source: URI, target: File, description: String) =
         GlobalScope.launch {
             // So now we know what we want to install - all we need to do
@@ -62,17 +77,17 @@ class GenericFileDownloader {
             try {
                 downloadFile(source, target, description)
             } catch (e: Exception) {
-                Dialogs.instance.showErrorMsg(getResourceString(R.string.error_downloading, source.toString()), e)
-                throw RuntimeException("IO Error downloading file ${source}", e)
+                throw RuntimeException("IO Error downloading file $source", e)
             }
-            Log.i(TAG, "Finished index download thread")
+            Log.i(TAG, "Finished downloading $source")
+            removeError(source)
         } catch (e: Exception) {
-            Log.e(TAG, "Error downloading index", e)
-            Dialogs.instance.showErrorMsg(getResourceString(R.string.error_downloading, source.toString()), e)
+            addError(source)
+            Log.e(TAG, "Error downloading $source", e)
         }
     }
 
-    suspend fun downloadFile(source: URI, target: File, description: String) = withContext(Dispatchers.IO) {
+    suspend fun downloadFile(source: URI, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
         val job = JobManager.createJob(jobName)
 
@@ -96,12 +111,13 @@ class GenericFileDownloader {
                     job.cancel()
                 }
             }
+            removeError(source)
         } catch (e: IOException) {
-            Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
+            if(reportError) addError(source)
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } catch (e: InstallException) {
-            Dialogs.instance.showErrorMsg(getResourceString(R.string.download_failed, source.toString()), e)
+            if(reportError) addError(source)
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } finally {

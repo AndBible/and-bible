@@ -41,12 +41,13 @@ import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.download.DownloadManager
 import net.bible.service.download.GenericFileDownloader
+import net.bible.service.download.RepoFactory
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.io.File
-import java.io.FileInputStream
 import java.net.URI
 import java.util.*
 import javax.inject.Inject
@@ -67,12 +68,21 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     @Inject lateinit var downloadControl: DownloadControl
 
     override var recommendedDocuments : RecommendedDocuments? = null
+    private val genericFileDownloader = GenericFileDownloader {
+        invalidateOptionsMenu()
+    }
+    private val downloadManager = DownloadManager {
+        invalidateOptionsMenu()
+    }
+
+    private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
+
+    private val repoFactory = RepoFactory(downloadManager)
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
         val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
-        val d = GenericFileDownloader()
-        d.downloadFile(source, target, "Recommendations")
+        genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
             recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
@@ -170,7 +180,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     }
 
     override fun getDocumentsFromSource(refresh: Boolean): List<Book> {
-        return downloadControl.getDownloadableDocuments(refresh)
+        return downloadControl.getDownloadableDocuments(repoFactory, refresh)
     }
 
     override fun onStart() {
@@ -224,7 +234,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     private fun doDownload(document: Book) {
         try {
             // the download happens in another thread
-            downloadControl.downloadDocument(document)
+            downloadControl.downloadDocument(repoFactory, document)
 
             // update screen so the icon to the left of the book changes
             notifyDataSetChanged()
@@ -248,6 +258,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         super.onCreateOptionsMenu(menu)
         val inflater = menuInflater
         inflater.inflate(R.menu.download_documents, menu)
+        menu.findItem(R.id.errors).isVisible = hasErrors
         return true
     }
 
@@ -278,6 +289,20 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
 
 
                 isHandled = true
+            }
+            R.id.errors -> {
+                var message = ""
+                if(downloadManager.failedRepos.isNotEmpty()) {
+                    message += getString(R.string.failed_repositories_message, downloadManager.failedRepos.joinToString(",\n"))
+                }
+                if(genericFileDownloader.errors.isNotEmpty()) {
+                    message += getString(R.string.failed_downloads_message, genericFileDownloader.errors.joinToString(",\n"))
+                }
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.download_errors_dialog_title))
+                    .setMessage(message)
+                    .setPositiveButton(R.string.okay, null)
+                    .create().show()
             }
         }
         if (!isHandled) {

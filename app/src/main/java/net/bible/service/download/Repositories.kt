@@ -18,7 +18,6 @@
 
 package net.bible.service.download
 
-import net.bible.service.common.Logger
 import net.bible.service.sword.AcceptableBookTypeFilter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
@@ -28,16 +27,22 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 abstract class RepoBase {
+    lateinit var repoFactory: RepoFactory
+
+    private val downloadManager get() = repoFactory.downloadManager
+
     @Throws(InstallException::class)
-    abstract fun getRepoBooks(refresh: Boolean): List<Book?>?
+    abstract fun getRepoBooks(refresh: Boolean): List<Book>
     abstract val repoName: String
 
-    /** get a list of books that are available in Xiphos repo and seem to work in And Bible
-     */
     @Throws(InstallException::class)
-    fun getBookList(bookFilter: BookFilter?, refresh: Boolean): List<Book> {
-        val crossWireDownloadManager = DownloadManager()
-        return crossWireDownloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
+    fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
+        return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
+    }
+
+    @Throws(InstallException::class, BookException::class)
+    fun downloadDocument(document: Book) {
+        downloadManager.installBook(repoName, document)
     }
 
     fun storeRepoNameInMetaData(bookList: List<Book>) {
@@ -51,19 +56,9 @@ abstract class RepoBase {
             }
         }
     }
-
-    @Throws(InstallException::class, BookException::class)
-    fun downloadDocument(document: Book?) {
-        val downloadManager = DownloadManager()
-        downloadManager.installBook(repoName, document)
-    }
 }
 
 class AndBibleRepo : RepoBase() {
-    private val log = Logger(this.javaClass.name)
-
-    /** get a list of books that are available in AndBible repo
-     */
     @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
@@ -80,8 +75,6 @@ class AndBibleRepo : RepoBase() {
 }
 
 class AndBibleExtraRepo : RepoBase() {
-    private val log = Logger(this.javaClass.name)
-
     @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
@@ -99,10 +92,8 @@ class AndBibleExtraRepo : RepoBase() {
 
 
 class BetaRepo : RepoBase() {
-    /** get a list of good books that are available in Beta repo and seem to work in And Bible
-     */
     @Throws(InstallException::class)
-    override fun getRepoBooks(refresh: Boolean): List<Book?>? {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
@@ -128,8 +119,6 @@ class BetaRepo : RepoBase() {
 }
 
 class CrosswireRepo : RepoBase() {
-    /** get a list of books that are available in default repo and seem to work in And Bible
-     */
     @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
@@ -163,10 +152,8 @@ class LockmanRepo : RepoBase() {
 }
 
 class EBibleRepo : RepoBase() {
-    /** get a list of books that are available in AndBible repo
-     */
     @Throws(InstallException::class)
-    override fun getRepoBooks(refresh: Boolean): List<Book?>? {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
         return bookList
@@ -182,10 +169,8 @@ class EBibleRepo : RepoBase() {
 }
 
 class IBTRepo : RepoBase() {
-    /** get a list of books that are available in default repo and seem to work in And Bible
-     */
     @Throws(InstallException::class)
-    override fun getRepoBooks(refresh: Boolean): List<Book?>? {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
         return books
