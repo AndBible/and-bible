@@ -105,10 +105,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     open val recommendedDocuments: RecommendedDocuments? = null
 
-    // the document list
     private var allDocuments = ArrayList<Book>()
-
-    //TODO just use displayedDocuments with a model giving 2 lines in list
     var displayedDocuments = ArrayList<Book>()
 
     @Inject lateinit var documentControl: DocumentControl
