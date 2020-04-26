@@ -308,8 +308,10 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         withContext(Dispatchers.Main) {
             loadingIndicator.visibility = View.VISIBLE
             showPreLoadMessage()
-            displayedDocuments.clear()
-            documentItemAdapter.clear()
+            filterMutex.withLock {
+                documentItemAdapter.clear()
+                displayedDocuments.clear()
+            }
         }
         withContext(Dispatchers.Default) {
             try {
