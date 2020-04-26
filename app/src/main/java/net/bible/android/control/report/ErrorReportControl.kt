@@ -32,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
 import java.io.BufferedReader
@@ -121,7 +122,7 @@ class ErrorReportControl @Inject constructor() {
         hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
-            val subject = context.getString(R.string.report_bug_email_subject, getSubject(exception))
+            val subject = context.getString(R.string.report_bug_email_subject_2, CommonUtils.applicationNameMedium, getSubject(exception))
             val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
             val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)

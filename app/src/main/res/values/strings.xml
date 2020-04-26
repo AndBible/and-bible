@@ -5,6 +5,7 @@
 -->
 <resources>
     <string name="app_name_short">Bible Study</string>
+    <string name="app_name_medium">Bible Study (And Bible)</string>
     <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
 
     <!-- Startup & Help -->
@@ -62,7 +63,7 @@
         other extra material when you study bible.
     </string>
     <string name="version_text">Version %s</string>
-    <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+    <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
 
     <!-- Main menu -->
     <string name="menu">Menu</string>
@@ -359,7 +360,7 @@
     <string name="notes">Footnotes and references</string>
     <string name="verse_action_copy">Copy</string>
     <string name="share_verse">Share…</string>
-    <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
+    <string name="share_verse_subject_2">A Bible verse has been shared with you using %s.</string>
     <string name="compare_translations">Compare translations</string>
 
     <!-- Link context menu -->
@@ -535,11 +536,11 @@
     <string name="backup_success">My Notes, Bookmarks, Reading Plans and Workspaces backed up successfully to %s.</string>
     <string name="error_no_backup_file">Backup file was not found</string>
 
-    <string name="backup_modules_email_subject">And Bible modules backup</string>
-    <string name="backup_modules_email_message">Attached is your And Bible modules backup, which contains the following modules: %s</string>
+    <string name="backup_modules_email_subject_2">%s modules backup</string>
+    <string name="backup_modules_email_message_2">Attached is your %s modules backup, which contains the following modules: %s</string>
 
-    <string name="backup_email_subject">And Bible database backup</string>
-    <string name="backup_email_message">Your And Bible database containing bookmarks, notes, reading plans and workspaces is attached</string>
+    <string name="backup_email_subject_2">%s database backup</string>
+    <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="backup_restore_title">Restore from where?</string>
     <string name="backup_restore_message">Restore from phone storage or pick backup file manually (you can choose also from Google Drive etc.)?</string>
@@ -563,7 +564,7 @@
 
     <!-- Bug reporting -->
     <string name="send_bug_report_title">Report a bug</string>
-    <string name="report_bug_email_subject">Bug report for And Bible %s</string>
+    <string name="report_bug_email_subject_2">Bug report for %s %s</string>
     <string name="report_bug_email_message">
         --- WRITE BUG REPORT ABOVE THIS LINE ---\n
         Instructions:\n

@@ -43,6 +43,7 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.Hourglass
+import net.bible.service.common.CommonUtils
 
 import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
@@ -98,8 +99,8 @@ class BackupControl @Inject constructor() {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         FileManager.copyFile(fileName, internalDbDir, internalDbBackupDir)
-		val subject = getString(R.string.backup_email_subject)
-		val message = getString(R.string.backup_email_message)
+		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
+		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
         val f = File(internalDbBackupDir, fileName)
         val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", f)
 		val email = Intent(Intent.ACTION_SEND).apply {
@@ -256,8 +257,8 @@ class BackupControl @Inject constructor() {
             hourglass.dismiss()
 
             val modulesString = books.joinToString(", ") { it.abbreviation }
-            val subject = getString(R.string.backup_modules_email_subject)
-            val message = BibleApplication.application.getString(R.string.backup_modules_email_message, modulesString)
+            val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
+            val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
 
             val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
             val email = Intent(Intent.ACTION_SEND).apply {

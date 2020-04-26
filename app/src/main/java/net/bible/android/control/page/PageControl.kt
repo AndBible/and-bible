@@ -75,7 +75,8 @@ open class PageControl @Inject constructor(
             sendIntent.type = "text/plain"
             sendIntent.putExtra(Intent.EXTRA_TEXT, getCopyShareText(book, verseRange))
             // subject is used when user chooses to send verse via e-mail
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, application.getText(R.string.share_verse_subject))
+            val appName = application.getText(R.string.app_name_long)
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, application.getString(R.string.share_verse_subject_2, appName))
             val activity = CurrentActivityHolder.getInstance().currentActivity
             activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse)))
         } catch (e: Exception) {

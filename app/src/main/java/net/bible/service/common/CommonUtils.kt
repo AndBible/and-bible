@@ -59,7 +59,6 @@ import org.crosswire.jsword.passage.VerseRange
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Calendar
 import java.util.Date
@@ -80,6 +79,8 @@ object CommonUtils {
     private const val TAG = "CommonUtils"
     var isAndroid = true
         private set
+
+    val applicationNameMedium get() = BibleApplication.application.getString(R.string.app_name_medium)
 
     val applicationVersionName: String
         get() {
