@@ -314,12 +314,17 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         var isHandled = false
 
         when (item.itemId) {
-            // selected to allow jump to a certain day
-            R.id.done -> {
-                Log.i(TAG, "Force Done")
+            R.id.setCurrentDay -> {
+                // selected to allow jump to a certain day
+                Log.i(TAG, "Set current day")
                 try {
-                    readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded, true)
-                    updateTicksAndDone()
+                    Dialogs.instance.showMsg(R.string.msg_set_current_day_reading_plan, true)
+                    {
+                        // set previous day as finish, so that today's reading status will not be changed
+                        readingPlanControl.done(readingsDto.readingPlanInfo, dayLoaded - 1, true)
+                        updateTicksAndDone()
+                    }
+
                 } catch (e: Exception) {
                     Log.e(TAG, "Error when Done daily reading", e)
                     Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
