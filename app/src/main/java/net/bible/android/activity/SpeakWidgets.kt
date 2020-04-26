@@ -61,7 +61,7 @@ class SpeakWidgetManager {
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     private val app = BibleApplication.application
-    private val resetTitle = app.getString(R.string.app_name_short)
+    private val resetTitle = app.getString(R.string.app_name_medium)
     private var currentTitle = resetTitle
     private var currentText = ""
 
