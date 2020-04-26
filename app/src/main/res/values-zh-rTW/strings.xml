@@ -16,7 +16,6 @@
   <string name="help_workspaces_title">工作檢視</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
   <string name="version_text"> %s 版本 </string>
-  <string name="no_sdcard_error">請插入SD卡後再次啟動本程式</string>
   <!--Main menu-->
   <string name="menu">選單</string>
   <string name="chooseBook">文件</string>
@@ -198,7 +197,6 @@
   <!--Verse context menu-->
   <string name="notes">注腳及參考</string>
   <string name="verse_action_copy">複製</string>
-  <string name="share_verse_subject">您的朋友與您分享了如下的聖經</string>
   <string name="compare_translations">譯本比較</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">在此開啟連結</string>
@@ -348,8 +346,6 @@
   <string name="restore_success">成功回復我的筆記、書籤、閱讀計劃及工作檢視</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
   <string name="error_no_backup_file">找不到備份檔案</string>
-  <string name="backup_modules_email_subject">And聖經模組備份</string>
-  <string name="backup_email_subject">And聖經資料庫備份</string>
   <string name="backup_restore_title">回復來源</string>
   <string name="backup_phone_storage">手機容量</string>
   <string name="backup_manually">選擇檔案</string>

@@ -1,15 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">Studium Biblii</string>
+  <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Nawigacja</string>
+  <string name="help_nav_text">Przesuń palcem po ekranie w prawo lub w lewo, aby przejść do następnego lub poprzedniego rozdziału.
+ Dwukrotnie stuknij w tekst, aby przełączyć tryb pełnego ekranu.
+ Dzielenie ekranu (tryb okienkowy) dostępny jest pod przyciskiem w prawym górnym rogu ekranu, przycisk ten umożliwia dostęp do kilku okienkowych funkcji i dostosowanie zachowania i wyglądu okien.</string>
   <string name="help_contextmenus_title">Menu kontekstowe</string>
+  <string name="help_contextmenus_text">
+Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności od wyświetlanego elementu aplikacji.
+ Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić akcje dla wybranego wersetu.
+ Naciśnij i przytrzymaj na dokument w widoku „wybór dokumentu” lub „pobierz moduł”, aby usunąć dokument lub wyświetlić o nim informacje.
+ Naciśnij i przytrzymaj na zakładkę w liście zakładek, aby ją usunąć lub dodać do niej etykiety.
+ Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
   <string name="help_mynote_title">Moje notatki</string>
   <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
-Lista istniejących notatek dostępna jest poprzez menu główne.</string>
+ Lista istniejących notatek dostępna jest poprzez menu główne.</string>
   <string name="help_bookmarks_title">Zakładki</string>
   <string name="help_bookmarks_text">Zakładki można dodać poprzez menu kontekstowe wersetu.
-Organizator zakładek jest dostępny poprzez menu główne.
-Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
+ Organizator zakładek jest dostępny poprzez menu główne.
+ Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
   <string name="help_search_title">Wyszukiwanie</string>
   <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
 (więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
@@ -17,8 +28,16 @@ Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
   <string name="help_workspaces_text">
 Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
   <string name="help_hidden_features_title">Skróty</string>
+  <string name="help_hidden_features_text">
+Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
+ Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
+ Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
+ Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
+ Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
+  <string name="help_window_pinning_title">Przypinanie okien</string>
+  <string name="help_window_pinning_text">
+Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <string name="version_text">Wersja %s</string>
-  <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
   <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Dokument</string>
@@ -41,6 +60,7 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="deuterocanonical">Deuterokanoniczny</string>
   <!--Search-->
   <string name="search_index">Indeks wyszukiwania</string>
+  <string name="index_creation_required">Indeks jest niezbędny do wyszukiwania.</string>
   <string name="create_index_for">Do wyszukiwania potrzebny jest indeks.\n\nCzy utworzyć indeks dla %s?</string>
   <string name="rebuild_index_for">Czy utworzyć ponownie indeks dla %s?</string>
   <string name="indexing_wait_msg">Po zakończeniu indeksowania zostaniesz przeniesiony do ekranu wyszukiwania.</string>
@@ -108,9 +128,11 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="reset_fontsize">Reset</string>
   <string name="prefs_request_sdcard_permission_title">Korzystaj z ręcznie skopiowanych dokumentów</string>
   <string name="prefs_request_sdcard_permission_summary">Umożliwia korzystanie z ręcznie zainstalowanych dokumentów w katalogu jsword/sword w pamięci wewnętrznej</string>
+  <string name="all_text_options_window_menutitle">Wszystkie ustawienia tekstu</string>
   <string name="text_options_window_menutitle">Ustawienia tekstu</string>
   <string name="auto_fullscreen">Pełny ekran podczas przewijania</string>
-  <string name="reversed_split_mode">Tryb odwróconego podwójnego ekranu</string>
+  <string name="reversed_split_mode">Pionowo/poziomo</string>
+  <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
   <string name="auto_fullscreen_summary">Automatycznie przełączaj na tryb pełnego ekranu podczas przewijania tekstu. Wskazówka: zawsze możesz wejść w tryb pełnoekranowy stukając dwukrotnie w ekran.</string>
   <string name="prefs_margin_size_title">Dostosuj rozmiary marginesów</string>
@@ -127,6 +149,9 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="prefs_text_appearance_title">Wygląd</string>
   <string name="prefs_justify_title">Wyjustuj tekst</string>
   <string name="prefs_justify_summary">Wyrównaj tekst w taki sposób, aby lewy i prawy margines tekstu były równe</string>
+  <string name="pref_left_margin_label_mm">Lewy margines (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Prawy margines (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maksymalna szerokość tekstu (%d mm)</string>
   <string name="prefs_line_spacing_pt">Interlinia: %1.1f×</string>
   <string name="pref_font_family_label">Rodzaj czcionki</string>
   <string name="prefs_hyphenation_title">Dzielenie wyrazów</string>
@@ -140,6 +165,8 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="hide_window_buttons_title">Ukryj przyciski okien</string>
   <string name="hide_window_buttons_summary">Przyciski okna wyświetlane po prawej stronie widoku Biblii zostały ukryte. Pasek nawigacji na dole jest wciąż wyświetlany i możesz wywołać menu okna poprzez naciśnięcie i przytrzymanie okna.</string>
   <string name="font_size_title">Rozmiar czcionki</string>
+  <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
+  <string name="full_screen_hide_buttons_pref_summary">Po przełączeniu w trym pełnego ekranu, automatycznie ukrywaj pasek przycisków okna na dole ekranu</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Ustawienia kolorów</string>
   <string name="window_color_settings_title">Kolor okien</string>
@@ -161,6 +188,12 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="windowMaximise">Maksymalizuj</string>
   <string name="windowMinimise">Minimalizuj</string>
   <string name="windowSynchronise">Synchronizuj</string>
+  <string name="move_window">Przenieś do</string>
+  <string name="move_window_to_position2">Pozycja %d (%s:%s)</string>
+  <string name="copy_settings">Kopiuj ustawienia do</string>
+  <string name="copy_settings_to_workspace">obszaru roboczego</string>
+  <string name="copy_settings_to_window">okna %d (%s: %s)</string>
+  <string name="change_to_normal">Zwykłe okno</string>
   <string name="window_pin_mode">Przypnij</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
@@ -175,6 +208,8 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <!--Module download-->
   <string name="download">Pobierz moduł</string>
+  <string name="download_confirmation">Czy pobrać dokumentu z Internetu?</string>
+  <string name="download_source_message">Pobieranie dokumentów z:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, i\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
   <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="download_refresh_book_list_menu_item">Odśwież</string>
@@ -186,6 +221,16 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
   <string name="chooce_language_hint">Język</string>
   <string name="one_more_back_press">Naciśnij ponownie przycisk wstecz, aby zamknąć aplikację</string>
   <string name="document_filter_results">%d dokumentów</string>
+  <string name="download_question_title">Czy na prawdę chcesz pobrać dokumenty?</string>
+  <string name="download_question_message">Jeżeli mieszkasz w opresyjnym państwie, powinieneś być ostrożny podczas pobierania chrześcijańskich materiałów z Internetu. Zamiast tego, możesz pobrać moduł zip w bardziej bezpieczny sposób, a następnie zainstalować go poprzez funkcję „załaduj dokument z pliku zip”. Czy chcesz kontynuować pobieranie?
+ Wszystkie pobierania z repozytorium są szyfrowane (HTTPS)?</string>
+  <string name="do_not_ask_again">Tak, nie pytaj ponownie</string>
+  <string name="recommended_document">Zalecany!</string>
+  <string name="about_version_history">Historia wersji: %s</string>
+  <string name="download_failed">Błąd pobierania %s</string>
+  <string name="download_errors">Błędy pobierania</string>
+  <string name="failed_repositories_message">Nie udało się połączyć z następującymi repozytoriami dokumentów:\n\n%s\n\n</string>
+  <string name="failed_downloads_message">Nie udało się pobrać następujących plików:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
   <string name="install_zip_module">Zainstaluj moduł Biblii</string>
@@ -239,7 +284,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <!--Verse context menu-->
   <string name="notes">Przypisy i odnośniki</string>
   <string name="verse_action_copy">Kopiuj</string>
-  <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
+  <string name="share_verse">Udostępnij…</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otwórz odnośnik tutaj</string>
@@ -377,11 +422,8 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki, zakładki, plany czytania i obszary robocze?</string>
   <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, plany czytania i obszary robocze</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
+  <string name="backup_success">Pomyślnie utworzono kopię zapasową notatek, zakładek, planów czytania i obszarów roboczych do %s.</string>
   <string name="error_no_backup_file">Nie znaleziono pliku kopii zapasowej</string>
-  <string name="backup_modules_email_subject">And Bible: kopia zapasowa modułów</string>
-  <string name="backup_modules_email_message">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji And Bible: %s</string>
-  <string name="backup_email_subject">And Bible: kopia zapasowa bazy danych</string>
-  <string name="backup_email_message">W załączniku znajduje się kopia zapasowa bazy danych aplikacji And Bible zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
   <string name="backup_restore_title">Przywrócić skąd?</string>
   <string name="backup_restore_message">Czy przywrócić kopię zapasową z pamięci wewnętrznej, czy wybrać plik ręcznie (będziesz mógł także wybrać np.: Dysk Google)?</string>
@@ -393,10 +435,16 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="restore_modules">Przywróć dokumenty z…</string>
   <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
   <string name="backup_modules_title">Wybór modułów do kopii zapasowej</string>
+  <string name="install_zip_canceled">Przerwano instalację modułu</string>
   <!--About-->
+  <string name="module_about_copyright">Prawa autorskie: %s</string>
+  <string name="module_about_installed_version">Zainstalowana wersja: %s (%s)</string>
+  <string name="module_about_latest_version">Najnowsza wersja: %s (%s)</string>
+  <string name="module_about_versification">Wersyfikacja: %s</string>
+  <string name="module_about_repository">Repozytorium: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Zgłoś błąd</string>
-  <string name="report_bug_email_subject">Raport o błędzie programu And Bible %s</string>
   <string name="report_bug_email_message">
 --- NAPISZ ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ ---\n
 Instrukcja:\n
@@ -444,6 +492,7 @@ Informacje o urządzeniu:\n
   <string name="notification_channel_progress_status">Powiadomienie postępu stanu pobierań, itp.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nowy</string>
+  <string name="switch_to_workspace">Obszary robocze</string>
   <string name="delete_workspace">Usuń</string>
   <string name="new_copied_workspace">Duplikuj</string>
   <string name="workspace_number">Obszar roboczy %d</string>
@@ -476,4 +525,5 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="history_for">Historia (%s: okno %d)</string>
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

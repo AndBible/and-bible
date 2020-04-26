@@ -4,10 +4,16 @@
   <string name="app_name_long">Studi Biblion, la malfermkoda projekto de And Bible</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigi</string>
-  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren. Duoble frapetu por baskuli plenekranon. Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
+  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
+ Duoble frapetu por baskuli plenekranon.
+ Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
   <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
   <string name="help_contextmenus_text">
-Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna vido. Frapetadu en la vido de Biblio por vidigi agojn rilatajn al la nuna verso. Frapetadu dokumenton en la vido “elekti dokumenton” aŭ ”elŝuti dokumenton” por forigi la dokumenton aŭ vidigi ĝiajn informojn. Frapetadu legosignon en la vido de legosignoj por aldoni etikedojn aŭ forigi ĝin. Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
+Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna vido.
+ Frapetadu en la vido de Biblio por vidigi agojn rilatajn al la nuna verso.
+ Frapetadu dokumenton en la vido “elekti dokumenton” aŭ ”elŝuti dokumenton” por forigi la dokumenton aŭ vidigi ĝiajn informojn.
+ Frapetadu legosignon en la vido de legosignoj por aldoni etikedojn aŭ forigi ĝin.
+ Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
   <string name="help_mynote_title">Miaj notoj</string>
   <string name="help_mynote_text">Oni povas aldoni notojn per la funkcio “miaj notoj” en la kunteksta menuo de verso.
  La listo de ekzistaj notoj estas disponebla per la ĉefmenuo.</string>
@@ -23,12 +29,15 @@ Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna
 Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
   <string name="help_hidden_features_title">Gestoj</string>
   <string name="help_hidden_features_text">
-Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj. Frapetadu la butonon de fenestro por minimumigi la aplikaĵon. Frapetadu la butonon de parolo por malfermi agordojn pri parolo. Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento. Frapetadu la REEN‑butonon por aliri liston de historio.</string>
+Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
+ Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
+ Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
+ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.
+ Frapetadu la REEN‑butonon por aliri liston de historio.</string>
   <string name="help_window_pinning_title">Alpingli fenestron</string>
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <string name="version_text">Versio %s</string>
-  <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj relanĉi And Biblion.</string>
   <!--Main menu-->
   <string name="menu">Menuo</string>
   <string name="chooseBook">Dokumento</string>
@@ -122,7 +131,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="all_text_options_window_menutitle">Ĉiuj tekstaj agordoj</string>
   <string name="text_options_window_menutitle">Tekstaj agordoj</string>
   <string name="auto_fullscreen">Plenekranigi per rulumi</string>
-  <string name="reversed_split_mode">Reĝimo de inversa dividita ekrano</string>
+  <string name="reversed_split_mode">Horizontale/vertikale</string>
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d p.</string>
   <string name="auto_fullscreen_summary">Aŭtomate baskuli al plenekrano dum rulumi tekston. Konsilo: vi ĉiam povas baskuli al plenekrano per dufoje frapeti la ekranon.</string>
@@ -218,6 +227,9 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="recommended_document">Konsilinda!</string>
   <string name="about_version_history">Historio de versio: %s</string>
   <string name="download_failed">Fiaskis elŝuti %s</string>
+  <string name="download_errors">Eraroj dum elŝuti</string>
+  <string name="failed_repositories_message">Ne povis konekti al la jenaj deponejoj de dokumentoj:\n\n%s\n\n</string>
+  <string name="failed_downloads_message">Ne povis elŝuti la jenajn dosierojn:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_module">Instali modulon de Biblio</string>
@@ -278,7 +290,6 @@ laŭ ilia permeso.</string>
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="verse_action_copy">Kopii</string>
   <string name="share_verse">Kunhavigi…</string>
-  <string name="share_verse_subject">Verso de Biblio kunhavigita per la aplikaĵo And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Malfermi ligilon tie ĉi</string>
@@ -418,10 +429,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_success">Sukcese sekurkopiis miajn notojn, legosignojn, legplanojn kaj laborspacojn al %s.</string>
   <string name="error_no_backup_file">Ne trovis dosieron kun sekurkopio</string>
-  <string name="backup_modules_email_subject">And Biblio: sekurkopio de moduloj</string>
-  <string name="backup_modules_email_message">Datumbazo enhavanta la jenajn modulojn de la programo And Biblio: %s troviĝas en la kunsendaĵo</string>
-  <string name="backup_email_subject">And Biblio: sekurkopio de datumbazo</string>
-  <string name="backup_email_message">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo And Biblio en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <string name="backup_restore_title">Restarigi el kie?</string>
   <string name="backup_restore_message">Ĉu restarigi el la aparata konservejo aŭ ĉu permane elekti dosieron (vi ankaŭ povos elekti Google Drive)?</string>
@@ -443,7 +450,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Raporti eraron</string>
-  <string name="report_bug_email_subject">Erar‑raporto pri And Biblio %s</string>
   <string name="report_bug_email_message">
         --- SKRIBU RAPORTON PRI ERARO SUPER TIU ĈI LINIO ---\n
         Instrukcioj:\n

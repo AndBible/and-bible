@@ -15,7 +15,6 @@ Mit Arbeitsplätzen können Sie verschiedene unabhängige Arbeitsumgebungen erst
 Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsplätze erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsplatz.</string>
   <string name="help_hidden_features_title">Verborgene Kürzel</string>
   <string name="version_text">Version %s</string>
-  <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten Sie And Bible neu.</string>
   <!--Main menu-->
   <string name="menu">Menü</string>
   <string name="chooseBook">Dokument</string>
@@ -228,7 +227,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
-  <string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Verknüpfung hier öffnen</string>
@@ -360,14 +358,11 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
   <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
-  <string name="backup_email_subject">And Bible Datenbanksicherung</string>
-  <string name="backup_email_message">Die And Bible Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
   <string name="send_backup_file">Sende Backup</string>
   <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Fehlermeldung</string>
-  <string name="report_bug_email_subject">Fehlermeldung für And Bible %s</string>
   <string name="report_bug_email_message">
         --- DIE FEHLERMELDUNG OBERHALB DIESER LINIE EINFÜGEN ---\n
         Anleitung:\n

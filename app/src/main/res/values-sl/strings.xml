@@ -19,7 +19,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
         Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
   <string name="help_hidden_features_title">Skrite bližnjice</string>
   <string name="version_text">Verzija %s</string>
-  <string name="no_sdcard_error">Prosim vstavite SD kartico in ponovno poženite And Biblijo.</string>
   <!--Main menu-->
   <string name="menu">Meni</string>
   <string name="chooseBook">Dokument</string>
@@ -246,7 +245,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="delete_search_index_doc">Izbriše indeks %s?</string>
   <!--Verse context menu-->
   <string name="notes">Opombe pod črto in sklici</string>
-  <string name="share_verse_subject">Biblijska vrstica vam je bila poslana s pomočjo aplikacije And Bible</string>
   <string name="compare_translations">Primerjaj prevode</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Povezavo odpri tukaj</string>
@@ -394,14 +392,11 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="restore_confirmation">Želite prepisati moje opombe, zaznamke, načrte za branje in delovne prostore?</string>
   <string name="restore_success">Moji zapiski, zaznamki, načrti branja in delovni prostori so uspešno obnovljeni</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
-  <string name="backup_email_subject">And Bible varnostno kopiranje baze podatkov</string>
-  <string name="backup_email_message">Vaša And Bible baza podatkov, ki vsebuje zaznamke, opombe, načrte za branje in delovne prostore, je pripeta</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
   <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Prijavite napako</string>
-  <string name="report_bug_email_subject">Poročilo o napaki za And Bible%s</string>
   <string name="report_bug_email_message">
         --- POROČILO O HROŠČU NAPIŠITE NAD TO VRSTICO --- \ n
         Navodila: \ n

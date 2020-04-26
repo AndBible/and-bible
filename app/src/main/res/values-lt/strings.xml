@@ -17,7 +17,6 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
   <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
   <string name="version_text">Versija %s</string>
-  <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
   <!--Main menu-->
   <string name="menu">Meniu</string>
   <string name="chooseBook">Dokumentas</string>
@@ -110,6 +109,7 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="text_options_window_menutitle">Teksto nustatymai</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
+  <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
@@ -251,7 +251,6 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <!--Verse context menu-->
   <string name="notes">Išnašos ir nuorodos</string>
   <string name="verse_action_copy">Kopijuoti</string>
-  <string name="share_verse_subject">Su jumis pasidalinta Biblijos eilute per programą And Bible</string>
   <string name="compare_translations">Lyginti vertimus</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Atverti nuorodą čia</string>
@@ -394,15 +393,12 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="restore_confirmation">Perrašyti Mano pastabas, Žymes, Skaitymo planus ir Darbo sritis?</string>
   <string name="restore_success">Mano pastabos, Žymės, Skaitymo planai ir Darbo sritys sėkmingai atkurtos</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
-  <string name="backup_email_subject">And Bible duomenų bazės atsarginė kopija</string>
-  <string name="backup_email_message">Jūsų And Bible duomenų bazė su pridėtomis žymelėmis, pastabomis, skaitymo planais ir darbo sritimis</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="backup_restore_title">Iš kur atkurti?</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Pranešti apie klaidą</string>
-  <string name="report_bug_email_subject">Pranešimas apie klaidą And Bible %s</string>
   <string name="report_bug_email_message">
         --- RAŠYKITE PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS ---\n
         Instrukcijos:\n

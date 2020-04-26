@@ -51,7 +51,6 @@ on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde venst
 Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
 ander ekstra materiaal as jy die Bybel bestudeer.</string>
   <string name="version_text">Weergawe %s</string>
-  <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
   <!--Main menu-->
   <string name="menu">Kieslys</string>
   <string name="chooseBook">Dokument</string>
@@ -247,6 +246,9 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="recommended_document">Aanbeveel!</string>
   <string name="about_version_history">Weergawe geskiedenis:%s</string>
   <string name="download_failed">Kon nie aflaai nie %s</string>
+  <string name="download_errors">Fout met aflaai</string>
+  <string name="failed_repositories_message">Kon nie na die volgende dokument bewaarplekke toe skakel nie: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Die volgende lêers kon nie afgelaai word nie:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Laai dokument van Zip </string>
   <string name="install_zip_module">Installeer Bybel Module</string>
@@ -313,7 +315,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="notes">Voetnotas en verwysings</string>
   <string name="verse_action_copy">Kopieër</string>
   <string name="share_verse">Deel...</string>
-  <string name="share_verse_subject">\'n Bybelvers is gedeel met jou met And Bible Program</string>
   <string name="compare_translations">Vergelyk vertalings</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Maak skakel hier oop</string>
@@ -455,10 +456,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_success">My notas, boekmerke, leesplanne en werkruimtes is suksesvol gerugsteun na %s.</string>
   <string name="error_no_backup_file">Rugsteun lêer is nie gevind nie</string>
-  <string name="backup_modules_email_subject">And Bible modules rugsteun</string>
-  <string name="backup_modules_email_message">Aangeheg is u rugsteun van die And Bible -modules, wat die volgende modules bevat: %s</string>
-  <string name="backup_email_subject">And Bible databasis rugsteun</string>
-  <string name="backup_email_message">Jou And Bible databasis met boekmerke, aantekeninge, lees planne en werkruimtes is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
   <string name="backup_restore_title">Herstel van waar af?</string>
@@ -481,7 +478,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporteer \'n fout</string>
-  <string name="report_bug_email_subject">Foutverslag vir And Bible %s</string>
   <string name="report_bug_email_message">
 --- SKRYF FOUT VERSLAG BO HIERDIE LYN --- \ n
 Instruksies: \ n

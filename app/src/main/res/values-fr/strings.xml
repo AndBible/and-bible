@@ -21,7 +21,6 @@ de faire glisser votre doigt vers le bas depuis la barre d\'outils. Vous pouvez 
 l\'espace de travail précédent / suivant.</string>
   <string name="help_hidden_features_title">Raccourcis cachés</string>
   <string name="version_text">Version %s</string>
-  <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Document</string>
@@ -241,7 +240,6 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notes et références croisées</string>
-  <string name="share_verse_subject">Un autre utilisateur de And Bible vous partage un verset de la Bible </string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Ouvrir le lien ici</string>
@@ -379,15 +377,12 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Espaces?</string>
   <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Espaces ont été restaurés avec succès</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
-  <string name="backup_email_subject">Sauvegarde de la base de données de And Bible</string>
-  <string name="backup_email_message">Veuillez trouver ci-jointe la base de données And Bible comprenant vos Notes, Signets, Plans de lecture et Espaces.</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
   <!--About-->
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporter un bogue</string>
-  <string name="report_bug_email_subject">Rapport de bogue pour And Bible %s</string>
   <string name="report_bug_email_message">
 --- ÉCRIRE UN RAPPORT DE BOGUE SOUS CETTE LIGNE ---\n
 Instructions:\n

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Raamattu</string>
+  <string name="app_name_medium">Raamattu (And Bible)</string>
   <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigointi</string>
@@ -28,7 +29,7 @@ Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorial
   <string name="help_window_pinning_text">
 Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
   <string name="version_text">Versio %s</string>
-  <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
+  <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
   <string name="menu">Valikko</string>
   <string name="chooseBook">Teos</string>
@@ -280,7 +281,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
   <string name="verse_action_copy">Kopioi</string>
   <string name="share_verse">Jaa…</string>
-  <string name="share_verse_subject">Raamatun jae on lähetetty And Bible -sovelluksella</string>
+  <string name="share_verse_subject_2">Raamatun jae on lähetetty %s -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Avaa linkki tässä ikkunassa</string>
@@ -430,10 +431,10 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="loading_backup">Lataan tietokantaa varmuuskopiosta…</string>
   <string name="backup_success">Muistiinpanot, kirjanmerkit, lukusuunnitelmat ja työtilat on varmuuskopioitu onnistuneesti sijaintiin %s.</string>
   <string name="error_no_backup_file">Varmuuskopioitiedostoa ei löytynyt</string>
-  <string name="backup_modules_email_subject">And Bible moduulien varmuuskopiointi</string>
-  <string name="backup_modules_email_message">Liitteenä on And Biblen moduulien varmuuskopio, joka sisältää seuraavat moduulit: %s</string>
-  <string name="backup_email_subject">And Bible tietokannan varmuuskopio</string>
-  <string name="backup_email_message">Liitetiedostona on And Biblen tietokantasi joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
+  <string name="backup_modules_email_subject_2">%s dokumenttien varmuuskopiointi</string>
+  <string name="backup_modules_email_message_2">Liitteenä on sovelluksen %s dokumenttien varmuuskopio, joka sisältää seuraavat moduulit: %s</string>
+  <string name="backup_email_subject_2">Sovelluksen %s tietokannan varmuuskopio</string>
+  <string name="backup_email_message_2">Liitetiedostona on sovelluksen %s tietokanta, joka sisältää kirjanmerkit, muistiinpanot, lukusuunnitelmat ja työtilat.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
   <string name="backup_restore_title">Mistä palautetaan?</string>
   <string name="backup_restore_message">Palautetaanko puhelimen muistista vai valitaanko varmuuskopiointitiedosto käsin (voit valita myös Google Drivestä jne.)?</string>
@@ -455,7 +456,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Raportoi virhe</string>
-  <string name="report_bug_email_subject">Andbible %s bugiraportti </string>
+  <string name="report_bug_email_subject_2">Bugiraportti sovellukselle %s %s</string>
   <string name="report_bug_email_message">
         --- KIRJOITA BUGIRAPORTTI TÄMÄN RIVIN YLÄPUOLELLE ---\n
         Ohjeet:\n
