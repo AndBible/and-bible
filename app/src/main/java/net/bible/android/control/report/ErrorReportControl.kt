@@ -122,7 +122,7 @@ class ErrorReportControl @Inject constructor() {
 
         withContext(Dispatchers.Main) {
             val subject = context.getString(R.string.report_bug_email_subject, getSubject(exception))
-            val message = context.getString(R.string.report_bug_email_message, createErrorText(exception))
+            val message = "\n\n" + context.getString(R.string.report_bug_email_message, createErrorText(exception))
 
             val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", f)
             val email = Intent(Intent.ACTION_SEND).apply {
