@@ -2,19 +2,39 @@
 <resources>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
+Doppeltes Tippen schaltet den Vollbildschirmmodus an und aus.
+Geteilite Bildschirme (auch \"Fenster\" genannt) haben ihr jeweiliges Menü in der rechten oberen Ecke. Dort sind fensterspezifische Funktionen und Anpassungen verfügbar.</string>
   <string name="help_contextmenus_title">Kontextmenüs</string>
+  <string name="help_contextmenus_text">
+Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
+Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen Vers.
+Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
+Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
+Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
   <string name="help_mynote_title">Eigene Notiz</string>
   <string name="help_mynote_text">Notizen können über das \"Eigene Notiz\" Menü innerhalb des Kontextmenüs hinzugefügt werden. Die Liste der vorhandenen Notizen kann über das Hauptmenü angezeigt werden.</string>
   <string name="help_bookmarks_title">Lesezeichen</string>
   <string name="help_bookmarks_text">Lesezeichen können über das Kontextmenü hinzugefügt werden. Die Lesezeichenverwaltung wird über das Hauptmenü aktiviert. Die Lesezeichenverwaltung erlaubt das Gruppieren von Lesezeichen über Labels.</string>
   <string name="help_search_title">Suche</string>
   <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
-  <string name="help_workspaces_title">Arbeitsplatz</string>
+  <string name="help_workspaces_title">Arbeitsbereich</string>
   <string name="help_workspaces_text">
-Mit Arbeitsplätzen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
-Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsplätze erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsplatz.</string>
+Mit Arbeitsbereichen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
+Einstellungen zu Arbeitsbereichen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsbereiche erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsbereich.</string>
   <string name="help_hidden_features_title">Verborgene Kürzel</string>
+  <string name="help_hidden_features_text">
+Von der Werkzeugleiste herunterwischen, um die Arbeitsbereichsauswahl anzuzeigen.
+Langes Drücken des Fensterknopfes minimiert das Fenster sofort.
+Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
+Langes Drücken der Versauswahl führt zur Dokumentauswahl.
+Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
+  <string name="help_window_pinning_title">Fensterverankerung</string>
+  <string name="help_window_pinning_text">
+Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
+Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <string name="version_text">Version %s</string>
+  <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
   <!--Main menu-->
   <string name="menu">Menü</string>
   <string name="chooseBook">Dokument</string>
@@ -37,6 +57,7 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="deuterocanonical">Apokryphen</string>
   <!--Search-->
   <string name="search_index">Suchindex</string>
+  <string name="index_creation_required">Ein Index ist für die Suchfunktion notwendig</string>
   <string name="create_index_for">Ein Index ist für die Suche nötig \n\nIndex für %serstellen?</string>
   <string name="rebuild_index_for">Index für %serneut erstellen?</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
@@ -104,9 +125,11 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="reset_fontsize">Zurücksetzen</string>
   <string name="prefs_request_sdcard_permission_title">Es gibt händisch installierte Dokumente</string>
   <string name="prefs_request_sdcard_permission_summary">Die Verwendung manuell installierte Dokumente aus dem Ordner /jsword/sword des internen Speichers ermöglichen</string>
+  <string name="all_text_options_window_menutitle">Alle Textoptionen</string>
   <string name="text_options_window_menutitle">Textoptionen</string>
-  <string name="auto_fullscreen">Vollbildschirmmodus durch Scrollen</string>
+  <string name="auto_fullscreen">Vollbild-Textvorlauf</string>
   <string name="reversed_split_mode">Umgedrehter Fenstermodus</string>
+  <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="auto_fullscreen_summary">Bei aktiviertem Textvorlauf automatisch in den Vollbildmodus wechseln, Tipp: Man kann den Vollbildmodus auch durch Doppeltippen auf den Bildschirm aktivieren.</string>
   <string name="prefs_margin_size_title">Randgröße verändern</string>
@@ -123,6 +146,9 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="prefs_text_appearance_title">Erscheinungsbild</string>
   <string name="prefs_justify_title">Blocktext</string>
   <string name="prefs_justify_summary">\'Blocktext\' heißt, dass der rechte und linke Textrand gerade verlaufen</string>
+  <string name="pref_left_margin_label_mm">Linker Rand (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Rechter Rand (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Maximale Textbreite (%d mm)</string>
   <string name="prefs_line_spacing_pt">Zeilenabstand %1.1fx</string>
   <string name="pref_font_family_label">Schriftart</string>
   <string name="prefs_hyphenation_title">Silbentrennung</string>
@@ -136,10 +162,12 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="hide_window_buttons_title">Fenstersymbole verbergen</string>
   <string name="hide_window_buttons_summary">Die Fenstersymbole, die auf der rechten Seite der Bibeltexte angezeigt werden, werden verborgen. Die Navigationsleiste am unteren Bildschirmrand wird immer noch angezeigt, und das Fenstermenü kann durch langes Drücken angezeigt werden.</string>
   <string name="font_size_title">Schriftgröße</string>
+  <string name="full_screen_hide_buttons_pref_title">Fensterschaltleiste im Vollbildmodus verbergen</string>
+  <string name="full_screen_hide_buttons_pref_summary">Dadurch wird im Vollbildmodus automatisch die Fensterschaltleiste am unteren Bildschirmrand ausgeblendet</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Farbeinstellungen</string>
   <string name="window_color_settings_title">Fensterfarben</string>
-  <string name="workspace_color_settings_title">Voreinstellungen der Arbeitsplatzfarben</string>
+  <string name="workspace_color_settings_title">Voreinstellungen der Arbeitsbereichsfarben</string>
   <string name="color_text">Textfarbe</string>
   <string name="color_background">Hintergrundfarbe</string>
   <string name="colors_day_mode_title">Tagmodus</string>
@@ -157,6 +185,12 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="windowMaximise">Maximiere</string>
   <string name="windowMinimise">Minimiere</string>
   <string name="windowSynchronise">Synchronisierung</string>
+  <string name="move_window">Verschieben nach</string>
+  <string name="move_window_to_position2">Position %d (%s:%s)</string>
+  <string name="copy_settings">Kopiere Einstellungen auf</string>
+  <string name="copy_settings_to_workspace">Arbeitsbereich</string>
+  <string name="copy_settings_to_window">Fenster %d (%s: %s)</string>
+  <string name="change_to_normal">Zu normalem Fenster wechseln</string>
   <string name="window_pin_mode">Fixieren</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
@@ -171,6 +205,8 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
+  <string name="download_confirmation">Soll eine Bibel aus dem Internet heruntergeladen werden?</string>
+  <string name="download_source_message">Dokumente werden von:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io heruntergeladen</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
@@ -178,6 +214,22 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
+  <string name="free_text_search_documents">Suche</string>
+  <string name="chooce_language_hint">Sprache</string>
+  <string name="one_more_back_press">Durch nochmaliges Drücken des Zurück-Knopfes wird das Programm geschlossen</string>
+  <string name="document_filter_results">%d Dokument(e)</string>
+  <string name="download_question_title">Möchten Sie mit dem Herunterladen der Dokumente fortfahren?</string>
+  <string name="download_question_message">Wenn Sie in einem Land mit Verfolgung leben,
+sollten Sie evtl. vorsichtig mit dem Herunterladen christlichen Materials aus dem Internet sein.
+Evtl. sollten Sie sich komprimierte Module über sicherere Wege verschaffen und dann über \"Installiere Modul aus Zip-Datei\" installieren. Sind Sie sicher, dass Sie mit dem Download fortfahren wollen?
+Alle Downloads aus den Quellen sind verschlüsselt (HTTPS).</string>
+  <string name="do_not_ask_again">Ja, nicht mehr nachfragen</string>
+  <string name="recommended_document">Empfohlen!</string>
+  <string name="about_version_history">Versionschronik: %s</string>
+  <string name="download_failed">Herunterladen von  %s fehlgeschlagen </string>
+  <string name="download_errors">Downloadfehler</string>
+  <string name="failed_repositories_message">Konnte folgende Dokumentquellen nicht erreichen: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Die folgenden Dateien konnten nicht heruntergeladen werden:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Lade Dokument aus Zip-Datei</string>
   <string name="install_zip_module">Bibelmodul installieren</string>
@@ -187,6 +239,8 @@ Einstellungen zu Arbeitsplätzen können über das \"Optionen\" - Menü (rechts 
   <string name="invalid_module">Datei enthält kein SWORD Modul</string>
   <string name="module_already_installed">Datei enthält ein bereits installiertes Modul</string>
   <string name="install_zip_title">Bitte warten, Zip-Datei wird geladen.</string>
+  <string name="overwrite_files">Die folgende Datei existiert bereits: %s Überschreiben?</string>
+  <string name="overwrite_files_title">Dateien überschreiben?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
@@ -227,6 +281,9 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
   <string name="notes">Fußnoten und Querverweise</string>
+  <string name="verse_action_copy">Kopieren</string>
+  <string name="share_verse">Teilen...</string>
+  <string name="share_verse_subject_2">Ein Bibelvers wurde mit Ihnen über %s geteilt.</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Verknüpfung hier öffnen</string>
@@ -355,14 +412,40 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="mynote_saved">Notiz gespeichert</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
+  <string name="backup_modules">Dokumente sichern nach...</string>
+  <string name="backup_app_database">Sicherungsdatenbank sichern nach...</string>
+  <string name="restore_app_database">Sicherungsdatenbank wiederherstellen von...</string>
   <string name="restore_confirmation">Alle persönlichen Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche überschreiben?</string>
   <string name="restore_success">Persönliche Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
+  <string name="backup_success">Eigene Notizen, Lesezeichen, Lesepläne und Arbeitsbereiche wurden erfolgreich nach %s gesichert.</string>
+  <string name="error_no_backup_file">Sicherungskopie wurde nicht gefunden</string>
+  <string name="backup_modules_email_subject_2">%s Modulbackup</string>
+  <string name="backup_modules_email_message_2">Angehängt finden Sie ihr %s Modulbackup, das folgende Module enthält: %s</string>
+  <string name="backup_email_subject_2">%s Datenbanksicherung</string>
+  <string name="backup_email_message_2">Ihre %s Datenbank mit Lesezeichen, Notizen, Leseplänen und Arbeitsbereichen ist angehängt.</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
+  <string name="backup_restore_title">Wiederherstellen von wo?</string>
+  <string name="backup_restore_message">Vom Handyspeicher wiederherstellen oder die Sicherungsdatei händisch auswählen (Sie können auch von Google Drive etc. auswählen)?</string>
+  <string name="backup_phone_storage">Handyspeicher</string>
+  <string name="backup_manually">Datei auswählen</string>
+  <string name="backup_backup_title">Wohin speichern?</string>
+  <string name="backup_backup_message">Auf dem Handy speichern oder über die Teilen-Funktion woandershin (E-Mail, Google Drive, etc.)?</string>
+  <string name="backup_share">Teilen</string>
+  <string name="restore_modules">Dokumente wiederherstellen von...</string>
   <string name="send_backup_file">Sende Backup</string>
+  <string name="backup_modules_title">Zu sichernde Module auswählen</string>
+  <string name="install_zip_canceled">Modulinstallation abgebrochen</string>
   <!--About-->
+  <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Installierte Version: %s (%s)</string>
+  <string name="module_about_latest_version">Neueste Version: %s (%s)</string>
+  <string name="module_about_versification">Versnummerierung: %s</string>
+  <string name="module_about_repository">Quellverzeichnis: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Fehlermeldung</string>
+  <string name="report_bug_email_subject_2">Fehlerbericht für %s %s</string>
   <string name="report_bug_email_message">
         --- DIE FEHLERMELDUNG OBERHALB DIESER LINIE EINFÜGEN ---\n
         Anleitung:\n
@@ -379,6 +462,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
         Device info: \n
         %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Alle Dokumentarten</string>
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>
   <string name="doc_type_dictionary">Wörterbuch</string>
@@ -411,22 +495,24 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Neu</string>
+  <string name="switch_to_workspace">Arbeitsbereiche</string>
   <string name="delete_workspace">Entfernen</string>
   <string name="new_copied_workspace">Als neu kopieren</string>
   <string name="workspace_number">Arbeitsbereich %d </string>
   <string name="rename_workspace">Umbenennen</string>
-  <string name="workspace_selector_title">Arbeitsplatz auswählen</string>
+  <string name="workspace_selector_title">Arbeitsbereich auswählen</string>
   <string name="workspace_settings">Einstellungen...</string>
-  <string name="give_name_workspace">Geben Sie dem neuen Arbeitsplatz einen Namen</string>
+  <string name="give_name_workspace">Geben Sie dem neuen Arbeitsbereich einen Namen</string>
   <string name="save_and_exit">Speichern</string>
-  <string name="workspace_save_changes">Änderungen auf den Arbeitsplatz anwenden?</string>
+  <string name="workspace_save_changes">Änderungen auf den Arbeitsbereich anwenden?</string>
   <string name="copy_of_workspace">Kopie von %s</string>
   <string name="copy_workspace_settings">Kopiere Einstellungen...</string>
   <string name="copy_settings_title">Welche Einstellungen möchten Sie kopieren?</string>
   <string name="select_all">Alles auswählen</string>
-  <string name="copy_settings_workspaces_title">Auf welchen Arbeitsplatz wollen Sie die Einstellungen kopieren?</string>
+  <string name="copy_settings_workspaces_title">Auf welchen Arbeitsbereich wollen Sie die Einstellungen kopieren?</string>
   <string name="reset_settings">Zurücksetzen</string>
   <string name="workspace_dismiss">Verwerfen</string>
+  <string name="workspace_listing_with_current">%s (aktuell)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Das ist eine Beta-Version!</string>
   <string name="beta_notice_content_1">
@@ -444,4 +530,5 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="history_for">Chronik (%s: Fenster %d)</string>
   <!--Uncategorized-->
   <string name="close">Schließen</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

@@ -1,4 +1,4 @@
-And Bible jest otwartoźródłową, działającą offline, całkowicie bezpłatną aplikacją do czytania Biblii bez jakichkolwiek reklam, aby ułatwić czytanie i odsłuch Pisma Świętego ludziom ze wszystkich krajów z jak największym osobistym błogosławieństwem.
+Studium Biblii jest otwartoźródłową, działającą offline, całkowicie bezpłatną aplikacją do czytania Biblii bez jakichkolwiek reklam, aby ułatwić czytanie i odsłuch Pisma Świętego ludziom ze wszystkich krajów z jak największym osobistym błogosławieństwem.
 
 * Biblie, komentarze, słowniki teologiczne, mapy i książki chrześcijańskie w przeszło 700 językach
 * nie wymaga połączenia z internetem po pierwszym pobraniu danych, włączając wyszukiwanie, notatki, komentarze, itd.
@@ -22,11 +22,11 @@ And Bible jest otwartoźródłową, działającą offline, całkowicie bezpłatn
 * otwarty kod «open source» – zajrzyj lub wprowadź własne poprawki do kodu źródłowego
 * korzysta z silnika JSword od CrossWire
 
-Jesteśmy wolontariuszami; nie wysyłamy irytujących el-listów, nie wyświetlamy męczących reklam, nie prosimy o datki, nie prosimy o rejestrację; aplikacja And Bible nie zbiera jakichkolwiek danych z Twojego telefonu.
+Jesteśmy wolontariuszami; nie wysyłamy irytujących el-listów, nie wyświetlamy męczących reklam, nie prosimy o datki, nie prosimy o rejestrację; aplikacja Studium Biblii nie zbiera jakichkolwiek danych z Twojego telefonu.
 
 Pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechniane nie naruszając praw autorskich. Z tego powodu aplikacja nie zawiera  np. Biblii Tysiąclecia.
 
 <b>Uwagi</b>:
 * polub nas na Facebooku: https://www.facebook.com/AndBible/
-* częste pytania (w j. angielskim) dotyczące aplikacji And Bible: https://github.com/AndBible/and-bible/wiki/FAQ
+* częste pytania (w j. angielskim) dotyczące aplikacji: https://github.com/AndBible/and-bible/wiki/FAQ
 * strona projektu na GitHubie: https://github.com/AndBible/and-bible

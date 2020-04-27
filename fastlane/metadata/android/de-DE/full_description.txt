@@ -10,7 +10,7 @@ Benutzeroberfläche in vielen Sprachen
 * Große Sammlung an Wörterbüchern und christlicher Literatur
 * Alle Dokumente sind legal erhältlich (darum sind Übersetzungen wie die NKJV und NIV nicht enthalten)
 * Die Integration des Strong Wörterbuches erlaubt das Nachschlagen von griechischen und hebräischen Wörtern
-Mehrere Arbeitsplätze mit aufgeteilten Fenstern
+Mehrere Arbeitsbereiche mit aufgeteilten Fenstern
 * Erstelle persönliche Notizen
 * Flexible Suchfunktion
 * Lesezeichen
