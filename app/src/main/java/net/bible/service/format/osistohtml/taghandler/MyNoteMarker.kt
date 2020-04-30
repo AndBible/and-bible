@@ -33,9 +33,7 @@ class MyNoteMarker(private val parameters: OsisToHtmlParameters,
                    private val verseInfo: VerseInfo,
                    private val writer: HtmlTextWriter) : OsisTagHandler {
     private val myNoteVerses: MutableSet<Int>? = HashSet()
-    override fun getTagName(): String {
-        return ""
-    }
+    override fun getTagName() = ""
 
     /** just after verse start tag
      */
@@ -56,7 +54,6 @@ class MyNoteMarker(private val parameters: OsisToHtmlParameters,
     init {
 
         // create hashmap of verses to optimise verse note lookup
-        myNoteVerses!!.clear()
         if (parameters.versesWithNotes != null) {
             for (key in parameters.versesWithNotes) {
                 val verse = KeyUtil.getVerse(key)
