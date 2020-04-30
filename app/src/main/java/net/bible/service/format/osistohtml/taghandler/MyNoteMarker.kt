@@ -52,7 +52,6 @@ class MyNoteMarker(private val parameters: OsisToHtmlParameters,
     }
 
     init {
-
         // create hashmap of verses to optimise verse note lookup
         if (parameters.versesWithNotes != null) {
             for (key in parameters.versesWithNotes) {
