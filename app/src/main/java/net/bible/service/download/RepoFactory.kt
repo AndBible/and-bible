@@ -25,8 +25,10 @@ import org.crosswire.jsword.book.Book
 class RepoFactory(val downloadManager: DownloadManager) {
     private val defaultRepo = AndBibleRepo()
 
+    // In priority order (if the same version of module is found in many, it will be picked up
+    // from the earlier of the repository list).
     val normalRepositories = listOf(
-        defaultRepo, CrosswireRepo(), AndBibleExtraRepo(), IBTRepo(), EBibleRepo(), LockmanRepo()
+        defaultRepo, CrosswireRepo(), EBibleRepo(), LockmanRepo(), AndBibleExtraRepo(), IBTRepo()
     )
 
     val betaRepositories = listOf(BetaRepo())
