@@ -54,6 +54,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.BibleContentManager
@@ -111,6 +115,8 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
 import kotlin.concurrent.thread
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 
 /** The main activity screen showing Bible text
@@ -323,9 +329,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateBottomBars()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        if(!initialized)
-            showBetaNotice()
         initialized = true
+        GlobalScope.launch { withContext(Dispatchers.Main) {
+                if(!initialized)
+                    showBetaNotice()
+                showFirstTimeHelp()
+            }
+        }
     }
 
     private fun displaySizeChanged() {
@@ -335,11 +345,41 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         windowControl.windowSizesChanged()
     }
 
-    private fun showBetaNotice() {
+    private suspend fun showFirstTimeHelp()  {
+        val currentVersion = CommonUtils.applicationVersionNumber
+        val displayedVer = preferences.getInt("help-displayed", 0)
+
+        if(displayedVer == currentVersion) {
+            return
+        }
+
+        if(displayedVer < 366) {
+            val save = suspendCoroutine<Boolean> {
+                val pinningTitle = getString(R.string.help_window_pinning_title)
+                val pinningText = getString(R.string.help_window_pinning_text)
+                val d = AlertDialog.Builder(this)
+                    .setTitle(pinningTitle)
+                    .setMessage(pinningText)
+                    .setNeutralButton(getString(R.string.beta_notice_dismiss), null)
+                    .setPositiveButton(getString(R.string.do_not_ask_again)) { _, _ ->
+                        it.resume(true)
+                    }
+                    .show()
+            }
+            if(save) {
+                preferences.edit().putInt("help-displayed", 366).apply()
+            }
+        }
+    }
+
+    private suspend fun showBetaNotice() = suspendCoroutine<Boolean> {
         val verFull = CommonUtils.applicationVersionName
         val ver = verFull.split("#")[0]
 
-        if(!ver.endsWith("-beta")) return
+        if(!ver.endsWith("-beta")) {
+            it.resume(false)
+            return@suspendCoroutine
+        }
 
         val displayedVer = preferences.getString("beta-notice-displayed", "")
 
@@ -366,9 +406,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             val d = AlertDialog.Builder(this)
                 .setTitle(getString(R.string.beta_notice_title))
                 .setMessage(spanned)
-                .setNeutralButton(getString(R.string.beta_notice_dismiss), null)
+                .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
                     preferences.edit().putString("beta-notice-displayed", ver).apply()
+                    it.resume(true)
                 }
                 .create()
             d.show()
