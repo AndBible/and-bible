@@ -52,6 +52,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
+import java.util.Iterator;
+
 import javax.inject.Inject;
 
 /** Support for the document search functionality
@@ -173,8 +175,9 @@ public class SearchControl {
         	
         	//if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
         	boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
-    		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
-    			Key key = result.get(i);
+        	Iterator<Key> keyIterator = result.iterator();
+        	for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
+    			Key key = keyIterator.next();
     			boolean isMain = (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook()));
    				searchResults.add(key, isMain);
     		}
