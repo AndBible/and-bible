@@ -32,13 +32,13 @@ import java.util.*
 class MyNoteMarker(private val parameters: OsisToHtmlParameters,
                    private val verseInfo: VerseInfo,
                    private val writer: HtmlTextWriter) : OsisTagHandler {
-    private val myNoteVerses: MutableSet<Int>? = HashSet()
+    private val myNoteVerses: MutableSet<Int> = HashSet()
     override fun getTagName() = ""
 
     /** just after verse start tag
      */
     override fun start(attr: Attributes) {
-        if (myNoteVerses != null && parameters.isShowMyNotes) {
+        if (parameters.isShowMyNotes) {
             if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
                 writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>")
             }
