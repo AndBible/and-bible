@@ -18,7 +18,14 @@
 
 package net.bible.android.control.page.window
 
+import android.app.AlertDialog
 import android.util.Log
+import android.widget.Button
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.EventManager
@@ -28,12 +35,18 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.Logger
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Central control of windows especially synchronization
@@ -320,15 +333,81 @@ open class WindowControl @Inject constructor(
         ABEventBus.getDefault().post(NumberOfWindowsChangedEvent())
     }
 
+    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine<BooleanArray?> {
+        val context = CurrentActivityHolder.getInstance().currentActivity
+        val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
+            getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
+                window.pageManager.textDisplaySettings), it).title
+        }.toTypedArray()
+
+        val checkedItems = items.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(context)
+            .setPositiveButton(R.string.okay) { d, _ ->
+                it.resume(checkedItems)
+            }
+            .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all) { _, _ ->  it.resume(null) }
+            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null)}
+            .setTitle(context.getString(R.string.copy_settings_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for(i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text = context.getString(if(allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+    }
+
+
     fun copySettingsToWorkspace(window: Window) {
-        windowRepository.textDisplaySettings = window.pageManager.textDisplaySettings.copy()
-        windowRepository.updateVisibleWindowsTextDisplaySettings()
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+
+            val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+                val checkedTypes = chooseSettingsToCopy(window) ?: return@withContext
+                val target = windowRepository.textDisplaySettings
+                val source = window.pageManager.textDisplaySettings
+
+                for ((tIdx, type) in types.withIndex()) {
+                    if(checkedTypes[tIdx]) {
+                        target.setValue(type, source.getValue(type))
+                    }
+                }
+
+                windowRepository.updateVisibleWindowsTextDisplaySettings()
+            }
+        }
     }
 
     fun copySettingsToWindow(window: Window, order: Int) {
-        val secondWindow = windowRepository.windowList[order]
-        secondWindow.pageManager.textDisplaySettings = window.pageManager.textDisplaySettings.copy()
-        secondWindow.bibleView?.updateTextDisplaySettings()
+        val secondWindow = windowRepository.visibleWindows[order]
+
+        GlobalScope.launch {
+            withContext(Dispatchers.Main) {
+                val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+                val checkedTypes = chooseSettingsToCopy(window) ?: return@withContext
+                val target = secondWindow.pageManager.textDisplaySettings
+                val source = window.pageManager.textDisplaySettings
+
+                for ((tIdx, type) in types.withIndex()) {
+                    if (checkedTypes[tIdx]) {
+                        target.setValue(type, source.getValue(type))
+                    }
+                }
+
+                secondWindow.bibleView?.updateTextDisplaySettings()
+            }
+        }
     }
 
     companion object {

@@ -587,7 +587,7 @@ class SplitBibleArea(
             count ++;
         }
 
-        val windowList2 = windowRepository.windowList
+        val windowList2 = windowRepository.visibleWindows
         count = 0
         windowList2.forEach {
             if(it.id != window.id) {
