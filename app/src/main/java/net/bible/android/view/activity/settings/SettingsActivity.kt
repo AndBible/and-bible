@@ -45,12 +45,12 @@ class SettingsActivity: ActivityBase() {
 
 class SettingsFragment : PreferenceFragmentCompat() {
 	override fun onDisplayPreferenceDialog(preference: Preference?) {
-		if(fragmentManager!!.findFragmentByTag("customTag") != null)
+		if(parentFragmentManager.findFragmentByTag("customTag") != null)
 			return
 		if(preference is BookmarkColourPreference) {
 			val f = BookmarkColorPreferenceDialog.newInstance(preference.key, preference.findIndexOfValue(preference.value))
 			f.setTargetFragment(this, 0)
-			f.show(fragmentManager!!, "customTag")
+			f.show(parentFragmentManager, "customTag")
 		} else {
 			super.onDisplayPreferenceDialog(preference)
 		}

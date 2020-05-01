@@ -40,11 +40,11 @@ class BookmarkColorPreferenceDialog(private val selectedPosition: Int):
 	override fun onPrepareDialogBuilder(builder: AlertDialog.Builder?) {
 		super.onPrepareDialogBuilder(builder)
 		val pref = preference as BookmarkColourPreference
-		val adapter = ArrayAdapter<Int>(context!!, R.layout.listitem)
+		val adapter = ArrayAdapter<Int>(requireContext(), R.layout.listitem)
 		for(e in pref.entries) {
 			adapter.add(1)
 		}
-		val fontTypeAdapter = BookmarkColourListPrefWrapperAdapter(context!!, adapter, selectedPosition)
+		val fontTypeAdapter = BookmarkColourListPrefWrapperAdapter(requireContext(), adapter, selectedPosition)
 		// Adjust the selection because resetting the adapter loses the selection.
 		builder?.setAdapter(fontTypeAdapter) {dialog, value ->
 			pref.value = pref.entries[value].toString()
