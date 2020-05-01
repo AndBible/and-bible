@@ -40,7 +40,7 @@ class WindowTest {
         DatabaseResetter.resetDatabase()
     }
 
-    @Ignore("Until ESV comes back")
+    //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testGetRestoreStateJson() {

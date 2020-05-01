@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@Ignore("Until ESV comes back")
+//@Ignore("Until ESV comes back")
 public class BibleTraverserTest {
 
 	private BibleTraverser bibleTraverser;

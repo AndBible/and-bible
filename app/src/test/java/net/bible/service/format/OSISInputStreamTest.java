@@ -151,7 +151,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		}
 	}
 
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	@Test
 	public void testReadTitle() throws Exception {
 		Book book = getBook("ESV2011");
@@ -201,7 +201,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		}
 	}
 
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	public void testReadWordsOfChrist() throws Exception {
 		Book esv = getBook("ESV2011");
 
@@ -235,7 +235,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	/**
 	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 */
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	public void testReadVeryLongBook() throws Exception {
 		Book esv = getBook("ESV2011");
 		OSISInputStream osisInputStream = new OSISInputStream(esv, esv.getKey("Ps 119"));
@@ -322,7 +322,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		System.out.println(chapter);
 	}
 
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	@Test
 	public void testReadESVAndBibleMethod() throws Exception {
 		Book book = getBook("ESV2011");
@@ -334,7 +334,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
 
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	public void testReadESVJSwordMethod() throws Exception {
 		Book esv = getBook("ESV2011");
 		BookData data = new BookData(esv, esv.getKey("Phil 1:3"));

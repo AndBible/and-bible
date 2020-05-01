@@ -116,7 +116,7 @@ class WindowControlTest {
         assertThat(windowRepository!!.isMultiWindow, `is`(true))
     }
 
-    @Ignore("Until ESV comes back")
+    //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testShowLinkUsingDefaultBible() {
@@ -141,7 +141,7 @@ class WindowControlTest {
         assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
     }
 
-    @Ignore("Until ESV comes back")
+    //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
     fun testAddNewWindow() {

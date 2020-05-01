@@ -11,7 +11,7 @@ import static org.junit.Assert.assertThat;
 
 public class DocumentBibleBooksTest {
 
-	@Ignore("Until ESV comes back")
+	//@Ignore("Until ESV comes back")
 	@Test
 	public void testContains() {
 		AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV2011");
