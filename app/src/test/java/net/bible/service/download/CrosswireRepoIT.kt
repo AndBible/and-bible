@@ -5,11 +5,13 @@ import org.crosswire.jsword.book.install.InstallException
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@Ignore("Test documents need to be downloaded separately (see .travis.yml)")
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk=[28])
 class CrosswireRepoIT {
