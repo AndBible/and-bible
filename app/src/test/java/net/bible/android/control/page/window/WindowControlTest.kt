@@ -63,9 +63,8 @@ class WindowControlTest {
         val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
-        val repoFactory = mock(RepoFactory::class.java)
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao, windowRepository!!) }
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, myNoteDao, windowRepository!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
         windowRepository!!.initialize()
@@ -91,7 +90,7 @@ class WindowControlTest {
     fun testSetActiveWindow() {
         val window1 = windowControl!!.activeWindow
 
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(window1)
         assertThat(newWindow, equalTo(windowControl!!.activeWindow))
 
         windowControl!!.activeWindow = newWindow
@@ -149,7 +148,7 @@ class WindowControlTest {
         val activeWindow = windowControl!!.activeWindow
         activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2)
 
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(activeWindow)
         assertThat(windowRepository!!.windows, hasItem(newWindow))
         // documents should be defaulted from active window
         val biblePage = newWindow.pageManager.currentBible
@@ -162,8 +161,9 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testGetMinimisedWindows() {
-        val newWindow1 = windowControl!!.addNewWindow()
-        val newWindow2 = windowControl!!.addNewWindow()
+        val active = windowControl!!.activeWindow
+        val newWindow1 = windowControl!!.addNewWindow(active)
+        val newWindow2 = windowControl!!.addNewWindow(active)
 
         // simple state - just 1 window is minimised
         windowControl!!.minimiseWindow(newWindow2)
@@ -173,7 +173,7 @@ class WindowControlTest {
     @Test
     @Throws(Exception::class)
     fun testMinimiseWindow() {
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
         reset<EventManager>(eventManager)
 
         windowControl!!.minimiseWindow(newWindow)
@@ -204,8 +204,8 @@ class WindowControlTest {
         // issue #373
 
         val window1 = windowControl!!.activeWindow
-        val window2 = windowControl!!.addNewWindow()
-        val window3 = windowControl!!.addNewWindow()
+        val window2 = windowControl!!.addNewWindow(window1)
+        val window3 = windowControl!!.addNewWindow(window2)
 
         windowControl!!.minimiseWindow(window1)
 
@@ -219,7 +219,7 @@ class WindowControlTest {
         @Test
     @Throws(Exception::class)
     fun testCloseWindow() {
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
         reset<EventManager>(eventManager)
 
         windowControl!!.closeWindow(newWindow)
@@ -253,7 +253,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testCloseActiveWindow() {
         val activeWindow = windowControl!!.activeWindow
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(activeWindow)
         reset<EventManager>(eventManager)
 
         windowControl!!.closeWindow(activeWindow)
@@ -264,7 +264,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testRestoreWindow() {
         val activeWindow = windowControl!!.activeWindow
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(activeWindow)
         windowControl!!.minimiseWindow(newWindow)
         assertThat<List<Window>>(windowRepository!!.visibleWindows, contains(activeWindow))
         reset<EventManager>(eventManager)
@@ -286,7 +286,7 @@ class WindowControlTest {
     @Throws(Exception::class)
     fun testIsMultiWindow() {
         assertThat(windowControl!!.isMultiWindow, equalTo(false))
-        val newWindow = windowControl!!.addNewWindow()
+        val newWindow = windowControl!!.addNewWindow(windowControl!!.activeWindow)
         assertThat(windowControl!!.isMultiWindow, equalTo(true))
         windowControl!!.closeWindow(newWindow)
         assertThat(windowControl!!.isMultiWindow, equalTo(false))

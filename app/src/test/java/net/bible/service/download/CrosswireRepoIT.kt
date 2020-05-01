@@ -20,6 +20,8 @@ class CrosswireRepoIT {
     @Throws(Exception::class)
     fun setUp() {
         crosswireRepo = CrosswireRepo()
+        val repoFactory = RepoFactory(DownloadManager(null))
+        crosswireRepo.repoFactory = repoFactory
     }
 
     @Test
@@ -39,7 +41,7 @@ class CrosswireRepoIT {
         val repoBooks = crosswireRepo.getRepoBooks(false)
         val kjv = repoBooks.findLast { it.initials == "KJV" }
         print(kjv)
-        crosswireRepo.downloadDocument(kjv)
+        crosswireRepo.downloadDocument(kjv!!)
         assertThat(Books.installed().getBook("KJV"), not(nullValue()))
     }
 

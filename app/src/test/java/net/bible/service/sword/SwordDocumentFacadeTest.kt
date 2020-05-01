@@ -13,8 +13,7 @@ class SwordDocumentFacadeTest {
     private var swordDocumentFacade: SwordDocumentFacade? = null
     @Before
     fun setUp() {
-		val repoFactory = Mockito.mock(RepoFactory::class.java)
-        swordDocumentFacade = SwordDocumentFacade(repoFactory)
+        swordDocumentFacade = SwordDocumentFacade()
     }
 
     @Test

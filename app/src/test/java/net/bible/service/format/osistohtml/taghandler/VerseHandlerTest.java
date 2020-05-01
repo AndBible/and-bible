@@ -31,9 +31,9 @@ public class VerseHandlerTest {
 		osisToHtmlParameters.setChapter(3);
 		verseInfo = new VerseInfo();
 		bookmarkMarkerMock = mock(BookmarkMarker.class);
-		myNoteMarker = new MyNoteMarker(osisToHtmlParameters, verseInfo, htmlTextWriter);
 		htmlTextWriter = new HtmlTextWriter();
-		
+		myNoteMarker = new MyNoteMarker(osisToHtmlParameters, verseInfo, htmlTextWriter);
+
 		verseHandler = new VerseHandler(osisToHtmlParameters, verseInfo, bookmarkMarkerMock, myNoteMarker, htmlTextWriter);
 	}
 
@@ -90,7 +90,7 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 
 	/**
@@ -110,6 +110,6 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 }

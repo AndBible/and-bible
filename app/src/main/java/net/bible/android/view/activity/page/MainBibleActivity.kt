@@ -113,6 +113,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.robolectric.annotation.AccessibilityChecks
 import javax.inject.Inject
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume

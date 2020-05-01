@@ -37,14 +37,14 @@ public class ChapterDividerTest {
 	public void normal() {
 		osisToHtmlParameters.setShowVerseNumbers(true);
 		chapterDivider.start(null);
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div class='chapterNo'>&#8212; 3 &#8212;</div><div id='3'></div>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<div class='chapterNo'>&#8212; 3 &#8212;</div><span class='position-marker' id='3'>&#x200b;</span>"));
 	}
 
 	@Test
 	public void noVerseOrChapters() {
 		osisToHtmlParameters.setShowVerseNumbers(false);
 		chapterDivider.start(null);
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div id='3'></div>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<span class='position-marker' id='3'>&#x200b;</span>"));
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class ChapterDividerTest {
 		osisToHtmlParameters.setChapter(1);
 		osisToHtmlParameters.setShowVerseNumbers(true);
 		chapterDivider.start(null);
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div id='1'></div>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<span class='position-marker' id='1'>&#x200b;</span>"));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class ChapterDividerTest {
 		// then some verse content which stays after the verse
 		htmlTextWriter.write("Verse content");
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("<div id='3'></div><h1 class='heading1'>Title</h1>v1Verse content"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("<span class='position-marker' id='3'>&#x200b;</span><h1 class='heading1'>Title</h1>v1Verse content"));
 
 	}
 }

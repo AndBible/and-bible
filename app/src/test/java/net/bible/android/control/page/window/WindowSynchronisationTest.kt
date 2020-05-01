@@ -46,9 +46,8 @@ class WindowSynchronisationTest {
         val swordContentFactory = mock(SwordContentFacade::class.java)
         val bibleTraverser = mock(BibleTraverser::class.java)
         val myNoteDao = mock(MyNoteDAO::class.java)
-        val repoFactory = mock(RepoFactory::class.java)
 
-        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(repoFactory), bibleTraverser, myNoteDao, windowRepository!!) }
+        val mockCurrentPageManagerProvider = Provider { CurrentPageManager(swordContentFactory, SwordDocumentFacade(), bibleTraverser, myNoteDao, windowRepository!!) }
         val mockHistoryManagerProvider = Provider { HistoryManager(windowControl!!) }
         windowRepository = WindowRepository(mockCurrentPageManagerProvider, mockHistoryManagerProvider)
         windowControl = WindowControl(windowRepository!!, eventManager!!)
@@ -63,7 +62,7 @@ class WindowSynchronisationTest {
     @Test
     @Throws(Exception::class)
     fun testSynchronizeScreens_verseChange() {
-        val window2 = windowControl!!.addNewWindow()
+        val window2 = windowControl!!.addNewWindow(windowControl!!.activeWindow)
         val (chapter, verse) = window2.pageManager.currentBible.currentChapterVerse
         assertThat(verse, not(equalTo(7)))
 
@@ -79,7 +78,7 @@ class WindowSynchronisationTest {
     @Test
     @Throws(Exception::class)
     fun testSynchronizeScreens_chapterChange() {
-        val window2 = windowControl!!.addNewWindow()
+        val window2 = windowControl!!.addNewWindow(windowControl!!.activeWindow)
         val (chapter) = window2.pageManager.currentBible.currentChapterVerse
         assertThat(chapter, not(equalTo(3)))
 
@@ -98,9 +97,9 @@ class WindowSynchronisationTest {
         // Issue #371 and #536
 
         val window0 = windowControl!!.activeWindow
-        val window1 = windowControl!!.addNewWindow()
-        val window2 = windowControl!!.addNewWindow().apply { isSynchronised = false }
-        val window3 = windowControl!!.addNewWindow().apply { isSynchronised = true }
+        val window1 = windowControl!!.addNewWindow(window0)
+        val window2 = windowControl!!.addNewWindow(window0).apply { isSynchronised = false }
+        val window3 = windowControl!!.addNewWindow(window0).apply { isSynchronised = true }
         val (chapter, verse) = window3.pageManager.currentBible.currentChapterVerse
 
         windowControl!!.restoreWindow(window0)
