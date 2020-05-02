@@ -113,9 +113,7 @@ constructor(private val callingActivity: MainBibleActivity,
                         // To count with Play market backstack, After pressing back button,
                         // to taken back to our application, we need to add following flags to intent.
                         addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                        }
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                     }
                     try {
                         callingActivity.startActivity(intent)

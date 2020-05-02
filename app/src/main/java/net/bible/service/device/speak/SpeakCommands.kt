@@ -36,14 +36,7 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
     val text: String = text.trim()
 
     override fun speak(tts: TextToSpeech, utteranceId: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
-        }
-        else {
-            val params = HashMap<String, String>()
-            params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = utteranceId
-            tts.speak(text, TextToSpeech.QUEUE_ADD, params)
-        }
+        tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
     }
 
     override fun toString(): String {
@@ -53,16 +46,14 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
 
 abstract class EarconCommand(private val earcon: String, val enabled: Boolean): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val eBundle = Bundle()
-            eBundle.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.2f)
-            eBundle.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-            if (enabled && !earcon.isEmpty()) {
-                tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, utteranceId)
-            }
-            else {
-                tts.playSilentUtterance(0, TextToSpeech.QUEUE_ADD, utteranceId)
-            }
+        val eBundle = Bundle()
+        eBundle.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.2f)
+        eBundle.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+        if (enabled && !earcon.isEmpty()) {
+            tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, utteranceId)
+        }
+        else {
+            tts.playSilentUtterance(0, TextToSpeech.QUEUE_ADD, utteranceId)
         }
     }
 }
@@ -92,9 +83,7 @@ class PostFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(
 
 open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
-        }
+        tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
     }
 }
 

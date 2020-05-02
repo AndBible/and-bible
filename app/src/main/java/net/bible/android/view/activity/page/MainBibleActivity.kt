@@ -175,36 +175,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     // Offsets with system insets only
     private var topOffset1 = 0
-        get() =
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if(isFullScreen) 0 else field
-            } else {
-                if(isFullScreen) 0 else statusBarHeight
-            }
+        get() = if(isFullScreen) 0 else field
 
     private var bottomOffset1 = 0
-        get() =
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if(multiWinMode || isFullScreen) 0 else field
-            } else {
-                if(hasHwKeys || isFullScreen || !CommonUtils.isPortrait) 0 else navigationBarHeight
-            }
+        get() = if(multiWinMode || isFullScreen) 0 else field
 
     var rightOffset1 = 0
-        get() =
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if(multiWinMode || isFullScreen) 0 else field
-            } else {
-                if(hasHwKeys || CommonUtils.isPortrait || isFullScreen) 0 else navigationBarHeight
-            }
+        get() = if(multiWinMode || isFullScreen) 0 else field
 
     var leftOffset1 = 0
-        get() =
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if(multiWinMode || isFullScreen) 0 else field
-            } else {
-                0
-            }
+        get() = if(multiWinMode || isFullScreen) 0 else field
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
@@ -273,9 +253,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         setSupportActionBar(toolbar)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            displaySizeChanged()
-        }
 
         val tv = TypedValue()
         if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
@@ -1098,8 +1075,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Log.d(TAG, "Configuration changed")
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            displaySizeChanged()
 
         refreshIfNightModeChange()
     }
