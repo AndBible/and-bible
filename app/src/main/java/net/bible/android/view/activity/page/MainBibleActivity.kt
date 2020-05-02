@@ -45,6 +45,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
@@ -1046,6 +1047,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val isNightMode = ScreenSettings.nightMode
         if (currentNightMode != isNightMode) {
             if(!windowRepository.isBusy) {
+                if (isNightMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
                 recreate()
                 currentNightMode = isNightMode
                 return true

@@ -66,30 +66,23 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-//        if (ScreenSettings.nightMode) {
-//            if(customTheme)
-//                setTheme(nightTheme)
-//            if(ScreenSettings.manualMode) {
-//                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-//                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
-//                }
-//            }
-//        } else {
-//            if(customTheme)
-//                setTheme(dayTheme)
-//            if(ScreenSettings.manualMode) {
-//                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-//                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
-//                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-//                }
-//            }
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            if (!ScreenSettings.nightMode) {
-//                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-//                window.decorView.systemUiVisibility = uiFlags
-//            }
-//        }
+        val newNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        if (!ScreenSettings.systemMode) {
+            val newNightMode = if (ScreenSettings.nightMode) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+        }
+        if (delegate.localNightMode != newNightMode) {
+            delegate.localNightMode = newNightMode
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!ScreenSettings.nightMode) {
+                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                window.decorView.systemUiVisibility = uiFlags
+            }
+        }
 
     }
 

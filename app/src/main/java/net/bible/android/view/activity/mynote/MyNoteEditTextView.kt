@@ -104,20 +104,13 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     }
 
     override fun applyPreferenceSettings() {
-        updateBackgroundColor()
 
         val fontSize = mainBibleActivity.windowRepository.textDisplaySettings.font?.fontSize?: WorkspaceEntities.TextDisplaySettings.default.font!!.fontSize!!
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 
     override fun updateBackgroundColor() {
-        if (ScreenSettings.nightMode) {
-            setBackgroundColor(Color.BLACK)
-            setTextColor(Color.WHITE)
-        } else {
-            setBackgroundColor(Color.WHITE)
-            setTextColor(Color.BLACK)
-        }
+
     }
 
     override val isPageNextOkay = false
