@@ -285,14 +285,7 @@ object CommonUtils {
 
     fun getResourceColor(resourceId: Int): Int =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val theme = try {
-                mainBibleActivity.theme
-            } catch (e: UninitializedPropertyAccessException) {
-                resources.newTheme().apply {
-                    applyStyle(R.style.MyDayNightTheme, true)
-                }
-            }
-            resources.getColor(resourceId, theme)
+            resources.getColor(resourceId, mainBibleActivity.theme )
         } else {
             resources.getColor(resourceId)
         }

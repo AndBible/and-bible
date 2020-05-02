@@ -13,7 +13,6 @@
 
 	<style name="BaseAppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_day</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
