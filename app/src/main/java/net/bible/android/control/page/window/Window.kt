@@ -86,12 +86,10 @@ open class Window (
         }
 
     open var isPinMode: Boolean = window.isPinMode
-        get() {
-            if(windowRepository.windowBehaviorSettings.autoPin) {
-                return true
-            } else {
-                return field
-            }
+        get() = if(windowRepository.windowBehaviorSettings.autoPin) {
+            true
+        } else {
+            field
         }
         set(value) {
             field = value
