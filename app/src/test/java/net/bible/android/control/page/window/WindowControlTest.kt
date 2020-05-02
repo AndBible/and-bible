@@ -135,10 +135,15 @@ class WindowControlTest {
         windowControl!!.activeWindow = window1
         window1.pageManager.setCurrentDocument(PassageTestData.ESV)
 
+        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
         windowControl!!.showLinkUsingDefaultBible(PS_139_3)
 
-        // since links window has not been closed the Bible should not be changed
-        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_KJV))
+        // since we have clicked link when active window is bible doc, open link in same
+        // document in links window.
+        assertThat(linksWindow.pageManager.currentBible.currentDocument, equalTo(BOOK_ESV))
+
+        // if we would have clicked from commentary, then document should not have changed
+        // since links window has not been closed.. Test for that: TODO
     }
 
     //@Ignore("Until ESV comes back")
@@ -303,6 +308,7 @@ class WindowControlTest {
     companion object {
 
         private val BOOK_KJV = Books.installed().getBook("KJV")
+        private val BOOK_ESV = Books.installed().getBook("ESV2011")
         private val PS_139_3 = Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 139, 3)
     }
 }

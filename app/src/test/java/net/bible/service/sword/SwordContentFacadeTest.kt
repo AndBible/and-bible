@@ -131,7 +131,9 @@ class SwordContentFacadeTest {
 
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
-        return swordContentFacade.readHtmlText(book, key, asFragment, WorkspaceEntities.TextDisplaySettings.default)
+        val settings = WorkspaceEntities.TextDisplaySettings.default
+        settings.showStrongs = true
+        return swordContentFacade.readHtmlText(book, key, asFragment, settings)
     }
 
     private fun getBook(initials: String): Book {
