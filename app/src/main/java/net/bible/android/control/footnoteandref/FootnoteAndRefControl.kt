@@ -60,13 +60,13 @@ class FootnoteAndRefControl @Inject constructor(private val bibleTraverser: Bibl
 
     /** Shuffle verseRange forward but stay in same chapter because those are the only notes fetched
      */
-    fun next(verseRange: VerseRange?): VerseRange {
+    fun next(verseRange: VerseRange): VerseRange {
         return bibleTraverser.getNextVerseRange(currentPageManager.currentPassageDocument, verseRange, false)
     }
 
     /** Shuffle verseRange backward but stay in same chapter because those are the only notes fetched
      */
-    fun previous(verseRange: VerseRange?): VerseRange {
+    fun previous(verseRange: VerseRange): VerseRange {
         return bibleTraverser.getPreviousVerseRange(currentPageManager.currentPassageDocument, verseRange, false)
     }
 

@@ -69,13 +69,13 @@ class CompareTranslationsControl @Inject constructor(
 
     /** Calculate next verse
      */
-    fun getNextVerseRange(verseRange: VerseRange?): VerseRange {
+    fun getNextVerseRange(verseRange: VerseRange): VerseRange {
         return bibleTraverser.getNextVerseRange(currentPageManager.currentPassageDocument, verseRange)
     }
 
     /** Calculate next verse
      */
-    fun getPreviousVerseRange(verseRange: VerseRange?): VerseRange {
+    fun getPreviousVerseRange(verseRange: VerseRange): VerseRange {
         return bibleTraverser.getPreviousVerseRange(currentPageManager.currentPassageDocument, verseRange)
     }
 
