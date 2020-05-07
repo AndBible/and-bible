@@ -269,24 +269,37 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
         }
+
+        var currentSliderOffset = 0.0F
+
         drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {
-                if(newState == DrawerLayout.STATE_SETTLING) {
-                    showSystemUI(false)
+                when(newState) {
+                    DrawerLayout.STATE_SETTLING -> {
+                        showSystemUI(false)
+                    }
+                    DrawerLayout.STATE_IDLE -> {
+                        if(currentSliderOffset == 0.0F) {
+                            if (isFullScreen) {
+                                hideSystemUI()
+                            } else {
+                                showSystemUI()
+                            }
+                        }
+                    }
+                    DrawerLayout.STATE_DRAGGING -> {
+                        showSystemUI(false)
+                    }
                 }
 
             }
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                currentSliderOffset = slideOffset
+            }
 
             override fun onDrawerOpened(drawerView: View) {}
 
-            override fun onDrawerClosed(drawerView: View) {
-                if (isFullScreen) {
-                    hideSystemUI()
-                } else {
-                    showSystemUI()
-                }
-            }
+            override fun onDrawerClosed(drawerView: View) {}
         })
 
         // create related objects
