@@ -196,7 +196,7 @@ open class Preference(val settings: SettingsBundle,
 class TiltToScrollPreference:
     GeneralPreference() {
     private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
-    override fun handle() = mainBibleActivity.preferenceSettingsChanged()
+    override fun handle() = mainBibleActivity.invalidateOptionsMenu()
     override val requiresReload = false
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
