@@ -53,7 +53,12 @@ open class WindowRepository @Inject constructor(
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
-    private var busyCount: Int = 0
+    var busyCount: Int = 0
+        set(value) {
+            synchronized(this) {
+                field = value
+            }
+        }
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
     var windowBehaviorSettings = WorkspaceEntities.WindowBehaviorSettings.default
     var maximizedWindowId: Long? = null
@@ -64,15 +69,11 @@ open class WindowRepository @Inject constructor(
 
 
     fun onEvent(event: IncrementBusyCount) {
-        synchronized(this) {
-            busyCount ++
-        }
+        busyCount ++
     }
 
     fun onEvent(event: DecrementBusyCount) {
-        synchronized(this) {
-            busyCount --
-        }
+        busyCount --
     }
 
     var id: Long = 0
