@@ -179,10 +179,8 @@ public class OSISInputStream extends InputStream {
 				putInVerseBuffer(DOC_END);
 				isClosingTagWritten = true;
 			}
-		} catch (UnsupportedEncodingException usc) {
+		} catch (UnsupportedEncodingException | BookException usc) {
 			usc.printStackTrace();
-		} catch (BookException be) {
-			be.printStackTrace();
 		}
 	}
 
