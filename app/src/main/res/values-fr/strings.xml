@@ -1,8 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">Bible Study</string>
+  <string name="app_name_medium">Bible Study (And Bible)</string>
+  <string name="app_name_long">Bible Study app, du projet opensource And Bible</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Passez au chapitre précédent ou au suivant en balayant l\'écran à gauche ou à droite avec votre doigt.
+Tapotez deux fois sur le texte biblique pour activer le mode plein écran.
+Les fenêtres partagées (dans l\'écran) ont un bouton de menu en haut à droite,
+ce qui vous permet d\'utiliser des fonctions spécifiques à une fenêtre ou d\'en modifier son apparence où son comportement.</string>
   <string name="help_contextmenus_title">Menus contextuels</string>
+  <string name="help_contextmenus_text">
+Un appui long ouvre le menu contextuel ou le mode d\'action dans plusieurs vues.
+Appuyez longuement sur la vue de la Bible pour ouvrir le mode action pour les actions affectant le verset actuel.
+Appuyez longuement sur un élément de document dans la vue de liste de Choisir un document ou Télécharger pour supprimer le document ou afficher les informations.
+Appuyez longuement sur un signet dans la liste des signets pour ajouter des étiquettes ou supprimer un signet.
+Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans la fenêtre actuelle, une nouvelle fenêtre ou une fenêtre de liens spéciaux.</string>
   <string name="help_mynote_title">Mes notes</string>
   <string name="help_mynote_text">Les notes s\'ajoutent via l\'option Mes notes du menu contextuel de chaque verset.
 La liste des notes existantes est accessible par le Menu principal.</string>
@@ -20,7 +33,23 @@ sont accessibles via l\'élément Espaces de travail dans le menu Options (coin 
 de faire glisser votre doigt vers le bas depuis la barre d\'outils. Vous pouvez également utiliser des mouvements de balayage vers la gauche et vers la droite sur la barre d\'outils pour passer à
 l\'espace de travail précédent / suivant.</string>
   <string name="help_hidden_features_title">Raccourcis cachés</string>
+  <string name="help_hidden_features_text">
+Balayez vers le bas depuis la barre d\'outils pour afficher le sélecteur d\'espace de travail.
+Appuyez longuement sur le bouton de la fenêtre pour minimiser rapidement.
+Appuyez longuement sur le bouton de la barre d\'outils Lecture audio, pour accéder rapidement aux paramètres de lecture audio.
+Appuyez longuement sur le titre de l\'emplacement du verset dans la barre d\'outils pour accéder au sélecteur de documents.
+Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historique.</string>
+  <string name="help_window_pinning_title">Épinglage de fenêtre</string>
+  <string name="help_window_pinning_text">
+Vous pouvez activer l\'épinglage de fenêtre à partir du menu Options (trois points dans le coin supérieur droit).
+Si l\'épinglage de fenêtre est activé, vous pouvez afficher de nombreuses fenêtres épinglées sur la vue de Bible,
+mais une seule fenêtre non épinglée. Les fenêtres épinglées sont affichées en premier, puis
+les fenêtres non épinglées. Vous voudrez peut-être ouvrir des documents bibliques en tant que fenêtres épinglées, et
+des commentaires et des cartes, etc, en tant que fenêtres non épinglées. Ensuite, vous pouvez facilement
+avoir toujours des documents bibliques ouverts et basculez rapidement entre les commentaires et
+d\'autres matériels supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="version_text">Version %s</string>
+  <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer l\'application.</string>
   <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Document</string>
@@ -43,6 +72,7 @@ l\'espace de travail précédent / suivant.</string>
   <string name="deuterocanonical">Deutérocanonique</string>
   <!--Search-->
   <string name="search_index">Recherche d\'index</string>
+  <string name="index_creation_required">L\'indexation de ce document est requise avant d’effectuer des recherches.</string>
   <string name="create_index_for">Un index est requis pour effectuer des recherches.\n\nCéer un index pour 1%s?</string>
   <string name="rebuild_index_for">Reconstruire l\'index de %s?</string>
   <string name="indexing_wait_msg">Merci de patienter. Vous retrouverez l\'écran de recherche à la fin de l\'indexation.</string>
@@ -110,9 +140,11 @@ l\'espace de travail précédent / suivant.</string>
   <string name="reset_fontsize">Réinitialiser</string>
   <string name="prefs_request_sdcard_permission_title">Installation manuelle de documents</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword/sword dans l\'espace de stockage interne</string>
+  <string name="all_text_options_window_menutitle">Toutes les options du texte</string>
   <string name="text_options_window_menutitle">Options du texte</string>
   <string name="auto_fullscreen">Plein-écran par défilement</string>
   <string name="reversed_split_mode">Partage d\'écran pivoté</string>
+  <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d pt</string>
   <string name="auto_fullscreen_summary">Faire défiler le texte active automatiquement le mode plein-écran. Astuce: Vous pouvez aussi activer le mode plein-écran par un double tapotement sur le texte.</string>
   <string name="prefs_margin_size_title">Taille des marges</string>
@@ -129,6 +161,9 @@ l\'espace de travail précédent / suivant.</string>
   <string name="prefs_text_appearance_title">Apparence</string>
   <string name="prefs_justify_title">Justification du texte</string>
   <string name="prefs_justify_summary">Aligne le texte en mode justifié, toutes les lignes sont étirées pour avoir la même longueur </string>
+  <string name="pref_left_margin_label_mm">Marge de gauche (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Marge de droite (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Longueur maximum du texte (%d mm)</string>
   <string name="prefs_line_spacing_pt">Espace inter-lignes %1.1fx</string>
   <string name="pref_font_family_label">Famille de police</string>
   <string name="prefs_hyphenation_title">Césure des mots</string>
@@ -142,6 +177,8 @@ l\'espace de travail précédent / suivant.</string>
   <string name="hide_window_buttons_title">Cacher les boutons de fenêtres</string>
   <string name="hide_window_buttons_summary">Les boutons de fenêtre affichés sur leur bord droit sont masqués. Les boutons sont toujours affichés dans la barre de navigation du bas et vous pouvez ouvrir le menu de fenêtre par un appui long sur le bouton correspondant.</string>
   <string name="font_size_title">Taille de la police</string>
+  <string name="full_screen_hide_buttons_pref_title">Masquer la barre de boutons de la fenêtre en plein écran</string>
+  <string name="full_screen_hide_buttons_pref_summary">Lorsque vous passez en mode plein écran, masquez automatiquement la barre de boutons de la fenêtre qui se trouve en bas de l\'écran</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Options de couleur</string>
   <string name="window_color_settings_title">Paramètres de couleur de fenêtre</string>
@@ -163,6 +200,12 @@ l\'espace de travail précédent / suivant.</string>
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
   <string name="windowSynchronise">Synchroniser</string>
+  <string name="move_window">Déplacer vers</string>
+  <string name="move_window_to_position2">Position %d (%s:%s)</string>
+  <string name="copy_settings">Copier les paramètres dans</string>
+  <string name="copy_settings_to_workspace">Espace</string>
+  <string name="copy_settings_to_window">fenêtre %d (%s: %s)</string>
+  <string name="change_to_normal">Modifier en fenêtre normale</string>
   <string name="window_pin_mode">Épingler</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
@@ -177,6 +220,8 @@ l\'espace de travail précédent / suivant.</string>
   <string name="morph_robinson_not_installed">Merci de télécharger le lexique « Robinson\'s Morphological Analysis Codes »</string>
   <!--Module download-->
   <string name="download">Télécharger des documents</string>
+  <string name="download_confirmation">Télécharger une Bible par Internet?</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de : \n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io </string>
   <string name="download_document_confirm_prefix">Télécharger </string>
   <string name="download_refreshing_book_list">Mise à jour de la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
@@ -184,6 +229,23 @@ l\'espace de travail précédent / suivant.</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
   <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
   <string name="document_not_installed">Merci de télécharger \'%s\'</string>
+  <string name="free_text_search_documents">Rechercher</string>
+  <string name="chooce_language_hint">Langue</string>
+  <string name="one_more_back_press">Une nouvelle pression sur le bouton de retour fermera l\'application</string>
+  <string name="document_filter_results">%d documents</string>
+  <string name="download_question_title">Voulez-vous procéder au téléchargement des documents ?</string>
+  <string name="download_question_message">Si vous vivez dans un pays de persécution,
+vous devrez peut-être faire attention au téléchargement de matériel chrétien via Internet.
+Au lieu de cela, vous souhaiterez peut-être obtenir les fichiers zip du module de manière plus sécurisée et les installer
+via « Charger un document au format Zip ». Voulez-vous vraiment continuer le téléchargement ?
+Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTPS).</string>
+  <string name="do_not_ask_again">Oui ne plus me demander</string>
+  <string name="recommended_document">Recommandé!</string>
+  <string name="about_version_history">Historique de version : %s</string>
+  <string name="download_failed">Le téléchargement de %s a échoué</string>
+  <string name="download_errors">Erreurs de téléchargement</string>
+  <string name="failed_repositories_message">Impossible de se connecter aux dépôts de documents suivants : \n\n %s\n\n</string>
+  <string name="failed_downloads_message">Les fichiers suivants n\'ont pas pu être téléchargés :\n\n %s \n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Charger un document au format Zip</string>
   <string name="install_zip_module">Installe un module de Bible</string>
@@ -193,6 +255,8 @@ l\'espace de travail précédent / suivant.</string>
   <string name="invalid_module">Le fichier ne contient pas de module Sword valide</string>
   <string name="module_already_installed">Le fichier contient un module qui est déjà installé</string>
   <string name="install_zip_title">Chargement du fichier Zip. Merci de patienter.</string>
+  <string name="overwrite_files">Les fichiers suivants existent déjà : %s Les écraser ?</string>
+  <string name="overwrite_files_title">Écraser les fichiers ?</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
@@ -240,6 +304,9 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
   <!--Verse context menu-->
   <string name="notes">Notes et références croisées</string>
+  <string name="verse_action_copy">Copier</string>
+  <string name="share_verse">Partager ...</string>
+  <string name="share_verse_subject_2">Un verset de la Bible a été partagé avec vous en utilisant %s.</string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Ouvrir le lien ici</string>
@@ -374,15 +441,41 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Sauvegarder &amp; Restaurer</string>
+  <string name="backup_modules">Sauvegarde les documents vers...</string>
+  <string name="backup_app_database">Sauvegarde la base de données de l\'application vers…</string>
+  <string name="restore_app_database">Restaurer la base de données d\'application à partir de…</string>
   <string name="restore_confirmation">Écraser mes Notes, Signets, Plans de lecture et mes Espaces?</string>
   <string name="restore_success">Mes Notes, Signets, Plans de lecture et mes Espaces ont été restaurés avec succès</string>
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
+  <string name="backup_success">Mes notes, signets, plans de lecture et espaces de travail ont été correctement sauvegardés en %s.</string>
+  <string name="error_no_backup_file">Le fichier de sauvegarde n\'a pas été trouvé</string>
+  <string name="backup_modules_email_subject_2">%s sauvegarde de modules</string>
+  <string name="backup_modules_email_message_2">Vous trouverez ci-joint la sauvegarde de vos modules %s, qui contient les modules suivants : %s</string>
+  <string name="backup_email_subject_2">%s sauvegarde de la base de données</string>
+  <string name="backup_email_message_2">Votre base de données %s contenant des signets, des notes, des plans de lecture et des espaces de travail est jointe</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
 Le fichier est peut-être invalide.</string>
+  <string name="backup_restore_title">Restaurer à partir d\'où ?</string>
+  <string name="backup_restore_message">Restaurer à partir du stockage du téléphone ou choisir un fichier de sauvegarde manuellement (vous pouvez également choisir depuis Google Drive, etc.)</string>
+  <string name="backup_phone_storage">Stockage de téléphone</string>
+  <string name="backup_manually">Choisissez un fichier</string>
+  <string name="backup_backup_title">Vers où sauvegarder ?</string>
+  <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
+  <string name="backup_share">Partager</string>
+  <string name="restore_modules">Restaurer les documents depuis…</string>
   <string name="send_backup_file">Soumettre un fichier de sauvegarde</string>
+  <string name="backup_modules_title">Sélectionner quels modules sauvergarder</string>
+  <string name="install_zip_canceled">Installation du module annulée</string>
   <!--About-->
+  <string name="module_about_copyright">Copyright: %s</string>
+  <string name="module_about_installed_version">Version installée : %s (%s)</string>
+  <string name="module_about_latest_version">Dernière version : %s (%s)</string>
+  <string name="module_about_versification">Versification : %s</string>
+  <string name="module_about_repository">Dépôt de distribution : %s</string>
+  <string name="module_about_osisId">OSIS ID : %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporter un bogue</string>
+  <string name="report_bug_email_subject_2">Rapport de bogue pour %s %s</string>
   <string name="report_bug_email_message">
 --- ÉCRIRE UN RAPPORT DE BOGUE SOUS CETTE LIGNE ---\n
 Instructions:\n
@@ -400,6 +493,7 @@ Vous pouvez aussi utiliser cette fonction après avoir ré-ouvert l\'application
 Device info:\n
 %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Tous types</string>
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Commentaire</string>
   <string name="doc_type_dictionary">Dictionnaire</string>
@@ -432,6 +526,7 @@ Device info:\n
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nouveau</string>
+  <string name="switch_to_workspace">Espaces</string>
   <string name="delete_workspace">Supprimer</string>
   <string name="new_copied_workspace">Copier comme un nouveau</string>
   <string name="workspace_number">Espace %d</string>
@@ -448,6 +543,7 @@ Device info:\n
   <string name="copy_settings_workspaces_title">Sur quels espaces voulez-vous appliquer les paramètres?</string>
   <string name="reset_settings">Réinitialiser</string>
   <string name="workspace_dismiss">Ignorer</string>
+  <string name="workspace_listing_with_current">%s (courant)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ceci est une version bêta!</string>
   <string name="beta_notice_content_1">
@@ -465,4 +561,5 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="history_for">Historique (%s: Fenêtre %d)</string>
   <!--Uncategorized-->
   <string name="close">Fermer</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

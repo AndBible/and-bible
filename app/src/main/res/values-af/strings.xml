@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Bybel Studie</string>
+  <string name="app_name_medium">Bybel studie (And Bible)</string>
   <string name="app_name_long">Bybel Studie toep, deur And Bible Open Source Project</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigasie</string>
@@ -51,6 +52,7 @@ on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde venst
 Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
 ander ekstra materiaal as jy die Bybel bestudeer.</string>
   <string name="version_text">Weergawe %s</string>
+  <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
   <!--Main menu-->
   <string name="menu">Kieslys</string>
   <string name="chooseBook">Dokument</string>
@@ -315,6 +317,7 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="notes">Voetnotas en verwysings</string>
   <string name="verse_action_copy">Kopieër</string>
   <string name="share_verse">Deel...</string>
+  <string name="share_verse_subject_2">\'n Bybel vers is gedeel met wat jy gebruik %s.</string>
   <string name="compare_translations">Vergelyk vertalings</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Maak skakel hier oop</string>
@@ -456,6 +459,10 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_success">My notas, boekmerke, leesplanne en werkruimtes is suksesvol gerugsteun na %s.</string>
   <string name="error_no_backup_file">Rugsteun lêer is nie gevind nie</string>
+  <string name="backup_modules_email_subject_2">%s modules rugsteun</string>
+  <string name="backup_modules_email_message_2">Aangeheg is jou %s rugsteun van modules, wat die volgende modules bevat:%s</string>
+  <string name="backup_email_subject_2">%s databasis rugsteun</string>
+  <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
   <string name="backup_restore_title">Herstel van waar af?</string>
@@ -478,6 +485,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Rapporteer \'n fout</string>
+  <string name="report_bug_email_subject_2">Fout verslag vir %s %s</string>
   <string name="report_bug_email_message">
 --- SKRYF FOUT VERSLAG BO HIERDIE LYN --- \ n
 Instruksies: \ n

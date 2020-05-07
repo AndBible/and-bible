@@ -369,9 +369,12 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="speak_autobookmarking_disabled">Automatische Lesezeichen sind deaktiviert!</string>
   <string name="system_speak_settings">Öffne die Systemsteuerung für Sprachausgabe</string>
   <string name="speak_bookmark_help">Sprachhilfe</string>
-  <string name="speak_help_auto_bookmark">Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten den Spezialmarker. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
-  <string name="speak_help_playback_settings">Spezielle Einstellungen für die Wiedergaben (unter \"Wiedergabeeinstellungen\" im Sprachwiedergabefenster) werden mit den Lesezeichen gespeichert, wenn die Einstellung aktiviert ist. Wird die Wiedergabe von einem Lesezeichen gestartet, werden die speziellen Einstellungen mit dem Lesezeichen geladen.</string>
-  <string name="speak_help_playback_settings_example">Sind sowohl Genesis als auch Römer als Sprachlesezeichen gespeichert, aber Genesis soll schneller und ohne Benachrichtigungen für Kapitelwechsel gelesen werden, während Römer langsamer mit Benachrichtigungen für Kapitelwechsel gelesen werden soll, kann man die verschiedenen Einstellungen dafür mit den Lesezeichen speichern.</string>
+  <string name="speak_help_auto_bookmark">
+Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten den Spezialmarker. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
+  <string name="speak_help_playback_settings">
+Spezielle Einstellungen für die Wiedergaben (unter \"Wiedergabeeinstellungen\" im Sprachwiedergabefenster) werden mit den Lesezeichen gespeichert, wenn die Einstellung aktiviert ist. Wird die Wiedergabe von einem Lesezeichen gestartet, werden die speziellen Einstellungen mit dem Lesezeichen geladen.</string>
+  <string name="speak_help_playback_settings_example">
+Sind sowohl Genesis als auch Römer als Sprachlesezeichen gespeichert, aber Genesis soll schneller und ohne Benachrichtigungen für Kapitelwechsel gelesen werden, während Römer langsamer mit Benachrichtigungen für Kapitelwechsel gelesen werden soll, kann man die verschiedenen Einstellungen dafür mit den Lesezeichen speichern.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 

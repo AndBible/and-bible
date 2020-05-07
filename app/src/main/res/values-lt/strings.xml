@@ -1,8 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">Biblijos studijos</string>
+  <string name="app_name_medium">Biblijos studijos (And Bible)</string>
+  <string name="app_name_long">Biblijos studijų programėlė, sukurta And Bible Open Source projekto</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigacija</string>
+  <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
+     Paspauskite ekrane dukart, kad pereitumėte į viso ekrano veikseną.
+     Padalinti ekranai (kitaip vadinami langais) turi meniu mygtukus viršutiniame dešinajame kampe,
+     kuris iškviečia tam tikras, konkrečiam langui specifines funkcijas bei nustato lango vaizdą bei elgseną.</string>
   <string name="help_contextmenus_title">Kontekstiniai meniu</string>
+  <string name="help_contextmenus_text">
+     Ilgas paspaudimas atveria kontenstinį meniu arba veiksmo meniu keliuose rodiniuose.
+     Ilgas paspaudimas Biblijos rodinyje leis jums atverti veiksmų meniu, kuris turės poveikį dabartinei eilutei.
+     Ilgas paspaudimas ant dokumentų pasirinkimo arba parsiuntimo rodiniuose esančio dokumento leis jums jį pašalinti arba parodys jo informaciją.
+     Ilgas paspaudimas ant žymių sąraše esančios žymės leis pridėti etiketę arba pašalinti žymę.
+     Ilgas paspaudimas ant nuorodos, leis pasirinkti ar atverti ją dabartiniame lange, ar naujame, arba specialiame nuorodų lange.</string>
   <string name="help_mynote_title">Mano pastaba</string>
   <string name="help_mynote_text">Pastabas galite pridėti per kontekstinio meniu elementą Mano pastaba, iškvietę jį atitinkamai eilutei.
 Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
@@ -17,6 +30,7 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
   <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
   <string name="version_text">Versija %s</string>
+  <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->
   <string name="menu">Meniu</string>
   <string name="chooseBook">Dokumentas</string>
@@ -126,6 +140,9 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="prefs_text_appearance_title">Išvaizda</string>
   <string name="prefs_justify_title">Abipusė teksto lygiuotė</string>
   <string name="prefs_justify_summary">Lygiuokite tekstą abiejose pusėse, t.y. kai kairys ir dešinys testo kraštas yra toje pačioje linijoje.</string>
+  <string name="pref_left_margin_label_mm">Kairioji paraštė (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Dešinioji paraštė (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Didžiausias teksto plotis (%d mm)</string>
   <string name="prefs_line_spacing_pt">Tarpai tarp eilučių %1.1fx</string>
   <string name="pref_font_family_label">Šrifto šeima</string>
   <string name="prefs_hyphenation_title">Kėlyba</string>
@@ -174,6 +191,8 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="morph_robinson_not_installed">Prašome atsisiųsti žodyną \'Robinson\'s Morphological Analysis Codes</string>
   <!--Module download-->
   <string name="download">Atsisiųsti dokumentus</string>
+  <string name="download_confirmation">Atsisiųsti Bibliją iš interneto?</string>
+  <string name="download_source_message">Dokumentai yra atsiunčiami iš:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Atsisiųsti</string>
   <string name="download_refreshing_book_list">Atnaujinamas dokumentų sąrašas</string>
   <string name="download_refresh_book_list_menu_item">Atnaujinti</string>
@@ -182,6 +201,11 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
   <string name="chooce_language_hint">Kalba</string>
+  <string name="do_not_ask_again">Taip, daugiau nebeklausti</string>
+  <string name="download_failed">Nepavyko atsisiųsti %s</string>
+  <string name="download_errors">Atsiuntimo klaidos</string>
+  <string name="failed_repositories_message">Nepavyko prisijungti prie šių dokumentų saugyklų: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Nepavyko atsisiųsti šių failų:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Įkelti dokumentą iš zip</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
@@ -395,8 +419,14 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="backup_restore_title">Iš kur atkurti?</string>
+  <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
   <!--About-->
+  <string name="module_about_copyright">Autorių teisės: %s</string>
+  <string name="module_about_installed_version">Įdiegta versija: %s (%s)</string>
+  <string name="module_about_latest_version">Naujausia versija: %s (%s)</string>
+  <string name="module_about_versification">Versijavimas: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Pranešti apie klaidą</string>
   <string name="report_bug_email_message">
@@ -486,4 +516,5 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="history_for">Istorija (%s: Langas %d)</string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
 </resources>

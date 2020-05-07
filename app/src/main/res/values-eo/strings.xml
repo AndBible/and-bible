@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studi Biblion</string>
+  <string name="app_name_medium">Studi Biblion (And Biblio)</string>
   <string name="app_name_long">Studi Biblion, la malfermkoda projekto de And Bible</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Navigi</string>
@@ -38,6 +39,7 @@ Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <string name="version_text">Versio %s</string>
+  <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj restartigi la aplikaĵon.</string>
   <!--Main menu-->
   <string name="menu">Menuo</string>
   <string name="chooseBook">Dokumento</string>
@@ -290,6 +292,7 @@ laŭ ilia permeso.</string>
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="verse_action_copy">Kopii</string>
   <string name="share_verse">Kunhavigi…</string>
+  <string name="share_verse_subject_2">Verso de Biblio kunhavigita per la aplikaĵo %s.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Malfermi ligilon tie ĉi</string>
@@ -429,6 +432,10 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="loading_backup">Ŝargado de datumbazo el sekurkopio…</string>
   <string name="backup_success">Sukcese sekurkopiis miajn notojn, legosignojn, legplanojn kaj laborspacojn al %s.</string>
   <string name="error_no_backup_file">Ne trovis dosieron kun sekurkopio</string>
+  <string name="backup_modules_email_subject_2">%s: sekurkopio de moduloj</string>
+  <string name="backup_modules_email_message_2">Datumbazo enhavanta la jenajn modulojn de la programo %s: %s troviĝas en la kunsendaĵo</string>
+  <string name="backup_email_subject_2">%s: sekurkopio de datumbazo</string>
+  <string name="backup_email_message_2">Datumbazo enhavanta viajn legosignojn, notojn, legplanojn kaj laborspacojn de la programo %s troviĝas en la kunsendaĵo</string>
   <string name="restore_unsuccessfull">Fiaskis restarigi datumbazon. Probable la dosiero estas erara.</string>
   <string name="backup_restore_title">Restarigi el kie?</string>
   <string name="backup_restore_message">Ĉu restarigi el la aparata konservejo aŭ ĉu permane elekti dosieron (vi ankaŭ povos elekti Google Drive)?</string>
@@ -450,6 +457,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="module_about_osisId">OSIS-identigilo: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Raporti eraron</string>
+  <string name="report_bug_email_subject_2">Erar‑raporto pri %s %s</string>
   <string name="report_bug_email_message">
         --- SKRIBU RAPORTON PRI ERARO SUPER TIU ĈI LINIO ---\n
         Instrukcioj:\n

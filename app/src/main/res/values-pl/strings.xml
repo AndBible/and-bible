@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Studium Biblii</string>
+  <string name="app_name_medium">Studium Biblii (And Bible)</string>
   <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Nawigacja</string>
@@ -38,6 +39,7 @@ Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszar�
   <string name="help_window_pinning_text">
 Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <string name="version_text">Wersja %s</string>
+  <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
   <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Dokument</string>
@@ -285,6 +287,7 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="notes">Przypisy i odnośniki</string>
   <string name="verse_action_copy">Kopiuj</string>
   <string name="share_verse">Udostępnij…</string>
+  <string name="share_verse_subject_2">Werset z Biblii przesłany z aplikacji %s.</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otwórz odnośnik tutaj</string>
@@ -424,6 +427,10 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
   <string name="backup_success">Pomyślnie utworzono kopię zapasową notatek, zakładek, planów czytania i obszarów roboczych do %s.</string>
   <string name="error_no_backup_file">Nie znaleziono pliku kopii zapasowej</string>
+  <string name="backup_modules_email_subject_2">%s: kopia zapasowa modułów</string>
+  <string name="backup_modules_email_message_2">W załączniku znajduje się kopia zapasowa następujących modułów aplikacji %s: %s</string>
+  <string name="backup_email_subject_2">%s: kopia zapasowa bazy danych</string>
+  <string name="backup_email_message_2">W załączniku znajduje się kopia zapasowa bazy danych aplikacji %s zawierająca Twoje zakładki, notatki, plany czytania i obszary robocze</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
   <string name="backup_restore_title">Przywrócić skąd?</string>
   <string name="backup_restore_message">Czy przywrócić kopię zapasową z pamięci wewnętrznej, czy wybrać plik ręcznie (będziesz mógł także wybrać np.: Dysk Google)?</string>
@@ -445,6 +452,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Zgłoś błąd</string>
+  <string name="report_bug_email_subject_2">Raport o błędzie programu %s %s</string>
   <string name="report_bug_email_message">
 --- NAPISZ ZGŁOSZENIE BŁĘDU NAD TĄ LINIĄ ---\n
 Instrukcja:\n
