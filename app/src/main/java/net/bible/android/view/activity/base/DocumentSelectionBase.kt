@@ -221,7 +221,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     }
 
     open fun setDefaultLanguage() {
-        if (selectedLanguageNo == -1) {
+        if (selectedLanguageNo == -1 && freeTextSearch.text.isEmpty()) {
             val lang: Language?
             // make selected language sticky
             val lastSelectedLanguage = lastSelectedLanguage
