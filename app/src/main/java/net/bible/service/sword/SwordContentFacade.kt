@@ -98,7 +98,7 @@ open class SwordContentFacade @Inject constructor(
 			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
 			// try to parse using optimised method first if a suitable document and it has not failed previously
             var isParsedOk = false
-            if ("OSIS" == book.bookMetaData.getProperty("SourceType") && "zText" == book.bookMetaData.getProperty("ModDrv") &&
+            if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
                 documentParseMethod.isFastParseOkay(book, key)) {
                 try {
                     retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
@@ -149,12 +149,12 @@ open class SwordContentFacade @Inject constructor(
 		  then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step,
 		  reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
 		 */
-        val `is`: InputStream = OSISInputStream(book, key)
+        val inputStream: InputStream = OSISInputStream(book, key)
         val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
         var parser: SAXParser? = null
         try {
             parser = saxParserPool.obtain()
-            parser.parse(`is`, osisToHtml)
+            parser.parse(inputStream, osisToHtml)
         } catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)
