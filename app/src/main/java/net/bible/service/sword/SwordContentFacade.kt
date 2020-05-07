@@ -353,7 +353,7 @@ open class SwordContentFacade @Inject constructor(
             // only show chapter divider in Bibles
             osisToHtmlParameters.isShowChapterDivider = BookCategory.BIBLE == bookCategory
             // but commentaries also have a verse tag which requires a chapter part
-            osisToHtmlParameters.chapter = KeyUtil.getVerse(key).chapter
+            osisToHtmlParameters.chapter = if(key is VerseRange) key.end.chapter else KeyUtil.getVerse(key).chapter
         }
         if (isAndroid) { // HunUj has an error in that refs are not wrapped so automatically add notes around refs
             osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials

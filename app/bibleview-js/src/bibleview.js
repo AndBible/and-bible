@@ -19,7 +19,7 @@ export function registerVersePositions() {
         for (let i = 0; i < verseTags.length; i++) {
             const verseTag = verseTags[i];
 
-            const location = verseTag.offsetTop + Math.max(0, verseTag.offsetHeight - 2 * lineHeight);
+            const location = verseTag.offsetTop - 0.8*lineHeight;
             jsInterface.registerVersePosition(verseTag.id, location);
         }
         updateLocation()

@@ -25,7 +25,6 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -65,7 +64,7 @@ class CurrentBiblePage(
      */
     fun getFragmentForChapter(chapter: Int): String? {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
-        val wholeChapter = getWholeChapter(verseForFragment)
+        val wholeChapter = getWholeChapter(verseForFragment, showIntros)
         return getPageContent(wholeChapter, true)
     }
 
@@ -107,7 +106,7 @@ class CurrentBiblePage(
     override fun getPagePlus(num: Int): Key {
         val targetChapterVerse1 = getKeyPlus(num)
         // convert to full chapter before returning because bible view is for a full chapter
-        return getWholeChapter(targetChapterVerse1)
+        return getWholeChapter(targetChapterVerse1, showIntros)
     }
 
 
@@ -129,18 +128,19 @@ class CurrentBiblePage(
 		currentBibleVerse.setVerseSelected(versification, verse)
 	}
 
+    // TODO: for intros, could add new setting. Now using same setting as for section titles
+    private val showIntros get() = pageManager.actualTextDisplaySettings.showSectionTitles == true
+
     private fun doGetKey(requireSingleKey: Boolean): Key {
         val verse = verseSelected
-        return run {
-            val key: Key = if (!requireSingleKey) {
-				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
-				// if verseNo is required too then use getVerseRange()
-                getWholeChapter(verse)
-            } else {
-                verse
-            }
-            key
+        val key: Key = if (!requireSingleKey) {
+            // display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
+            // if verseNo is required too then use getVerseRange()
+            getWholeChapter(verse, showIntros)
+        } else {
+            verse
         }
+        return key
     }
 
 	override val singleKey: Verse get() {

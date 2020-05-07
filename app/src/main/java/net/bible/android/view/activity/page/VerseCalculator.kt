@@ -41,15 +41,23 @@ class VerseCalculator {
      * @param scrollOffset    distance from the top of the screen.
      * @return verse number
      */
-    fun calculateCurrentVerse(scrollOffset: Int): ChapterVerse? {
-        val adjustedScrollOffset = scrollOffset - SLACK_FOR_JUMP_TO_VERSE
-        for ((key, value) in verseByOffset) {
-            if (key > adjustedScrollOffset) {
-                return value
+    fun calculateCurrentVerse(scrollOffset: Int): ChapterVerse {
+        var startValue : ChapterVerse? = null
+
+        for ((offset, value) in verseByOffset) {
+            if(offset < scrollOffset) {
+                startValue = value
+            }
+            if(offset > scrollOffset) {
+                return startValue!!
             }
         }
         // maybe scrolled off bottom
-        return verseByOffset[verseByOffset.lastKey()]
+        return verseByOffset.values.last()
+    }
+
+    fun clear() {
+        verseByOffset.clear()
     }
 
     companion object {

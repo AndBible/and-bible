@@ -687,9 +687,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             var key = pageControl.currentPageManager.currentPage.key
             if(doc?.bookCategory == BookCategory.BIBLE) {
                 key = pageControl.currentBibleVerse
-                if(key.verse == 0) {
-                    key = Verse(key.versification, key.book, key.chapter, 1)
-                }
             }
             return key?.name ?: throw KeyIsNull()
         }

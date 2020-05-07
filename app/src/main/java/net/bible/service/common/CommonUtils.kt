@@ -452,14 +452,17 @@ object CommonUtils {
         return name
     }
 
-    fun getWholeChapter(currentVerse: Verse): Key {
+    fun getWholeChapter(currentVerse: Verse, showIntros: Boolean): Key {
         Log.i(TAG, "Get Chapter for:" + currentVerse.osisID)
         val versification = currentVerse.versification
         val book = currentVerse.book
         val chapter = currentVerse.chapter
 
-        val targetChapterFirstVerse = Verse(versification, book, chapter, 0)
-        val targetChapterLastVerse = Verse(versification, book, chapter, versification.getLastVerse(book, chapter))
+        val startChapter = if(showIntros && chapter == 1) 0 else chapter
+        val endChapter = if(showIntros && chapter == 0) 1 else chapter
+
+        val targetChapterFirstVerse = Verse(versification, book, startChapter, 0)
+        val targetChapterLastVerse = Verse(versification, book, endChapter, versification.getLastVerse(book, endChapter))
 
         // convert to full chapter before returning because bible view is for a full chapter
         return VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse)

@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page
 
 import android.util.Log
 import android.webkit.JavascriptInterface
-import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
@@ -104,7 +103,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun clearVersePositionCache() {
         Log.d(TAG, "clear verse positions")
-        verseCalculator.init()
+        verseCalculator.clear()
     }
 
     @JavascriptInterface
