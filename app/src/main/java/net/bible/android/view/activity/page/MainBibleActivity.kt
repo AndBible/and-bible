@@ -343,15 +343,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             return
         }
 
-        if(displayedVer < 366) {
+        if(displayedVer < 367) {
             val save = suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 val pinningText = getString(R.string.help_window_pinning_text)
-                val d = AlertDialog.Builder(this)
+                AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
                     .setMessage(pinningText)
-                    .setNeutralButton(getString(R.string.beta_notice_dismiss), null)
-                    .setPositiveButton(getString(R.string.do_not_ask_again)) { _, _ ->
+                    .setNeutralButton(getString(R.string.first_time_help_show_next_time), null)
+                    .setPositiveButton(getString(R.string.first_time_help_do_not_show_again)) { _, _ ->
                         it.resume(true)
                     }
                     .show()
