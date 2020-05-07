@@ -18,9 +18,12 @@
 package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.text.Html
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +33,7 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.document_selection.*
 import kotlinx.coroutines.Dispatchers
@@ -106,11 +110,11 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     open val recommendedDocuments: RecommendedDocuments? = null
 
     private var allDocuments = ArrayList<Book>()
-    var displayedDocuments = ArrayList<Book>()
+    private var displayedDocuments = ArrayList<Book>()
 
     @Inject lateinit var documentControl: DocumentControl
 
-    lateinit var listActionModeHelper: ListActionModeHelper
+    private lateinit var listActionModeHelper: ListActionModeHelper
     private var layoutResource = R.layout.document_selection
 
     /** ask subclass for documents to be displayed
@@ -602,12 +606,21 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
                 $repoMessage
                 """.trimIndent()
         }
-        AlertDialog.Builder(this)
-            .setMessage(about)
+        about = about.replace("\n", "<br>")
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(about, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(about)
+        }
+
+        val d = AlertDialog.Builder(this)
+            .setMessage(spanned)
             .setCancelable(false)
             .setPositiveButton(R.string.okay) { dialog, buttonId ->
                 //do nothing
-            }.create().show()
+            }.create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**
