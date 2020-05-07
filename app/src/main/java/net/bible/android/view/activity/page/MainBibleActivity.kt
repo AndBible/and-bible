@@ -343,6 +343,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             return
         }
 
+        // TODO: each help screen needs its own variable (if we can dismiss them individually).
+
         if(displayedVer < 367) {
             val save = suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
