@@ -284,14 +284,16 @@ open class WindowRepository @Inject constructor(
 
     private val contentText: String get() {
         val keyTitle = ArrayList<String>()
-        val prevFullBookNameValue = BookName.isFullBookName()
-        BookName.setFullBookName(false)
+        synchronized(BookName::class) {
+            val prevFullBookNameValue = BookName.isFullBookName()
+            BookName.setFullBookName(false)
 
-        windowList.forEach {
-            keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+            windowList.forEach {
+                keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+            }
+
+            BookName.setFullBookName(prevFullBookNameValue)
         }
-
-        BookName.setFullBookName(prevFullBookNameValue)
         return keyTitle.joinToString(", ")
     }
 

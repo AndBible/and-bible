@@ -589,39 +589,42 @@ class SplitBibleArea(
 
         var count = 0
 
-        val oldValue = BookName.isFullBookName()
-
         val textOptionsSubMenu = menu.findItem(R.id.textOptionsSubMenu).subMenu
-        textOptionsSubMenu.removeItem(R.id.textOptionItem)
 
-        val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
-        copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
+        synchronized(BookName::class) {
+            val oldValue = BookName.isFullBookName()
 
-        BookName.setFullBookName(false)
-        val windowList = windowRepository.windowList.filter {it.isPinMode == window.isPinMode}
-        val thisIdx = windowList.indexOf(window)
-        windowList.forEach {
-            if(it.id != window.id) {
-                val p = it.pageManager.currentPage
-                val moveWindowTitle = BibleApplication.application.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
-                val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
-                moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+            textOptionsSubMenu.removeItem(R.id.textOptionItem)
+
+            val copySettingSubMenu = textOptionsSubMenu.findItem(R.id.copySettingsTo).subMenu
+            copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
+
+            BookName.setFullBookName(false)
+            val windowList = windowRepository.windowList.filter { it.isPinMode == window.isPinMode }
+            val thisIdx = windowList.indexOf(window)
+            windowList.forEach {
+                if (it.id != window.id) {
+                    val p = it.pageManager.currentPage
+                    val moveWindowTitle = BibleApplication.application.getString(R.string.move_window_to_position2, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, count, moveWindowTitle)
+                    moveWindowItem.setIcon(if (thisIdx > count) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+                }
+                count++;
             }
-            count ++;
-        }
 
-        val windowList2 = windowRepository.visibleWindows
-        count = 0
-        windowList2.forEach {
-            if(it.id != window.id) {
-                val p = it.pageManager.currentPage
-                val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, count + 1, p.currentDocument?.abbreviation, p.key?.name)
-                copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, count, copySettingsTitle)
+            val windowList2 = windowRepository.visibleWindows
+            count = 0
+            windowList2.forEach {
+                if (it.id != window.id) {
+                    val p = it.pageManager.currentPage
+                    val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, count + 1, p.currentDocument?.abbreviation, p.key?.name)
+                    copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, count, copySettingsTitle)
+                }
+                count++;
             }
-            count ++;
-        }
 
-        BookName.setFullBookName(oldValue)
+            BookName.setFullBookName(oldValue)
+        }
 
         val lastSettings = CommonUtils.lastDisplaySettings
         if(lastSettings.isNotEmpty()) {

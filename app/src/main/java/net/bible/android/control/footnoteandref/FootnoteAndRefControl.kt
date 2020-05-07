@@ -47,12 +47,14 @@ class FootnoteAndRefControl @Inject constructor(private val bibleTraverser: Bibl
 
     fun getTitle(verseRange: VerseRange): String {
         val stringBuilder = StringBuilder()
-        val wasFullBookname = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        stringBuilder.append(application.getString(R.string.notes))
-            .append(": ")
-            .append(verseRange.name)
-        BookName.setFullBookName(wasFullBookname)
+        synchronized(BookName::class) {
+            val wasFullBookname = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            stringBuilder.append(application.getString(R.string.notes))
+                .append(": ")
+                .append(verseRange.name)
+            BookName.setFullBookName(wasFullBookname)
+        }
         return stringBuilder.toString()
     }
 

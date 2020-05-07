@@ -697,10 +697,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val bibleOverlayText: String
         get() {
             val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
-            BookName.setFullBookName(false)
-            val text = pageTitleText
-            BookName.setFullBookName(true)
-            return "$bookName:$text"
+            synchronized(BookName::class) {
+                val oldValue = BookName.isFullBookName()
+                BookName.setFullBookName(false)
+                val text = pageTitleText
+                BookName.setFullBookName(oldValue)
+                return "$bookName:$text"
+            }
         }
 
     private fun updateTitle() {
@@ -708,10 +711,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             pageTitle.text = pageTitleText
             val layout = pageTitle.layout
             if(layout!= null && layout.lineCount > 0 && layout.getEllipsisCount(0) > 0) {
-                val oldValue = BookName.isFullBookName()
-                BookName.setFullBookName(false)
-                pageTitle.text = pageTitleText
-                BookName.setFullBookName(oldValue)
+                synchronized(BookName::class) {
+                    val oldValue = BookName.isFullBookName()
+                    BookName.setFullBookName(false)
+                    pageTitle.text = pageTitleText
+                    BookName.setFullBookName(oldValue)
+                }
             }
         } catch (e: KeyIsNull) {
             Log.e(TAG, "Key is null, not updating", e)

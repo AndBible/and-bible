@@ -17,6 +17,7 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
+import kotlinx.android.synthetic.main.main_bible_view.*
 import net.bible.service.common.Constants
 import net.bible.service.common.Logger
 import net.bible.service.format.osistohtml.HtmlTextWriter
@@ -27,7 +28,11 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Passage
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.xml.sax.Attributes
+import java.util.*
 
 /**
  * Convert OSIS tags into html tags
@@ -159,7 +164,17 @@ open class ReferenceHandler(
                         }
                         // we just references the first verse in each range because that is the verse you would jump to.  It might be more correct to reference the while range i.e. key.getOsisRef()
                         result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().osisRef).append("'>")
-                        result.append(key)
+                        synchronized(BookName::class) {
+                            val oldValue = BookName.isFullBookName()
+                            BookName.setFullBookName(false)
+                            result.append(
+                                when (key) {
+                                    is Verse -> key.getNameInLocale(null, Locale(parameters.languageCode))
+                                    is VerseRange -> key.getNameInLocale(null, Locale(parameters.languageCode))
+                                    else -> key
+                                })
+                            BookName.setFullBookName(oldValue)
+                        }
                         result.append("</a>")
                         isFirst = false
                     }

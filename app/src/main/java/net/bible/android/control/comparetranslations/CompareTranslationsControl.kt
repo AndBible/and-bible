@@ -30,6 +30,7 @@ import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -51,12 +52,14 @@ class CompareTranslationsControl @Inject constructor(
 ) {
     fun getTitle(verseRange: VerseRange?): String {
         val stringBuilder = StringBuilder()
-        val wasFullBookname = BookName.isFullBookName()
-        BookName.setFullBookName(false)
-        stringBuilder.append(application.getString(R.string.compare_translations))
-            .append(": ")
-            .append(getKeyDescription(verseRange!!))
-        BookName.setFullBookName(wasFullBookname)
+        synchronized(BookName::class) {
+            val wasFullBookname = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            stringBuilder.append(application.getString(R.string.compare_translations))
+                .append(": ")
+                .append(getKeyDescription(verseRange!!))
+            BookName.setFullBookName(wasFullBookname)
+        }
         return stringBuilder.toString()
     }
 
