@@ -43,6 +43,11 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.children
 import kotlinx.android.synthetic.main.split_bible_area.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -361,11 +366,13 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
-        updateRestoreButtons()
     }
 
-    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
-        updateRestoreButtons()
+    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) = GlobalScope.launch {
+        delay(200)
+        withContext(Dispatchers.Main) {
+            updateRestoreButtons(false)
+        }
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {
@@ -375,14 +382,16 @@ class SplitBibleArea(
         ensureRestoreButtonVisible()
     }
 
-    private fun ensureRestoreButtonVisible() {
-        postDelayed({
+    private fun ensureRestoreButtonVisible() = GlobalScope.launch {
+        // Give time for button bar to be rendered.
+        delay(200)
+        withContext(Dispatchers.Main) {
             val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
             if (restoreButton != null && restoreButtonsVisible &&
                 !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) })) {
                 restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
             }
-        }, 200) // Give time for button bar to be rendered.
+        }
     }
 
     private var sleepTimer: Timer = Timer("TTS sleep timer")
@@ -445,7 +454,7 @@ class SplitBibleArea(
         buttonsVisible = show
     }
 
-    private fun updateRestoreButtons() {
+    private fun updateRestoreButtons(animate: Boolean = true) {
         Log.d(TAG, "updateRestoreButtons")
         val transX =
             (if(restoreButtonsVisible) 0 else
@@ -460,14 +469,28 @@ class SplitBibleArea(
             restoreButtonsContainer.isScrollable = false
             hideRestoreButton.setBackgroundResource(R.drawable.ic_keyboard_arrow_left_black_24dp)
         }
-        restoreButtonsContainer.animate()
-            .translationY(-mainBibleActivity.bottomOffset2.toFloat())
-            .translationX(transX)
-            .setInterpolator(DecelerateInterpolator())
-            .start()
+        if(animate) {
+            Log.d(TAG, "animate started")
+            restoreButtonsContainer.animate()
+                .translationY(-mainBibleActivity.bottomOffset2.toFloat())
+                .translationX(transX)
+                .setInterpolator(DecelerateInterpolator())
+                .withEndAction { Log.d(TAG, "animate finished") }
+                .start()
+        } else {
+            Log.d(TAG, "setting without animate")
+            restoreButtonsContainer.apply {
+                translationY = -mainBibleActivity.bottomOffset2.toFloat()
+                translationX = transX
+            }
+        }
     }
 
-    private var restoreButtonsVisible = true
+    private var restoreButtonsVisible = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", true)
+        set(value) {
+            CommonUtils.sharedPreferences.edit().putBoolean("restoreButtonsVisible", value).apply()
+            field = value
+        }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
         val show = mainBibleActivity.fullScreen && _show
