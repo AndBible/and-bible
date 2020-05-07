@@ -366,6 +366,7 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
+        updateRestoreButtons()
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) = GlobalScope.launch {

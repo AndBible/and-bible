@@ -357,7 +357,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     .show()
             }
             if(save) {
-                preferences.edit().putInt("help-displayed", 366).apply()
+                preferences.edit().putInt("help-displayed", 367).apply()
             }
         }
     }
