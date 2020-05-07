@@ -15,11 +15,11 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.event.window
 
-package net.bible.android.control.event.window;
-
+import net.bible.android.control.page.window.Window
 
 /**
- * 	Window has been minimized/restored/closed/added
+ * Focus has been changed
  */
-public class NumberOfWindowsChangedEvent implements WindowEvent {}
+class CurrentWindowChangedEvent(val activeWindow: Window) : WindowEvent

@@ -15,9 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.event.window
 
-package net.bible.android.control.event.window;
-
-public interface WindowEvent {
-
-}
+/**
+ * Window has been minimized/restored/closed/added
+ */
+class NumberOfWindowsChangedEvent : WindowEvent

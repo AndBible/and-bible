@@ -113,11 +113,13 @@ class Separator(
     }
 
     fun release() {
-        setBackgroundResource(separatorResource)
-        window1.weight = view1LayoutParams.weight
-        window2.weight = view2LayoutParams.weight
-        windowControl.setSeparatorMoving(false)
-        touchOwner.releaseOwnership(this)
+        if(windowControl.isSeparatorMoving()) {
+            setBackgroundResource(separatorResource)
+            window1.weight = view1LayoutParams.weight
+            window2.weight = view2LayoutParams.weight
+            windowControl.setSeparatorMoving(false)
+            touchOwner.releaseOwnership(this)
+        }
     }
 
     /**

@@ -121,7 +121,7 @@ open class WindowRepository @Inject constructor(
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.d(TAG, "Active window: ${newActiveWindow}")
-                ABEventBus.getDefault().post(CurrentWindowChangedEvent(this._activeWindow))
+                ABEventBus.getDefault().post(CurrentWindowChangedEvent(newActiveWindow))
             }
         }
 

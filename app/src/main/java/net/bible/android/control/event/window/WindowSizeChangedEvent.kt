@@ -15,23 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.android.control.event.window;
-
-import net.bible.android.control.page.window.Window;
+package net.bible.android.control.event.window
 
 /**
- * Focus has been changed
+ * Window size changed - often due to separator being moved
  */
-public class CurrentWindowChangedEvent implements WindowEvent {
 
-	private Window activeWindow;
-	
-	public CurrentWindowChangedEvent(Window activeWindow) {
-		this.activeWindow = activeWindow;
-	}
+interface WindowEvent
 
-	public Window getActiveWindow() {
-		return activeWindow;
-	}
-}
+class WindowSizeChangedEvent(val isFinished: Boolean) : WindowEvent
