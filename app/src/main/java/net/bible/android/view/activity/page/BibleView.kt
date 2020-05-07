@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
-import android.os.Build
 import android.os.Looper
 import android.util.Log
 import android.view.ContextMenu.ContextMenuInfo

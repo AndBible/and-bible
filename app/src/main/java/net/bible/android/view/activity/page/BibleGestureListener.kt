@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity.page
 
-import android.content.SharedPreferences
 import android.util.Log
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent

@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -31,6 +30,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.util.TouchDelegateView
 import net.bible.android.view.util.TouchOwner
 
@@ -106,6 +106,20 @@ class Separator(
         updateBackground()
     }
 
+    fun onEvent(event: BibleView.BibleViewTouched) {
+        if(event.onlyTouch) {
+            release()
+        }
+    }
+
+    fun release() {
+        setBackgroundResource(separatorResource)
+        window1.weight = view1LayoutParams.weight
+        window2.weight = view2LayoutParams.weight
+        windowControl.setSeparatorMoving(false)
+        touchOwner.releaseOwnership(this)
+    }
+
     /**
      * Must use rawY below because this view is moving and getY would give the position relative to a moving component.
      */
@@ -127,11 +141,7 @@ class Separator(
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 Log.d(TAG, "Up x:" + event.x + " y:" + event.y)
-                setBackgroundResource(separatorResource)
-                window1.weight = view1LayoutParams.weight
-                window2.weight = view2LayoutParams.weight
-                windowControl.setSeparatorMoving(false)
-                touchOwner.releaseOwnership(this)
+                release()
             }
             MotionEvent.ACTION_MOVE -> if (System.currentTimeMillis() > lastTouchMoveEvent + DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
                 Log.d(TAG, "Touch move accepted")
