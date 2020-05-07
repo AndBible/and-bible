@@ -132,13 +132,19 @@ $customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div i
             write("<div id='topOfBibleText'></div>")
         }
         chapterDivider.start(null)
+        contentWritten = false
     }
 
-    /*
-	 * Called when the Parser Completes parsing the Current XML File.
-	 */
+    var contentWritten = false
+    override fun write(s: String?) {
+        contentWritten = true
+        super.write(s)
+    }
     override fun endDocument() {
-
+        if(!contentWritten) {
+            reset()
+            return
+        }
         // close last verse
         if (parameters.isVersePerline) {
             //close last verse
