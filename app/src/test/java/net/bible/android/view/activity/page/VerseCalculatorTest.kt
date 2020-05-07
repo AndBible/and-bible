@@ -32,13 +32,13 @@ class VerseCalculatorTest {
     fun shouldReturnCorrectVerseNumber() {
         // need to move 5 pxels past verse position due to 'stack'
         assertEquals(0, verseCalculator.calculateCurrentVerse(0).verse)
-        assertEquals(1, verseCalculator.calculateCurrentVerse(8).verse)
-        assertEquals(1, verseCalculator.calculateCurrentVerse(16).verse)
-        assertEquals(2, verseCalculator.calculateCurrentVerse(30).verse)
+        assertEquals(1, verseCalculator.calculateCurrentVerse(21).verse)
+        assertEquals(1, verseCalculator.calculateCurrentVerse(40).verse)
+        assertEquals(2, verseCalculator.calculateCurrentVerse(41).verse)
 
         // chapter 2
-        assertEquals(0, verseCalculator.calculateCurrentVerse(50).verse)
-        assertEquals(2, verseCalculator.calculateCurrentVerse(90).verse)
+        assertEquals(2, verseCalculator.calculateCurrentVerse(60).verse)
+        assertEquals(2, verseCalculator.calculateCurrentVerse(100).verse)
     }
 
     @Test
@@ -47,8 +47,8 @@ class VerseCalculatorTest {
         verseCalculator.registerVersePosition(ChapterVerse(1, 4), 60)
 
         // need to move 5 pxels past verse position due t0 'stack'
-        assertEquals(1, verseCalculator.calculateCurrentVerse(16).verse)
-        assertEquals(2, verseCalculator.calculateCurrentVerse(30).verse)
-        assertEquals(4, verseCalculator.calculateCurrentVerse(50).verse)
+        assertEquals(1, verseCalculator.calculateCurrentVerse(21).verse)
+        assertEquals(2, verseCalculator.calculateCurrentVerse(41).verse)
+        assertEquals(4, verseCalculator.calculateCurrentVerse(62).verse)
     }
 }

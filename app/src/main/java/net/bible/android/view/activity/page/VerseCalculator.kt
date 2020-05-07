@@ -49,7 +49,7 @@ class VerseCalculator {
                 startValue = value
             }
             if(offset > scrollOffset) {
-                return startValue!!
+                return startValue ?: value
             }
         }
         // maybe scrolled off bottom

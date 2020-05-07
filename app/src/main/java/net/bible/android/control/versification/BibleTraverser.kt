@@ -32,7 +32,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BibleTraverser @Inject constructor(private val documentBibleBooksFactory: DocumentBibleBooksFactory) {
+open class BibleTraverser @Inject constructor(private val documentBibleBooksFactory: DocumentBibleBooksFactory) {
 
     /** Get next Scriptural Verse with same scriptural status
      */
