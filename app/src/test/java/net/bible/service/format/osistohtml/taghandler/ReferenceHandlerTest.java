@@ -108,7 +108,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 		writer.write(".)");
 		
-		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
+		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exo 15:1-19</a>.)"));
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 
 		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Ps.115.9'>Psalms 115:9-11</a> <a href='bible:Ps.135.19'>Psalms 135:19-20</a> <a href='bible:Ps.145.10'>Psalms 145:10</a> <a href='bible:Ps.147.19'>Psalms 147:19-20</a> <a href='bible:Gal.6.16'>Galatians 6:16</a> <a href='bible:Heb.13.15'>Hebrews 13:15</a>"));
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Ps.115.9'>Psa 115:9-11</a> <a href='bible:Ps.135.19'>Psa 135:19-20</a> <a href='bible:Ps.145.10'>Psa 145:10</a> <a href='bible:Ps.147.19'>Psa 147:19-20</a> <a href='bible:Gal.6.16'>Gal 6:16</a> <a href='bible:Heb.13.15'>Heb 13:15</a>"));
 	}
 	
 	/**
@@ -270,7 +270,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.start(attrs);
 		referenceHandler.end();
 		
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>Galatians 1:6</a>"));
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>Gal 1:6</a>"));
 	}
 
 	/**
@@ -286,7 +286,7 @@ public class ReferenceHandlerTest {
 
 		referenceHandler.end();
 		
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.3'>Galatians 1:3</a> <a href='bible:Gal.1.6'>Galatians 1:6</a>"));
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.3'>Gal 1:3</a> <a href='bible:Gal.1.6'>Gal 1:6</a>"));
 	}
 
 	private Verse getVerse(BibleBook book, int chapter, int verse) {
