@@ -533,6 +533,12 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
             about = document.name
         }
 
+        val shortPromo = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
+
+        if(shortPromo != null) {
+            about += "\n\n${shortPromo}"
+        }
+
         // Copyright and distribution information
         val shortCopyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT)
         val copyright = document.bookMetaData.getProperty(SwordBookMetaData.KEY_COPYRIGHT)
