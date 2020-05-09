@@ -336,16 +336,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private suspend fun showFirstTimeHelp()  {
-        val currentVersion = CommonUtils.applicationVersionNumber
-        val displayedVer = preferences.getInt("help-displayed", 0)
-
-        if(displayedVer == currentVersion) {
-            return
-        }
-
-        // TODO: each help screen needs its own variable (if we can dismiss them individually).
-
-        if(displayedVer < 367) {
+        val pinningHelpShown = preferences.getBoolean("pinning-help-shown", false)
+        if(!pinningHelpShown) {
             val save = suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 val pinningText = getString(R.string.help_window_pinning_text)
@@ -359,7 +351,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     .show()
             }
             if(save) {
-                preferences.edit().putInt("help-displayed", 367).apply()
+                preferences.edit().putBoolean("pinning-help-shown", true).apply()
             }
         }
     }
