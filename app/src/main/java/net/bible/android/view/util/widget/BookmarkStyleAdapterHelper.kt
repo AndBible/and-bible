@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.style.ImageSpan
+import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.TextView
 import net.bible.android.activity.R
@@ -93,6 +94,19 @@ class BookmarkStyleAdapterHelper {
             BookmarkStyle.BLUE_HIGHLIGHT -> {
                 backgroundColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
                 view.text = baseText
+            }
+            BookmarkStyle.ORANGE_HIGHLIGHT -> {
+                backgroundColor = BookmarkStyle.ORANGE_HIGHLIGHT.backgroundColor
+                view.text = baseText
+            }
+            BookmarkStyle.PURPLE_HIGHLIGHT -> {
+                backgroundColor = BookmarkStyle.PURPLE_HIGHLIGHT.backgroundColor
+                view.text = baseText
+            }
+            BookmarkStyle.UNDERLINE -> {
+                var text = SpannableString(baseText)
+                text.setSpan(UnderlineSpan(), 0, text.length, 0)
+                view.setText(text)
             }
         }
         view.setBackgroundColor(backgroundColor)

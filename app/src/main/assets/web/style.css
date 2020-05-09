@@ -173,20 +173,31 @@ h1 a, .heading2, .heading3, .heading4 {
 }
 
 .YELLOW_HIGHLIGHT {
-	/* yellow */
-	background-color: rgba(255, 255, 0, 0.33);
+    /* yellow */
+    background-color: rgba(255, 255, 0, 0.33);
 }
 .RED_HIGHLIGHT {
-	/* green */
-	background-color: rgba(213, 0, 0, 0.28);
+    /* red */
+    background-color: rgba(213, 0, 0, 0.28);
 }
 .GREEN_HIGHLIGHT {
-	/* green */
-	background-color: rgba(0, 255, 0, 0.33);
+    /* green */
+    background-color: rgba(0, 255, 0, 0.33);
 }
 .BLUE_HIGHLIGHT {
-	/* blue A100 */
-	background-color: rgba(128, 216, 255, 0.33);
+    /* blue A100 */
+    background-color: rgba(128, 216, 255, 0.33);
+}
+.ORANGE_HIGHLIGHT {
+    /* blue A100 */
+    background-color: rgba(255, 165, 0, 0.33);
+}
+.PURPLE_HIGHLIGHT {
+    /* blue A100 */
+    background-color: rgba(128, 0, 128, 0.33);
+}
+.UNDERLINE {
+    text-decoration: underline;
 }
 
 .YELLOW_STAR>.bookmark1:after {
