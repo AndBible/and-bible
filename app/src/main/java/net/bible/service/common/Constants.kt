@@ -30,6 +30,8 @@ object Constants {
     const val DICTIONARY_PROTOCOL = "dict" //$NON-NLS-1$
     const val GREEK_DEF_PROTOCOL = "gdef" //$NON-NLS-1$
     const val HEBREW_DEF_PROTOCOL = "hdef" //$NON-NLS-1$
+    const val NOTE_PROTOCOL = "note"
+    const val MYNOTE_PROTOCOL = "mynote"
     const val ALL_GREEK_OCCURRENCES_PROTOCOL = "allgoccur" //$NON-NLS-1$
     const val ALL_HEBREW_OCCURRENCES_PROTOCOL = "allhoccur" //$NON-NLS-1$
     const val ROBINSON_GREEK_MORPH_PROTOCOL = "robinson" //$NON-NLS-1$

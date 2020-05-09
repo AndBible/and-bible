@@ -17,6 +17,7 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
+import net.bible.service.common.Constants
 import net.bible.service.common.Logger
 import net.bible.service.format.osistohtml.HtmlTextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
@@ -40,7 +41,12 @@ class MyNoteMarker(private val parameters: OsisToHtmlParameters,
     override fun start(attr: Attributes) {
         if (parameters.isShowMyNotes) {
             if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
-                writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>")
+                var tag: String = "<a href='%s:%s'><img src='%s' class='myNoteImg'/></a>".format(
+                    Constants.MYNOTE_PROTOCOL,
+                    parameters.basisRef.osisID + verseInfo.currentVerseNo,
+                    "file:///android_asset/images/pencil16x16.png"
+                )
+                writer.write(tag)
             }
         }
     }

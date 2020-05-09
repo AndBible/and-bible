@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils
  */
 class UriAnalyzer {
     enum class DocType {
-        BIBLE, GREEK_DIC, HEBREW_DIC, ROBINSON, ALL_GREEK, ALL_HEBREW, SPECIFIC_DOC
+        BIBLE, GREEK_DIC, HEBREW_DIC, ROBINSON, ALL_GREEK, ALL_HEBREW, SPECIFIC_DOC, NOTE, MYNOTE
     }
 
     var docType = DocType.BIBLE
@@ -71,6 +71,10 @@ class UriAnalyzer {
             DocType.ALL_GREEK
         } else if (Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL == protocol) {
             DocType.ALL_HEBREW
+        } else if (Constants.NOTE_PROTOCOL == protocol) {
+            DocType.NOTE
+        } else if (Constants.MYNOTE_PROTOCOL == protocol) {
+            DocType.MYNOTE
         } else { // not a valid Strongs Uri
             return false
         }

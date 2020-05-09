@@ -17,6 +17,7 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
+import net.bible.service.common.Constants
 import net.bible.service.common.Logger
 import net.bible.service.format.Note
 import net.bible.service.format.Note.NoteType
@@ -154,7 +155,12 @@ class NoteHandler(
      */
     private fun writeNoteRef(noteRef: String?) {
         if (parameters.isShowNotes) {
-            writer.write("<span class='noteRef'>$noteRef</span> ")
+            var tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a>".format(
+                Constants.NOTE_PROTOCOL,
+                parameters.basisRef.osisID + verseInfo.currentVerseNo,
+                noteRef,
+                noteRef)
+            writer.write(tag)
         }
     }
 
