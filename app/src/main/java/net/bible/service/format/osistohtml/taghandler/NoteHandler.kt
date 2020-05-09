@@ -155,7 +155,7 @@ class NoteHandler(
      */
     private fun writeNoteRef(noteRef: String?) {
         if (parameters.isShowNotes) {
-            var tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a>".format(
+            var tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a> ".format(
                 Constants.NOTE_PROTOCOL,
                 parameters.basisRef.osisID + verseInfo.currentVerseNo,
                 noteRef,

@@ -1,5 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
+import net.bible.service.common.Constants;
 import net.bible.service.format.Note;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
@@ -7,6 +8,11 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.Ver
 
 import net.bible.test.DatabaseResetter;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.SystemKJV;
+import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +40,16 @@ public class NoteHandlerTest {
 
 	private NoteHandler noteHandler;
 
+	private Verse basisRef;
+
 	@Before
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		osisToHtmlParameters.setShowNotes(true);
 		verseInfo = new VerseInfo();
+		Versification KJV = Versifications.instance().getVersification(SystemKJV.V11N_NAME);
+		basisRef = new Verse(KJV, BibleBook.PS, 14, 0);
+		osisToHtmlParameters.setBasisRef(basisRef);
 		writer = new HtmlTextWriter();
 
 		noteHandler = new NoteHandler(osisToHtmlParameters, verseInfo, writer);
@@ -71,7 +82,7 @@ public class NoteHandlerTest {
 		noteHandler.end();
 		writer.write("after note");
 		
-		assertThat(writer.getHtml(), equalTo("before note<span class='noteRef'>a</span> after note"));
+		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:%s%d/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(1));
 		assertThat(noteHandler.getNotesList().get(0).getNoteText(), equalTo("Букв.: «шесть долгих локтей (простой локоть с ладонью в каждом)»."));
@@ -124,7 +135,7 @@ public class NoteHandlerTest {
 		noteHandler.end();
 		writer.write("after note");
 		
-		assertThat(writer.getHtml(), equalTo("before note<span class='noteRef'>a</span> after note"));
+		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:%s%d/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(2));
 		Note note1 = notesList.get(0);
@@ -165,7 +176,7 @@ public class NoteHandlerTest {
 
 		noteHandler.end();
 		
-		assertThat(writer.getHtml(), equalTo("<span class='noteRef'>p</span> "));
+		assertThat(writer.getHtml(), equalTo(String.format("<a href='%s:%s%d/p' class='noteRef'>p</a> ", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(1));
 		Note note = noteHandler.getNotesList().get(0);
