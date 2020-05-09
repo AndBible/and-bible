@@ -262,6 +262,8 @@ class LinkControl @Inject constructor(
         }
     }
 
+    // TODO: Currently there's a bit of code duplication between these functions and 
+    // VerseMenuCommandHandler.java:handleMenuRequest
     private fun showNote(osisRef: String?, note: String) {
         val activity = CurrentActivityHolder.getInstance().currentActivity
         val handlerIntent = Intent(activity, FootnoteAndRefActivity::class.java)
