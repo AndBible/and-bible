@@ -76,6 +76,8 @@ public class VerseHandler implements OsisTagHandler {
 		Integer verseNo = calculateVerseNumber(attrs, verseInfo.currentVerseNo);
 		verseInfo.currentVerseNo = verseNo;
 
+		verseInfo.osisID = attrs.getValue(OSISUtil.OSIS_ATTR_OSISID);
+
 		if (parameters.isVersePerline()) {
 			//close preceding verse
 			if (verseInfo.currentVerseNo>1) {

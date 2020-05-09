@@ -154,10 +154,14 @@ class NoteHandler(
     /** write noteref html to outputstream
      */
     private fun writeNoteRef(noteRef: String?) {
+        var osisID = verseInfo.osisID
+        if (osisID == null) {
+            osisID = "${parameters.basisRef}${verseInfo.currentVerseNo}"
+        }
         if (parameters.isShowNotes) {
             var tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a> ".format(
                 Constants.NOTE_PROTOCOL,
-                parameters.basisRef.osisID + verseInfo.currentVerseNo,
+                osisID,
                 noteRef,
                 noteRef)
             writer.write(tag)
