@@ -91,6 +91,8 @@ class OsisToHtmlSaxHandler(// properties
 
     class VerseInfo {
         @JvmField
+        var osisID:String? = null
+        @JvmField
         var currentVerseNo = 0
         @JvmField
         var positionToInsertBeforeVerse = 0

@@ -48,7 +48,9 @@ public class NoteHandlerTest {
 		osisToHtmlParameters.setShowNotes(true);
 		verseInfo = new VerseInfo();
 		Versification KJV = Versifications.instance().getVersification(SystemKJV.V11N_NAME);
+		Verse verse = new Verse(KJV, BibleBook.PS, 14, 1);
 		basisRef = new Verse(KJV, BibleBook.PS, 14, 0);
+		verseInfo.osisID = verse.getOsisID();
 		osisToHtmlParameters.setBasisRef(basisRef);
 		writer = new HtmlTextWriter();
 
@@ -69,6 +71,7 @@ public class NoteHandlerTest {
 	 */
 	@Test
 	public void simpleNote() {
+		verseInfo.osisID = "Ezek.40.5";
 		writer.write("before note");
 
 		AttributesImpl attrs = new AttributesImpl();
@@ -82,7 +85,7 @@ public class NoteHandlerTest {
 		noteHandler.end();
 		writer.write("after note");
 		
-		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:%s%d/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
+		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:Ezek.40.5/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(1));
 		assertThat(noteHandler.getNotesList().get(0).getNoteText(), equalTo("Букв.: «шесть долгих локтей (простой локоть с ладонью в каждом)»."));
@@ -99,6 +102,7 @@ public class NoteHandlerTest {
 	@Test
 	public void crossReference() {
 		verseInfo.currentVerseNo = 1;
+		verseInfo.osisID = "Jas.1.1";
 		writer.write("before note");
 
 		// note opening tag
@@ -135,7 +139,7 @@ public class NoteHandlerTest {
 		noteHandler.end();
 		writer.write("after note");
 		
-		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:%s%d/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
+		assertThat(writer.getHtml(), equalTo(String.format("before note<a href='%s:Jas.1.1/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(2));
 		Note note1 = notesList.get(0);
@@ -154,6 +158,7 @@ public class NoteHandlerTest {
 	@Test
 	public void crossTextAndReference() {
 		verseInfo.currentVerseNo = 2;
+		verseInfo.osisID = "Rev.20.2";
 		
 		// note opening tag
 		AttributesImpl attrsNote = new AttributesImpl();
@@ -176,7 +181,7 @@ public class NoteHandlerTest {
 
 		noteHandler.end();
 		
-		assertThat(writer.getHtml(), equalTo(String.format("<a href='%s:%s%d/p' class='noteRef'>p</a> ", Constants.NOTE_PROTOCOL, basisRef.getOsisID(), verseInfo.currentVerseNo)));
+		assertThat(writer.getHtml(), equalTo(String.format("<a href='%s:Rev.20.2/p' class='noteRef'>p</a> ", Constants.NOTE_PROTOCOL)));
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(1));
 		Note note = noteHandler.getNotesList().get(0);
@@ -185,6 +190,27 @@ public class NoteHandlerTest {
 		assertThat(note.getVerseNo(), equalTo(2));
 		assertThat(note.isNavigable(), equalTo(true));
 	}
+
+	/**
+	 * Issue #652, links to notes did not work on the first chapter of a book.
+	 */
+	@Test
+	public void regressionFirstChapter() {
+		verseInfo.osisID = "Gen.1.1";
+		verseInfo.currentVerseNo = 1;
+
+
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_OSISID, null, "Gen.1.1!1");
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gen.1.1");
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "study");
+		noteHandler.start(attrs);
+		noteHandler.end();
+
+		assertThat(writer.getHtml(), equalTo(String.format("<a href='%s:Gen.1.1/a' class='noteRef'>a</a> ", Constants.NOTE_PROTOCOL)));
+
+	}
+
 	
 	// Can remove isAutoWrapUnwrappedRefsInNote
 }
