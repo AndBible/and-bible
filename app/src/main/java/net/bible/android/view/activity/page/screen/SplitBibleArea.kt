@@ -312,6 +312,8 @@ class SplitBibleArea(
             restoreButtonsList.add(restoreButton)
             restoreButtons.addView(restoreButton,
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            space1.visibility = View.GONE
+            space2.visibility = View.GONE
             return
         }
 
