@@ -304,6 +304,7 @@ class SplitBibleArea(
         restoreButtonsList.clear()
         restoreButtons.removeAllViews()
         pinnedRestoreButtons.removeAllViews()
+        linksButtonContainer.removeAllViews()
 
         val maxWindow = windowRepository.maximizedWindow
         if(maxWindow != null) {
@@ -319,9 +320,9 @@ class SplitBibleArea(
 
         val windows = windowRepository.windows
 
-        val pinnedWindows = windows.filter { it.isPinMode }
-        val nonPinnedWindows = windows.filter { !it.isPinMode }
-
+        val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
+        val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
+        val linksWin = windowRepository.dedicatedLinksWindow
         for (win in pinnedWindows) {
             Log.d(TAG, "Show restore button")
             val restoreButton = createRestoreButton(win)
@@ -337,6 +338,18 @@ class SplitBibleArea(
             restoreButtons.addView(restoreButton,
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
+
+        if(!linksWin.isClosed) {
+            val restoreButton = createRestoreButton(linksWin)
+            restoreButtonsList.add(restoreButton)
+            linksButtonContainer.addView(restoreButton,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
+
+        val hideSpace1 = pinnedWindows.isEmpty() || nonPinnedWindows.isEmpty()
+        val hideSpace2 = linksWin.isClosed || (nonPinnedWindows.isEmpty() && !hideSpace1)
+        space1.visibility = if(hideSpace1) View.GONE else View.VISIBLE
+        space2.visibility = if(hideSpace2) View.GONE else View.VISIBLE
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
