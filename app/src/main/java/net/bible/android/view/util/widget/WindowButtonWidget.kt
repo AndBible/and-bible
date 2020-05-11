@@ -40,6 +40,7 @@ class WindowButtonWidget(
     val window: Window?,
     var windowControl: WindowControl,
     private val isRestoreButton: Boolean,
+    private val isAddWindowButton: Boolean,
     context: Context,
     attributeSet: AttributeSet? = null
 
@@ -65,14 +66,14 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        synchronize.visibility = if(window?.isSynchronised == true && !isMaximised)
+        synchronize.visibility = if(!isAddWindowButton && window?.isSynchronised == true && !isMaximised)
             View.VISIBLE
         else View.INVISIBLE
-        docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
+        docType.visibility = if(isAddWindowButton || isMaximised) View.INVISIBLE else View.VISIBLE
         pinMode.visibility =
             if(!windowControl.windowRepository.windowBehaviorSettings.autoPin
                 && window?.isPinMode == true
-                && !isMaximised
+                && !isMaximised && !isAddWindowButton
             )
                 View.VISIBLE
             else

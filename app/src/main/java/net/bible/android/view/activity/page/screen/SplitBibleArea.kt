@@ -522,7 +522,7 @@ class SplitBibleArea(
     }
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl,true, false, mainBibleActivity).apply {
             text = getDocumentAbbreviation(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupWindow(window, v); true }
@@ -534,6 +534,7 @@ class SplitBibleArea(
             window,
             windowControl = windowControl,
             isRestoreButton = true,
+            isAddWindowButton = false,
             context = mainBibleActivity
         ).apply {
             setOnClickListener { windowControl.unMaximise() }

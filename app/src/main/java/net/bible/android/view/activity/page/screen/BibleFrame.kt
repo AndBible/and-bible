@@ -136,7 +136,7 @@ class BibleFrame(
         return createTextButton("⊕",
             { v -> windowControl.addNewWindow(window)},
             { v -> allViews.showPopupWindow(window, v); true},
-            window
+            window, true
         )
     }
 
@@ -160,8 +160,8 @@ class BibleFrame(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
+                                 window: Window?, isSingleWindow: Boolean = false): WindowButtonWidget {
+        return WindowButtonWidget(window, windowControl, false, isSingleWindow, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
