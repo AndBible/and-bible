@@ -205,7 +205,7 @@ open class WindowControl @Inject constructor(
             if (window == activeWindow) return
             window.restoreOngoing = true
 
-            if(!window.isPinMode) {
+            if(!window.isPinMode && !window.isLinksWindow) {
                 for (it in windowRepository.windowList.filter { !it.isPinMode }) {
                     it.windowState = WindowState.MINIMISED
                 }
