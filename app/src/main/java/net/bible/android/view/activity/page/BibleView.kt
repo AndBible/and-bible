@@ -272,7 +272,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             applyFontSize()
 
             val startPaddingHeight = (
-                mainBibleActivity.topOffsetWithActionBarAndStatusBar
+                mainBibleActivity.topOffset2
                     / mainBibleActivity.resources.displayMetrics.density
                     // Add some extra extra so that infinite scrolling can activate
                     + 20)
@@ -569,11 +569,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     val toolbarOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.topOffsetWithActionBarAndStatusBar
+                (mainBibleActivity.topOffset2
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 
-    var separatorMoving = false
+    private var separatorMoving = false
 
     fun onEvent(event: WindowSizeChangedEvent) {
         Log.d(TAG, "window size changed")
@@ -720,7 +720,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     override fun highlightVerse(chapterVerse: ChapterVerse, start: Boolean) {
-        val offset = if(isTopWindow) (mainBibleActivity.topOffsetWithActionBarAndStatusBar / mainBibleActivity.resources.displayMetrics.density) else 0f
+        val offset = if(isTopWindow) (mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density) else 0f
         executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "' , $start, $offset)")
     }
 

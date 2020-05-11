@@ -110,7 +110,6 @@ import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
@@ -145,7 +144,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override var nightTheme = R.style.MainBibleViewNightTheme
     override var dayTheme = R.style.MainBibleViewTheme
 
-    private var statusBarHeight = 0
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
     private var transportBarHeight = 0
@@ -170,8 +168,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     val topOffset2 get() = topOffset1 + if (!isFullScreen) actionBarHeight else 0
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
-    // Top offset with only statusbar and toolbar taken into account always
-    val topOffsetWithActionBarAndStatusBar get() = statusBarHeight + actionBarHeight
 
     // Offsets with system insets only
     private var topOffset1 = 0
@@ -241,11 +237,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
-
-        val statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (statusBarId > 0) {
-            statusBarHeight = resources.getDimensionPixelSize(statusBarId)
-        }
 
         val navBarId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         if (navBarId > 0) {
