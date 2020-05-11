@@ -7,7 +7,7 @@
 	>
 
 	<item android:id="@+id/windowNew"
-		  android:title="@string/new_window"
+		  android:title="@string/new_copied_workspace"
 		  android:icon="@drawable/ic_add_circle_outline_white_24dp"/>
 	<item android:id="@+id/changeToNormal"
 		android:title="@string/change_to_normal"
