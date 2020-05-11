@@ -91,7 +91,7 @@ class BibleFrame(
     }
 
     lateinit var bibleView: BibleView
-    var windowButton: WindowButtonWidget? = null
+    var windowButton: View? = null
 
     private fun build() {
         val bibleView = bibleViewFactory.getOrCreateBibleView(window)
@@ -111,7 +111,7 @@ class BibleFrame(
 
         val button =
             when {
-                isSingleWindow -> createSingleWindowButton(window)
+                isSingleWindow -> return
                 window.isLinksWindow -> createCloseButton(window)
                 else -> createWindowMenuButton(window)
             }
@@ -130,14 +130,6 @@ class BibleFrame(
         addView(button,
             LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 if (isSingleWindow) Gravity.BOTTOM or Gravity.RIGHT else Gravity.TOP or Gravity.RIGHT))
-    }
-
-    private fun createSingleWindowButton(window: Window): WindowButtonWidget {
-        return createTextButton("⊕",
-            { v -> windowControl.addNewWindow(window)},
-            { v -> allViews.showPopupWindow(window, v); true},
-            window, true
-        )
     }
 
     private fun createCloseButton(window: Window): WindowButtonWidget {
@@ -160,8 +152,8 @@ class BibleFrame(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?, isSingleWindow: Boolean = false): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, isSingleWindow, mainBibleActivity).apply {
+                                 window: Window?): WindowButtonWidget {
+        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)

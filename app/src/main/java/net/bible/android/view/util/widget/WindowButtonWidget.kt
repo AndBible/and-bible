@@ -20,7 +20,6 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +39,6 @@ class WindowButtonWidget(
     val window: Window?,
     var windowControl: WindowControl,
     private val isRestoreButton: Boolean,
-    private val isAddWindowButton: Boolean,
     context: Context,
     attributeSet: AttributeSet? = null
 
@@ -66,14 +64,14 @@ class WindowButtonWidget(
     private val isMaximised get() = windowControl.windowRepository.isMaximized
 
     private fun updateSettings() {
-        synchronize.visibility = if(!isAddWindowButton && window?.isSynchronised == true && !isMaximised)
+        synchronize.visibility = if(window?.isSynchronised == true && !isMaximised)
             View.VISIBLE
         else View.INVISIBLE
-        docType.visibility = if(isAddWindowButton || isMaximised) View.INVISIBLE else View.VISIBLE
+        docType.visibility = if(isMaximised) View.INVISIBLE else View.VISIBLE
         pinMode.visibility =
             if(!windowControl.windowRepository.windowBehaviorSettings.autoPin
                 && window?.isPinMode == true
-                && !isMaximised && !isAddWindowButton
+                && !isMaximised
             )
                 View.VISIBLE
             else
@@ -159,5 +157,37 @@ class WindowButtonWidget(
     override fun onDetachedFromWindow() {
         ABEventBus.getDefault().unregister(this)
         super.onDetachedFromWindow()
+    }
+}
+
+@SuppressLint("ViewConstructor")
+class AddNewWindowButtonWidget(
+    context: Context,
+    attributeSet: AttributeSet? = null
+): LinearLayout(context, attributeSet)
+{
+    init {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        inflater.inflate(R.layout.window_button, this, true)
+        windowButton.setTextColor(getResourceColor(R.color.window_button_text_colour))
+        windowButton.text = "⊕"
+        buttonText.text = ""
+        synchronize.visibility = View.GONE
+        docType.visibility = View.GONE
+        pinMode.visibility = View.GONE
+        unMaximiseImage.visibility = View.GONE
+        windowButton.setBackgroundResource(R.drawable.window_button)
+    }
+
+    override fun setOnClickListener(l: OnClickListener?) {
+        windowButton.setOnClickListener(l)
+        buttonText.setOnClickListener(l)
+        super.setOnClickListener(l)
+    }
+
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        unMaximiseImage.setOnLongClickListener(l)
+        buttonText.setOnLongClickListener(l)
+        super.setOnLongClickListener(l)
     }
 }

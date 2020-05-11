@@ -68,6 +68,7 @@ import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -318,40 +319,55 @@ class SplitBibleArea(
         }
 
 
-        if(windowControl.isSingleWindow && !hideWindowButtons) return
-
         val windows = windowRepository.windows
 
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
         val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
         val linksWin = windowRepository.dedicatedLinksWindow
-        for (win in pinnedWindows) {
-            Log.d(TAG, "Show restore button")
-            val restoreButton = createRestoreButton(win)
-            restoreButtonsList.add(restoreButton)
-            pinnedRestoreButtons.addView(restoreButton,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+
+        if(!windowControl.isSingleWindow) {
+            for (win in pinnedWindows) {
+                Log.d(TAG, "Show restore button")
+                val restoreButton = createRestoreButton(win)
+                restoreButtonsList.add(restoreButton)
+                pinnedRestoreButtons.addView(restoreButton,
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
+
+            for (win in nonPinnedWindows) {
+                Log.d(TAG, "Show restore button")
+                val restoreButton = createRestoreButton(win)
+                restoreButtonsList.add(restoreButton)
+                restoreButtons.addView(restoreButton,
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
+
+
+            if (!linksWin.isClosed) {
+                val restoreButton = createRestoreButton(linksWin)
+                restoreButtonsList.add(restoreButton)
+                linksButtonContainer.addView(restoreButton,
+                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
         }
 
-        for (win in nonPinnedWindows) {
-            Log.d(TAG, "Show restore button")
-            val restoreButton = createRestoreButton(win)
-            restoreButtonsList.add(restoreButton)
-            restoreButtons.addView(restoreButton,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        }
-
-        if(!linksWin.isClosed) {
-            val restoreButton = createRestoreButton(linksWin)
-            restoreButtonsList.add(restoreButton)
-            linksButtonContainer.addView(restoreButton,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        if (!hideWindowButtons) {
+            val addNewWindowButton = AddNewWindowButtonWidget(mainBibleActivity).apply {
+                setOnClickListener { v -> windowControl.addNewWindow(windowControl.activeWindow) }
+            }
+            linksButtonContainer.addView(addNewWindowButton,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            )
         }
 
         val hideSpace1 = pinnedWindows.isEmpty() || nonPinnedWindows.isEmpty()
-        val hideSpace2 = linksWin.isClosed || (nonPinnedWindows.isEmpty() && !hideSpace1)
+        val hideSpace2 = linksButtonContainer.childCount == 0 || (nonPinnedWindows.isEmpty() && !hideSpace1)
+        val hideArrow = if(windowControl.isSingleWindow) View.GONE else View.VISIBLE
+
         space1.visibility = if(hideSpace1) View.GONE else View.VISIBLE
         space2.visibility = if(hideSpace2) View.GONE else View.VISIBLE
+        hideRestoreButton.visibility = hideArrow
+        hideRestoreButtonExtension.visibility = hideArrow
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -524,7 +540,7 @@ class SplitBibleArea(
     }
 
     private fun createRestoreButton(window: Window): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl,true, false, mainBibleActivity).apply {
+        return WindowButtonWidget(window, windowControl,true, mainBibleActivity).apply {
             text = getDocumentAbbreviation(window)
             setOnClickListener { windowControl.restoreWindow(window) }
             setOnLongClickListener { v-> showPopupWindow(window, v); true }
@@ -536,7 +552,6 @@ class SplitBibleArea(
             window,
             windowControl = windowControl,
             isRestoreButton = true,
-            isAddWindowButton = false,
             context = mainBibleActivity
         ).apply {
             setOnClickListener { windowControl.unMaximise() }
