@@ -37,6 +37,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import android.widget.Space
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -304,68 +305,72 @@ class SplitBibleArea(
         Log.d(TAG, "rebuildRestoreButtons")
         restoreButtonsList.clear()
         restoreButtons.removeAllViews()
-        pinnedRestoreButtons.removeAllViews()
-        linksButtonContainer.removeAllViews()
+
+        val llp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
         val maxWindow = windowRepository.maximizedWindow
         if(maxWindow != null) {
             val restoreButton = createUnmaximiseButton(maxWindow)
             restoreButtonsList.add(restoreButton)
-            restoreButtons.addView(restoreButton,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-            space1.visibility = View.GONE
-            space2.visibility = View.GONE
+            restoreButtons.addView(restoreButton, llp)
             return
         }
-
 
         val windows = windowRepository.windows
 
         val pinnedWindows = windows.filter { it.isPinMode && !it.isLinksWindow }
         val nonPinnedWindows = windows.filter { !it.isPinMode && !it.isLinksWindow }
         val linksWin = windowRepository.dedicatedLinksWindow
-
+        var spaceAdded = false
+        fun addSpace() {
+            restoreButtons.addView(Space(context),
+                LinearLayout.LayoutParams(CommonUtils.convertDipsToPx(5), ViewGroup.LayoutParams.MATCH_PARENT)
+            )
+            spaceAdded = true
+        }
         if(!windowControl.isSingleWindow) {
             for (win in pinnedWindows) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
-                pinnedRestoreButtons.addView(restoreButton,
-                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                restoreButtons.addView(restoreButton, llp)
             }
+            if(pinnedWindows.isNotEmpty() && nonPinnedWindows.isNotEmpty())
+                addSpace()
 
             for (win in nonPinnedWindows) {
                 Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
-                restoreButtons.addView(restoreButton,
-                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                restoreButtons.addView(restoreButton, llp)
+                spaceAdded = false
             }
 
+            if(!spaceAdded && !linksWin.isClosed) {
+                addSpace()
+            }
 
             if (!linksWin.isClosed) {
                 val restoreButton = createRestoreButton(linksWin)
                 restoreButtonsList.add(restoreButton)
-                linksButtonContainer.addView(restoreButton,
-                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                restoreButtons.addView(restoreButton, llp)
+                spaceAdded = false
             }
+        }
+        if(!spaceAdded && !hideWindowButtons) {
+            addSpace()
         }
 
         if (!hideWindowButtons) {
             val addNewWindowButton = AddNewWindowButtonWidget(mainBibleActivity).apply {
                 setOnClickListener { v -> windowControl.addNewWindow(windowControl.activeWindow) }
             }
-            linksButtonContainer.addView(addNewWindowButton,
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            )
+            restoreButtons.addView(addNewWindowButton, llp)
+            spaceAdded = false
         }
 
-        val hideSpace1 = pinnedWindows.isEmpty() || nonPinnedWindows.isEmpty()
-        val hideSpace2 = linksButtonContainer.childCount == 0 || (nonPinnedWindows.isEmpty() && !hideSpace1)
         val hideArrow = if(windowControl.isSingleWindow) View.GONE else View.VISIBLE
 
-        space1.visibility = if(hideSpace1) View.GONE else View.VISIBLE
-        space2.visibility = if(hideSpace2) View.GONE else View.VISIBLE
         hideRestoreButton.visibility = hideArrow
         hideRestoreButtonExtension.visibility = hideArrow
     }

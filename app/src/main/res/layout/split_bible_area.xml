@@ -55,31 +55,7 @@
                 android:layout_height="match_parent"
                 />
             <LinearLayout
-                android:id="@+id/pinnedRestoreButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                />
-            <Space
-                android:id="@+id/space1"
-                android:layout_width="5dip"
-                android:layout_height="match_parent"
-                />
-            <LinearLayout
                 android:id="@+id/restoreButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                />
-            <Space
-                android:id="@+id/space2"
-                android:layout_width="5dip"
-                android:layout_height="match_parent"
-                />
-            <LinearLayout
-                android:id="@+id/linksButtonContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
