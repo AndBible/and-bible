@@ -554,7 +554,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             windowRepository.loadFromDb(value)
 
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
-            documentViewManager.buildView()
+            documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
             windowRepository.updateVisibleWindowsTextDisplaySettings()
 

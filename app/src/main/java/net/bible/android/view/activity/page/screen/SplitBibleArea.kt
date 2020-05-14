@@ -155,11 +155,11 @@ class SplitBibleArea(
         bibleViewFactory.clear()
     }
 
-    fun update() {
+    fun update(forceUpdate: Boolean) {
         biblesLinearLayout.orientation = if (isSplitVertically) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
 
         removeSeparators()
-        if(orientationChanges)
+        if(forceUpdate || orientationChanges)
             removeAllFrames()
         updateWindows()
         addSeparators()

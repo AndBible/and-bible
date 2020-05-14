@@ -72,22 +72,22 @@ class DocumentViewManager @Inject constructor(
         myNoteViewBuilder.afterRemove()
     }
 
-    private fun buildWebViews(): SplitBibleArea {
+    private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
         val topView = splitBibleArea?: SplitBibleArea().also {
             splitBibleArea = it
         }
-        topView.update()
+        topView.update(forceUpdate)
         return topView
     }
 
     @Synchronized
-    fun buildView() {
+    fun buildView(forceUpdate: Boolean = false) {
         if (myNoteViewBuilder.isMyNoteViewType) {
             removeView()
             mainBibleActivity.resetSystemUi()
             lastView = myNoteViewBuilder.addMyNoteView(parent)
         } else {
-            val view = buildWebViews()
+            val view = buildWebViews(forceUpdate)
             if(lastView != view) {
                 removeView()
                 lastView = view
