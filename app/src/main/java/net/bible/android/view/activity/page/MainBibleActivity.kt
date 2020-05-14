@@ -110,6 +110,7 @@ import net.bible.service.device.speak.event.SpeakEvent
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
@@ -673,7 +674,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if(doc?.bookCategory == BookCategory.BIBLE) {
                 key = pageControl.currentBibleVerse
             }
-            return key?.name ?: throw KeyIsNull()
+            return if(key is Verse && key.verse == 0) {
+                CommonUtils.getWholeChapter(key, false).name
+            } else key?.name ?: throw KeyIsNull()
         }
 
     val bibleOverlayText: String
