@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
     get() = when(bookCategory) {
@@ -82,6 +83,15 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         recommendedString.visibility = if(isRecommended) View.VISIBLE else View.GONE
         documentLanguage.text = document.language.name
         documentSource.text = document.getProperty(DownloadManager.REPOSITORY_KEY)
+
+        val moduleSize = document.bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)
+
+        if(moduleSize != null) {
+            val moduleSizeMb = (moduleSize.toDoubleOrNull() ?: 0.0) / 1e7
+            installSize.text = "%.2f MB".format(moduleSizeMb)
+        } else {
+            installSize.visibility = View.GONE
+        }
     }
 
     fun updateControlState(documentStatus: DocumentStatus) {
