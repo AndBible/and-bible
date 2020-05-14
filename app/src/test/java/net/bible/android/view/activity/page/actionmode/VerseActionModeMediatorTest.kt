@@ -118,7 +118,7 @@ class VerseActionModeMediatorTest {
         // setup action mode and get callback
         verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE)
         //val callback = ArgumentCaptor.forClass(ActionMode.Callback::class.java)
-        argumentCaptor<ActionMode.Callback>().apply() {
+        argumentCaptor<ActionMode.Callback>().apply {
             verify(mainBibleActivity).showVerseActionModeMenu(capture())
             val menuItem: MenuItem = mock()
             whenever(menuItem.itemId).thenReturn(R.id.compareTranslations)

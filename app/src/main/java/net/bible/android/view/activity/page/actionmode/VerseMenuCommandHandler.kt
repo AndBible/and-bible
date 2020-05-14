@@ -33,7 +33,12 @@ import org.crosswire.jsword.passage.VerseRange
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class VerseMenuCommandHandler(private val mainActivity: MainBibleActivity, private val pageControl: PageControl, private val bookmarkControl: BookmarkControl, private val myNoteControl: MyNoteControl) {
+open class VerseMenuCommandHandler(
+    private val mainActivity: MainBibleActivity,
+    private val pageControl: PageControl,
+    private val bookmarkControl: BookmarkControl,
+    private val myNoteControl: MyNoteControl
+) {
     private val intentHelper = IntentHelper()
 
     /**
@@ -41,52 +46,50 @@ class VerseMenuCommandHandler(private val mainActivity: MainBibleActivity, priva
      */
     fun handleMenuRequest(menuItemId: Int, verseRange: VerseRange): Boolean {
         var isHandled = false
-        run {
-            var handlerIntent: Intent? = null
-            val requestCode = ActivityBase.STD_REQUEST_CODE
-            when (menuItemId) {
-                R.id.compareTranslations -> {
-                    handlerIntent = Intent(mainActivity, CompareTranslations::class.java)
-                    isHandled = true
-                }
-                R.id.notes -> {
-                    handlerIntent = Intent(mainActivity, FootnoteAndRefActivity::class.java)
-                    isHandled = true
-                }
-                R.id.add_bookmark -> {
-                    bookmarkControl.addBookmarkForVerseRange(verseRange)
-                    // refresh view to show new bookmark icon
-                    isHandled = true
-                }
-                R.id.delete_bookmark -> {
-                    bookmarkControl.deleteBookmarkForVerseRange(verseRange)
-                    // refresh view to show new bookmark icon
-                    isHandled = true
-                }
-                R.id.edit_bookmark_labels -> {
-                    bookmarkControl.editBookmarkLabelsForVerseRange(verseRange)
-                    isHandled = true
-                }
-                R.id.myNoteAddEdit -> {
-                    mainActivity.fullScreen = false
-                    myNoteControl.showMyNote(verseRange)
-                    mainActivity.invalidateOptionsMenu()
-                    mainActivity.documentViewManager.buildView()
-                    isHandled = true
-                }
-                R.id.copy -> {
-                    pageControl.copyToClipboard(verseRange)
-                    isHandled = true
-                }
-                R.id.shareVerse -> {
-                    pageControl.shareVerse(verseRange)
-                    isHandled = true
-                }
+        var handlerIntent: Intent? = null
+        val requestCode = ActivityBase.STD_REQUEST_CODE
+        when (menuItemId) {
+            R.id.compareTranslations -> {
+                handlerIntent = Intent(mainActivity, CompareTranslations::class.java)
+                isHandled = true
             }
-            if (handlerIntent != null) {
-                intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange)
-                mainActivity.startActivityForResult(handlerIntent, requestCode)
+            R.id.notes -> {
+                handlerIntent = Intent(mainActivity, FootnoteAndRefActivity::class.java)
+                isHandled = true
             }
+            R.id.add_bookmark -> {
+                bookmarkControl.addBookmarkForVerseRange(verseRange)
+                // refresh view to show new bookmark icon
+                isHandled = true
+            }
+            R.id.delete_bookmark -> {
+                bookmarkControl.deleteBookmarkForVerseRange(verseRange)
+                // refresh view to show new bookmark icon
+                isHandled = true
+            }
+            R.id.edit_bookmark_labels -> {
+                bookmarkControl.editBookmarkLabelsForVerseRange(verseRange)
+                isHandled = true
+            }
+            R.id.myNoteAddEdit -> {
+                mainActivity.fullScreen = false
+                myNoteControl.showMyNote(verseRange)
+                mainActivity.invalidateOptionsMenu()
+                mainActivity.documentViewManager.buildView()
+                isHandled = true
+            }
+            R.id.copy -> {
+                pageControl.copyToClipboard(verseRange)
+                isHandled = true
+            }
+            R.id.shareVerse -> {
+                pageControl.shareVerse(verseRange)
+                isHandled = true
+            }
+        }
+        if (handlerIntent != null) {
+            intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange)
+            mainActivity.startActivityForResult(handlerIntent, requestCode)
         }
         return isHandled
     }
