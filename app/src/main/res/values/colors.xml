@@ -120,4 +120,5 @@
 	<color name="white">#ffffff</color>
 	<color name="black">#000000</color>
 	<color name="nav_bar_divider_grey">#CECECE</color>
+	<color name="links_button_icon_color">#7088FF</color>
 </resources>
