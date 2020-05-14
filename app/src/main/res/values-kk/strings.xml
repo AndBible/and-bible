@@ -500,7 +500,7 @@ Device құрылғысының ақпараты: \n
   <string name="error">Қате</string>
   <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
-  <string name="default_value">@string/тіл_дефолт</string>
+  <string name="default_value">@string/lang_default</string>
   <string name="edit">Редакциялау</string>
   <string name="watch_tutorial_video">Үйрету видеосын көріңіз (Ағылшын тілінде)</string>
   <string name="verse_not_found">Аят табылмады</string>
