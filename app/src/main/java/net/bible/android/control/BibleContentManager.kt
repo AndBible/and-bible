@@ -63,7 +63,7 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {
-            window.updateText(documentViewManager)
+            window.updateText(notifyLocationChange = true)
         }
 
         window.displayedBook = document

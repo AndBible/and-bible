@@ -19,16 +19,21 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
+import net.bible.android.control.page.ChapterVerse
+import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.UpdateTextTask
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.format.HtmlMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
@@ -147,7 +152,7 @@ open class Window (
 
     val initialized get() = lastUpdated != 0L
 
-    fun updateText(documentViewManager: DocumentViewManager? = null) {
+    fun updateText(notifyLocationChange: Boolean = false) {
         if(pageManager.currentPage is CurrentMyNotePage) return
 
         val stackMessage: String? = Log.getStackTraceString(Exception())
@@ -159,11 +164,47 @@ open class Window (
 
         lastUpdated = System.currentTimeMillis()
 
-        if(documentViewManager != null) {
-            UpdateMainTextTask(documentViewManager).execute(this)
+        Log.d(TAG, "Loading html in background")
+        var chapterVerse: ChapterVerse? = null
+        var yOffsetRatio: Float? = null
+        val currentPage = pageManager.currentPage
 
+        if(currentPage is CurrentBiblePage) {
+            chapterVerse = currentPage.currentChapterVerse
         } else {
-            UpdateInactiveScreenTextTask().execute(this)
+            yOffsetRatio = currentPage.currentYOffsetRatio
+        }
+
+        GlobalScope.launch {
+            if (notifyLocationChange) {
+                PassageChangeMediator.getInstance().contentChangeStarted()
+            }
+
+            val text = fetchText()
+
+            withContext(Dispatchers.Main) {
+                if(notifyLocationChange) {
+                    bibleView?.show(text, updateLocation = true)
+                } else {
+                    bibleView?.show(text, chapterVerse = chapterVerse, yOffsetRatio = yOffsetRatio)
+                }
+            }
+
+            if(notifyLocationChange)
+                PassageChangeMediator.getInstance().contentChangeFinished()
+            }
+        }
+
+    private suspend fun fetchText(): String = withContext(Dispatchers.IO) {
+        val currentPage = pageManager.currentPage
+        return@withContext try {
+            val document = currentPage.currentDocument
+            Log.d(TAG, "Loading document:$document key:${currentPage.key}")
+            currentPage.currentPageContent
+        } catch (oom: OutOfMemoryError) {
+            Log.e(TAG, "Out of memory error", oom)
+            System.gc()
+            HtmlMessageFormatter.format(R.string.error_page_too_large)
         }
     }
 
@@ -172,32 +213,4 @@ open class Window (
     }
 
     private val TAG get() = "BibleView[${id}] WIN"
-}
-
-class UpdateInactiveScreenTextTask() : UpdateTextTask() {
-    /** callback from base class when result is ready  */
-    override fun showText(text: String, screenToUpdate: Window) {
-        ABEventBus.getDefault().post(
-            UpdateSecondaryWindowEvent(screenToUpdate.id, text, chapterVerse, yOffsetRatio));
-    }
-}
-
-
-class UpdateMainTextTask(private val documentViewManager: DocumentViewManager) : UpdateTextTask() {
-
-    override fun onPreExecute() {
-        super.onPreExecute()
-        PassageChangeMediator.getInstance().contentChangeStarted()
-    }
-
-    override fun onPostExecute(htmlFromDoInBackground: String) {
-        super.onPostExecute(htmlFromDoInBackground)
-        PassageChangeMediator.getInstance().contentChangeFinished()
-    }
-
-    /** callback from base class when result is ready  */
-    override fun showText(text: String, screenToUpdate: Window) {
-        val view = documentViewManager.getDocumentView(screenToUpdate) as BibleView
-        view.show(text, true)
-    }
 }

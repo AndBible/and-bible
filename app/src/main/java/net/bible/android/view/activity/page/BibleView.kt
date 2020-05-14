@@ -529,14 +529,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun onEvent(event: UpdateSecondaryWindowEvent) {
-        if (window.id == event.updateWindowId) {
-            Log.d(TAG, "UpdateSecondaryWindowEvent")
-
-            updateBackgroundColor()
-            show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
-        }
-    }
+//    fun onEvent(event: UpdateSecondaryWindowEvent) {
+//        if (window.id == event.updateWindowId) {
+//            Log.d(TAG, "UpdateSecondaryWindowEvent")
+//
+//            updateBackgroundColor()
+//            show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
+//        }
+//    }
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
