@@ -74,7 +74,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
         }
     }
 
-    fun setIcons() {
+    fun setIcons(downloadScreen: Boolean = false) {
         val docImage = document.imageResource
         documentTypeIcon.setImageResource(docImage)
 
@@ -86,7 +86,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         val moduleSize = document.bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)
 
-        if(moduleSize != null) {
+        if(downloadScreen && moduleSize != null) {
             val moduleSizeMb = (moduleSize.toDoubleOrNull() ?: 0.0) / 1e6
             installSize.text = "%.1f MB".format(moduleSizeMb)
         } else {

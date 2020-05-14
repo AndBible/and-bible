@@ -58,7 +58,7 @@ class DocumentDownloadItemAdapter(
         // remember which item is being shown
         view.document = document
         view.recommendedDocuments = recommendedDocuments
-        view.setIcons()
+        view.setIcons(true)
         view.updateControlState(downloadControl.getDocumentStatus(document))
 
         // Set value for the first text field
