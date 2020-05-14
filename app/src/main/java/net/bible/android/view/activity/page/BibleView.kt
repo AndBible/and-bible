@@ -37,7 +37,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
-import net.bible.android.control.event.window.UpdateSecondaryWindowEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.ChapterVerse
@@ -528,15 +527,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             pauseTiltScroll()
         }
     }
-
-//    fun onEvent(event: UpdateSecondaryWindowEvent) {
-//        if (window.id == event.updateWindowId) {
-//            Log.d(TAG, "UpdateSecondaryWindowEvent")
-//
-//            updateBackgroundColor()
-//            show(event.html, chapterVerse = event.chapterVerse, yOffsetRatio = event.yOffsetRatio)
-//        }
-//    }
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
