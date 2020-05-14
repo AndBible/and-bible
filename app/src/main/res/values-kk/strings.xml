@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
-  <string name="app_name_medium">Киелі Кітапті Зерттеу (Және Киелі Кітап)</string>
-  <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, Және Киелі Кітап - ашық көзді жобасы арқылы болып табылады</string>
+  <string name="app_name_medium">Киелі Кітапті Зерттеу (And Bible)</string>
+  <string name="app_name_long">Киелі Кітапті Зерртеу қолданбасы, And Bible - ашық көзді жобасы арқылы болып табылады</string>
   <!--Startup & Help-->
   <string name="help_nav_title">Навигация</string>
   <string name="help_nav_text">Келесі не алдыңғы тарауға өту үшін, бармақпен бейнені сілтеңіз.
