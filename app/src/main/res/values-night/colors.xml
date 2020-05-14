@@ -23,7 +23,7 @@
     <color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
     <color name="bar_window_button_category_tint">@color/bar_window_button_text_colour</color>
     <color name="bar_window_button_background_colour">#2E2E2E</color>
-    <color name="bar_window_button_background_colour_visible">#424242</color>
+    <color name="bar_window_button_background_colour_visible">#6A6A6A</color>
     <color name="bar_window_button_stroke_color">#686868</color>
 
     <color name="window_button_text_colour">#32FFFFFF</color>

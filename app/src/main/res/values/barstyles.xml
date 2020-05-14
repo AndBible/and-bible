@@ -19,12 +19,12 @@
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 		<item name="transportButtonColor">#ffffff</item>
 
-		<item name="windowButtonActiveStrokeColor">@color/black</item>
+		<item name="windowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
 		<item name="windowButtonStrokeColor">#00FFFFFF</item>
 		<item name="windowButtonBackgroundColor">#B78D8D8D</item>
 		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
 
-		<item name="barWindowButtonActiveStrokeColor">@color/black</item>
+		<item name="barWindowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
 		<item name="barWindowButtonStrokeColor">@color/bar_window_button_stroke_color</item>
 		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>
 		<item name="barWindowButtonActiveBackgroundColor">@color/bar_window_button_background_colour_visible</item>
