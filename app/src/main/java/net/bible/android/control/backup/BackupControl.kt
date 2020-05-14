@@ -49,6 +49,7 @@ import net.bible.service.db.DATABASE_NAME
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.db
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.BufferedInputStream
@@ -231,7 +232,9 @@ class BackupControl @Inject constructor() {
 
                     addFile(outFile, rootDir, configFile)
                     val dataPath = bmd.getProperty("DataPath")
-                    val dataDir = File(rootDir, dataPath)
+                    val dataDir = File(rootDir, dataPath).run {
+                        if(b.bookCategory == BookCategory.DICTIONARY) parentFile else this
+                    }
                     for(f in dataDir.walkTopDown().filter { it.isFile }) {
                         addFile(outFile, rootDir, f)
                     }
