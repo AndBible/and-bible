@@ -1,7 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name_short">研經工具</string>
+  <string name="app_name_medium">研經工具 (And Bible)</string>
+  <string name="app_name_long">研經工具 - 由And Bible開源計劃開發</string>
   <!--Startup & Help-->
   <string name="help_nav_title">導航</string>
+  <string name="help_nav_text">滑動螢幕以翻閱至上一章或下一章。
+雙點經文文字以切換至全螢幕。
+螢幕分割(又稱視窗) 於右上方有選單按鈕，
+點選可讓你更改視窗功能、自訂外觀及行為。</string>
   <string name="help_contextmenus_title">內文選單</string>
   <string name="help_mynote_title">我的筆記</string>
   <string name="help_mynote_text">透過經節的選單中我的筆記，可以加入筆記。
@@ -15,7 +22,9 @@
 (有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作檢視</string>
   <string name="help_hidden_features_title">隱藏捷徑</string>
+  <string name="help_window_pinning_title">視窗釘選</string>
   <string name="version_text"> %s 版本 </string>
+  <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
   <!--Main menu-->
   <string name="menu">選單</string>
   <string name="chooseBook">文件</string>
@@ -38,6 +47,7 @@
   <string name="deuterocanonical">次經</string>
   <!--Search-->
   <string name="search_index">搜尋索引</string>
+  <string name="index_creation_required">搜尋需要搜尋索引</string>
   <string name="create_index_for">搜尋時需要索引。\n\n為%s建立索引嗎？</string>
   <string name="rebuild_index_for">為%s重建索引嗎？</string>
   <string name="indexing_wait_msg">當索引創建完成時，程式會回到查詢頁面。</string>
@@ -66,6 +76,12 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_summary">顯示節數</string>
   <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
+  <string name="prefs_show_bookmarks_summary">取消剔選以隱藏所有書籤</string>
+  <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記的圖示</string>
+  <string name="prefs_show_notes_summary">顯示注腳及交叉對照</string>
+  <string name="prefs_show_strongs_summary">連結希臘文/希伯來文定義</string>
+  <string name="prefs_show_morphology_summary">顯示Robinson\'s希臘文詞形工具</string>
+  <string name="prefs_section_title_summary">顯示非正典章節標題</string>
   <string name="prefs_red_letter_summary">以紅字顯示基督的話</string>
   <string name="prefs_text_size_title">字型偏好</string>
   <string name="prefs_show_verseno_title">顯示節數</string>
@@ -81,6 +97,7 @@
   <string name="prefs_red_letter_title">紅字</string>
   <string name="prefs_tilt_to_scroll_title">傾斜手機向下捲動</string>
   <string name="prefs_night_mode_title">夜間模式切換</string>
+  <string name="prefs_night_mode_summary">是否手動或自動經由系統設定轉換至夜間模式 (Android 10+)</string>
   <string name="prefs_night_mode_manual">手動</string>
   <string name="prefs_night_mode_automatic">自動啟動夜間模式</string>
   <string name="prefs_night_mode_system">系統</string>

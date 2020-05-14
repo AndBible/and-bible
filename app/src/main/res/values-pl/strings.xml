@@ -534,4 +534,6 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
   <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">Rozumiem</string>
+  <string name="first_time_help_show_next_time">Wyświetl ponownie później</string>
 </resources>

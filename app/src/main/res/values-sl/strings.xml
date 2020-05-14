@@ -581,4 +581,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <!--Uncategorized-->
   <string name="close">Zapri</string>
   <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">Razumem</string>
+  <string name="first_time_help_show_next_time">Ponovno pokaži prihodnjič</string>
 </resources>

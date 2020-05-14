@@ -577,4 +577,6 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <!--Uncategorized-->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">Ek verstaan</string>
+  <string name="first_time_help_show_next_time">Wys volgende keer weer</string>
 </resources>
