@@ -88,7 +88,7 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
 
         if(moduleSize != null) {
             val moduleSizeMb = (moduleSize.toDoubleOrNull() ?: 0.0) / 1e6
-            installSize.text = "%.2f MB".format(moduleSizeMb)
+            installSize.text = "%.1f MB".format(moduleSizeMb)
         } else {
             installSize.visibility = View.GONE
         }
