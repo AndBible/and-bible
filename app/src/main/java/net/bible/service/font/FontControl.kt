@@ -69,12 +69,11 @@ class FontControl private constructor() {
     fun getFontSizeAdjustment(font: String?, book: Book?): Int {
         var sizeAdjustment = 0
         try {
-            if (!StringUtils.isEmpty(font)) {
-                // only modify font size if font is for whole page otherwise some characters are different sizes which looks odd
-                if (StringUtils.isEmpty(getCssClassForCustomFont(book))) {
-                    val sizeAdjustmentString = fontProperties.getProperty(font + FONT_SIZE_ADJUSTMENT, "0")
-                    sizeAdjustment = sizeAdjustmentString.toInt()
-                }
+            if (!StringUtils.isEmpty(font) && StringUtils.isEmpty(getCssClassForCustomFont(book))) {
+                val sizeAdjustmentString = fontProperties.getProperty(
+                    font + FONT_SIZE_ADJUSTMENT, "0"
+                )
+                sizeAdjustment = sizeAdjustmentString.toInt()
             }
         } catch (e: Exception) {
             log.error("Error getting font size adjustment", e)
