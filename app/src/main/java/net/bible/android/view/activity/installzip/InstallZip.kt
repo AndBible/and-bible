@@ -40,6 +40,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import kotlinx.android.synthetic.main.activity_install_zip.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -47,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.view.activity.base.ActivityBase
 import java.io.InputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -228,11 +230,12 @@ class ZipHandler(
     }
 }
 
-class InstallZip : Activity() {
-    public override fun onCreate(savedInstanceState: Bundle?) {
+class InstallZip : ActivityBase() {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Install from Zip starting")
         setContentView(R.layout.activity_install_zip)
+        super.buildActivityComponent().inject(this)
         when(intent?.action) {
             Intent.ACTION_VIEW -> installZip(intent!!.data!!)
             Intent.ACTION_SEND -> installZip(intent.getParcelableExtra(Intent.EXTRA_STREAM))
@@ -250,6 +253,7 @@ class InstallZip : Activity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             PICK_FILE -> if (resultCode == Activity.RESULT_OK) {
                 installZip(data!!.data!!)
@@ -268,7 +272,11 @@ class InstallZip : Activity() {
             this
         )
         GlobalScope.launch {
-            zh.execute()
+            withContext(Dispatchers.Main) {
+                loadingIndicator.visibility = View.VISIBLE
+                zh.execute()
+                loadingIndicator.visibility = View.GONE
+            }
         }
     }
 
