@@ -61,7 +61,7 @@ constructor(private val windowControl: WindowControl) {
     val history: List<HistoryItem>
         get() {
             val allHistory = ArrayList(historyStack)
-            Collections.reverse(allHistory)
+            allHistory.reverse()
             return allHistory
         }
 
