@@ -1106,13 +1106,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     CurrentActivityHolder.getInstance().currentActivity = this
                     Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-                        thread {
-                            val inputStream = contentResolver.openInputStream(data!!.data!!)
-                            if(backupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                                windowControl.windowSync.setResyncRequired()
-                                runOnUiThread {
-                                    documentViewManager.clearBibleViewFactory()
-                                    currentWorkspaceId = 0
+                        GlobalScope.launch {
+                            withContext(Dispatchers.IO) {
+                                val inputStream = contentResolver.openInputStream(data!!.data!!)
+                                if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                    windowControl.windowSync.setResyncRequired()
+                                    withContext(Dispatchers.Main) {
+                                        documentViewManager.clearBibleViewFactory()
+                                        currentWorkspaceId = 0
+                                    }
                                 }
                             }
                         }
