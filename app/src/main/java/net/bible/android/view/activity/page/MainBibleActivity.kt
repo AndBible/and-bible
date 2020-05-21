@@ -175,13 +175,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = if(isFullScreen) 0 else field
 
     private var bottomOffset1 = 0
-        get() = if(multiWinMode || isFullScreen) 0 else field
+        get() = if(isFullScreen) 0 else field
 
     var rightOffset1 = 0
-        get() = if(multiWinMode || isFullScreen) 0 else field
+        get() = if(isFullScreen) 0 else field
 
     var leftOffset1 = 0
-        get() = if(multiWinMode || isFullScreen) 0 else field
+        get() = if(isFullScreen) 0 else field
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
