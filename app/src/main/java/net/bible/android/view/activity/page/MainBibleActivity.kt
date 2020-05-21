@@ -142,9 +142,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
 
-    override var nightTheme = R.style.MainBibleViewNightTheme
-    override var dayTheme = R.style.MainBibleViewTheme
-
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
     private var transportBarHeight = 0

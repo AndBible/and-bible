@@ -66,9 +66,6 @@ class ColorSettingsActivity: ActivityBase() {
     private var dirty = false
     private var reset = false
 
-    override val dayTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
         colors = settingsBundle.actualSettings.colors?: WorkspaceEntities.TextDisplaySettings.default.colors!!

@@ -9,9 +9,9 @@
     	ActionBar background colour also set in DefaultActionBarManager.java
     	For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
     -->
-	<style name="AppThemeDay" parent="@style/BaseAppThemeDay"/>
+	<style name="AppTheme" parent="@style/BaseAppTheme"/>
 
-	<style name="BaseAppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+	<style name="BaseAppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="colorAccent">@color/accent_day</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
@@ -44,33 +44,6 @@
 
 	</style>
 
-	<style name="AppThemeNight" parent="@style/BaseAppThemeNight"/>
-
-	<style name="BaseAppThemeNight" parent="@style/Theme.AppCompat">
-		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_night</item>
-		<item name="colorPrimary">@color/actionbar_background_night</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
-		<item name="transportButtonColor">#d4d4d4</item>
-
-		<item name="windowButtonActiveStrokeColor">@color/grey_500</item>
-		<item name="windowButtonStrokeColor">#00FFFFFF</item>
-
-		<item name="windowButtonActiveBackgroundColor">#9b6e6e6e</item>
-		<item name="windowButtonBackgroundColor">#9B313131</item>
-
-		<item name="bibleReferenceOverlayBackgroundColor">#DE3A3A3A</item>
-		<item name="speakTransportBackground">#000000</item>
-		<item name="transportBarHeight">75dp</item>
-		<item name="toolbarTextColor">@color/toolbar_text_color</item>
-		<item name="separatorBackgroundColor">#333333</item>
-		<item name="separatorActiveBackgroundColor">#838383</item>
-		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
-		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/black</item>
-		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/grey_800</item>
-
-	</style>
-
 
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
 		<item name="textAllCaps">false</item>
@@ -89,13 +62,7 @@
 		<item name="android:textColorPrimary">@color/white</item>
 	</style>
 
-	<style name="MainBibleViewTheme" parent="AppThemeDay">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="windowActionModeOverlay">true</item>
-		<item name="actionBarSize">@dimen/toolbar_height</item>
-	</style>
-	<style name="MainBibleViewNightTheme" parent="AppThemeNight">
+	<style name="MainBibleViewTheme" parent="AppTheme">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
 		<item name="windowActionModeOverlay">true</item>
@@ -145,6 +112,6 @@
 	</style>
 
 	<!--Make sure the passage chooser grids have a dark background -->
-	<style name="GridChoosePassageTheme" parent="AppThemeNight">
+	<style name="GridChoosePassageTheme" parent="AppTheme">
 	</style>
 </resources>

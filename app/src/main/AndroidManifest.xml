@@ -28,7 +28,7 @@
         android:label="@string/app_name_short"
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppThemeDay"
+        android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <uses-library
@@ -48,6 +48,7 @@
         <activity
             android:name="net.bible.android.view.activity.page.MainBibleActivity"
             android:configChanges="keyboardHidden|screenSize|locale|uiMode"
+            android:theme="@style/MainBibleViewTheme"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:launchMode="singleTask"
             android:label="@string/app_name_short" />

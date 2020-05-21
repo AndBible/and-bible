@@ -57,8 +57,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     @Inject lateinit var swordDocumentFacade: SwordDocumentFacade
 
-    protected open val nightTheme = R.style.AppThemeNight
-    protected open val dayTheme = R.style.AppThemeDay
     protected open val customTheme = true
 
     /** Called when the activity is first created.  */
@@ -68,30 +66,30 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        if (ScreenSettings.nightMode) {
-            if(customTheme)
-                setTheme(nightTheme)
-            if(ScreenSettings.manualMode) {
-                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
-                }
-            }
-        } else {
-            if(customTheme)
-                setTheme(dayTheme)
-            if(ScreenSettings.manualMode) {
-                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
-                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-                }
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!ScreenSettings.nightMode) {
-                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                window.decorView.systemUiVisibility = uiFlags
-            }
-        }
+//        if (ScreenSettings.nightMode) {
+//            if(customTheme)
+//                setTheme(nightTheme)
+//            if(ScreenSettings.manualMode) {
+//                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_YES) {
+//                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+//                }
+//            }
+//        } else {
+//            if(customTheme)
+//                setTheme(dayTheme)
+//            if(ScreenSettings.manualMode) {
+//                delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+//                if (delegate.localNightMode != AppCompatDelegate.MODE_NIGHT_NO) {
+//                    delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+//                }
+//            }
+//        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            if (!ScreenSettings.nightMode) {
+//                val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+//                window.decorView.systemUiVisibility = uiFlags
+//            }
+//        }
 
     }
 
