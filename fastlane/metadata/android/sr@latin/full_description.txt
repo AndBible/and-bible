@@ -1,0 +1,32 @@
+And Biblija je potpuno besplatna aplikacija otvorenog koda, bez reklama, koja ne zahteva Internet time omogućujući što većem broju ljudi iz mnogih zemalja da čitaju, slušaju i izučavaju Pismo čineći to jednostavnijim i sa većim ličnim blaženstvom.
+
+* Prevodi Biblije, komentari, Teološki rečnici, karte i Hrišćanske knjige na preko 700 jezika
+* Bez Interneta za sve nakon početnog preuzimanja, uključujući pretragu, beleške, kometare, itd.
+* Okruženje na više jezika
+* Raznovrsni planovi čitanja Biblije
+* Potpuno slobodna, bez reklama, bez e-pošte
+* Preko 40 engleskih prevoda uključujući KJV i NET (ESV je takođe nekada bio ovde i mi pokušavamo da ga ponovo vratimo, pogledajte NPP: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 Biblijskih komentara
+* Opširan rečnik i zbirka hrišćanskih knjiga
+* Svi dokumenti su legalno distribuirani (razlog zbog kojeg dokumenti kao NKJV i NIV nisu dostupni)
+* Strongova integracija omogućava analizu reči na grčkom i jevrejskom.
+* Više radnih površina u podeljenom ekranu
+* Hvatanje ličnih zabeleški
+* Prilagodljiva pretraga
+* Obeleživači
+* Karte biblijskih zemalja
+* Slušanje čitanja bilo kog dokumenta
+* Automatsko skrolovanje, automatski dan/noć režim
+* Upoređivanje svih prevoda Biblije na jednom ekranu
+* Jedna od najbržih aplikacija za Bibliju na Androidu
+* Otvoreni kod - ako želite, unapredite ili izmenite kod
+* Koristi moćni JSword mehanizam od CrossWire-a
+
+Mi smo svi volonteri; ne šaljemo napornu e-poštu; ne prikazujemo dosadne reklame; nikada ne tražimo donacije; ne zahtevamo registraciju; And Biblija ne skuplja nikakve podate sa vašeg telefona.
+
+Poreklo svih dokumenata je temeljno istraženo, kako bi se obezbedila legalna distribucija, ili je data dozvola od strane vlasnika autorskih prava. To je, takođe razlog zbog kog And Biblija ne može sadržati dokumente kao što su NIV i NKJV.
+
+<b>Beleške</b>
+* Lajkujte And Bibliju na Fejsbuku: https://www.facebook.com/AndBible/
+* Najčešće postavljana pitanja za And Bibliju: https://github.com/AndBible/and-bible/wiki/FAQ
+* Stranica projekta na Githabu: https://github.com/AndBible/and-bible

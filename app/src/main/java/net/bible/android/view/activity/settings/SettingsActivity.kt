@@ -85,10 +85,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    /**
-     * Override locale.  If user has selected a different ui language to the devices default language
-     */
-
     companion object {
         private const val TAG = "SettingsActivity"
     }

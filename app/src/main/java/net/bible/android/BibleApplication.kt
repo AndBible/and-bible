@@ -42,8 +42,23 @@ import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.bridge.BookIndexer
+import org.crosswire.jsword.internationalisation.LocaleProvider
+import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import java.util.Locale
 
+class MyLocaleProvider: LocaleProvider {
+    /**
+     * Allow hardcoding exceptions for JSword locales, as
+     * it does not support all Android locale variants.
+     */
+    override fun getUserLocale(): Locale {
+        val default = Locale.getDefault()
+        if(default.language == "sr" && default.script == "Latn") {
+            return Locale.forLanguageTag("sr-LT")
+        }
+        return default
+    }
+}
 
 /** Main And Bible application singleton object
  *
@@ -68,7 +83,7 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         ABEventBus.getDefault().register(this)
-
+        LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
         Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
@@ -192,7 +207,6 @@ open class BibleApplication : Application() {
         ABEventBus.getDefault().unregisterAll()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     open fun getLocalizedResources(language: String): Resources {
         val app = application
         val oldConf = app.resources.configuration

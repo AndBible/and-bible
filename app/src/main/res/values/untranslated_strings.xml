@@ -47,6 +47,8 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_russian">ru: Русский</string>
 	<string name="lang_slovak">sk: Slovenčina</string>
 	<string name="lang_slovenian">sl: Slovenščina</string>
+	<string name="lang_serbian">sr: Србин (Serbian)</string>
+	<string name="lang_serbian_latin">sr: Srpski, latinica (Serbian)</string>
 	<string name="lang_swahili">sw: Swahili</string>
 	<string name="lang_swedish">sv: Svenska</string>
 	<string name="lang_telugu">te: తెలుగు</string>
