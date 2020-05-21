@@ -48,9 +48,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
     private var isScriptureResultsCurrentlyShown = true
-    private var searchResultsActionBarManager: SearchResultsActionBarManager? = null
-    private var searchControl: SearchControl? = null
-    private var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider? = null
+    @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
+    @Inject lateinit var searchControl: SearchControl
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,9 +58,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Displaying Search results view")
         setContentView(R.layout.list)
         buildActivityComponent().inject(this)
-        searchResultsActionBarManager!!.registerScriptureToggleClickListener(scriptureToggleClickListener)
-        setActionBarManager(searchResultsActionBarManager!!)
-        isScriptureResultsCurrentlyShown = searchControl!!.isCurrentDefaultScripture
+        searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
+        setActionBarManager(searchResultsActionBarManager)
+        isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
             mKeyArrayAdapter = SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
             listAdapter = mKeyArrayAdapter
@@ -79,9 +79,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             val searchText = extras!!.getString(SearchControl.SEARCH_TEXT)
             var searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT)
             if (StringUtils.isEmpty(searchDocument)) {
-                searchDocument = activeWindowPageManagerProvider!!.activeWindowPageManager.currentPage.currentDocument!!.initials
+                searchDocument = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
             }
-            mSearchResultsHolder = searchControl!!.getSearchResults(searchDocument, searchText)
+            mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText)
             // tell user how many results were returned
             val msg: String
             msg = if (mCurrentlyDisplayedSearchResults.size >= SearchControl.MAX_SEARCH_RESULTS) {
@@ -129,10 +129,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         if (key != null) { // which doc do we show
             var targetDocInitials = intent.extras!!.getString(SearchControl.TARGET_DOCUMENT)
             if (StringUtils.isEmpty(targetDocInitials)) {
-                targetDocInitials = activeWindowPageManagerProvider!!.activeWindowPageManager.currentPage.currentDocument!!.initials
+                targetDocInitials = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument!!.initials
             }
             val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
-            activeWindowPageManagerProvider!!.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
+            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
             returnToPreviousScreen()
         }
@@ -145,22 +145,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         isScriptureResultsCurrentlyShown = !isScriptureResultsCurrentlyShown
         populateViewResultsAdapter()
         mKeyArrayAdapter!!.notifyDataSetChanged()
-        searchResultsActionBarManager!!.setScriptureShown(isScriptureResultsCurrentlyShown)
-    }
-
-    @Inject
-    fun setSearchControl(searchControl: SearchControl?) {
-        this.searchControl = searchControl
-    }
-
-    @Inject
-    fun setSearchResultsActionBarManager(searchResultsActionBarManager: SearchResultsActionBarManager?) {
-        this.searchResultsActionBarManager = searchResultsActionBarManager
-    }
-
-    @Inject
-    fun setActiveWindowPageManagerProvider(activeWindowPageManagerProvider: ActiveWindowPageManagerProvider?) {
-        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider
+        searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown)
     }
 
 	fun onClose(v: View) {
