@@ -109,10 +109,6 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize.toFloat())
     }
 
-    override fun updateBackgroundColor() {
-
-    }
-
     override val isPageNextOkay = false
 
     override val isPagePreviousOkay = false

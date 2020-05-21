@@ -66,17 +66,15 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     fun applyTheme() {
-        val newNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        var newNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         if (!ScreenSettings.systemMode) {
-            val newNightMode = if (ScreenSettings.nightMode) {
+            newNightMode = if (ScreenSettings.nightMode) {
                 AppCompatDelegate.MODE_NIGHT_YES
             } else {
                 AppCompatDelegate.MODE_NIGHT_NO
             }
         }
-        if (delegate.localNightMode != newNightMode) {
-            delegate.localNightMode = newNightMode
-        }
+        AppCompatDelegate.setDefaultNightMode(newNightMode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
