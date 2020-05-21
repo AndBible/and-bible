@@ -71,10 +71,6 @@ interface CurrentPage {
     /** get a page to display  */
     val currentPageContent: String
 
-    /** get footnotes  */
-    @get:Throws(ParseException::class)
-    val currentPageFootnotesAndReferences: List<Note>
-
     fun updateOptionsMenu(menu: Menu)
 
     var isInhibitChangeNotifications: Boolean

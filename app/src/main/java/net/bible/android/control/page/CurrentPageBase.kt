@@ -136,10 +136,6 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    @get:Throws(ParseException::class)
-    override val currentPageFootnotesAndReferences: List<Note>
-        get() = swordContentFacade.readFootnotesAndReferences(currentDocument, key, pageManager.actualTextDisplaySettings)
-
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {
             Log.d(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")

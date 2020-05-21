@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.notes.*
 import net.bible.android.activity.R
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl
 import net.bible.android.control.footnoteandref.NoteDetailCreator
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler
@@ -46,9 +47,9 @@ import javax.inject.Inject
  */
 class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
     private lateinit var currentVerseRange: VerseRange
-    private lateinit var mChapterNotesList: List<Note>
-    private lateinit var mVerseNotesList: MutableList<Note>
-    private lateinit var mNotesListAdapter: ItemAdapter
+    private lateinit var notesList: List<Note>
+    private lateinit var verseNotesList: MutableList<Note>
+    private lateinit var notesListAdapter: ItemAdapter
     private val intentHelper = IntentHelper()
 
     // detect swipe left/right
@@ -59,6 +60,8 @@ class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
     lateinit var noteDetailCreator: NoteDetailCreator
     @Inject
     lateinit var swordContentFacade: SwordContentFacade
+    @Inject
+    lateinit var windowControl: WindowControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,11 +69,9 @@ class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
         Log.i(TAG, "Displaying notes")
         setContentView(R.layout.notes)
         buildActivityComponent().inject(this)
-        //fetch verse from intent if set - so that goto via History works nicely
+
         currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(intent)
 
-        //swordContentFacade.readFootnotesAndReferences(currentDocument, key, pageManager.actualTextDisplaySettings);
-        mChapterNotesList = footnoteAndRefControl.currentPageFootnotesAndReferences
         initialiseView()
 
         // create gesture related objects
@@ -78,16 +79,16 @@ class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
     }
 
     private fun initialiseView() {
-        mVerseNotesList = ArrayList()
+        verseNotesList = ArrayList()
         showCurrentVerse()
         populateVerseNotesList()
         prepareWarningMsg()
-        mNotesListAdapter = ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList, noteDetailCreator)
-        listAdapter = mNotesListAdapter
+        notesListAdapter = ItemAdapter(this, LIST_ITEM_TYPE, verseNotesList, noteDetailCreator)
+        listAdapter = notesListAdapter
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
-        noteSelected(mVerseNotesList[position])
+        noteSelected(verseNotesList[position])
     }
 
     /** swiped left
@@ -114,22 +115,28 @@ class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
     }
 
     private fun populateVerseNotesList() {
-        mVerseNotesList.clear()
+        val pageManager = windowControl.activeWindowPageManager
+        notesList = swordContentFacade.readFootnotesAndReferences(
+            pageManager.currentPassageDocument,
+            currentVerseRange,
+            pageManager.actualTextDisplaySettings)
+
+        verseNotesList.clear()
         val startVerseNo = currentVerseRange.start.verse
         val endVerseNo = currentVerseRange.end.verse
-        for (note in mChapterNotesList) {
+        for (note in notesList) {
             val noteVerseNo = note.verseNo
             if (noteVerseNo in startVerseNo..endVerseNo) {
-                mVerseNotesList.add(note)
+                verseNotesList.add(note)
             }
         }
     }
 
     private fun prepareWarningMsg() {
         var warning = ""
-        if (mChapterNotesList.isEmpty()) {
+        if (notesList.isEmpty()) {
             warning = getString(R.string.no_chapter_notes)
-        } else if (mVerseNotesList.size == 0) {
+        } else if (verseNotesList.size == 0) {
             warning = getString(R.string.no_verse_notes)
         }
         warningText.text = warning
@@ -159,7 +166,7 @@ class FootnoteAndRefActivity : ListActivityBase(), SwipeGestureEventHandler {
         doFinish()
     }
 
-    fun doFinish() {
+    private fun doFinish() {
         val resultIntent = Intent()
         setResult(Activity.RESULT_OK, resultIntent)
         finish()

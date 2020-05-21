@@ -37,14 +37,6 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class FootnoteAndRefControl @Inject constructor(private val bibleTraverser: BibleTraverser, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) {
-    val currentPageFootnotesAndReferences: List<Note>
-        get() = try {
-            currentPageManager.currentPage.currentPageFootnotesAndReferences
-        } catch (e: Exception) {
-            instance.showErrorMsg(R.string.error_occurred, e)
-            ArrayList()
-        }
-
     fun getTitle(verseRange: VerseRange): String {
         val stringBuilder = StringBuilder()
         synchronized(BookName::class) {
