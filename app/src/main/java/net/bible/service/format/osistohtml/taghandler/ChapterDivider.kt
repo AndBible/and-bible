@@ -18,50 +18,42 @@
 package net.bible.service.format.osistohtml.taghandler
 
 import net.bible.service.common.Constants
-import net.bible.service.common.Logger
 import net.bible.service.format.osistohtml.HtmlTextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
-import org.crosswire.jsword.passage.KeyUtil
 import org.xml.sax.Attributes
-import java.util.*
 
-/** Display an img if the current verse has MyNote
+/**
+ * Write the chapter number at the beginning of a Bible chapter
+ * The chapter id is also useful for going to the start of a chapter (verse 1)
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteMarker(private val parameters: OsisToHtmlParameters,
-                   private val verseInfo: VerseInfo,
-                   private val writer: HtmlTextWriter) : OsisTagHandler {
-    private val myNoteVerses: MutableSet<Int> = HashSet()
-    override val tagName = ""
+class ChapterDivider(
+    private val parameters: OsisToHtmlParameters,
+    private val verseInfo: VerseInfo,
+    private val writer: HtmlTextWriter) : OsisTagHandler
+{
+    override val tagName: String = "NotLinkedToOsisChapterElement"
 
-    /** just after verse start tag
-     */
     override fun start(attrs: Attributes) {
-        if (parameters.isShowMyNotes) {
-            if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
-                val tag: String = "<a href='%s:%s'><img src='%s' class='myNoteImg'/></a>".format(
-                    Constants.MYNOTE_PROTOCOL,
-                    parameters.basisRef.osisID + verseInfo.currentVerseNo,
-                    "file:///android_asset/images/pencil16x16.png"
-                )
-                writer.write(tag)
+        doStart()
+    }
+
+    fun doStart() {
+        val chapter = parameters.chapter
+        if (parameters.isShowChapterDivider && chapter != null) {
+            if (chapter > 1) {
+                if (parameters.isShowVerseNumbers) {
+                    writer.write("<div class='chapterNo'>&#8212; $chapter &#8212;</div>")
+                }
             }
+            // used to jump to the top of a chapter, but still allow up scroll
+            writer.write("<span class='position-marker' id='" + chapter + "'>" + Constants.HTML.EMPTY_SPACE + "</span>")
+            verseInfo.positionToInsertBeforeVerse = writer.position
         }
     }
 
     override fun end() {}
 
-    companion object {
-        private val log = Logger("MyNoteMarker")
-    }
-
-    init {
-        // create hashmap of verses to optimise verse note lookup
-        for (key in parameters.versesWithNotes?: emptyList()) {
-            val verse = KeyUtil.getVerse(key)
-            myNoteVerses.add(verse.verse)
-        }
-    }
 }

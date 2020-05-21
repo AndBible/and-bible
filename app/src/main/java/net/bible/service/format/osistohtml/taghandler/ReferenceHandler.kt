@@ -17,7 +17,6 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
-import kotlinx.android.synthetic.main.main_bible_view.*
 import net.bible.service.common.Constants
 import net.bible.service.common.Logger
 import net.bible.service.format.osistohtml.HtmlTextWriter
@@ -57,7 +56,7 @@ open class ReferenceHandler(
     private val writer: HtmlTextWriter) : OsisTagHandler
 {
     private var currentRefOsisRef: String? = null
-    override fun getTagName(): String = OSISUtil.OSIS_ELEMENT_REFERENCE
+    override val tagName: String = OSISUtil.OSIS_ELEMENT_REFERENCE
 
     override fun start(attrs: Attributes) {
         // store the osisRef attribute for use with the note
@@ -93,13 +92,13 @@ open class ReferenceHandler(
         // We only need to worry about the first ref because JSword uses the first ref as the basis for the subsequent refs
         // if content starts with a number and is not followed directly by an alpha char e.g. 1Sa
         var reference: String? = null
-        if (content != null && content.length > 0 && StringUtils.isNumeric(content.subSequence(0, 1)) &&
+        if (content != null && content.isNotEmpty() && StringUtils.isNumeric(content.subSequence(0, 1)) &&
             (content.length < 2 || !StringUtils.isAlphaSpace(content.subSequence(1, 2)))) {
 
             // maybe should use VerseRangeFactory.fromstring(orig, basis)
             // this check for a colon to see if the first ref is verse:chap is not perfect but it will do until JSword adds a fix
             val firstColonPos = content.indexOf(":")
-            val isVerseAndChapter = firstColonPos > 0 && firstColonPos < 4
+            val isVerseAndChapter = firstColonPos in 1..3
             reference = if (isVerseAndChapter) {
                 parameters.basisRef.book.osis + " " + content
             } else {
@@ -144,7 +143,7 @@ open class ReferenceHandler(
             } else {
                 val ref = PassageKeyFactory.instance().getKey(parameters.documentVersification, reference) as Passage
                 val isSingleVerse = ref.countVerses() == 1
-                val hasContent = content.length > 0
+                val hasContent = content.isNotEmpty()
                 val hasSeparateRefs = reference!!.contains(" ")
                 val isSingleRange = !isSingleVerse && !hasSeparateRefs
                 if ((isSingleVerse || isSingleRange) && hasContent) {

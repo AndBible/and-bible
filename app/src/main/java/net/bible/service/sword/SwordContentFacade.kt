@@ -346,9 +346,10 @@ open class SwordContentFacade @Inject constructor(
         osisToHtmlParameters.isLeftToRight = bmd.isLeftToRight
         osisToHtmlParameters.languageCode = book.language.code
         osisToHtmlParameters.moduleBasePath = book.bookMetaData.location
+        osisToHtmlParameters.isBible = BookCategory.BIBLE == bookCategory
         // If Bible or Commentary then set Basis for partial references to current Key/Verse
         if (BookCategory.BIBLE == bookCategory || BookCategory.COMMENTARY == bookCategory) {
-            osisToHtmlParameters.setBasisRef(key)
+            osisToHtmlParameters.setBasicRef(key)
             osisToHtmlParameters.documentVersification = (book as AbstractPassageBook).versification
             // only show chapter divider in Bibles
             osisToHtmlParameters.isShowChapterDivider = BookCategory.BIBLE == bookCategory

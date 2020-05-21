@@ -133,7 +133,7 @@ $customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div i
         if (!parameters.isAsFragment) {
             write("<div id='topOfBibleText'></div>")
         }
-        chapterDivider.start(null)
+        chapterDivider.doStart()
         contentWritten = false
     }
 

@@ -15,40 +15,28 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.taghandler
 
-package net.bible.service.format.osistohtml.taghandler;
-
-import net.bible.service.format.osistohtml.HtmlTextWriter;
-
-import org.crosswire.jsword.book.OSISUtil;
-import org.xml.sax.Attributes;
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import org.crosswire.jsword.book.OSISUtil
+import org.xml.sax.Attributes
 
 /**
  * A new row within a table.
  * See TableHandler for full description and example.
- *  
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TableRowHandler implements OsisTagHandler{
+class TableRowHandler(private val writer: HtmlTextWriter) : OsisTagHandler {
+    override val tagName: String
+        get() = OSISUtil.OSIS_ELEMENT_ROW
 
-	private HtmlTextWriter writer;
-	
-	public TableRowHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_ROW;
+    override fun start(attrs: Attributes) {
+        writer.write("<tr>")
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<tr>");
-	}
+    override fun end() {
+        writer.write("</tr>")
+    }
 
-	@Override
-	public void end() {
-		writer.write("</tr>");
-	}
 }

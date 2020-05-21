@@ -29,6 +29,7 @@ public class VerseHandlerTest {
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		osisToHtmlParameters.setChapter(3);
+		osisToHtmlParameters.setBible(true);
 		verseInfo = new VerseInfo();
 		bookmarkMarkerMock = mock(BookmarkMarker.class);
 		htmlTextWriter = new HtmlTextWriter();

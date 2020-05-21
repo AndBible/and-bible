@@ -15,34 +15,29 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.taghandler
 
-package net.bible.service.format.osistohtml.taghandler;
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import org.crosswire.jsword.book.OSISUtil
+import org.xml.sax.Attributes
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
-import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-
-import org.xml.sax.Attributes;
-
-/** The lg or "line group" element is used to contain any group of poetic lines.  Poetic lines are handled at the line level by And Bible, not line group 
- * so this class does nothing.
- * 
+/**
+ * The main content of a list is encoded using the item element.
+ * See ListHandler for full description
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class NoopHandler implements OsisTagHandler {
-
-	public NoopHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-	}
-
-	@Override
-	public String getTagName() {
-        return "";
+class ListItemHandler(private val writer: HtmlTextWriter) : OsisTagHandler {
+    override val tagName: String get() {
+        return OSISUtil.OSIS_ELEMENT_ITEM
     }
 
-	@Override
-	public void start(Attributes attrs) {
-	}
+    override fun start(attrs: Attributes) {
+        writer.write("<li>")
+    }
 
-	@Override
-	public void end() {
-	}
+    override fun end() {
+        writer.write("</li>")
+    }
+
 }

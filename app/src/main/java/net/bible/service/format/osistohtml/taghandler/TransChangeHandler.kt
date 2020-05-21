@@ -15,40 +15,34 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.taghandler
 
-package net.bible.service.format.osistohtml.taghandler;
+import net.bible.service.common.Logger
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.OSISUtil2
+import net.bible.service.format.osistohtml.OsisToHtmlParameters
+import org.xml.sax.Attributes
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
-
-import org.crosswire.jsword.book.OSISUtil;
-import org.xml.sax.Attributes;
-
-/**
- * A cell within a row within a table.
- * See TableHandler for full description and example.
- *  
+/** Paragraph
+ *
+ *...
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TableCellHandler implements OsisTagHandler {
+class TransChangeHandler(private val parameters: OsisToHtmlParameters, private val writer: HtmlTextWriter) : OsisTagHandler {
+    override val tagName: String
+        get() = OSISUtil2.OSIS_ELEMENT_TRANSCHANGE
 
-	private HtmlTextWriter writer;
-	
-	public TableCellHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_CELL;
+    override fun start(attrs: Attributes) {
+        writer.write("<span class='transChange'>")
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<td>");
-	}
+    override fun end() {
+        writer.write("</span>")
+    }
 
-	@Override
-	public void end() {
-		writer.write("</td>");
-	}
+    companion object {
+        private val log = Logger("LHandler")
+    }
+
 }

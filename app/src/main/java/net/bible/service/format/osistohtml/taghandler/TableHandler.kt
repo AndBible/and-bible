@@ -15,48 +15,36 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.taghandler
 
-package net.bible.service.format.osistohtml.taghandler;
-
-import net.bible.service.format.osistohtml.HtmlTextWriter;
-
-import org.crosswire.jsword.book.OSISUtil;
-import org.xml.sax.Attributes;
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import org.crosswire.jsword.book.OSISUtil
+import org.xml.sax.Attributes
 
 /**
  * OSIS provides only very rudimentary tables: a table consists of rows, which in turn consist of cells.
  * Formatting and layout is not part of the table markup; it can either be done automatically, as in HTML
  * browsers, or by inserting some signal to the layout engine, such as type attributes or processing instructions.
  * Note that a table can be nested inside another table. Simply start a new table element inside a cell element.
- *  
+ *
  * <table>
- *   <row><cell role="label">Tribe </cell><cell role="label">Administrator</cell></row>
- *   <row><cell>Reuben </cell><cell>Eliezer son of Zichri</cell></row>
- *   <row><cell>Simeon </cell><cell>Shephatiah son of Maacah</cell></row>
- * </table>
- * 
+ * <row><cell role="label">Tribe </cell><cell role="label">Administrator</cell></row>
+ * <row><cell>Reuben </cell><cell>Eliezer son of Zichri</cell></row>
+ * <row><cell>Simeon </cell><cell>Shephatiah son of Maacah</cell></row>
+</table> *
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TableHandler implements OsisTagHandler {
+class TableHandler(private val writer: HtmlTextWriter) : OsisTagHandler {
+    override val tagName: String
+        get() = OSISUtil.OSIS_ELEMENT_TABLE
 
-	private HtmlTextWriter writer;
-	
-	public TableHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
-        return OSISUtil.OSIS_ELEMENT_TABLE;
+    override fun start(attrs: Attributes) {
+        writer.write("<table>")
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<table>");
-	}
+    override fun end() {
+        writer.write("</table>")
+    }
 
-	@Override
-	public void end() {
-		writer.write("</table>");
-	}
 }

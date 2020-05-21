@@ -66,7 +66,7 @@ class NoteHandler(
     var isInNote = false
         private set
     private var currentNoteRef: String? = null
-    override fun getTagName(): String {
+    override val tagName: String get() {
         return OSISUtil.OSIS_ELEMENT_NOTE
     }
 
@@ -85,7 +85,7 @@ class NoteHandler(
     */
     override fun end() {
         val noteText = writer.tempStoreString
-        if (noteText.length > 0) {
+        if (noteText.isNotEmpty()) {
             if (!StringUtils.containsOnly(noteText, "[];()., ")) {
                 val note = Note(
                     verseInfo.currentVerseNo,
@@ -159,7 +159,7 @@ class NoteHandler(
             osisID = "${parameters.basisRef}${verseInfo.currentVerseNo}"
         }
         if (parameters.isShowNotes) {
-            var tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a> ".format(
+            val tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a> ".format(
                 Constants.NOTE_PROTOCOL,
                 osisID,
                 noteRef,

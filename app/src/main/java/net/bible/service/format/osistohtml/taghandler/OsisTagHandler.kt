@@ -15,17 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.taghandler
 
-package net.bible.service.format.osistohtml.taghandler;
+import org.xml.sax.Attributes
 
-import org.xml.sax.Attributes;
-
-public interface OsisTagHandler {
-
-	public abstract String getTagName();
-
-	public abstract void start(Attributes attrs);
-
-	public abstract void end();
-
+interface OsisTagHandler {
+    val tagName: String
+    fun start(attrs: Attributes)
+    fun end()
 }

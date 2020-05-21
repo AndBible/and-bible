@@ -36,14 +36,14 @@ public class ChapterDividerTest {
 	@Test
 	public void normal() {
 		osisToHtmlParameters.setShowVerseNumbers(true);
-		chapterDivider.start(null);
+		chapterDivider.doStart();
 		assertThat(htmlTextWriter.getHtml(), equalTo("<div class='chapterNo'>&#8212; 3 &#8212;</div><span class='position-marker' id='3'>&#x200b;</span>"));
 	}
 
 	@Test
 	public void noVerseOrChapters() {
 		osisToHtmlParameters.setShowVerseNumbers(false);
-		chapterDivider.start(null);
+		chapterDivider.doStart();
 		assertThat(htmlTextWriter.getHtml(), equalTo("<span class='position-marker' id='3'>&#x200b;</span>"));
 	}
 
@@ -51,7 +51,7 @@ public class ChapterDividerTest {
 	public void chapter1() {
 		osisToHtmlParameters.setChapter(1);
 		osisToHtmlParameters.setShowVerseNumbers(true);
-		chapterDivider.start(null);
+		chapterDivider.doStart();
 		assertThat(htmlTextWriter.getHtml(), equalTo("<span class='position-marker' id='1'>&#x200b;</span>"));
 	}
 
@@ -60,14 +60,14 @@ public class ChapterDividerTest {
 		osisToHtmlParameters.setChapter(3);
 		osisToHtmlParameters.setShowVerseNumbers(true);
 		osisToHtmlParameters.setShowChapterDivider(false);
-		chapterDivider.start(null);
+		chapterDivider.doStart();
 		assertThat(htmlTextWriter.getHtml(), equalTo(""));
 	}
 
 	@Test
 	public void testChapterBeforeInitialPreVerseTitle() {
 		// Chapter comes first
-		chapterDivider.start(null);
+		chapterDivider.doStart();
 
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "preverse");
