@@ -24,6 +24,11 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import kotlinx.android.synthetic.main.list.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.search.SearchControl
@@ -61,17 +66,28 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture
-        if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
-            mKeyArrayAdapter = SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
-            listAdapter = mKeyArrayAdapter
-            populateViewResultsAdapter()
+        GlobalScope.launch {
+            prepareResults()
         }
     }
 
+    private suspend fun prepareResults() {
+        loadingIndicator.visibility = View.VISIBLE
+        empty.visibility = View.GONE
+        if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
+            withContext(Dispatchers.Main) {
+                mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
+                listAdapter = mKeyArrayAdapter
+                populateViewResultsAdapter()
+            }
+        }
+        loadingIndicator.visibility = View.GONE
+        empty.visibility = View.VISIBLE
+    }
     /** do the search query and prepare results in lists ready for display
      *
      */
-    private fun fetchSearchResults(): Boolean {
+    private suspend fun fetchSearchResults(): Boolean = withContext(Dispatchers.IO) {
         Log.d(TAG, "Preparing search results")
         var isOk: Boolean
         try { // get search string - passed in using extras so extras cannot be null
@@ -89,14 +105,16 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             } else {
                 getString(R.string.search_result_count, mSearchResultsHolder!!.size())
             }
-            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@SearchResults, msg, Toast.LENGTH_SHORT).show()
+            }
             isOk = true
         } catch (e: Exception) {
             Log.e(TAG, "Error processing search query", e)
             isOk = false
             Dialogs.instance.showErrorMsg(R.string.error_executing_search) { onBackPressed() }
         }
-        return isOk
+        return@withContext isOk
     }
 
     /**
