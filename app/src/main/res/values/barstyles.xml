@@ -111,6 +111,5 @@
 	</style>
 
 	<!--Make sure the passage chooser grids have a dark background -->
-	<style name="GridChoosePassageTheme" parent="AppTheme">
-	</style>
+	<style name="GridChoosePassageTheme" parent="@style/Theme.AppCompat"/>
 </resources>
