@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page.screen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -45,9 +46,10 @@ class Separator(
     val frame1: BibleFrame,
     val frame2: BibleFrame,
     internal var numWindows: Int,
-    private val isPortrait: Boolean,
+    private val isSplitVertically: Boolean,
     private val windowControl: WindowControl
-) : View(context) {
+) : View(context)
+{
     private val activeWindow get() = windowControl.windowRepository.activeWindow
 
     private val window1 get() = frame1.window
@@ -78,7 +80,10 @@ class Separator(
         get() = parentDimensionPx / numWindows
 
     private val parentDimensionPx: Int
-        get() = if (isPortrait) parentLayout.height else parentLayout.width
+        get() {
+            val displayMetrics = Resources.getSystem().displayMetrics
+            return if (isSplitVertically) displayMetrics.heightPixels else displayMetrics.widthPixels
+        }
 
 	private val res = BibleApplication.application.resources
 
@@ -135,9 +140,9 @@ class Separator(
 
                 val rawParentLocation = IntArray(2)
                 parentLayout.getLocationOnScreen(rawParentLocation)
-                parentStartRawPx = (if (isPortrait) rawParentLocation[1] else rawParentLocation[0]).toFloat()
+                parentStartRawPx = (if (isSplitVertically) rawParentLocation[1] else rawParentLocation[0]).toFloat()
 
-                startTouchPx = if (isPortrait) event.rawY.toInt() else event.rawX.toInt()
+                startTouchPx = if (isSplitVertically) event.rawY.toInt() else event.rawX.toInt()
                 startWeight1 = view1LayoutParams.weight
                 startWeight2 = view2LayoutParams.weight
             }
@@ -150,7 +155,7 @@ class Separator(
                 val parentDimensionPx = parentDimensionPx
 
                 // calculate y offset in pixels from top of parent layout
-                var offsetFromEdgePx = if (isPortrait) event.rawY else event.rawX
+                var offsetFromEdgePx = if (isSplitVertically) event.rawY else event.rawX
 
                 // prevent going irretrievably off bottom or right edge
                 offsetFromEdgePx = Math.min(offsetFromEdgePx, (parentDimensionPx - separatorWidth).toFloat())

@@ -251,7 +251,7 @@ class SplitBibleArea(
             frame1 = bf1,
             frame2 = bf2,
             numWindows = bibleFrames.size,
-            isPortrait = isSplitVertically,
+            isSplitVertically = isSplitVertically,
             windowControl = windowControl
         )
 
