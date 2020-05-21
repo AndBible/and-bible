@@ -37,7 +37,7 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class FootnoteAndRefControl @Inject constructor(private val bibleTraverser: BibleTraverser, private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider) {
-    val currentPageFootnotesAndReferences: List<Note?>?
+    val currentPageFootnotesAndReferences: List<Note>
         get() = try {
             currentPageManager.currentPage.currentPageFootnotesAndReferences
         } catch (e: Exception) {

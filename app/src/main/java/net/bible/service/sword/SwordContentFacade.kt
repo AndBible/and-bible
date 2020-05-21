@@ -118,8 +118,8 @@ open class SwordContentFacade @Inject constructor(
     /** Get Footnotes and references from specified document page
      */
     @Throws(ParseException::class)
-    fun readFootnotesAndReferences(book: Book?, key: Key?, textDisplaySettings: TextDisplaySettings): List<Note?> {
-        var retVal: List<Note?> = ArrayList()
+    fun readFootnotesAndReferences(book: Book?, key: Key?, textDisplaySettings: TextDisplaySettings): List<Note> {
+        var retVal: List<Note> = ArrayList()
         return try { // based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
             val data = BookData(book, key)
             val osissep = data.saxEventProvider

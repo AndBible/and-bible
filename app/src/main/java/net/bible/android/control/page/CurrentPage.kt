@@ -73,7 +73,7 @@ interface CurrentPage {
 
     /** get footnotes  */
     @get:Throws(ParseException::class)
-    val currentPageFootnotesAndReferences: List<Note?>?
+    val currentPageFootnotesAndReferences: List<Note>
 
     fun updateOptionsMenu(menu: Menu)
 
