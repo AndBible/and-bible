@@ -30,7 +30,6 @@ import android.view.KeyEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 
-import net.bible.android.activity.R
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings

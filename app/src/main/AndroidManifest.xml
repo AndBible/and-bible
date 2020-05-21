@@ -47,7 +47,7 @@
         </activity>
         <activity
             android:name="net.bible.android.view.activity.page.MainBibleActivity"
-            android:configChanges="keyboardHidden|screenSize|locale|uiMode"
+            android:configChanges="keyboardHidden|screenSize|locale"
             android:theme="@style/MainBibleViewTheme"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:launchMode="singleTask"
