@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import android.os.Looper.getMainLooper
 import kotlinx.android.synthetic.main.speak_bible.*
 import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.BibleApplication
@@ -17,6 +18,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
@@ -39,6 +41,7 @@ import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
@@ -509,12 +512,14 @@ class AutoBookmarkTests : AbstractSpeakTests() {
                 windowRepository, book, getVerse("Ps.14.1"))
         bookmarkControl.orCreateSpeakLabel
         provider.settings = SpeakSettings(autoBookmark = true)
+
     }
 
     @After
     fun resetDatabase() {
-        System.out.println("Database reset (1)!");
-        //DatabaseResetter.resetDatabase()
+        shadowOf(getMainLooper()).idle()
+        DatabaseContainer.db.openHelper.close()
+        DatabaseResetter.resetDatabase()
     }
 
     @Test
@@ -522,7 +527,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.settings = SpeakSettings(autoBookmark = false)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
-        provider.pause();
+        provider.pause()
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
     }
 

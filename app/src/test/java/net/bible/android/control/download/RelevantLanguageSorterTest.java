@@ -33,7 +33,6 @@ public class RelevantLanguageSorterTest {
 	public void tearDown() throws Exception {
 		// the test changes the Locale so ensure the correct default locale is restored
 		Locale.setDefault(originalLocale);
-		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

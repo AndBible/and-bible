@@ -76,12 +76,6 @@ public class OSISInputStreamTest {
 		}
 	}
 
-	@After
-	public void tearDown(){
-		DatabaseResetter.resetDatabase();
-	}
-
-	
 	/**
 	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 * <!DOCTYPE div [<!ENTITY nbsp "&#160;"><!ENTITY copy "&#169;">]><div><verse osisID='Gen.1.1'/><w lemma="strong:H07225">In the begin

@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 public class DatabaseResetter {
 
 	public static void resetDatabase() {
+		DatabaseContainer.INSTANCE.getDb().getOpenHelper().close();
 		resetSingleton(DatabaseContainer.class, "instance");
 	}
 
