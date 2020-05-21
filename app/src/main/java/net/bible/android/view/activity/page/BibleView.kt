@@ -247,7 +247,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** may need updating depending on environmental brightness
      */
-    fun updateBackgroundColor() {
+    override fun updateBackgroundColor() {
         setBackgroundColor(backgroundColor)
     }
 
