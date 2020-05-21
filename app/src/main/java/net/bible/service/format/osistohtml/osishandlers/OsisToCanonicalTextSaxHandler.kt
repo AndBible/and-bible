@@ -137,15 +137,17 @@ open class OsisToCanonicalTextSaxHandler: OsisSaxHandler() {
         }
     }
 
-    override fun write(s: String?) {
+    override fun write(s: String?): Boolean {
         // reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
+        var rv = false
         if (!StringUtils.isWhitespace(s) && s !== null) {
-            super.write(s)
+            rv = super.write(s)
             spaceJustWritten = Character.isWhitespace(s[s.length - 1])
         } else if (!spaceJustWritten) {
-            super.write(" ")
+            rv = super.write(" ")
             spaceJustWritten = true
         }
+        return rv
     }
 
     protected fun writeContent(writeContent: Boolean) {

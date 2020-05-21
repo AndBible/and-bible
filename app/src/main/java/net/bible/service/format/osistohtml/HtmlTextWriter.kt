@@ -36,14 +36,16 @@ class HtmlTextWriter {
 
     // allow insert at a certain position
     private var overwrittenString = ""
-    fun write(htmlText: String?) {
+    fun write(htmlText: String?): Boolean {
         if (dontWriteRequestCount > 0) {
             // ignore all text
+            return false
         } else if (writeTempStoreRequestCount == 0) {
             writer.append(htmlText)
         } else {
             tempStore.append(htmlText)
         }
+        return true
     }
 
     /** allow line breaks and titles to be moved before verse number

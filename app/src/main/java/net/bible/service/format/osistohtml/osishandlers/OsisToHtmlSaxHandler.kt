@@ -138,10 +138,13 @@ $customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div i
         contentWritten = false
     }
 
-    var contentWritten = false
-    override fun write(s: String?) {
-        contentWritten = true
-        super.write(s)
+    private var contentWritten = false
+    override fun write(s: String?): Boolean {
+        val written = super.write(s)
+        if(written) {
+            contentWritten = true
+        }
+        return written
     }
     override fun endDocument() {
         if(!contentWritten) {
@@ -216,15 +219,16 @@ $customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div i
     override fun characters(buf: CharArray, offset: Int, len: Int) {
         var s: String? = String(buf, offset, len)
 
-        // record that we are now beyond the verse, but do it quickly so as not to slow down parsing
-        verseInfo.isTextSinceVerse = verseInfo.isTextSinceVerse || len > 2 ||
-            StringUtils.isNotBlank(s)
-        passageInfo.isAnyTextWritten = passageInfo.isAnyTextWritten || verseInfo.isTextSinceVerse
         val textPreprocessor = textPreprocessor
         if (textPreprocessor != null) {
             s = textPreprocessor.process(s)
         }
-        write(s)
+        val written = write(s)
+
+        // record that we are now beyond the verse, but do it quickly so as not to slow down parsing
+        verseInfo.isTextSinceVerse = verseInfo.isTextSinceVerse ||
+            ((len > 2 || StringUtils.isNotBlank(s)) && written)
+        passageInfo.isAnyTextWritten = passageInfo.isAnyTextWritten || verseInfo.isTextSinceVerse
     }
 
     /*

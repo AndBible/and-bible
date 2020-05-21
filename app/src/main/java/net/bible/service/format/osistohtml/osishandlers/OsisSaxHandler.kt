@@ -30,7 +30,7 @@ import org.xml.sax.helpers.DefaultHandler
 open class OsisSaxHandler : DefaultHandler() {
     // debugging
     private var isDebugMode = false
-    val writer: HtmlTextWriter
+    val writer: HtmlTextWriter = HtmlTextWriter()
 
     /*
      * (non-Javadoc)
@@ -50,8 +50,8 @@ open class OsisSaxHandler : DefaultHandler() {
         }
     }
 
-    protected open fun write(s: String?) {
-        writer.write(s)
+    protected open fun write(s: String?): Boolean {
+        return writer.write(s)
     }
 
     /** check the value of the specified attribute and return true if same as checkvalue
@@ -96,7 +96,4 @@ open class OsisSaxHandler : DefaultHandler() {
         private val log = Logger("OsisSaxHandler")
     }
 
-    init {
-        writer = HtmlTextWriter()
-    }
 }
