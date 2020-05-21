@@ -94,18 +94,12 @@ class OsisToHtmlSaxHandler(// properties
         var currentVerseNo = 0
         var positionToInsertBeforeVerse = 0
         var isTextSinceVerse = false
-            set(value) {
-                field = value
-            }
     }
 
     private val passageInfo = PassageInfo()
 
     class PassageInfo {
         var isAnyTextWritten = false
-            set(value) {
-                field = value
-            }
     }
 
     private fun registerHandler(handler: OsisTagHandler) {
