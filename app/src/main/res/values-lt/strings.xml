@@ -29,6 +29,20 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="help_workspaces_title">Darbo sritys</string>
   <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
   <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
+  <string name="help_hidden_features_text">
+Nuo įrankių juostos pirštu braukdami žemyn, galėsite pasirinkti darbalaukius.
+Paspaudę ir palaikę lango mygtuką, greitai sumažinsite.
+Paspaudę ir palaikę kalbėjimo mygtuką įrankių juostoje, atversite kalbėjimo nustatymus.
+Paspaudę ir palaikę ant eilutės pavadinimo įrankių juostoje, pateksite į dokumentų pasirinkimo meniu.
+Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </string>
+  <string name="help_window_pinning_title">Lango pritvirtinimas</string>
+  <string name="help_window_pinning_text">
+     Langų pritvirtinimą galite įjungti nustatymų meniu (trys taškai, viršutinis dešinys kampas).
+     Jei langų pritvirtinimas veikia, vienu metu galite parodyti daug pritvirtintų langų,
+     bet tik vieną nepritvirtintą. Pirma rodomi pritvirtinti langai, po to nepritvirtinti.
+     Geriau biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
+     kaip nepritvirtintus. Tuomet turėsite biblijos dokumentus visuomet avertus ir
+     lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->
@@ -53,6 +67,7 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="deuterocanonical">Apokrifai</string>
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
+  <string name="index_creation_required">Paieškai reikalingas indeksas</string>
   <string name="create_index_for">Paieškai reikalingas indeksas. \n\nSukurti  %s indeksą?</string>
   <string name="rebuild_index_for">Iš naujo sukurti %s indeksą?</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
@@ -120,6 +135,7 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="reset_fontsize">Atstatyti</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leisti naudoti rankiniu būdu įdiegtus dokumentus iš jsword/sword katalogo arba vidinės atmintinės</string>
+  <string name="all_text_options_window_menutitle">Visos teksto parinktys</string>
   <string name="text_options_window_menutitle">Teksto nustatymai</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
@@ -156,6 +172,8 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="hide_window_buttons_title">Paslėpti lango mygtukus</string>
   <string name="hide_window_buttons_summary">Lango mygtukai, kurie paprastai rodomi dešinėje biblijos rodinio pusėje, yra paslėpti. Langų navigatorius apačioje vis dar rodomas. Lango meniu gali atidaryti paspaudęs ir palaikęs ant jo.</string>
   <string name="font_size_title">Šrifto dydis</string>
+  <string name="full_screen_hide_buttons_pref_title">Viso ekrano veiksenoje paslėpti mygtukų juotą</string>
+  <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano veikseną, automatiškai paslėpti ekrano apačioje esančią mygtukų juostą</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Spalvos nuostatos</string>
   <string name="window_color_settings_title">Lango spalvų nustatymai</string>
@@ -177,6 +195,12 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="windowMaximise">Išdidinti</string>
   <string name="windowMinimise">Sumažinti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
+  <string name="move_window">Perkelti į</string>
+  <string name="move_window_to_position2">Pozicija%d (%s:%s)</string>
+  <string name="copy_settings">Kopijuoti nustatymus į</string>
+  <string name="copy_settings_to_workspace">Darbalaukis</string>
+  <string name="copy_settings_to_window">Langas%d (%s: %s)</string>
+  <string name="change_to_normal">Keisti į normalų</string>
   <string name="window_pin_mode">Prisegti</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
@@ -200,8 +224,18 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
   <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
+  <string name="free_text_search_documents">Ieškoti</string>
   <string name="chooce_language_hint">Kalba</string>
+  <string name="one_more_back_press">Papildomu mygtuko paspaudimu išjungsite programą</string>
+  <string name="document_filter_results">%d dokumentai</string>
+  <string name="download_question_title">Ar norite parsisiųsti dokumentus?</string>
+  <string name="download_question_message">Jei gyvenate šalyje, kurioje persekioja už tikėjimą,
+     jums reikėtų gerai pagalvoti prieš bandant atsisiųsti krikščionišką medžiagą per internetą.
+     Vietoje to, geriau saugiai parsisiųskite modulių zip failus ir įdiekite juos naudodami \"Įkelti dokumentus iš Zip\". Ar tikrai norite parsisiųsti?
+     Visi parsiuntimai iš modulių repozitorijos yra užkoduoti (HTTPS).</string>
   <string name="do_not_ask_again">Taip, daugiau nebeklausti</string>
+  <string name="recommended_document">Rekomenduojama!</string>
+  <string name="about_version_history">Versijų istorija: %s</string>
   <string name="download_failed">Nepavyko atsisiųsti %s</string>
   <string name="download_errors">Atsiuntimo klaidos</string>
   <string name="failed_repositories_message">Nepavyko prisijungti prie šių dokumentų saugyklų: \n\n%s\n\n</string>
@@ -275,6 +309,8 @@ Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
   <!--Verse context menu-->
   <string name="notes">Išnašos ir nuorodos</string>
   <string name="verse_action_copy">Kopijuoti</string>
+  <string name="share_verse">Dalintis…</string>
+  <string name="share_verse_subject_2">Su jumis pasidalinta Biblijos eilutė naudojant %s.</string>
   <string name="compare_translations">Lyginti vertimus</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Atverti nuorodą čia</string>
@@ -414,21 +450,40 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="mynote_saved">Mano pastaba išsaugota</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Saugoti ir atkurti atsargines kopijas</string>
+  <string name="backup_modules">Saugoti dokumentų atsargines kopijas į...</string>
+  <string name="backup_app_database">Saugoti duomenų bazės atsarginę kopiją į...</string>
+  <string name="restore_app_database">Atstatyti programos duomenų bazę iš...</string>
   <string name="restore_confirmation">Perrašyti Mano pastabas, Žymes, Skaitymo planus ir Darbo sritis?</string>
   <string name="restore_success">Mano pastabos, Žymės, Skaitymo planai ir Darbo sritys sėkmingai atkurtos</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
+  <string name="backup_success">Mano pastabos, žymės, skaitymo planai ir darbalaukiai sėkmingai išsaugoti  %s.</string>
+  <string name="error_no_backup_file">Nerastas atsarginės kopijos failas</string>
+  <string name="backup_modules_email_subject_2">%s modulių atsarginės kopijos</string>
+  <string name="backup_modules_email_message_2">Pridėtos jūsų  %s modulių atsarginės kopijos, kuriose yra tokie moduliai: %s</string>
+  <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
+  <string name="backup_email_message_2">Jūsų %s duomenų bazėje yra žymės, pastabos, skaitymo planai ir darbalaukiai</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
   <string name="backup_restore_title">Iš kur atkurti?</string>
+  <string name="backup_restore_message">Atstatyti iš telefono saugyklos arba rankiniu būdu pasirinkti failą (galite pasirinkti ir iš Google Drive ir kt.)?</string>
+  <string name="backup_phone_storage">Telefono saugykla</string>
+  <string name="backup_manually">Pasirinkti failą</string>
+  <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
+  <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant dalinimosi funkciją (el. paštu, Google Diskas ir kt.)?</string>
+  <string name="backup_share">Dalintis</string>
   <string name="restore_modules">Atkurti dokumentus iš…</string>
   <string name="send_backup_file">Siųsti atsarginės kopijos failą</string>
+  <string name="backup_modules_title">Rinktis kuriuos modulius išsaugoti</string>
+  <string name="install_zip_canceled">Modulio diegimas atšauktas</string>
   <!--About-->
   <string name="module_about_copyright">Autorių teisės: %s</string>
   <string name="module_about_installed_version">Įdiegta versija: %s (%s)</string>
   <string name="module_about_latest_version">Naujausia versija: %s (%s)</string>
   <string name="module_about_versification">Versijavimas: %s</string>
+  <string name="module_about_repository">Distribucijos repozitorija: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Pranešti apie klaidą</string>
+  <string name="report_bug_email_subject_2">Klaidų pranešimas %s %s</string>
   <string name="report_bug_email_message">
         --- RAŠYKITE PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS ---\n
         Instrukcijos:\n
@@ -445,6 +500,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
         Įrenginio informacija: \n
         %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Visi tipai</string>
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
   <string name="doc_type_dictionary">Žodynas</string>
@@ -477,6 +533,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="notification_channel_progress_status">Eigos būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
   <!--Workspaces-->
   <string name="new_workspace">Nauja</string>
+  <string name="switch_to_workspace">Darbalaukiai</string>
   <string name="delete_workspace">Šalinti</string>
   <string name="new_copied_workspace">Kopijuoti kaip naują</string>
   <string name="workspace_number">Darbo sritis %d</string>
@@ -517,4 +574,6 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
   <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">Aš suprantu</string>
+  <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
 </resources>

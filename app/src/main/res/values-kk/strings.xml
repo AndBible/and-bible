@@ -41,8 +41,7 @@
 Тарих тізіміне кіру үшін Артқа деген түймесін ұзақ басыңыз.</string>
   <string name="help_window_pinning_title">Терезені бекіту</string>
   <string name="help_window_pinning_text">
-Параметрлер мәзірінен терезе бекітуді қоса аласыз (үш нүкте, жоғарғы оң бұрыш).
-Егер терезені бекіту іске қосылса, Киелі Кітап көрінісінде көптеген бекітілген терезелерді көрсете аласыз, бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз.
+Параметрлер мәзірінен терезе бекітуді қоса аласыз (жоғарғы оң бұрыштағы, үш нүкте). Егер терезені бекіту іске қосылса, Киелі Кітап көрінісінде көптеген бекітілген терезелерді көрсете аласыз, бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз.
 Алдымен бекітілген терезелер дисплей бейнеде көрсетіледі, содан кейін бекітілмеген терезелер. Сіз Киелі Кітап құжаттарды бекітілген терезелер түрінде және түсініктеме мен карталарды және т.с.с. бекітілмеген терезелер түрінде ашқыңыз келуі мүмкін.
 Содан кейін, сіз жеңілдікпен Киелі Кітап құжаттарын, және пікір түсініктемелер арасында тез ауысып, әрі Киелі Кітап зерттегенде басқада қосымша материалдарды әр-қашанда ашық ұстай аласыз.</string>
   <string name="version_text">Версия %s</string>
@@ -59,7 +58,7 @@
   <string name="other">Басқасы</string>
   <string name="help_and_tips">Көмек пен кеңестер</string>
   <string name="administration">Басқару</string>
-  <string name="rate_application">Бағалау мен күшейту; Google Ойнауда қайта шолыңыз</string>
+  <string name="rate_application">Бағалау мен күшейту; Google Play де пікір қалдыру</string>
   <string name="chooce_document">Құжатты таңдаңыз</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Кітапті Таңдаңыз</string>
@@ -81,12 +80,12 @@
   <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқасына ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылу мүмкін.</string>
-  <string name="no_tasks_running">Қазір еш тапсырма орындалуда жоқ.</string>
+  <string name="no_tasks_running">Қазір орындалып жатқан еш тапсырма жоқ.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Аяттарды Табу</string>
   <string name="search_all_words">Барлық сөздер</string>
   <string name="search_any_word">Кез келген сөз</string>
-  <string name="search_phrase">Фраза</string>
+  <string name="search_phrase">Сөйлем</string>
   <string name="search_result_count">%d сәйкестіктер табылды</string>
   <string name="search_showing_first">Тым көп сәйкестіктер. Біріншісін көрсету %d</string>
   <string name="search_bible_section_group_prompt">Қайда Іздеу</string>
@@ -96,7 +95,7 @@
   <string name="search_current_book">Қазіргі кітап</string>
   <string name="error_executing_search">Іздеу сауалы қате</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_summary">Аят нөмірлерін көрсету</string>
+  <string name="prefs_show_verseno_summary">Аят санын көрсету</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
@@ -115,11 +114,11 @@
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
   <string name="prefs_show_strongs_title">Стронг сандары</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
-  <string name="prefs_section_title_title">Бөлмінің тақырыптары</string>
+  <string name="prefs_section_title_title">Бөлімніің тақырыптары</string>
   <string name="prefs_red_letter_title">Қызыл Хат</string>
   <string name="prefs_tilt_to_scroll_title">Бұрау үшін еңістеу</string>
   <string name="prefs_night_mode_title">Түнгі режиміне қосу</string>
-  <string name="prefs_night_mode_summary">Қолмен немесе жүйенің параметрлері арқылы (Android 10+), түнгі режимге автоматты түрде ауысу (егер device құрылығын қолдайтын болса).</string>
+  <string name="prefs_night_mode_summary">Қолмен немесе жүйенің параметрлері арқылы (Android 10+), түнгі режимге автоматты түрде ауысу (егер құрылғы қолдайтын болса).</string>
   <string name="prefs_night_mode_manual">Қолмен жасау</string>
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_night_mode_system">Жүйе</string>
@@ -130,8 +129,8 @@
   <string name="prefs_open_links_in_special_window_summary">Айқасқан және Стронг сілтемелерін шапшаң көрсету үшін</string>
   <string name="prefs_text_size_summary">Шрифт тобы мен өлшемін келтіру </string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
-  <string name="prefs_screen_keep_on_title">Бейнені өшірмеу</string>
-  <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, алдын ала бейнені ұйқыдан сақтау. </string>
+  <string name="prefs_screen_keep_on_title">Экранды қосулы сақтау</string>
+  <string name="prefs_screen_keep_on_summary">Осы қолданбаны пайдаланып отырғанда, экранды өшіп қалудан сақтау. </string>
   <string name="prefs_interface_locale_title">Қолданбаның қолдану тілі</string>
   <string name="prefs_interface_locale_summary">Пайдаланушы интерфейс тілін таңдау</string>
   <string name="reset_fontsize">Қайта бастау</string>
@@ -208,7 +207,7 @@
   <!--Notes screen-->
   <string name="no_chapter_notes">Бұл тарауда ешқандай мәлімет жоқ</string>
   <string name="no_verse_notes">Бұл аятта ешқандай мәлімет жоқ</string>
-  <string name="previous">Адыңғы</string>
+  <string name="previous">Алдыңғы</string>
   <string name="next">Келесі</string>
   <!--Strongs-->
   <string name="strongs_not_installed">Стронгтің Еврей мен Грек сөздігін жүктеңіз</string>
@@ -278,7 +277,7 @@ http://www.heartlight.org, рұқсат берілген</string>
   <string name="plan_name_y1ot1nt1_OTandNT">1-Жылда ЕӨ+ЖӨ Бір Уақытта</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
 ЕӨ пен ЖӨ күнделікті тарау тараумен, Киелі Кітапты 1 жылдың ішінде оқып шығыңыз.</string>
-  <string name="plan_name_y1ot1nt1_OTthenNT">1-Жылда Киелі Кітап оқып шығу</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1-Жылда Киелі Кітапты оқып шығу</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
 Жаратылыстың басталуы кітаптан бастап және Аян кітабымен бітіріп, Киелі Кітапты 1 жылдың ішінде оқыңыз.
 Алдымен ЕӨ, содан кейін ЖӨ.</string>
@@ -348,7 +347,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="some_pages">%d беттер</string>
   <!--Speak - Common-->
   <string name="stop">Тоқта</string>
-  <string name="pause">Пауза</string>
+  <string name="pause">Тоқтай тұру </string>
   <string name="rewind">Қайта қарау</string>
   <string name="forward">Әрі қарай жіберу</string>
   <string name="tts_lang_not_available">Тіл қол жеткілікті емес.</string>
@@ -380,7 +379,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="conf_speak_sleep_timer">Ұйықы таймерін орнату</string>
   <string name="sleep_timer_title">Ұйықтау уақыты минутпен</string>
   <string name="sleep_timer_set">Ұйықы таймерін орнату. Таймер орнатылған:%dминутпен</string>
-  <string name="sleep_timer_started">Ұйықы тамері қосылды, %d минутпен</string>
+  <string name="sleep_timer_started">Ұйықы таймері қосылды, %d минутпен</string>
   <string name="sleep_timer_active_at">Ұйықы таймері: %s минут қалды.</string>
   <string name="speak_next">Келесі</string>
   <string name="speak_previous">Алдыңғы</string>
@@ -427,7 +426,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="speak_fourth">Төртінші</string>
   <string name="speak_fifth">Бесінші</string>
   <string name="verse_range_mode_disabled">
-Қайталану үзінді режимі автоматты түрде өшірілді, өйткені анықталған аят диапазон аясынан тыс жерде сөйлеу басталды.</string>
+Үзіндіні қайталау  режимі автоматты түрде өшірілді, өйткені анықталған аят диапазон аясынан тыс жерде сөйлеу басталды.</string>
   <!--User Notes-->
   <string name="mynotes">Менің Ескертпелерім</string>
   <string name="mynote_add">Менің Ескертпелерімді Қосу</string>
@@ -456,14 +455,14 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_share">Бөлісу</string>
   <string name="restore_modules">Келесіден құжаттарды қалпына келтіру...</string>
   <string name="send_backup_file">Сақтық көшірме файлын жіберу</string>
-  <string name="backup_modules_title"> Модульдердің қайсысын сақтық көшіруге жіберіп таңдау</string>
+  <string name="backup_modules_title"> Модульдердің қайсысын сақтық көшіруге жіберетінін таңдау</string>
   <string name="install_zip_canceled">Модульді орнату тоқтатылды</string>
   <!--About-->
   <string name="module_about_copyright">Авторлық құқық:%s</string>
   <string name="module_about_installed_version">Орнатылған версия: %s (%s)</string>
   <string name="module_about_latest_version">Соңғы версия: %s (%s)</string>
   <string name="module_about_versification">Аятты растау: %s</string>
-  <string name="module_about_repository">Тарату репозиторий қоймасы:%s</string>
+  <string name="module_about_repository">Тарату  қоймасы:%s</string>
   <string name="module_about_osisId">OSIS Идентификациясы:%s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Қате туралы хабарлау</string>
@@ -471,17 +470,17 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="report_bug_email_message">
 --- ОСЫ ЖОЛ СЫЗЫҚТАН ЖОҒАРЫ ҚАТЕ ТУРАЛЫ ЕСЕП ЖАЗЫҢЫЗ ---\n
 Instructions:\n
-Бізге не істегеніңізді сіз қысқаша айтыңыз / мәселе туындап орын алған кезде не болды. Мысалы: \n
+Бізге не істегеніңізді қысқаша айтыңыз / мәселе туындап орын алған кезде не болды. Мысалы: \n
 \n
 1. Ашылған қолданба\n
 2. Басылған терезе мәзірі\n
 -&gt; Қирату\n
 \n
-Мәселелерді шешуде, бейнеден түсірілген фото, кейде пайдалы.
-Мұны байқап орын алған кезде тез арада хабарлау үшін осы функцияны қолданыңыз.
-Қолданбаны ашқаннан кейін әрі апат қирау орын алғаннан кейін де осы функцияны қолдана аласыз.
+Мәселелерді шешуде, экраннан түсірілген фото, кейде пайдалы.
+Мәселе орын алған кезде тез арада хабарлау үшін осы функцияны қолданыңыз.
+Қолданбаны ашқаннан кейін қирау орын алғаннан кейін де осы функцияны қолдана аласыз.
 \n\n
-Device құрылғысының ақпараты: \n
+ Құрылғының ақпараты: \n
 %s</string>
   <!--Document types-->
   <string name="doc_type_all">Барлық түрлері</string>
@@ -514,7 +513,7 @@ Device құрылғысының ақпараты: \n
   <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Сөйлеуге текст</string>
-  <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты үшін хабарлама растауды дамыту</string>
+  <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты хабарлама растауды дамыту</string>
   <!--Workspaces-->
   <string name="new_workspace">Жаңа</string>
   <string name="switch_to_workspace">Жұмыс кеңістіктері</string>
