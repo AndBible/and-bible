@@ -90,21 +90,22 @@ class OsisToHtmlSaxHandler(// properties
     private val verseInfo = VerseInfo()
 
     class VerseInfo {
-        @JvmField
         var osisID:String? = null
-        @JvmField
         var currentVerseNo = 0
-        @JvmField
         var positionToInsertBeforeVerse = 0
-        @JvmField
         var isTextSinceVerse = false
+            set(value) {
+                field = value
+            }
     }
 
     private val passageInfo = PassageInfo()
 
     class PassageInfo {
-        @JvmField
         var isAnyTextWritten = false
+            set(value) {
+                field = value
+            }
     }
 
     private fun registerHandler(handler: OsisTagHandler) {

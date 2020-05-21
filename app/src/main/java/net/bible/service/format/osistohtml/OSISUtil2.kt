@@ -15,19 +15,14 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
-
-package net.bible.service.format.osistohtml;
+package net.bible.service.format.osistohtml
 
 /**
  * Extension of OSISUtil constants
  */
-public class OSISUtil2 {
-
-    public static final String OSIS_ELEMENT_DIVINENAME = "divineName";
-    public static final String OSIS_ELEMENT_MILESTONE = "milestone";
-    public static final String OSIS_ELEMENT_TRANSCHANGE = "transChange";
-    
-    public static final String OSIS_ATTR_MARKER = "marker";
-
-
+object OSISUtil2 {
+    const val OSIS_ELEMENT_DIVINENAME = "divineName"
+    const val OSIS_ELEMENT_MILESTONE = "milestone"
+    const val OSIS_ELEMENT_TRANSCHANGE = "transChange"
+    const val OSIS_ATTR_MARKER = "marker"
 }

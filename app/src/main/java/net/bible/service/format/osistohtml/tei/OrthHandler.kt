@@ -15,38 +15,28 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.tei
 
-package net.bible.service.format.osistohtml.tei;
-
-import net.bible.service.format.osistohtml.HtmlTextWriter;
-import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.taghandler.HiHandler;
-
-import org.xml.sax.Attributes;
-
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.OsisToHtmlParameters
+import net.bible.service.format.osistohtml.taghandler.HiHandler
+import org.xml.sax.Attributes
 
 /** Handle orth tag very similarly to hi tag
  * <orth>?????????</orth>
  * <orth rend="bold" type="trans">aneuthetos</orth>
- * 
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class OrthHandler extends HiHandler {
+class OrthHandler(parameters: OsisToHtmlParameters, writer: HtmlTextWriter) : HiHandler(parameters, writer) {
+    override val tagName: String = TEIUtil.TEI_ELEMENT_ORTH
 
-	private final static String DEFAULT = "bold";
-
-	public OrthHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		super(parameters, writer);
-	}
-	
-	@Override
-	public String getTagName() {
-        return TEIUtil.TEI_ELEMENT_ORTH;
+    override fun start(attrs: Attributes) {
+        val rend = attrs.getValue(TEIUtil.TEI_ATTR_REND)
+        start(rend, DEFAULT)
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
-		start(rend, DEFAULT);
-	}
+    companion object {
+        private const val DEFAULT = "bold"
+    }
 }

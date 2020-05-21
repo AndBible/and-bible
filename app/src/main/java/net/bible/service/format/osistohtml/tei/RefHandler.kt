@@ -15,20 +15,26 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.service.format.osistohtml.tei
 
-package net.bible.service.format.osistohtml.tei;
+import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.OsisToHtmlParameters
+import net.bible.service.format.osistohtml.taghandler.NoteHandler
+import net.bible.service.format.osistohtml.taghandler.ReferenceHandler
+import org.xml.sax.Attributes
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class TEIUtil {
-	
-	// E.g. <ref target="StrongsHebrew:00411">H411</ref> taken from StrongsHebrew:00428
-    public static final String TEI_ELEMENT_REF = "ref";
-    public static final String TEI_ATTR_TARGET = "target";
+class RefHandler(
+    osisToHtmlParameters: OsisToHtmlParameters,
+    noteHandler: NoteHandler,
+    theWriter: HtmlTextWriter) : ReferenceHandler(osisToHtmlParameters, noteHandler, theWriter)
+{
+    override val tagName = TEIUtil.TEI_ELEMENT_REF
 
-    public static final String TEI_ELEMENT_ORTH = "orth";
-    public static final String TEI_ELEMENT_PRON = "pron";
-    // the way tag contents are rendered e.g. 'bold'. 'italic'
-    public static final String TEI_ATTR_REND = "rend";
+    override fun start(attrs: Attributes) {
+        val target = attrs.getValue(TEIUtil.TEI_ATTR_TARGET)
+        start(target)
+    }
 }
