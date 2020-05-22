@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -35,6 +36,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchResultsDto
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.Key
@@ -152,7 +154,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             val targetBook = swordDocumentFacade.getDocumentByInitials(targetDocInitials)
             activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(targetBook, key)
             // this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
-            returnToPreviousScreen()
+            val intent = Intent(this, MainBibleActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            }
+            startActivity(intent)
         }
     }
 
