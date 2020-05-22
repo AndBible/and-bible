@@ -23,11 +23,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.os.Build
 import android.util.Log
 import android.widget.Toast
-
-import androidx.annotation.RequiresApi
 
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
