@@ -98,7 +98,9 @@
             />
         <activity
             android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             android:label="@string/notes" />
         <activity
             android:name="net.bible.android.view.activity.bookmark.Bookmarks"
