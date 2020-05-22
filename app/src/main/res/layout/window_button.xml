@@ -41,7 +41,7 @@
         android:layout_width="0dp"
         android:singleLine="true"
         android:ellipsize="none"
-        android:text="test"
+        android:text=""
         android:paddingStart="1dip"
         android:paddingEnd="2dip"
         android:textColor="@color/window_button_text_colour"
