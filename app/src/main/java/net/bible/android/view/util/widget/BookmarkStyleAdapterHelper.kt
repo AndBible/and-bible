@@ -104,6 +104,8 @@ class BookmarkStyleAdapterHelper {
                 view.text = baseText
             }
             BookmarkStyle.UNDERLINE -> {
+                backgroundColor = getThemeBackgroundColour(context)
+                view.setTextColor(getThemeTextColour(context))
                 var text = SpannableString(baseText)
                 text.setSpan(UnderlineSpan(), 0, text.length, 0)
                 view.setText(text)
