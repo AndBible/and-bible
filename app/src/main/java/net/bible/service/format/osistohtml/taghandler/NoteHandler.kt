@@ -144,11 +144,18 @@ class NoteHandler(
      *
      * @return a single char to use as a note ref
      */
+    var previousVerse = -1
     private fun createNoteRef(): String {
         // else just get the next char
+        val v = verseInfo.currentVerseNo
+        if(v != previousVerse) {
+            noteCount = 0
+            previousVerse = v
+        }
         val inta = 'a'.toInt()
         val nextNoteChar = (inta + noteCount++ % 26).toChar()
-        return nextNoteChar.toString()
+
+        return "${v}${nextNoteChar}"
     }
 
     /** write noteref html to outputstream
