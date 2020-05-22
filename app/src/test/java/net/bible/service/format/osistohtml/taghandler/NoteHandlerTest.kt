@@ -70,7 +70,7 @@ class NoteHandlerTest {
         writer!!.write("Букв.: «шесть долгих локтей (простой локоть с ладонью в каждом)».")
         noteHandler!!.end()
         writer!!.write("after note")
-        Assert.assertThat(writer!!.html, CoreMatchers.equalTo(String.format("before note<a href='%s:Ezek.40.5/a' class='noteRef'>a</a> after note", Constants.NOTE_PROTOCOL)))
+        Assert.assertThat(writer!!.html, CoreMatchers.equalTo(String.format("before note<a href='%s:Ezek.40.5/0a' class='noteRef'>0a</a> after note", Constants.NOTE_PROTOCOL)))
         val notesList: List<Note> = noteHandler!!.notesList
         Assert.assertThat(notesList.size, CoreMatchers.equalTo(1))
         Assert.assertThat(noteHandler!!.notesList[0].noteText, CoreMatchers.equalTo("Букв.: «шесть долгих локтей (простой локоть с ладонью в каждом)»."))
@@ -181,6 +181,6 @@ class NoteHandlerTest {
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "study")
         noteHandler!!.start(attrs)
         noteHandler!!.end()
-        Assert.assertThat(writer!!.html, CoreMatchers.equalTo(String.format("<a href='%s:Gen.1.1/a' class='noteRef'>a</a> ", Constants.NOTE_PROTOCOL)))
+        Assert.assertThat(writer!!.html, CoreMatchers.equalTo(String.format("<a href='%s:Gen.1.1/1a' class='noteRef'>1a</a> ", Constants.NOTE_PROTOCOL)))
     } // Can remove isAutoWrapUnwrappedRefsInNote
 }
