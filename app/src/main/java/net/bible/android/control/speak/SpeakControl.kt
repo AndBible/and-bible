@@ -66,7 +66,7 @@ class SpeakControl @Inject constructor(
 ) {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
-    private var sleepTimer: Timer = Timer("TTS sleep timer")
+    private var sleepTimer = lazy { Timer("TTS sleep timer") }
     private var timerTask: TimerTask? = null
     private var _speakPageManager: CurrentPageManager? = null
 
@@ -133,7 +133,9 @@ class SpeakControl @Inject constructor(
     protected fun finalize() {
         // Allow timer threads to be stopped on GC (good for tests)
         stopTimer()
-        sleepTimer.cancel()
+        if(sleepTimer.isInitialized()) {
+            sleepTimer.value.cancel()
+        }
     }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
@@ -458,7 +460,7 @@ class SpeakControl @Inject constructor(
                     s.save()
                 }
             }
-            sleepTimer.schedule(timerTask, (sleepTimerAmount * 60000).toLong())
+            sleepTimer.value.schedule(timerTask, (sleepTimerAmount * 60000).toLong())
         }
     }
 

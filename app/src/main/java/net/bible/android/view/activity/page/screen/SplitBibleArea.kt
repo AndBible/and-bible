@@ -431,7 +431,7 @@ class SplitBibleArea(
         }
     }
 
-    private var sleepTimer: Timer = Timer("TTS sleep timer")
+    private var sleepTimer: Timer = Timer("SplitBibleArea sleep timer")
     private var timerTask: TimerTask? = null
 
     fun onEvent(event: BibleView.BibleViewTouched) {
