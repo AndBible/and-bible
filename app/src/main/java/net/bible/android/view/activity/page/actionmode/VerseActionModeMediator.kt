@@ -22,7 +22,9 @@ import android.content.Intent
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.view.ActionMode
+import androidx.appcompat.widget.Toolbar
 
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
@@ -32,6 +34,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.PageControl
 import net.bible.android.view.activity.page.ChapterVerseRange
+import net.bible.android.view.activity.page.MainBibleActivity
 
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -82,12 +85,34 @@ class VerseActionModeMediator(
             }
         }
 
+    /** Not using actionMode.menuInflater because we can not set the width, but setting width is needed
+     *  when system navigation bar is on right side (chromebook or other device landscape)
+     */
     private val actionModeCallbackHandler = object : ActionMode.Callback {
         override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
             this@VerseActionModeMediator.actionMode = actionMode
 
-            // Inflate our menu from a resource file
-            actionMode.menuInflater.inflate(R.menu.verse_action_mode_menu, menu)
+            val view = View.inflate(mainBibleActivity as MainBibleActivity, R.layout.main_contextual_toolbar, null)
+            val toolbar = view.findViewById<Toolbar>(R.id.toolbarContextual)
+
+            toolbar.inflateMenu(R.menu.verse_action_mode_menu)
+
+            toolbar.setOnMenuItemClickListener {item ->
+                Log.i(TAG, "Action menu item clicked: $item")
+
+                // Similar to menu handling in Activity.onOptionsItemSelected()
+                val verseRange = verseRange
+                if(verseRange != null) {
+                    verseMenuCommandHandler.handleMenuRequest(item.itemId, verseRange)
+                }
+
+                endVerseActionMode()
+
+                // handle all
+                true
+            }
+
+            actionMode.customView = view
 
             // Return true so that the action mode is shown
             return true
@@ -97,28 +122,17 @@ class VerseActionModeMediator(
             // if start verse already bookmarked then enable Delete and Labels Bookmark menu item
             val startVerse = startVerse
             val isVerseBookmarked = startVerse != null && bookmarkControl.isBookmarkForKey(startVerse)
-            menu.findItem(R.id.add_bookmark).isVisible = true
-            menu.findItem(R.id.delete_bookmark).isVisible = isVerseBookmarked
-            menu.findItem(R.id.edit_bookmark_labels).isVisible = isVerseBookmarked
+            val toolbar = actionMode.customView.findViewById<Toolbar>(R.id.toolbarContextual)
+
+            toolbar.menu.findItem(R.id.add_bookmark).isVisible = true
+            toolbar.menu.findItem(R.id.delete_bookmark).isVisible = isVerseBookmarked
+            toolbar.menu.findItem(R.id.edit_bookmark_labels).isVisible = isVerseBookmarked
 
             // must return true if menu changed
             return true
         }
 
-        override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
-            Log.i(TAG, "Action menu item clicked: $menuItem")
-
-            // Similar to menu handling in Activity.onOptionsItemSelected()
-            val verseRange = verseRange
-            if(verseRange != null) {
-                verseMenuCommandHandler.handleMenuRequest(menuItem.itemId, verseRange)
-            }
-
-            endVerseActionMode()
-
-            // handle all
-            return true
-        }
+        override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean = true
 
         override fun onDestroyActionMode(actionMode: ActionMode) {
             Log.i(TAG, "On destroy action mode")

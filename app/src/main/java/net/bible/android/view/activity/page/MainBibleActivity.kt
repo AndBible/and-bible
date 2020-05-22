@@ -46,6 +46,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -53,6 +54,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -1051,6 +1053,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun updateToolbar() {
         toolbar.setPadding(leftOffset1, 0, rightOffset1, 0)
+        setActionModeToolbarPadding()
         navigationView.setPadding(leftOffset1, 0, rightOffset1, bottomOffset1)
         speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
         if(isFullScreen) {
@@ -1344,19 +1347,28 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return !drawerLayout.isDrawerVisible(navigationView)
     }
 
+    private var actionMode: ActionMode? = null
     override fun showVerseActionModeMenu(actionModeCallbackHandler: ActionMode.Callback) {
         Log.d(TAG, "showVerseActionModeMenu")
 
-        runOnUiThread {
+        GlobalScope.launch(Dispatchers.Main) {
             showSystemUI()
-            val actionMode = startSupportActionMode(actionModeCallbackHandler)
+            actionMode = startSupportActionMode(actionModeCallbackHandler)
+
+            setActionModeToolbarPadding()
+
             // Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
             actionMode?.invalidate()
         }
     }
 
+    private fun setActionModeToolbarPadding() {
+        val toolbar = actionMode?.customView?.findViewById<Toolbar>(R.id.toolbarContextual)
+        toolbar?.setPadding(leftOffset1, 0, rightOffset1, 0)
+    }
+
     override fun clearVerseActionMode(actionMode: ActionMode) {
-        runOnUiThread {
+        GlobalScope.launch(Dispatchers.Main) {
             actionMode.finish()
             resetSystemUi()
         }
