@@ -3,6 +3,7 @@ package net.bible.android.control.bookmark
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
@@ -40,14 +41,12 @@ class BookmarkControlTest {
     private var bookmarkFormatSupport: BookmarkFormatSupport? = null
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         bookmarkControl = BookmarkControl(SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport()), Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java))
         bookmarkFormatSupport = BookmarkFormatSupport()
     }
 
     @After
-    @Throws(Exception::class)
     fun tearDown() {
         val bookmarks = bookmarkControl!!.allBookmarks
         for (dto in bookmarks) {
