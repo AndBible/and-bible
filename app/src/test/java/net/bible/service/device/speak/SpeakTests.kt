@@ -517,8 +517,6 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @After
     fun resetDatabase() {
-        shadowOf(getMainLooper()).idle()
-        DatabaseContainer.db.openHelper.close()
         DatabaseResetter.resetDatabase()
     }
 

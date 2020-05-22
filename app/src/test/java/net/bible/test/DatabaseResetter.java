@@ -4,6 +4,9 @@ import net.bible.service.db.DatabaseContainer;
 
 import java.lang.reflect.Field;
 
+import static android.os.Looper.getMainLooper;
+import static org.robolectric.Shadows.shadowOf;
+
 /**
  * Reset db between tests @see https://github.com/robolectric/robolectric/issues/1890
  *
@@ -12,6 +15,7 @@ import java.lang.reflect.Field;
 public class DatabaseResetter {
 
 	public static void resetDatabase() {
+		shadowOf(getMainLooper()).idle();
 		DatabaseContainer.INSTANCE.getDb().getOpenHelper().close();
 		resetSingleton(DatabaseContainer.class, "instance");
 	}
