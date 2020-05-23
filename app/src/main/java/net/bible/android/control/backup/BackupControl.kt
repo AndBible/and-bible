@@ -233,7 +233,9 @@ class BackupControl @Inject constructor() {
                     addFile(outFile, rootDir, configFile)
                     val dataPath = bmd.getProperty("DataPath")
                     val dataDir = File(rootDir, dataPath).run {
-                        if(b.bookCategory == BookCategory.DICTIONARY) parentFile else this
+                        if(listOf(BookCategory.DICTIONARY, BookCategory.GENERAL_BOOK).contains(b.bookCategory))
+                            parentFile
+                        else this
                     }
                     for(f in dataDir.walkTopDown().filter { it.isFile }) {
                         addFile(outFile, rootDir, f)
