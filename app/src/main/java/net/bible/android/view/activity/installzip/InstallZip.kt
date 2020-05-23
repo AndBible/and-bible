@@ -271,12 +271,10 @@ class InstallZip : ActivityBase() {
                 {finishResult -> setResult(finishResult); finish() },
             this
         )
-        GlobalScope.launch {
-            withContext(Dispatchers.Main) {
-                loadingIndicator.visibility = View.VISIBLE
-                zh.execute()
-                loadingIndicator.visibility = View.GONE
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            loadingIndicator.visibility = View.VISIBLE
+            zh.execute()
+            loadingIndicator.visibility = View.GONE
         }
     }
 

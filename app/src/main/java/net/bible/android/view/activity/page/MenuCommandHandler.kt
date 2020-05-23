@@ -39,6 +39,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -222,7 +223,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.backup_modules -> {
-                    GlobalScope.launch {
+                    GlobalScope.launch(Dispatchers.Main) {
                         backupControl.backupModulesViaIntent(callingActivity)
                     }
                     isHandled = true

@@ -58,7 +58,7 @@ class GenericFileDownloader(
     }
 
     fun downloadFileInBackground(source: URI, target: File, description: String) =
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             // So now we know what we want to install - all we need to do
             // is installer.install(name) however we are doing it in the
             // background so we create a job for it.

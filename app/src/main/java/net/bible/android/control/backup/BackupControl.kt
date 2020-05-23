@@ -247,33 +247,31 @@ class BackupControl @Inject constructor() {
         internalDbBackupDir.deleteRecursively()
     }
 
-    suspend fun backupModulesViaIntent(callingActivity: Activity) {
-        withContext(Dispatchers.Main) {
-            val fileName = "modules.zip"
-            internalDbBackupDir.mkdirs()
-            val zipFile = File(internalDbBackupDir, fileName)
-            val books = selectModules(callingActivity) ?: return@withContext
+    suspend fun backupModulesViaIntent(callingActivity: Activity) = withContext(Dispatchers.Main) {
+        val fileName = "modules.zip"
+        internalDbBackupDir.mkdirs()
+        val zipFile = File(internalDbBackupDir, fileName)
+        val books = selectModules(callingActivity) ?: return@withContext
 
-            val hourglass = Hourglass(callingActivity)
-            hourglass.show()
-            createZip(books, zipFile)
-            hourglass.dismiss()
+        val hourglass = Hourglass(callingActivity)
+        hourglass.show()
+        createZip(books, zipFile)
+        hourglass.dismiss()
 
-            val modulesString = books.joinToString(", ") { it.abbreviation }
-            val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
-            val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
+        val modulesString = books.joinToString(", ") { it.abbreviation }
+        val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
 
-            val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
-            val email = Intent(Intent.ACTION_SEND).apply {
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, subject)
-                putExtra(Intent.EXTRA_TEXT, message)
-                type = "application/zip"
-            }
-            val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
-            chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            callingActivity.startActivity(chooserIntent)
+        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
+        val email = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, message)
+            type = "application/zip"
         }
+        val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
+        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        callingActivity.startActivity(chooserIntent)
     }
 
     /** restore database from sd card

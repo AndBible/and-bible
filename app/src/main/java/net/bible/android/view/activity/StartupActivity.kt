@@ -178,7 +178,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 gotoMainBibleActivity()
             } else {
                 Log.i(TAG, "No Bibles exist so start again")
-                GlobalScope.launch {
+                GlobalScope.launch(Dispatchers.Main) {
                     postBasicInitialisationControl()
                 }
             }

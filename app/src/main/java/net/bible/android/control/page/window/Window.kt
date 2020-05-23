@@ -175,7 +175,7 @@ open class Window (
             yOffsetRatio = currentPage.currentYOffsetRatio
         }
 
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }

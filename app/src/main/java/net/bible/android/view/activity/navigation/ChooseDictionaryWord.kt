@@ -94,24 +94,22 @@ class ChooseDictionaryWord : ListActivityBase() {
             withContext(Dispatchers.Main) {
                 loadingIndicator.visibility = View.VISIBLE
             }
-            withContext(Dispatchers.Default) {
-                try {
-                    // getting all dictionary keys is slow so do in another thread in order to show hourglass
-                    //TODO need to optimise this using binary search of globalkeylist without caching
+            try {
+                // getting all dictionary keys is slow so do in another thread in order to show hourglass
+                //TODO need to optimise this using binary search of globalkeylist without caching
 
-                    //already checked a dictionary exists
-                    mDictionaryGlobalList = activeWindowPageManagerProvider
-                        .activeWindowPageManager
-                        .currentDictionary
-                        .cachedGlobalKeyList
-                    Log.d(TAG, "Finished Initialising")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error creating dictionary key list")
-                    instance.showErrorMsg(R.string.error_occurred, e)
-                } finally {
-                    withContext(Dispatchers.Main) {
-                        loadingIndicator.visibility = View.GONE
-                    }
+                //already checked a dictionary exists
+                mDictionaryGlobalList = activeWindowPageManagerProvider
+                    .activeWindowPageManager
+                    .currentDictionary
+                    .cachedGlobalKeyList
+                Log.d(TAG, "Finished Initialising")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating dictionary key list")
+                instance.showErrorMsg(R.string.error_occurred, e)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    loadingIndicator.visibility = View.GONE
                 }
             }
         }

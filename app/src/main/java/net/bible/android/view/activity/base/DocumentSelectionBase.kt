@@ -353,46 +353,44 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
         listActionModeHelper.exitActionMode()
         GlobalScope.launch {
             filterMutex.withLock {
-                withContext(Dispatchers.Default) {
-                    try {
-                        // re-filter documents
-                        if (allDocuments.size > 0) {
-                            Log.d(TAG, "filtering documents")
-                            displayedDocuments.clear()
-                            val lang = selectedLanguage
-                            val searchString = "${freeTextSearch.text}*"
-                            val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
+                try {
+                    // re-filter documents
+                    if (allDocuments.size > 0) {
+                        Log.d(TAG, "filtering documents")
+                        displayedDocuments.clear()
+                        val lang = selectedLanguage
+                        val searchString = "${freeTextSearch.text}*"
+                        val osisIds = if(searchString.length < 3) null else dao.search(searchString).toSet()
 
-                            for (doc in allDocuments) {
-                                val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
-                                if (filter.test(doc) && (lang == null || doc.language == lang) && (osisIds == null || osisIds.contains(doc.osisID))) {
-                                    displayedDocuments.add(doc)
-                                }
+                        for (doc in allDocuments) {
+                            val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
+                            if (filter.test(doc) && (lang == null || doc.language == lang) && (osisIds == null || osisIds.contains(doc.osisID))) {
+                                displayedDocuments.add(doc)
                             }
-
-                            displayedDocuments.sortWith(
-                                compareBy (
-                                    { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                    { if(lang != null) !it.isRecommended(recommendedDocuments) else false },
-                                    {when(it.bookCategory) {
-                                        BookCategory.BIBLE -> 0
-                                        BookCategory.COMMENTARY -> 1
-                                        BookCategory.DICTIONARY -> 2
-                                        BookCategory.GENERAL_BOOK -> 4
-                                        BookCategory.MAPS -> 5
-                                        else -> 6
-                                    } },
-                                    {it.abbreviation.toLowerCase(Locale(it.language.code))}
-                                )
-                            )
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error initialising view", e)
-                        ABEventBus.getDefault().post(
-                            ToastEvent(getString(R.string.error) + " " + e.message,
-                                Toast.LENGTH_SHORT)
+
+                        displayedDocuments.sortWith(
+                            compareBy (
+                                { swordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                { if(lang != null) !it.isRecommended(recommendedDocuments) else false },
+                                {when(it.bookCategory) {
+                                    BookCategory.BIBLE -> 0
+                                    BookCategory.COMMENTARY -> 1
+                                    BookCategory.DICTIONARY -> 2
+                                    BookCategory.GENERAL_BOOK -> 4
+                                    BookCategory.MAPS -> 5
+                                    else -> 6
+                                } },
+                                {it.abbreviation.toLowerCase(Locale(it.language.code))}
+                            )
                         )
                     }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error initialising view", e)
+                    ABEventBus.getDefault().post(
+                        ToastEvent(getString(R.string.error) + " " + e.message,
+                            Toast.LENGTH_SHORT)
+                    )
                 }
                 withContext(Dispatchers.Main) {
                     documentItemAdapter.clear()

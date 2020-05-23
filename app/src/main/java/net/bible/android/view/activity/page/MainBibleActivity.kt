@@ -312,11 +312,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         initialized = true
-        GlobalScope.launch { withContext(Dispatchers.Main) {
-                if(!initialized)
-                    showBetaNotice()
-                showFirstTimeHelp()
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            if(!initialized)
+                showBetaNotice()
+            showFirstTimeHelp()
         }
     }
 
@@ -1106,15 +1105,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     CurrentActivityHolder.getInstance().currentActivity = this
                     Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-                        GlobalScope.launch {
-                            withContext(Dispatchers.IO) {
-                                val inputStream = contentResolver.openInputStream(data!!.data!!)
-                                if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
-                                    windowControl.windowSync.setResyncRequired()
-                                    withContext(Dispatchers.Main) {
-                                        documentViewManager.clearBibleViewFactory()
-                                        currentWorkspaceId = 0
-                                    }
+                        GlobalScope.launch(Dispatchers.IO) {
+                            val inputStream = contentResolver.openInputStream(data!!.data!!)
+                            if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                windowControl.windowSync.setResyncRequired()
+                                withContext(Dispatchers.Main) {
+                                    documentViewManager.clearBibleViewFactory()
+                                    currentWorkspaceId = 0
                                 }
                             }
                         }

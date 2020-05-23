@@ -369,44 +369,37 @@ open class WindowControl @Inject constructor(
     }
 
 
-    fun copySettingsToWorkspace(window: Window) {
-        GlobalScope.launch {
-            withContext(Dispatchers.Main) {
+    fun copySettingsToWorkspace(window: Window)  = GlobalScope.launch(Dispatchers.Main) {
+        val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+        val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
+        val target = windowRepository.textDisplaySettings
+        val source = window.pageManager.textDisplaySettings
 
-            val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-                val checkedTypes = chooseSettingsToCopy(window) ?: return@withContext
-                val target = windowRepository.textDisplaySettings
-                val source = window.pageManager.textDisplaySettings
-
-                for ((tIdx, type) in types.withIndex()) {
-                    if(checkedTypes[tIdx]) {
-                        target.setValue(type, source.getValue(type))
-                    }
-                }
-
-                windowRepository.updateVisibleWindowsTextDisplaySettings()
+        for ((tIdx, type) in types.withIndex()) {
+            if(checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
             }
         }
+
+        windowRepository.updateVisibleWindowsTextDisplaySettings()
     }
 
     fun copySettingsToWindow(window: Window, order: Int) {
         val secondWindow = windowRepository.visibleWindows[order]
 
-        GlobalScope.launch {
-            withContext(Dispatchers.Main) {
-                val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-                val checkedTypes = chooseSettingsToCopy(window) ?: return@withContext
-                val target = secondWindow.pageManager.textDisplaySettings
-                val source = window.pageManager.textDisplaySettings
+        GlobalScope.launch(Dispatchers.Main) {
+            val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+            val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
+            val target = secondWindow.pageManager.textDisplaySettings
+            val source = window.pageManager.textDisplaySettings
 
-                for ((tIdx, type) in types.withIndex()) {
-                    if (checkedTypes[tIdx]) {
-                        target.setValue(type, source.getValue(type))
-                    }
+            for ((tIdx, type) in types.withIndex()) {
+                if (checkedTypes[tIdx]) {
+                    target.setValue(type, source.getValue(type))
                 }
-
-                secondWindow.bibleView?.updateTextDisplaySettings()
             }
+
+            secondWindow.bibleView?.updateTextDisplaySettings()
         }
     }
 

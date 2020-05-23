@@ -72,8 +72,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     }
 
     private suspend fun prepareResults() {
-        loadingIndicator.visibility = View.VISIBLE
-        empty.visibility = View.GONE
+        withContext(Dispatchers.Main) {
+            loadingIndicator.visibility = View.VISIBLE
+            empty.visibility = View.GONE
+        }
         if (fetchSearchResults()) { // initialise adapters before result population - easier when updating due to later Scripture toggle
             withContext(Dispatchers.Main) {
                 mKeyArrayAdapter = SearchItemAdapter(this@SearchResults, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl)
@@ -81,8 +83,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 populateViewResultsAdapter()
             }
         }
-        loadingIndicator.visibility = View.GONE
-        empty.visibility = View.VISIBLE
+        withContext(Dispatchers.Main) {
+            loadingIndicator.visibility = View.GONE
+            empty.visibility = View.VISIBLE
+        }
     }
     /** do the search query and prepare results in lists ready for display
      *

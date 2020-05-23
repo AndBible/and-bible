@@ -127,7 +127,7 @@ class FontControl private constructor() {
     /** if font.properties refresh requested or does not exist then download font.properties
      */
     @Throws(InstallException::class)
-    fun checkFontPropertiesFile(refresh: Boolean) = GlobalScope.launch {
+    fun checkFontPropertiesFile(refresh: Boolean) = GlobalScope.launch(Dispatchers.IO) {
         if (refresh || !File(SharedConstants.FONT_DIR, FONT_PROPERTIES_FILENAME).exists()) {
             log.debug("Downloading $FONT_PROPERTIES_FILENAME")
             val source: URI
@@ -186,6 +186,6 @@ class FontControl private constructor() {
     }
 
     init {
-        GlobalScope.launch { loadFontProperties() }
+        GlobalScope.launch(Dispatchers.Main) { loadFontProperties() }
     }
 }
