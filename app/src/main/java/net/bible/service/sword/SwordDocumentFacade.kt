@@ -141,14 +141,6 @@ class SwordDocumentFacade @Inject constructor() {
         }
     }
 
-    @Throws(InstallException::class, BookException::class)
-    fun isIndexDownloadAvailable(document: Book): Boolean { // not sure how to integrate reuse this in JSword index download
-        val version = document.bookMetaData.getProperty("Version")
-        val versionSuffix = if (version != null) "-" + Version(version).toString() else ""
-        val url = "https://www.crosswire.org/and-bible/indices/v1/" + document.initials + versionSuffix + ".zip"
-        return isHttpUrlAvailable(url)
-    }
-
     @Throws(BookException::class)
     fun deleteDocument(document: Book) { // make sure we have the correct Book and not just a copy e.g. one from a Download Manager
         val realDocument = getDocumentByInitials(document.initials)

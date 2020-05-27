@@ -129,12 +129,6 @@ object CommonUtils {
             return megAvailable
         }
 
-    val isInternetAvailable: Boolean
-        get() {
-            val testUrl = "https://andbible.github.io/"
-            return isHttpUrlAvailable(testUrl)
-        }
-
     val localePref: String?
         get() = sharedPreferences.getString("locale_pref", null)
 
@@ -202,51 +196,6 @@ object CommonUtils {
             }
         }
         return text
-    }
-
-    /** return true if URL is accessible
-     */
-    fun isHttpUrlAvailable(urlString: String): Boolean {
-        var isAvailable = false
-        val TIMEOUT_MILLIS = 3000
-
-        try {
-            class CheckUrlThread : Thread() {
-                var checkUrlSuccess = false
-
-                override fun run() {
-                    var connection: HttpsURLConnection? = null
-                    try {
-                        // might as well test for the url we need to access
-                        val url = URL(urlString)
-
-                        Log.d(TAG, "Opening test connection")
-                        connection = url.openConnection() as HttpsURLConnection
-                        connection.connectTimeout = TIMEOUT_MILLIS
-                        connection.readTimeout = TIMEOUT_MILLIS
-                        connection.requestMethod = "HEAD"
-                        Log.d(TAG, "Connecting to test internet connection")
-                        connection.connect()
-                        checkUrlSuccess = connection.responseCode == HttpsURLConnection.HTTP_OK
-                        Log.d(TAG, "Url test result for:$urlString is $checkUrlSuccess")
-                    } catch (e: IOException) {
-                        Log.i(TAG, "No internet connection")
-                        checkUrlSuccess = false
-                    } finally {
-                        connection?.disconnect()
-                    }
-                }
-            }
-
-            val checkThread = CheckUrlThread()
-            checkThread.start()
-            checkThread.join(TIMEOUT_MILLIS.toLong())
-            isAvailable = checkThread.checkUrlSuccess
-        } catch (e: InterruptedException) {
-            Log.e(TAG, "Interrupted waiting for url check to complete", e)
-        }
-
-        return isAvailable
     }
 
     fun ensureDirExists(dir: File) {
