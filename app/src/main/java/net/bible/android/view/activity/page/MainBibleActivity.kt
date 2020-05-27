@@ -166,13 +166,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar and toolbar
-    val topOffset2 get() = topOffset1 + if (!isFullScreen) actionBarHeight else 0
+    val topOffset2 get() = topOffset1 + if (!(isFullScreen && actionMode == null)) actionBarHeight else 0
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
 
     // Offsets with system insets only
     private var topOffset1 = 0
-        get() = if(isFullScreen) 0 else field
+        get() = if(isFullScreen && actionMode == null) 0 else field
 
     private var bottomOffset1 = 0
         get() = if(isFullScreen) 0 else field

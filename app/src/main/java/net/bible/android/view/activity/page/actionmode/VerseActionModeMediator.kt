@@ -194,13 +194,13 @@ class VerseActionModeMediator(
         }
 
         Log.i(TAG, "Start verse action mode. verse no:$startChapterVerse")
-        bibleView.highlightVerse(startChapterVerse, true)
 
         val currentVerse = pageControl.currentBibleVerse
         chapterVerseRange = ChapterVerseRange(currentVerse.versification, currentVerse.book,
                 startChapterVerse, startChapterVerse)
 
         mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler)
+        bibleView.highlightVerse(startChapterVerse, true)
         bibleView.enableVerseTouchSelection()
     }
 

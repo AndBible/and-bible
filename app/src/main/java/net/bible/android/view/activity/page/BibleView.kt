@@ -655,7 +655,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * if verse 1 then jump to just after chapter divider at top of screen
      */
-    fun getIdToJumpTo(chapterVerse: ChapterVerse): String {
+    private fun getIdToJumpTo(chapterVerse: ChapterVerse): String {
         return if (chapterVerse.verse > 1) {
             chapterVerse.toHtmlId()
         } else {
