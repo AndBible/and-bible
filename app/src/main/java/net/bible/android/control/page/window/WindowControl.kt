@@ -59,8 +59,6 @@ open class WindowControl @Inject constructor(
         private val eventManager: EventManager
 ) : ActiveWindowPageManagerProvider {
 
-    private var isSeparatorMoving = false
-    private var stoppedMovingTime: Long = 0
     val windowSync: WindowSync = WindowSync(windowRepository)
 
     private val logger = Logger(this.javaClass.name)
@@ -249,27 +247,10 @@ open class WindowControl @Inject constructor(
         windowSync.reloadAllWindows()
     }
 
-    fun isSeparatorMoving(): Boolean {
-        // allow 1 sec for screen to settle after window separator drag
-        if (stoppedMovingTime > 0) {
-            // allow a second after stopping for screen to settle
-            if (stoppedMovingTime + SCREEN_SETTLE_TIME_MILLIS > System.currentTimeMillis()) {
-                return true
-            }
-            stoppedMovingTime = 0
-        }
-        return isSeparatorMoving
-    }
-
-    fun setSeparatorMoving(isSeparatorMoving: Boolean) {
-        if (!isSeparatorMoving) {
-            // facilitate time for the screen to settle
-            this.stoppedMovingTime = System.currentTimeMillis()
-        }
-        this.isSeparatorMoving = isSeparatorMoving
-
-        val isMoveFinished = !isSeparatorMoving
-
+    var isSeparatorMoving = false
+        set(value) {
+        field = value
+        val isMoveFinished = !value
         eventManager.post(WindowSizeChangedEvent(isMoveFinished))
     }
 

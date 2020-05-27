@@ -118,11 +118,11 @@ class Separator(
     }
 
     fun release() {
-        if(windowControl.isSeparatorMoving()) {
+        if(windowControl.isSeparatorMoving) {
             setBackgroundResource(separatorResource)
             window1.weight = view1LayoutParams.weight
             window2.weight = view2LayoutParams.weight
-            windowControl.setSeparatorMoving(false)
+            windowControl.isSeparatorMoving = false
             touchOwner.releaseOwnership(this)
         }
     }
@@ -135,7 +135,7 @@ class Separator(
             MotionEvent.ACTION_DOWN -> {
                 Log.d(TAG, " y:" + event.rawY)
                 touchOwner.setTouchOwner(this)
-                windowControl.setSeparatorMoving(true)
+                windowControl.isSeparatorMoving = true
                 setBackgroundResource(dragResource)
 
                 val rawParentLocation = IntArray(2)
