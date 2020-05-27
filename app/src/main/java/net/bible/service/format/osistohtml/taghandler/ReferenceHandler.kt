@@ -100,9 +100,9 @@ open class ReferenceHandler(
             val firstColonPos = content.indexOf(":")
             val isVerseAndChapter = firstColonPos in 1..3
             reference = if (isVerseAndChapter) {
-                parameters.basisRef.book.osis + " " + content
+                parameters.basisRef!!.book.osis + " " + content
             } else {
-                parameters.basisRef.book.osis + " " + parameters.basisRef.chapter + ":" + content
+                parameters.basisRef!!.book.osis + " " + parameters.basisRef!!.chapter + ":" + content
             }
             log.debug("Patched reference:$reference")
         } else if (content != null) {
