@@ -228,14 +228,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             leftOffset1 = insets.systemWindowInsetLeft
             rightOffset1 = insets.systemWindowInsetRight
             Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
-            if(firstTime) {
-                firstTime = false
-            } else {
-                if (widthChanged || heightChanged)
-                    displaySizeChanged()
-                else
-                    ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-            }
+
+            if (widthChanged || heightChanged)
+                displaySizeChanged(firstTime)
+            else
+                ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+
+            if(firstTime) firstTime = false
+
             ViewCompat.onApplyWindowInsets(view, insets)
         }
 
@@ -323,10 +323,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
     }
 
-    private fun displaySizeChanged() {
+    private fun displaySizeChanged(firstTime: Boolean) {
         updateToolbar()
         updateBottomBars()
-        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+        if(!firstTime) {
+            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+        }
         windowControl.windowSizesChanged()
     }
 
