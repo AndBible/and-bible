@@ -46,7 +46,7 @@ class OsisToHtmlParameters {
 
     // KeyUtil always returns a Verse even if it is only Gen 1:1
     // used as a basis if a reference has only chapter and no book
-    lateinit var basisRef: Verse
+    var basisRef: Verse? = null
 
     fun setBasicRef(value: Key) {
         // KeyUtil always returns a Verse even if it is only Gen 1:1

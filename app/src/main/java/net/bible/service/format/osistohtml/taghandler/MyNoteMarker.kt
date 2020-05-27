@@ -40,10 +40,11 @@ class MyNoteMarker(private val parameters: OsisToHtmlParameters,
      */
     override fun start(attrs: Attributes) {
         if (parameters.isShowMyNotes) {
-            if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
+            val basisRef = parameters.basisRef
+            if (myNoteVerses.contains(verseInfo.currentVerseNo) && basisRef != null) {
                 val tag: String = "<a href='%s:%s'><img src='%s' class='myNoteImg'/></a>".format(
                     Constants.MYNOTE_PROTOCOL,
-                    parameters.basisRef.osisID + verseInfo.currentVerseNo,
+                    basisRef.osisID + verseInfo.currentVerseNo,
                     "file:///android_asset/images/pencil16x16.png"
                 )
                 writer.write(tag)

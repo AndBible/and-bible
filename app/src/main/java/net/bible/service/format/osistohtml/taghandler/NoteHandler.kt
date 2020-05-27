@@ -165,7 +165,7 @@ class NoteHandler(
         if (osisID == null) {
             osisID = "${parameters.basisRef}${verseInfo.currentVerseNo}"
         }
-        if (parameters.isShowNotes) {
+        if (parameters.isShowNotes && parameters.basisRef != null) {
             val tag: String = "<a href='%s:%s/%s' class='noteRef'>%s</a> ".format(
                 Constants.NOTE_PROTOCOL,
                 osisID,
