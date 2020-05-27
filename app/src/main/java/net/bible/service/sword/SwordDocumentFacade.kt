@@ -17,7 +17,6 @@
  */
 package net.bible.service.sword
 
-import androidx.room.Ignore
 import net.bible.android.control.ApplicationScope
 import net.bible.service.common.CommonUtils.isHttpUrlAvailable
 import net.bible.service.common.Logger
@@ -142,7 +141,6 @@ class SwordDocumentFacade @Inject constructor() {
         }
     }
 
-    @Ignore("Index repository seem to be lost")
     @Throws(InstallException::class, BookException::class)
     fun isIndexDownloadAvailable(document: Book): Boolean { // not sure how to integrate reuse this in JSword index download
         val version = document.bookMetaData.getProperty("Version")

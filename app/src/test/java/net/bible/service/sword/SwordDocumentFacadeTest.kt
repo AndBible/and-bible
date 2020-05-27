@@ -1,13 +1,12 @@
 package net.bible.service.sword
 
 import net.bible.service.download.FakeSwordBookFactory
-import net.bible.service.download.RepoFactory
 import org.crosswire.jsword.book.Book
 import org.hamcrest.MatcherAssert
 import org.hamcrest.core.IsEqual
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
-import org.mockito.Mockito
 
 class SwordDocumentFacadeTest {
     private var swordDocumentFacade: SwordDocumentFacade? = null
@@ -16,6 +15,7 @@ class SwordDocumentFacadeTest {
         swordDocumentFacade = SwordDocumentFacade()
     }
 
+    @Ignore("Index repository seem to be lost")
     @Test
     @Throws(Exception::class)
     fun testIsIndexDownloadAvailable() {
