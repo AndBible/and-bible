@@ -146,7 +146,7 @@ class FontControl private constructor() {
         }
     }
 
-    private suspend fun loadFontProperties() = withContext(Dispatchers.Main) {
+    private fun loadFontProperties() {
         fontProperties.clear()
 
         // load font properties from default install dir
@@ -186,6 +186,6 @@ class FontControl private constructor() {
     }
 
     init {
-        GlobalScope.launch(Dispatchers.Main) { loadFontProperties() }
+        loadFontProperties()
     }
 }
