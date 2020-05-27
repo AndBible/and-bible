@@ -588,6 +588,7 @@ class SplitBibleArea(
             itemOptions.value = !(itemOptions.value == true)
             itemOptions.handle()
             item.isChecked = itemOptions.value == true
+            mainBibleActivity.invalidateOptionsMenu()
         } else {
             val onReady = {
                 if(itemOptions.requiresReload) {
@@ -595,7 +596,7 @@ class SplitBibleArea(
                 } else {
                     window.bibleView?.updateTextDisplaySettings()
                 }
-                Unit
+                mainBibleActivity.invalidateOptionsMenu()
             }
             itemOptions.openDialog(mainBibleActivity, {onReady()}, onReady)
         }
