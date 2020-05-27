@@ -28,7 +28,6 @@ import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
-import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
@@ -50,7 +49,6 @@ import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.StrongsPreference
-import net.bible.service.db.DatabaseContainer
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
