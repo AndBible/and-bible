@@ -54,7 +54,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -116,7 +115,6 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import javax.inject.Inject
-import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
@@ -333,15 +331,25 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         if(!pinningHelpShown) {
             val save = suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
-                val pinningText = getString(R.string.help_window_pinning_text)
-                AlertDialog.Builder(this)
+                var pinningText = getString(R.string.help_window_pinning_text)
+
+                pinningText += "<br><i><a href=\"https://youtu.be/27b1g-D3ibA\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
+                
+                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(pinningText)
+                }
+                val d = AlertDialog.Builder(this)
                     .setTitle(pinningTitle)
-                    .setMessage(pinningText)
+                    .setMessage(spanned)
                     .setNeutralButton(getString(R.string.first_time_help_show_next_time), null)
                     .setPositiveButton(getString(R.string.first_time_help_do_not_show_again)) { _, _ ->
                         it.resume(true)
                     }
                     .show()
+
+                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
             }
             if(save) {
                 preferences.edit().putBoolean("pinning-help-shown", true).apply()
@@ -1277,7 +1285,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    fun preferenceSettingsChanged() {
+    private fun preferenceSettingsChanged() {
         resetSystemUi()
         if(!refreshIfNightModeChange()) {
             requestSdcardPermission()
