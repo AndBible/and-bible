@@ -1196,8 +1196,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
             STD_REQUEST_CODE -> {
                 val classes = arrayOf(GridChoosePassageBook::class.java.name, Bookmarks::class.java.name)
-                if (classes.contains(data?.component?.className)) {
-                    val verseStr = data?.extras!!.getString("verse")
+                val className = data?.component?.className
+                if (className != null && classes.contains(className)) {
+                    val verseStr = data.extras!!.getString("verse")
                     val verse = try {
                         VerseFactory.fromString(navigationControl.versification, verseStr)
                     } catch (e: NoSuchVerseException) {
@@ -1212,13 +1213,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
                 }
-                if(data?.component?.className == MyNotes::class.java.name) {
+                if(className == MyNotes::class.java.name) {
                     invalidateOptionsMenu()
                     documentViewManager.buildView()
                 }
             }
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> {
                 documentControl.checkIfAnyPageDocumentsDeleted()
+                updateActions()
                 return
             }
             else -> throw RuntimeException("Unhandled request code $requestCode")

@@ -163,7 +163,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     handlerIntent = Intent(callingActivity, DownloadActivity::class.java)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
-                R.id.installZipButton -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
+                R.id.installZipButton -> {
+                    handlerIntent = Intent(callingActivity, InstallZip::class.java)
+                    requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
+                }
                 R.id.helpButton -> {
                     val app = BibleApplication.application
                     val versionMsg = app.getString(R.string.version_text, CommonUtils.applicationVersionName)
@@ -241,7 +244,10 @@ constructor(private val callingActivity: MainBibleActivity,
                     }
                     isHandled = true
                 }
-                R.id.restore_modules -> handlerIntent = Intent(callingActivity, InstallZip::class.java)
+                R.id.restore_modules -> {
+                    handlerIntent = Intent(callingActivity, InstallZip::class.java)
+                    requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
+                }
                 R.id.restore_app_database -> {
                     AlertDialog.Builder(callingActivity)
                         .setTitle(callingActivity.getString(R.string.backup_restore_title))
