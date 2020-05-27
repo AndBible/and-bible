@@ -405,10 +405,13 @@ class SplitBibleArea(
         updateRestoreButtons()
     }
 
-    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) = GlobalScope.launch {
-        delay(200)
-        withContext(Dispatchers.Main) {
-            updateRestoreButtons(false)
+    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
+        GlobalScope.launch {
+            Log.d(TAG, "on UpdateRestoreWindowButtons")
+            delay(200)
+            withContext(Dispatchers.Main) {
+                updateRestoreButtons(false)
+            }
         }
     }
 

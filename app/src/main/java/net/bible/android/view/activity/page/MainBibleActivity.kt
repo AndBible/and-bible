@@ -931,6 +931,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun updateBottomBars() {
+        Log.d(TAG, "updateBottomBars")
         if(isFullScreen || speakControl.isStopped) {
             transportBarVisible = false
             speakTransport.animate()
