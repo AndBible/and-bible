@@ -18,12 +18,10 @@
 package net.bible.service.sword
 
 import net.bible.android.control.ApplicationScope
-import net.bible.service.common.CommonUtils.isHttpUrlAvailable
 import net.bible.service.common.Logger
 import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.index.IndexCreator
-import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
