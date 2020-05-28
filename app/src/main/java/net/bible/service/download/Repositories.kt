@@ -31,16 +31,13 @@ abstract class RepoBase {
 
     private val downloadManager get() = repoFactory.downloadManager
 
-    @Throws(InstallException::class)
     abstract fun getRepoBooks(refresh: Boolean): List<Book>
     abstract val repoName: String
 
-    @Throws(InstallException::class)
     fun getBookList(bookFilter: BookFilter, refresh: Boolean): List<Book> {
         return downloadManager.getDownloadableBooks(bookFilter, repoName, refresh)
     }
 
-    @Throws(InstallException::class, BookException::class)
     fun downloadDocument(document: Book) {
         downloadManager.installBook(repoName, document)
     }
@@ -59,7 +56,6 @@ abstract class RepoBase {
 }
 
 class AndBibleRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
@@ -75,7 +71,6 @@ class AndBibleRepo : RepoBase() {
 }
 
 class AndBibleExtraRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
@@ -92,7 +87,6 @@ class AndBibleExtraRepo : RepoBase() {
 
 
 class BetaRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books: List<Book> = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
@@ -119,7 +113,6 @@ class BetaRepo : RepoBase() {
 }
 
 class CrosswireRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
@@ -136,7 +129,6 @@ class CrosswireRepo : RepoBase() {
 }
 
 class LockmanRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
@@ -151,8 +143,22 @@ class LockmanRepo : RepoBase() {
     }
 }
 
+class WycliffeRepo : RepoBase() {
+    override fun getRepoBooks(refresh: Boolean): List<Book> {
+        val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
+        storeRepoNameInMetaData(books)
+        return books
+    }
+
+    override val repoName: String get() = REPOSITORY
+
+    companion object {
+        private const val REPOSITORY = "Wycliffe (CrossWire)"
+        private val SUPPORTED_DOCUMENTS: BookFilter = AcceptableBookTypeFilter()
+    }
+}
+
 class EBibleRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val bookList = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(bookList)
@@ -169,7 +175,6 @@ class EBibleRepo : RepoBase() {
 }
 
 class IBTRepo : RepoBase() {
-    @Throws(InstallException::class)
     override fun getRepoBooks(refresh: Boolean): List<Book> {
         val books = getBookList(SUPPORTED_DOCUMENTS, refresh)
         storeRepoNameInMetaData(books)
