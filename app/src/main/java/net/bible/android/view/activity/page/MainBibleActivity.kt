@@ -315,12 +315,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateBottomBars()
         setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-        initialized = true
-        GlobalScope.launch(Dispatchers.Main) {
-            if(!initialized)
+        if(!initialized) {
+            GlobalScope.launch(Dispatchers.Main) {
                 showBetaNotice()
-            showFirstTimeHelp()
+                showFirstTimeHelp()
+            }
         }
+        initialized = true
     }
 
     private fun displaySizeChanged(firstTime: Boolean) {
