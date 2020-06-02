@@ -213,8 +213,6 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
                 R.id.backup_app_database -> {
-                    mainBibleActivity.windowRepository.saveIntoDb()
-
                     AlertDialog.Builder(callingActivity)
                         .setTitle(callingActivity.getString(R.string.backup_backup_title))
                         .setMessage(callingActivity.getString(R.string.backup_backup_message))
