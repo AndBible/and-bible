@@ -687,10 +687,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() {
             val doc = pageControl.currentPageManager.currentPage.currentDocument
             var key = pageControl.currentPageManager.currentPage.key
-            if(doc?.bookCategory == BookCategory.BIBLE) {
+            val isBible = doc?.bookCategory == BookCategory.BIBLE
+            if(isBible) {
                 key = pageControl.currentBibleVerse
             }
-            return if(key is Verse && key.verse == 0) {
+            return if(isBible && key is Verse && key.verse == 0) {
                 CommonUtils.getWholeChapter(key, false).name
             } else key?.name ?: throw KeyIsNull()
         }
