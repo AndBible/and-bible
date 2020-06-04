@@ -472,15 +472,12 @@ class SplitBibleArea(
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
                         (
-                            if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else (
-                                if(CommonUtils.isSplitVertically) {
-                                    if(idx == 0)
-                                        mainBibleActivity.topOffset2
-                                    else 0
-                                }
-                                else mainBibleActivity.topOffset2
-                                )
+                            if(CommonUtils.isSplitVertically) {
+                                if(idx == 0)
+                                    mainBibleActivity.topOffset2
+                                else 0
+                            }
+                            else mainBibleActivity.topOffset2
                             ).toFloat()
                     )
                     if(show) {
