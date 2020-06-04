@@ -261,8 +261,7 @@ object CommonUtils {
     }
 
     fun saveSharedPreference(key: String, value: String) {
-        val prefs = CommonUtils.sharedPreferences
-        prefs.edit()
+        sharedPreferences.edit()
                 .putString(key, value)
                 .apply()
     }
