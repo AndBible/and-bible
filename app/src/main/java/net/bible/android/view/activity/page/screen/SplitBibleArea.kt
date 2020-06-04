@@ -298,7 +298,7 @@ class SplitBibleArea(
 
     internal val hideWindowButtons get() =
         CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
-    internal val autoHideWindowButtonBarInFullScreen get() =
+    private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
 
     private fun rebuildRestoreButtons() {
