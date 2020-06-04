@@ -52,7 +52,7 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
         var verseRange = verseRange
         val existingMyNoteWithSameStartVerse = myNoteDAO.getMyNoteByStartVerse(verseRange)
         if (existingMyNoteWithSameStartVerse != null) {
-            verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.versification)
+            verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.versification)?: return
         }
         currentPageManager.showMyNote(verseRange)
     }
@@ -65,7 +65,7 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
         var keyText = ""
         try {
             val versification = currentPageManager.currentBible.versification
-            keyText = myNote.getVerseRange(versification).name
+            keyText = myNote.getVerseRange(versification)!!.name
         } catch (e: Exception) {
             Log.e(TAG, "Error getting verse text", e)
         }
