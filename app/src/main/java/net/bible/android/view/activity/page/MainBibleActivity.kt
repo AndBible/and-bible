@@ -57,6 +57,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -166,7 +168,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar and toolbar
-    val topOffset2 get() = topOffset1 + if (!(isFullScreen && actionMode == null)) actionBarHeight else 0
+    val topOffset2: Int get() {
+        return topOffset1 + if (!(isFullScreen && actionMode == null)) actionBarHeight else 0
+    }
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
 
@@ -190,7 +194,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      * return percentage scrolled down page
      */
     private val currentPosition: Float
-        get() = documentViewManager.documentView.currentPosition
+        get() = documentViewManager.documentView?.currentPosition ?: 0F
 
     /**
      * Called when the activity is first created.
@@ -217,6 +221,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         backupControl.clearBackupDir()
         windowRepository.initialize()
         var firstTime = true
+        val windowReady = Channel<Boolean>()
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
             val heightChanged =
@@ -234,7 +239,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             else
                 ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
 
-            if(firstTime) firstTime = false
+            if(firstTime) {
+                firstTime = false
+                windowReady.close()
+            }
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
@@ -297,24 +305,32 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             override fun onDrawerClosed(drawerView: View) {}
         })
-
-        // create related objects
-        documentViewManager.buildView()
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
 
-        // force all windows to be populated
-        windowControl.windowSync.reloadAllWindows(true)
-        updateActions()
         refreshScreenKeepOn()
         if(!initialized)
             requestSdcardPermission()
-        setupToolbarButtons()
 
-        speakTransport.visibility = View.GONE
-        updateBottomBars()
-        setupToolbarFlingDetection()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        speakTransport.visibility = View.GONE
+
+        GlobalScope.launch(Dispatchers.Main) {
+            Log.d(TAG, "Waiting for signal")
+
+            // Make sure that we have correct offsets when drawing bibleviews.
+            try {windowReady.receive() } catch (e: ClosedReceiveChannelException) {}
+
+            setupToolbarButtons()
+            updateBottomBars()
+            setupToolbarFlingDetection()
+
+            Log.d(TAG, "Signal received. Building.")
+            documentViewManager.buildView()
+            windowControl.windowSync.reloadAllWindows(true)
+            updateActions()
+        }
+
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
                 showBetaNotice()
@@ -329,8 +345,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         updateBottomBars()
         if(!firstTime) {
             ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+            windowControl.windowSizesChanged()
         }
-        windowControl.windowSizesChanged()
     }
 
     private suspend fun showFirstTimeHelp()  {
@@ -1026,14 +1042,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onScreenTurnedOff() {
         super.onScreenTurnedOff()
-        documentViewManager.documentView.onScreenTurnedOff()
+        documentViewManager.documentView?.onScreenTurnedOff()
     }
 
     override fun onScreenTurnedOn() {
         super.onScreenTurnedOn()
         ScreenSettings.refreshNightMode()
         refreshIfNightModeChange()
-        documentViewManager.documentView.onScreenTurnedOn()
+        documentViewManager.documentView?.onScreenTurnedOn()
     }
 
     var currentNightMode: Boolean = false
@@ -1342,7 +1358,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun onResume() {
         super.onResume()
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
-        documentViewManager.documentView.asView().requestFocus()
+        documentViewManager.documentView?.asView()?.requestFocus()
     }
 
     /**
@@ -1394,7 +1410,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      * user swiped right
      */
     operator fun next() {
-        if (documentViewManager.documentView.isPageNextOkay) {
+        if (documentViewManager.documentView!!.isPageNextOkay) {
             windowControl.activeWindowPageManager.currentPage.next()
         }
     }
@@ -1403,7 +1419,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
      * user swiped left
      */
     fun previous() {
-        if (documentViewManager.documentView.isPagePreviousOkay) {
+        if (documentViewManager.documentView!!.isPagePreviousOkay) {
             windowControl.activeWindowPageManager.currentPage.previous()
         }
     }

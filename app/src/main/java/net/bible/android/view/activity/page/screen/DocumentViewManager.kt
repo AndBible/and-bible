@@ -101,14 +101,14 @@ class DocumentViewManager @Inject constructor(
         }
     }
 
-    val documentView: DocumentView
+    val documentView: DocumentView?
         get() = getDocumentView(windowControl.activeWindow)
 
-    fun getDocumentView(window: Window): DocumentView {
+    private fun getDocumentView(window: Window): DocumentView? {
         return if (myNoteViewBuilder.isMyNoteViewType) {
             myNoteViewBuilder.view
         } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            splitBibleArea!!.bibleViewFactory.getOrCreateBibleView(window)
+            splitBibleArea?.bibleViewFactory?.getOrCreateBibleView(window)
         }
     }
 
