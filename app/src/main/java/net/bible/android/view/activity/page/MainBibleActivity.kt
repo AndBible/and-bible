@@ -329,6 +329,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             documentViewManager.buildView()
             windowControl.windowSync.reloadAllWindows(true)
             updateActions()
+            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
         }
 
         if(!initialized) {
