@@ -85,7 +85,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         }
         withContext(Dispatchers.Main) {
             loadingIndicator.visibility = View.GONE
-            empty.visibility = View.VISIBLE
+            if(listAdapter.isEmpty) {
+                empty.visibility = View.VISIBLE
+            }
         }
     }
     /** do the search query and prepare results in lists ready for display
