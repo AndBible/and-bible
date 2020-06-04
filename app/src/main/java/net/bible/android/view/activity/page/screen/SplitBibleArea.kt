@@ -427,9 +427,14 @@ class SplitBibleArea(
         delay(200)
         withContext(Dispatchers.Main) {
             val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
-            if (restoreButton != null && restoreButtonsVisible &&
-                !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) })) {
-                restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+            if(restoreButton != null) {
+                val areaHitRect = Rect().apply { getHitRect(this) }
+                val buttonVisibleRect = Rect(areaHitRect)
+                val buttonVisible = restoreButton.getGlobalVisibleRect(buttonVisibleRect)
+                val fullyVisible = buttonVisibleRect.right - buttonVisibleRect.left == restoreButton.width
+                if (restoreButtonsVisible && (!buttonVisible || !fullyVisible)) {
+                    restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+                }
             }
         }
     }
