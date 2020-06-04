@@ -105,5 +105,5 @@ object ScreenSettings {
             lastNightMode = value
     }
 
-    private val config: Configuration get() = CommonUtils.resources.configuration
+    private val config: Configuration get() = BibleApplication.application.resources.configuration
 }
