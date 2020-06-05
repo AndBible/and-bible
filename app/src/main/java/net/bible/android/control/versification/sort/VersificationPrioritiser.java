@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kotlin.KotlinNullPointerException;
+
 /**
  * Using the list of preferred v11ns calculated from the total list of verses passed in
  *
@@ -44,7 +46,11 @@ class VersificationPrioritiser {
 	private List<Versification> getVersifications(List<? extends ConvertibleVerseRangeUser> convertibleVerseRangeUsers) {
 		List<Versification> versifications = new ArrayList<>();
 		for (ConvertibleVerseRangeUser cvru : convertibleVerseRangeUsers) {
-			versifications.add(cvru.getConvertibleVerseRange().getOriginalVersification());
+			try {
+				versifications.add(cvru.getConvertibleVerseRange().getOriginalVersification());
+			} catch (KotlinNullPointerException e) {
+				versifications.add(new Versification());
+			}
 		}
 
 		return versifications;
