@@ -57,8 +57,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -221,7 +219,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         backupControl.clearBackupDir()
         windowRepository.initialize()
         var firstTime = true
-        val windowReady = Channel<Boolean>()
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
             val heightChanged =
@@ -241,7 +238,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             if(firstTime) {
                 firstTime = false
-                windowReady.close()
+                postInitialize()
             }
 
             ViewCompat.onApplyWindowInsets(view, insets)
@@ -315,23 +312,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         speakTransport.visibility = View.GONE
 
-        GlobalScope.launch(Dispatchers.Main) {
-            Log.d(TAG, "Waiting for signal")
-
-            // Make sure that we have correct offsets when drawing bibleviews.
-            try {windowReady.receive() } catch (e: ClosedReceiveChannelException) {}
-
-            setupToolbarButtons()
-            updateBottomBars()
-            setupToolbarFlingDetection()
-
-            Log.d(TAG, "Signal received. Building.")
-            documentViewManager.buildView()
-            windowControl.windowSync.reloadAllWindows(true)
-            updateActions()
-            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-        }
-
         if(!initialized) {
             GlobalScope.launch(Dispatchers.Main) {
                 showBetaNotice()
@@ -339,6 +319,18 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
         }
         initialized = true
+    }
+
+    private fun postInitialize() {
+        // Perform initialization that requires that offsets are set up correctly.
+        setupToolbarButtons()
+        updateBottomBars()
+        setupToolbarFlingDetection()
+
+        documentViewManager.buildView()
+        windowControl.windowSync.reloadAllWindows(true)
+        updateActions()
+        ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
     }
 
     private fun displaySizeChanged(firstTime: Boolean) {
