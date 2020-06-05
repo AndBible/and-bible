@@ -330,7 +330,6 @@ class SplitBibleArea(
         }
         if(!windowControl.isSingleWindow) {
             for (win in pinnedWindows) {
-                Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 restoreButtons.addView(restoreButton, llp)
@@ -339,7 +338,6 @@ class SplitBibleArea(
                 addSpace()
 
             for (win in nonPinnedWindows) {
-                Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 restoreButtons.addView(restoreButton, llp)
@@ -402,7 +400,6 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
-        updateRestoreButtons()
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
@@ -410,7 +407,7 @@ class SplitBibleArea(
             Log.d(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
-                updateRestoreButtons(false)
+                updateRestoreButtons()
             }
         }
     }
@@ -495,14 +492,19 @@ class SplitBibleArea(
         }
         buttonsVisible = show
     }
+    var firstTime = true
+    private fun updateRestoreButtons() {
+        val animate = !firstTime
+        if(firstTime) {
+            firstTime = false
+        }
 
-    private fun updateRestoreButtons(animate: Boolean = true) {
         val transX =
             (if(restoreButtonsVisible) 0 else
                 restoreButtonsContainer.width -
                     (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
 
-        Log.d(TAG, "updateRestoreButtons $animate $transX")
+        Log.d(TAG, "updateRestoreButtons $animate $transX ${Log.getStackTraceString(Exception())}")
 
         if(restoreButtonsVisible) {
             restoreButtonsContainer.isScrollable = true

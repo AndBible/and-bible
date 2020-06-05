@@ -231,15 +231,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             rightOffset1 = insets.systemWindowInsetRight
             Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
 
-            if (widthChanged || heightChanged)
-                displaySizeChanged(firstTime)
-            else
-                ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-
             if(firstTime) {
                 firstTime = false
                 postInitialize()
             }
+
+            if (widthChanged || heightChanged)
+                displaySizeChanged(firstTime)
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
@@ -305,6 +303,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // register for passage change and appToBackground events
         ABEventBus.getDefault().register(this)
 
+        setupToolbarButtons()
+        setupToolbarFlingDetection()
+
         refreshScreenKeepOn()
         if(!initialized)
             requestSdcardPermission()
@@ -323,10 +324,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     private fun postInitialize() {
         // Perform initialization that requires that offsets are set up correctly.
-        setupToolbarButtons()
-        updateBottomBars()
-        setupToolbarFlingDetection()
-
+        Log.d(TAG, "postInitialize")
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
@@ -334,6 +332,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private fun displaySizeChanged(firstTime: Boolean) {
+        Log.d(TAG, "displaySizeChanged $firstTime")
         updateToolbar()
         updateBottomBars()
         if(!firstTime) {
