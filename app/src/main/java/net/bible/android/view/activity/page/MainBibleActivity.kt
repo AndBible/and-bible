@@ -708,7 +708,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if(isBible) {
                 key = pageControl.currentBibleVerse
             }
-            return if(isBible && key is Verse && key.verse == 0) {
+            return if(key is Verse && key.verse == 0) {
                 CommonUtils.getWholeChapter(key, false).name
             } else key?.name ?: throw KeyIsNull()
         }
