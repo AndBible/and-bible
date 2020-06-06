@@ -84,11 +84,9 @@ class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
             private val readingPlanControl: ReadingPlanControl,
             private val searchControl: SearchControl,
-            private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val documentViewManager: DocumentViewManager,
             private val errorReportControl: ErrorReportControl
 ) {
 
@@ -104,7 +102,7 @@ constructor(private val callingActivity: MainBibleActivity,
             var handlerIntent: Intent? = null
             var requestCode = ActivityBase.STD_REQUEST_CODE
             // Handle item selection
-            val currentPage = activeWindowPageManagerProvider.activeWindowPageManager.currentPage
+            val currentPage = windowControl.activeWindowPageManager.currentPage
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
                     val intent = Intent(callingActivity, ChooseDocument::class.java)
@@ -154,9 +152,10 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.mynotesButton -> handlerIntent = Intent(callingActivity, MyNotes::class.java)
                 R.id.speakButton -> {
-                    val isBible = windowControl.activeWindowPageManager.currentPage
-                            .bookCategory == BookCategory.BIBLE
-                    handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    if(currentPage.isSpeakable) {
+                        val isBible = currentPage.bookCategory == BookCategory.BIBLE
+                        handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    }
                 }
                 R.id.dailyReadingPlanButton ->
                     // show todays plan or allow plan selection
