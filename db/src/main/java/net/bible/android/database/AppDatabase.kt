@@ -56,6 +56,7 @@ class Converters {
 abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
+    abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentDao
 
     fun sync() { // Sync all data so far into database file
