@@ -508,6 +508,7 @@ private val MIGRATION_29_30 = object : Migration(29, 30) {
 private val MIGRATION_30_31 = object : Migration(30, 31) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.apply {
+            execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0'")
             execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0.%'")
         }
     }
