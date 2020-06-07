@@ -26,7 +26,7 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 
 import java.util.*
 
-const val DATABASE_VERSION = 31
+const val DATABASE_VERSION = 32
 
 class Converters {
     @TypeConverter
