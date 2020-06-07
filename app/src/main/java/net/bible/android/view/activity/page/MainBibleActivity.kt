@@ -57,6 +57,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -237,7 +238,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
 
             if (widthChanged || heightChanged)
-                displaySizeChanged(firstTime)
+                displaySizeChanged()
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
@@ -322,8 +323,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         initialized = true
     }
 
-    private fun postInitialize() {
+    private fun postInitialize() = GlobalScope.launch(Dispatchers.Main) {
         // Perform initialization that requires that offsets are set up correctly.
+        delay(50) // delay is an attempt to alleviate #576
         Log.d(TAG, "postInitialize")
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
@@ -331,14 +333,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
     }
 
-    private fun displaySizeChanged(firstTime: Boolean) {
-        Log.d(TAG, "displaySizeChanged $firstTime")
+    private fun displaySizeChanged() {
+        Log.d(TAG, "displaySizeChanged")
         updateToolbar()
         updateBottomBars()
-        if(!firstTime) {
-            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
-            windowControl.windowSizesChanged()
-        }
     }
 
     private suspend fun showFirstTimeHelp()  {
