@@ -57,7 +57,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -233,12 +232,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
 
             if(firstTime) {
-                firstTime = false
                 postInitialize()
             }
 
             if (widthChanged || heightChanged)
-                displaySizeChanged()
+                displaySizeChanged(firstTime)
+
+            if(firstTime)
+                firstTime = false
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
@@ -323,9 +324,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         initialized = true
     }
 
-    private fun postInitialize() = GlobalScope.launch(Dispatchers.Main) {
+    private fun postInitialize() {
         // Perform initialization that requires that offsets are set up correctly.
-        delay(50) // delay is an attempt to alleviate #576
         Log.d(TAG, "postInitialize")
         documentViewManager.buildView()
         windowControl.windowSync.reloadAllWindows(true)
@@ -333,10 +333,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
     }
 
-    private fun displaySizeChanged() {
-        Log.d(TAG, "displaySizeChanged")
+    private fun displaySizeChanged(firstTime: Boolean) {
+        Log.d(TAG, "displaySizeChanged $firstTime")
         updateToolbar()
         updateBottomBars()
+        if(!firstTime) {
+            ABEventBus.getDefault().post(ConfigurationChanged(resources.configuration))
+            windowControl.windowSizesChanged()
+        }
     }
 
     private suspend fun showFirstTimeHelp()  {
