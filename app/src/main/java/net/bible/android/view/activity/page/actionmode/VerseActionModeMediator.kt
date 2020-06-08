@@ -157,6 +157,8 @@ class VerseActionModeMediator(
     fun verseTouch(verse: ChapterVerse) {
         Log.d(TAG, "Verse touched event:$verse")
 
+        if (verse.verse == 0) return
+
         val origRange = chapterVerseRange
         chapterVerseRange = chapterVerseRange!!.toggleVerse(verse)
 
