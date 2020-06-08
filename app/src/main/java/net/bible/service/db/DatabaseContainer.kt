@@ -505,23 +505,34 @@ private val MIGRATION_29_30 = object : Migration(29, 30) {
         }
     }
 }
+
+
+private fun clearVerse0(db: SupportSQLiteDatabase) {
+    db.apply {
+        execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0-%'") // for key like Gen.1.0-Gen.1.1
+        execSQL("DELETE FROM mynote WHERE `key` LIKE '%.0'")
+        execSQL("DELETE FROM mynote WHERE `key` LIKE '%.0.%'")
+    }
+}
+
 private val MIGRATION_30_31 = object : Migration(30, 31) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.apply {
-            execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0'")
-            execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0.%'")
-        }
+        clearVerse0(db)
     }
 }
+
 private val MIGRATION_31_32 = object : Migration(31, 32) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.apply {
-            execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0-%'") // for key like Gen.1.0-Gen.1.1
-            execSQL("DELETE FROM mynote WHERE `key` LIKE '%.0'")
-            execSQL("DELETE FROM mynote WHERE `key` LIKE '%.0.%'")
-        }
+        clearVerse0(db);
     }
 }
+
+private val MIGRATION_30_32 = object : Migration(30, 32) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        clearVerse0(db);
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -565,7 +576,8 @@ object DatabaseContainer {
                         MIGRATION_28_29,
                         MIGRATION_29_30,
                         MIGRATION_30_31,
-                        MIGRATION_31_32
+                        MIGRATION_31_32,
+                        MIGRATION_30_32
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
