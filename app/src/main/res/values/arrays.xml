@@ -98,6 +98,7 @@
 		<item>@string/lang_uzbek</item>
 		<item>@string/lang_vietnamese</item>
 		<item>@string/lang_chinese</item>
+		<item>@string/lang_chinese_simplified</item>
 		<item>@string/lang_chinese_traditional</item>
 	</string-array>
 	
@@ -153,6 +154,7 @@
 		<item>uz</item>
 		<item>vi</item>
 		<item>zh</item>
+		<item>zh-Hant-CN</item>
 		<item>zh-Hant-TW</item>
 	</string-array>
 </resources>
