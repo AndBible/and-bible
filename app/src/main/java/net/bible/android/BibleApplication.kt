@@ -25,8 +25,6 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.Log
 import android.widget.Toast
-import com.facebook.stetho.Stetho
-import net.bible.android.activity.BuildConfig
 
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
@@ -115,9 +113,6 @@ open class BibleApplication : Application() {
 
         ttsNotificationManager = TextToSpeechNotificationManager()
         ttsWidgetManager = SpeakWidgetManager()
-
-        if (BuildConfig.DEBUG)
-            Stetho.initializeWithDefaults(this);
     }
 
     /**
