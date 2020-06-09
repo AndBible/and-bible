@@ -97,9 +97,8 @@
 		<item>@string/lang_ukrainian</item>
 		<item>@string/lang_uzbek</item>
 		<item>@string/lang_vietnamese</item>
-		<item>@string/lang_chinese</item>
-		<item>@string/lang_chinese_simplified</item>
 		<item>@string/lang_chinese_traditional</item>
+		<item>@string/lang_chinese_simplified</item>
 	</string-array>
 	
 	<!--  DO NOT TRANSLATE the following language codes -->
@@ -153,8 +152,7 @@
 		<item>uk</item>
 		<item>uz</item>
 		<item>vi</item>
-		<item>zh</item>
-		<item>zh-Hant-CN</item>
 		<item>zh-Hant-TW</item>
+		<item>zh-Hans-CN</item>
 	</string-array>
 </resources>
