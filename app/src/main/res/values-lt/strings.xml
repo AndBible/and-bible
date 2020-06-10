@@ -3,46 +3,6 @@
   <string name="app_name_short">Biblijos studijos</string>
   <string name="app_name_medium">Biblijos studijos (And Bible)</string>
   <string name="app_name_long">Biblijos studijų programėlė, sukurta And Bible Open Source projekto</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigacija</string>
-  <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
-     Paspauskite ekrane dukart, kad pereitumėte į viso ekrano veikseną.
-     Padalinti ekranai (kitaip vadinami langais) turi meniu mygtukus viršutiniame dešinajame kampe,
-     kuris iškviečia tam tikras, konkrečiam langui specifines funkcijas bei nustato lango vaizdą bei elgseną.</string>
-  <string name="help_contextmenus_title">Kontekstiniai meniu</string>
-  <string name="help_contextmenus_text">
-     Ilgas paspaudimas atveria kontenstinį meniu arba veiksmo meniu keliuose rodiniuose.
-     Ilgas paspaudimas Biblijos rodinyje leis jums atverti veiksmų meniu, kuris turės poveikį dabartinei eilutei.
-     Ilgas paspaudimas ant dokumentų pasirinkimo arba parsiuntimo rodiniuose esančio dokumento leis jums jį pašalinti arba parodys jo informaciją.
-     Ilgas paspaudimas ant žymių sąraše esančios žymės leis pridėti etiketę arba pašalinti žymę.
-     Ilgas paspaudimas ant nuorodos, leis pasirinkti ar atverti ją dabartiniame lange, ar naujame, arba specialiame nuorodų lange.</string>
-  <string name="help_mynote_title">Mano pastaba</string>
-  <string name="help_mynote_text">Pastabas galite pridėti per kontekstinio meniu elementą Mano pastaba, iškvietę jį atitinkamai eilutei.
-Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
-  <string name="help_bookmarks_title">Žymės</string>
-  <string name="help_bookmarks_text">Žymes pridėsite per eilutės kontekstinį meniu.
-Žymių tvarkyklę pasieksite per pagrindinį meniu.
-Žymes galima grupuoti priskiriant joms etiketes per Žymių tvarkyklės kontekstinį meniu.</string>
-  <string name="help_search_title">Paieška</string>
-  <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
-(Išsamios informacijos ieškokite \"Apache Lucene - Query Parser Syntax\")</string>
-  <string name="help_workspaces_title">Darbo sritys</string>
-  <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
-  <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
-  <string name="help_hidden_features_text">
-Nuo įrankių juostos pirštu braukdami žemyn, galėsite pasirinkti darbalaukius.
-Paspaudę ir palaikę lango mygtuką, greitai sumažinsite.
-Paspaudę ir palaikę kalbėjimo mygtuką įrankių juostoje, atversite kalbėjimo nustatymus.
-Paspaudę ir palaikę ant eilutės pavadinimo įrankių juostoje, pateksite į dokumentų pasirinkimo meniu.
-Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </string>
-  <string name="help_window_pinning_title">Lango pritvirtinimas</string>
-  <string name="help_window_pinning_text">
-     Langų pritvirtinimą galite įjungti nustatymų meniu (trys taškai, viršutinis dešinys kampas).
-     Jei langų pritvirtinimas veikia, vienu metu galite parodyti daug pritvirtintų langų,
-     bet tik vieną nepritvirtintą. Pirma rodomi pritvirtinti langai, po to nepritvirtinti.
-     Geriau biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
-     kaip nepritvirtintus. Tuomet turėsite biblijos dokumentus visuomet avertus ir
-     lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
   <!--Main menu-->
@@ -571,6 +531,46 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
   <!--History-->
   <string name="history_for">Istorija (%s: Langas %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigacija</string>
+  <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
+     Paspauskite ekrane dukart, kad pereitumėte į viso ekrano veikseną.
+     Padalinti ekranai (kitaip vadinami langais) turi meniu mygtukus viršutiniame dešinajame kampe,
+     kuris iškviečia tam tikras, konkrečiam langui specifines funkcijas bei nustato lango vaizdą bei elgseną.</string>
+  <string name="help_contextmenus_title">Kontekstiniai meniu</string>
+  <string name="help_contextmenus_text">
+     Ilgas paspaudimas atveria kontenstinį meniu arba veiksmo meniu keliuose rodiniuose.
+     Ilgas paspaudimas Biblijos rodinyje leis jums atverti veiksmų meniu, kuris turės poveikį dabartinei eilutei.
+     Ilgas paspaudimas ant dokumentų pasirinkimo arba parsiuntimo rodiniuose esančio dokumento leis jums jį pašalinti arba parodys jo informaciją.
+     Ilgas paspaudimas ant žymių sąraše esančios žymės leis pridėti etiketę arba pašalinti žymę.
+     Ilgas paspaudimas ant nuorodos, leis pasirinkti ar atverti ją dabartiniame lange, ar naujame, arba specialiame nuorodų lange.</string>
+  <string name="help_mynote_title">Mano pastaba</string>
+  <string name="help_mynote_text">Pastabas galite pridėti per kontekstinio meniu elementą Mano pastaba, iškvietę jį atitinkamai eilutei.
+Visų pastabų sąrašą pasieksite per pagrindinį meniu.</string>
+  <string name="help_bookmarks_title">Žymės</string>
+  <string name="help_bookmarks_text">Žymes pridėsite per eilutės kontekstinį meniu.
+Žymių tvarkyklę pasieksite per pagrindinį meniu.
+Žymes galima grupuoti priskiriant joms etiketes per Žymių tvarkyklės kontekstinį meniu.</string>
+  <string name="help_search_title">Paieška</string>
+  <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
+(Išsamios informacijos ieškokite \"Apache Lucene - Query Parser Syntax\")</string>
+  <string name="help_workspaces_title">Darbo sritys</string>
+  <string name="help_workspaces_text">Darbalaukiai leidžia turėti kelias darbines aplinkas. Darbalaukio funkcijos pasiekiamos per darbalaukio elementą parinkčių meniu (viršutinis dešinys kampas). Darbalaukiai gali būti greitai pasiekiami nuo įrankių juostos braukiant pirštu žemyn. Per įrankių juostą braukiant iš kairės į dešinę arba iš dešinės į kairę, galima perjungti atitinkamai į kitą arba į ankstesnį darbalaukį.</string>
+  <string name="help_hidden_features_title">Paslėpti greito pasiekimo būdai</string>
+  <string name="help_hidden_features_text">
+Nuo įrankių juostos pirštu braukdami žemyn, galėsite pasirinkti darbalaukius.
+Paspaudę ir palaikę lango mygtuką, greitai sumažinsite.
+Paspaudę ir palaikę kalbėjimo mygtuką įrankių juostoje, atversite kalbėjimo nustatymus.
+Paspaudę ir palaikę ant eilutės pavadinimo įrankių juostoje, pateksite į dokumentų pasirinkimo meniu.
+Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </string>
+  <string name="help_window_pinning_title">Lango pritvirtinimas</string>
+  <string name="help_window_pinning_text">
+     Langų pritvirtinimą galite įjungti nustatymų meniu (trys taškai, viršutinis dešinys kampas).
+     Jei langų pritvirtinimas veikia, vienu metu galite parodyti daug pritvirtintų langų,
+     bet tik vieną nepritvirtintą. Pirma rodomi pritvirtinti langai, po to nepritvirtinti.
+     Geriau biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
+     kaip nepritvirtintus. Tuomet turėsite biblijos dokumentus visuomet avertus ir
+     lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.</string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
   <string name="something_with_parenthesis">%s (%s)</string>

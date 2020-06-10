@@ -3,26 +3,6 @@
   <string name="app_name_short">研经工具</string>
   <string name="app_name_medium">研经工具 (And Bible)</string>
   <string name="app_name_long">研经工具 - 由And Bible开源计划开发</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">导航</string>
-  <string name="help_nav_text">滑动萤幕以翻阅至上一章或下一章。
-双点经文文字以切换至全萤幕。
-萤幕分割(又称视窗) 于右上方有选单按钮，
-点选可让你更改视窗功能、自订外观及行为。</string>
-  <string name="help_contextmenus_title">内文选单</string>
-  <string name="help_mynote_title">我的笔记</string>
-  <string name="help_mynote_text">透过经节的选单中我的笔记，可以加入笔记。
-主选单中可以找到所有笔记。</string>
-  <string name="help_bookmarks_title">书签</string>
-  <string name="help_bookmarks_text">透过经节的选单可以加入书签
-主选单中可以管理书签标签
-书签管理选单中可以加入标签将书签分组</string>
-  <string name="help_search_title">搜寻</string>
-  <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
-(有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
-  <string name="help_workspaces_title">工作检视</string>
-  <string name="help_hidden_features_title">隐藏捷径</string>
-  <string name="help_window_pinning_title">视窗钉选</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">请插入SD Card及重新开始程式</string>
   <!--Main menu-->
@@ -502,6 +482,26 @@ Beta用家请透过Google Play或 %s (更佳) 回报错误。</string>
   <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>
   <!--History-->
   <string name="history_for">历史 (%s: 视窗 %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">导航</string>
+  <string name="help_nav_text">滑动萤幕以翻阅至上一章或下一章。
+双点经文文字以切换至全萤幕。
+萤幕分割(又称视窗) 于右上方有选单按钮，
+点选可让你更改视窗功能、自订外观及行为。</string>
+  <string name="help_contextmenus_title">内文选单</string>
+  <string name="help_mynote_title">我的笔记</string>
+  <string name="help_mynote_text">透过经节的选单中我的笔记，可以加入笔记。
+主选单中可以找到所有笔记。</string>
+  <string name="help_bookmarks_title">书签</string>
+  <string name="help_bookmarks_text">透过经节的选单可以加入书签
+主选单中可以管理书签标签
+书签管理选单中可以加入标签将书签分组</string>
+  <string name="help_search_title">搜寻</string>
+  <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
+(有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
+  <string name="help_workspaces_title">工作检视</string>
+  <string name="help_hidden_features_title">隐藏捷径</string>
+  <string name="help_window_pinning_title">视窗钉选</string>
   <!--Uncategorized-->
   <string name="close">关闭</string>
   <string name="something_with_parenthesis">%s (%s)</string>

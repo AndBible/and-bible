@@ -3,54 +3,6 @@
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel studie (And Bible)</string>
   <string name="app_name_long">Bybel Studie toep, deur And Bible Open Source Project</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigasie</string>
-  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
- Dubbel druk  op Bybelteks om oor te skakel na die volledige skerm modus 
- Verdeelte skerms (ook vensters genoem) het die lys knoppie in die regter boonste hoek,
-waarmee jy verskillende venster-spesifieke funksies kan gebruik en vensteruitkyk en -gedrag kan aanpas.</string>
-  <string name="help_contextmenus_title">Konteks Kieslys</string>
-  <string name="help_contextmenus_text">
-Lang druk, in oopgemaakte konteks lys of aksie modus in verskillende aansigte
-Lang druk op die Bybel aansig om die aksie modus te open vir aksies wat die huidige vers beïnvloed.
-Lang druk lank op \'n dokument item in die lys aansig van Kies dokument of laai af om dokument- of inligtinginligting te verwyder.
-Lang druk lank op \'n boekmerk in boekmerke lyste om etikette by te voeg of om die boekmerk te verwyder.
-Lang druk die skakels om te kies of u dit in die huidige venster, nuwe venster of spesiale venster wil oopmaak.</string>
-  <string name="help_mynote_title">My Nota</string>
-  <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
-Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
-  <string name="help_bookmarks_title">Boekmerke</string>
-  <string name="help_bookmarks_text">Boekmerke kan bygevoeg word via die vers konteks kieslys.
-
-Die boekmerkbestuurder word via die hoofkieslys verkry.
-Die konteks kieslys van Bookmark Manager laat boekmerke saam met etikette gegroepeer word.</string>
-  <string name="help_search_title">Soek</string>
-  <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
-(sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
-  <string name="help_workspaces_title">Werkruimtes</string>
-  <string name="help_workspaces_text">
-Met werkruimtes kan daar verskeie konteksafhanklike werksomgewings wees. Werkruimtefunksies kan
-verkry word via Werkruimte-item in die keusemenu (regs bo). Vinnige manier om toegang tot 
-werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook vee-links-en-regs-gebare oor die werkbalk gebruik om oor te 
-skakel na vorige / volgende werkruimte.
-</string>
-  <string name="help_hidden_features_title">Verborge kortpaaie</string>
-  <string name="help_hidden_features_text">
-Sweep afwards van die werkbalk om die werkruimte selector te wys.
-Lang druk venster knoppie lank om vinnig te verklein.
-Lang druk die spreek balknoppie om vinnig na praat instellings te gaan.
-Lang druk die vers plek se titel op die werkbalk om na die dokumente keurder te gaan.
-Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
- </string>
-  <string name="help_window_pinning_title">Venster vaspen</string>
-  <string name="help_window_pinning_text">
-Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regs bo).
-As venster vasgespen ontsper is, kan jy baie vasgespende vensters in die Bybel aansig toon,
-maar slegs een nie-vasgespende vester.  Vasgespende vensters, word eerste vertoon en daarna
-on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde vensters, en
- kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
-Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
-ander ekstra materiaal as jy die Bybel bestudeer.</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
   <!--Main menu-->
@@ -574,6 +526,54 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
   <!--History-->
   <string name="history_for">Geskiedenis (%s:Venster %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigasie</string>
+  <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
+ Dubbel druk  op Bybelteks om oor te skakel na die volledige skerm modus 
+ Verdeelte skerms (ook vensters genoem) het die lys knoppie in die regter boonste hoek,
+waarmee jy verskillende venster-spesifieke funksies kan gebruik en vensteruitkyk en -gedrag kan aanpas.</string>
+  <string name="help_contextmenus_title">Konteks Kieslys</string>
+  <string name="help_contextmenus_text">
+Lang druk, in oopgemaakte konteks lys of aksie modus in verskillende aansigte
+Lang druk op die Bybel aansig om die aksie modus te open vir aksies wat die huidige vers beïnvloed.
+Lang druk lank op \'n dokument item in die lys aansig van Kies dokument of laai af om dokument- of inligtinginligting te verwyder.
+Lang druk lank op \'n boekmerk in boekmerke lyste om etikette by te voeg of om die boekmerk te verwyder.
+Lang druk die skakels om te kies of u dit in die huidige venster, nuwe venster of spesiale venster wil oopmaak.</string>
+  <string name="help_mynote_title">My Nota</string>
+  <string name="help_mynote_text">Notas kan bygevoeg word via die My Note kieslys item in die vers konteks kieslys.
+Die lys met bestaande aantekeninge is via die hoofkieslys verkrygbaar.</string>
+  <string name="help_bookmarks_title">Boekmerke</string>
+  <string name="help_bookmarks_text">Boekmerke kan bygevoeg word via die vers konteks kieslys.
+
+Die boekmerkbestuurder word via die hoofkieslys verkry.
+Die konteks kieslys van Bookmark Manager laat boekmerke saam met etikette gegroepeer word.</string>
+  <string name="help_search_title">Soek</string>
+  <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
+(sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
+  <string name="help_workspaces_title">Werkruimtes</string>
+  <string name="help_workspaces_text">
+Met werkruimtes kan daar verskeie konteksafhanklike werksomgewings wees. Werkruimtefunksies kan
+verkry word via Werkruimte-item in die keusemenu (regs bo). Vinnige manier om toegang tot 
+werkruimtes te kry, is deur \'n gebare van die werkbalk af te sleep. U kan ook vee-links-en-regs-gebare oor die werkbalk gebruik om oor te 
+skakel na vorige / volgende werkruimte.
+</string>
+  <string name="help_hidden_features_title">Verborge kortpaaie</string>
+  <string name="help_hidden_features_text">
+Sweep afwards van die werkbalk om die werkruimte selector te wys.
+Lang druk venster knoppie lank om vinnig te verklein.
+Lang druk die spreek balknoppie om vinnig na praat instellings te gaan.
+Lang druk die vers plek se titel op die werkbalk om na die dokumente keurder te gaan.
+Lang druk op die Terug knoppie om toegang tot die geskiedenis lys te kry.
+ </string>
+  <string name="help_window_pinning_title">Venster vaspen</string>
+  <string name="help_window_pinning_text">
+Jy  kan die venster vaspen vanaf die keuse lys (drie kolletjies, regs bo).
+As venster vasgespen ontsper is, kan jy baie vasgespende vensters in die Bybel aansig toon,
+maar slegs een nie-vasgespende vester.  Vasgespende vensters, word eerste vertoon en daarna
+on-gespende vensters. Jy wil miskien Bybeldokumente oopmaak as vasgespelde vensters, en
+ kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
+Bybeldokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
+ander ekstra materiaal as jy die Bybel bestudeer.</string>
   <!--Uncategorized-->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%s (%s)</string>

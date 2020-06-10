@@ -3,55 +3,6 @@
   <string name="app_name_short">Biblia de Estudio</string>
   <string name="app_name_medium">Biblia de Estudio (And Bible)</string>
   <string name="app_name_long">Biblia de Estudio, Proyecto de Código Abierto And Bible</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navegación</string>
-  <string name="help_nav_text">Vaya al capítulo siguiente o anterior desplazando la pantalla con su dedo.
-        Doble toque el texto de la Biblia para cambiar a modo pantalla completa. 
-        Las pantallas divididas (llamadas también ventanas) tienen un botón de menú en la esquina superior derecha,
-        que le permite utilizar varias funciones específicas de la ventana y personalizar el comportamiento y la perspectiva de la ventana.
-</string>
-  <string name="help_contextmenus_title">Menús contextuales</string>
-  <string name="help_contextmenus_text">
-        Realice una presión larga en abre el menú contextual o el modo de acción en varias vistas.
-        Realice presión larga la vista de la Biblia para abrir el modo de acción para acciones que afectan el versículo actual.
-        Realice presión larga un elemento del documento en la vista de lista de Elegir documento o Descargar para eliminar el documento o ver la información.
-        Realice presión larga un marcador en la lista de marcadores para agregar etiquetas o eliminar el marcador.
-        Realice presión larga los enlaces para elegir si desea abrirlos en la ventana actual, nueva ventana o ventana de enlaces especiales.
-</string>
-  <string name="help_mynote_title">Mi nota</string>
-  <string name="help_mynote_text">Se pueden agregar notas a través del elemento de menú \"Mi nota\" en el menú de contexto del versículo.
-La lista de las notas existentes está accesible desde el menú principal.</string>
-  <string name="help_bookmarks_title">Marcadores</string>
-  <string name="help_bookmarks_text">Se pueden agregar marcadores a través del menú contextual del versículo.
-El gestor de marcadores está accesible desde el menú principal.
-El menú contextual del gestor de marcadores permite agrupar los marcadores usando etiquetas.</string>
-  <string name="help_search_title">Búsqueda</string>
-  <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
-(vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
-  <string name="help_workspaces_title">Espacios</string>
-  <string name="help_workspaces_text">
-        Los espacios permiten tener múltiples entornos de trabajo dependientes del contexto. Funciones del espacio
-        se puede acceder a través del elemento de espacios en el menú de opciones (esquina superior derecha). La forma rápida de acceder a espacios es
-        por deslizar hacia abajo desde la barra de herramientas. También puede usar gestos deslizar hacia la izquierda y deslizar hacia la derecha sobre la barra de herramientas para
-        cambiar al espacio anterior / siguiente.
-</string>
-  <string name="help_hidden_features_title">Atajos ocultos</string>
-  <string name="help_hidden_features_text">        Deslice hacia abajo desde la barra de herramientas para mostrar el selector de espacio.
-        Mantenga presionado el botón de la ventana para minimizar rápidamente.
-        Mantenga presionado el botón de la barra de herramientas de hablar para ir rápidamente a la configuración de hablar.
-        Mantenga presionado el título de ubicación del verso en la barra de herramientas para saltar al selector de documentos.
-        Mantenga presionado el botón Atrás para acceder a la lista Historial.
-</string>
-  <string name="help_window_pinning_title">Fijación de ventanas</string>
-  <string name="help_window_pinning_text">
-        Puede habilitar la fijación de ventanas desde el menú de opciones (tres puntos, esquina superior derecha).
-        Si la fijación de ventanas está habilitada, puede mostrar muchas ventanas fijas en la vista de la Biblia,
-        pero solo una ventana no fijado. Las ventanas fijas se muestran primero y luego
-        Ventanas sin fijar. Es posible que desee abrir documentos de la Biblia como ventanas fijas, y
-        comentarios y mapas, etc. como ventanas no fijado. Entonces puedes fácilmente
-        tener documentos Bíblicos siempre abiertos, y cambiar rápidamente entre comentarios y
-        otro material extra cuando estudias la Biblia.
-</string>
   <string name="version_text">Versión %s</string>
   <string name="no_sdcard_error">Por favor inserte una tarjeta SD y reinicie la aplicación.</string>
   <!--Main menu-->
@@ -585,6 +536,55 @@ a través de %s usted mismo. :-)</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
   <!--History-->
   <string name="history_for">Historia (%s: Ventana %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navegación</string>
+  <string name="help_nav_text">Vaya al capítulo siguiente o anterior desplazando la pantalla con su dedo.
+        Doble toque el texto de la Biblia para cambiar a modo pantalla completa. 
+        Las pantallas divididas (llamadas también ventanas) tienen un botón de menú en la esquina superior derecha,
+        que le permite utilizar varias funciones específicas de la ventana y personalizar el comportamiento y la perspectiva de la ventana.
+</string>
+  <string name="help_contextmenus_title">Menús contextuales</string>
+  <string name="help_contextmenus_text">
+        Realice una presión larga en abre el menú contextual o el modo de acción en varias vistas.
+        Realice presión larga la vista de la Biblia para abrir el modo de acción para acciones que afectan el versículo actual.
+        Realice presión larga un elemento del documento en la vista de lista de Elegir documento o Descargar para eliminar el documento o ver la información.
+        Realice presión larga un marcador en la lista de marcadores para agregar etiquetas o eliminar el marcador.
+        Realice presión larga los enlaces para elegir si desea abrirlos en la ventana actual, nueva ventana o ventana de enlaces especiales.
+</string>
+  <string name="help_mynote_title">Mi nota</string>
+  <string name="help_mynote_text">Se pueden agregar notas a través del elemento de menú \"Mi nota\" en el menú de contexto del versículo.
+La lista de las notas existentes está accesible desde el menú principal.</string>
+  <string name="help_bookmarks_title">Marcadores</string>
+  <string name="help_bookmarks_text">Se pueden agregar marcadores a través del menú contextual del versículo.
+El gestor de marcadores está accesible desde el menú principal.
+El menú contextual del gestor de marcadores permite agrupar los marcadores usando etiquetas.</string>
+  <string name="help_search_title">Búsqueda</string>
+  <string name="help_search_text">La búsqueda de texto puede incluir caracteres especiales como *, ?, AND, OR, NOT
+(vea \"Apache Lucene - Query Parser Syntax\" para más detalles)</string>
+  <string name="help_workspaces_title">Espacios</string>
+  <string name="help_workspaces_text">
+        Los espacios permiten tener múltiples entornos de trabajo dependientes del contexto. Funciones del espacio
+        se puede acceder a través del elemento de espacios en el menú de opciones (esquina superior derecha). La forma rápida de acceder a espacios es
+        por deslizar hacia abajo desde la barra de herramientas. También puede usar gestos deslizar hacia la izquierda y deslizar hacia la derecha sobre la barra de herramientas para
+        cambiar al espacio anterior / siguiente.
+</string>
+  <string name="help_hidden_features_title">Atajos ocultos</string>
+  <string name="help_hidden_features_text">        Deslice hacia abajo desde la barra de herramientas para mostrar el selector de espacio.
+        Mantenga presionado el botón de la ventana para minimizar rápidamente.
+        Mantenga presionado el botón de la barra de herramientas de hablar para ir rápidamente a la configuración de hablar.
+        Mantenga presionado el título de ubicación del verso en la barra de herramientas para saltar al selector de documentos.
+        Mantenga presionado el botón Atrás para acceder a la lista Historial.
+</string>
+  <string name="help_window_pinning_title">Fijación de ventanas</string>
+  <string name="help_window_pinning_text">
+        Puede habilitar la fijación de ventanas desde el menú de opciones (tres puntos, esquina superior derecha).
+        Si la fijación de ventanas está habilitada, puede mostrar muchas ventanas fijas en la vista de la Biblia,
+        pero solo una ventana no fijado. Las ventanas fijas se muestran primero y luego
+        Ventanas sin fijar. Es posible que desee abrir documentos de la Biblia como ventanas fijas, y
+        comentarios y mapas, etc. como ventanas no fijado. Entonces puedes fácilmente
+        tener documentos Bíblicos siempre abiertos, y cambiar rápidamente entre comentarios y
+        otro material extra cuando estudias la Biblia.
+</string>
   <!--Uncategorized-->
   <string name="close">Cerrar</string>
   <string name="something_with_parenthesis">%s (%s)</string>

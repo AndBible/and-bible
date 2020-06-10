@@ -3,39 +3,6 @@
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (And Bibel)</string>
   <string name="app_name_long">Bibel+, vom And Bibel Open Source Projekt</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
-Doppeltes Tippen schaltet den Vollbildschirmmodus an und aus.
-Geteilite Bildschirme (auch \"Fenster\" genannt) haben ihr jeweiliges Menü in der rechten oberen Ecke. Dort sind fensterspezifische Funktionen und Anpassungen verfügbar.</string>
-  <string name="help_contextmenus_title">Kontextmenüs</string>
-  <string name="help_contextmenus_text">
-Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
-Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen Vers.
-Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
-Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
-Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
-  <string name="help_mynote_title">Eigene Notiz</string>
-  <string name="help_mynote_text">Notizen können über das \"Eigene Notiz\" Menü innerhalb des Kontextmenüs hinzugefügt werden. Die Liste der vorhandenen Notizen kann über das Hauptmenü angezeigt werden.</string>
-  <string name="help_bookmarks_title">Lesezeichen</string>
-  <string name="help_bookmarks_text">Lesezeichen können über das Kontextmenü hinzugefügt werden. Die Lesezeichenverwaltung wird über das Hauptmenü aktiviert. Die Lesezeichenverwaltung erlaubt das Gruppieren von Lesezeichen über Labels.</string>
-  <string name="help_search_title">Suche</string>
-  <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
-  <string name="help_workspaces_title">Arbeitsbereich</string>
-  <string name="help_workspaces_text">
-Mit Arbeitsbereichen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
-Einstellungen zu Arbeitsbereichen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsbereiche erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsbereich.</string>
-  <string name="help_hidden_features_title">Verborgene Kürzel</string>
-  <string name="help_hidden_features_text">
-Von der Werkzeugleiste herunterwischen, um die Arbeitsbereichsauswahl anzuzeigen.
-Langes Drücken des Fensterknopfes minimiert das Fenster sofort.
-Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
-Langes Drücken der Versauswahl führt zur Dokumentauswahl.
-Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
-  <string name="help_window_pinning_title">Fensterverankerung</string>
-  <string name="help_window_pinning_text">
-Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
-Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
   <!--Main menu-->
@@ -534,6 +501,39 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
   <!--History-->
   <string name="history_for">Chronik (%s: Fenster %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Gehe zum nächsten oder vorhergehenden Kapitel durch Wischen mit dem Finger.
+Doppeltes Tippen schaltet den Vollbildschirmmodus an und aus.
+Geteilite Bildschirme (auch \"Fenster\" genannt) haben ihr jeweiliges Menü in der rechten oberen Ecke. Dort sind fensterspezifische Funktionen und Anpassungen verfügbar.</string>
+  <string name="help_contextmenus_title">Kontextmenüs</string>
+  <string name="help_contextmenus_text">
+Langes Drücken öffnet das Kontextmenü oder Aktionsmenüs in den verschiedensten Ansichten.
+Langes Drücken in der Bibelansicht öffnet ein Aktionsmenü für den aktuellen Vers.
+Langes Drücken auf ein Dokument in der Dokumentenauswahl oder dem Download ermöglicht das Löschen oder Einsehen zusätzlicher Informationen.
+Langes Drücken auf ein Lesezeichen ermöglicht das Hinzufügen zu Gruppen oder das Löschen des Lesezeichens.
+Langes Drücken auf Verweise ermöglicht die Auswahl, den Verweis im gleichen Fenster, einem neuen Fenster oder einem Spezialfenster für Verweise zu öffnen.</string>
+  <string name="help_mynote_title">Eigene Notiz</string>
+  <string name="help_mynote_text">Notizen können über das \"Eigene Notiz\" Menü innerhalb des Kontextmenüs hinzugefügt werden. Die Liste der vorhandenen Notizen kann über das Hauptmenü angezeigt werden.</string>
+  <string name="help_bookmarks_title">Lesezeichen</string>
+  <string name="help_bookmarks_text">Lesezeichen können über das Kontextmenü hinzugefügt werden. Die Lesezeichenverwaltung wird über das Hauptmenü aktiviert. Die Lesezeichenverwaltung erlaubt das Gruppieren von Lesezeichen über Labels.</string>
+  <string name="help_search_title">Suche</string>
+  <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
+  <string name="help_workspaces_title">Arbeitsbereich</string>
+  <string name="help_workspaces_text">
+Mit Arbeitsbereichen können Sie verschiedene unabhängige Arbeitsumgebungen erstellen.
+Einstellungen zu Arbeitsbereichen können über das \"Optionen\" - Menü (rechts oben) erreicht werden. Der Schnellzugriff auf erstellte Arbeitsbereiche erfolgt durch Herunterwischen von der Arbeitsleiste. Wischen nach rechts oder links gibt Zugriff auf den vorherigen bzw. nächsten Arbeitsbereich.</string>
+  <string name="help_hidden_features_title">Verborgene Kürzel</string>
+  <string name="help_hidden_features_text">
+Von der Werkzeugleiste herunterwischen, um die Arbeitsbereichsauswahl anzuzeigen.
+Langes Drücken des Fensterknopfes minimiert das Fenster sofort.
+Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
+Langes Drücken der Versauswahl führt zur Dokumentauswahl.
+Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
+  <string name="help_window_pinning_title">Fensterverankerung</string>
+  <string name="help_window_pinning_text">
+Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
+Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <!--Uncategorized-->
   <string name="close">Schließen</string>
   <string name="something_with_parenthesis">%s (%s)</string>

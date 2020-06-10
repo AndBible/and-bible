@@ -1,48 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Startup & Help-->
-  <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap Bible text to toggle full screen mode.
-        Split screens (called also windows) have a menu button on their top-right corner,
-        which enables you to use several window-specific functions and customize window outlook and behaviour.</string>
-  <string name="help_contextmenus_text">
-        Long pressing opens the context menu or action mode in several views.
-        Long press on the Bible view to open the action mode for actions affecting the current verse.
-        Long press on a document item in list view of Choose Document or Download to delete document or view information.
-        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
-        Long press links to choose if you want to open them in the current window, new window or special links window.
-    </string>
-  <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
-        The list of existing notes can be accessed via the main menu.</string>
-  <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
-        The Bookmark Manager is accessed via the main menu.
-        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
-    </string>
-  <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-        (see \"Apache Lucene - Query Parser Syntax\" for more details)
-    </string>
-  <string name="help_workspaces_text">
-        Workspaces allow having multiple context-dependent working environments. Workspace functions
-        can be accessed via the Workspaces item in the options menu (top-right corner). Quick way to access workspaces is
-        by a swipe-down gesture from the toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
-        switch to previous / next workspace.
-    </string>
-  <string name="help_hidden_features_text">
-        Swipe down from the toolbar to show the workspace selector.
-        Long press the window button to quickly minimize.
-        Long press speak toolbar button to quickly go to speak settings.
-        Long press verse location title in toolbar to jump to document selector.
-        Long press the Back button to access the History list.
-    </string>
-  <string name="help_window_pinning_text">
-        You can enable window pinning from the options menu (three dots, right top corner).
-        If window pinning is enabled, you may show multiple pinned windows on Bible view,
-        but only one non-pinned window. Pinned windows are displayed first, and then
-        unpinned windows. You might want to open Bible documents as pinned windows, and
-        commentaries and maps etc. as non-pinned windows. Then you can easily
-        keep Bible documents open, and quickly switch between commentaries and
-        other extra material when you study the Bible.
-    </string>
   <!--Main menu-->
   <!--Passage navigation-->
   <!--Search-->
@@ -155,5 +112,48 @@
         It is recommended that ordinary Bible readers use stable versions instead.
     </string>
   <!--History-->
+  <!--Help-->
+  <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
+        Double-tap Bible text to toggle full screen mode.
+        Split screens (called also windows) have a menu button on their top-right corner,
+        which enables you to use several window-specific functions and customize window outlook and behaviour.</string>
+  <string name="help_contextmenus_text">
+        Long pressing opens the context menu or action mode in several views.
+        Long press on the Bible view to open the action mode for actions affecting the current verse.
+        Long press on a document item in list view of Choose Document or Download to delete document or view information.
+        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
+        Long press links to choose if you want to open them in the current window, new window or special links window.
+    </string>
+  <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
+        The list of existing notes can be accessed via the main menu.</string>
+  <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
+        The Bookmark Manager is accessed via the main menu.
+        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
+    </string>
+  <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
+        (see \"Apache Lucene - Query Parser Syntax\" for more details)
+    </string>
+  <string name="help_workspaces_text">
+        Workspaces allow having multiple context-dependent working environments. Workspace functions
+        can be accessed via the Workspaces item in the options menu (top-right corner). Quick way to access workspaces is
+        by a swipe-down gesture from the toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
+        switch to previous / next workspace.
+    </string>
+  <string name="help_hidden_features_text">
+        Swipe down from the toolbar to show the workspace selector.
+        Long press the window button to quickly minimize.
+        Long press speak toolbar button to quickly go to speak settings.
+        Long press verse location title in toolbar to jump to document selector.
+        Long press the Back button to access the History list.
+    </string>
+  <string name="help_window_pinning_text">
+        You can enable window pinning from the options menu (three dots, right top corner).
+        If window pinning is enabled, you may show multiple pinned windows on Bible view,
+        but only one non-pinned window. Pinned windows are displayed first, and then
+        unpinned windows. You might want to open Bible documents as pinned windows, and
+        commentaries and maps etc. as non-pinned windows. Then you can easily
+        keep Bible documents open, and quickly switch between commentaries and
+        other extra material when you study the Bible.
+    </string>
   <!--Uncategorized-->
 </resources>

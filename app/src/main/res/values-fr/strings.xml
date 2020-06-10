@@ -3,51 +3,6 @@
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Bible Study (And Bible)</string>
   <string name="app_name_long">Bible Study app, du projet opensource And Bible</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigation</string>
-  <string name="help_nav_text">Passez au chapitre précédent ou au suivant en balayant l\'écran à gauche ou à droite avec votre doigt.
-Tapotez deux fois sur le texte biblique pour activer le mode plein écran.
-Les fenêtres partagées (dans l\'écran) ont un bouton de menu en haut à droite,
-ce qui vous permet d\'utiliser des fonctions spécifiques à une fenêtre ou d\'en modifier son apparence où son comportement.</string>
-  <string name="help_contextmenus_title">Menus contextuels</string>
-  <string name="help_contextmenus_text">
-Un appui long ouvre le menu contextuel ou le mode d\'action dans plusieurs vues.
-Appuyez longuement sur la vue de la Bible pour ouvrir le mode action pour les actions affectant le verset actuel.
-Appuyez longuement sur un élément de document dans la vue de liste de Choisir un document ou Télécharger pour supprimer le document ou afficher les informations.
-Appuyez longuement sur un signet dans la liste des signets pour ajouter des étiquettes ou supprimer un signet.
-Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans la fenêtre actuelle, une nouvelle fenêtre ou une fenêtre de liens spéciaux.</string>
-  <string name="help_mynote_title">Mes notes</string>
-  <string name="help_mynote_text">Les notes s\'ajoutent via l\'option Mes notes du menu contextuel de chaque verset.
-La liste des notes existantes est accessible par le Menu principal.</string>
-  <string name="help_bookmarks_title">Signets</string>
-  <string name="help_bookmarks_text">Vous pouvez ajouter un signet via le menu contextuel du verset.
-Le gestionnaire de signets est accessible par le Menu principal.
-Le menu du gestionnaire des signets permet de classer les signets par étiquettes.</string>
-  <string name="help_search_title">Rechercher</string>
-  <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
- (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
-  <string name="help_workspaces_title">Espaces</string>
-  <string name="help_workspaces_text">
-Les espaces de travail permettent d\'avoir plusieurs environnements de travail dépendant du contexte. Les fonctions de l\'espace de travail
-sont accessibles via l\'élément Espaces de travail dans le menu Options (coin supérieur droit). Un moyen rapide d\'accéder aux espaces de travail est
-de faire glisser votre doigt vers le bas depuis la barre d\'outils. Vous pouvez également utiliser des mouvements de balayage vers la gauche et vers la droite sur la barre d\'outils pour passer à
-l\'espace de travail précédent / suivant.</string>
-  <string name="help_hidden_features_title">Raccourcis cachés</string>
-  <string name="help_hidden_features_text">
-Balayez vers le bas depuis la barre d\'outils pour afficher le sélecteur d\'espace de travail.
-Appuyez longuement sur le bouton de la fenêtre pour minimiser rapidement.
-Appuyez longuement sur le bouton de la barre d\'outils Lecture audio, pour accéder rapidement aux paramètres de lecture audio.
-Appuyez longuement sur le titre de l\'emplacement du verset dans la barre d\'outils pour accéder au sélecteur de documents.
-Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historique.</string>
-  <string name="help_window_pinning_title">Épinglage de fenêtre</string>
-  <string name="help_window_pinning_text">
-Vous pouvez activer l\'épinglage de fenêtre à partir du menu Options (trois points dans le coin supérieur droit).
-Si l\'épinglage de fenêtre est activé, vous pouvez afficher de nombreuses fenêtres épinglées sur la vue de Bible,
-mais une seule fenêtre non épinglée. Les fenêtres épinglées sont affichées en premier, puis
-les fenêtres non épinglées. Vous voudrez peut-être ouvrir des documents bibliques en tant que fenêtres épinglées, et
-des commentaires et des cartes, etc, en tant que fenêtres non épinglées. Ensuite, vous pouvez facilement
-avoir toujours des documents bibliques ouverts et basculez rapidement entre les commentaires et
-d\'autres matériels supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer l\'application.</string>
   <!--Main menu-->
@@ -559,6 +514,51 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
   <!--History-->
   <string name="history_for">Historique (%s: Fenêtre %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigation</string>
+  <string name="help_nav_text">Passez au chapitre précédent ou au suivant en balayant l\'écran à gauche ou à droite avec votre doigt.
+Tapotez deux fois sur le texte biblique pour activer le mode plein écran.
+Les fenêtres partagées (dans l\'écran) ont un bouton de menu en haut à droite,
+ce qui vous permet d\'utiliser des fonctions spécifiques à une fenêtre ou d\'en modifier son apparence où son comportement.</string>
+  <string name="help_contextmenus_title">Menus contextuels</string>
+  <string name="help_contextmenus_text">
+Un appui long ouvre le menu contextuel ou le mode d\'action dans plusieurs vues.
+Appuyez longuement sur la vue de la Bible pour ouvrir le mode action pour les actions affectant le verset actuel.
+Appuyez longuement sur un élément de document dans la vue de liste de Choisir un document ou Télécharger pour supprimer le document ou afficher les informations.
+Appuyez longuement sur un signet dans la liste des signets pour ajouter des étiquettes ou supprimer un signet.
+Appuyez longuement sur les liens pour choisir si vous souhaitez les ouvrir dans la fenêtre actuelle, une nouvelle fenêtre ou une fenêtre de liens spéciaux.</string>
+  <string name="help_mynote_title">Mes notes</string>
+  <string name="help_mynote_text">Les notes s\'ajoutent via l\'option Mes notes du menu contextuel de chaque verset.
+La liste des notes existantes est accessible par le Menu principal.</string>
+  <string name="help_bookmarks_title">Signets</string>
+  <string name="help_bookmarks_text">Vous pouvez ajouter un signet via le menu contextuel du verset.
+Le gestionnaire de signets est accessible par le Menu principal.
+Le menu du gestionnaire des signets permet de classer les signets par étiquettes.</string>
+  <string name="help_search_title">Rechercher</string>
+  <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
+ (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
+  <string name="help_workspaces_title">Espaces</string>
+  <string name="help_workspaces_text">
+Les espaces de travail permettent d\'avoir plusieurs environnements de travail dépendant du contexte. Les fonctions de l\'espace de travail
+sont accessibles via l\'élément Espaces de travail dans le menu Options (coin supérieur droit). Un moyen rapide d\'accéder aux espaces de travail est
+de faire glisser votre doigt vers le bas depuis la barre d\'outils. Vous pouvez également utiliser des mouvements de balayage vers la gauche et vers la droite sur la barre d\'outils pour passer à
+l\'espace de travail précédent / suivant.</string>
+  <string name="help_hidden_features_title">Raccourcis cachés</string>
+  <string name="help_hidden_features_text">
+Balayez vers le bas depuis la barre d\'outils pour afficher le sélecteur d\'espace de travail.
+Appuyez longuement sur le bouton de la fenêtre pour minimiser rapidement.
+Appuyez longuement sur le bouton de la barre d\'outils Lecture audio, pour accéder rapidement aux paramètres de lecture audio.
+Appuyez longuement sur le titre de l\'emplacement du verset dans la barre d\'outils pour accéder au sélecteur de documents.
+Appuyez longuement sur le bouton Retour pour accéder à la liste de l\'historique.</string>
+  <string name="help_window_pinning_title">Épinglage de fenêtre</string>
+  <string name="help_window_pinning_text">
+Vous pouvez activer l\'épinglage de fenêtre à partir du menu Options (trois points dans le coin supérieur droit).
+Si l\'épinglage de fenêtre est activé, vous pouvez afficher de nombreuses fenêtres épinglées sur la vue de Bible,
+mais une seule fenêtre non épinglée. Les fenêtres épinglées sont affichées en premier, puis
+les fenêtres non épinglées. Vous voudrez peut-être ouvrir des documents bibliques en tant que fenêtres épinglées, et
+des commentaires et des cartes, etc, en tant que fenêtres non épinglées. Ensuite, vous pouvez facilement
+avoir toujours des documents bibliques ouverts et basculez rapidement entre les commentaires et
+d\'autres matériels supplémentaires lorsque vous étudiez la Bible.</string>
   <!--Uncategorized-->
   <string name="close">Fermer</string>
   <string name="something_with_parenthesis">%s (%s)</string>

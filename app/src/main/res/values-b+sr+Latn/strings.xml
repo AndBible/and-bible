@@ -3,58 +3,6 @@
   <string name="app_name_short">Učenje Biblije</string>
   <string name="app_name_medium">Učenje Biblije (And Biblija)</string>
   <string name="app_name_long">Učenje Biblije, od \"And Bible Open Source Project\"</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigacija</string>
-  <string name="help_nav_text">Prelazak na sledeće ili prethodno poglavlje prevlačeći prstom po ekranu.
-        Dupli pritisak na tekst u Bibliji kontroliše režim celog ekrana.
-        Podeljeni ekrani (takođe poznati kao prozori) imaju dugme menija u gornjem desnom uglu,
-        ono vam omogućava da upotrebite nekoliko funkcija specifičnih za prozor i prilagodite njegov izgled i ponašanje.
-    </string>
-  <string name="help_contextmenus_title">Kontekstualni meniji</string>
-  <string name="help_contextmenus_text">
-        Dugi pritisak na nekim pregledima otvara kontekstualni meni ili režim radnji.
-        Dugi pritisak na pregledu Biblije otvara režim radnji za radnje koje se odnose na trenutni stih.
-        Dugi pritisak na dokument u pregledu liste Izaberi dokument ili Preuzimanja za brisanje dokumenta ili informacije o dokumentu.
-        Dugi pritisak na obeleživač u listi obeleživača za dodavanje nalepnica ilibrisanje obeleživača.
-        Dugi pritisak na veze za izbor otvaranja u trenutnom prozoru, novom prozoru ili u prozoru za posebne veze.
-    </string>
-  <string name="help_mynote_title">Moja beleška</string>
-  <string name="help_mynote_text">Beleške mogu biti dodate pomoću menija Moje Beleške na kontekstualnom meniju stiha.
-        Spisku postojećih beleški se može pristupiti kroz glavni meni.</string>
-  <string name="help_bookmarks_title">Obeleživači</string>
-  <string name="help_bookmarks_text">Obeleživači mogu biti dodati putem kontekstualnog menija na stihovima.
-        Upravljaču Obeleživača se može pristupiti kroz glavni meni.
-        Kontekst meni Upravljača Obeleživača dozvoljava da obeleživači budu grupisani upotrebom nalepnica.
-    </string>
-  <string name="help_search_title">Pretraga</string>
-  <string name="help_search_text">Tekst za pretragu može sadržati posebne znake kao *, ?, AND, OR, NOT
-        (za više detalja pogledajte \"Apači Lucene - Query Parser sintaksa\")
-    </string>
-  <string name="help_workspaces_title">Radne površi</string>
-  <string name="help_workspaces_text">
-        Radna površina daje mogućnost postojanja više kontekstualnih radnih okruženja. Funkcijama radnih površina
-        može se pristupiti putem Radnih površi u meniju opcija (gornji desni ugao). Brzi način da se pristupi radnim površinama je
-        povlačenjem nadole od linije alatki. Takođe se može koristiti povlačenje nalevo i nadesno preko linije alatki kako bi se
-        prebacili na prethodnu / sledeću radnu površinu.
-    </string>
-  <string name="help_hidden_features_title">Skrivene prečice</string>
-  <string name="help_hidden_features_text">
-        Prevucite nadole od naslovne trake da odaberete radnu površ.
-        Dugo pritisnite dugme prozora da ga lako minimizirate.
-        Dugo pritisnite liniju alatki govora za podešavanja izgovaranja.
-        Dugo pritisnite naslov lokacije stiha da skočite na izbor dokumenata.
-        Dugo pritisnite dugme Nazad da biste pristupili Istoriji.
-    </string>
-  <string name="help_window_pinning_title">Isticanje prozora</string>
-  <string name="help_window_pinning_text">
-        Možete omogućiti isticanje prozora iz menija opcija (tri tačke, gornji desni ugao).
-        Ako je isticanje prozora omogućeno, možete prikazivati mnogo istaknutih prozora na pregledu Biblije,
-        ali samo jedan ne-istaknuti prozor. Istaknuti prozori su prikazani prvi, pa tek onda
-        ne-istaknuti prozori. Mogli biste otvoriti biblijska dokumenta kao istaknute prozore, a
-        komentare i mape itd. kao ne-istaknute prozore. Tada ćete sa lakoćom imati
-        biblijska dokumenta uvek otvorena, i brzo preskakati sa komentara i
-        ostalog dodatnog materijala kada proučavate Bibliju.
-    </string>
   <string name="version_text">Verzija%s</string>
   <string name="no_sdcard_error">Molim ubacite SD karticu i restartujte aplikaciju.</string>
   <!--Main menu-->
@@ -593,6 +541,58 @@
   <string name="beta_notice_dismiss_until_update">Skloni do sledećeg ažuriranja</string>
   <!--History-->
   <string name="history_for">Istorija (%s: Prozor %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigacija</string>
+  <string name="help_nav_text">Prelazak na sledeće ili prethodno poglavlje prevlačeći prstom po ekranu.
+        Dupli pritisak na tekst u Bibliji kontroliše režim celog ekrana.
+        Podeljeni ekrani (takođe poznati kao prozori) imaju dugme menija u gornjem desnom uglu,
+        ono vam omogućava da upotrebite nekoliko funkcija specifičnih za prozor i prilagodite njegov izgled i ponašanje.
+    </string>
+  <string name="help_contextmenus_title">Kontekstualni meniji</string>
+  <string name="help_contextmenus_text">
+        Dugi pritisak na nekim pregledima otvara kontekstualni meni ili režim radnji.
+        Dugi pritisak na pregledu Biblije otvara režim radnji za radnje koje se odnose na trenutni stih.
+        Dugi pritisak na dokument u pregledu liste Izaberi dokument ili Preuzimanja za brisanje dokumenta ili informacije o dokumentu.
+        Dugi pritisak na obeleživač u listi obeleživača za dodavanje nalepnica ilibrisanje obeleživača.
+        Dugi pritisak na veze za izbor otvaranja u trenutnom prozoru, novom prozoru ili u prozoru za posebne veze.
+    </string>
+  <string name="help_mynote_title">Moja beleška</string>
+  <string name="help_mynote_text">Beleške mogu biti dodate pomoću menija Moje Beleške na kontekstualnom meniju stiha.
+        Spisku postojećih beleški se može pristupiti kroz glavni meni.</string>
+  <string name="help_bookmarks_title">Obeleživači</string>
+  <string name="help_bookmarks_text">Obeleživači mogu biti dodati putem kontekstualnog menija na stihovima.
+        Upravljaču Obeleživača se može pristupiti kroz glavni meni.
+        Kontekst meni Upravljača Obeleživača dozvoljava da obeleživači budu grupisani upotrebom nalepnica.
+    </string>
+  <string name="help_search_title">Pretraga</string>
+  <string name="help_search_text">Tekst za pretragu može sadržati posebne znake kao *, ?, AND, OR, NOT
+        (za više detalja pogledajte \"Apači Lucene - Query Parser sintaksa\")
+    </string>
+  <string name="help_workspaces_title">Radne površi</string>
+  <string name="help_workspaces_text">
+        Radna površina daje mogućnost postojanja više kontekstualnih radnih okruženja. Funkcijama radnih površina
+        može se pristupiti putem Radnih površi u meniju opcija (gornji desni ugao). Brzi način da se pristupi radnim površinama je
+        povlačenjem nadole od linije alatki. Takođe se može koristiti povlačenje nalevo i nadesno preko linije alatki kako bi se
+        prebacili na prethodnu / sledeću radnu površinu.
+    </string>
+  <string name="help_hidden_features_title">Skrivene prečice</string>
+  <string name="help_hidden_features_text">
+        Prevucite nadole od naslovne trake da odaberete radnu površ.
+        Dugo pritisnite dugme prozora da ga lako minimizirate.
+        Dugo pritisnite liniju alatki govora za podešavanja izgovaranja.
+        Dugo pritisnite naslov lokacije stiha da skočite na izbor dokumenata.
+        Dugo pritisnite dugme Nazad da biste pristupili Istoriji.
+    </string>
+  <string name="help_window_pinning_title">Isticanje prozora</string>
+  <string name="help_window_pinning_text">
+        Možete omogućiti isticanje prozora iz menija opcija (tri tačke, gornji desni ugao).
+        Ako je isticanje prozora omogućeno, možete prikazivati mnogo istaknutih prozora na pregledu Biblije,
+        ali samo jedan ne-istaknuti prozor. Istaknuti prozori su prikazani prvi, pa tek onda
+        ne-istaknuti prozori. Mogli biste otvoriti biblijska dokumenta kao istaknute prozore, a
+        komentare i mape itd. kao ne-istaknute prozore. Tada ćete sa lakoćom imati
+        biblijska dokumenta uvek otvorena, i brzo preskakati sa komentara i
+        ostalog dodatnog materijala kada proučavate Bibliju.
+    </string>
   <!--Uncategorized-->
   <string name="close">Zatvori</string>
   <string name="something_with_parenthesis">%s (%s)</string>
