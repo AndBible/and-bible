@@ -131,6 +131,7 @@
   <string name="reset_are_you_sure">Вы уверены, что хотите сбросить все значения?</string>
   <string name="window_pinning_menutitle">Закрепления окна</string>
   <string name="hide_window_buttons_title">Скрыть кнопки окна</string>
+  <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются на правой стороне библии, скрыты. Панель навигации по окну, по-прежнему отображается внизу, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
   <string name="font_size_title">Размер шрифта</string>
   <string name="full_screen_hide_buttons_pref_title">Скрыть панель кнопок окна в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_summary">При переключении в полноэкранный режим автоматически скрывать панель кнопок окна, расположенную внизу экрана</string>
@@ -189,6 +190,12 @@
   <string name="one_more_back_press">Еще одно нажатие кнопки назад закроет приложение</string>
   <string name="document_filter_results">%d документов,модулей</string>
   <string name="download_question_title">Вы хотите продолжить загрузку документов?</string>
+  <string name="download_question_message">Если вы живете в стране где преследование,
+возможно, вам нужно быть осторожным при загрузке христианских материалов через Интернет.
+Вместо этого вы можете получить zip-файлы модуля более безопасно и установить их
+через «Загрузить документы из Zip». Вы уверены, что хотите продолжить загрузку?
+Все загрузки из репозиториев модулей зашифрованы (HTTPS).
+    </string>
   <string name="do_not_ask_again">Да, не спрашивать больше</string>
   <string name="recommended_document">Рекомендуемые!</string>
   <string name="about_version_history">История версий: %s</string>
@@ -492,6 +499,8 @@ http://www.heartlight.org, разрешение предоставлено
         Пользователям бета-версии рекомендуется сообщать об ошибках через Google Play или
 (предпочтительно) через %s.
     </string>
+  <string name="beta_notice_content_3">Если вы программист, пожалуйста, рассмотрите возможность
+сами внести исправления ошибки через %s :-)</string>
   <string name="beta_notice_github_issues">Github вопросы</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Отклонить</string>
