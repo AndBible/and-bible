@@ -18,7 +18,12 @@ task npmUpgrade(type: Exec) {
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
+    }
+    else {
+        commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+    }
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
@@ -26,7 +31,12 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
     outputs.dir "bibleview-js/node_modules"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/npm", "install"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/npm.cmd", "install"
+    }
+    else {
+        commandLine "node_modules/.bin/npm", "install"
+    }
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
@@ -36,7 +46,12 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     outputs.file "bibleview-js/dist/loader.js"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/webpack"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/webpack.cmd"
+    }
+    else {
+        commandLine "node_modules/.bin/webpack"
+    }
 }
 
 task buildLoaderJs(type: Copy, dependsOn: webpack) {
