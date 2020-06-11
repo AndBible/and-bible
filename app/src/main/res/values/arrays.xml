@@ -53,7 +53,6 @@
 		<item>@string/lang_azerbaijani</item>
 		<item>@string/lang_bulgarian</item>
 		<item>@string/lang_czech</item>
-		<item>@string/lang_welsh</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
 		<item>@string/lang_esperanto</item>
@@ -103,7 +102,6 @@
 		<item>az</item>
 		<item>bg</item>
 		<item>cs</item>
-		<item>cy</item>
 		<item>de</item>
 		<item>en</item>
 		<item>eo</item>
