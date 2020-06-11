@@ -64,7 +64,6 @@
 		<item>@string/lang_italian</item>
 		<item>@string/lang_kazakh</item>
 		<item>@string/lang_lithuanian</item>
-		<item>@string/lang_malagasy</item>
 		<item>@string/lang_norwegian_bokmal</item>
 		<item>@string/lang_dutch</item>
 		<item>@string/lang_polish</item>
@@ -98,7 +97,6 @@
 		<item>it</item>
 		<item>kk</item>
 		<item>lt</item>
-		<item>mg</item>
 		<item>nb</item>
 		<item>nl</item>
 		<item>pl</item>
