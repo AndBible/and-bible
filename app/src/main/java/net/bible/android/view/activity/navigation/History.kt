@@ -19,6 +19,7 @@ package net.bible.android.view.activity.navigation
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -34,7 +35,6 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.base.SharedActivityState.Companion.currentWorkspaceName
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
-import java.util.*
 import javax.inject.Inject
 
 /** show a history list and allow to go to history item
@@ -66,10 +66,6 @@ class History : ListActivityBase() {
      */
     protected fun createAdapter(): ListAdapter {
         mHistoryItemList = historyManager.history
-       /* val historyTextList: MutableList<CharSequence> = ArrayList()
-        for (item in mHistoryItemList!!) {
-            historyTextList.add(item.description)
-        }*/
         return object:ArrayAdapter<HistoryItem>(this,
             LIST_ITEM_TYPE,
             android.R.id.text1,mHistoryItemList!!){
@@ -78,8 +74,16 @@ class History : ListActivityBase() {
                 val view = super.getView(position, convertView, parent)
                 val text1 = view.findViewById(android.R.id.text1) as TextView
                 val text2 = view.findViewById(android.R.id.text2) as TextView
-                text1.setText(mHistoryItemList!![position].description.toString())
-                text2.setText(mHistoryItemList!![position].createdAt.toString())
+                text1.text = mHistoryItemList!![position].description.toString()
+
+                val sDt = android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
+                text2.text = sDt
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    text2.setTextAppearance(android.R.style.TextAppearance_Small)
+                }
+                else {
+                    text2.setTextAppearance(context,android.R.style.TextAppearance_Small)
+                }
                 return view
 
             }
