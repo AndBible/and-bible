@@ -59,7 +59,6 @@
 		<item>@string/lang_spanish</item>
 		<item>@string/lang_estonian</item>
 		<item>@string/lang_finnish</item>
-		<item>@string/lang_faroese</item>
 		<item>@string/lang_french</item>
 		<item>@string/lang_indonesian</item>
 		<item>@string/lang_italian</item>
@@ -94,7 +93,6 @@
 		<item>es</item>
 		<item>et</item>
 		<item>fi</item>
-		<item>fo</item>
 		<item>fr</item>
 		<item>in</item>
 		<item>it</item>
