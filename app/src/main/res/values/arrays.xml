@@ -81,7 +81,6 @@
 		<item>@string/lang_malayalam</item> <!-- Only displayed if JellyBean+ because that is when the ml font was added to Android -->
 		<item>@string/lang_norwegian_bokmal</item>
 		<item>@string/lang_dutch</item>
-		<item>@string/lang_norwegian_nynorsk</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
 		<item>@string/lang_russian</item>
@@ -136,7 +135,6 @@
 		<item>ml</item>
 		<item>nb</item>
 		<item>nl</item>
-		<item>nn</item>
 		<item>pl</item>
 		<item>pt</item>
 		<item>ru</item>
