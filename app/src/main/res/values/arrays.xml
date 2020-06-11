@@ -50,7 +50,6 @@
 	<string-array name="prefs_interface_locale_descriptions">
 		<item>@string/lang_default</item>
 		<item>@string/lang_afrikaans</item>
-		<item>@string/lang_arabic</item>
 		<item>@string/lang_azerbaijani</item>
 		<item>@string/lang_belarusian</item>
 		<item>@string/lang_bulgarian</item>
@@ -104,7 +103,6 @@
 	<string-array name="prefs_interface_locale_values">
 		<item></item>
 		<item>af</item>
-		<item>ar</item>
 		<item>az</item>
 		<item>be</item>
 		<item>bg</item>
