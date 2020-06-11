@@ -61,7 +61,6 @@
 		<item>@string/lang_finnish</item>
 		<item>@string/lang_faroese</item>
 		<item>@string/lang_french</item>
-		<item>@string/lang_croatian</item>
 		<item>@string/lang_indonesian</item>
 		<item>@string/lang_italian</item>
 		<item>@string/lang_kazakh</item>
@@ -97,7 +96,6 @@
 		<item>fi</item>
 		<item>fo</item>
 		<item>fr</item>
-		<item>hr</item>
 		<item>in</item>
 		<item>it</item>
 		<item>kk</item>
