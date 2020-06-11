@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_short">Proučevanje Biblije</string>
-  <string name="app_name_medium">Proučevanje Biblije (And Bible)</string>
+  <string name="app_name_short">And Biblija</string>
+  <string name="app_name_medium">And Biblija (And Bible)</string>
   <string name="app_name_long">Aplikacija za proučevanje Biblije, avtor projekta And Bible Open Source Project</string>
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Vstavite kartico SD in znova zaženite aplikacijo.</string>
