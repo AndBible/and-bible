@@ -3,10 +3,12 @@ echo tx status // to view
 echo tx pull --force // force download of translations ignoring file dates
 echo tx push -s // push the English source file to Transifex 
 tx pull --force --all
-echo Java uses some legacy language codes for Hebrew and Indonesian 
-cp app/src/main/res/values-he/strings.xml app/src/main/res/values-iw
-cp app/src/main/res/values-id/strings.xml app/src/main/res/values-in
+tx pull --lang en_GB --force --minimum-perc 1
+
+#echo Java uses some legacy language codes for Hebrew and Indonesian
+#cp app/src/main/res/values-he/strings.xml app/src/main/res/values-iw
+#cp app/src/main/res/values-id/strings.xml app/src/main/res/values-in
 
 # Copy english trasnlations in place
-cp app/src/main/res/values-en_GB/strings.xml app/src/main/res/values-en
+#cp app/src/main/res/values-en_GB/strings.xml app/src/main/res/values-en
 

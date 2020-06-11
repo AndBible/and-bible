@@ -1,52 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name_short">Proučevanje Biblije</string>
-  <string name="app_name_medium">Proučevanje Biblije (And Bible)</string>
+  <string name="app_name_short">And Biblija</string>
+  <string name="app_name_medium">And Biblija (And Bible)</string>
   <string name="app_name_long">Aplikacija za proučevanje Biblije, avtor projekta And Bible Open Source Project</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Krmarjenje</string>
-  <string name="help_nav_text">Za naslednje ali prejšnje poglavje s prstom povlečete po zaslonu levo ali desno.
-        Če želite preklopiti celozaslonski način, dvakrat tapnite besedilo.
-        Razdeljeni zasloni (imenovani tudi okna) imajo v zgornjem desnem kotu gumb z menijem,
-        ki omogoča uporabo več funkcij, ki so značilne za okno in prilagodite obris in vedenje okna.
-    </string>
-  <string name="help_contextmenus_title">Kontekstni meni</string>
-  <string name="help_contextmenus_text">
-        Dolg pritisk v več pogledih odpre kontekstni meni ali način delovanja.
-        Dolg pritisk na biblijski pogled odpre akcijski način za dejanja, ki vplivajo na trenutno vrstico.
-        Če želite izbrisati dokument ali si ogledati informacije, na seznamu dolgo pritisnite element dokumenta na seznamu.
-        Dolg pritisk na zaznamek v seznamu zaznamkov, če želite dodati nalepke ali izbrisati zaznamek.
-        Dolg pritisk na povezave, če jih želite odpreti v trenutnem oknu, novem oknu ali posebnem oknu povezav.</string>
-  <string name="help_mynote_title">Moja opomba</string>
-  <string name="help_mynote_text">Opombe se lahko dodajajo preko menija Moja Opomba v vrstici s številkami poglavij.
-        Do seznama obstoječih opomb se lahko dostopa prek glavnega menija.</string>
-  <string name="help_bookmarks_title">Zaznamki</string>
-  <string name="help_bookmarks_text">Zaznamki se lahko dodajajo v vrstici s številkami poglavij.
-        Do upravljalnika zaznamkov se dostopa preko glavnega menija.</string>
-  <string name="help_search_title">Iskanje</string>
-  <string name="help_search_text">
-Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
-        (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").
-    </string>
-  <string name="help_workspaces_title">Delovni prostori</string>
-  <string name="help_workspaces_text">
-        Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
-  <string name="help_hidden_features_title">Skrite bližnjice</string>
-  <string name="help_hidden_features_text">
-        Povlecite navzdol z orodne vrstice, da se prikaže izbirnik delovnega prostora.
-        Dolgo pritisnite gumb za okno, da hitro zmanjšate.
-        Dolgo pritisnite gumb orodne vrstice govori, da hitro odprete nastavitve govora.
-        Dolgo pritisnite naslov vrstice v orodni vrstici, da skočite na izbirnik dokumentov.
-        Dolgo pritisnite gumb Nazaj za dostop do seznama Zgodovina.
-    </string>
-  <string name="help_window_pinning_title">Pripenjanje oken</string>
-  <string name="help_window_pinning_text">
-        V meniju z možnostmi lahko omogočite pripenjanje oken (tri pike, desni zgornji kot).
-        Če je omogočeno pripenjanje oken, lahko na prikazu Biblije prikažete veliko pripetih oken,
-        vendar samo eno nezapeto okno. Najprej se prikažejo pripeta okna in nato
-        odklenjena okna. Morda boste želeli odpreti dokumente iz Biblije kot pripeta okna, 
-        komentarje in zemljevide itd. pa kot neoznačena okna. Potem so vedno odprti dokumenti iz Biblije in hitro preklapljajte med komentarji in
-        drugim dodatnim gradivom, ko preučujete Biblijo.</string>
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Vstavite kartico SD in znova zaženite aplikacijo.</string>
   <!--Main menu-->
@@ -578,6 +534,50 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="beta_notice_dismiss_until_update">Opusti do naslednjega popravka</string>
   <!--History-->
   <string name="history_for">Zgodovina (%s: Okno %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Krmarjenje</string>
+  <string name="help_nav_text">Za naslednje ali prejšnje poglavje s prstom povlečete po zaslonu levo ali desno.
+        Če želite preklopiti celozaslonski način, dvakrat tapnite besedilo.
+        Razdeljeni zasloni (imenovani tudi okna) imajo v zgornjem desnem kotu gumb z menijem,
+        ki omogoča uporabo več funkcij, ki so značilne za okno in prilagodite obris in vedenje okna.
+    </string>
+  <string name="help_contextmenus_title">Kontekstni meni</string>
+  <string name="help_contextmenus_text">
+        Dolg pritisk v več pogledih odpre kontekstni meni ali način delovanja.
+        Dolg pritisk na biblijski pogled odpre akcijski način za dejanja, ki vplivajo na trenutno vrstico.
+        Če želite izbrisati dokument ali si ogledati informacije, na seznamu dolgo pritisnite element dokumenta na seznamu.
+        Dolg pritisk na zaznamek v seznamu zaznamkov, če želite dodati nalepke ali izbrisati zaznamek.
+        Dolg pritisk na povezave, če jih želite odpreti v trenutnem oknu, novem oknu ali posebnem oknu povezav.</string>
+  <string name="help_mynote_title">Moja opomba</string>
+  <string name="help_mynote_text">Opombe se lahko dodajajo preko menija Moja Opomba v vrstici s številkami poglavij.
+        Do seznama obstoječih opomb se lahko dostopa prek glavnega menija.</string>
+  <string name="help_bookmarks_title">Zaznamki</string>
+  <string name="help_bookmarks_text">Zaznamki se lahko dodajajo v vrstici s številkami poglavij.
+        Do upravljalnika zaznamkov se dostopa preko glavnega menija.</string>
+  <string name="help_search_title">Iskanje</string>
+  <string name="help_search_text">
+Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
+        (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").
+    </string>
+  <string name="help_workspaces_title">Delovni prostori</string>
+  <string name="help_workspaces_text">
+        Delovni prostori omogočajo več delovnih okolij, ki so odvisna od vsebine. Do nastavitev delovnega prostora lahko dostopate prek elementa Delovni prostori v meniju z možnostmi (zgornji desni kot s tremi pikami). Hiter način dostopa do delovnih prostorov je poteg navzdol iz zgornjega desnega kota s tremi pikami. Na prejšnji ali naslednji delovni prostor lahko preklopite tudi s potezo vleke v levo ali v desno prek orodne vrstice.</string>
+  <string name="help_hidden_features_title">Skrite bližnjice</string>
+  <string name="help_hidden_features_text">
+        Povlecite navzdol z orodne vrstice, da se prikaže izbirnik delovnega prostora.
+        Dolgo pritisnite gumb za okno, da hitro zmanjšate.
+        Dolgo pritisnite gumb orodne vrstice govori, da hitro odprete nastavitve govora.
+        Dolgo pritisnite naslov vrstice v orodni vrstici, da skočite na izbirnik dokumentov.
+        Dolgo pritisnite gumb Nazaj za dostop do seznama Zgodovina.
+    </string>
+  <string name="help_window_pinning_title">Pripenjanje oken</string>
+  <string name="help_window_pinning_text">
+        V meniju z možnostmi lahko omogočite pripenjanje oken (tri pike, desni zgornji kot).
+        Če je omogočeno pripenjanje oken, lahko na prikazu Biblije prikažete veliko pripetih oken,
+        vendar samo eno nezapeto okno. Najprej se prikažejo pripeta okna in nato
+        odklenjena okna. Morda boste želeli odpreti dokumente iz Biblije kot pripeta okna, 
+        komentarje in zemljevide itd. pa kot neoznačena okna. Potem so vedno odprti dokumenti iz Biblije in hitro preklapljajte med komentarji in
+        drugim dodatnim gradivom, ko preučujete Biblijo.</string>
   <!--Uncategorized-->
   <string name="close">Zapri</string>
   <string name="something_with_parenthesis">%s (%s)</string>
