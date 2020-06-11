@@ -75,7 +75,6 @@
 		<item>@string/lang_slovenian</item>
 		<item>@string/lang_serbian</item>
 		<item>@string/lang_serbian_latin</item>
-		<item>@string/lang_swahili</item>
 		<item>@string/lang_swedish</item>
 		<item>@string/lang_telugu</item>
 		<item>@string/lang_thai</item>
@@ -116,7 +115,6 @@
 		<item>sl</item>
 		<item>sr</item>
 		<item>sr-Latn</item>
-		<item>sw</item>
 		<item>sv</item>
 		<item>te</item>
 		<item>th</item>
