@@ -68,22 +68,17 @@ class History : ListActivityBase() {
         mHistoryItemList = historyManager.history
         return object:ArrayAdapter<HistoryItem>(this,
             LIST_ITEM_TYPE,
-            android.R.id.text1,mHistoryItemList!!){
+            R.id.text1,mHistoryItemList!!){
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
                 val view = super.getView(position, convertView, parent)
-                val text1 = view.findViewById(android.R.id.text1) as TextView
-                val text2 = view.findViewById(android.R.id.text2) as TextView
+                val text1 = view.findViewById(R.id.text1) as TextView
+                val text2 = view.findViewById(R.id.text2) as TextView
                 text1.text = mHistoryItemList!![position].description.toString()
 
                 val sDt = android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
                 text2.text = sDt
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    text2.setTextAppearance(android.R.style.TextAppearance_Small)
-                }
-                else {
-                    text2.setTextAppearance(context,android.R.style.TextAppearance_Small)
-                }
+
                 return view
 
             }
@@ -113,6 +108,6 @@ class History : ListActivityBase() {
 
     companion object {
         private const val TAG = "History"
-        private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_2
+        private const val LIST_ITEM_TYPE = R.layout.simple_list_item_2_modified
     }
 }
