@@ -19,7 +19,6 @@ package net.bible.android.view.activity.navigation
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -28,6 +27,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.TextView
+import android.text.format.DateFormat
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
@@ -76,8 +76,8 @@ class History : ListActivityBase() {
                 val text2 = view.findViewById(R.id.text2) as TextView
                 text1.text = mHistoryItemList!![position].description.toString()
 
-                val sDt = android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
-                text2.text = sDt
+                val formattedDate = DateFormat.format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
+                text2.text = formattedDate
 
                 return view
 
