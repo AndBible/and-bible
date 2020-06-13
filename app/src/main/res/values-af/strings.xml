@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel studie (And Bible)</string>
-  <string name="app_name_long">Bybel Studie toep, deur And Bible Open Source Project</string>
+  <string name="app_name_long">Bybelstudie-toep,deur And Bible Oop bron projek</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
   <!--Main menu-->
