@@ -185,6 +185,8 @@ dependencies {
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
 
+    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
+
     testImplementation project(':db')
 
     // TESTS
