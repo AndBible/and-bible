@@ -91,7 +91,7 @@ android {
             if (propsFile.exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(propsFile))
-                println(props['APP_SUFFIX'])
+                println("App suffix: " + props['APP_SUFFIX'])
 
                 if (props['APP_SUFFIX'] != null) {
                     applicationIdSuffix props['APP_SUFFIX']
