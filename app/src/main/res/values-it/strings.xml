@@ -14,7 +14,7 @@
   <string name="history">Storia</string>
   <string name="speak">Parla/Audio</string>
   <string name="help">Supporto</string>
-  <string name="other">Altri</string>
+  <string name="other">Altro</string>
   <string name="help_and_tips">Aiuto &amp; suggerimenti</string>
   <string name="administration">Amministrazione </string>
   <string name="rate_application">Valuta &amp; la recensione su Google Play</string>
@@ -216,6 +216,11 @@ regolare la larghezza massima del testo.
   <string name="done">Fatto</string>
   <string name="reset">Azzera</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
+  <string name="plan_duplicate_user_plan">
+C\'è un piano di lettura dell\'utente in sdcard
+jsword/readingplan con lo stesso nome di un piano interno. Non può essere elencato qui.
+Rinominare il file con qualcos\'altro, lasciando la sua estensione come .properties
+</string>
   <string name="plan_name_y1ntpspr">NT, Salmi &amp; Proverbi in un anno</string>
   <string name="plan_description_y1ntpspr">
 Per gentile concessione di HEARTLIGHT Internet Magazine,
@@ -310,6 +315,7 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="speak_repeat">Ripeti</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Parla/Audio velocità</string>
+  <string name="speak_and_play_earcons_title">Parla e riproduci suoni per auricolari</string>
   <string name="playback_settings_title">Impostazioni di riproduzione</string>
   <string name="speak_settings_title">Impostazioni generali di Parla/Audio</string>
   <string name="speak_bookmarking_settings_title">Impostazioni dei segnalibri</string>
@@ -324,20 +330,36 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="speak_verse_range_to_repeat">Scegli l\'intervallo di versetti da ripetere</string>
   <string name="speak_ending_verse_must_be_later">Il versetto finale deve essere successivo al verso iniziale</string>
   <string name="conf_speak_auto_bookmark">Segnalibro automatico</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Salva le impostazioni di riproduzione nei segnalibri</string>
   <string name="conf_replace_divinename">Sostituisci il nome divino con Yahweh</string>
   <string name="conf_change_chapter">Modifiche al capitolo</string>
   <string name="conf_change_title">Titoli</string>
   <string name="conf_speak_footnotes">Note a piè di pagina</string>
   <string name="conf_speak_sleep_timer">Imposta il timer di spegnimento</string>
   <string name="sleep_timer_title">Timer di spegnimento in minuti</string>
+  <string name="sleep_timer_set">Imposta il timer di spegnimento. Timer impostato: %d minuti</string>
   <string name="sleep_timer_started">Timer di spegnimento avviato, %dminuti</string>
   <string name="sleep_timer_active_at">Timer di spegnimento: %s minuti rimanenti.</string>
   <string name="speak_next">Successivo</string>
   <string name="speak_previous">Precedente</string>
   <string name="widget_toggle_sleep_timer">Attiva/disattiva il timer di spegnimento</string>
+  <string name="widget_bookmark_helptext">Legge qui i pulsanti di scelta rapida dei segnalibri.</string>
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
+  <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
+  <string name="speak_help_playback_settings">
+Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla/Audio)
+vengono salvati in Parla/Audio segnalibri quando questa impostazione è selezionata.
+Quando si riavvia la conversazione da un segnalibro Parla/Audio, le impostazioni di riproduzione salvate
+vengono caricati dal segnalibro.
+</string>
+  <string name="speak_help_playback_settings_example">
+Ad esempio se stai ascoltando Genesi e Romani e
+desidera ascoltare la Genesi parlata rapidamente senza notifiche di modifica dei capitoli,
+ma per i romani più lentamente con suoni udibili delle cuffie sui cambi di capitolo, quindi
+puoi avere impostazioni di riproduzione diverse per questi libri,
+quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -370,6 +392,10 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="speak_third">Terzo</string>
   <string name="speak_fourth">Quarto</string>
   <string name="speak_fifth">Quinto</string>
+  <string name="verse_range_mode_disabled">
+   La modalità di ripetizione del passaggio è stata disattivata automaticamente perché
+   parlare è stato iniziato al di fuori della gamma di versi definita.
+</string>
   <!--User Notes-->
   <string name="mynotes">I miei appunti</string>
   <string name="mynote_add">Aggiungi il mio appunto</string>
@@ -410,6 +436,21 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <!--Bug reporting-->
   <string name="send_bug_report_title">Segnalare un bug</string>
   <string name="report_bug_email_subject_2">Segnalazione di bug per %s %s</string>
+  <string name="report_bug_email_message">--- SCRIVI IL RAPPORTO DI ERRORI SOPRA QUESTA LINEA ---\n
+Istruzioni:\n
+Dicci brevemente cosa hai fatto / cosa è successo quando si
+è verificato il problema. Esempio:\n
+\n
+1. App aperta \n
+2. Menu della finestra cliccato \n
+-&gt; Crash \n
+\n
+A volte anche lo screenshot è utile per risolvere i problemi.
+Utilizzare questa funzione per segnalare non appena si è notato che si sta verificando.
+Puoi anche utilizzare questa funzione dopo aver aperto l\'app, dopo che si è verificato un arresto anomalo.
+\n\n
+Informazioni sul dispositivo:\n
+%s</string>
   <!--Document types-->
   <string name="doc_type_all">Tutti i tipi</string>
   <string name="doc_type_bible">La Bibbia</string>
@@ -464,6 +505,11 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="workspace_listing_with_current">%s (corrente)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Questa è la versione beta!</string>
+  <string name="beta_notice_content_1">
+  Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate correttamente,
+  e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti, ad esempio bug.
+  Si consiglia invece ai normali lettori biblici di utilizzare la versione stabile.
+</string>
   <string name="beta_notice_content_2">
 Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o
  (preferibilmente) via %s.
@@ -492,7 +538,16 @@ L\'elenco delle note esistenti è accessibile tramite il menu principale.</strin
 È possibile accedere al Gestore di segnalibri tramite il menu principale.
 Il menu di scelta rapida Gestore di segnalibri consente di raggruppare i segnalibri utilizzando le etichette.</string>
   <string name="help_search_title">Ricerca</string>
+  <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
+  (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
+</string>
   <string name="help_workspaces_title"> Spazi di lavoro</string>
+  <string name="help_workspaces_text">
+Gli spazi di lavoro consentono di avere più ambienti di lavoro dipendenti dal contesto. È possibile accedere alle funzioni dello spazio
+ di lavoro tramite la voce Spazi di lavoro nel menu delle opzioni (angolo in alto a destra). Il modo rapido per accedere alle spazi di lavoro è
+quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare i gesti di scorrimento verso sinistra e verso destra sulla barra degli strumenti
+ per passare allo spazio di lavoro precedente / successivo.
+</string>
   <string name="help_hidden_features_title">Scorciatoie nascoste</string>
   <string name="help_hidden_features_text">
  Scorri verso il basso dalla barra degli strumenti per mostrare il selettore dell\'area di lavoro.
