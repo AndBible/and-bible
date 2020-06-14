@@ -132,8 +132,10 @@ regolare la larghezza massima del testo.
   <string name="reset_are_you_sure">Sei sicuro di voler ripristinare tutti i valori?</string>
   <string name="window_pinning_menutitle">Finestra inchiodamento</string>
   <string name="hide_window_buttons_title">Nascondi i pulsanti della finestra</string>
+  <string name="hide_window_buttons_summary">I pulsanti della finestra visualizzati sul lato destro delle viste della Bibbia sono nascosti. La barra di navigazione della finestra in basso è ancora visualizzata e puoi aprire il menu a comparsa della finestra facendo clic a lungo.</string>
   <string name="font_size_title">Dimensione del carattere</string>
   <string name="full_screen_hide_buttons_pref_title">Nascondi la barra dei pulsanti della finestra a schermo intero</string>
+  <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nascondere automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Impostazioni colore</string>
   <string name="window_color_settings_title">Impostazioni del colore della finestra</string>
@@ -215,6 +217,10 @@ regolare la larghezza massima del testo.
   <string name="reset">Azzera</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
   <string name="plan_name_y1ntpspr">NT, Salmi &amp; Proverbi in un anno</string>
+  <string name="plan_description_y1ntpspr">
+Per gentile concessione di HEARTLIGHT Internet Magazine,
+http://www.heartlight.org, autorizzazione concessa
+</string>
   <string name="plan_name_y1ot1nt1_chronological">Cronologia 1 anno attraverso la Bibbia</string>
   <string name="plan_description_y1ot1nt1_chronological">
  Piano basato su eventi cronologici nella Bibbia.
@@ -226,10 +232,22 @@ Leggi la Bibbia in 1 anno, con i capitoli
 in AT e NT ogni giorno.
 </string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 anno attraverso la Bibbia</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Leggi la Bibbia in 1 anno, a partire dalla Genesi
+e finire al\'Apocalisse. L\'AT è prima, poi NT.</string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 anno 4 capitoli/giorno</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">
+Questo piano si basa sul sistema di lettura M’Cheyne,
+con quattro diverse letture da utilizzare sia in famiglia che in devozioni personali. Ogni giorno ha
+due brani dell\'Antico Testamento, uno del Nuovo Testamento e uno dei Salmi o dei Vangeli. In un anno,
+leggi l\'Antico Testamento una volta e il Nuovo Testamento e Salmi due volte.</string>
   <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner Piano di lettura di 10 capitoli/giorni</string>
   <string name="plan_description_y1ot6nt4_profHorner">Per gentile concessione del Prof. Horner, autorizzazione concessa</string>
   <string name="plan_name_y2ot1ntps2">2 anni tramite Bibbia, NT + PS due volte</string>
+  <string name="plan_description_y2ot1ntps2">
+Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi.
+Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, autorizzazione concessa
+</string>
   <!--Document context menu-->
   <string name="delete">Cancella</string>
   <string name="delete_index">Cancella l\'indice di ricerca</string>
@@ -297,20 +315,29 @@ in AT e NT ogni giorno.
   <string name="speak_bookmarking_settings_title">Impostazioni dei segnalibri</string>
   <string name="speak_bookmarks_menu_title">Parla/Audio dal segnalibro</string>
   <string name="speak_advanced_settings">Impostazioni avanzate</string>
+  <string name="speak_sleep_timer_title">Timer di spegnimento</string>
   <string name="speak_no_books_available">Nessun libro disponibile per leggere</string>
   <string name="repeat_passage">Ripeti il ​​passaggio</string>
+  <string name="set_repeat_passage_range">Imposta l\'intervallo di passaggi ripetuti</string>
   <string name="speak_beginning_of_passage">Scegli l\'inizio del passaggio</string>
   <string name="speak_ending_of_passage">Scegli la fine del passaggio</string>
   <string name="speak_verse_range_to_repeat">Scegli l\'intervallo di versetti da ripetere</string>
   <string name="speak_ending_verse_must_be_later">Il versetto finale deve essere successivo al verso iniziale</string>
   <string name="conf_speak_auto_bookmark">Segnalibro automatico</string>
+  <string name="conf_replace_divinename">Sostituisci il nome divino con Yahweh</string>
   <string name="conf_change_chapter">Modifiche al capitolo</string>
   <string name="conf_change_title">Titoli</string>
   <string name="conf_speak_footnotes">Note a piè di pagina</string>
+  <string name="conf_speak_sleep_timer">Imposta il timer di spegnimento</string>
+  <string name="sleep_timer_title">Timer di spegnimento in minuti</string>
+  <string name="sleep_timer_started">Timer di spegnimento avviato, %dminuti</string>
+  <string name="sleep_timer_active_at">Timer di spegnimento: %s minuti rimanenti.</string>
   <string name="speak_next">Successivo</string>
   <string name="speak_previous">Precedente</string>
+  <string name="widget_toggle_sleep_timer">Attiva/disattiva il timer di spegnimento</string>
   <string name="speak_status_stopped">fermato</string>
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
+  <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -353,8 +380,12 @@ in AT e NT ogni giorno.
   <string name="backup_app_database">Backup della banca dati dell\'applicazione su...</string>
   <string name="restore_app_database">Ripristina il banca dati dell\'applicazione da...</string>
   <string name="restore_confirmation">Sovrascrivi i miei appunti, segnalibri, piani di lettura e spazi di lavoro?</string>
+  <string name="restore_success">Le miei Note, segnalibri, piani di lettura e spazi di lavoro ripristinati correttamente</string>
+  <string name="loading_backup">Caricamento dalla banca dati dal backup ...</string>
+  <string name="backup_success">Le mie note, i segnalibri, i piani di lettura e gli spazi di lavoro sono stati sottoposti a backup correttamente da %s.</string>
   <string name="error_no_backup_file">Il file di backup non è stato trovato</string>
   <string name="backup_modules_email_subject_2">%s moduli salvati</string>
+  <string name="backup_modules_email_message_2">In allegato è il backup dei moduli %s, che contiene i seguenti moduli: %s</string>
   <string name="backup_email_subject_2">%sbanca dati salvato</string>
   <string name="backup_email_message_2">La tua  banca dati %s contenente segnalibri, note, piani di lettura e spazi di lavoro è allegato</string>
   <string name="restore_unsuccessfull">Il ripristino della banca dati non ha avuto esito positivo. Forse hai fornito un file di banca dati non valido.</string>
@@ -447,6 +478,11 @@ correzioni tramite %s te stesso. :-)</string>
   <string name="history_for">Cronologia (%s: Finestra %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigazione</string>
+  <string name="help_nav_text">Vai al capitolo successivo o precedente facendo scorrere lo schermo con un dito.
+   Tocca due volte il testo della Bibbia per attivare la modalità a schermo intero.
+   Le schermate divise (chiamate anche finestre) hanno il pulsante menu nell\'angolo in alto a destra,
+   che consente di utilizzare diverse funzioni specifiche della finestra e personalizzare le prospettive e il comportamento della finestra.
+</string>
   <string name="help_contextmenus_title">Menu contestuali</string>
   <string name="help_mynote_title">I miei appunti</string>
   <string name="help_mynote_text">Le note possono essere aggiunte tramite il menu Le mie note nel menu contestuale del versetto.
