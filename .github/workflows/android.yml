@@ -24,31 +24,24 @@ jobs:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: 10.x
 
-    - run: mkdir testModules
-
-    - name: Get modules from cache if exists
-      id: cache-modules
-      uses: actions/cache@v2
-      with:
-        path: testModules
-        key: ${{ runner.os }}-modules
-
-    - name: Cache gradle dependencies etc
+    - name: Cache gradle dependencies, test modules etc
+      id: cache
       uses: actions/cache@v2
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
           ~/.android/build-cache
-        key: ${{ runner.os }}-gradle-caches
+          ~/.sword
+        key: ${{ runner.os }}-cache-20200615 # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
 
     - name: Download test modules if not cached
-      if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testModules/testmods.zip.enc
-
-    - run: openssl enc -in ./testModules/testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
-    - run: mkdir -p $HOME/.sword
-    - run: unzip -o -d $HOME/.sword ./testmods.zip
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testmods.zip.enc
+        openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
+        mkdir -p $HOME/.sword
+        unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle
       run: ./gradlew --console plain build
