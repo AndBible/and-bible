@@ -27,14 +27,23 @@ jobs:
     - run: mkdir testModules
 
     - name: Get modules from cache if exists
-      id: cache
+      id: cache-modules
       uses: actions/cache@v2
       with:
         path: testModules
         key: ${{ runner.os }}-modules
 
-    - name: Download modules if not cached
-      if: steps.cache.outputs.cache-hit != 'true'
+    - name: Cache gradle dependencies etc
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.android/build-cache
+        key: ${{ runner.os }}-gradle-caches
+
+    - name: Download test modules if not cached
+      if: steps.cache-modules.outputs.cache-hit != 'true'
       run: wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testModules/testmods.zip.enc
 
     - run: openssl enc -in ./testModules/testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
@@ -43,3 +52,8 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew --console plain build
+
+    - name: Before cache
+      run: |
+        rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        rm -fr $HOME/.gradle/caches/*/plugin-resolution/
