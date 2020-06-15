@@ -26,8 +26,8 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
-import android.widget.TextView
-import android.text.format.DateFormat
+import android.text.format.DateFormat.format
+import kotlinx.android.synthetic.main.history_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
@@ -68,21 +68,18 @@ class History : ListActivityBase() {
         mHistoryItemList = historyManager.history
         return object:ArrayAdapter<HistoryItem>(this,
             LIST_ITEM_TYPE,
-            R.id.text1,mHistoryItemList!!){
+            R.id.titleText,mHistoryItemList!!){
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
                 val view = super.getView(position, convertView, parent)
-                val text1 = view.findViewById(R.id.text1) as TextView
-                val text2 = view.findViewById(R.id.text2) as TextView
-                text1.text = mHistoryItemList!![position].description.toString()
-
-                val formattedDate = DateFormat.format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
-                text2.text = formattedDate
+                view.titleText.text = mHistoryItemList!![position].description.toString()
+                val formattedDate = format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
+                view.dateText.text = formattedDate
 
                 return view
 
             }
-        }
+    }
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -108,6 +105,6 @@ class History : ListActivityBase() {
 
     companion object {
         private const val TAG = "History"
-        private const val LIST_ITEM_TYPE = R.layout.simple_list_item_2_modified
+        private const val LIST_ITEM_TYPE = R.layout.history_list_item
     }
 }
