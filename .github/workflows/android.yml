@@ -13,20 +13,33 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: set up JDK 1.8
+    - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v1.4.2
+        java-version: 1.8 # later versions not working with roboelectric as of 2020-06-15
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v2-beta # v2-beta adds cacheing
       with:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: 10.x
-    
-    #- name: Setup sword test modules
-    - run: openssl enc -in ./testTools/testmods.zip.enc -out testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
+
+    - run: mkdir testModules
+
+    - name: Get modules from cache if exists
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: testModules
+        key: ${{ runner.os }}-modules
+
+    - name: Download modules if not cached
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testModules/testmods.zip.enc
+
+    - run: openssl enc -in ./testModules/testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
     - run: mkdir -p $HOME/.sword
-    - run: unzip -o -d $HOME/.sword testmods.zip
-    
+    - run: unzip -o -d $HOME/.sword ./testmods.zip
+
     - name: Build with Gradle
       run: ./gradlew --console plain build
