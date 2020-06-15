@@ -86,12 +86,22 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-//		debug {
+        debug {
+            def propsFile = rootProject.file('local.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                println("App suffix: " + props['APP_SUFFIX'])
+
+                if (props['APP_SUFFIX'] != null) {
+                    applicationIdSuffix props['APP_SUFFIX']
+                }
+            }
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 //			zipAlignEnabled true
-//		}
+        }
     }
 
     lintOptions {
@@ -184,6 +194,8 @@ dependencies {
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
+
+    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
 
     testImplementation project(':db')
 

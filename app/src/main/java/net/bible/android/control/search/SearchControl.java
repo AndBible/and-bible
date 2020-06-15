@@ -22,8 +22,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
-import net.bible.android.SharedConstants;
-import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.page.CurrentBiblePage;
@@ -31,7 +29,6 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.service.common.CommonUtils;
@@ -168,7 +165,12 @@ public class SearchControl {
     	
     	// search the current book
         Book book = swordDocumentFacade.getDocumentByInitials(document);
-    	Key result = swordContentFacade.search(book, searchText);
+        Key result = null;
+        try {
+			result = swordContentFacade.search(book, searchText);
+		} catch (BookException e) {
+        	Log.e(TAG, "Error in executing search: " + searchText);
+		}
     	if (result!=null) {
     		int resNum = result.getCardinality();
         	Log.d(TAG, "Number of results:"+resNum);
