@@ -190,6 +190,11 @@ regolare la larghezza massima del testo.
   <string name="one_more_back_press">Un\'ulteriore pressione del pulsante Indietro chiuderà l\'app</string>
   <string name="document_filter_results">%d documenti</string>
   <string name="download_question_title">Vuoi procedere con il scaricamento dei documenti?</string>
+  <string name="download_question_message">Se vivi in un paese perseguitato,
+potresti aver bisogno di stare attento a scaricare materiale cristiano via Internet.
+Invece, potresti voler ottenere i file zip del modulo in modo più sicuro e installarli
+tramite \"Carica documenti da zip\". Sei sicuro di voler procedere con il scaricamento?
+Tutti i scaricamenti dai depositi di moduli sono crittografati (HTTPS).</string>
   <string name="do_not_ask_again">Sì, non chiedere più</string>
   <string name="recommended_document">Consigliato!</string>
   <string name="about_version_history">Cronologia delle versioni: %s</string>
@@ -329,6 +334,7 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="speak_ending_of_passage">Scegli la fine del passaggio</string>
   <string name="speak_verse_range_to_repeat">Scegli l\'intervallo di versetti da ripetere</string>
   <string name="speak_ending_verse_must_be_later">Il versetto finale deve essere successivo al verso iniziale</string>
+  <string name="conf_speak_synchronize">Testo segue l\'audio</string>
   <string name="conf_speak_auto_bookmark">Segnalibro automatico</string>
   <string name="conf_save_playback_settings_to_bookmarks">Salva le impostazioni di riproduzione nei segnalibri</string>
   <string name="conf_replace_divinename">Sostituisci il nome divino con Yahweh</string>
@@ -348,6 +354,11 @@ Per gentile concessione di Wholesome Words, http://www.wholesomewords.org/, auto
   <string name="speak_autobookmarking_disabled">Segnalibri automatici disabilitato!</string>
   <string name="system_speak_settings">Apri le impostazioni del sistema TTS</string>
   <string name="speak_bookmark_help">Legge la guida dei segnalibri</string>
+  <string name="speak_help_auto_bookmark">Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto.
+I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio.
+Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso
+interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette
+saranno lasciate solo.</string>
   <string name="speak_help_playback_settings">
 Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla/Audio)
 vengono salvati in Parla/Audio segnalibri quando questa impostazione è selezionata.
@@ -530,6 +541,12 @@ correzioni tramite %s te stesso. :-)</string>
    che consente di utilizzare diverse funzioni specifiche della finestra e personalizzare le prospettive e il comportamento della finestra.
 </string>
   <string name="help_contextmenus_title">Menu contestuali</string>
+  <string name="help_contextmenus_text">
+Premendo a lungo si apre il menu di scelta rapida o la modalità di azione in diverse viste.
+Premi a lungo sulla vista della Bibbia per aprire la modalità di azione per le azioni che riguardano il versetto attuale.
+Premere a lungo su un elemento del documento nella visualizzazione elenco di Scegli documento o Scarica per eliminare il documento o visualizzare le informazioni.
+Premere a lungo un segnalibro nell\'elenco dei segnalibri per aggiungere etichette o eliminare un segnalibro.
+Premere a lungo i collegamenti per scegliere se si desidera aprirli nella finestra corrente, in una nuova finestra o nella finestra dei collegamenti speciali.</string>
   <string name="help_mynote_title">I miei appunti</string>
   <string name="help_mynote_text">Le note possono essere aggiunte tramite il menu Le mie note nel menu contestuale del versetto.
 L\'elenco delle note esistenti è accessibile tramite il menu principale.</string>

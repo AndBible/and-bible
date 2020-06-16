@@ -585,6 +585,6 @@ http://www.heartlight.org, разрешение предоставлено
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
   <string name="something_with_parenthesis">%s (%s)</string>
-  <string name="first_time_help_do_not_show_again">Я понимаю</string>
+  <string name="first_time_help_do_not_show_again">Понятно</string>
   <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
 </resources>
