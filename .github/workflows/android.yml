@@ -24,19 +24,24 @@ jobs:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: 10.x
 
-    - name: Cache gradle dependencies, test modules etc
-      id: cache
+    - name: Cache gradle dependencies
       uses: actions/cache@v2
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
           ~/.android/build-cache
-          ~/.sword
-        key: ${{ runner.os }}-cache-20200615 # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+
+    - name: Cache test modules
+      id: cache-test-modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.sword
+        key: ${{ runner.os }}-test-modules # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
 
     - name: Download test modules if not cached
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache-test-modules.outputs.cache-hit != 'true'
       run: |
         wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testmods.zip.enc
         openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
@@ -46,7 +51,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew --console plain build
 
-    - name: Before cache
+    - name: Before saving cache
       run: |
         rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
         rm -fr $HOME/.gradle/caches/*/plugin-resolution/
