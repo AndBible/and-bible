@@ -351,26 +351,117 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_autobookmarking_disabled"> ऑटोबोकमार्किंग अक्षम!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिंग्स खोलें</string>
   <string name="speak_bookmark_help">बोलने की बुकमार्क के लिए सहायता</string>
+  <string name="speak_help_auto_bookmark">
+जब आप स्बंपीक द करेंगे तो एक स्पीक बुकमार्क अपने आप जुड़ जाएगा।
+ स्वचालित रूप से जनरेट किए गए बुकमार्क विशेष स्पीक लेबल के साथ लेबल किए जाते हैं।
+ यदि आप एक स्पीक बुकमार्क में शुरू करते हैं, बुकमार्क को उस छंद में ले जाया जाएगा, जहां आप 
+अगली बार रुकेंगे। केवल बोलने वाले लेबल को स्थानांतरित कर दिया जाएगा, किसी भी अन्य लेबल 
+को अकेला छोड़ दिया जाएगा।
+</string>
+  <string name="speak_help_playback_settings">
+विशेष प्लेबैक सेटिंग्स (स्पीक स्क्रीन पर \"प्लेबैक सेटिंग्स\" के नीचे)
+को स्पीक बुकमार्क में सेव किया जाता है, जब यह सेटिंग चुनी जाती है।
+जब आप किसी स्पीक बुकमार्क से बोलना पपुनः आरंभ करते हैं, तो सेव किए गए प्लेबैक सेटिंग्स
+ को बुकमार्क से लोड किया जाता है।
+</string>
+  <string name="speak_help_playback_settings_example">
+उदाहरण के लिए यदि आप उत्पत्ति और रोम सुन रहे हैं और अध्याय परिवर्तन सूचनाओं के बिना जल्दी से बोली जाने वाली उत्पत्ति सुनने की इच्छा रखते हैं
+, लेकिन अध्पयाय परिवर्पतन पर श्रव्य इयरकॉन ध्वनियों के साथ अधिक धीरे-धीरे रोम सुनने के लिए, आपके पास इन पुस्तकों के लिए अलग प्लेबैक सेटिंग्स हो सकती हैं, जब ये सेटिंग्स संबंधित बुकमार्क पर सेव किए जाते हैं।
+</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>भगवान</item>
+    <item>परमेश्वर</item>
+    <item>ईश्वर</item>
+    <item>ख़ुदा</item>
+    <item></item>
+  </string-array>
   <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>यहोवा</item>
+    <item>यहोवा</item>
+    <item>यहोवा</item>
+    <item>यहोवा</item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">पुस्तक बदल गई।</string>
+  <string name="speak_chapter_changed">अध्याय</string>
+  <string name="speak_first"> पहला</string>
+  <string name="speak_second"> दूसरा</string>
+  <string name="speak_third"> तीसरा</string>
+  <string name="speak_fourth"> चौथा</string>
+  <string name="speak_fifth"> पांचवां</string>
+  <string name="verse_range_mode_disabled">
+ पाठ दोहराने वाला मोड को स्वचालित रूप से अक्षम किया गया था क्योंकि बोलना परिभाषित छंद सीमा के बाहर शुरू किया गया था।
+</string>
   <!--User Notes-->
   <string name="mynotes">मेरे टिप्पणीयां</string>
   <string name="mynote_add">टिप्पणी लिखो</string>
-  <string name="mynote_saved">टिप्पणी सुरक्षित </string>
+  <string name="mynote_saved">टिप्पणी सेव हो चुकी हैं</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore"> बैकअप &amp; रिस्टोर</string>
+  <string name="backup_modules">पुस्तक बैकअप करे...</string>
+  <string name="backup_app_database">एप्लिकेशन डेटाबेस बैकअप करे...</string>
+  <string name="restore_app_database">एप्लिकेशन डेटाबेस रिस्टोर करे...</string>
+  <string name="restore_confirmation">मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र ओवरराइट करे?</string>
+  <string name="restore_success"> मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक रिस्टोर किए गए</string>
+  <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
+  <string name="backup_success"> मेरी टिप्पणियाँ, बुकमार्क, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक %s में बैकअप किए गए.</string>
+  <string name="error_no_backup_file">बैकअप फ़ाइल नहीं मिली</string>
+  <string name="backup_modules_email_subject_2">%s मॉड्यूल बैकअप</string>
+  <string name="backup_modules_email_message_2">आपका %s मॉड्यूल बैकअप जुड़ा हुआ है, जिसमें निम्नलिखित मॉड्यूल शामिल हैं: %s</string>
+  <string name="backup_email_subject_2">%s डेटाबेस बैकअप</string>
+  <string name="backup_email_message_2">आपका %s डेटाबेस, जिसमें बुकमार्क्स,  टिप्पणियां, पढ़ने की योजना और कार्यक्षेत्र है, जुड़ा हुआ है</string>
+  <string name="restore_unsuccessfull">डेटाबेस रिस्टोर करना असफल रहा। शायद आपने गलत डेटाबेस फाइल चुना।</string>
+  <string name="backup_restore_title">कहां से रिस्टोर करे?</string>
+  <string name="backup_restore_message">फोन स्टोरेज से रिस्टोर करे या मैन्युअल रूप से बैकअप चुनें (आप गूगल ड्राइव आदि से भी चुन सकते हैं)? </string>
+  <string name="backup_phone_storage">फोन स्टोरेज</string>
+  <string name="backup_manually"> फ़ाइल चुने</string>
+  <string name="backup_backup_title">कहां बैकअप करे?</string>
+  <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
+  <string name="backup_share">शेयर</string>
+  <string name="restore_modules">पुस्तक रिस्टोर करे...</string>
+  <string name="send_backup_file">बैकअप फाइल भेजे</string>
+  <string name="backup_modules_title"> बैकअप के लिए मॉड्यूल का चयन करें</string>
+  <string name="install_zip_canceled">मॉड्यूल का इंस्टॉल होना रद्द</string>
   <!--About-->
+  <string name="module_about_copyright">कॉपीराइट: %s</string>
+  <string name="module_about_installed_version">इंस्टॉल्ड संस्करण: %s(%s) </string>
+  <string name="module_about_latest_version">नवीनतम संस्करण: %s (%s)</string>
+  <string name="module_about_versification">छंद रचना: %s</string>
+  <string name="module_about_repository">वितरण भंडार: %s</string>
+  <string name="module_about_osisId">OSIS IS: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">गलती सूचित करें</string>
+  <string name="report_bug_email_subject_2">%s %s के लिए बग रिपोर्ट</string>
+  <string name="report_bug_email_message">
+---इस लाइन के ऊपर बग रिपोर्ट लिखें --- \n
+निर्देश:\n
+हमें संक्षेप में बताएं कि आपने क्या किया / क्या हुआ जब समस्या हुई?
+उदाहरण के लिए: \n
+\n
+1. जब ऐप खोला \n
+2. जब विंडो मेन्यू क्लिक किया\n
+-&gt; क्रैश\n
+\n
+कभी-कभी स्क्रीनशॉट भी मुद्दों को हल करने में फायदेमंद होता है।
+कृपया इस फ़ंक्शन का उपयोग रिपोर्ट करने के लिए करें जैसे ही आपने देखा कि यह हो रहा है।
+ऐप खोलने के बाद, क्रैश होने के बाद भी आप इस फ़ंक्शन \nqq का उपयोग कर सकते हैं।
+\n\n
+यंत्र की जानकारी: \n
+%s</string>
   <!--Document types-->
-  <string name="doc_type_bible">बाइबल</string>
+  <string name="doc_type_all">सभी प्रकार के</string>
+  <string name="doc_type_bible"> बाइबिल</string>
   <string name="doc_type_commentary">कमेंटरी</string>
   <string name="doc_type_dictionary">शब्दकोश</string>
   <string name="doc_type_book">पुस्तक</string>
@@ -383,18 +474,54 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
   <string name="error">त्रुटि</string>
+  <string name="please_wait">कृपया प्रतीक्षा कीजिये</string>
   <string name="all">संपूर्ण</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="edit"> संपादित करें</string>
+  <string name="watch_tutorial_video"> ट्यूटोरियल वीडियो देखें (अंग्रेजी में)</string>
+  <string name="verse_not_found"> छंद नहीं मिला</string>
   <!--Errors-->
-  <string name="error_occurred">त्रुटि हुई</string>
+  <string name="report_error"> रिपोर्ट भेजो</string>
+  <string name="error_occurred">एक गलती हुई है</string>
+  <string name="error_occurred_with_link"> एक गलती हुई है, %s</string>
   <string name="error_no_content">यह छंद खाली है</string>
   <string name="error_page_too_large">पृष्ठ बहुत बड़ी, लोड नहीं हुई</string>
   <string name="error_key_not_in_document">इस किताब में नहीं मिला</string>
   <string name="empty_list">कुछ मौजूद नहीं</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>
+  <string name="notification_channel_progress_status"> पुस्तक डाउनलोड आदि के प्रगति की स्थिति के लिए नोटिफिकेशन।</string>
   <!--Workspaces-->
+  <string name="new_workspace">नया</string>
+  <string name="switch_to_workspace">कार्यस्थानों</string>
+  <string name="delete_workspace"> हटाना</string>
+  <string name="new_copied_workspace"> नए के रूप में कॉपी करें</string>
+  <string name="workspace_number"> कार्यक्षेत्र %d</string>
+  <string name="rename_workspace">नाम बदले</string>
+  <string name="workspace_selector_title">कार्यक्षेत्र चुने</string>
+  <string name="workspace_settings">सेटिंग्स...</string>
+  <string name="give_name_workspace">नए कार्यक्षेत्र के लिए नाम दें</string>
+  <string name="save_and_exit">सेव करे</string>
+  <string name="workspace_save_changes">कार्यस्थानों में परिवर्तन लागू करें?</string>
+  <string name="copy_of_workspace">%s की कॉपी</string>
+  <string name="copy_workspace_settings">सेटिंग्स कॉपी करे...</string>
+  <string name="copy_settings_title">आप कौन सी सेटिंग्स कॉपी करना चाहते हैं?</string>
+  <string name="select_all">सभी का चयन करे</string>
+  <string name="copy_settings_workspaces_title"> आप किन कार्यक्षेत्रों में सेटिंग्स कॉपी करना चाहते हैं?</string>
+  <string name="reset_settings">रिसेट</string>
   <string name="workspace_dismiss">खारिज करें</string>
+  <string name="workspace_listing_with_current">%s (वर्तमान)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">यह बीटा संस्करण है!</string>
+  <string name="beta_notice_content_1">
+बीटा संस्करण में, नई विशेषताएं हैं जो अभी तक ठीक से परीक्षण नहीं की गई हैं,
+और इस प्रकार बीटा का उपयोग अप्रत्याशित व्यवहार, यानी बग का परिचय दे सकता है।
+हमारी सलाह यह है कि सामान्य बाइबिल पाठक इसके बजाय स्थिर संस्करण का उपयोग करें।
+</string>
+  <string name="beta_notice_content_2">
+ बीटा उपयोगकर्ताओं को गूगल प्ले या %s (बेहतर होगा) के माध्यम से बग रिपोर्ट करने के लिए
+ प्रोत्साहित किया जाता है
+</string>
   <string name="beta_notice_content_3">यदि आप एक प्रोग्रामर हैं, तो कृपया अपने आप %s के माध्यम से बग
  फिक्स में योगदान देने पर विचार करें। :-)</string>
   <string name="beta_notice_github_issues">गिटहब के मुद्दे</string>
@@ -402,17 +529,57 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="beta_notice_dismiss">खारिज करें</string>
   <string name="beta_notice_dismiss_until_update">अगले अद्यतन तक खारिज करे</string>
   <!--History-->
+  <string name="history_for">इतिहास (%s:  विंडो %d)</string>
   <!--Help-->
+  <string name="help_nav_title">नेविगेशन</string>
+  <string name="help_nav_text">अपनी उंगली से स्क्रीन को स्वाइप करके अगले या पिछले अध्याय पर जाएं।
+फुलस्क्रीन मोड को चालू करने के लिए बाइबिल के पाठ को दो बार दबाइए। 
+स्प्लिट स्क्रीन (जिसे विंडोज़ भी कहा जाता है)म के ऊपरी कोने पर मेन्यू बटन होता है,
+जो आपको कई विंडो-विशिष्ट कार्यों का उपयोग करने और विंडो के दृष्टिकोण और व्यवहार को अनुकूलित करने में सक्षम बनाता है।
+</string>
   <string name="help_contextmenus_title"> संदर्भ मेनू</string>
+  <string name="help_contextmenus_text">
+लंबे समय तक दबाने से कई दृश्यों में संदर्भ मेनू या एक्शन मोड खुल जाता है।
+वर्तमान दृश्य को प्रभावित करने वाले कार्यों के लिए एक्शन मोड खोलने के लिए बाईबल व्यू पर लंबे समय तक दबाए।
+पुस्तक को देखने के लिए किसी पुस्तक आइटम को लंबे समय तक दबाए या पुस्तक को देखने के लिए डाउनलोड करें या जानकारी को देखने के लिए डाउनलोड करें।
+लेबल जोड़ने या बुकमार्क हटाने के लिए बुकमार्क सूची में एक बुकमार्क को लंबे समय तक दबाएं।
+यदि आप उन्हें वर्तमान विंडो, नई विंडो या विशेष लिंक विंडो में खोलना चाहते हैं, तो चुनने के लिए लिंक को लंबे समय तक दबाए।
+</string>
   <string name="help_mynote_title">मेरी टिप्पणियाँ</string>
+  <string name="help_mynote_text">टिप्पणियों को छंद संदर्भ मेनू प्रर मेरी टिप्पणियां मेनू आइटम के माध्यम से जोड़ा जा सकता है।
+मौजूदा टिप्पणियों की सूची को मुख्य मेनू के माध्यम से एक्सेस किया जा सकता है।</string>
   <string name="help_bookmarks_title">बुकमार्क</string>
+  <string name="help_bookmarks_text">बुकमार्क को छंद संदर्भ मेनू के माध्यम से जोड़ा जा सकता है।
+बुकमार्क  मैनेजर को मुख्य मेनू के माध्यम से एक्सेस किया जाता है।
+बुकमार्क मैनेजर संदर्भ मेनू बुकमार्क को लेबल का उपयोग करके समूहीकृत करने की अनुमति देता है।
+</string>
   <string name="help_search_title"> खोज</string>
   <string name="help_search_text"> खोज पाठ में *,?,AND,OR,NOT जैसे विशेष वर्ण शामिल हो सकते हैं
 (अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\"  देखें)
 </string>
   <string name="help_workspaces_title"> कार्यस्थानों</string>
+  <string name="help_workspaces_text">
+कार्यक्षेत्र कई संदर्भ-निर्भर काम के वातावरण की अनुमति देते हैं। कार्यक्षेत्र के कार्य
+विकल्प मेन्यू (ऊपरी कोने) में कार्यस्थान आइटम के माध्यम से पहुँचा जा सकता है। कार्यसस्थानों तक पहुंचने का तेज तरीका है टूलबार से नीचे की ओर स्वाइप करें। आप टूलबार पर स्वाइप-लेफ्ट और स्वाइप-राइट जेस्चर का भी उपयोग कर सकते हैं
+पिछले / अगले कार्यक्षेत्र पर स्विच करने के लिए।
+</string>
   <string name="help_hidden_features_title"> छिपे हुए शॉर्टकट</string>
+  <string name="help_hidden_features_text">
+ कार्यक्षेत्र चयनकर्ता को दिखाने के लिए टूलबार से नीचे स्वाइप करें।
+जल्दी से विंडो छोटा करने के लिए विंडो बटन लंबे समय तक दबाए।
+स्पीक टूलबार बटन लंबे समय तक दबाए जल्दी से स्पीक सेटिंग्स में जाने के लिए।
+पुस्तक चयनकर्ता के लिए टूलबार मे छंद स्थान शीर्षक को लंबे समय तक दबाए।
+इतिहास सूची तक पहुँचने के लिए पीछे जाने का बटन को लंबे समय तक दबाएं।
+</string>
   <string name="help_window_pinning_title">विंडो पिनिंग</string>
+  <string name="help_window_pinning_text">
+आप विकल्प मेनू से विंडो पिनिंग सक्षम कर सकते हैं (ऊपरी कोने में तीन डॉट्स)।
+यदि विंडो पिनिंग सक्षम है, तो आप बाईबल दृश्य पर कई पिन की गई विंडो दिखा सकते है
+लेकिन केवल एक बिना -पिन वाली विंडो। पिन की गईं विंडो पहले प्रदर्शित की जाती हैं, और फिर अनपिन किए गए विंडो।
+आप बाइबल की किताबों को पिन वाली विंडो के रूप में खोलना चाह सकते हैं, और
+ बिना -पिन वाली विंडो के रूप में कमेंटरी और नक्शे आदि। ततब आपके पास आसानी से खोले जाने वाले बाइबिल के पुस्तक हो सकते हैं, और जब आप बाइबल का अध्ययन करते हैं तो कमेंट्री और 
+अन्य अतिरिक्त सामग्री के बीच जल्दी से स्विच कर सकते हैं।
+</string>
   <!--Uncategorized-->
   <string name="close">बंद करे</string>
   <string name="something_with_parenthesis">%s (%s)</string>
