@@ -1,0 +1,77 @@
+name: Release apk
+
+on:
+  push:
+    tags: [ build-* ]
+
+jobs:
+  buildApk:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v2-beta # v2-beta adds caching
+      with:
+        # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+        node-version: 10.x
+
+    - name: Cache gradle dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.android/build-cache
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+
+    - name: Create apk release file
+      run: ./gradlew assembleRelease
+
+    - name: Get tag name
+      id: tag_name
+      run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
+    - name: Sign apk
+      env: 
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      run: |
+        cd app/build/outputs/apk/release
+        $ANDROID_HOME/build-tools/29.0.3/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
+        echo ${{ secrets.JKS_BASE64 }} | base64 --decode > keystore.jks
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASS }}' --key-pass 'pass:${{ secrets.KEY_PASS }}' --out $GITHUB_WORKSPACE/andbible-beta-$TAG_NAME.apk app-release-unsigned-aligned.apk
+        rm -f keystore.jks
+        cd $GITHUB_WORKSPACE
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Beta ${{ env.TAG_NAME }}
+
+    - name: Upload Release Apk
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./andbible-beta-${{ env.TAG_NAME }}.apk
+        asset_name: andbible-beta-${{ env.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+
+    - name: Before saving cache
+      run: |
+        rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        rm -fr $HOME/.gradle/caches/*/plugin-resolution/
