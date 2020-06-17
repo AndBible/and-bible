@@ -3,6 +3,7 @@ name: Android CI
 on:
   push:
     branches: [ master ]
+    tags: [ build-* ]
   pull_request:
     branches: [ master ]
 
@@ -50,6 +51,50 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew --console plain build
+
+    # Test complete, create apk etc
+
+    - name: Get tag name
+      id: tag_name
+      run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
+    - name: Create apk release file
+      if: contains(github.ref, 'refs/tags/')
+      run: ./gradlew assembleRelease
+
+    - name: Sign apk
+      if: contains(github.ref, 'refs/tags/')
+      env: 
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      working-directory: ./app/build/outputs/apk/release
+      run: |
+        $ANDROID_HOME/build-tools/29.0.3/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
+        echo ${{ secrets.JKS_BASE64 }} | base64 --decode > keystore.jks
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASS }}' --key-pass 'pass:${{ secrets.KEY_PASS }}' --out $GITHUB_WORKSPACE/andbible-beta-$TAG_NAME.apk app-release-unsigned-aligned.apk
+        rm -f keystore.jks
+
+    - name: Create release
+      if: contains(github.ref, 'refs/tags/')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: Beta ${{ env.TAG_NAME }}
+
+    - name: Upload Release Apk
+      if: contains(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./andbible-beta-${{ env.TAG_NAME }}.apk
+        asset_name: andbible-beta-${{ env.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
 
     - name: Before saving cache
       run: |
