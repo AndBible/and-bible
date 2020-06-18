@@ -2,16 +2,14 @@ name: Android CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, release/* ]
     tags: [ build-*, beta-*, production-* ]
   pull_request:
     branches: [ master ]
 
 jobs:
   build:
-
     runs-on: ubuntu-20.04
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK
@@ -44,8 +42,8 @@ jobs:
     - name: Download test modules if not cached
       if: steps.cache-test-modules.outputs.cache-hit != 'true'
       run: |
-        wget ${{ secrets.DOWNLOAD_TEST_MODULES_PATH }} -O ./testmods.zip.enc
-        openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_KEY }}'
+        wget ${{ secrets.DOWNLOAD_TEST_MODULES_URL }} -O ./testmods.zip.enc
+        openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}'
         mkdir -p $HOME/.sword
         unzip -o -d $HOME/.sword ./testmods.zip
 
@@ -71,8 +69,8 @@ jobs:
       working-directory: ./app/build/outputs/apk/release
       run: |
         $ANDROID_HOME/build-tools/29.0.3/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
-        echo ${{ secrets.JKS_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASS }}' --key-pass 'pass:${{ secrets.KEY_PASS }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned-aligned.apk
+        echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned-aligned.apk
         rm -f keystore.jks
 
     - name: Create release
@@ -80,7 +78,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.AB_GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
         TAG_TYPE: ${{ steps.tag_name.outputs.TAG_TYPE }}
       with:
@@ -91,7 +89,7 @@ jobs:
       if: contains(github.ref, 'refs/tags/')
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.AB_GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
