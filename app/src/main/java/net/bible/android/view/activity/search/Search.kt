@@ -210,16 +210,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
     }
 
-    /** I don't think this is used because of hte finish() in onSearch()
-     * TODO remove
-     */
-    @SuppressLint("MissingSuperCall")
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            returnToPreviousScreen()
-        }
-    }
-
     companion object {
 
         private const val SEARCH_TEXT_SAVE = "Search"
