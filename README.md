@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/AndBible/and-bible.svg?branch=master)](https://travis-ci.org/AndBible/and-bible)
+![Android CI](https://github.com/AndBible/and-bible/workflows/Android%20CI/badge.svg?branch=master)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
 # Bible Study app by And Bible Open Source Project
