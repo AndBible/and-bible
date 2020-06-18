@@ -78,7 +78,7 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.AB_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
         TAG_TYPE: ${{ steps.tag_name.outputs.TAG_TYPE }}
       with:
@@ -89,7 +89,7 @@ jobs:
       if: contains(github.ref, 'refs/tags/')
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.AB_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
