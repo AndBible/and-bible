@@ -32,7 +32,7 @@ object DatabaseResetter {
         // Something is hanging there still due to kotlin coroutines. This seem to help.
         // Sorry, not motivated at this time to investigate this any further if this workaround works.
 
-        Thread.sleep(100)
+        Thread.sleep(200)
         resetSingleton(DatabaseContainer::class.java, "instance")
     }
 
