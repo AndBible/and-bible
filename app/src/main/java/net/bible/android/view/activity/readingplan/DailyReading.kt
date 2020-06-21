@@ -24,6 +24,7 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
@@ -305,6 +306,14 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         startActivity(intent)
 
         isIntegrateWithHistoryManager = wasIntegrateWithhistory
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        if (readingsDto.isDateBasedPlan) {
+            menu.findItem(R.id.setCurrentDay).isVisible = false
+            menu.findItem(R.id.setStartDate).isVisible = false
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     /**
