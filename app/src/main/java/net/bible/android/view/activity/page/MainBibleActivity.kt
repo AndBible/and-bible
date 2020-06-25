@@ -213,6 +213,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             .mainBibleActivityModule(MainBibleActivityModule(this))
             .build()
             .inject(this)
+
+        // use context to setup backup control dirs
+        BackupControl.setupDirs(this)
         // When I mess up database, I can re-create database like this.
         //backupControl.resetDatabase()
 
