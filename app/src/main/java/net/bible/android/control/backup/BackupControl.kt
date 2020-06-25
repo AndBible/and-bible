@@ -303,8 +303,13 @@ class BackupControl @Inject constructor() {
     companion object {
 
         // this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
-        private val internalDbDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/databases/")
-        private val internalDbBackupDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/backup")
+        private lateinit var internalDbDir : File;
+        private lateinit var internalDbBackupDir: File;
+
+        fun setupDirs(context: Context) {
+            internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
+            internalDbBackupDir = File(context.filesDir,  "/backup")
+        }
 
         private val TAG = "BackupControl"
     }
