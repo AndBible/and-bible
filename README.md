@@ -20,7 +20,8 @@ in wiki.
 ## Translators
 
 Everyone is welcome to help translating And Bible to different languages via
-easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
+easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
+to get started.
 
 ## Project responsibilities
 
