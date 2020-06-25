@@ -262,21 +262,22 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
             // check a bible exists in current lang otherwise use english
             var foundBibleInLocalLanguage = false
-            var existingLanguage: Language? = null
-            for (book in allDocuments) {
-                if (book.bookCategory == BookCategory.BIBLE) {
-                    if (localLanguage == book.language) {
-                        foundBibleInLocalLanguage = true
-                        break
-                    }
-                    existingLanguage = book.language
+            var installedLanguage: Language? = null
+            for (book in allDocuments.filter { it.bookCategory == BookCategory.BIBLE }) {
+                if (localLanguage == book.language) {
+                    foundBibleInLocalLanguage = true
+                    break
+                }
+                val installedDoc = swordDocumentFacade.getDocumentByInitials(book.initials)
+                if(installedDoc != null) {
+                    installedLanguage = book.language
                 }
             }
 
             // if no bibles exist in current lang then fall back to one of the languages that have books
             // so the user will not see an initially empty list
             if (!foundBibleInLocalLanguage) {
-                localLanguage = existingLanguage ?: Language.DEFAULT_LANG
+                localLanguage = installedLanguage ?: Language.DEFAULT_LANG
             }
             return localLanguage
         }
