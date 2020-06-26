@@ -121,6 +121,10 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
             }
 
             withContext(Dispatchers.Default) {
+                withContext(Dispatchers.Main) {
+                    isRefreshing = true
+                    invalidateOptionsMenu()
+                }
                 loadRecommendedDocuments()
                 withContext(Dispatchers.Main) {
                     documentItemAdapter = DocumentDownloadItemAdapter(
@@ -154,8 +158,11 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                         populateMasterDocumentList(false)
                     }
                 }
+                withContext(Dispatchers.Main) {
+                    isRefreshing = false
+                    invalidateOptionsMenu()
+                }
             }
-
         }
     }
 
@@ -259,9 +266,11 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         val inflater = menuInflater
         inflater.inflate(R.menu.download_documents, menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
+        menu.findItem(R.id.refresh).isVisible = !isRefreshing
         return true
     }
 
+    private var isRefreshing = false
     /**
      * on Click handlers
      */
@@ -270,6 +279,11 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         when (item.itemId) {
             R.id.refresh -> {
                 // normal user downloading but need to refresh the document list
+                if(isRefreshing) return false
+
+                isRefreshing = true
+                invalidateOptionsMenu()
+
                 freeTextSearch.setText("")
 
                 Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show()
@@ -283,9 +297,12 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                     // update screen
                     withContext(Dispatchers.Main) {
                         notifyDataSetChanged()
+
+                        isRefreshing = false
+                        invalidateOptionsMenu()
+
                     }
                 }
-
 
                 isHandled = true
             }
