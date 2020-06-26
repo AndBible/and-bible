@@ -31,6 +31,7 @@ jobs:
           ~/.gradle/wrapper
           ~/.android/build-cache
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: ${{ runner.os }}-gradle-
 
     - name: Cache test modules
       id: cache-test-modules
