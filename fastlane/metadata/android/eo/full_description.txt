@@ -1,0 +1,32 @@
+Studi Biblion estas malfermkoda, senkonekta kaj tute senpaga aplikaĵo por legi Biblion sen reklamoj por plifaciligi legi, aŭskulti kaj studi la Sanktan Skribon al homoj de ĉiuj landoj kun la plej granda persona beno.
+
+* Biblioj, komentoj, teologiaj vortaroj, mapoj kaj kristanaj libroj en pli ol 700 lingvoj
+* tute senkonekta post unua elŝuto, serĉebla, inkluzivante notojn, komentojn, ktp.
+* pluraj lingvoj de fasado
+* diversaj planoj de legado
+* tute senpaga, neniuj reklamoj
+* Esperanta Londona Biblio
+* komentoj (nedisponeblaj en EO)
+* teologia vortaro kaj kolekto de kristanaj libroj (nedisponeblaj en EO)
+* ĉiuj dokumentoj laŭleĝe distribuataj
+* numeroj de Strong por analizi vortojn en greka kaj hebrea
+* pluraj laborspacoj sur dividita ekrano
+* eblo skribi personajn notojn
+* fleksebla serĉo
+* legosignoj
+* mapoj de bibliaj regionoj
+* aŭskulti iun ajn dokumenton
+* aŭtomataj rulumado kaj taga/nokta reĝimo
+* kompari tradukojn de Biblio sur unu ekrano
+* unu el la plej rapidaj legiloj de Biblio por Androido
+* malfermkoda – analizu, plibonigu aŭ ŝanĝu la fontkodon se vi volas
+* uzas la potencan modulon JSword de CrossWire
+
+Ni ĉiuj estas volontuloj; ni ne sendas turmentajn retleterojn, ne montras tedajn reklamojn; neniam petas pri donacoj; ne petas pri registri; la programo Studi Biblion kolektas neniujn datumojn el via telefono.
+
+La deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj.
+
+<b>Rimarkoj</b>:
+* ŝatu la apon Studi Biblion ĉe <a href="https://www.facebook.com/AndBible/">Facebook</a>
+* plej oftaj demandoj (en la angla) pri la aplikaĵo: <a href="https://github.com/AndBible/and-bible/wiki/FAQ">FAQ</a>
+* projekt‑paĝo ĉe <a href="https://github.com/AndBible/and-bible">GitHub</a>

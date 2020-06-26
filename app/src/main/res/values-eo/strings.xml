@@ -39,7 +39,7 @@
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
-  <string name="no_tasks_running">Nune neniuj taskoj estas lanĉataj.</string>
+  <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
   <string name="search_all_words">ĉiujn vortojn</string>
@@ -130,7 +130,7 @@
   <string name="reset_are_you_sure">Ĉu vi certe volas agordi ĉion al implicitaj valoroj?</string>
   <string name="window_pinning_menutitle">Alpingli fenestron</string>
   <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
-  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de Biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
+  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
   <string name="font_size_title">Grando de tiparo</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
   <string name="full_screen_hide_buttons_pref_summary">Kiam baskuli al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
@@ -163,8 +163,8 @@
   <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
-  <string name="no_verse_notes">Neniuj notoj ekzistas ĉe tiu ĉi verso</string>
+  <string name="no_chapter_notes">Neniu noto ekzistas ĉe tiu ĉi ĉapitro</string>
+  <string name="no_verse_notes">Neniu noto ekzistas ĉe tiu ĉi verso</string>
   <string name="previous">Antaŭa</string>
   <string name="next">Sekva</string>
   <!--Strongs-->
@@ -316,7 +316,7 @@ laŭ ilia permeso.</string>
   <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
   <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
-  <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
+  <string name="speak_no_books_available">Neniu disponebla libro por paroli</string>
   <string name="repeat_passage">Ripeti fragmenton</string>
   <string name="set_repeat_passage_range">Elekti amplekson de fragmento por ripeti</string>
   <string name="speak_beginning_of_passage">Elektu komencon de fragmento</string>
@@ -464,7 +464,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
-  <string name="empty_list">Neniuj elementoj por montri</string>
+  <string name="empty_list">Neniu elemento por montri</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>

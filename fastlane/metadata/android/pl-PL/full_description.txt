@@ -8,7 +8,7 @@ Studium Biblii jest otwartoźródłową, działającą offline, całkowicie bezp
 * Uwspółcześniona Biblia gdańska (2018), Biblia gdańska (1881)
 * komentarze (niedostępne w j. polskim)
 * słowniki teologiczne i kolekcja książek chrześcijańskich (niedostępne w j. polskim)
-* wszystkie dokumenty są rozprowadzane zgodnie z licencją (dlatego nie jest dostępna np. Biblia Tysiąclecia)
+* wszystkie dokumenty są rozprowadzane zgodnie z licencją
 * numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
 * wiele obszarów roboczych i dzielony ekran
 * możliwość umieszczanie notatek osobistych
@@ -24,7 +24,7 @@ Studium Biblii jest otwartoźródłową, działającą offline, całkowicie bezp
 
 Jesteśmy wolontariuszami; nie wysyłamy irytujących el-listów, nie wyświetlamy męczących reklam, nie prosimy o datki, nie prosimy o rejestrację; aplikacja Studium Biblii nie zbiera jakichkolwiek danych z Twojego telefonu.
 
-Pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechniane nie naruszając praw autorskich. Z tego powodu aplikacja nie zawiera  np. Biblii Tysiąclecia.
+Pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechniane nie naruszając praw autorskich.
 
 <b>Uwagi</b>:
 * polub nas na Facebooku: https://www.facebook.com/AndBible/

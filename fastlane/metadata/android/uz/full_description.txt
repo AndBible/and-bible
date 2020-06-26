@@ -1,0 +1,32 @@
+Ushbu Muqaddas Kitob aplikatsiyasi ochib manbalarga asoslangan bo'lib, uni internetsiz o'qish uchun yuklab olsangiz bo'ladi. Uni bepul va hech qanaqa reklamalarsiz tagdim etyapmiz, zero niyatimiz barcha davlatlarda odamlar Muqaddas Kitobni qiyinchiliksiz o'qib, eshitib va mutolaa qilib ulkan marhamatga ega bo'lsinlar.
+
+Muqaddas Kitob, Sharhlar, Teologik Lug'atlar, Haritalar, va 700 tillardagi Masihiylik haqidagi kitoblar.
+Yulab olingandan so'ng, barcha fayllarni, hamda qidiruv, eslatmalar, sharhlar va shunga o'xshaganlarni internetsiz ishlatsa bo'ladi.
+* Interface in multiple languages
+Muqaddas Kitobni o'qish uchun turli xil planlar
+Umuman bepul, reklamalar yo'q, emailning keragi yo'q.
+* Over 40 English Bibles including KJV and NET (ESV used to be here too and we try to get it back, see FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+29 Muqaddas Kitob Sharhlari
+Bir qancha lug'atlar va Masihiylik haqidagi kitoblar
+Barcha fayllar qonun bo'yicha taqdim etilyapti (shu sababli NKJV va NIV yo'q)
+Strong Lug'ati kiritilganligi tufayli Grek va Yahudiy tillaridagi so'zlarni tahlil qilish mumkin
+* Multiple workspaces with split screen
+Eslatmalar kiritish mumkin
+Qidirish qulayliklari mavjud
+Xatcho'plar
+Muqaddas Kitob joylari xaritalari bor
+Har bir matnni eshitish uchun gapirish sozlamasi mavjud
+Matnni avtomatik otkazish, interfeysni avtomatik kun/tunga o'zgartirish mumkin
+Bir ekranda barcha Muqaddas Kitob tarjimalarini solishtirish mumkin
+Androiddagi eng tez Muqaddas Kitob aplikatsiyalaridan biri
+Ochib Manba bo'lgani uchun, xohlasangiz kodga siz ham ijobiy o'zgartirish kiritishingiz mumkin
+CrossWirening kuchli JSworddan foydalandik
+
+Barchamiz ko'ngillilarmiz; sizin bezovta qiladigan emaillar yubormaymiz; jonga tegadigan reklamalar ko'rsatmaymiz; hech qachon pul so'rvmaymiz va olmaymiz; hamda Muqaddas Kitob aplikatsiyasi telefoningizdan hech qanday ma'lumot olmaydi.
+
+The provenance of all documents is thoroughly researched to ensure all documents can be legally distributed or permission has been granted by the copyright holder.  That is also the reason And Bible can not contain documents like NIV and NKJV.
+
+<b>Eslatmalar</b>
+Muqaddas Kitobni Facebookda layk qiling: https://www.facebook.com/AndBible/
+Muqaddas Kitob haqida ma'lumotlarni bu yerda topishingiz mumkin: https://github.com/AndBible/and-bible/wiki/FAQ
+Proyektning Githubdagi sahifasi: https://github.com/AndBible/and-bible
