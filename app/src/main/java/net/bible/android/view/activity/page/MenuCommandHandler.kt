@@ -64,6 +64,7 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -71,6 +72,7 @@ import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DATABASE_NAME
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
@@ -222,11 +224,12 @@ constructor(private val callingActivity: MainBibleActivity,
                         .setTitle(callingActivity.getString(R.string.backup_backup_title))
                         .setMessage(callingActivity.getString(R.string.backup_backup_message))
                         .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) {dialog, which ->
-                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
-                            } else {
-                                backupControl.backupDatabase()
+                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "application/x-sqlite3"
+                                putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
                             }
+                            callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_DB)
                         }
                         .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
                             backupControl.backupDatabaseViaIntent(callingActivity)
@@ -252,23 +255,9 @@ constructor(private val callingActivity: MainBibleActivity,
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.restore_app_database -> {
-                    AlertDialog.Builder(callingActivity)
-                        .setTitle(callingActivity.getString(R.string.backup_restore_title))
-                        .setMessage(callingActivity.getString(R.string.backup_restore_message))
-                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
-                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
-                            } else {
-                                backupControl.restoreDatabase()
-                            }
-                        }
-                        .setPositiveButton(callingActivity.getString(R.string.backup_manually)) { dialog, which ->
-                            val intent = Intent(Intent.ACTION_GET_CONTENT)
-                            intent.type = "application/*"
-                            callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
-                        }
-                        .setNeutralButton(callingActivity.getString(R.string.cancel), null)
-                        .show()
+                    val intent = Intent(Intent.ACTION_GET_CONTENT)
+                    intent.type = "application/*"
+                    callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
                     isHandled = true
                 }
             }
