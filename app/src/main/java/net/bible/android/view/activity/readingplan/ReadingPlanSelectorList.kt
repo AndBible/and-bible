@@ -72,6 +72,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
             finish()
         }
 
+        isIntegrateWithHistoryManager = false
         Log.d(TAG, "Finished displaying Reading Plan list")
     }
 

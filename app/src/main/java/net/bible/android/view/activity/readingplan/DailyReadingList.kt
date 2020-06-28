@@ -61,6 +61,7 @@ class DailyReadingList : ListActivityBase() {
 
         listView.isFastScrollEnabled = true
 
+        isIntegrateWithHistoryManager = false
         Log.d(TAG, "Finished displaying Search view")
     }
 
