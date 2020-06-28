@@ -5,7 +5,7 @@ on:
     branches: [ master, release/* ]
     tags: [ build-*, beta-*, production-* ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, release/* ]
 
 jobs:
   build:
