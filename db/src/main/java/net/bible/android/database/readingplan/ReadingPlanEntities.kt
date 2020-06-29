@@ -35,7 +35,7 @@ class ReadingPlanEntities {
         @ColumnInfo(name = "plan_code") val planCode: String,
         @ColumnInfo(name = "plan_start_date") var planStartDate: Date,
         @ColumnInfo(name = "plan_current_day", defaultValue = "1") var planCurrentDay: Int = 1,
-        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
+        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = null
     )
 
     @Entity(tableName = "readingplan_status",
@@ -45,6 +45,6 @@ class ReadingPlanEntities {
         @ColumnInfo(name = "plan_code") val planCode: String,
         @ColumnInfo(name = "plan_day") val planDay: Int,
         @ColumnInfo(name = "reading_status") val readingStatus: String,
-        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = 0
+        @PrimaryKey(autoGenerate = true) @ColumnInfo(name="_id") val id: Int? = null
     )
 }
