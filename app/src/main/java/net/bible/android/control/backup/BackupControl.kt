@@ -21,7 +21,6 @@ package net.bible.android.control.backup
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 
 import net.bible.android.BibleApplication
@@ -102,19 +101,14 @@ class BackupControl @Inject constructor() {
         val filename = DATABASE_NAME;
         val f = File(internalDbDir, filename);
         val inputStream = FileInputStream(f)
-        val header = ByteArray(16)
-        inputStream.read(header)
-        var ok = false
-        if (String(header) == "SQLite format 3\u0000") {
-            ok = true
-            try {
-                out.write(header)
-                out.write(inputStream.readBytes())
-                out.close()
-            } catch (ex: IOException) {
-                Log.e(TAG, ex.message)
-                ok = false
-            }
+
+        var ok = true
+        try {
+            out.write(inputStream.readBytes())
+            out.close()
+        } catch (ex: IOException) {
+            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+            ok = false
         }
 
         if (ok) {
