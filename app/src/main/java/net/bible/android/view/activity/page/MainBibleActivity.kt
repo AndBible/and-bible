@@ -1155,7 +1155,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 mainBibleActivity.windowRepository.saveIntoDb()
                 DatabaseContainer.db.sync()
                 GlobalScope.launch(Dispatchers.IO) {
-                   backupControl.backupDatabase(data!!.data!!)
+                    backupControl.backupDatabaseToUri(data!!.data!!)
                 }
             }
             WORKSPACE_CHANGED -> {
@@ -1295,6 +1295,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
+            BACKUP_SAVE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                backupControl.backupDatabase()
+            } else {
+                Dialogs.instance.showMsg(R.string.error_occurred)
+            }
+            BACKUP_RESTORE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                backupControl.restoreDatabase()
+            } else {
+                Dialogs.instance.showMsg(R.string.error_occurred)
+            }
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     documentControl.enableManualInstallFolder()
@@ -1431,6 +1441,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         const val COLORS_CHANGED = 5
         const val WORKSPACE_CHANGED = 6
         const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 7
+
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

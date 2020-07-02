@@ -488,12 +488,10 @@
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
-    <!-- TODO remove if no longer necessary
     <string name="backup_restore_title">Restore from where?</string>
     <string name="backup_restore_message">Restore from phone storage or pick backup file manually (you can choose also from Google Drive etc.)?</string>
-    <string name="backup_manually">Pick file</string>
-    -->
     <string name="backup_phone_storage">Phone storage</string>
+    <string name="backup_manually">Pick file</string>
     <string name="backup_backup_title">Backup to where?</string>
     <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
     <string name="backup_share">Share</string>
