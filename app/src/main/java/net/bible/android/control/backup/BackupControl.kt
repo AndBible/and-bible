@@ -122,9 +122,9 @@ class BackupControl @Inject constructor() {
         return ok;
     }
 
-    /** backup database to custom target (email, drive etc.)
+    /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
      */
-    fun backupDatabaseViaIntent(callingActivity: Activity) {
+    fun backupDatabaseViaSendIntent(callingActivity: Activity) {
         mainBibleActivity.windowRepository.saveIntoDb()
         db.sync()
         val fileName = DATABASE_NAME

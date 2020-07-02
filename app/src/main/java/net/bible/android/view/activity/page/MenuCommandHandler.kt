@@ -44,9 +44,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.report.ErrorReportControl
@@ -65,7 +62,6 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_R
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
-import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -232,7 +228,7 @@ constructor(private val callingActivity: MainBibleActivity,
                                 }
                             }
                             .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-                                backupControl.backupDatabaseViaIntent(callingActivity)
+                                backupControl.backupDatabaseViaSendIntent(callingActivity)
                             }
                             .setNeutralButton(callingActivity.getString(R.string.cancel), null)
                             .show()
