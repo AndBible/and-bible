@@ -129,6 +129,7 @@
   <string name="hide_window_buttons_title">Ablakvezérlő gombok elrejtése</string>
   <string name="font_size_title">Betűméret</string>
   <string name="full_screen_hide_buttons_pref_title">Ablakvezérlő gombok sávjának elrejtése teljes képernyős módban</string>
+  <string name="full_screen_hide_buttons_pref_summary">Ablakvezérlőgombok elrejtése teljesképernyős módban</string>
   <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Színbeállítások</string>
   <string name="window_color_settings_title">Ablak színeinek beállítása</string>
@@ -215,6 +216,31 @@ Minden letöltés titkosított kapcsolaton (HTTPS) keresztül történik.</strin
   <string name="done">Kész</string>
   <string name="reset">Visszaállítás</string>
   <string name="reset_plan_question">Biztos, hogy űjrakezdi ezt az olvasási tervet?</string>
+  <string name="plan_duplicate_user_plan">
+Olvasási terv található az sd kártyán
+ugyanazzal a névvel mint az alkalmazás belső
+olvasási terve. Ez a terv itt nem jeleníthető meg.
+Nevezze át a fájlt, figyelve rá, hogy a 
+kiterjesztése .properties maradjon.</string>
+  <string name="plan_name_y1ntpspr">Újszövetség, Zsoltárok és a Példabeszédek könyve egy év alatt</string>
+  <string name="plan_description_y1ntpspr">
+A HEARTLIGHT Internet Managazine engedélyével,
+http://www.heartlight.org</string>
+  <string name="plan_name_y1ot1nt1_chronological">A teljes Biblia kronologikus sorrendben egy év alatt</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+A bibliai események hozzávetőleges sorrendjét követő olvasási terv.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">Ó- és Újszövetség párhuzamosan egy év alatt</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+A teljes Biiblia egy év alatt, fejezetekkel az Ó- és Újszövetségből minden nap.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">A teljes Biblia elolvasása egy év alatt</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+A teljes Biblia elolvasása egy év alatt, a Teremtéstől a Jelenések könyvéig.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cneyne éves terv, napi négy fejezet elolvasása</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">Ez az olvasási terv a M’Cheyne olvsási rendszeren alapszik,
+amely négy családi és személyes olvasmányt tartalmaz.
+Minden nap két részlet a Ószövetségből, egy az Újszövetségből 
+és még egy a Zsoltárok könyvéből vagy az evangéliumokból.
+Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltárokat kétszer veszi végig.</string>
   <!--Document context menu-->
   <string name="delete">Törlés</string>
   <string name="delete_index">Keresési index törlése</string>
