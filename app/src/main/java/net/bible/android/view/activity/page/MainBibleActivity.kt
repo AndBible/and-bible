@@ -1151,6 +1151,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     }
                 }
             }
+            REQUEST_PICK_FILE_FOR_BACKUP_DB -> {
+                mainBibleActivity.windowRepository.saveIntoDb()
+                DatabaseContainer.db.sync()
+                GlobalScope.launch(Dispatchers.IO) {
+                    backupControl.backupDatabaseToUri(data!!.data!!)
+                }
+            }
             WORKSPACE_CHANGED -> {
                 val extras = data?.extras
                 val workspaceId = extras?.getLong("workspaceId")
@@ -1433,6 +1440,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
         const val COLORS_CHANGED = 5
         const val WORKSPACE_CHANGED = 6
+        const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 7
+
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

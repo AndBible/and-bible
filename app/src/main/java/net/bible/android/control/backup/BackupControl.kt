@@ -35,6 +35,7 @@ import net.bible.service.common.FileManager
 
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
+import android.net.Uri
 import android.widget.Button
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +57,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -91,6 +93,39 @@ class BackupControl @Inject constructor() {
             Log.e(TAG, "Error copying database to internal memory")
             Dialogs.instance.showErrorMsg(R.string.error_occurred)
         }
+    }
+
+    /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
+     */
+    fun backupDatabaseToUri( uri: Uri) : Boolean {
+        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
+        val filename = DATABASE_NAME;
+        val f = File(internalDbDir, filename);
+        val inputStream = FileInputStream(f)
+        val header = ByteArray(16)
+        inputStream.read(header)
+        var ok = false
+        if (String(header) == "SQLite format 3\u0000") {
+            ok = true
+            try {
+                out.write(header)
+                out.write(inputStream.readBytes())
+                out.close()
+            } catch (ex: IOException) {
+                Log.e(TAG, ex.message)
+                ok = false
+            }
+        }
+
+        if (ok) {
+            Log.d(TAG, "Copied database to chosen backup location successfully")
+            Dialogs.instance.showMsg(R.string.backup_success, uri.path)
+        } else {
+            Log.e(TAG, "Error copying database to chosen location.")
+            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+        }
+
+        return ok;
     }
 
     /** backup database to custom target (email, drive etc.)
