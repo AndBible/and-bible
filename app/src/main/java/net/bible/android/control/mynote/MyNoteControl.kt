@@ -27,6 +27,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.limitTextLength
@@ -59,6 +60,7 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
 
     fun showNoteView(noteDto: MyNoteDto) {
         currentPageManager.showMyNote(noteDto.verseRange)
+        MainBibleActivity.mainBibleActivity.updateActions()
     }
 
     fun getMyNoteVerseKey(myNote: MyNoteDto): String {
