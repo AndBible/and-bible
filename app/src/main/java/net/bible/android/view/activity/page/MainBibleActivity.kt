@@ -177,7 +177,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = if(isFullScreen && actionMode == null) 0 else field
 
     private var bottomOffset1 = 0
-        get() = if(isFullScreen) 0 else field
+        get() = if(isFullScreen || multiWinMode) 0 else field
 
     var rightOffset1 = 0
         get() = if(isFullScreen) 0 else field
@@ -853,7 +853,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val menu = PopupMenu(this, v)
         val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
         docs.forEachIndexed { i, book ->
-            if(currentDocument != book) {
+            if(documentControl.isMyNotes || currentDocument != book) {
                 menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
             }
         }
