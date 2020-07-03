@@ -169,6 +169,8 @@ class SplitBibleArea(
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         lastSplitVertically = isSplitVertically
+        if(firstTime)
+            updateRestoreButtons()
     }
 
     private fun removeSeparators() {
