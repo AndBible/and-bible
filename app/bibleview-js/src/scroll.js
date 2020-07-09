@@ -69,7 +69,6 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     if(delta !== toolbarOffset) {
         toolbarOffset = delta;
     }
-
     const toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
 
     if (toElement != null) {
@@ -78,6 +77,8 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
             now = true;
         }
         console.log("Scrolling to", toElement, toElement.offsetTop - delta);
+        const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
+        delta += lineHeight*0.15;
         if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
         }
