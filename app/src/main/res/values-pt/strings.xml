@@ -31,7 +31,7 @@
   <string name="create_index_for">É necessário um índice para poder usar a página de procura \n\nCreate index for %s?</string>
   <string name="rebuild_index_for">Reconstruir índice para %s?</string>
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a página de procura.</string>
-  <string name="index_create">Criar índice</string>
+  <string name="index_create">Criar</string>
   <string name="rebuild_index">Reconstruir índice</string>
   <string name="search_in">Encontrar em %s</string>
   <string name="do_in_background">Continuar em segundo plano</string>
@@ -41,7 +41,7 @@
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outra aplicação antes que elas terminem.</string>
   <string name="no_tasks_running">Não há tarefas sendo executadas.</string>
   <!--Search-->
-  <string name="search_words_group_prompt">Pesquisar versículos</string>
+  <string name="search_words_group_prompt">Encontrar versículos</string>
   <string name="search_all_words">Todas as palavras</string>
   <string name="search_any_word">Qualquer palavra</string>
   <string name="search_phrase">Frase</string>
@@ -57,7 +57,7 @@
   <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo na sua linha</string>
   <string name="prefs_show_bookmarks_summary">Apague seleção para esconder favoritos</string>
-  <string name="prefs_show_mynotes_summary">Mostrar o icon nos versículos com As Minhas Notas</string>
+  <string name="prefs_show_mynotes_summary">Mostrar o icon nos versículos com As Minhas Anotações</string>
   <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_summary">Ligação para definições em Grego e Hebreu</string>
   <string name="prefs_show_morphology_summary">Mostrar a morfologia em Grego de Robinson</string>
@@ -66,8 +66,8 @@
   <string name="prefs_text_size_title">Preferências para o tipo de letra</string>
   <string name="prefs_show_verseno_title">Números dos versículos</string>
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
-  <string name="prefs_show_bookmarks_title">Mostrar favoritos.</string>
-  <string name="prefs_default_bookmark_style_title">Estilo padrão para os favoritos</string>
+  <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
+  <string name="prefs_default_bookmark_style_title">Estilo padrão para os marcadores</string>
   <string name="prefs_default_bookmark_style_summary">Realçar cor ou icon</string>
   <string name="prefs_show_mynotes_title">Mostrar ícones das Minhas Notas</string>
   <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
@@ -85,15 +85,15 @@
   <string name="prefs_navigate_to_verse_title">Navegue até o versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionar uma passagem</string>
   <string name="prefs_open_links_in_special_window_title">Abrir atalhos numa janela especial</string>
-  <string name="prefs_open_links_in_special_window_summary">Para uma rápida exibição deasreferências cruzadas e números segundo Strong</string>
+  <string name="prefs_open_links_in_special_window_summary">Para uma rápida exibição das referências cruzadas e números segundo Strong</string>
   <string name="prefs_text_size_summary">Ajustar o tipo e tamanho de letra</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
   <string name="prefs_screen_keep_on_title">Manter o ecran ligado</string>
   <string name="prefs_screen_keep_on_summary">Impedir que o ecran se desligue enquanto usa esta aplicação</string>
-  <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
+  <string name="prefs_interface_locale_title">Idioma do aplicação</string>
   <string name="prefs_interface_locale_summary">Selecione o idioma de preferência para a interface do utilizador</string>
   <string name="reset_fontsize">Reíniciar</string>
-  <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualamente</string>
+  <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Permitir o uso de documentos instalados manualmente no armazenamento interno a partir da pasta jsword/sword</string>
   <string name="all_text_options_window_menutitle">Todas as opções de texto</string>
   <string name="text_options_window_menutitle">Opções de texto</string>
@@ -101,7 +101,7 @@
   <string name="reversed_split_mode">Inversão do modo repartido</string>
   <string name="add_ellipsis">%s</string>
   <string name="font_size_pt">%dpt</string>
-  <string name="auto_fullscreen_summary">Maximizar ecran quando arrastar texto para cima/baixo. Dica: pode sempre maximizar o ecran tocando duas vezes </string>
+  <string name="auto_fullscreen_summary">Maximizar ecran automátcamente quando arrastar texto para cima/baixo. Dica: pode sempre maximizar o ecran tocando duas vezes </string>
   <string name="prefs_margin_size_title">Alterar o tamanho das margens</string>
   <string name="prefs_margin_size_mm_title">Tamanho das margens (%d/%d/%dmm)</string>
   <string name="prefs_advanced_settings_cat">Opções avançadas</string>
@@ -158,7 +158,7 @@
   <string name="move_window">Mover para</string>
   <string name="move_window_to_position2">Posição %d(%s:%s)</string>
   <string name="copy_settings">Copiar definições para</string>
-  <string name="copy_settings_to_workspace">Área de trabalho</string>
+  <string name="copy_settings_to_workspace">Ambiente de trabalho</string>
   <string name="copy_settings_to_window">Janela %d(%s:%s)</string>
   <string name="change_to_normal">Mudar para janela normal</string>
   <string name="window_pin_mode">Fixar</string>
@@ -168,7 +168,7 @@
   <string name="previous">Anterior</string>
   <string name="next">Próximo</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Por favor instale os dicionários Strong em hebraico e grego</string>
+  <string name="strongs_not_installed">Por favor instale os dicionários Strong em Hebraico e Grego</string>
   <string name="all_greek_occurrences">Encontrar todas as ocorrências</string>
   <string name="all_hebrew_occurrences">Encontrar todas as ocorrências</string>
   <string name="no_indexed_bible_with_strongs_ref">Você deve fazer o download de uma bíblia contendo números do dicionário Strong e fazer o download do índice através da Pesquisa</string>
@@ -188,7 +188,7 @@
   <string name="chooce_language_hint">Idioma</string>
   <string name="one_more_back_press">Mais um toque no botão \"voltar para trás\" fecha o aplicativo</string>
   <string name="document_filter_results">%ddocumentos</string>
-  <string name="download_question_title">Dseja avançar para o download de documentos?</string>
+  <string name="download_question_title">Deseja avançar para o download de documentos?</string>
   <string name="download_question_message">Se vive num país perseguido,
 pode ser necessário ter cuidado ao fazerb download de material cristão via Internet.
 Em vez disso, convém obter os arquivos zip do módulo com mais segurança e instalá-los
@@ -199,7 +199,7 @@ Todos os downloads dos repositórios de módulos são criptografados (HTTPS)</st
   <string name="about_version_history">Histórico da versão %s</string>
   <string name="download_failed">Falhou o download %s</string>
   <string name="download_errors">Erros no download</string>
-  <string name="failed_repositories_message">Não foi possível ligar à base de dados: \n\%s\n\n</string>
+  <string name="failed_repositories_message">Não foi possível ligar à base de dados: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Não foi possível fazer o download dos seguintes ficheiros:\n\n%s\n\n</string>
   <!--Install zip file-->
   <string name="install_zip">Carregar Documento de Arquivo ZIP</string>
@@ -222,7 +222,7 @@ Substituir?</string>
   <string name="reset">Reiniciar</string>
   <string name="reset_plan_question">Tem certeza de que deseja redefinir este plano?</string>
   <string name="plan_duplicate_user_plan">
-Existe um plano de leitura do usuário no cartão SD
+Existe um plano de leitura do utilizador no cartão SD
 jsword/readingplan com o mesmo nome que um plano interno. Não pode ser listado aqui.
 Mude o nome do ficheiro, deixando sua extensão como .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmos e Provérbios num Ano</string>
@@ -263,25 +263,25 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="notes">Referências e notas de rodapé</string>
   <string name="verse_action_copy">Copiar</string>
   <string name="share_verse">Partilhar</string>
-  <string name="share_verse_subject_2">Um versículo da Bíblia foi partilahdo consigo através de %s</string>
+  <string name="share_verse_subject_2">Um versículo da Bíblia foi partilhado consigo através de %s</string>
   <string name="compare_translations">Compare as traduções</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Abrir aqui o atalho</string>
   <string name="open_link_in_new_window">Abrir o atalho numa nova janela</string>
   <string name="open_link_in_special_window">Abrir o atalho numa janela especial</string>
   <!--Bookmarks-->
-  <string name="bookmarks">Favoritos</string>
-  <string name="add_bookmark">Adicionar favorito</string>
-  <string name="delete_bookmark">Apagar favorito</string>
-  <string name="bookmark_added">O favorito foi adicionado</string>
-  <string name="bookmark_date_updated">A data do favorito foi atualizada</string>
-  <string name="bookmark_deleted">O favorito foi apagado</string>
-  <string name="bookmark_labels">Marcadores dos Favoritos</string>
-  <string name="manage_labels">Gerir favoritos</string>
-  <string name="assign_labels">Atribuir marcadores</string>
-  <string name="new_label">Novo marcador</string>
+  <string name="bookmarks">Marcadores</string>
+  <string name="add_bookmark">Adicionar marcador</string>
+  <string name="delete_bookmark">Apagar marcador</string>
+  <string name="bookmark_added">O marcador foi adicionado</string>
+  <string name="bookmark_date_updated">A data do marcador foi actualizada</string>
+  <string name="bookmark_deleted">O marcador foi apagado</string>
+  <string name="bookmark_labels">Etiquetas dos marcadores</string>
+  <string name="manage_labels">Gerir Etiquetas dos Marcadores</string>
+  <string name="assign_labels">Atribuir etiquetas</string>
+  <string name="new_label">Nova etiqueta</string>
   <string name="label_name_prompt">Nome</string>
-  <string name="label_unlabelled">Sem marcadores</string>
+  <string name="label_unlabelled">Sem etiqueta</string>
   <string name="style">Estilo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordem de data</string>
@@ -321,18 +321,18 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="speak_bookmarking_settings_title">Configurações para os marcadores</string>
   <string name="speak_bookmarks_menu_title">Falar a partir de um marcador</string>
   <string name="speak_advanced_settings">Configurações avançadas</string>
-  <string name="speak_sleep_timer_title">Despertador</string>
+  <string name="speak_sleep_timer_title">Temporizador</string>
   <string name="speak_no_books_available">Não existem livros falados disponíveis</string>
   <string name="repeat_passage">Repetir a passagem</string>
   <string name="set_repeat_passage_range">Definir alcance da repetição de passagens</string>
   <string name="speak_beginning_of_passage">Escolher o início da passagem</string>
   <string name="speak_ending_of_passage">Escolher o fim da passagem</string>
   <string name="speak_verse_range_to_repeat">Escolher a gama de versículos para repetir</string>
-  <string name="speak_ending_verse_must_be_later">O verículo final deve ser posterior ao versículo inicial</string>
+  <string name="speak_ending_verse_must_be_later">O versículo final deve ser posterior ao versículo inicial</string>
   <string name="conf_speak_synchronize">O texto segue a fala</string>
   <string name="conf_speak_auto_bookmark">Marcadores automáticos</string>
   <string name="conf_save_playback_settings_to_bookmarks">Guardar as configurações de reprodução nos marcadores</string>
-  <string name="conf_replace_divinename">Substituir nome divino por Yahweh</string>
+  <string name="conf_replace_divinename">Substituir nome divino por Javé</string>
   <string name="conf_change_chapter">Mudanças de capítulo</string>
   <string name="conf_change_title">Títulos</string>
   <string name="conf_speak_footnotes">Notas de rodapé</string>
@@ -475,16 +475,16 @@ Informação sobre o dispositivo: \n%s</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
   <!--Workspaces-->
   <string name="new_workspace">Novo</string>
-  <string name="switch_to_workspace">Áreas de trabalho</string>
+  <string name="switch_to_workspace">Ambientes de trabalho</string>
   <string name="delete_workspace">Remover</string>
   <string name="new_copied_workspace">Guardar como novo</string>
-  <string name="workspace_number">Área de trabalho%d</string>
+  <string name="workspace_number">Ambiente de trabalho%d</string>
   <string name="rename_workspace">Mudar o nome</string>
-  <string name="workspace_selector_title">Escolher área de trabalho</string>
+  <string name="workspace_selector_title">Escolher ambiente de trabalho</string>
   <string name="workspace_settings">Configurações</string>
-  <string name="give_name_workspace">Dar nome a nova área de trabalho</string>
+  <string name="give_name_workspace">Dar nome a novo ambiente de trabalho</string>
   <string name="save_and_exit">Guardar</string>
-  <string name="workspace_save_changes">Aplicar as alterações à área de trabalho?</string>
+  <string name="workspace_save_changes">Aplicar as alterações ao ambiente de trabalho?</string>
   <string name="copy_of_workspace">Cópia de%s</string>
   <string name="copy_workspace_settings">Copiar configurações</string>
   <string name="copy_settings_title">Quais as configurações que quer copiar?</string>
