@@ -80,8 +80,10 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
         }
         console.log("Scrolling to", toElement, toElement.offsetTop - delta);
         const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
-        if(lineSpacing && lineSpacing > 1.2) {
-            delta += lineHeight * 0.20;
+        if(lineSpacing != null) {
+            const extra = (lineSpacing - 1) * 0.5;
+            console.log(`Adding extra ${extra}`);
+            delta += (lineHeight/lineSpacing) * extra;
         }
         if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
