@@ -90,8 +90,8 @@
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
   <string name="prefs_screen_keep_on_title">Manter o ecran ligado</string>
   <string name="prefs_screen_keep_on_summary">Impedir que o ecran se desligue enquanto usa esta aplicação</string>
-  <string name="prefs_interface_locale_title">Idioma do aplicação</string>
-  <string name="prefs_interface_locale_summary">Selecione o idioma de preferência para a interface do utilizador</string>
+  <string name="prefs_interface_locale_title">Idioma da aplicação</string>
+  <string name="prefs_interface_locale_summary">Selecione o idioma de preferência para o interface do utilizador</string>
   <string name="reset_fontsize">Reíniciar</string>
   <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Permitir o uso de documentos instalados manualmente no armazenamento interno a partir da pasta jsword/sword</string>

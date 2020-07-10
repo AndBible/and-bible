@@ -63,13 +63,14 @@ export function doScrolling(elementY, duration) {
     })
 }
 
+let lineSpacing = null;
+
 export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
     stopScrolling();
     if(delta !== toolbarOffset) {
         toolbarOffset = delta;
     }
-
     const toElement = document.getElementById(toId) || document.getElementById("topOfBibleText");
 
     if (toElement != null) {
@@ -78,6 +79,12 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
             now = true;
         }
         console.log("Scrolling to", toElement, toElement.offsetTop - delta);
+        const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
+        if(lineSpacing != null) {
+            const extra = (lineSpacing - 1) * 0.5;
+            console.log(`Adding extra ${extra}`);
+            delta += (lineHeight/lineSpacing) * extra;
+        }
         if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
         }
@@ -87,14 +94,14 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
     }
 }
 
-export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor, noiseOpacity, lineSpacing, justifyText, hyphenation} = {}, doNotReCalc = false) {
-
+export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor, noiseOpacity, lineSpacing: lineSpacing_, justifyText, hyphenation} = {}, doNotReCalc = false) {
+    lineSpacing = lineSpacing_ / 10;
     $(":root")
         .css("--max-width", `${maxWidth}mm`)
         .css("--text-color", textColor)
         .css("--hyphens", hyphenation ? "auto": "none")
         .css("--noise-opacity", noiseOpacity/100)
-        .css("--line-spacing", `${lineSpacing/10}em`)
+        .css("--line-spacing", `${lineSpacing}em`)
         .css("--text-align", justifyText? "justify" : "left");
     const content = $("#content")
 
@@ -111,7 +118,7 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
 
     $("body")
         .css("color", textColor)
-        .css("line-height", `${lineSpacing/10}em`);
+        .css("line-height", `${lineSpacing}em`);
 
     if(!doNotReCalc) {
         registerVersePositions()
