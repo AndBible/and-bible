@@ -78,7 +78,7 @@ export async function scrollToVerse(toId, now, delta = toolbarOffset) {
         }
         console.log("Scrolling to", toElement, toElement.offsetTop - delta);
         const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
-        delta += lineHeight*0.15;
+        delta += lineHeight*0.20;
         if(now===true) {
             window.scrollTo(0, toElement.offsetTop - delta);
         }
