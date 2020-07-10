@@ -49,19 +49,19 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle
-      run: ./gradlew --console plain build
+      run: ./gradlew --console plain build -x testDebug
 
     # Test complete, create apk etc
 
-    - name: Get tag name
+    - name: Get variables
       id: tag_name
       run: |
         echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-        echo ::set-output name=TAG_TYPE::$(if [[ $GITHUB_REF =~ production- ]]; then echo "Release"; else echo "Beta"; fi)
-
-    - name: Create apk release file
-      if: contains(github.ref, 'refs/tags/')
-      run: ./gradlew assembleRelease
+        grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
+        echo ::set-output name=VERSION_NAME::$(cat VNAME)
+        echo ::set-output name=RELEASE_TITLE::$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi )
+        echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
+        if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
     - name: Sign apk
       if: contains(github.ref, 'refs/tags/')
@@ -81,10 +81,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-        TAG_TYPE: ${{ steps.tag_name.outputs.TAG_TYPE }}
+        VERSION_NAME: ${{ steps.tag_name.outputs.VERSION_NAME }}
+        RELEASE_TITLE: ${{ steps.tag_name.outputs.RELEASE_TITLE }}
       with:
         tag_name: ${{ env.TAG_NAME }}
-        release_name: ${{ env.TAG_TYPE }} ${{ env.TAG_NAME }}
+        release_name: ${{ env.RELEASE_TITLE }}
+        body_path: ./RELEASENOTES.txt
 
     - name: Upload Release Apk
       if: contains(github.ref, 'refs/tags/')
