@@ -1,0 +1,32 @@
+And Bible é um aplicativo da Bíblia de código aberto, offline e totalmente gratuito, sem anúncios para permitir que o maior número de pessoas em todos os países possa ler, ouvir e estudar as Escrituras da maneira mais fácil possível e com a maior bênção pessoal.
+
+* Bíblias, comentários, dicionários teológicos, mapas e livros cristãos em mais de 700 idiomas
+* Off-line para tudo após o download inicial, incluindo pesquisa, notas, comentários, etc.
+* Interface em vários idiomas
+* Vários planos de leitura da Bíblia
+* Totalmente grátis, sem anúncios, sem e-mails
+* Mais de 40 Bíblias em inglês, incluindo KJV e NET (o ESV costumava estar aqui também e tentamos recuperá-lo, consulte o FAQ: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
+* 29 comentários bíblicos
+* Extenso dicionário e coleção de livros cristãos
+* Todos os documentos distribuídos legalmente (os documentos de motivo como NKJV e NIV não estão disponíveis)
+* A integração do Strong permite análise de palavras em grego e hebraico
+* Vários ambientes de trabalho com ecran dividido
+* Escreva notas pessoais
+* Pesquisa flexível
+Marcadores
+* Mapas das terras da Bíblia
+* Ouça qualquer documento lido para você
+* Rolagem automática, modo automático dia / noite
+* Compare todas as traduções da Bíblia num único ecran
+* Um dos aplicativos bíblicos mais rápidos no Android
+* Código aberto - melhore ou altere o código, se quiser
+* Usa o poderoso mecanismo JSword do CrossWire
+
+Somos todos voluntários; não enviamos e-mails irritantes; não exibe anúncios irritantes; nunca pede ou recebe doações; não pede registo; E a Bíblia não recolhe nenhum dado do seu telemóvel.
+
+A procedência de todos os documentos é minuciosamente pesquisada para garantir que todos os documentos possam ser legalmente distribuídos ou que a permissão tenha sido concedida pelo detentor dos direitos autorais. Essa é também a razão. E a Bíblia não pode conter documentos como NIV e NKJV.
+
+Notas
+* Curtir e Bíblia no Facebook: https://www.facebook.com/AndBible/
+* O FAQ da Bíblia e está aqui: https://github.com/AndBible/and-bible/wiki/FAQ
+* Página do projeto no Github: https://github.com/AndBible/and-bible
