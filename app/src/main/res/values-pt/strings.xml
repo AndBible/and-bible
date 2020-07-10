@@ -489,7 +489,7 @@ Informação sobre o dispositivo: \n%s</string>
   <string name="copy_workspace_settings">Copiar configurações</string>
   <string name="copy_settings_title">Quais as configurações que quer copiar?</string>
   <string name="select_all">Selecionar tudo</string>
-  <string name="copy_settings_workspaces_title">Para que área de trabalho quer copiar as configurações?</string>
+  <string name="copy_settings_workspaces_title">Para que ambiente de trabalho quer copiar as configurações?</string>
   <string name="reset_settings">Reiniciar</string>
   <string name="workspace_dismiss">Descartar</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
@@ -536,12 +536,12 @@ O menu de contexto do Gerenciador de marcadores permite que os marcadores sejam 
   <string name="help_workspaces_title">Ambientes de trabalho</string>
   <string name="help_workspaces_text">
 Os espaços de trabalho permitem ter vários ambientes de trabalho dependentes do contexto. Funções da área de trabalho
-pode ser acessado através do item Áreas de trabalho no menu de opções (canto superior direito). A maneira rápida de acessar os espaços de trabalho é
+pode ser acessado através do item Áreas de trabalho no menu de opções (canto superior direito). A maneira rápida de acessar os ambientes de trabalho é
 pelo gesto deslizante da barra de ferramentas. Você também pode usar gestos deslizar para a esquerda e deslizar para a direita sobre a barra de ferramentas para
-alterne para o espaço de trabalho anterior / seguinte.</string>
+alterne para o ambiente de trabalho anterior / seguinte.</string>
   <string name="help_hidden_features_title">Atalhos escondidos</string>
   <string name="help_hidden_features_text">
-Deslize para baixo na barra de ferramentas para mostrar o seletor de espaço de trabalho.
+Deslize para baixo na barra de ferramentas para mostrar o seletor de ambiente de trabalho.
 Pressione e segure o botão da janela para minimizar rapidamente.
 Pressione e segure o botão da barra de ferramentas para falar para ir rapidamente às configurações de fala.
 Pressione e segure o título do local do verso na barra de ferramentas para pular para o seletor de documentos.
