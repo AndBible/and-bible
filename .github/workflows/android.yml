@@ -53,14 +53,11 @@ jobs:
 
     # Test complete, create apk etc
 
-    - name: Get variables
+    - name: Get tag name
       id: tag_name
       run: |
         echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-        grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
-        echo ::set-output name=VERSION_NAME::$(cat VNAME)
-        echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
-        if [ -f $(cat CLPATH) ]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
+        echo ::set-output name=TAG_TYPE::$(if [[ $GITHUB_REF =~ production- ]]; then echo "Release"; else echo "Beta"; fi)
 
     - name: Create apk release file
       if: contains(github.ref, 'refs/tags/')
@@ -84,11 +81,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
-        VERSION_NAME: ${{ steps.tag_name.outputs.VERSION_NAME }}
+        TAG_TYPE: ${{ steps.tag_name.outputs.TAG_TYPE }}
       with:
         tag_name: ${{ env.TAG_NAME }}
-        release_name: "Release ${{ env.VERSION_NAME }}"
-        body_path: ./RELEASENOTES.txt
+        release_name: ${{ env.TAG_TYPE }} ${{ env.TAG_NAME }}
 
     - name: Upload Release Apk
       if: contains(github.ref, 'refs/tags/')
