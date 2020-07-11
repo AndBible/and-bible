@@ -1158,6 +1158,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     backupControl.backupDatabaseToUri(data!!.data!!)
                 }
             }
+            REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
+                GlobalScope.launch(Dispatchers.IO) {
+                    backupControl.backupModulesToUri(data!!.data!!)
+                }
+            }
             WORKSPACE_CHANGED -> {
                 val extras = data?.extras
                 val workspaceId = extras?.getLong("workspaceId")
@@ -1441,6 +1446,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         const val COLORS_CHANGED = 5
         const val WORKSPACE_CHANGED = 6
         const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 7
+        const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 8
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"
