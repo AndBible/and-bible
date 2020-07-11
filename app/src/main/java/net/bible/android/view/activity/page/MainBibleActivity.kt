@@ -1300,16 +1300,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            BACKUP_SAVE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                backupControl.backupDatabase()
-            } else {
-                Dialogs.instance.showMsg(R.string.error_occurred)
-            }
-            BACKUP_RESTORE_REQUEST -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                backupControl.restoreDatabase()
-            } else {
-                Dialogs.instance.showMsg(R.string.error_occurred)
-            }
             SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     documentControl.enableManualInstallFolder()
@@ -1436,8 +1426,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     companion object {
         lateinit var mainBibleActivity: MainBibleActivity
-        internal const val BACKUP_SAVE_REQUEST = 0
-        internal const val BACKUP_RESTORE_REQUEST = 1
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 

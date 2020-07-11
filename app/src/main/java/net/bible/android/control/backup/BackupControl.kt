@@ -74,27 +74,6 @@ import kotlin.coroutines.resume
 @ApplicationScope
 class BackupControl @Inject constructor() {
 
-    /** return true if a backup has been done and the file is on the sd card.
-     */
-    private val isBackupFileExists: Boolean
-        get() = File(SharedConstants.backupDir, DATABASE_NAME).exists()
-
-    /** backup database to sd card
-     */
-    fun backupDatabase() {
-        mainBibleActivity.windowRepository.saveIntoDb()
-        db.sync()
-        val ok = FileManager.copyFile(DATABASE_NAME, internalDbDir, SharedConstants.backupDir)
-
-        if (ok) {
-            Log.d(TAG, "Copied database to internal memory successfully")
-            Dialogs.instance.showMsg(R.string.backup_success, SharedConstants.backupDir.absolutePath)
-        } else {
-            Log.e(TAG, "Error copying database to internal memory")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
-        }
-    }
-
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
     fun backupDatabaseToUri( uri: Uri) : Boolean {
@@ -352,28 +331,6 @@ class BackupControl @Inject constructor() {
 
     }
 
-    /** restore database from sd card
-     */
-    fun restoreDatabase() {
-        if (!isBackupFileExists) {
-            Dialogs.instance.showErrorMsg(R.string.error_no_backup_file)
-        } else {
-            Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
-                BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.backupDir, internalDbDir)
-
-                if (ok) {
-                    DatabaseContainer.reset()
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-                    Log.d(TAG, "Copied database from internal memory successfully")
-                    Dialogs.instance.showMsg(R.string.restore_success, SharedConstants.backupDir.name)
-                } else {
-                    Log.e(TAG, "Error copying database from internal memory")
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
-                }
-            }
-        }
-    }
 
     companion object {
 
