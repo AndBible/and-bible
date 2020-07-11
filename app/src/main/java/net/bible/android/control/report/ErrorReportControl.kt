@@ -20,13 +20,11 @@ package net.bible.android.control.report
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Environment
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
@@ -91,7 +89,7 @@ class ErrorReportControl @Inject constructor() {
 
 	suspend fun reportBug(context_: Context? = null, exception: Exception? = null) {
 		val context = context_?: CurrentActivityHolder.getInstance().currentActivity
-        val dir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/log")
+        val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
         val hourglass = Hourglass(context)
         hourglass.show()
