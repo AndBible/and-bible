@@ -94,15 +94,18 @@ object CommonUtils {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash (built $BuildDate)"
+            return "$versionName#$GitHash ($applicationVersionNumber) (built $BuildDate)"
         }
     val applicationVersionNumber: Int
         get() {
+            // TODO we have to change this to Long if we one day will have very long version numbers.
             var versionNumber: Int
             try {
                 val manager = BibleApplication.application.packageManager
                 val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
-                versionNumber = info.versionCode
+                versionNumber = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    info.longVersionCode.toInt()
+                } else info.versionCode
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionNumber = -1
