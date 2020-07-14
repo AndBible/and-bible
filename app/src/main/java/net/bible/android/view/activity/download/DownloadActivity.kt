@@ -106,6 +106,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                         it.resume(true)
                     }
                     .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
+                    .setOnCancelListener {_ -> it.resume(false)}
                     .show()
             }
     }

@@ -331,6 +331,7 @@ open class WindowControl @Inject constructor(
             }
             .setNeutralButton(R.string.select_all) { _, _ ->  it.resume(null) }
             .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null)}
+            .setOnCancelListener {_ -> it.resume(null)}
             .setTitle(context.getString(R.string.copy_settings_title))
             .create()
 
