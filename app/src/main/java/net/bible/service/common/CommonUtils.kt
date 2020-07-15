@@ -39,7 +39,7 @@ import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
-import net.bible.android.activity.BuildConfig.GitHash
+import net.bible.android.activity.BuildConfig.GitDescribe
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.json
@@ -58,12 +58,9 @@ import org.crosswire.jsword.passage.VerseRange
 
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
-import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import java.util.Properties
-import javax.net.ssl.HttpsURLConnection
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -94,7 +91,7 @@ object CommonUtils {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash ($applicationVersionNumber) (built $BuildDate)"
+            return "$versionName#$GitDescribe (built $BuildDate)"
         }
     val applicationVersionNumber: Int
         get() {
