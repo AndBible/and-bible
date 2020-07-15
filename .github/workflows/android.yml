@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 10 # so that recent tags can be found
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
