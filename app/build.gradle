@@ -16,7 +16,7 @@ def getGitHash = { ->
 def getGitDescribe = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'git', 'describe'
+        commandLine 'git', 'describe', '--always'
         standardOutput = stdout
     }
     return stdout.toString().trim()
