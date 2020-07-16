@@ -76,7 +76,7 @@ class BackupControl @Inject constructor() {
 
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    fun backupDatabaseToUri( uri: Uri) : Boolean {
+    suspend fun backupDatabaseToUri( uri: Uri)  {
         val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
         val filename = DATABASE_NAME;
         val f = File(internalDbDir, filename);
@@ -91,15 +91,15 @@ class BackupControl @Inject constructor() {
             ok = false
         }
 
-        if (ok) {
-            Log.d(TAG, "Copied database to chosen backup location successfully")
-            Dialogs.instance.showMsg(R.string.backup_success)
-        } else {
-            Log.e(TAG, "Error copying database to chosen location.")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+       withContext(Dispatchers.Main) {
+            if (ok) {
+                Log.d(TAG, "Copied database to chosen backup location successfully")
+                Dialogs.instance.showMsg(R.string.backup_success)
+            } else {
+                Log.e(TAG, "Error copying database to chosen location.")
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            }
         }
-
-        return ok;
     }
 
     /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
@@ -132,7 +132,7 @@ class BackupControl @Inject constructor() {
 
     /** restore database from custom source
      */
-    fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
+    suspend fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
@@ -153,14 +153,15 @@ class BackupControl @Inject constructor() {
             }
             sqlDb.close()
         }
-
-        if (ok) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-            Log.d(TAG, "Restored database successfully")
-            Dialogs.instance.showMsg(R.string.restore_success)
-        } else {
-            Log.e(TAG, "Error restoring database")
-            Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
+        withContext(Dispatchers.Main) {
+            if (ok) {
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                Log.d(TAG, "Restored database successfully")
+                Dialogs.instance.showMsg(R.string.restore_success)
+            } else {
+                Log.e(TAG, "Error restoring database")
+                Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
+            }
         }
         f.delete()
         return ok
@@ -259,7 +260,7 @@ class BackupControl @Inject constructor() {
         internalDbBackupDir.deleteRecursively()
     }
 
-    fun backupModulesToUri(uri: Uri) : Boolean {
+    suspend fun backupModulesToUri(uri: Uri) {
         // at this point the zip file has already been created
         val fileName = MODULE_BACKUP_NAME
         val zipFile = File(internalDbBackupDir, fileName)
@@ -272,16 +273,15 @@ class BackupControl @Inject constructor() {
         } catch (ex: IOException) {
             ok = false
         }
-
-        if (ok) {
-            Log.d(TAG, "Copied modules to chosen backup location successfully")
-            Dialogs.instance.showMsg(R.string.backup_modules_success)
-        } else {
-            Log.e(TAG, "Error copying modules to chosen location.")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+        withContext(Dispatchers.Main) {
+            if (ok) {
+                Log.d(TAG, "Copied modules to chosen backup location successfully")
+                Dialogs.instance.showMsg(R.string.backup_modules_success)
+            } else {
+                Log.e(TAG, "Error copying modules to chosen location.")
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            }
         }
-
-        return ok;
     }
 
     suspend fun backupModulesViaIntent(callingActivity: Activity)  = withContext(Dispatchers.Main)   {
@@ -309,7 +309,6 @@ class BackupControl @Inject constructor() {
                 callingActivity.startActivityForResult(intent, MainBibleActivity.REQUEST_PICK_FILE_FOR_BACKUP_MODULES)
             }
             .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-//                backupDatabaseViaSendIntent(callingActivity)
                 val modulesString = books.joinToString(", ") { it.abbreviation }
                 val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
                 val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
