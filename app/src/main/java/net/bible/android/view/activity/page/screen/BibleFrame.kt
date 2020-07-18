@@ -160,11 +160,5 @@ class BibleFrame(
         }
     }
 
-    fun updateWindowButton() {
-        removeView(windowButton)
-        windowButton = null
-        addWindowButton()
-    }
-
     private val TAG = "BibleFrame[${window.id}]"
 }

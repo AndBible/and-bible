@@ -197,7 +197,6 @@ class SplitBibleArea(
                 bf = getBf(i) ?: break
                 if(bf.window.id == w.id) {
                     firstIs = true
-                    bf.updateWindowButton()
                     break
                 }
                 if (bf.window.id != w.id) {
@@ -376,6 +375,7 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(autoHideWindowButtonBarInFullScreen)
             restoreButtonsVisible = !event.isFullScreen
+        toggleWindowButtonVisibility(true, true)
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {

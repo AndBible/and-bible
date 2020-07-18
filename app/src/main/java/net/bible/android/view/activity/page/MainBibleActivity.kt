@@ -1406,6 +1406,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     override fun clearVerseActionMode(actionMode: ActionMode) {
         GlobalScope.launch(Dispatchers.Main) {
             actionMode.finish()
+            this@MainBibleActivity.actionMode = null
             resetSystemUi()
         }
     }
