@@ -33,7 +33,7 @@ to get started.
 ## Development team
 
 - [Tuomas Airaksinen](https://github.com/tuomas2) project lead, developer
-- [Timmy Brown](https://github.com/timbze), developer
+- [Timmy Braun](https://github.com/timbze), developer
 - [Jan-Jaap Korpershoek](https://github.com/JJK96), developer
 - [Matt Schlosser](https://github.com/mattschlosser), developer
 - [Ben Vahedy](https://github.com/bvahedy), QA, testing & reporting bugs
