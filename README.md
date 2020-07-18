@@ -30,10 +30,13 @@ Everyone is welcome to help translating And Bible to different languages via
 easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
 to get started.
 
-## Project responsibilities
+## Development team
 
-- Project Lead (development etc.): [Tuomas Airaksinen](https://github.com/tuomas2) (Since 11/2018)
-- Quality Assurance Lead: [Ben Vahedy](https://github.com/bvahedy) (Since 1/2019)
+- [Tuomas Airaksinen](https://github.com/tuomas2) project lead, developer
+- [Timmy Brown](https://github.com/timbze), developer
+- [Jan-Jaap Korpershoek](https://github.com/JJK96), developer
+- [Matt Schlosser](https://github.com/mattschlosser), developer
+- [Ben Vahedy](https://github.com/bvahedy), QA, testing & reporting bugs
 
 ## Acknowledgements
 
