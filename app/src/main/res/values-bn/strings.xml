@@ -1,0 +1,541 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_short">বাইবেল অধ্যায়ণ</string>
+  <string name="app_name_medium">বাইবেল অধ্যায়ণ ( এ্যন্ড বাইবেল) </string>
+  <string name="app_name_long">বাইবেলের ওপেন সোরস প্রকল্পের দ্বারা বাইবেল অধ্যায়ণ অ্যাপ</string>
+  <string name="version_text">সংস্করণ %s</string>
+  <string name="no_sdcard_error">দয়াকরে এসডি কার্ড লাগান এবং পুনরায় প্রয়োগ করুন</string>
+  <!--Main menu-->
+  <string name="menu">মেনু</string>
+  <string name="chooseBook">নথিপত্র</string>
+  <string name="selectPassage">গ্রন্থ অংশ</string>
+  <string name="search">সন্ধান</string>
+  <string name="settings">প্রয়োগের পছন্দগুলি</string>
+  <string name="history">ঘটনা বিবরণ</string>
+  <string name="speak">কথাবলুন</string>
+  <string name="help">সাহায্য</string>
+  <string name="other">অন্যান্য</string>
+  <string name="help_and_tips">সহায়তা এবং &amp; পরামর্শ</string>
+  <string name="administration">প্রশাসন </string>
+  <string name="rate_application">Rate &amp; গুগল প্লে পূনঃমূল্যায়ন করুন</string>
+  <string name="chooce_document">নথি চয়ন করুন </string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">বই চয়ন করুন</string>
+  <string name="choosePassageChapterName">অধ্যায় চয়ন করুন </string>
+  <string name="choosePassageVerseName">পদ চয়ন করুন </string>
+  <string name="bible">বাইবেল </string>
+  <string name="deuterocanonical">ডিটোরোক্যানোনিক্যাল</string>
+  <!--Search-->
+  <string name="search_index">অনুসন্ধান সূচক </string>
+  <string name="index_creation_required">অনুসন্ধানের জন্য একটি সূচক প্রয়োজন </string>
+  <string name="create_index_for">অনুসন্ধানের জন্য একটি সূচক প্রয়োজন । \n\n সূচকের জন্য তৈরি করুন %s ?</string>
+  <string name="rebuild_index_for">%s জন্য পুনরায় সূচক তৈরি করুন ?</string>
+  <string name="indexing_wait_msg">সূচক শেষ হয়ে গেলে আপনাকে অনুসন্ধান পর্দায় নেওয়া হবে । </string>
+  <string name="index_create">তৈরি করুন </string>
+  <string name="rebuild_index">পুনরায় সূচক তৈরি করুন </string>
+  <string name="search_in">%s তে খুঁজুন </string>
+  <string name="do_in_background">পটভূমিতে চালিয়ে যান</string>
+  <string name="rebuild_index_button">পুনরায় তৈরি করুন </string>
+  <!--Tasks-->
+  <string name="progress_status">উন্নতি</string>
+  <string name="task_kill_warning">এই দীর্ঘ চলমান কাজগুলি যদি আপনি অন্য অ্যাপ্লিকেশনটি শেষ করার আগে সুইচ করেন তবে তা শেস হতে পারে । </string>
+  <string name="no_tasks_running">বর্তমানে কোন কাজ নির্গত করা হচ্ছে না । </string>
+  <!--Search-->
+  <string name="search_words_group_prompt">পদগুলি খুঁজুন </string>
+  <string name="search_all_words">সব শব্দগুলি </string>
+  <string name="search_any_word">কোন শব্দ </string>
+  <string name="search_phrase">সব শব্দ, ক্রমপর্যায়ে</string>
+  <string name="search_result_count">%d সমকক্ষ পাওয়া গিয়েছে </string>
+  <string name="search_showing_first">অনেক সমক্কষ। প্রথম প্রদর্শণ %d </string>
+  <string name="search_bible_section_group_prompt">কোথায় অনুসন্ধান করুন</string>
+  <string name="search_all_bible">সম্পূর্ণ বাইভবল </string>
+  <string name="search_new_testament">নতুন নিয়ম </string>
+  <string name="search_old_testament">পুরাতন নিয়ম </string>
+  <string name="search_current_book">বর্তমান বই </string>
+  <string name="error_executing_search">বাতিল অনুসন্ধান জিজ্ঞাস্য </string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_summary">পদ সংখ্যাগুলি দেখান</string>
+  <string name="prefs_verse_per_line_summary">প্রতিটি পদ একটি আলাদা লাইনে দেখান </string>
+  <string name="prefs_show_bookmarks_summary">সমস্ত বুকমার্কগুলি  লুকানোর জন্য টিক চিহ্নটি তুলে দিন  </string>
+  <string name="prefs_show_mynotes_summary">আমার নোট সহ পদের আইকন দেখান </string>
+  <string name="prefs_show_notes_summary">পদটীকা এবং ক্রস-রেফারেন্সগুলি দেখান </string>
+  <string name="prefs_show_strongs_summary"> সংযোগ গ্রীক &amp; ইব্রীয় সংজ্ঞা </string>
+  <string name="prefs_show_morphology_summary">রবীনসনের গ্রীক অঙ্গসংস্থানবিদ্যা দেখান </string>
+  <string name="prefs_section_title_summary">নন্ ক্যানোনিকাল বিভাগের শিরোনাম দেখান </string>
+  <string name="prefs_red_letter_summary">খ্রীষ্টের কথাগুলি লাল রঙের দেখান </string>
+  <string name="prefs_text_size_title">হরফ পছন্দ সমূহ </string>
+  <string name="prefs_show_verseno_title">পদ সংখ্যাগুলি </string>
+  <string name="prefs_verse_per_line_title">প্রত্যেক লাইনে একটি পদ</string>
+  <string name="prefs_show_bookmarks_title">বুকমার্কগুলি দেখান</string>
+  <string name="prefs_default_bookmark_style_title">ডিফল্ট বুকমার্ক শৈলি </string>
+  <string name="prefs_default_bookmark_style_summary">রং বা আইকন হাইলাইট করুন </string>
+  <string name="prefs_show_mynotes_title">আমার নোট আইকনগুলি দেখান </string>
+  <string name="prefs_show_notes_title">পাদটীকা এবং সম্পর্কিত রেফারেন্স</string>
+  <string name="prefs_show_strongs_title">স্ট্রং এর সংখ্যাগুলি </string>
+  <string name="prefs_show_morphology_title">অঙ্গসংস্থানবিদ্যা কোডগুলি </string>
+  <string name="prefs_section_title_title">বিভাগীয় শিরোনাম </string>
+  <string name="prefs_red_letter_title">লাল অক্ষর </string>
+  <string name="prefs_tilt_to_scroll_title">স্ক্রোলকে ঢিল দিন </string>
+  <string name="prefs_night_mode_title">নাইট মোড সুইচ্ </string>
+  <string name="prefs_night_mode_summary">নাইট মোডে স্বয়ংক্রিয়ভাবে ( যদি ডিভাইস সমর্থন করে) ম্যানুয়ালি বা সিস্টেম সেটিং (অ্যান্ডয়েই 10+) মাধ্যমে সুইচ্ করবে কিনা।  </string>
+  <string name="prefs_night_mode_manual">ম্যানুয়াল</string>
+  <string name="prefs_night_mode_automatic">স্বয়ংক্রিয়</string>
+  <string name="prefs_night_mode_system">পদ্ধতি </string>
+  <string name="options_menu_night_mode">নাইট মোড </string>
+  <string name="prefs_navigate_to_verse_title">পদে পৌছান</string>
+  <string name="prefs_navigate_to_verse_summary">একটি গ্রন্থাংশ নির্বাচন করার সময় পদ ( এবং অধ্যায়) চয়ণ করুন। </string>
+  <string name="prefs_open_links_in_special_window_title">বিশেষ উইন্ডোতে লিংক খুলুন </string>
+  <string name="prefs_open_links_in_special_window_summary">ক্রশ- রেফারেন্স এবং স্ট্রংসের দ্রুত প্রদর্শনের জন্য </string>
+  <string name="prefs_text_size_summary">ফন্ট পরিবার এবং ফন্টের আকার সামঞ্জস্য করুন</string>
+  <string name="prefs_text_size_sample_text">নমুনা পাঠ </string>
+  <string name="prefs_screen_keep_on_title">স্ক্রিন চালু রাখুন</string>
+  <string name="prefs_screen_keep_on_summary">এই অ্যাপ্লিকেশনটি ব্যবহার করার সময় স্ক্রিন স্লিপিং প্রতিরোধ করুন</string>
+  <string name="prefs_interface_locale_title">অ্যাপ্লিকেশন ভাষা</string>
+  <string name="prefs_interface_locale_summary">কাস্টম ব্যবহারকারী ইন্টারফেস ভাষা নির্বাচন করুন</string>
+  <string name="reset_fontsize">রিসেট </string>
+  <string name="prefs_request_sdcard_permission_title">ম্যানুয়ালি ইনস্টল করা নথি বিদ্যমান</string>
+  <string name="prefs_request_sdcard_permission_summary">অভ্যন্তরীণ স্টোরেজে jsword/sword ফোল্ডার থেকে ম্যানুয়ালি ইনস্টল করা নথির ব্যবহার সক্ষম করুন</string>
+  <string name="all_text_options_window_menutitle">সমস্ত পাঠ্য বিকল্প</string>
+  <string name="text_options_window_menutitle">পাঠ্য বিকল্পসমূহ</string>
+  <string name="auto_fullscreen">স্ক্রোল করে ফুলস্ক্রিন</string>
+  <string name="reversed_split_mode">বিপরীত বিভক্ত মোড</string>
+  <string name="add_ellipsis">%s…</string>
+  <string name="font_size_pt">%d pt</string>
+  <string name="auto_fullscreen_summary">পাঠ্য স্ক্রোল করার সময় স্বয়ংক্রিয়ভাবে পূর্ণস্ক্রিনে স্যুইচ করুন। টিপ: আপনি সর্বদা ডাবলটিপিং স্ক্রিন দ্বারা পূর্ণ স্ক্রিনে স্যুইচ করতে পারেন।</string>
+  <string name="prefs_margin_size_title">মার্জিনের আকার পরিবর্তন করুন</string>
+  <string name="prefs_margin_size_mm_title">মার্জিনের আকার (%d / %d / %d mm)</string>
+  <string name="prefs_advanced_settings_cat">এ্যডভান্স সেটিংস</string>
+  <string name="prefs_display_customization_cat">দেখা &amp; অনুভব করা</string>
+  <string name="prefs_behavior_customization_cat">প্রয়োগ আচরণ</string>
+  <string name="prefs_margin_size_summary">পাঠ্য দৃশ্যের বাম এবং ডান মার্জিন সামঞ্জস্য করুন। আপনি এটিও করতে পারেন
+পাঠ্যের সর্বাধিক প্রস্থ সামঞ্জস্য করুন।</string>
+  <string name="prefs_text_colors_summary">পাঠ্য এবং পটভূমির রঙ এবং শব্দ শব্দ সামঞ্জস্য করুন</string>
+  <string name="text_display_settings_activity_title">পাঠ্য প্রদর্শন সেটিংস</string>
+  <string name="workspace_text_display_settings_title">পাঠ্য বিকল্পসমূহ %s</string>
+  <string name="window_text_display_settings_title">পাঠ্য বিকল্পসমূহ - উইন্ডো %d</string>
+  <string name="prefs_text_display_settings_title">বিন্যাস</string>
+  <string name="prefs_text_appearance_title">উপস্থিতি </string>
+  <string name="prefs_justify_title">পাঠ্যকে ন্যায়সঙ্গত-সারিবদ্ধ করুন</string>
+  <string name="prefs_justify_summary">পাঠ্যকে \'ন্যায়সঙ্গত\' শৈলীতে সারিবদ্ধ করুন, অর্থ পাঠ্যের বাম এবং ডান মার্জিনগুলি লাইনে রয়েছে</string>
+  <string name="pref_left_margin_label_mm">বাম কিনারা (%d mm)</string>
+  <string name="pref_right_margin_label_mm">ডান মার্জিন(%d mm) </string>
+  <string name="pref_maximum_width_of_text_label_mm">পাঠ্য সর্বাধিক প্রস্থ (%d mm) </string>
+  <string name="prefs_line_spacing_pt">লাইনের ব্যবধান %1.1f 
+ </string>
+  <string name="pref_font_family_label">হরফ পরিবার</string>
+  <string name="prefs_hyphenation_title">হাইফেন</string>
+  <string name="prefs_hyphenation_summary">ভাষা সমর্থন করা থাকলে শব্দগুলি স্বয়ংক্রিয়ভাবে হাইফেনেট করুন</string>
+  <string name="prefs_line_spacing_pt_title">লাইনের ব্যবধান (%1.1f) </string>
+  <string name="line_spacing_title">লাইনের ব্যবধান</string>
+  <string name="line_spacing_summary">লাইনের মাঝে স্থান নির্ধারণ করুন</string>
+  <string name="select_none">কিছু নির্বাচন করবেন না</string>
+  <string name="reset_are_you_sure">আপনি কি নিশ্চিত যে আপনি সমস্ত মান পুনরায় সেট করতে চান?</string>
+  <string name="window_pinning_menutitle">উইন্ডো পিনিং</string>
+  <string name="hide_window_buttons_title">উইন্ডো বোতামগুলি লুকান</string>
+  <string name="hide_window_buttons_summary">বাইবেলের দৃশ্যের ডানদিকে প্রদর্শিত উইন্ডো বোতামগুলি লুকানো আছে। নীচে উইন্ডো ন্যাভিগেশন বারটি এখনও প্রদর্শিত হবে এবং আপনি দীর্ঘ-ক্লিক করে উইন্ডো পপআপ মেনুটি খুলতে পারেন।</string>
+  <string name="font_size_title">অক্ষরের আকার</string>
+  <string name="full_screen_hide_buttons_pref_title">পূর্ণ স্ক্রিনে উইন্ডো বোতাম বারটি লুকান</string>
+  <string name="full_screen_hide_buttons_pref_summary">ফুলস্ক্রিন মোডে স্যুইচ করার সময়, স্ক্রিনের নীচে থাকা উইন্ডো বোতাম বারটি স্বয়ংক্রিয়ভাবে লুকান</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">কালার সেটিংস</string>
+  <string name="window_color_settings_title">উইন্ডো কালার সেটিংস </string>
+  <string name="workspace_color_settings_title">কর্মক্ষেত্রের রঙ সেটিংস ডিফল্ট
+ </string>
+  <string name="color_text">লেখার রঙ
+ </string>
+  <string name="color_background">ব্যাকগ্রউন্ড কালার </string>
+  <string name="colors_day_mode_title">ডে মোড</string>
+  <string name="colors_night_mode_title">নাইট মোড</string>
+  <string name="prefs_noise_title">পিছনের শব্দ</string>
+  <string name="prefs_noise_summary">পটভূমিতে কিছু গোলমাল যুক্ত করা এটি চোখে আরও আরামদায়ক করে তুলতে পারে।</string>
+  <string name="cpv_default_title">একটি রঙ নির্বাচন করুন</string>
+  <string name="cpv_presets">প্রিসেটস </string>
+  <string name="cpv_custom">কাষ্টম </string>
+  <string name="cpv_select">সেলেক্ট </string>
+  <string name="cpv_transparency">স্বচ্ছতা </string>
+  <!--Window-->
+  <string name="new_window">নিউ উইন্ডো </string>
+  <string name="windowClose">বন্ধ করুন </string>
+  <string name="windowMaximise">সর্বাধিক</string>
+  <string name="windowMinimise">কমান</string>
+  <string name="windowSynchronise">সিংক্রোনাইজ</string>
+  <string name="move_window">স্থানান্তরিত করেন</string>
+  <string name="move_window_to_position2">স্থান %d (%s : %s) </string>
+  <string name="copy_settings">এতে সেটিংস অনুলিপি করুন</string>
+  <string name="copy_settings_to_workspace">কর্মস্থান</string>
+  <string name="copy_settings_to_window">উইন্ডো %d (%s : %s) </string>
+  <string name="change_to_normal">সাধারণ উইন্ডোতে পরিবর্তন করুন</string>
+  <string name="window_pin_mode">পিন</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">এই অধ্যায়ে কোনও নোট বিদ্যমান নেই
+ </string>
+  <string name="no_verse_notes">এই পদে কোনও নোট বিদ্যমান নেই</string>
+  <string name="previous">আগে
+ </string>
+  <string name="next">পরবর্তী </string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">স্ট্রং এর হিব্রু এবং গ্রীক অভিধান ডাউনলোড করুন</string>
+  <string name="all_greek_occurrences">সমস্ত ঘটনা সন্ধান করুন</string>
+  <string name="all_hebrew_occurrences">সমস্ত ঘটনা সন্ধান করুন</string>
+  <string name="no_indexed_bible_with_strongs_ref">আপনাকে অবশ্যই শক্তিশালী নম্বরযুক্ত একটি বাইবেল ডাউনলোড করতে হবে এবং অনুসন্ধানের মাধ্যমে এর সূচকটি ডাউনলোড করতে হবে</string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' শবদকোষ ডাউনলোড করুন</string>
+  <!--Module download-->
+  <string name="download">ডকুমেন্টস ডাউনলোড করুন</string>
+  <string name="download_confirmation">ইন্টারনেট থেকে বাইবেল ডাউনলোড করবেন?</string>
+  <string name="download_source_message">নথিগুলি ডাউনলোড করা হয়:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
+  <string name="download_document_confirm_prefix">ডাউনলোড</string>
+  <string name="download_refreshing_book_list">উপলব্ধ নথিগুলির সতেজতা তালিকা</string>
+  <string name="download_refresh_book_list_menu_item">রিফ্রেস করুন </string>
+  <string name="error_downloading">ডাউনলোড করতে একটি ত্রুটি ঘটেছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।</string>
+  <string name="storage_space_warning">অপর্যাপ্ত স্থানীয় সঞ্চয় স্থান।</string>
+  <string name="too_many_jobs">কার্যকর অনেকগুলি কাজ। কিছু শেষ হওয়ার জন্য অপেক্ষা করুন এবং আবার চেষ্টা করুন।</string>
+  <string name="document_not_installed">দয়াকরে ডাউনলোড করুন %s </string>
+  <string name="free_text_search_documents">খুঁজুন </string>
+  <string name="chooce_language_hint">ভাষা </string>
+  <string name="one_more_back_press">ব্যাক বোতামটির আরও একটি টিপলে অ্যাপ বন্ধ হয়ে যাবে</string>
+  <string name="document_filter_results">%d ডকুমেন্টস </string>
+  <string name="download_question_title">আপনি কি ডকুমেন্টস  ডাউনলোড করার জন্য এগিয়ে যেতে চান?</string>
+  <string name="download_question_message">আপনি যদি নিপীড়িত দেশে বাস করেন, ইন্টারনেটের মাধ্যমে খ্রিস্টিয়ান উপাদান ডাউনলোড করার ক্ষেত্রে আপনার সাবধান হওয়া দরকার। পরিবর্তে, আপনি মডিউল জিপ ফাইলগুলি আরও সুরক্ষিতভাবে পেতে এবং সেগুলি ইনস্টল করতে চাইতে পারেন \"জিপ থেকে লোড ডকুমেন্টস\" এর মাধ্যমে। আপনি কি ডাউনলোডের সাথে এগিয়ে যাওয়ার বিষয়ে নিশ্চিত? মডিউল সংগ্রহশালা থেকে সমস্ত ডাউনলোড এনক্রিপ্ট করা হয় (এইচটিটিপিএস)।</string>
+  <string name="do_not_ask_again">হ্যাঁ, আর জিজ্ঞাসা করবেন না</string>
+  <string name="recommended_document">বাঞ্ছনীয়!</string>
+  <string name="about_version_history">সংস্করণ ইতিহাস: %s </string>
+  <string name="download_failed">ডাউনলোড করতে ব্যর্থ হয়েছে %s </string>
+  <string name="download_errors">ডাউনলোড ত্রুটি</string>
+  <string name="failed_repositories_message">নিম্নলিখিত ডকুমেন্ট সংগ্রহস্থলের সাথে সংযোগ করতে পারেনি: \n\n %s \n\n 
+</string>
+  <string name="failed_downloads_message">নিম্নলিখিত ফাইলগুলি ডাউনলোড করা যায়নি:\n\n %s \n\n</string>
+  <!--Install zip file-->
+  <string name="install_zip">জিপ থেকে নথি লোড করুন</string>
+  <string name="install_zip_module">বাইবেল মডিউল ইনস্টল করুন</string>
+  <string name="install_zip_successfull">মডিউলটি সফলভাবে ইনস্টল করা হয়েছিল</string>
+  <string name="extracting_zip_file">এখন জিপ ফাইলটি বের করা হচ্ছে ...</string>
+  <string name="checking_zip_file">প্রদত্ত ফাইলটি পরীক্ষা করা হচ্ছে</string>
+  <string name="invalid_module">ফাইলটিতে একটি বৈধ SWORD মডিউল নেই</string>
+  <string name="module_already_installed">ফাইলটিতে এমন একটি মডিউল রয়েছে যা ইতিমধ্যে ইনস্টল</string>
+  <string name="install_zip_title">অনুগ্রহপূর্বক অপেক্ষা করুন. জিপ ফাইল লোড হচ্ছে।</string>
+  <string name="overwrite_files">নিম্নলিখিত ফাইলগুলি ইতিমধ্যে বিদ্যমান: %s ওভাররাইট?</string>
+  <string name="overwrite_files_title">ওভাররাইট ফাইল?
+ </string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">পঠন পরিকল্পনা</string>
+  <string name="rdg_plan_selector_title">একটি পঠন পরিকল্পনা চয়ন করুন</string>
+  <string name="rdg_plan_day">দিন %s  </string>
+  <string name="rdg_plan_set_start_date">শুরুর তারিখ সেট করুন ...
+ </string>
+  <string name="done">সম্পন্ন</string>
+  <string name="reset">রিসেট</string>
+  <string name="reset_plan_question">আপনি কি নিশ্চিত যে আপনি এই পরিকল্পনাটি পুনরায় সেট করতে চান?</string>
+  <string name="plan_duplicate_user_plan">
+এসডিকার্ডে একটি ব্যবহারকারী পড়ার পরিকল্পনা রয়েছে
+অভ্যন্তরীণ পরিকল্পনা হিসাবে একই নামে jsword / রিডিং প্ল্যান। এটি এখানে তালিকাভুক্ত করা যাবে না।
+দয়া করে ফাইলটির এক্সটেনশানটিকে .properties হিসাবে রেখে অন্য কোনও নামকরণ করুন</string>
+  <string name="plan_name_y1ntpspr">এক বছরের মধ্যে নতুন নিয়ম, গীতসংহিতা &amp; হিতোপদেশ </string>
+  <string name="plan_description_y1ntpspr">
+HEARTLIGHT Internet Magazine এর সৌজন্যে 
+http://www.heartlight.org, অনুমতি প্রদান করা হয়েছে</string>
+  <string name="plan_name_y1ot1nt1_chronological">বাইবেলের মাধ্যমে কালানুক্রমিক 1-বছর</string>
+  <string name="plan_description_y1ot1nt1_chronological">বাইবেলে কালানুক্রমিক ঘটনার উপর ভিত্তি করে পরিকল্পনা করুন।
+কালানুক্রমিক আনুমানিক সময়-রেখা ।</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 বছর পুরানো নিয়ম+নিতুন নিয়ম একসাথে </string>
+  <string name="plan_description_y1ot1nt1_OTandNT">অধ্যায় সহ 1 বছরে বাইবেল মাধ্যমে পড়ুন
+প্রত্যেক দিন পুরানো নিয়ম এবং নতুন নিয়ম
+</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">বাইবেলের মাধ্যমে এক বছর </string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">আদিপুস্তক থেকে শুরু করে 1 বছরে বাইবেলের মাধ্যমে পড়ুন
+এবং প্রকাশিতবাক্যে শেষ করুন। পুরানো নিয়ম প্রথমে, তারপরে নতুন নিয়ম।</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1-বছর 4-অধ্যায় / দিন</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">এই পরিকল্পনা M\'Cheyne পড়ার পদ্ধতির উপর ভিত্তি করে,
+পারিবারিক এবং ব্যক্তিগত নিষ্ঠা উভয় ক্ষেত্রে ব্যবহারের জন্য চারটি পৃথক পাঠ্য বৈশিষ্ট্যযুক্ত। প্রতিটি দিনে আছে
+পুরানো নিয়মে দুটি প্যাসেজ, একটি নতুন নিয়মের, এবং একটি গীতসংহিতা বা সুসমাচার থেকে । এক বছরে,
+আপনি পুরানো নিয়ম একবার এবং নতুন নিয়ম এবং গীতসংহিতা দুটি বার পড়েন।</string>
+  <string name="plan_name_y1ot6nt4_profHorner">অধ্যাপক হর্নার 10-অধ্যায় / দিনের পঠন পরিকল্পনা</string>
+  <string name="plan_description_y1ot6nt4_profHorner">অধ্যাপক হর্নারের সৌজন্যে, অনুমতি মঞ্জুর</string>
+  <string name="plan_name_y2ot1ntps2">বাইবেলের মাধ্যমে 2-বছর, নতুন নিয়ম + গীতসংহিতা দু\'বার</string>
+  <string name="plan_description_y2ot1ntps2">2 বছরে বাইবেলের মাধ্যমে পড়ুন, নতুন নিয়ম এবং গীতসংহিতা দুই বার পড়ুন।
+সৌজন্যপূর্ণ শব্দ, http://www.wholesomewords.org/, অনুমতি প্রদান করা হয়েছে</string>
+  <!--Document context menu-->
+  <string name="delete">মুছে ফেলুন </string>
+  <string name="delete_index">অনুসন্ধান সূচক মুছুন</string>
+  <string name="about">সম্বন্ধে </string>
+  <string name="delete_doc">মুছে ফেলুন %s ?</string>
+  <string name="delete_search_index_doc">%s  এর সূচক মুছুন?</string>
+  <!--Verse context menu-->
+  <string name="notes">পাদটীকা এবং রেফারেন্স</string>
+  <string name="verse_action_copy">কপি</string>
+  <string name="share_verse">সেয়ার </string>
+  <string name="share_verse_subject_2">আপনার সাথে বাইবেলের একটি পদ ভাগ করে নেওয়া হয়েছে %s</string>
+  <string name="compare_translations">অনুবাদগুলির সাথে তুলনা করুন</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">লিঙ্কটি এখানে খুলুন</string>
+  <string name="open_link_in_new_window">নতুন উইন্ডোতে লিঙ্ক খুলুন</string>
+  <string name="open_link_in_special_window">বিশেষ উইন্ডোতে লিঙ্ক খুলুন</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">বুকমার্ক</string>
+  <string name="add_bookmark">বুকমার্কে সংযুক্তকরন</string>
+  <string name="delete_bookmark">বুকমার্ক মুছুন</string>
+  <string name="bookmark_added">বুকমার্ক যোগ হয়েছে</string>
+  <string name="bookmark_date_updated">বুকমার্কের তারিখ আপডেট হয়েছে</string>
+  <string name="bookmark_deleted"> 
+বুকমার্ক মোছা হয়েছে</string>
+  <string name="bookmark_labels">বুকমার্ক লেবেল</string>
+  <string name="manage_labels">বুকমার্ক লেবেল পরিচালনা করুন</string>
+  <string name="assign_labels">লেবেল নিযুক্ত করুন </string>
+  <string name="new_label">নতুন লেবেল </string>
+  <string name="label_name_prompt">নাম </string>
+  <string name="label_unlabelled">লেবেল বিহীন</string>
+  <string name="style">ধরন </string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date"> 
+তারিখ ক্রমানুসারে </string>
+  <string name="sort_by_bible_book">বাইবেল ভিত্তিক  ক্রমানুসারে</string>
+  <string name="sort_by_alphabetical"> 
+বর্ণা ক্রমানুসারে</string>
+  <!--Dictionary-->
+  <string name="dictionary">অবিধান </string>
+  <string name="search_dictionary_hint">অভিধান অনুসন্ধান করুন</string>
+  <!--General Book-->
+  <string name="general_book">বই </string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d অধ্যায় </string>
+  <string name="some_chapters">%d অধ্যায়গুলি </string>
+  <string name="rest_of_book">বইয়ের শেষ</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d পদ</string>
+  <string name="some_verses">%d পদগুলি </string>
+  <string name="rest_of_chapter">অধ্যায়েরে শেষ </string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d পাতা </string>
+  <string name="some_pages">%d পাতাগুলি </string>
+  <!--Speak - Common-->
+  <string name="stop">থামুন </string>
+  <string name="pause">বিরতি </string>
+  <string name="rewind"> 
+ফিরে দেখা</string>
+  <string name="forward">অগ্রবর্তী</string>
+  <string name="tts_lang_not_available">ভাষা উপলভ্য নয়।</string>
+  <string name="speak_queue"> 
+কিউ</string>
+  <string name="speak_repeat">পুনরাবৃত্তি</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">কথা বলার গতি </string>
+  <string name="speak_and_play_earcons_title">এর জন্য ইয়ারকন শব্দগুলি বলুন এবং খেলুন</string>
+  <string name="playback_settings_title"> 
+প্লেব্যাক সেটিংস</string>
+  <string name="speak_settings_title">সাধারণ কথা বলার সেটিংস</string>
+  <string name="speak_bookmarking_settings_title">বুকমার্কিং সেটিংস</string>
+  <string name="speak_bookmarks_menu_title">বুকমার্ক থেকে কথা বলুন</string>
+  <string name="speak_advanced_settings">এ্যাডভান্স সেটিংস</string>
+  <string name="speak_sleep_timer_title">স্লিপ টাইমার </string>
+  <string name="speak_no_books_available">কথা বলার জন্য কোনও বই নেই</string>
+  <string name="repeat_passage">পুনরাবৃত্তি উত্তরণ</string>
+  <string name="set_repeat_passage_range">পুনরাবৃত্তি উত্তরণ পরিসীমা সেট করুন</string>
+  <string name="speak_beginning_of_passage">উত্তরণের শুরু চয়ন করুন</string>
+  <string name="speak_ending_of_passage">উত্তরণের শেষ চয়ন করুন </string>
+  <string name="speak_verse_range_to_repeat">পুনরাবৃত্তি করতে পদ পরিসীমা চয়ন করুন</string>
+  <string name="speak_ending_verse_must_be_later">শেষ পদটি শুরুর পদের চেয়ে পরে হওয়া উচিত</string>
+  <string name="conf_speak_synchronize">পাঠ ভাষনকে অনুসরণ করে </string>
+  <string name="conf_speak_auto_bookmark">স্বয়ংক্রিয় বুকমার্কিং</string>
+  <string name="conf_save_playback_settings_to_bookmarks">বুকমার্কগুলিতে প্লেব্যাক সেটিংস সংরক্ষণ করুন</string>
+  <string name="conf_replace_divinename">ইহোবার সাথে ঐশ্বরিক নাম প্রতিস্থাপন করুন</string>
+  <string name="conf_change_chapter">অধ্যায় পরিবর্তন হচ্ছে</string>
+  <string name="conf_change_title">শিরোনামগুলি</string>
+  <string name="conf_speak_footnotes">পদটীকা </string>
+  <string name="conf_speak_sleep_timer">স্লিপ টাইমার সেট করুন</string>
+  <string name="sleep_timer_title">মিনিটে ঘুমানোর সময়</string>
+  <string name="sleep_timer_set">স্লিপ টাইমার সেট করুন। টাইমার সেট: %d মিনিট</string>
+  <string name="sleep_timer_started">স্লিপ টাইমার শুরু হয়েছে, %d মিনিট</string>
+  <string name="sleep_timer_active_at">স্লিপ টাইমার:%s মিনিট বাকি।</string>
+  <string name="speak_next">পরবর্তী</string>
+  <string name="speak_previous">পূর্ববর্তী</string>
+  <string name="widget_toggle_sleep_timer">টগ্র স্লিপ টাইমার </string>
+  <string name="widget_bookmark_helptext">কথা বলার বুকমার্কের শর্টকাট বোতামগুলি এখানে উপস্থিত হবে।</string>
+  <string name="speak_status_stopped">বন্ধ</string>
+  <string name="speak_autobookmarking_disabled">অটোবুকমার্কিং অক্ষম!</string>
+  <string name="system_speak_settings">সিস্টেম টিটিএস সেটিংস খুলুন</string>
+  <string name="speak_bookmark_help">কথা বলার বুকমার্ক এর জন্য সাহায্য</string>
+  <string name="speak_help_auto_bookmark">কথাবলা বিরতি দেওয়া বা বন্ধ হয়ে গেলে একটি কথাবলা বুকমার্ক স্বয়ংক্রিয়ভাবে যুক্ত হবে
+স্বয়ংক্রিয়ভাবে উত্পাদিত বুকমার্কগুলি বিশেষ স্পিকার লেবেলযুক্তের সাথে লেবেলযুক্ত করা হবে।
+আপনি যদি একটি কথাবলা বুকমার্ক শুরু করেন তবে বুকমার্কটি আপনাকে পদে স্থানান্তরিত করবে
+পরবর্তী সময়ে থামুন বা বিরতি দিন। কেবল কথাবলার লেবেল সরানো হবে, অন্য কোনও লেবেল
+একা থাকবে</string>
+  <string name="speak_help_playback_settings">স্পেস স্ক্রিনে \"প্লেব্যাক সেটিংস\" (এর অধীনে বিশেষ প্লেব্যাক সেটিংস এই সেটিংটি নির্বাচন করা হলে)
+ বুকমার্কগুলিতে কথা বলতে সংরক্ষণ করা হয়। আপনি যখন কথাবলার বুকমার্ক থেকে কথা বলা পুনরায় শুরু করবেন, তখন সংরক্ষণিত প্লেব্যাক সেটিংস বুকমার্ক থেকে লোড করা হয়।</string>
+  <string name="speak_help_playback_settings_example">উদাহরণস্বরূপ, যদি আপনি আদিপুস্তক বং রোমীয় শুনছেন এবং অধ্যায় পরিবর্তন বিজ্ঞপ্তিগুলি ছাড়াই আদিপুস্তকের কথা দ্রুত শুনতে চান, তবে সাময়িক রূপান্তরের উপর শ্রুতিমধুর ইয়ারকন শব্দগুলির সাথে আরও ধীরে ধীরে শুনতে আপনার কাছে এই বইগুলির জন্য পৃথক প্লেব্যাক সেটিংস থাকতে পারে, যখন এই সেটিংসগুলি স্বতন্ত্র বুকমার্কগুলিতে সংরক্ষণ করা হয়।</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>প্রভু</item>
+    <item>ঈশ্বর</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>ইহোবা</item>
+    <item>ইহোবা</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">বই বদলে গেছে।</string>
+  <string name="speak_chapter_changed">অধ্যায়</string>
+  <string name="speak_first">প্রথম </string>
+  <string name="speak_second">দ্বিতীয় </string>
+  <string name="speak_third">তৃতীয় </string>
+  <string name="speak_fourth">চতুর্থ</string>
+  <string name="speak_fifth">পঞ্চম </string>
+  <string name="verse_range_mode_disabled">পুনরাবৃত্তি প্যাসেজ মোড স্বয়ংক্রিয়ভাবে অক্ষম ছিল কারণ
+সংজ্ঞায়িত পদ ব্যাপ্তির বাইরে কথা বলা শুরু হয়েছিল।</string>
+  <!--User Notes-->
+  <string name="mynotes">আমার নোটস</string>
+  <string name="mynote_add">আমার নোট যোগ করুন</string>
+  <string name="mynote_saved">আমার নোট সংরক্ষণ করা হয়েছে</string>
+  <!--Backup and restore-->
+  <string name="backup_and_restore">ব্যাকআপ &amp; প্রত্যর্পণ করা</string>
+  <string name="backup_modules">ডকুমেন্টস ব্যাকআপ করুন......</string>
+  <string name="backup_app_database">অ্যাপ্লিকেশন ব্যাকআপ ডাটাবেস করুন.....</string>
+  <string name="restore_app_database">এর থেকে অ্যাপ্লিকেশন ডাটাবেস পুনরুদ্ধার করুন ...</string>
+  <string name="restore_confirmation">আমার নোটস, বুকমার্কস, পঠন পরিকল্পনা এবং কর্মক্ষেত্রগুলিকে ওভাররাইট করবেন?</string>
+  <string name="restore_success">আমার নোটস, বুকমার্কস, পড়ার পরিকল্পনা এবং কর্মক্ষেত্রগুলি সাফল্যের সাথে পুনরুদ্ধার হয়েছে</string>
+  <string name="loading_backup">ব্যাকআপ থেকে ডেটাবেস লোড হচ্ছে…</string>
+  <string name="backup_success">আমার নোটস, বুকমার্কস, পড়ার পরিকল্পনা এবং কর্মক্ষেত্রগুলির সফলভাবে ব্যাক আপ হয়েছে %s ।</string>
+  <string name="error_no_backup_file">ব্যাকআপ ফাইল পাওয়া যায় নি</string>
+  <string name="backup_modules_email_subject_2">%s মডিউল ব্যাকআপ</string>
+  <string name="backup_modules_email_message_2"> সংযুক্ত হল আপনার %s মডিউলগুলির ব্যাকআপ, এতে নিম্নলিখিত মডিউলগুলি রয়েছে: %s </string>
+  <string name="backup_email_subject_2">%s ডাটাবেস ব্যাকআপ</string>
+  <string name="backup_email_message_2">বুকমার্ক, নোটস, পড়ার পরিকল্পনা এবং কর্মক্ষেত্রযুক্ত আপনার %s ডাটাবেসটি সংযুক্ত রয়েছে </string>
+  <string name="restore_unsuccessfull">ডাটাবেস পুনরুদ্ধার করা ব্যর্থ হয়েছিল। সম্ভবত আপনি অবৈধ ডাটাবেস ফাইল দিয়েছেন।</string>
+  <string name="backup_restore_title">কোথা থেকে পুনরুদ্ধার করবেন?</string>
+  <string name="backup_restore_message">ফোন স্টোরেজ থেকে পুনরুদ্ধার করুন বা ম্যানুয়ালি ব্যাকআপ ফাইল বাছুন (আপনি গুগল ড্রাইভ থেকেও বেছে নিতে পারেন ইত্যাদি)?</string>
+  <string name="backup_phone_storage">ফোন স্টোরেজ </string>
+  <string name="backup_manually">ফাইল বাছুন</string>
+  <string name="backup_backup_title">কোথায় ব্যাকআপ?</string>
+  <string name="backup_backup_message">শেয়ার ফাংশন (ইমেল, গুগল ড্রাইভ ইত্যাদি) এর মাধ্যমে ফোনে বা অন্য কোথাও ব্যাকআপ নেবেন?</string>
+  <string name="backup_share">ভাগ / শেয়ার </string>
+  <string name="restore_modules">এর থেকে ডকুমেন্টস পুনরুদ্ধার করুন ...</string>
+  <string name="send_backup_file">একটি ব্যাকআপ ফাইল প্রেরণ করুন</string>
+  <string name="backup_modules_title">ব্যাকআপ নেওয়ার জন্য কোন মডিউলগুলি নির্বাচন করুন</string>
+  <string name="install_zip_canceled">মডিউল ইনস্টল বাতিল হয়েছে</string>
+  <!--About-->
+  <string name="module_about_copyright">কপিরাইট:%s</string>
+  <string name="module_about_installed_version">ইনস্টলড ভারসন %s ( %s) </string>
+  <string name="module_about_latest_version">সর্বশেষ সংস্করণ: %s ( %s) </string>
+  <string name="module_about_versification">ছন্দঃ: %s </string>
+  <string name="module_about_repository">বিতরণ সংগ্রহস্থল: %s </string>
+  <string name="module_about_osisId">OSIS ID: %s </string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">একটি ত্রুটিতে রিপোর্ট করুন </string>
+  <string name="report_bug_email_subject_2">ত্রুটি রিপোর্ট এর জন্য %s %s </string>
+  <string name="report_bug_email_message">
+--- এই লাইন উপরে ত্রুটি রিপোর্ট লিখুন --- \n নির্দেশাবলী: \n ইস্যু করার সময় আপনি কী করেছেন / কী হয়েছে তা সংক্ষেপে বলুন       স্থান দখল করেছে. উদাহরণ:। \n \n 1. খোলা অ্যাপ  \n 2. ক্লিক করা উইন্ডো মেনু \n - &gt; দ্বারা ক্র্যাশ \n \n কখনও কখনও স্ক্রিনশট সমস্যা সমাধানেও উপকারী। দয়া করে আপনার এই ফাংশনটি সংঘটিত হওয়ার সাথে সাথে রিপোর্ট করার জন্য এই ফাংশনটি ব্যবহার করুন  ক্র্যাশ হওয়ার পরে আপনি অ্যাপটি খোলার পরেও এই ফাংশনটি ব্যবহার করতে পারেন \n \n ডিভাইস তথ্য: \n %s  </string>
+  <!--Document types-->
+  <string name="doc_type_all">সব ধরনের</string>
+  <string name="doc_type_bible">বাইবেল </string>
+  <string name="doc_type_commentary">ব্যাক্ষা </string>
+  <string name="doc_type_dictionary">অভিধান</string>
+  <string name="doc_type_book">বই </string>
+  <string name="doc_type_map">মানচিত্র</string>
+  <!--Languages-->
+  <string name="lang_default">ডিফল্ট/ ত্রুটি</string>
+  <!--General-->
+  <string name="okay">ঠিক আছে </string>
+  <string name="cancel">বাতিল </string>
+  <string name="yes">হ্যাঁ </string>
+  <string name="no">না </string>
+  <string name="error">ভুল </string>
+  <string name="please_wait">দয়াকরে অপেক্ষা করুন......</string>
+  <string name="all">সব </string>
+  <string name="default_value">@string/lang_default</string>
+  <string name="edit">সম্পাদন করুন </string>
+  <string name="watch_tutorial_video">টিউটোরিয়াল ভিডিও দেখুন (ইংরেজি)</string>
+  <string name="verse_not_found">পদ পাওয়া যায়নি </string>
+  <!--Errors-->
+  <string name="report_error">প্রতিবেদন পাঠান </string>
+  <string name="error_occurred">একটি ত্রুটি ঘটেছে </string>
+  <string name="error_occurred_with_link">একটি ত্রুটি ঘটেছে  %s </string>
+  <string name="error_no_content">নির্বাচিত পদের জন্য কোনও সামগ্রী নেই</string>
+  <string name="error_page_too_large">পৃষ্ঠাটি লোড করার জন্য খুব বড়</string>
+  <string name="error_key_not_in_document">নথিতে পাওয়া যায় নি</string>
+  <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">পাঠ্যাংশ থেকে বাক্য</string>
+  <string name="notification_channel_progress_status">ডকুমেন্টস ডাউনলোড ইত্যাদির জন্য অগ্রগতির স্থিতি বিজ্ঞপ্তি</string>
+  <!--Workspaces-->
+  <string name="new_workspace">নতুন </string>
+  <string name="switch_to_workspace">কর্মক্ষেত্র</string>
+  <string name="delete_workspace">অপসারণ</string>
+  <string name="new_copied_workspace">নতুন হিসাবে অনুলিপি করুন</string>
+  <string name="workspace_number">কর্মক্ষেত্র%d </string>
+  <string name="rename_workspace">পুনরায় নামকরণ</string>
+  <string name="workspace_selector_title">কর্মক্ষেত্র নির্বাচন করুন</string>
+  <string name="workspace_settings">সেটিংস......</string>
+  <string name="give_name_workspace">নতুন কর্মক্ষেত্রের জন্য নাম দিন</string>
+  <string name="save_and_exit">সংরক্ষণ</string>
+  <string name="workspace_save_changes">কর্মক্ষেত্রের পরিবর্তনগুলি প্রয়োগ করবেন?</string>
+  <string name="copy_of_workspace">%s এর অনুলিপি</string>
+  <string name="copy_workspace_settings">সেটিংস অনুলিপি করুন ...</string>
+  <string name="copy_settings_title">আপনি কোন সেটিংস অনুলিপি করতে চান?</string>
+  <string name="select_all">সমস্ত নির্বাচন করুন</string>
+  <string name="copy_settings_workspaces_title">আপনি কোন কর্মক্ষেত্রে সেটিংস অনুলিপি করতে চান?</string>
+  <string name="reset_settings">রিসেট</string>
+  <string name="workspace_dismiss">খারিজ করুন
+</string>
+  <string name="workspace_listing_with_current">%s (বর্তমান) </string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">এটি বিটা সংস্করণ!</string>
+  <string name="beta_notice_content_1">বিটা সংস্করণে, এমন নতুন বৈশিষ্ট্য রয়েছে যা এখনও সঠিকভাবে পরীক্ষা করা হয়নি, এবং এইভাবে বিটা ব্যবহার করা অপ্রত্যাশিত আচরণের অর্থাত্‍ বাগগুলি প্রবর্তন করতে পারে। সাধারণ বাইবেল পাঠকদের পরিবর্তে স্থিতিশীল সংস্করণ ব্যবহার করা বাঞ্ছনীয়।</string>
+  <string name="beta_notice_content_2">বিটা ব্যবহারকারীদের গুগল প্লে বা এর মাধ্যমে বাগ প্রতিবেদন করতে উত্সাহ দেওয়া হচ্ছে
+(সাধারণত) মাধ্যমে। %s </string>
+  <string name="beta_notice_content_3">আপনি যদি প্রোগ্রামার হন তবে দয়া করে বাগটি অবদানের বিষয়টি বিবেচনা করুন
+নিজের মাধ্যমে  %s ঠিক করে নিন। :-)</string>
+  <string name="beta_notice_github_issues">গিথুব ইস্যু</string>
+  <string name="beta_notice_github">গিথুব </string>
+  <string name="beta_notice_dismiss">খারিজ করুন </string>
+  <string name="beta_notice_dismiss_until_update">পরবর্তী আপডেট হওয়া পর্যন্ত খারিজ করুন</string>
+  <!--History-->
+  <string name="history_for">ইতিহাস (%s:  উনন্ডো %d )</string>
+  <!--Help-->
+  <string name="help_nav_title">ন্যাভিগেশন</string>
+  <string name="help_nav_text">আপনার আঙুল দিয়ে স্ক্রিনটি সোয়াইপ করে পরবর্তী বা পূর্ববর্তী অধ্যায়টিতে যান।
+পূর্ণ স্ক্রিন মোডে টগল করতে বাইবেলের পাঠ্যকে দুইবার আলতো চাপুন।
+বিভক্ত স্ক্রিনগুলির (উইন্ডোজও বলা হয়) এর ডানদিকে ডানদিকে কোণায় মেনু বোতাম রয়েছে,
+যা আপনাকে বেশ কয়েকটি উইন্ডো-নির্দিষ্ট ফাংশন ব্যবহার করতে এবং উইন্ডো দৃষ্টিভঙ্গি এবং আচরণকে কাস্টমাইজ করতে সক্ষম করে।</string>
+  <string name="help_contextmenus_title">প্রসঙ্গ মেনু</string>
+  <string name="help_contextmenus_text">দীর্ঘ চেপে রাখুন বেশ কয়েকটি দর্শনগুলির প্রসঙ্গ মেনু বা ক্রিয়া মোড খুলবে।
+বর্তমান পদকে প্রভাবিত করে এমন ক্রিয়াকলাপগুলির জন্য অ্যাকশন মোডটি খুলতে বাইবেল দর্শনে দীর্ঘক্ষণ টিপুন।
+ডকুমেন্টস বা তথ্য দেখার জন্য মুছতে বাছাই ডকুমেন্টস ডাউনলোডের তালিকার  ডকুমেন্টস আইটেমটিতে দীর্ঘ সময় টিপুন।
+লেবেল যুক্ত করতে বা বুকমার্ক মুছতে বুকমার্ক তালিকায় একটি বুকমার্ক দীর্ঘ চাপুন।
+আপনি যদি বর্তমান উইন্ডো, নতুন উইন্ডো বা বিশেষ লিঙ্কগুলি উইন্ডোতে খুলতে চান তবে লিংকগুলি টিপুন।</string>
+  <string name="help_mynote_title">আমার নোট</string>
+  <string name="help_mynote_text">নোটগুলি পদ প্রসঙ্গে মেনুতে আমার নোট মেনু আইটেমটির মাধ্যমে যুক্ত করা যেতে পারে। বিদ্যমান নোটগুলির তালিকাটি মূল মেনুতে প্রবেশ করা যায়।</string>
+  <string name="help_bookmarks_title">বুকমার্ক</string>
+  <string name="help_bookmarks_text">পদের প্রসঙ্গ মেনু মাধ্যমে বুকমার্কগুলি যোগ করা যেতে পারে। বুকমার্ক পরিচালকের প্রধান মেনুতে অ্যাক্সেস করা হয়। বুকমার্ক পরিচালকের প্রসঙ্গ মেনু বুকমার্কগুলিকে লেবেলগুলি ব্যবহার করে গোষ্ঠীভুক্ত করতে দেয়।</string>
+  <string name="help_search_title">অনুসন্ধান করুন</string>
+  <string name="help_search_text">অনুসন্ধান পাঠে বিশেষ চরিত্র সংযোজিত হতে পারে যেমন  ? এবং, আর , না, 
+(আরো বিস্তারিত এর জন্য দেখুন “ \"Apache Lucene - Query Parser Syntax\" )</string>
+  <string name="help_workspaces_title">কর্মক্ষেত্রগুলি </string>
+  <string name="help_workspaces_text">কর্মক্ষেত্রগুলি একাধিক প্রসঙ্গ-নির্ভর পরিবেশের  অনুমতি দেয়। ওয়ার্কস্পেস ফাংশন
+অপশন মেনুতে (শীর্ষে-ডানদিকে) ওয়ার্কস্পেস আইটেমের মাধ্যমে অ্যাক্সেস করা যায়। ওয়ার্কস্পেসগুলিতে অ্যাক্সেসের দ্রুত উপায়
+টুলবার থেকে সোয়াইপ-ডাউন অঙ্গভঙ্গি দ্বারা। আপনি সরঞ্জামদণ্ডের থেকে সোয়াইপ-বাম এবং সোয়াইপ-ডান অঙ্গভঙ্গিও ব্যবহার করতে পারেন
+পূর্ববর্তী / পরবর্তী ওয়ার্কস্পেসে স্যুইচ করুন।</string>
+  <string name="help_hidden_features_title">লুকানো শর্টকাটগুলি</string>
+  <string name="help_hidden_features_text">ওয়ার্কস্পেস নির্বাচনকারী দেখানোর জন্য সরঞ্জামদণ্ড থেকে নীচে সোয়াইপ করুন। দ্রুত কমানোর জন্য উইন্ডোতে দীর্ঘক্ষণ টিপুন। সেটিংগুলিতে স্পিক করতে দ্রুত স্পোক টুলবার বোতাম টিপুন। ডকুমেন্ট নির্বাচনকারীতে লাফিয়ে টানবারে পদের অবস্থানের শিরোনাম টিপুন। ইতিহাস তালিকার অ্যাক্সেস করতে পিছনে বোতামটি টিপুন।</string>
+  <string name="help_window_pinning_title">উইন্ডো পিনিং</string>
+  <string name="help_window_pinning_text">আপনি বিকল্প মেনু থেকে উইন্ডো পিনিং সক্ষম করতে পারবেন (তিনটি বিন্দু, ডান উপরের কোণে)। উইন্ডো পিনিং সক্ষম করা থাকলে আপনি বাইবেল দর্শনে অনেকগুলি পিনযুক্ত উইন্ডো প্রদর্শন করতে পারেন, তবে কেবল একটি পিনযুক্ত উইন্ডো। পিনযুক্ত উইন্ডোগুলি প্রথমে প্রদর্শিত হয় এবং তারপরে আনপিন করা উইন্ডোজ। আপনি পিনযুক্ত উইন্ডো হিসাবে বাইবেলের নথিগুলি খুলতে চাইতে পারেন এবং  নন-পিনযুক্ত উইন্ডো হিসাবে মন্তব্যগুলি এবং মানচিত্রগুলি। তাহলে আপনি সহজেই পারেন বাইবেলের নথিগুলি সর্বদা খোলা রাখতে পারেন এবং আপনি দ্রুত যখন বাইবেল অধ্যয়ন করেন তখন অন্যান্য অতিরিক্ত উপাদানও বদলাতে পারেন। </string>
+  <!--Uncategorized-->
+  <string name="close">বন্ধ করুন</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">আমি বুঝেছি</string>
+  <string name="first_time_help_show_next_time">পরের বার আবার প্রদর্শন করুন</string>
+</resources>

@@ -91,7 +91,7 @@
   <string name="prefs_screen_keep_on_title">Laikyti ekraną įjungtą</string>
   <string name="prefs_screen_keep_on_summary">Neleidžia ekranui išsijungti tol, kol naudojatės šia programėle</string>
   <string name="prefs_interface_locale_title">Programos kalba</string>
-  <string name="prefs_interface_locale_summary">Pasirinkite naudotojo sąsajos kalbą</string>
+  <string name="prefs_interface_locale_summary">Pasirinkti naudotojo sąsajos kalbą</string>
   <string name="reset_fontsize">Atstatyti</string>
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leisti naudoti rankiniu būdu įdiegtus dokumentus iš jsword/sword katalogo arba vidinės atmintinės</string>
@@ -108,14 +108,14 @@
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
   <string name="prefs_margin_size_summary">Derinti teksto paraštes kairėje ir dešinėje. Taip pat galima derinti maksimalų teksto plotį.</string>
-  <string name="prefs_text_colors_summary">Keisti toksto ir fono splavas, triukšmo efektą</string>
+  <string name="prefs_text_colors_summary">Keisti teksto ir fono spalvas bei triukšmo efektą</string>
   <string name="text_display_settings_activity_title">Teksto rodymo nustatymai</string>
   <string name="workspace_text_display_settings_title">Teksto nustatymai - %s</string>
   <string name="window_text_display_settings_title">Teksto nustatymai - Langas %d</string>
   <string name="prefs_text_display_settings_title">Formatavimas</string>
   <string name="prefs_text_appearance_title">Išvaizda</string>
   <string name="prefs_justify_title">Abipusė teksto lygiuotė</string>
-  <string name="prefs_justify_summary">Lygiuokite tekstą abiejose pusėse, t.y. kai kairys ir dešinys testo kraštas yra toje pačioje linijoje.</string>
+  <string name="prefs_justify_summary">Lygiuoti tekstą abiejose pusėse, t.y. taip, kad kairys ir dešinys teksto kraštas būtų proporcingai toje pačioje linijoje.</string>
   <string name="pref_left_margin_label_mm">Kairioji paraštė (%d mm)</string>
   <string name="pref_right_margin_label_mm">Dešinioji paraštė (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Didžiausias teksto plotis (%d mm)</string>
@@ -492,7 +492,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Eigos būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
   <!--Workspaces-->
-  <string name="new_workspace">Nauja</string>
+  <string name="new_workspace">Naujas</string>
   <string name="switch_to_workspace">Darbalaukiai</string>
   <string name="delete_workspace">Šalinti</string>
   <string name="new_copied_workspace">Kopijuoti kaip naują</string>
@@ -502,7 +502,7 @@ galite turėti skirtingus grojimo nustatymus šioms knygoms.</string>
   <string name="workspace_settings">Nuostatos…</string>
   <string name="give_name_workspace">Priskirkite naujam darbalaukiui pavadinimą</string>
   <string name="save_and_exit">Išsaugoti</string>
-  <string name="workspace_save_changes">Darbalaukiui pritaikyti pakeitimus?</string>
+  <string name="workspace_save_changes">Pritaikyti pakeitimus darbalaukiui?</string>
   <string name="copy_of_workspace">%s kopija</string>
   <string name="copy_workspace_settings">Kopijuoti nustatymus</string>
   <string name="copy_settings_title">Kuriuos nustatymus kopijuoti?</string>
@@ -568,8 +568,8 @@ Paspaudę ir palaikę mygtuką \"Atgal\", pateksite į istorijos sąrašą. </st
      Langų pritvirtinimą galite įjungti nustatymų meniu (trys taškai, viršutinis dešinys kampas).
      Jei langų pritvirtinimas veikia, vienu metu galite parodyti daug pritvirtintų langų,
      bet tik vieną nepritvirtintą. Pirma rodomi pritvirtinti langai, po to nepritvirtinti.
-     Geriau biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
-     kaip nepritvirtintus. Tuomet turėsite biblijos dokumentus visuomet avertus ir
+     Geriau Biblijų dokumentus atverti kaip pritvirtintus, o komentarus ir žemėlapius -
+     kaip nepritvirtintus. Tuomet turėsite Biblijos dokumentus visuomet atvertus ir
      lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.</string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
