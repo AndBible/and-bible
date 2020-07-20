@@ -15,7 +15,7 @@
   <string name="speak">কথাবলুন</string>
   <string name="help">সাহায্য</string>
   <string name="other">অন্যান্য</string>
-  <string name="help_and_tips">সহায়তা এবং amp ; পরামর্শ</string>
+  <string name="help_and_tips">সহায়তা এবং &amp; পরামর্শ</string>
   <string name="administration">প্রশাসন </string>
   <string name="rate_application">Rate &amp; গুগল প্লে পূনঃমূল্যায়ন করুন</string>
   <string name="chooce_document">নথি চয়ন করুন </string>
@@ -59,7 +59,7 @@
   <string name="prefs_show_bookmarks_summary">সমস্ত বুকমার্কগুলি  লুকানোর জন্য টিক চিহ্নটি তুলে দিন  </string>
   <string name="prefs_show_mynotes_summary">আমার নোট সহ পদের আইকন দেখান </string>
   <string name="prefs_show_notes_summary">পদটীকা এবং ক্রস-রেফারেন্সগুলি দেখান </string>
-  <string name="prefs_show_strongs_summary"> সংযোগ গ্রীক &amp;amp: ইব্রীয় সংজ্ঞা </string>
+  <string name="prefs_show_strongs_summary"> সংযোগ গ্রীক &amp; ইব্রীয় সংজ্ঞা </string>
   <string name="prefs_show_morphology_summary">রবীনসনের গ্রীক অঙ্গসংস্থানবিদ্যা দেখান </string>
   <string name="prefs_section_title_summary">নন্ ক্যানোনিকাল বিভাগের শিরোনাম দেখান </string>
   <string name="prefs_red_letter_summary">খ্রীষ্টের কথাগুলি লাল রঙের দেখান </string>
@@ -402,7 +402,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="mynote_add">আমার নোট যোগ করুন</string>
   <string name="mynote_saved">আমার নোট সংরক্ষণ করা হয়েছে</string>
   <!--Backup and restore-->
-  <string name="backup_and_restore">ব্যাকআপ &amp; amp; প্রত্যর্পণ করা</string>
+  <string name="backup_and_restore">ব্যাকআপ &amp; প্রত্যর্পণ করা</string>
   <string name="backup_modules">ডকুমেন্টস ব্যাকআপ করুন......</string>
   <string name="backup_app_database">অ্যাপ্লিকেশন ব্যাকআপ ডাটাবেস করুন.....</string>
   <string name="restore_app_database">এর থেকে অ্যাপ্লিকেশন ডাটাবেস পুনরুদ্ধার করুন ...</string>
