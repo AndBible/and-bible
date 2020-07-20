@@ -214,6 +214,7 @@ class BackupControl @Inject constructor() {
                     }
                     .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
                     .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
+                    .setOnCancelListener {_ -> it.resume(null)}
                     .setTitle(getString(R.string.backup_modules_title))
                     .create()
 
