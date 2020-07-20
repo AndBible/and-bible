@@ -4,6 +4,7 @@
   <string name="app_name_medium">Piibliuurimine (And Bible)</string>
   <string name="app_name_long">Piibliuurimise rakendus, And Bible avatud koodiga projektilt</string>
   <string name="version_text">Versioon %s</string>
+  <string name="no_sdcard_error">Palun sisesta SDD-kaart ja taaskäivita rakendus.</string>
   <!--Main menu-->
   <string name="menu">Menüü</string>
   <string name="chooseBook">Dokument</string>
@@ -26,10 +27,14 @@
   <string name="deuterocanonical">Apokriiva</string>
   <!--Search-->
   <string name="search_index">Otsinguindeks</string>
+  <string name="index_creation_required">Otsimiseks on vajalik register.</string>
+  <string name="create_index_for">Otsimiseks on vajalik register. \n\nKas luua %s-le indeks?</string>
+  <string name="rebuild_index_for">Kas taasluua %s indeks?</string>
   <string name="indexing_wait_msg">Kui indekseerimine lõpetatakse, siis viiakse sind tagasi avaekraanile.</string>
   <string name="index_create">Loo</string>
   <string name="rebuild_index">Loo indeks uuesti</string>
   <string name="do_in_background">Jätka taustal</string>
+  <string name="rebuild_index_button">Loo uuesti</string>
   <!--Tasks-->
   <string name="progress_status">Edenemine</string>
   <string name="task_kill_warning">Need kaua töötavad toimingud võivad katkeda, kui sa lülitud enne nende lõpetamist mõnele teisele rakendusele.</string>
@@ -76,6 +81,7 @@
   <string name="prefs_screen_keep_on_summary">Väldi ekraani kinni minemist selle rakenduse kasutamise ajal</string>
   <string name="prefs_interface_locale_title">Rakenduse keel</string>
   <string name="prefs_interface_locale_summary">Vali rakenduse keel</string>
+  <string name="reset_fontsize">Nulli</string>
   <string name="prefs_request_sdcard_permission_title">Käsitsi paigaldatud dokumendid on olemas</string>
   <string name="all_text_options_window_menutitle">Kõik teksti valikud</string>
   <string name="text_options_window_menutitle">Tekstivalikud</string>
