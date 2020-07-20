@@ -187,6 +187,7 @@ class ZipHandler(
                     .setMessage(activity.getString(R.string.overwrite_files, "\n" + e.files.joinToString("\n")))
                     .setPositiveButton(R.string.yes) {_, _ -> it.resume(true)}
                     .setNeutralButton(R.string.cancel) {_, _ -> it.resume(false)}
+                    .setOnCancelListener {_ -> it.resume(false)}
                     .show()
             }
             if(doInstall) R_OK else R_CANCEL
