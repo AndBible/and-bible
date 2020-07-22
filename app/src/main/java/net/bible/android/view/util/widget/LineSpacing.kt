@@ -40,7 +40,7 @@ class LineSpacingWidget(context: Context, attributeSet: AttributeSet?): LinearLa
         lineSpacing.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value = progress + 10
-                updateValue()
+                if(fromUser) updateValue()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
