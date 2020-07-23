@@ -28,10 +28,10 @@ import kotlinx.android.synthetic.main.margin_size_widget.view.*
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 
-fun createListener(func: (progress: Int) -> Unit): SeekBar.OnSeekBarChangeListener {
+fun createListener(func: (progress: Int, fromUser: Boolean) -> Unit): SeekBar.OnSeekBarChangeListener {
     return object: SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            func(progress)
+            func(progress, fromUser)
         }
         override fun onStartTrackingTouch(seekBar: SeekBar?) {
         }
@@ -51,18 +51,18 @@ class MarginSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLay
         rightMargin.max = 30
         maxWidth.max = 500
 
-        leftMargin.setOnSeekBarChangeListener(createListener {
+        leftMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
             value.marginLeft = it
-            updateValue();
+            if(fromUser) updateValue()
         })
 
-        rightMargin.setOnSeekBarChangeListener(createListener {
+        rightMargin.setOnSeekBarChangeListener(createListener { it, fromUser ->
             value.marginRight = it
-            updateValue()
+            if(fromUser) updateValue()
         })
-        maxWidth.setOnSeekBarChangeListener(createListener {
+        maxWidth.setOnSeekBarChangeListener(createListener {it, fromUser ->
             value.maxWidth = it
-            updateValue()
+            if(fromUser) updateValue()
         })
     }
     
