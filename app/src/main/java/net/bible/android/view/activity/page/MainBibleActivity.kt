@@ -1339,7 +1339,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     /**
      * allow current page to save any settings or data before being changed
      */
-    fun onEvent(event: PreBeforeCurrentPageChangeEvent) {
+    fun onEventMainThread(event: PreBeforeCurrentPageChangeEvent) {
         val currentPage = windowControl.activeWindowPageManager.currentPage
         // save current scroll position so history can return to correct place in document
         currentPage.currentYOffsetRatio = currentPosition

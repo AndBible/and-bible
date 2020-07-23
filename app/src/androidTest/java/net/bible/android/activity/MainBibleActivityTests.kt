@@ -48,6 +48,9 @@ import java.util.*
     - We need to have db with certain bookmarks, notes and workspaces
     - We we might need to have certain settings (those can be set runtime too)
     - In each locale, we need to automatically choose the local bible module, or the first local bible module
+
+    Screenshots must be captured on emulator that DOES NOT have Google Play additions in it (must allow root).
+
  */
 
 @RunWith(AndroidJUnit4::class)
@@ -59,15 +62,11 @@ class MainBibleActivityTests {
     @Test
     fun testMainActivity() {
         val doc = mainBibleActivity.swordDocumentFacade.bibles.find { it.language.code == Locale.getDefault().language }
-        GlobalScope.launch(Dispatchers.Main) {
-            mainBibleActivity.documentControl.currentPage.setCurrentDocumentAndKey(doc,
-                VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "John.3.16"))
-        }
 
-        //mainBibleActivity.windowControl.activeWindowPageManager.currentPage.setCurrentDocument(doc)
+        mainBibleActivity.documentControl.currentPage.setCurrentDocumentAndKey(doc,
+            VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "John.3.16"))
+
         Thread.sleep(1000)
-        //mainBibleActivity.windowControl.activeWindowPageManager.currentPage.key =
-        //onView(withId(R.id.speakButton)).perform(ViewActions.longClick())
         Screengrab.screenshot("main_bible_view")
     }
 
