@@ -1384,11 +1384,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private var actionMode: ActionMode? = null
+    private var wasFullScreen : Boolean = false
     override fun showVerseActionModeMenu(actionModeCallbackHandler: ActionMode.Callback) {
         Log.d(TAG, "showVerseActionModeMenu")
 
         GlobalScope.launch(Dispatchers.Main) {
-            showSystemUI()
+            wasFullScreen = isFullScreen
+            fullScreen = false
             actionMode = startSupportActionMode(actionModeCallbackHandler)
 
             setActionModeToolbarPadding()
@@ -1407,7 +1409,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         GlobalScope.launch(Dispatchers.Main) {
             actionMode.finish()
             this@MainBibleActivity.actionMode = null
-            resetSystemUi()
+            fullScreen = wasFullScreen
         }
     }
 
