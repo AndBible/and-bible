@@ -197,6 +197,9 @@ class SplitBibleArea(
                 bf = getBf(i) ?: break
                 if(bf.window.id == w.id) {
                     firstIs = true
+                    if (lastWindowButtonPreferenceState != hideWindowButtons) {
+                        bf.updateWindowButton()
+                    }
                     break
                 }
                 if (bf.window.id != w.id) {
@@ -207,6 +210,7 @@ class SplitBibleArea(
                 addBibleFrame(BibleFrame(w, this))
             }
         }
+        lastWindowButtonPreferenceState = hideWindowButtons
         while(bibleFrames.size > windows.size) {
             removeFrame(getBf(windows.size)!!)
         }
@@ -297,6 +301,7 @@ class SplitBibleArea(
 
     internal val hideWindowButtons get() =
         CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+    private var lastWindowButtonPreferenceState = hideWindowButtons;
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
 
