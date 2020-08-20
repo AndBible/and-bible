@@ -41,11 +41,6 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 
 	private Book documentBeingIndexed;
 
-	@Override
-	protected boolean getCustomTheme() {
-		return false;
-	}
-
 	private static final String TAG = "SearchIndexProgressStat";
 
 	@Override

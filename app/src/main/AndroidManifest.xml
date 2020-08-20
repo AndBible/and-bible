@@ -76,8 +76,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|adjustPan"/>
         <activity
             android:name="net.bible.android.view.activity.search.SearchResults"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
@@ -86,13 +85,11 @@
             />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndex"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />

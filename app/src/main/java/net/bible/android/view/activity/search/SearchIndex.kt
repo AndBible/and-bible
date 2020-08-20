@@ -43,8 +43,6 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     @Inject lateinit var searchControl: SearchControl
 
-    override val customTheme = false
-
     private val documentToIndex: Book?
         get() {
             val documentInitials = intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)
