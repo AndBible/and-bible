@@ -7,7 +7,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="match_parent">
 	<TextView android:id="@+id/indexCreationRequired"
 		android:text="@string/index_creation_required" 
 		android:layout_height="wrap_content" 
@@ -20,8 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		app:layout_constraintTop_toBottomOf="@id/indexCreationRequired"
-	    android:layout_alignParentBottom="true">
+		app:layout_constraintBottom_toBottomOf="parent"
+		>
 		<Button android:id="@+id/cancelButton"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:text="@string/cancel"
