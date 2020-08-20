@@ -43,6 +43,9 @@ import tools.fastlane.screengrab.locale.LocaleTestRule
 import java.util.*
 
 /*
+    HOWTO:
+    - run tests by command `fastlane screengrab`
+
     TODO:
     - We need to have zip of modules in each Play Store language
     - We need to have db with certain bookmarks, notes and workspaces
