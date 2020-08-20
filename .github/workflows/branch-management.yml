@@ -1,8 +1,8 @@
 name: Branch Management
 
-on:
-  push:
-    branches: [ current-stable ]
+#on:
+#  push:
+#    branches: [ current-stable ]
 
 #jobs:
 #  build:
