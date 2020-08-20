@@ -5,7 +5,7 @@
     --noise-opacity: 0.0;
     --text-color: #000000;
     --max-width: 170mm;
-    --text-align: left;
+    --text-align: start;
     --line-spacing: 1em;
     --hyphens: auto;
 }
@@ -46,7 +46,7 @@ div#content {
 
 h1, .heading1 {
 	color: navy;
-	text-align: left;
+	text-align: start;
 	font-size: 1.2em;
 	margin-top: 0.2em;
 	margin-bottom: 0.2em;
@@ -78,7 +78,7 @@ img.sword {
 
 h1 a, .heading2, .heading3, .heading4 {
 	color: navy;
-	text-align: left;
+	text-align: start;
 	font-size: 0.9em;
 	margin-top: 0em;
 	margin-bottom: 0.2em;

@@ -102,13 +102,13 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
         .css("--hyphens", hyphenation ? "auto": "none")
         .css("--noise-opacity", noiseOpacity/100)
         .css("--line-spacing", `${lineSpacing}em`)
-        .css("--text-align", justifyText? "justify" : "left");
+        .css("--text-align", justifyText? "justify" : "start");
     const content = $("#content")
 
     content
         .css("max-width", `${maxWidth}mm`)
         .css("hyphens", hyphenation ? "auto": "none")
-        .css("text-align", justifyText? "justify" : "left");
+        .css("text-align", justifyText? "justify" : "start");
 
     if(marginLeft || marginRight) {
         content

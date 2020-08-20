@@ -7,7 +7,7 @@ body {
 
 h1, .heading1 {
 	color: var(--text-color);
-	text-align: left;
+	text-align: start;
 	font-size: 1.2em;
 	margin-top: 0.2em;
 	margin-bottom: 0.2em;
@@ -16,7 +16,7 @@ h1, .heading1 {
 
 h1 a, .heading2, .heading3, .heading4 {
 	color: var(--text-color);
-	text-align: left;
+	text-align: start;
 	font-size: 0.9em;
 	margin-top: 0em;
 	margin-bottom: 0.2em;
