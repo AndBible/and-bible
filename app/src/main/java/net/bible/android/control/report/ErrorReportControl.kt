@@ -128,7 +128,7 @@ class ErrorReportControl @Inject constructor() {
                 putExtra(Intent.EXTRA_STREAM, uri)
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, message)
-                putExtra(Intent.EXTRA_EMAIL, arrayOf("and-bible-support+errors@googlegroups.com", "errors.andbible+errors@gmail.com"))
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
                 type = "application/x-gzip"
             }
             val chooserIntent = Intent.createChooser(email, context.getString(R.string.send_bug_report_title))

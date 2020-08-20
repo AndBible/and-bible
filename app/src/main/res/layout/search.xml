@@ -6,117 +6,131 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content">
-
-	<EditText android:id="@+id/searchText" 
-		android:layout_height="wrap_content" 
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+	<EditText android:id="@+id/searchText"
+		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
 		app:layout_constraintTop_toTopOf="parent"
-
 		android:layout_alignParentTop="true"
+		android:imeOptions="actionSearch"
+		android:inputType="textCapSentences"
 		android:padding="10dip"/>
-	
-    <!-- horizontal container to force each pair of controls to use half of screen each -->
-    <LinearLayout android:id="@+id/centreAreaContainer"
-    	android:orientation="horizontal"
-	    android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
 		app:layout_constraintTop_toBottomOf="@id/searchText"
-		android:layout_below="@+id/searchText">
-		
-		<RadioGroup android:id="@+id/bibleSectionGroup" 
-			android:layout_height="wrap_content"
-			android:layout_width="0dip" 
-			android:layout_weight="1"
-			android:padding="5dip">	
-			<TextView android:id="@+id/sectionGroupPrompt"
-				android:text="@string/search_bible_section_group_prompt"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"/>
-			<RadioButton android:id="@+id/searchAllBible" 
-				android:text="@string/search_all_bible" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"
-				android:checked="true"/>
-			<RadioButton android:id="@+id/searchOldTestament" 
-				android:text="@string/search_old_testament" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/searchNewTestament" 
-				android:text="@string/search_new_testament" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/searchCurrentBook" 
-				android:text="@string/search_current_book" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-		</RadioGroup>
-
-		<RadioGroup android:id="@+id/wordsGroup" 
-			android:layout_height="wrap_content"
-			android:layout_width="0dip" 
-			android:layout_weight="1"
-			android:padding="5dip">	
-			<TextView
-				android:text="@string/search_words_group_prompt"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"/>
-			<RadioButton android:id="@+id/allWords" 
-				android:layout_width="wrap_content" 
-				android:text="@string/search_all_words" 
-				android:layout_height="wrap_content"
-				android:checked="true"/>
-			<RadioButton android:id="@+id/anyWord" 
-				android:layout_width="wrap_content" 
-				android:text="@string/search_any_word" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/phrase" 
-				android:layout_width="wrap_content" 
-				android:text="@string/search_phrase" 
-				android:layout_height="wrap_content"/>
-		</RadioGroup>
-    </LinearLayout>
-
-
-	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/button_panel"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-		app:layout_constraintTop_toBottomOf="@id/centreAreaContainer"
-	    android:orientation="horizontal">
-	    <!-- Left spacer -->
-		<Button android:id="@+id/cancel"
-			android:text="@string/cancel"
-			android:layout_width="0dip"
-			android:layout_height="match_parent"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:onClick="onCancel"
-			android:layout_weight="2"
-			/>
-
-
-		<Button android:id="@+id/rebuildIndex"
-			android:text="@string/rebuild_index"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:onClick="onRebuildIndex"
-			android:layout_weight="2"
-			/>
-
-	    <View
-	        android:layout_width="0dip"
-	        android:layout_height="match_parent"
-	        android:layout_weight="1"/>
+		app:layout_constraintBottom_toTopOf="@id/button_panel"
+		>
 	
-	 	<Button android:id="@+id/submit"
- 			android:text="@string/search"
-	        android:layout_width="0dip"
-	        android:layout_height="match_parent"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-			android:layout_weight="2"
-			android:onClick="onSearch"/>
-	</LinearLayout>
+		<!-- horizontal container to force each pair of controls to use half of screen each -->
+		<LinearLayout android:id="@+id/centreAreaContainer"
+			android:orientation="horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			>
+		
+			<RadioGroup android:id="@+id/bibleSectionGroup"
+				android:layout_height="wrap_content"
+				android:layout_width="0dip"
+				android:layout_weight="1"
+				android:padding="5dip">
+				<TextView android:id="@+id/sectionGroupPrompt"
+					android:text="@string/search_bible_section_group_prompt"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"/>
+				<RadioButton android:id="@+id/searchAllBible"
+					android:text="@string/search_all_bible"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:checked="true"/>
+				<RadioButton android:id="@+id/searchOldTestament"
+					android:text="@string/search_old_testament"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+				<RadioButton android:id="@+id/searchNewTestament"
+					android:text="@string/search_new_testament"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+				<RadioButton android:id="@+id/searchCurrentBook"
+					android:text="@string/search_current_book"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+			</RadioGroup>
+
+			<RadioGroup android:id="@+id/wordsGroup"
+				android:layout_height="wrap_content"
+				android:layout_width="0dip"
+				android:layout_weight="1"
+				android:padding="5dip">
+				<TextView
+					android:text="@string/search_words_group_prompt"
+					android:layout_height="wrap_content"
+					android:layout_width="wrap_content"/>
+				<RadioButton android:id="@+id/allWords"
+					android:layout_width="wrap_content"
+					android:text="@string/search_all_words"
+					android:layout_height="wrap_content"
+					android:checked="true"/>
+				<RadioButton android:id="@+id/anyWord"
+					android:layout_width="wrap_content"
+					android:text="@string/search_any_word"
+					android:layout_height="wrap_content"/>
+				<RadioButton android:id="@+id/phrase"
+					android:layout_width="wrap_content"
+					android:text="@string/search_phrase"
+					android:layout_height="wrap_content"/>
+			</RadioGroup>
+		</LinearLayout>
+	</ScrollView>
+
+
+	<ScrollView
+		android:id="@+id/button_panel"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toBottomOf="parent"
+		>
+		<!-- Button bar with OK button -->
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+			<!-- Left spacer -->
+			<Button android:id="@+id/cancel"
+				android:text="@string/cancel"
+				android:layout_width="0dip"
+				android:layout_height="match_parent"
+				style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+				android:onClick="onCancel"
+				android:layout_weight="2"
+				/>
+
+
+			<Button android:id="@+id/rebuildIndex"
+				android:text="@string/rebuild_index"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"
+				style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+				android:onClick="onRebuildIndex"
+				android:layout_weight="2"
+				/>
+
+			<View
+				android:layout_width="0dip"
+				android:layout_height="match_parent"
+				android:layout_weight="1"/>
+	
+			<Button android:id="@+id/submit"
+				android:text="@string/search"
+				android:layout_width="0dip"
+				android:layout_height="match_parent"
+				style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+				android:layout_weight="2"
+				android:onClick="onSearch"/>
+		</LinearLayout>
+	</ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
