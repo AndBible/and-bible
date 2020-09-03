@@ -199,7 +199,9 @@ class SplitBibleArea(
                 bf = getBf(i) ?: break
                 if(bf.window.id == w.id) {
                     firstIs = true
-                    bf.updateWindowButton()
+                    if (!buttonsWillAnimate) {
+                        bf.updateWindowButton()
+                    }
                     break
                 }
                 if (bf.window.id != w.id) {
@@ -300,6 +302,7 @@ class SplitBibleArea(
 
     internal val hideWindowButtons get() =
         CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
+    private var buttonsWillAnimate = false;
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
 
@@ -378,6 +381,8 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(autoHideWindowButtonBarInFullScreen)
             restoreButtonsVisible = !event.isFullScreen
+        buttonsWillAnimate = true
+        toggleWindowButtonVisibility(true, true)
     }
 
     fun onEvent(event: CurrentVerseChangedEvent) {
@@ -465,8 +470,10 @@ class SplitBibleArea(
         }
         Log.d(TAG, "toggleWindowButtonVisibility")
         mainBibleActivity.runOnUiThread {
+            var atLeastOneButtonWillAnimate = false
             for ((idx, b) in windowButtons.withIndex()) {
                 if(b == null) continue
+                atLeastOneButtonWillAnimate = true
                 b.animate().apply {
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
@@ -486,8 +493,14 @@ class SplitBibleArea(
                         alpha(hiddenAlpha)
                         interpolator = AccelerateInterpolator()
                     }
+                    withEndAction {
+                        buttonsWillAnimate = false
+                    }
                     start()
                 }
+            }
+            if (!atLeastOneButtonWillAnimate) {
+                buttonsWillAnimate = false
             }
 
             updateBibleReferenceOverlay(show)
