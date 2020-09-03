@@ -39,8 +39,6 @@
 		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
 
 		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
-		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@color/nav_bar_divider_grey</item>
-
 	</style>
 
 
