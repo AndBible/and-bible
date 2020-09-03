@@ -413,7 +413,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="restore_unsuccessfull">Tietokannan palauttaminen varmuuskopiosta epäonnistui. Annoit ehkä virheellisen tietokantatiedoston.</string>
   <string name="backup_restore_title">Mistä palautetaan?</string>
   <string name="backup_restore_message">Palautetaanko puhelimen muistista vai valitaanko varmuuskopiointitiedosto käsin (voit valita myös Google Drivestä jne.)?</string>
-  <string name="backup_phone_storage">Puhelimen muistista</string>
+  <string name="backup_phone_storage">Puhelimen muisti</string>
   <string name="backup_manually">Valitse tiedosto</string>
   <string name="backup_backup_title">Mihin varmuuskopioidaan?</string>
   <string name="backup_backup_message">Varmuuskopioidaanko puhelimen muistiin vai muualle Jaa -toimintoa käyttäen (sähköposti, Google Drive jne.)?</string>
