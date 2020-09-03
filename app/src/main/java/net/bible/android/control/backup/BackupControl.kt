@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.BuildConfig
 import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -73,30 +74,9 @@ import kotlin.coroutines.resume
 @ApplicationScope
 class BackupControl @Inject constructor() {
 
-    /** return true if a backup has been done and the file is on the sd card.
-     */
-    private val isBackupFileExists: Boolean
-        get() = File(SharedConstants.backupDir, DATABASE_NAME).exists()
-
-    /** backup database to sd card
-     */
-    fun backupDatabase() {
-        mainBibleActivity.windowRepository.saveIntoDb()
-        db.sync()
-        val ok = FileManager.copyFile(DATABASE_NAME, internalDbDir, SharedConstants.backupDir)
-
-        if (ok) {
-            Log.d(TAG, "Copied database to internal memory successfully")
-            Dialogs.instance.showMsg(R.string.backup_success, SharedConstants.backupDir.absolutePath)
-        } else {
-            Log.e(TAG, "Error copying database to internal memory")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
-        }
-    }
-
     /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    fun backupDatabaseToUri( uri: Uri) : Boolean {
+    suspend fun backupDatabaseToUri( uri: Uri)  {
         val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
         val filename = DATABASE_NAME;
         val f = File(internalDbDir, filename);
@@ -111,15 +91,15 @@ class BackupControl @Inject constructor() {
             ok = false
         }
 
-        if (ok) {
-            Log.d(TAG, "Copied database to chosen backup location successfully")
-            Dialogs.instance.showMsg(R.string.backup_success, uri.path)
-        } else {
-            Log.e(TAG, "Error copying database to chosen location.")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+       withContext(Dispatchers.Main) {
+            if (ok) {
+                Log.d(TAG, "Copied database to chosen backup location successfully")
+                Dialogs.instance.showMsg(R.string.backup_success)
+            } else {
+                Log.e(TAG, "Error copying database to chosen location.")
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            }
         }
-
-        return ok;
     }
 
     /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
@@ -150,9 +130,9 @@ class BackupControl @Inject constructor() {
         f.delete()
     }
 
-    /** backup database from custom source
+    /** restore database from custom source
      */
-    fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
+    suspend fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val f = File(internalDbBackupDir, fileName)
@@ -173,14 +153,15 @@ class BackupControl @Inject constructor() {
             }
             sqlDb.close()
         }
-
-        if (ok) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-            Log.d(TAG, "Restored database successfully")
-            Dialogs.instance.showMsg(R.string.restore_success)
-        } else {
-            Log.e(TAG, "Error restoring database")
-            Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
+        withContext(Dispatchers.Main) {
+            if (ok) {
+                ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                Log.d(TAG, "Restored database successfully")
+                Dialogs.instance.showMsg(R.string.restore_success)
+            } else {
+                Log.e(TAG, "Error restoring database")
+                Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
+            }
         }
         f.delete()
         return ok
@@ -280,8 +261,32 @@ class BackupControl @Inject constructor() {
         internalDbBackupDir.deleteRecursively()
     }
 
-    suspend fun backupModulesViaIntent(callingActivity: Activity) = withContext(Dispatchers.Main) {
-        val fileName = "modules.zip"
+    suspend fun backupModulesToUri(uri: Uri) {
+        // at this point the zip file has already been created
+        val fileName = MODULE_BACKUP_NAME
+        val zipFile = File(internalDbBackupDir, fileName)
+        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
+        val inputStream = FileInputStream(zipFile)
+        var ok = true
+        try {
+            out.write(inputStream.readBytes())
+            out.close()
+        } catch (ex: IOException) {
+            ok = false
+        }
+        withContext(Dispatchers.Main) {
+            if (ok) {
+                Log.d(TAG, "Copied modules to chosen backup location successfully")
+                Dialogs.instance.showMsg(R.string.backup_modules_success)
+            } else {
+                Log.e(TAG, "Error copying modules to chosen location.")
+                Dialogs.instance.showErrorMsg(R.string.error_occurred)
+            }
+        }
+    }
+
+    suspend fun backupModulesViaIntent(callingActivity: Activity)  = withContext(Dispatchers.Main)   {
+        val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, fileName)
         val books = selectModules(callingActivity) ?: return@withContext
@@ -291,51 +296,48 @@ class BackupControl @Inject constructor() {
         createZip(books, zipFile)
         hourglass.dismiss()
 
-        val modulesString = books.joinToString(", ") { it.abbreviation }
-        val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
-        val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
+        // send intent to pick file
 
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
-        val email = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-            type = "application/zip"
-        }
-        val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
-        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        callingActivity.startActivity(chooserIntent)
-    }
-
-    /** restore database from sd card
-     */
-    fun restoreDatabase() {
-        if (!isBackupFileExists) {
-            Dialogs.instance.showErrorMsg(R.string.error_no_backup_file)
-        } else {
-            Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
-                BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                val ok = FileManager.copyFile(DATABASE_NAME, SharedConstants.backupDir, internalDbDir)
-
-                if (ok) {
-                    DatabaseContainer.reset()
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-                    Log.d(TAG, "Copied database from internal memory successfully")
-                    Dialogs.instance.showMsg(R.string.restore_success, SharedConstants.backupDir.name)
-                } else {
-                    Log.e(TAG, "Error copying database from internal memory")
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
+        AlertDialog.Builder(callingActivity)
+            .setTitle(callingActivity.getString(R.string.backup_backup_title))
+            .setMessage(callingActivity.getString(R.string.backup_backup_message))
+            .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/zip"
+                    putExtra(Intent.EXTRA_TITLE, fileName)
                 }
+                callingActivity.startActivityForResult(intent, MainBibleActivity.REQUEST_PICK_FILE_FOR_BACKUP_MODULES)
             }
-        }
+            .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
+                val modulesString = books.joinToString(", ") { it.abbreviation }
+                val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
+                val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
+
+                val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
+                val email = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                    putExtra(Intent.EXTRA_TEXT, message)
+                    type = "application/zip"
+                }
+                val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
+                chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                callingActivity.startActivity(chooserIntent)
+            }
+
+            .setNeutralButton(callingActivity.getString(R.string.cancel), null)
+            .show()
+
     }
+
 
     companion object {
 
         // this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
         private lateinit var internalDbDir : File;
         private lateinit var internalDbBackupDir: File;
-
+        private const val MODULE_BACKUP_NAME = "modules.zip"
         fun setupDirs(context: Context) {
             internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
             internalDbBackupDir = File(context.filesDir,  "/backup")

@@ -31,7 +31,6 @@ object SharedConstants {
     const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
     const val NO_VALUE = -1
 
-    private const val BACKUP_SUBDIR_NAME = "andbible_backup"
     private const val CSS_SUBDIR_NAME = "css"
 
     private const val MANUAL_INSTALL_SUBDIR = "jsword"
@@ -62,9 +61,4 @@ object SharedConstants {
             return File(sdcard, MANUAL_INSTALL_SUBDIR)
         }
 
-    val backupDir: File
-        get() {
-            val sdcard = Environment.getExternalStorageDirectory()
-            return File(sdcard, BACKUP_SUBDIR_NAME)
-        }
 }
