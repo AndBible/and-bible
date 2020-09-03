@@ -94,7 +94,7 @@ class BackupControl @Inject constructor() {
        withContext(Dispatchers.Main) {
             if (ok) {
                 Log.d(TAG, "Copied database to chosen backup location successfully")
-                Dialogs.instance.showMsg(R.string.backup_success)
+                Dialogs.instance.showMsg(R.string.backup_success2)
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
                 Dialogs.instance.showErrorMsg(R.string.error_occurred)
