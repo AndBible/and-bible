@@ -9,6 +9,8 @@
 	<color name="bible_text_day">#000000</color>
 	<color name="bible_text_night">#b0b0b0</color>
 
+	<color name="bible_reference_overlay">#DEE4E4E4</color>
+
 	<color name="bar_window_button_text_colour">#E8E8E8</color>
 	<color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
 	<color name="bar_window_button_category_tint">#AAAAAA</color>
@@ -116,7 +118,6 @@
 	<color name="yellow_A200">#ffff00</color>
 	<color name="yellow_A400">#ffea00</color>
 	<color name="yellow_A700">#ffd600</color>
-	<color name="speak_status_background">#7eeceff1</color>
 	<color name="white">#ffffff</color>
 	<color name="black">#000000</color>
 	<color name="nav_bar_divider_grey">#CECECE</color>

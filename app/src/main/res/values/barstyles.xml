@@ -28,7 +28,7 @@
 		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>
 		<item name="barWindowButtonActiveBackgroundColor">@color/bar_window_button_background_colour_visible</item>
 
-		<item name="bibleReferenceOverlayBackgroundColor">#DEEEEEEE</item>
+		<item name="bibleReferenceOverlayBackgroundColor">@color/bible_reference_overlay</item>
 
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
