@@ -157,6 +157,8 @@ class VerseActionModeMediator(
     fun verseTouch(verse: ChapterVerse) {
         Log.d(TAG, "Verse touched event:$verse")
 
+        if (verse.verse == 0) return
+
         val origRange = chapterVerseRange
         chapterVerseRange = chapterVerseRange!!.toggleVerse(verse)
 
@@ -185,7 +187,7 @@ class VerseActionModeMediator(
 
     private fun startVerseActionMode(startChapterVerse: ChapterVerse) {
         Log.d(TAG, "startVerseActionMode")
-        if(!mainBibleActivity.isVerseActionModeAllowed()) {
+        if(!mainBibleActivity.isVerseActionModeAllowed() || startChapterVerse.verse == 0) {
             return
         }
         if (actionMode != null) {

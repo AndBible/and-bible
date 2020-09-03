@@ -3,41 +3,6 @@
   <string name="app_name_short">Studi Biblion</string>
   <string name="app_name_medium">Studi Biblion (And Biblio)</string>
   <string name="app_name_long">Studi Biblion, la malfermkoda projekto de And Bible</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigi</string>
-  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
- Duoble frapetu por baskuli plenekranon.
- Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
-  <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
-  <string name="help_contextmenus_text">
-Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna vido.
- Frapetadu en la vido de Biblio por vidigi agojn rilatajn al la nuna verso.
- Frapetadu dokumenton en la vido “elekti dokumenton” aŭ ”elŝuti dokumenton” por forigi la dokumenton aŭ vidigi ĝiajn informojn.
- Frapetadu legosignon en la vido de legosignoj por aldoni etikedojn aŭ forigi ĝin.
- Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
-  <string name="help_mynote_title">Miaj notoj</string>
-  <string name="help_mynote_text">Oni povas aldoni notojn per la funkcio “miaj notoj” en la kunteksta menuo de verso.
- La listo de ekzistaj notoj estas disponebla per la ĉefmenuo.</string>
-  <string name="help_bookmarks_title">Legosignoj</string>
-  <string name="help_bookmarks_text">Oni povas aldoni legosignojn per la kunteksta menuo de verso.
- Legosigna mastrumilo estas disponebla per la ĉefmenuo.
- Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.</string>
-  <string name="help_search_title">Serĉi</string>
-  <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
- (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
-  <string name="help_workspaces_title">Laborspacoj</string>
-  <string name="help_workspaces_text">
-Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
-  <string name="help_hidden_features_title">Gestoj</string>
-  <string name="help_hidden_features_text">
-Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
- Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
- Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
- Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.
- Frapetadu la REEN‑butonon por aliri liston de historio.</string>
-  <string name="help_window_pinning_title">Alpingli fenestron</string>
-  <string name="help_window_pinning_text">
-Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Bonvolu enmeti SD-karton kaj restartigi la aplikaĵon.</string>
   <!--Main menu-->
@@ -74,7 +39,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ili finiĝos.</string>
-  <string name="no_tasks_running">Nune neniuj taskoj estas lanĉataj.</string>
+  <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Serĉi versojn enhavantajn:</string>
   <string name="search_all_words">ĉiujn vortojn</string>
@@ -165,7 +130,7 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="reset_are_you_sure">Ĉu vi certe volas agordi ĉion al implicitaj valoroj?</string>
   <string name="window_pinning_menutitle">Alpingli fenestron</string>
   <string name="hide_window_buttons_title">Kaŝi butonojn de fenestroj</string>
-  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de Biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
+  <string name="hide_window_buttons_summary">Butonoj de fenestroj montrataj ĉe dekstra flanko de biblia vido estas nun kaŝitaj. Fenestra navigadstrio ĉe sube estas plue montrata kaj vi povas malfermi menuon de fenestro per frapetadi ĝin.</string>
   <string name="font_size_title">Grando de tiparo</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
   <string name="full_screen_hide_buttons_pref_summary">Kiam baskuli al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
@@ -198,8 +163,8 @@ Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punkt
   <string name="change_to_normal">Ŝanĝi al norma fenestro</string>
   <string name="window_pin_mode">Alpingli</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
-  <string name="no_verse_notes">Neniuj notoj ekzistas ĉe tiu ĉi verso</string>
+  <string name="no_chapter_notes">Neniu noto ekzistas ĉe tiu ĉi ĉapitro</string>
+  <string name="no_verse_notes">Neniu noto ekzistas ĉe tiu ĉi verso</string>
   <string name="previous">Antaŭa</string>
   <string name="next">Sekva</string>
   <!--Strongs-->
@@ -351,7 +316,7 @@ laŭ ilia permeso.</string>
   <string name="speak_bookmarks_menu_title">Paroli el legosignoj</string>
   <string name="speak_advanced_settings">Spertulaj agordoj</string>
   <string name="speak_sleep_timer_title">Dormo</string>
-  <string name="speak_no_books_available">Neniuj disponeblaj libroj por paroli</string>
+  <string name="speak_no_books_available">Neniu disponebla libro por paroli</string>
   <string name="repeat_passage">Ripeti fragmenton</string>
   <string name="set_repeat_passage_range">Elekti amplekson de fragmento por ripeti</string>
   <string name="speak_beginning_of_passage">Elektu komencon de fragmento</string>
@@ -499,7 +464,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
-  <string name="empty_list">Neniuj elementoj por montri</string>
+  <string name="empty_list">Neniu elemento por montri</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">Parolsintezilo</string>
   <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
@@ -536,6 +501,41 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
   <!--History-->
   <string name="history_for">Historio (%s: fenestro %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigi</string>
+  <string name="help_nav_text">Por iri al sekva aŭ antaŭa ĉapitro, fingrumu la ekranon (mal)dekstren.
+ Duoble frapetu por baskuli plenekranon.
+ Ĉe la supra dekstra angulo troviĝas butono dividi ekranon (montri la aplikaĵon en kelkaj fenestroj), per tiu butono vi ankaŭ povas alĝustigi aspekton kaj sintenon de fenestro(j).</string>
+  <string name="help_contextmenus_title">Kuntekstaj menuoj</string>
+  <string name="help_contextmenus_text">
+Frapetadu por malfermi kuntekstan menuon aŭ por montri agojn rilataj al la nuna vido.
+ Frapetadu en la vido de Biblio por vidigi agojn rilatajn al la nuna verso.
+ Frapetadu dokumenton en la vido “elekti dokumenton” aŭ ”elŝuti dokumenton” por forigi la dokumenton aŭ vidigi ĝiajn informojn.
+ Frapetadu legosignon en la vido de legosignoj por aldoni etikedojn aŭ forigi ĝin.
+ Frapetadu ligilon se vi volas malfermi ĝin en la nuna, nova aŭ en speciala fenestro.</string>
+  <string name="help_mynote_title">Miaj notoj</string>
+  <string name="help_mynote_text">Oni povas aldoni notojn per la funkcio “miaj notoj” en la kunteksta menuo de verso.
+ La listo de ekzistaj notoj estas disponebla per la ĉefmenuo.</string>
+  <string name="help_bookmarks_title">Legosignoj</string>
+  <string name="help_bookmarks_text">Oni povas aldoni legosignojn per la kunteksta menuo de verso.
+ Legosigna mastrumilo estas disponebla per la ĉefmenuo.
+ Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.</string>
+  <string name="help_search_title">Serĉi</string>
+  <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
+ (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
+  <string name="help_workspaces_title">Laborspacoj</string>
+  <string name="help_workspaces_text">
+Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de laborspacoj estas disponeblaj per la menuo de agordoj (ĉe supra dekstra angulo). Fingrumu suben el la ilarstrio por rapide aliri labortablojn. Fingrumu maldekstren/dekstren sur la ilarstrio por baskuli inter antaŭa/sekva laborspacoj.</string>
+  <string name="help_hidden_features_title">Gestoj</string>
+  <string name="help_hidden_features_text">
+Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
+ Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
+ Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
+ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.
+ Frapetadu la REEN‑butonon por aliri liston de historio.</string>
+  <string name="help_window_pinning_title">Alpingli fenestron</string>
+  <string name="help_window_pinning_text">
+Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⁝ tri punktoj ĉe supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <!--Uncategorized-->
   <string name="close">Fermi</string>
   <string name="something_with_parenthesis">%s (%s)</string>

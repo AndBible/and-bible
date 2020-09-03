@@ -110,7 +110,7 @@ constructor(private val windowControl: WindowControl) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window))
+            stack.add(KeyHistoryItem(doc, key, entity.yOffsetRatio ?: Float.NaN, window, entity.createdAt))
         }
         windowHistoryStackMap[window.id] = stack
     }

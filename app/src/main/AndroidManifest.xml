@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="370"
-    android:versionName="3.2.370-beta">
+    android:versionCode="386"
+    android:versionName="3.3.386">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -50,7 +50,7 @@
             android:configChanges="keyboardHidden|screenSize|locale"
             android:theme="@style/MainBibleViewTheme"
             android:windowSoftInputMode="stateHidden|adjustPan"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:label="@string/app_name_short" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocument"
@@ -107,6 +107,7 @@
             android:name="net.bible.android.view.activity.bookmark.Bookmarks"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/bookmarks"
+            android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.bookmark.ManageLabels"
@@ -179,6 +180,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:label="@string/text_display_settings_activity_title"
+            android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.History"
@@ -200,6 +202,7 @@
             android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/speak_advanced_settings"
+            android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity" />
         <activity
             android:name="net.bible.android.view.activity.download.FirstDownload"

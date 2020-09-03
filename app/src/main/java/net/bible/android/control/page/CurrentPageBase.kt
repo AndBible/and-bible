@@ -121,11 +121,14 @@ abstract class CurrentPageBase protected constructor(
 
     protected fun getPageContent(key: Key?, asFragment: Boolean): String {
         return try {
-            var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment, pageManager.actualTextDisplaySettings)
-            if (StringUtils.isEmpty(htmlText)) {
-                htmlText = format(R.string.error_no_content)
+            val currentDocument = currentDocument!!
+            synchronized(currentDocument) {
+                var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment, pageManager.actualTextDisplaySettings)
+                if (StringUtils.isEmpty(htmlText)) {
+                    htmlText = format(R.string.error_no_content)
+                }
+                htmlText
             }
-            htmlText
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
             val app = BibleApplication.application

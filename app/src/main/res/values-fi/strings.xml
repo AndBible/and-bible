@@ -3,31 +3,6 @@
   <string name="app_name_short">Raamattu</string>
   <string name="app_name_medium">Raamattu (And Bible)</string>
   <string name="app_name_long">Raamatuntutkimissovellus, And Bible Open Source Projektilta</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Navigointi</string>
-  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>
-  <string name="help_contextmenus_title">Kontekstivalikot</string>
-  <string name="help_contextmenus_text">
-Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pitkä painallus raamattunäkymässä avaa toimintotilan toiminnoille jotka liittyvät nykyiseen jakeeseen. Pitkä painallus Valitse teos tai Lataa teos -näkymissä listauksen rivillä mahdollistaa dokumentin poistamisen ja lisätietojen katselemisen. Pitkä painalluksella kirjanmerkistä pääset ryhmittelemään kirjanmerkkejä ja poistamaan niitä. Pitkällä painalluksella linkin päältä pääset valitsemaan kontekstivalikosta haluatko avata linkin nykyisessä ikkunassa, uudessa ikkunassa vai erityisessä linkki-ikkunassa. </string>
-  <string name="help_mynote_title">Omat kommentit</string>
-  <string name="help_mynote_text">Voit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.</string>
-  <string name="help_bookmarks_title">Kirjanmerkit</string>
-  <string name="help_bookmarks_text">Kirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.</string>
-  <string name="help_search_title">Etsi</string>
-  <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
-  <string name="help_workspaces_title">Työtilat</string>
-  <string name="help_workspaces_text">
-Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
-  <string name="help_hidden_features_title">Piilossa olevat oikotiet</string>
-  <string name="help_hidden_features_text">
-Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
-Pitkä napsautus ikkunapainikkeesta pienentää ikkunan.
-Pitkä napsautus työkalupalkin puhepainikkeesta vie puheen asetuksiin.
-Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.
-Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorialistaukseen.</string>
-  <string name="help_window_pinning_title">Ikkunan kiinnitys</string>
-  <string name="help_window_pinning_text">
-Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä ohjelma uudelleen.</string>
   <!--Main menu-->
@@ -539,6 +514,31 @@ Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluum
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
   <!--History-->
   <string name="history_for">Historia (%s: Ikkuna %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Navigointi</string>
+  <string name="help_nav_text">Siirry seuraavaan tai edelliseen lukuun pyyhkäisemällä näyttöä sormella. Raamattunäkymän kaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä. Jaetut raamattunäkymissä (joita kutsutaan myös ikkunoiksi) on oikeassa yläkulmassa valikkopainike, josta pääset käsiksi useisiin ikkunaan liittyviin toimintoihin ja mukauttamaan niiden käyttäytymistä ja ulkonäköä.</string>
+  <string name="help_contextmenus_title">Kontekstivalikot</string>
+  <string name="help_contextmenus_text">
+Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pitkä painallus raamattunäkymässä avaa toimintotilan toiminnoille jotka liittyvät nykyiseen jakeeseen. Pitkä painallus Valitse teos tai Lataa teos -näkymissä listauksen rivillä mahdollistaa dokumentin poistamisen ja lisätietojen katselemisen. Pitkä painalluksella kirjanmerkistä pääset ryhmittelemään kirjanmerkkejä ja poistamaan niitä. Pitkällä painalluksella linkin päältä pääset valitsemaan kontekstivalikosta haluatko avata linkin nykyisessä ikkunassa, uudessa ikkunassa vai erityisessä linkki-ikkunassa. </string>
+  <string name="help_mynote_title">Omat kommentit</string>
+  <string name="help_mynote_text">Voit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.</string>
+  <string name="help_bookmarks_title">Kirjanmerkit</string>
+  <string name="help_bookmarks_text">Kirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.</string>
+  <string name="help_search_title">Etsi</string>
+  <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
+  <string name="help_workspaces_title">Työtilat</string>
+  <string name="help_workspaces_text">
+Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan liittyvät toiminnot ovat käytettävissä oikealla yläkulmassa löytyvästä valikosta. Nopea tapa käsitellä työtiloja on pyyhkäistä alaspäin työkalupalkista. Voit myös pyykäistä vasemmalle ja oikealle työkalupalkista päästäksesi edelliseen / seuraavaan työtilaan. </string>
+  <string name="help_hidden_features_title">Piilossa olevat oikotiet</string>
+  <string name="help_hidden_features_text">
+Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
+Pitkä napsautus ikkunapainikkeesta pienentää ikkunan.
+Pitkä napsautus työkalupalkin puhepainikkeesta vie puheen asetuksiin.
+Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.
+Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorialistaukseen.</string>
+  <string name="help_window_pinning_title">Ikkunan kiinnitys</string>
+  <string name="help_window_pinning_text">
+Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
   <!--Uncategorized-->
   <string name="close">Sulje</string>
   <string name="something_with_parenthesis">%s (%s)</string>

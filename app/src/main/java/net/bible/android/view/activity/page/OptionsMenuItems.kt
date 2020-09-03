@@ -244,9 +244,6 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
     override val enabled: Boolean get() = pageManager.hasStrongs
     override var value get() = if (enabled) super.value else false
         set(value) {
-            if(value == false) {
-                MorphologyPreference(settings).value = false
-            }
             super.value = value
         }
 }

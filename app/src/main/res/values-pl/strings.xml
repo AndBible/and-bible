@@ -3,41 +3,6 @@
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (And Bible)</string>
   <string name="app_name_long">Studium Biblii, otwartoźródłowy projekt And Bible</string>
-  <!--Startup & Help-->
-  <string name="help_nav_title">Nawigacja</string>
-  <string name="help_nav_text">Przesuń palcem po ekranie w prawo lub w lewo, aby przejść do następnego lub poprzedniego rozdziału.
- Dwukrotnie stuknij w tekst, aby przełączyć tryb pełnego ekranu.
- Dzielenie ekranu (tryb okienkowy) dostępny jest pod przyciskiem w prawym górnym rogu ekranu, przycisk ten umożliwia dostęp do kilku okienkowych funkcji i dostosowanie zachowania i wyglądu okien.</string>
-  <string name="help_contextmenus_title">Menu kontekstowe</string>
-  <string name="help_contextmenus_text">
-Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności od wyświetlanego elementu aplikacji.
- Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić akcje dla wybranego wersetu.
- Naciśnij i przytrzymaj na dokument w widoku „wybór dokumentu” lub „pobierz moduł”, aby usunąć dokument lub wyświetlić o nim informacje.
- Naciśnij i przytrzymaj na zakładkę w liście zakładek, aby ją usunąć lub dodać do niej etykiety.
- Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
-  <string name="help_mynote_title">Moje notatki</string>
-  <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
- Lista istniejących notatek dostępna jest poprzez menu główne.</string>
-  <string name="help_bookmarks_title">Zakładki</string>
-  <string name="help_bookmarks_text">Zakładki można dodać poprzez menu kontekstowe wersetu.
- Organizator zakładek jest dostępny poprzez menu główne.
- Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
-  <string name="help_search_title">Wyszukiwanie</string>
-  <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
-(więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
-  <string name="help_workspaces_title">Obszary robocze</string>
-  <string name="help_workspaces_text">
-Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
-  <string name="help_hidden_features_title">Skróty</string>
-  <string name="help_hidden_features_text">
-Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
- Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
- Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
- Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
- Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
-  <string name="help_window_pinning_title">Przypinanie okien</string>
-  <string name="help_window_pinning_text">
-Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
   <!--Main menu-->
@@ -531,6 +496,41 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
   <!--History-->
   <string name="history_for">Historia (%s: okno %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">Nawigacja</string>
+  <string name="help_nav_text">Przesuń palcem po ekranie w prawo lub w lewo, aby przejść do następnego lub poprzedniego rozdziału.
+ Dwukrotnie stuknij w tekst, aby przełączyć tryb pełnego ekranu.
+ Dzielenie ekranu (tryb okienkowy) dostępny jest pod przyciskiem w prawym górnym rogu ekranu, przycisk ten umożliwia dostęp do kilku okienkowych funkcji i dostosowanie zachowania i wyglądu okien.</string>
+  <string name="help_contextmenus_title">Menu kontekstowe</string>
+  <string name="help_contextmenus_text">
+Naciśnięcie i przytrzymanie otwiera menu kontekstowe lub akcje w zależności od wyświetlanego elementu aplikacji.
+ Naciśnij i przytrzymaj w widoku Biblii, aby wyświetlić akcje dla wybranego wersetu.
+ Naciśnij i przytrzymaj na dokument w widoku „wybór dokumentu” lub „pobierz moduł”, aby usunąć dokument lub wyświetlić o nim informacje.
+ Naciśnij i przytrzymaj na zakładkę w liście zakładek, aby ją usunąć lub dodać do niej etykiety.
+ Naciśnij i przytrzymaj odnośnik, aby otworzyć go w obecnym, nowym lub specjalnym oknie.</string>
+  <string name="help_mynote_title">Moje notatki</string>
+  <string name="help_mynote_text">Poprzez element „moje notatki” menu kontekstowego wersetu można dodawać notatki.
+ Lista istniejących notatek dostępna jest poprzez menu główne.</string>
+  <string name="help_bookmarks_title">Zakładki</string>
+  <string name="help_bookmarks_text">Zakładki można dodać poprzez menu kontekstowe wersetu.
+ Organizator zakładek jest dostępny poprzez menu główne.
+ Organizator zakładek pozwala grupować zakładki za pomocą etykiet.</string>
+  <string name="help_search_title">Wyszukiwanie</string>
+  <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
+(więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
+  <string name="help_workspaces_title">Obszary robocze</string>
+  <string name="help_workspaces_text">
+Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcje obszarów roboczych są dostępne poprzez element menu prawym górnym rogu. Przeciągnij palcem w dół od paska narzędzi, aby wyświetlić obszary robocze. Przeciągnij palcem w prawo/lewo na pasku narzędzi, aby przełączyć pomiędzy poprzednim/następnym obszarem roboczym.</string>
+  <string name="help_hidden_features_title">Skróty</string>
+  <string name="help_hidden_features_text">
+Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
+ Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
+ Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
+ Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
+ Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
+  <string name="help_window_pinning_title">Przypinanie okien</string>
+  <string name="help_window_pinning_text">
+Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
   <string name="something_with_parenthesis">%s (%s)</string>

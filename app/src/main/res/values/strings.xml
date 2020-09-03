@@ -8,60 +8,6 @@
     <string name="app_name_medium">Bible Study (And Bible)</string>
     <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
 
-    <!-- Startup & Help -->
-
-    <string name="help_nav_title">Navigation</string>
-    <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
-        Double-tap bible text to toggle full screen mode.
-        Split screens (called also windows) have menu button on their top-right corner,
-        which enables you to use several window-specific functions and customize window outlook and behaviour.
-    </string>
-    <string name="help_contextmenus_title">Context Menus</string>
-    <string name="help_contextmenus_text">
-        Long pressing in opens context menu or action mode in several views.
-        Long press on the Bible view to open the action mode for actions affecting the current verse.
-        Long press on a document item in list view of Choose Document or Download to delete document or view information.
-        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
-        Long press links to choose if you want to open them in current window, new window or special links window.
-    </string>
-    <string name="help_mynote_title">My Note</string>
-    <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
-        The list of existing notes can be accessed via the main menu.</string>
-
-    <string name="help_bookmarks_title">Bookmarks</string>
-    <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
-        The Bookmark Manager is accessed via the main menu.
-        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
-    </string>
-    <string name="help_search_title">Search</string>
-    <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-        (see "Apache Lucene - Query Parser Syntax" for more details)
-    </string>
-    <string name="help_workspaces_title">Workspaces</string>
-    <string name="help_workspaces_text">
-        Workspaces allow having multiple context-dependent working environments. Workspace functions
-        can be accessed via Workspaces item in options menu (top-right corner). Quick way to access workspaces is
-        by swipe-down gesture from toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
-        switch to previous / next workspace.
-    </string>
-    <string name="help_hidden_features_title">Hidden shortcuts</string>
-    <string name="help_hidden_features_text">
-        Swipe down from toolbar to show workspace selector.
-        Long press window button to quickly minimize.
-        Long press speak toolbar button to quickly go to speak settings.
-        Long press verse location title in toolbar to jump to document selector.
-        Long press the Back button to access the History list.
-    </string>
-    <string name="help_window_pinning_title">Window pinning</string>
-    <string name="help_window_pinning_text">
-        You can enable window pinning from options menu (three dots, right top corner).
-        If window pinning is enabled, you may show many pinned windows on bible view,
-        but only one non-pinned window. Pinned windows are displayed first, and then
-        unpinned windows. You might want to open bible documents as pinned windows, and
-        commentaries and maps etc. as non-pinned windows. Then you can easily
-        have bible documents always opened, and switch quickly between commentaries and
-        other extra material when you study bible.
-    </string>
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
 
@@ -306,6 +252,8 @@
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
     <string name="rdg_plan_day">Day %s</string>
     <string name="rdg_plan_set_start_date">Set Start Date…</string>
+    <string name="set_current_day">Set as current day…</string>
+    <string name="msg_set_current_day_reading_plan">This will set today as the current day in this plan and mark all previous days as read. Continue?</string>
     <string name="done">Done</string>
     <string name="reset">Reset</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
@@ -661,6 +609,60 @@
 
     <!-- History -->
     <string name="history_for">History (%s: Window %d)</string>
+
+    <!-- Help -->
+    <string name="help_nav_title">Navigation</string>
+    <string name="help_nav_text">Go to the next or previous chapter by swiping the screen with your finger.
+        Double-tap bible text to toggle full screen mode.
+        Split screens (called also windows) have menu button on their top-right corner,
+        which enables you to use several window-specific functions and customize window outlook and behaviour.
+    </string>
+    <string name="help_contextmenus_title">Context Menus</string>
+    <string name="help_contextmenus_text">
+        Long pressing in opens context menu or action mode in several views.
+        Long press on the Bible view to open the action mode for actions affecting the current verse.
+        Long press on a document item in list view of Choose Document or Download to delete document or view information.
+        Long press a bookmark in bookmarks listing to add labels or delete bookmark.
+        Long press links to choose if you want to open them in current window, new window or special links window.
+    </string>
+    <string name="help_mynote_title">My Note</string>
+    <string name="help_mynote_text">Notes can be added via the My Note menu item on the verse context menu.
+        The list of existing notes can be accessed via the main menu.</string>
+
+    <string name="help_bookmarks_title">Bookmarks</string>
+    <string name="help_bookmarks_text">Bookmarks can be added via the verse context menu.
+        The Bookmark Manager is accessed via the main menu.
+        The Bookmark Manager context menu allows bookmarks to be grouped using labels.
+    </string>
+    <string name="help_search_title">Search</string>
+    <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
+        (see "Apache Lucene - Query Parser Syntax" for more details)
+    </string>
+    <string name="help_workspaces_title">Workspaces</string>
+    <string name="help_workspaces_text">
+        Workspaces allow having multiple context-dependent working environments. Workspace functions
+        can be accessed via Workspaces item in options menu (top-right corner). Quick way to access workspaces is
+        by swipe-down gesture from toolbar. You may also use swipe-left and swipe-right gestures over toolbar to
+        switch to previous / next workspace.
+    </string>
+    <string name="help_hidden_features_title">Hidden shortcuts</string>
+    <string name="help_hidden_features_text">
+        Swipe down from toolbar to show workspace selector.
+        Long press window button to quickly minimize.
+        Long press speak toolbar button to quickly go to speak settings.
+        Long press verse location title in toolbar to jump to document selector.
+        Long press the Back button to access the History list.
+    </string>
+    <string name="help_window_pinning_title">Window pinning</string>
+    <string name="help_window_pinning_text">
+        You can enable window pinning from options menu (three dots, right top corner).
+        If window pinning is enabled, you may show many pinned windows on bible view,
+        but only one non-pinned window. Pinned windows are displayed first, and then
+        unpinned windows. You might want to open bible documents as pinned windows, and
+        commentaries and maps etc. as non-pinned windows. Then you can easily
+        have bible documents always opened, and switch quickly between commentaries and
+        other extra material when you study bible.
+    </string>
 
     <!-- Uncategorized -->
     <string name="close">Close</string>

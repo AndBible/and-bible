@@ -64,6 +64,7 @@ public class MyNoteFormatSupport {
 			Versification requiredVersification = firstVerse.getVersification();
 			for (MyNoteDto myNoteDto : myNoteList) {
 				VerseRange verseRange = myNoteDto.getVerseRange(requiredVersification);
+				if(verseRange == null) continue;
 				//TODO should not require VerseRange cast but bug in JSword
 				if (isVerseRange) {
 					if (((VerseRange)passage).contains(verseRange.getStart())) {

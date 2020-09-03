@@ -1,9 +1,16 @@
-[![Build Status](https://travis-ci.org/AndBible/and-bible.svg?branch=master)](https://travis-ci.org/AndBible/and-bible)
+![Android CI](https://github.com/AndBible/and-bible/workflows/Android%20CI/badge.svg?branch=master)
 [![Licence](https://img.shields.io/badge/licence-GPL-blue.svg)](https://github.com/tuomas2/automate/blob/master/LICENSE.txt)
    
 # Bible Study app by And Bible Open Source Project
 
 Powerful offline Bible Study tool for Android
+
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/net.bible.android.activity/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=net.bible.android.activity)
 
 ## Users
 Please see the [Home Page](https://andbible.org/).
@@ -20,7 +27,8 @@ in wiki.
 ## Translators
 
 Everyone is welcome to help translating And Bible to different languages via
-easy to use [Transifex](https://www.transifex.com/mjdenham/andbible/) tool.
+easy to use web-based Transifex tool. Please see our [Wiki page](https://github.com/AndBible/and-bible/wiki/Translating-User-Interface)
+to get started.
 
 ## Project responsibilities
 

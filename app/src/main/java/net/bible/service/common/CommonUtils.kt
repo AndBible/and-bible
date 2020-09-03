@@ -39,7 +39,7 @@ import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
-import net.bible.android.activity.BuildConfig.GitHash
+import net.bible.android.activity.BuildConfig.GitDescribe
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.json
@@ -58,12 +58,9 @@ import org.crosswire.jsword.passage.VerseRange
 
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
-import java.net.URL
 import java.util.Calendar
 import java.util.Date
 import java.util.Properties
-import javax.net.ssl.HttpsURLConnection
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -94,15 +91,18 @@ object CommonUtils {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitHash (built $BuildDate)"
+            return "$versionName#$GitDescribe (built $BuildDate)"
         }
     val applicationVersionNumber: Int
         get() {
+            // TODO we have to change this to Long if we one day will have very long version numbers.
             var versionNumber: Int
             try {
                 val manager = BibleApplication.application.packageManager
                 val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
-                versionNumber = info.versionCode
+                versionNumber = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    info.longVersionCode.toInt()
+                } else info.versionCode
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
                 versionNumber = -1
@@ -261,8 +261,7 @@ object CommonUtils {
     }
 
     fun saveSharedPreference(key: String, value: String) {
-        val prefs = CommonUtils.sharedPreferences
-        prefs.edit()
+        sharedPreferences.edit()
                 .putString(key, value)
                 .apply()
     }

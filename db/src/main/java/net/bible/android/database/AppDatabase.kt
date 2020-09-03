@@ -26,7 +26,7 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 
 import java.util.*
 
-const val DATABASE_VERSION = 30
+const val DATABASE_VERSION = 33
 
 class Converters {
     @TypeConverter
@@ -56,6 +56,7 @@ class Converters {
 abstract class AppDatabase: RoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     abstract fun workspaceDao(): WorkspaceDao
+    abstract fun bookmarkDao(): BookmarkDao
     abstract fun documentDao(): DocumentDao
 
     fun sync() { // Sync all data so far into database file

@@ -50,8 +50,8 @@ class MyNoteDto : ConvertibleVerseRangeUser {
             convertibleVerseRange = ConvertibleVerseRange(verseRange)
         }
 
-    fun getVerseRange(versification: Versification?): VerseRange {
-        return convertibleVerseRange!!.getVerseRange(versification)
+    fun getVerseRange(versification: Versification?): VerseRange? {
+        return convertibleVerseRange?.getVerseRange(versification)
     }
 
     override fun getConvertibleVerseRange(): ConvertibleVerseRange {

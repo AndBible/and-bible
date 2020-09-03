@@ -1,0 +1,108 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ develop, current-stable, release/* ]
+    tags: [ build-*, beta-*, production-* ]
+  pull_request:
+    branches: [ develop, current-stable ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 10 # so that recent tags can be found
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8 # later versions not working with roboelectric as of 2020-06-15
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v2-beta # v2-beta adds cacheing
+      with:
+        # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
+        node-version: 10.x
+
+    - name: Cache gradle dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.android/build-cache
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Cache test modules
+      id: cache-test-modules
+      uses: actions/cache@v2
+      with:
+        path: ~/.sword
+        key: ${{ runner.os }}-test-modules # cache auto-removes if not accessed in 7 days. If data needs to refresh, change key name here (till https://github.com/actions/cache/issues/2 is addressed)
+
+    - name: Download test modules if not cached
+      if: steps.cache-test-modules.outputs.cache-hit != 'true'
+      run: |
+        wget ${{ secrets.DOWNLOAD_TEST_MODULES_URL }} -O ./testmods.zip.enc
+        openssl enc -in ./testmods.zip.enc -out ./testmods.zip -d -aes-256-cbc -pbkdf2 -pass 'pass:${{ secrets.TEST_MODULE_ENCRYPTION_KEY }}'
+        mkdir -p $HOME/.sword
+        unzip -o -d $HOME/.sword ./testmods.zip
+
+    - name: Build with Gradle
+      run: ./gradlew --console plain build -x testDebug
+
+    # Test complete, create apk etc
+
+    - name: Get variables
+      id: tag_name
+      run: |
+        echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+        grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
+        echo ::set-output name=VERSION_NAME::$(cat VNAME)
+        echo ::set-output name=RELEASE_TITLE::$( if [[ $GITHUB_REF =~ build- ]]; then git log -1 --pretty=%B; else echo "Release $(cat VNAME)"; fi )
+        echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
+        if [[ -f $(cat CLPATH) ]] && ! [[ $GITHUB_REF =~ build- ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
+
+    - name: Sign apk
+      if: contains(github.ref, 'refs/tags/')
+      env: 
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      working-directory: ./app/build/outputs/apk/release
+      run: |
+        $ANDROID_HOME/build-tools/29.0.3/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
+        echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned-aligned.apk
+        rm -f keystore.jks
+
+    - name: Create release
+      if: contains(github.ref, 'refs/tags/')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+        VERSION_NAME: ${{ steps.tag_name.outputs.VERSION_NAME }}
+        RELEASE_TITLE: ${{ steps.tag_name.outputs.RELEASE_TITLE }}
+      with:
+        tag_name: ${{ env.TAG_NAME }}
+        release_name: ${{ env.RELEASE_TITLE }}
+        body_path: ./RELEASENOTES.txt
+
+    - name: Upload Release Apk
+      if: contains(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./andbible-${{ env.TAG_NAME }}.apk
+        asset_name: andbible-${{ env.TAG_NAME }}.apk
+        asset_content_type: application/vnd.android.package-archive
+
+    - name: Before saving cache
+      run: |
+        rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        rm -fr $HOME/.gradle/caches/*/plugin-resolution/

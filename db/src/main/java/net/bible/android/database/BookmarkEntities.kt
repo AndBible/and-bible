@@ -19,10 +19,13 @@
 package net.bible.android.database
 
 import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.Query
 
 class BookmarkEntities {
     @Entity(tableName = "bookmark")
@@ -57,4 +60,13 @@ class BookmarkEntities {
         @ColumnInfo(name = "name") val name: String,
         @ColumnInfo(name = "bookmark_style") val bookmarkStyle: String?
     )
+}
+
+@Dao
+interface BookmarkDao {
+    @Query("SELECT * from bookmark")
+    fun allBookmarks(): List<BookmarkEntities.Bookmark>
+
+    @Delete
+    fun deleteBookmark(b: BookmarkEntities.Bookmark)
 }

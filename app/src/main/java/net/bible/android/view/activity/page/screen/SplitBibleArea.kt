@@ -169,6 +169,8 @@ class SplitBibleArea(
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         lastSplitVertically = isSplitVertically
+        if(firstTime)
+            updateRestoreButtons()
     }
 
     private fun removeSeparators() {
@@ -298,7 +300,7 @@ class SplitBibleArea(
 
     internal val hideWindowButtons get() =
         CommonUtils.sharedPreferences.getBoolean("hide_window_buttons", false)
-    internal val autoHideWindowButtonBarInFullScreen get() =
+    private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.sharedPreferences.getBoolean("full_screen_hide_buttons_pref", true)
 
     private fun rebuildRestoreButtons() {
@@ -330,7 +332,6 @@ class SplitBibleArea(
         }
         if(!windowControl.isSingleWindow) {
             for (win in pinnedWindows) {
-                Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 restoreButtons.addView(restoreButton, llp)
@@ -339,7 +340,6 @@ class SplitBibleArea(
                 addSpace()
 
             for (win in nonPinnedWindows) {
-                Log.d(TAG, "Show restore button")
                 val restoreButton = createRestoreButton(win)
                 restoreButtonsList.add(restoreButton)
                 restoreButtons.addView(restoreButton, llp)
@@ -402,7 +402,6 @@ class SplitBibleArea(
     fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
         toggleWindowButtonVisibility(true, force=true)
         resetTouchTimer()
-        updateRestoreButtons()
     }
 
     fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
@@ -410,7 +409,7 @@ class SplitBibleArea(
             Log.d(TAG, "on UpdateRestoreWindowButtons")
             delay(200)
             withContext(Dispatchers.Main) {
-                updateRestoreButtons(false)
+                updateRestoreButtons()
             }
         }
     }
@@ -427,9 +426,14 @@ class SplitBibleArea(
         delay(200)
         withContext(Dispatchers.Main) {
             val restoreButton = restoreButtonsList.find { it.window?.id == windowControl.activeWindow.id }
-            if (restoreButton != null && restoreButtonsVisible &&
-                !restoreButton.getGlobalVisibleRect(Rect().apply { getHitRect(this) })) {
-                restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+            if(restoreButton != null) {
+                val areaHitRect = Rect().apply { getHitRect(this) }
+                val buttonVisibleRect = Rect(areaHitRect)
+                val buttonVisible = restoreButton.getGlobalVisibleRect(buttonVisibleRect)
+                val fullyVisible = buttonVisibleRect.right - buttonVisibleRect.left == restoreButton.width
+                if (restoreButtonsVisible && (!buttonVisible || !fullyVisible)) {
+                    restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
+                }
             }
         }
     }
@@ -467,15 +471,12 @@ class SplitBibleArea(
                     // When switching to/from fullscreen, take into account the toolbar offset.
                     translationY(
                         (
-                            if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2
-                            else (
-                                if(CommonUtils.isSplitVertically) {
-                                    if(idx == 0)
-                                        mainBibleActivity.topOffset2
-                                    else 0
-                                }
-                                else mainBibleActivity.topOffset2
-                                )
+                            if(CommonUtils.isSplitVertically) {
+                                if(idx == 0)
+                                    mainBibleActivity.topOffset2
+                                else 0
+                            }
+                            else mainBibleActivity.topOffset2
                             ).toFloat()
                     )
                     if(show) {
@@ -493,14 +494,19 @@ class SplitBibleArea(
         }
         buttonsVisible = show
     }
+    var firstTime = true
+    private fun updateRestoreButtons() {
+        val animate = !firstTime
+        if(firstTime) {
+            firstTime = false
+        }
 
-    private fun updateRestoreButtons(animate: Boolean = true) {
         val transX =
             (if(restoreButtonsVisible) 0 else
                 restoreButtonsContainer.width -
                     (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
 
-        Log.d(TAG, "updateRestoreButtons $animate $transX")
+        Log.d(TAG, "updateRestoreButtons $animate $transX ${Log.getStackTraceString(Exception())}")
 
         if(restoreButtonsVisible) {
             restoreButtonsContainer.isScrollable = true
@@ -762,7 +768,7 @@ class SplitBibleArea(
             )
             R.id.windowClose -> CommandPreference(
                 launch = { _, _, _ ->  windowControl.closeWindow(window)},
-                visible = windowControl.isWindowRemovable(window)
+                visible = windowControl.isWindowRemovable(window) && !isMaximised
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},

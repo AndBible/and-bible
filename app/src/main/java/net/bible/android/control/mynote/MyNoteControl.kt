@@ -27,6 +27,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.limitTextLength
@@ -52,20 +53,21 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
         var verseRange = verseRange
         val existingMyNoteWithSameStartVerse = myNoteDAO.getMyNoteByStartVerse(verseRange)
         if (existingMyNoteWithSameStartVerse != null) {
-            verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.versification)
+            verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.versification)?: return
         }
         currentPageManager.showMyNote(verseRange)
     }
 
     fun showNoteView(noteDto: MyNoteDto) {
         currentPageManager.showMyNote(noteDto.verseRange)
+        MainBibleActivity.mainBibleActivity.updateActions()
     }
 
     fun getMyNoteVerseKey(myNote: MyNoteDto): String {
         var keyText = ""
         try {
             val versification = currentPageManager.currentBible.versification
-            keyText = myNote.getVerseRange(versification).name
+            keyText = myNote.getVerseRange(versification)!!.name
         } catch (e: Exception) {
             Log.e(TAG, "Error getting verse text", e)
         }

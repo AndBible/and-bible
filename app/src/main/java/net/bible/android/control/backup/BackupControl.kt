@@ -21,7 +21,6 @@ package net.bible.android.control.backup
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 
 import net.bible.android.BibleApplication
@@ -35,6 +34,7 @@ import net.bible.service.common.FileManager
 
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
+import android.net.Uri
 import android.widget.Button
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +56,7 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -93,9 +94,38 @@ class BackupControl @Inject constructor() {
         }
     }
 
-    /** backup database to custom target (email, drive etc.)
+    /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
      */
-    fun backupDatabaseViaIntent(callingActivity: Activity) {
+    fun backupDatabaseToUri( uri: Uri) : Boolean {
+        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
+        val filename = DATABASE_NAME;
+        val f = File(internalDbDir, filename);
+        val inputStream = FileInputStream(f)
+
+        var ok = true
+        try {
+            out.write(inputStream.readBytes())
+            out.close()
+        } catch (ex: IOException) {
+            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+            ok = false
+        }
+
+        if (ok) {
+            Log.d(TAG, "Copied database to chosen backup location successfully")
+            Dialogs.instance.showMsg(R.string.backup_success, uri.path)
+        } else {
+            Log.e(TAG, "Error copying database to chosen location.")
+            Dialogs.instance.showErrorMsg(R.string.error_occurred)
+        }
+
+        return ok;
+    }
+
+    /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
+     */
+    fun backupDatabaseViaSendIntent(callingActivity: Activity) {
+        mainBibleActivity.windowRepository.saveIntoDb()
         db.sync()
         val fileName = DATABASE_NAME
         internalDbBackupDir.mkdirs()
@@ -302,8 +332,13 @@ class BackupControl @Inject constructor() {
     companion object {
 
         // this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
-        private val internalDbDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/databases/")
-        private val internalDbBackupDir = File(Environment.getDataDirectory(), "/data/" + SharedConstants.PACKAGE_NAME + "/files/backup")
+        private lateinit var internalDbDir : File;
+        private lateinit var internalDbBackupDir: File;
+
+        fun setupDirs(context: Context) {
+            internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
+            internalDbBackupDir = File(context.filesDir,  "/backup")
+        }
 
         private val TAG = "BackupControl"
     }

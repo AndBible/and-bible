@@ -1,0 +1,510 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name_short">研经工具</string>
+  <string name="app_name_medium">研经工具 (And Bible)</string>
+  <string name="app_name_long">研经工具 - 由And Bible开源计划开发</string>
+  <string name="version_text"> %s 版本 </string>
+  <string name="no_sdcard_error">请插入SD Card及重新开始程式</string>
+  <!--Main menu-->
+  <string name="menu">选单</string>
+  <string name="chooseBook">文件</string>
+  <string name="selectPassage">圣经段落</string>
+  <string name="search">寻找</string>
+  <string name="settings">程式偏好</string>
+  <string name="history">阅读历史</string>
+  <string name="speak">朗读</string>
+  <string name="help">帮助</string>
+  <string name="other">其他</string>
+  <string name="help_and_tips">说明与提示</string>
+  <string name="administration">管理</string>
+  <string name="rate_application">在Google Play中评分</string>
+  <string name="chooce_document">选择文件</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">选择书卷</string>
+  <string name="choosePassageChapterName">选择章数</string>
+  <string name="choosePassageVerseName">选择节数</string>
+  <string name="bible">圣经</string>
+  <string name="deuterocanonical">次经</string>
+  <!--Search-->
+  <string name="search_index">搜寻索引</string>
+  <string name="index_creation_required">搜寻需要搜寻索引</string>
+  <string name="create_index_for">搜寻时需要索引。\n\n为%s建立索引吗？</string>
+  <string name="rebuild_index_for">为%s重建索引吗？</string>
+  <string name="indexing_wait_msg">当索引创建完成时，程式会回到查询页面。</string>
+  <string name="index_create">建立</string>
+  <string name="rebuild_index">重建索引</string>
+  <string name="search_in">在%s中寻找</string>
+  <string name="do_in_background">背景中继续</string>
+  <string name="rebuild_index_button">重建</string>
+  <!--Tasks-->
+  <string name="progress_status">进度</string>
+  <string name="task_kill_warning">请稍等！切换至其他程式会中止当前任务。</string>
+  <string name="no_tasks_running">当前没有任务</string>
+  <!--Search-->
+  <string name="search_words_group_prompt">寻找经文</string>
+  <string name="search_all_words">所有的词</string>
+  <string name="search_any_word">任何一词</string>
+  <string name="search_phrase">完整句子</string>
+  <string name="search_result_count">找到 %d 条记录</string>
+  <string name="search_showing_first">符合条件的结果太多。仅显示前面的 %d 条</string>
+  <string name="search_bible_section_group_prompt">搜寻范围</string>
+  <string name="search_all_bible">圣经全文</string>
+  <string name="search_new_testament">新约</string>
+  <string name="search_old_testament">旧约</string>
+  <string name="search_current_book">本书卷</string>
+  <string name="error_executing_search">搜寻项目无效</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_summary">显示节数</string>
+  <string name="prefs_verse_per_line_summary">在不同行显示每一节</string>
+  <string name="prefs_show_bookmarks_summary">取消剔选以隐藏所有书签</string>
+  <string name="prefs_show_mynotes_summary">在经文中显示我的笔记的图示</string>
+  <string name="prefs_show_notes_summary">显示注脚及交叉对照</string>
+  <string name="prefs_show_strongs_summary">连结希腊文/希伯来文定义</string>
+  <string name="prefs_show_morphology_summary">显示Robinson\'s希腊文词形工具</string>
+  <string name="prefs_section_title_summary">显示非正典章节标题</string>
+  <string name="prefs_red_letter_summary">以红字显示基督的话</string>
+  <string name="prefs_text_size_title">字型偏好</string>
+  <string name="prefs_show_verseno_title">显示节数</string>
+  <string name="prefs_verse_per_line_title">每行一节</string>
+  <string name="prefs_show_bookmarks_title">显示书签图示</string>
+  <string name="prefs_default_bookmark_style_title">预设书签样式</string>
+  <string name="prefs_default_bookmark_style_summary">书签突出显示颜色或图示</string>
+  <string name="prefs_show_mynotes_title">显示笔记图示</string>
+  <string name="prefs_show_notes_title">注脚和交叉对照</string>
+  <string name="prefs_show_strongs_title">Strong\'s原文编号</string>
+  <string name="prefs_show_morphology_title">显示词形码</string>
+  <string name="prefs_section_title_title">章节标题</string>
+  <string name="prefs_red_letter_title">红字</string>
+  <string name="prefs_tilt_to_scroll_title">倾斜手机向下卷动</string>
+  <string name="prefs_night_mode_title">夜间模式切换</string>
+  <string name="prefs_night_mode_summary">是否手动或自动经由系统设定转换至夜间模式 (Android 10+)</string>
+  <string name="prefs_night_mode_manual">手动</string>
+  <string name="prefs_night_mode_automatic">自动启动夜间模式</string>
+  <string name="prefs_night_mode_system">系统</string>
+  <string name="options_menu_night_mode">夜间模式</string>
+  <string name="prefs_navigate_to_verse_title">导航到经节</string>
+  <string name="prefs_navigate_to_verse_summary">选择圣经段落时挑选经文章节</string>
+  <string name="prefs_open_links_in_special_window_title">在特殊视窗打开连结</string>
+  <string name="prefs_open_links_in_special_window_summary">更快地显示交叉对照和Strong\'s原文编号</string>
+  <string name="prefs_text_size_summary">调整字型及大小</string>
+  <string name="prefs_text_size_sample_text">示范文字</string>
+  <string name="prefs_screen_keep_on_title">保持萤幕开启</string>
+  <string name="prefs_screen_keep_on_summary">使用此应用程式时防止萤幕睡眠</string>
+  <string name="prefs_interface_locale_title">程式用户界面语言</string>
+  <string name="prefs_interface_locale_summary">选择用户界面语言</string>
+  <string name="reset_fontsize">重设</string>
+  <string name="prefs_request_sdcard_permission_title">手动安装文件存在</string>
+  <string name="prefs_request_sdcard_permission_summary">允许手动安装内部储存空间 jsword/sword 文件夹中的文件</string>
+  <string name="all_text_options_window_menutitle">所有文字选项</string>
+  <string name="text_options_window_menutitle">文字选项</string>
+  <string name="auto_fullscreen">卷动以切换至全萤幕</string>
+  <string name="reversed_split_mode">反转分拆视窗模式</string>
+  <string name="add_ellipsis">%s...</string>
+  <string name="font_size_pt">%d点</string>
+  <string name="auto_fullscreen_summary">卷动文字时自动切换为全萤幕。提示：你可以随时以双击切换至全萤幕。</string>
+  <string name="prefs_margin_size_title">更改边界大小</string>
+  <string name="prefs_margin_size_mm_title">边界大小 (%d/%d/%d mm)</string>
+  <string name="prefs_advanced_settings_cat">进阶设定</string>
+  <string name="prefs_display_customization_cat">外观与感觉</string>
+  <string name="prefs_behavior_customization_cat">程式行为</string>
+  <string name="prefs_margin_size_summary">调整文字检视的左右边界。
+你亦可调整文字的最大宽度。
+</string>
+  <string name="prefs_text_colors_summary">调整文字及背景颜色及噪点效果</string>
+  <string name="text_display_settings_activity_title">文字显示设定</string>
+  <string name="workspace_text_display_settings_title">文字选项 - %s</string>
+  <string name="window_text_display_settings_title">文字选项 - 视窗 %d</string>
+  <string name="prefs_text_display_settings_title">格式</string>
+  <string name="prefs_text_appearance_title">外观</string>
+  <string name="prefs_justify_title">左右对齐</string>
+  <string name="prefs_justify_summary">左右对齐。将文字平均分配在二个边界之间</string>
+  <string name="pref_left_margin_label_mm">左边界 (%dmm)</string>
+  <string name="pref_right_margin_label_mm">右边界 (%dmm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">最大文字宽度 (%dmm)</string>
+  <string name="prefs_line_spacing_pt">行距%1.1fx</string>
+  <string name="pref_font_family_label">字型家族</string>
+  <string name="prefs_hyphenation_title">断字</string>
+  <string name="prefs_hyphenation_summary">如果语言支援则自动断字</string>
+  <string name="prefs_line_spacing_pt_title">行距 (%1.1fx)</string>
+  <string name="line_spacing_title">行距</string>
+  <string name="line_spacing_summary">设定每行之间距离</string>
+  <string name="select_none">全不选</string>
+  <string name="reset_are_you_sure">确定重设所有数值吗？</string>
+  <string name="window_pinning_menutitle">视窗钉选</string>
+  <string name="hide_window_buttons_title">隐藏视窗按键</string>
+  <string name="hide_window_buttons_summary">隐藏在圣经检视右方的视窗按键。下方的视窗导航则继续显示，而你可以长按它们以打开视窗弹出选单。</string>
+  <string name="font_size_title">字型大小</string>
+  <string name="full_screen_hide_buttons_pref_title">在全萤幕中隐藏视窗按键</string>
+  <string name="full_screen_hide_buttons_pref_summary">当切换至全萤幕模式时，自动隐藏下方的视窗按键列</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">颜色设定</string>
+  <string name="window_color_settings_title">视窗颜色设定</string>
+  <string name="workspace_color_settings_title">预设工作检视颜色设定</string>
+  <string name="color_text">文字颜色</string>
+  <string name="color_background">背景颜色</string>
+  <string name="colors_day_mode_title">日间模式</string>
+  <string name="colors_night_mode_title">夜间模式</string>
+  <string name="prefs_noise_title">背景杂讯</string>
+  <string name="prefs_noise_summary">在背景增加噪点或会另视觉上更舒服</string>
+  <string name="cpv_default_title">选择颜色</string>
+  <string name="cpv_presets">预设</string>
+  <string name="cpv_custom">自订</string>
+  <string name="cpv_select">选择</string>
+  <string name="cpv_transparency">透明度</string>
+  <!--Window-->
+  <string name="new_window">新视窗</string>
+  <string name="windowClose">关闭</string>
+  <string name="windowMaximise">最大化</string>
+  <string name="windowMinimise">最小化</string>
+  <string name="windowSynchronise">同步</string>
+  <string name="move_window">移动至</string>
+  <string name="move_window_to_position2">位置 %d (%s:%s)</string>
+  <string name="copy_settings">复制设定至</string>
+  <string name="copy_settings_to_workspace">工作检视</string>
+  <string name="copy_settings_to_window">视窗 %d (%s:%s)</string>
+  <string name="change_to_normal">转换至正常视窗</string>
+  <string name="window_pin_mode">钉选</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">本章没有备注</string>
+  <string name="no_verse_notes">本节没有备注</string>
+  <string name="previous">上一页</string>
+  <string name="next">下一页</string>
+  <!--Strongs-->
+  <string name="strongs_not_installed">请下载Strong\'s希伯来文和希腊文字典</string>
+  <string name="all_greek_occurrences">查找所有包含此希腊文字符的经文</string>
+  <string name="all_hebrew_occurrences">查找所有包含此希伯来文字符的经文</string>
+  <string name="no_indexed_bible_with_strongs_ref">需要下载包含Strong\'s原文编号的圣经，并于搜寻下载相应的索引</string>
+  <string name="morph_robinson_not_installed">请下载罗氏词形分析码的字典</string>
+  <!--Module download-->
+  <string name="download">下载文件</string>
+  <string name="download_confirmation">从互联网上下载圣经吗？</string>
+  <string name="download_source_message">文件来源为\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
+  <string name="download_document_confirm_prefix">下载</string>
+  <string name="download_refreshing_book_list">正在更新可用的文件列表</string>
+  <string name="download_refresh_book_list_menu_item">更新</string>
+  <string name="error_downloading">下载时发生错误。请检查您的互联网连接。</string>
+  <string name="storage_space_warning">SD卡储存空间不足</string>
+  <string name="too_many_jobs">正执行太多任务。 请等候一些任务完成后再试。</string>
+  <string name="document_not_installed">请下载 \"%s\"</string>
+  <string name="free_text_search_documents">搜寻</string>
+  <string name="chooce_language_hint">语言</string>
+  <string name="one_more_back_press">再按返回键关闭程式</string>
+  <string name="document_filter_results">%d文件</string>
+  <string name="download_question_title">你想继续下载文件吗？</string>
+  <string name="download_question_message">如果你身处有逼迫的国家，
+你或许需留意是否下载基督教教材。
+取以代之，你或许想透过更安全的途径取得模组的zip
+及以「从Zip载入文件」安装它们。你是否确定继续进行下载？
+所有下载是加密的 (HTTPS)
+</string>
+  <string name="do_not_ask_again">确定。不要再询问</string>
+  <string name="recommended_document">建议的！</string>
+  <string name="about_version_history">版本历史: %s</string>
+  <string name="download_failed">下载失败 %s</string>
+  <string name="download_errors">下载错误</string>
+  <string name="failed_repositories_message">未能连接以下的文件库: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">未能下载以下档案:\n\n%s\n\n</string>
+  <!--Install zip file-->
+  <string name="install_zip">从Zip载入文件</string>
+  <string name="install_zip_module">安装圣经模组</string>
+  <string name="install_zip_successfull">模组已成功安装</string>
+  <string name="extracting_zip_file">正在解压缩Zip档案...</string>
+  <string name="checking_zip_file">正在检查所选文件...</string>
+  <string name="invalid_module">档案不包含兼容的SWORD模组</string>
+  <string name="module_already_installed">档案包含已安装的模组</string>
+  <string name="install_zip_title">请稍等。正在载入Zip档案。</string>
+  <string name="overwrite_files">以下文件已经存在: %s 覆写吗？</string>
+  <string name="overwrite_files_title">覆写档案？</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">阅读计划</string>
+  <string name="rdg_plan_selector_title">选择阅读计划</string>
+  <string name="rdg_plan_day">第 %s 天</string>
+  <string name="rdg_plan_set_start_date">设定开始日期...</string>
+  <string name="done">完成</string>
+  <string name="reset">重设</string>
+  <string name="reset_plan_question">你确定要重设这计划吗？</string>
+  <string name="plan_name_y1ntpspr">新约、诗篇与箴言一年计划</string>
+  <string name="plan_description_y1ntpspr">
+感谢 HEARTLIGHT Internet Magazine
+http://www.heartlight.org 准予使用
+</string>
+  <string name="plan_name_y1ot1nt1_chronological">按时序一年完成圣经</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">一年同时读新、旧约</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">一年完成圣经</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne每日四章一年计划</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Prof. Horner每日十章计划</string>
+  <string name="plan_description_y1ot6nt4_profHorner">感谢 Prof. Horner 准予使用</string>
+  <!--Document context menu-->
+  <string name="delete">删除</string>
+  <string name="delete_index">删除索引</string>
+  <string name="about">关于</string>
+  <string name="delete_doc">删除 %s</string>
+  <string name="delete_search_index_doc">删除 %s 的索引</string>
+  <!--Verse context menu-->
+  <string name="notes">注脚及参考</string>
+  <string name="verse_action_copy">复制</string>
+  <string name="share_verse">分享...</string>
+  <string name="share_verse_subject_2">透过 %s 和你分享圣经经文</string>
+  <string name="compare_translations">译本比较</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">在此开启连结</string>
+  <string name="open_link_in_new_window">在新视窗开启连结</string>
+  <string name="open_link_in_special_window">在特殊视窗开启连结</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">书签</string>
+  <string name="add_bookmark">添加书签</string>
+  <string name="delete_bookmark">删除书签</string>
+  <string name="bookmark_added">书签已保存</string>
+  <string name="bookmark_date_updated">书签日期已更新</string>
+  <string name="bookmark_deleted">书签已删除</string>
+  <string name="bookmark_labels">书签标签</string>
+  <string name="manage_labels">管理书签标签</string>
+  <string name="assign_labels">分配标签</string>
+  <string name="new_label">新标签</string>
+  <string name="label_name_prompt">标签名称</string>
+  <string name="label_unlabelled">未有标签</string>
+  <string name="style">格式</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">日期顺序</string>
+  <string name="sort_by_bible_book">圣经书序</string>
+  <string name="sort_by_alphabetical">字母顺序</string>
+  <!--Dictionary-->
+  <string name="dictionary">字典</string>
+  <string name="search_dictionary_hint">查询字典</string>
+  <!--General Book-->
+  <string name="general_book">书卷</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">第%d章</string>
+  <string name="some_chapters">%d 章</string>
+  <string name="rest_of_book">到书卷末</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">第 %d节</string>
+  <string name="some_verses">共%d节</string>
+  <string name="rest_of_chapter">到章节末</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">第 %d页</string>
+  <string name="some_pages">共%d页</string>
+  <!--Speak - Common-->
+  <string name="stop">停止</string>
+  <string name="pause">暂停</string>
+  <string name="rewind">倒带</string>
+  <string name="forward">快进</string>
+  <string name="tts_lang_not_available">不支持汉语朗读功能</string>
+  <string name="speak_queue">队列</string>
+  <string name="speak_repeat">重复</string>
+  <!--Speak - Bible-->
+  <string name="speak_speed_title">朗读速度</string>
+  <string name="speak_and_play_earcons_title">朗读及播放提示声</string>
+  <string name="playback_settings_title">播放设定</string>
+  <string name="speak_settings_title">一般朗读设定</string>
+  <string name="speak_bookmarking_settings_title">书签设定</string>
+  <string name="speak_bookmarks_menu_title">朗读书签</string>
+  <string name="speak_advanced_settings">进阶设定</string>
+  <string name="speak_sleep_timer_title">睡眠计时器</string>
+  <string name="speak_no_books_available">没有可朗读书本</string>
+  <string name="repeat_passage">重复段落</string>
+  <string name="set_repeat_passage_range">设定重复段落范围</string>
+  <string name="speak_beginning_of_passage">选取段落开结</string>
+  <string name="speak_ending_of_passage">选择段落结尾</string>
+  <string name="speak_verse_range_to_repeat">设定重复节数范围</string>
+  <string name="speak_ending_verse_must_be_later">结束节数必须在开始节数之后</string>
+  <string name="conf_speak_synchronize">文字跟随语音</string>
+  <string name="conf_speak_auto_bookmark">自动标签</string>
+  <string name="conf_save_playback_settings_to_bookmarks">储存播放设定至书签</string>
+  <string name="conf_replace_divinename">以Yahweh取代圣名</string>
+  <string name="conf_change_chapter">章节改变</string>
+  <string name="conf_change_title">标题</string>
+  <string name="conf_speak_footnotes">注脚</string>
+  <string name="conf_speak_sleep_timer">设定睡眠计时器</string>
+  <string name="sleep_timer_title">分钟为单位</string>
+  <string name="sleep_timer_set">设定睡眠计时器。已设为：%d分钟</string>
+  <string name="sleep_timer_started">%d分钟睡眠计时开始</string>
+  <string name="sleep_timer_active_at">睡眠计时器尚余%s分钟。</string>
+  <string name="speak_next">下一个</string>
+  <string name="speak_previous">上一个</string>
+  <string name="widget_toggle_sleep_timer">切换睡眠计时器</string>
+  <string name="widget_bookmark_helptext">朗读书签会在这里显示</string>
+  <string name="speak_status_stopped">已停止</string>
+  <string name="speak_autobookmarking_disabled">自动书签已停止！</string>
+  <string name="system_speak_settings">开启系统文字转语音(TTS)设定</string>
+  <string name="speak_bookmark_help">朗读书签帮助</string>
+  <string name="speak_help_auto_bookmark">
+当暂停或停止朗读时，将自动加入朗读书签。
+自动生成的书签会标示特殊的朗读标签。
+ 如果从朗读书签开始，书签将移动到下次暂停或停止朗读的经节
+只有朗读标签会移动，
+而其他标签将不受影响。</string>
+  <string name="speak_help_playback_settings">
+特殊播放设定 (在朗读萤幕上的「播放设定」)
+会在选择此设定后，储存为朗读书签。
+当您从朗读书签重新开始讲话时，
+将会书签载入已储存的播放设定。</string>
+  <string name="speak_help_playback_settings_example">例如你正在听创世记及罗马书，
+你希望收听创世记时，没有章节变更通知；
+但在罗马书时，翻越下一章节时听到提示声。
+您可以为这些书籍设置不同的播放设定，
+这些设定则需保存到相应的书签。</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>上帝</item>
+    <item>神</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>耶和华</item>
+    <item>耶和华</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <string name="speak_book_changed">书本已更改。</string>
+  <string name="speak_chapter_changed">章节</string>
+  <string name="speak_first">第一</string>
+  <string name="speak_second">第二</string>
+  <string name="speak_third">第三</string>
+  <string name="speak_fourth">第四</string>
+  <string name="speak_fifth">第五</string>
+  <string name="verse_range_mode_disabled">
+重复朗读模式已取消
+因为经节从定义范围外开始</string>
+  <!--User Notes-->
+  <string name="mynotes">笔记列表</string>
+  <string name="mynote_add">添加笔记</string>
+  <string name="mynote_saved">我的笔记已储存</string>
+  <!--Backup and restore-->
+  <string name="backup_and_restore">备份及回复</string>
+  <string name="backup_modules">备份文件</string>
+  <string name="backup_app_database">备份程式资料库</string>
+  <string name="restore_app_database">回复程式资料库</string>
+  <string name="restore_confirmation">覆写我的笔记、书签、阅读计划及工作检视吗？</string>
+  <string name="restore_success">成功回复我的笔记、书签、阅读计划及工作检视</string>
+  <string name="loading_backup">正在从备份载入资料库</string>
+  <string name="backup_success">成功备份我的笔记、书签、阅读计划及工作检视至%s。</string>
+  <string name="error_no_backup_file">找不到备份档案</string>
+  <string name="backup_modules_email_subject_2">%s 模组备份</string>
+  <string name="backup_modules_email_message_2">此附你的 %s 模组备份，包含了以下模组: %s</string>
+  <string name="backup_email_subject_2">%s 资料库备份</string>
+  <string name="restore_unsuccessfull">未能回复资料库。或许你的资料库档案无效。</string>
+  <string name="backup_restore_title">回复来源</string>
+  <string name="backup_phone_storage">手机容量</string>
+  <string name="backup_manually">选择档案</string>
+  <string name="backup_backup_title">备份目的地</string>
+  <string name="backup_backup_message">以分享功能备份至手机或其他目的地 (电邮、Google Drive等)？</string>
+  <string name="backup_share">分享</string>
+  <string name="restore_modules">回复文件</string>
+  <string name="send_backup_file">传送备份档案</string>
+  <string name="backup_modules_title">选择备份模组</string>
+  <string name="install_zip_canceled">模组安装已取消</string>
+  <!--About-->
+  <string name="module_about_copyright">版权: %s</string>
+  <string name="module_about_installed_version">安装版本: %s (%s)</string>
+  <string name="module_about_latest_version">最新版本: %s (%s)</string>
+  <string name="module_about_versification">章节化: %s</string>
+  <string name="module_about_repository">分发文件库: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+  <!--Bug reporting-->
+  <string name="send_bug_report_title">回报程式错误</string>
+  <string name="report_bug_email_subject_2">回报问题 %s %s</string>
+  <!--Document types-->
+  <string name="doc_type_all">所有类型</string>
+  <string name="doc_type_bible">圣经</string>
+  <string name="doc_type_commentary">注释</string>
+  <string name="doc_type_dictionary">字典</string>
+  <string name="doc_type_book">书卷</string>
+  <string name="doc_type_map">地图</string>
+  <!--Languages-->
+  <string name="lang_default">预设</string>
+  <!--General-->
+  <string name="okay">确定</string>
+  <string name="cancel">取消</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="error">错误</string>
+  <string name="please_wait">请稍候...</string>
+  <string name="all">全部</string>
+  <string name="default_value">@string/lang_default</string>
+  <string name="edit">编辑</string>
+  <string name="watch_tutorial_video">观看示范影片 (英文)</string>
+  <string name="verse_not_found">找不到节</string>
+  <!--Errors-->
+  <string name="report_error">发送报告</string>
+  <string name="error_occurred">发生错误</string>
+  <string name="error_occurred_with_link">发生错误。%s</string>
+  <string name="error_no_content">选定经节没有内容</string>
+  <string name="error_page_too_large">页面太大无法加载</string>
+  <string name="error_key_not_in_document">文件内没有发现</string>
+  <string name="empty_list">没有可显示项目</string>
+  <!--Notifications-->
+  <string name="notification_channel_tts_status">文字转语音</string>
+  <string name="notification_channel_progress_status">文件下载等的进度状态通知</string>
+  <!--Workspaces-->
+  <string name="new_workspace">建立</string>
+  <string name="switch_to_workspace">工作检视</string>
+  <string name="delete_workspace">移除</string>
+  <string name="new_copied_workspace">建立复本</string>
+  <string name="workspace_number">工作检视%d</string>
+  <string name="rename_workspace">重新命名</string>
+  <string name="workspace_selector_title">选择工作检视</string>
+  <string name="workspace_settings">设定...</string>
+  <string name="give_name_workspace">命名予新工作检视</string>
+  <string name="save_and_exit">储存</string>
+  <string name="workspace_save_changes">套用设定至工作检视？</string>
+  <string name="copy_of_workspace">%s的复本</string>
+  <string name="copy_workspace_settings">复制设定...</string>
+  <string name="copy_settings_title">复制哪个设定？</string>
+  <string name="select_all">全选</string>
+  <string name="copy_settings_workspaces_title">复制设定至哪个工作检视？</string>
+  <string name="reset_settings">重设</string>
+  <string name="workspace_dismiss">取消</string>
+  <string name="workspace_listing_with_current">%s(现时)</string>
+  <!--Beta notice-->
+  <string name="beta_notice_title">这是beta版本！</string>
+  <string name="beta_notice_content_2">
+Beta用家请透过Google Play或 %s (更佳) 回报错误。</string>
+  <string name="beta_notice_content_3">如果你是程式员，请考虑透过 %s 参与除错。 :-)</string>
+  <string name="beta_notice_github_issues">Github问题</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">关闭</string>
+  <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>
+  <!--History-->
+  <string name="history_for">历史 (%s: 视窗 %d)</string>
+  <!--Help-->
+  <string name="help_nav_title">导航</string>
+  <string name="help_nav_text">滑动萤幕以翻阅至上一章或下一章。
+双点经文文字以切换至全萤幕。
+萤幕分割(又称视窗) 于右上方有选单按钮，
+点选可让你更改视窗功能、自订外观及行为。</string>
+  <string name="help_contextmenus_title">内文选单</string>
+  <string name="help_mynote_title">我的笔记</string>
+  <string name="help_mynote_text">透过经节的选单中我的笔记，可以加入笔记。
+主选单中可以找到所有笔记。</string>
+  <string name="help_bookmarks_title">书签</string>
+  <string name="help_bookmarks_text">透过经节的选单可以加入书签
+主选单中可以管理书签标签
+书签管理选单中可以加入标签将书签分组</string>
+  <string name="help_search_title">搜寻</string>
+  <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
+(有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
+  <string name="help_workspaces_title">工作检视</string>
+  <string name="help_hidden_features_title">隐藏捷径</string>
+  <string name="help_window_pinning_title">视窗钉选</string>
+  <!--Uncategorized-->
+  <string name="close">关闭</string>
+  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="first_time_help_do_not_show_again">我明白</string>
+  <string name="first_time_help_show_next_time">下次再显示</string>
+</resources>

@@ -13,12 +13,26 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
+def getGitDescribe = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--always'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 task npmUpgrade(type: Exec) {
     inputs.file "bibleview-js/package.json"
     outputs.file "bibleview-js/node_modules/.bin/npm"
     workingDir "bibleview-js"
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
-    commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
+    }
+    else {
+        commandLine "npx", "npm@latest", "install", "--save-dev", "npm@latest"
+    }
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
@@ -26,7 +40,12 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
     outputs.dir "bibleview-js/node_modules"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/npm", "install"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/npm.cmd", "install"
+    }
+    else {
+        commandLine "node_modules/.bin/npm", "install"
+    }
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
@@ -36,7 +55,12 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     outputs.file "bibleview-js/dist/loader.js"
 
     workingDir "bibleview-js"
-    commandLine "node_modules/.bin/webpack"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/webpack.cmd"
+    }
+    else {
+        commandLine "node_modules/.bin/webpack"
+    }
 }
 
 task buildLoaderJs(type: Copy, dependsOn: webpack) {
@@ -63,7 +87,9 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         buildConfigField "String", "GitHash", "\"${getGitHash()}\""
+        buildConfigField "String", "GitDescribe", "\"${getGitDescribe()}\""
         buildConfigField "String", "BuildDate", "\"${new Date().format('dd/MM/YY HH:mm:ss')}\""
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -71,12 +97,22 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-//		debug {
+        debug {
+            def propsFile = rootProject.file('local.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(propsFile))
+                println("App suffix: " + props['APP_SUFFIX'])
+
+                if (props['APP_SUFFIX'] != null) {
+                    applicationIdSuffix props['APP_SUFFIX']
+                }
+            }
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 //			zipAlignEnabled true
-//		}
+        }
     }
 
     lintOptions {
@@ -115,6 +151,7 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+
 }
 
 dependencies {
@@ -170,6 +207,8 @@ dependencies {
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
 
+    debugImplementation 'com.facebook.stetho:stetho:1.5.1'
+
     testImplementation project(':db')
 
     // TESTS
@@ -181,6 +220,34 @@ dependencies {
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
     testImplementation 'org.mockito:mockito-core:3.3.3'
     testImplementation 'junit:junit:4.13'
+
+    // Android UI testing
+
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.2.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:truth:1.2.0'
+    androidTestImplementation 'com.google.truth:truth:0.42'
+
+    // Espresso dependencies
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-accessibility:3.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-web:3.2.0'
+    androidTestImplementation 'androidx.test.espresso.idling:idling-concurrent:3.2.0'
+
+    // The following Espresso dependency can be either "implementation"
+    // or "androidTestImplementation", depending on whether you want the
+    // dependency to appear on your APK's compile classpath or the test APK
+    // classpath.
+    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 }
 
 repositories {

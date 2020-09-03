@@ -1,19 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And İncil\'i</string>
-  <!--Startup & Help-->
-  <string name="splash_top_text">\n\'Tanrı, \"Işık olsun\" diye buyurdu ve ışık oldu.\'\nYaratılış 1:3</string>
+  <string name="app_name_short">Kutsal Kitap Çalışması</string>
+  <string name="app_name_medium">İncil Çalışması (And İncil’i)</string>
+  <string name="app_name_long">İncil Çalışması uygulama, And İncil’i Açık Kaynak Projesi’nden</string>
   <string name="version_text">Sürüm %s</string>
-  <string name="no_sdcard_error">Lütfen hafıza (SD) kartını takıp And Bible uygulamasını yeniden başlatın.</string>
+  <string name="no_sdcard_error">Lütfen SD hafıza kartını takıp uygulamayı yeniden başlatın.</string>
   <!--Main menu-->
+  <string name="menu">Menü</string>
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
-  <string name="settings">Ayarlar</string>
+  <string name="settings">Uygulama tercihleri</string>
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
+  <string name="other">Diğer</string>
+  <string name="help_and_tips">Yardım &amp; ipucuları</string>
   <string name="administration">Yönetici</string>
+  <string name="rate_application">Google Play\'da Değerlendir</string>
+  <string name="chooce_document">Belge Seç</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
   <string name="choosePassageChapterName">Bölümü Seç</string>
@@ -22,11 +27,12 @@
   <string name="deuterocanonical">Döterokanonik</string>
   <!--Search-->
   <string name="search_index">Arama Dizini</string>
-  <string name="index_creation_required">Arama yapabilmek için bu belgenin bir dizini olması şarttır.\n\nDizinleri internetten indirebilir veya cihazınızda oluşturabilirsiniz.\nİndirilmiş dizinin kurulumu çok daha hızlı olur. Ayrıca indirilmiş dizinlerde ek fonksyonlar bulunur.\nDizin indirmek için İnternet bağlantınız olması gerekir.\n</string>
+  <string name="index_creation_required">Arama yapmak için indeks gereklidir.</string>
+  <string name="create_index_for">Arama yapmak için indeks gereklidir. \n\n%s için indeks oluşturulsun mu?</string>
   <string name="indexing_wait_msg">Dizin yaratıldıktan sonra arama sayfası açılacaktır.</string>
-  <string name="index_download">İndir</string>
-  <string name="index_not_available_for_download">Bu dizin indirim için mevcut değildir.</string>
   <string name="index_create">Oluştur</string>
+  <string name="search_in">%s içinde bul</string>
+  <string name="do_in_background">Arkaplanda devam et</string>
   <!--Tasks-->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
@@ -45,6 +51,10 @@
   <string name="search_current_book">Seçili Kitapta</string>
   <string name="error_executing_search">Arama metini geçersiz</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Ayet numarıları göster</string>
+  <string name="prefs_section_title_summary">Kanonik olmayan bölüm başlıklarını göster</string>
+  <string name="prefs_red_letter_summary">Mesih\'in sözlerini kırmızı göster</string>
+  <string name="prefs_text_size_title">Font Tercihi</string>
   <string name="prefs_show_verseno_title">Ayet numaraları</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
@@ -52,29 +62,59 @@
   <string name="prefs_default_bookmark_style_summary">İşaretlemek için renk veya simge</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>
+  <string name="prefs_show_strongs_title">Strong Referansları</string>
   <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
   <string name="prefs_section_title_title">Kısım Başlıkları</string>
   <string name="prefs_red_letter_title">Kırmızı Harflar</string>
   <string name="prefs_tilt_to_scroll_title">Eğdirip kaydır</string>
-  <string name="prefs_tilt_to_scroll_summary">Cihazı eğerek sayfayı aşağa/yükarıya kaydırma</string>
-  <string name="prefs_night_mode_title">Gece Modu</string>
-  <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
+  <string name="prefs_night_mode_manual">Kullanım Kılavuzu</string>
   <string name="prefs_night_mode_automatic">Otomatik</string>
+  <string name="prefs_night_mode_system">Sistem</string>
+  <string name="options_menu_night_mode">Gece modu</string>
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
   <string name="prefs_open_links_in_special_window_title">Linkler özel pencerede açılsın</string>
   <string name="prefs_open_links_in_special_window_summary">Strongs numaralar ve dipnotların daha hızlı gösterilmesi için</string>
-  <string name="prefs_text_size_title">Metin boyu</string>
-  <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
+  <string name="prefs_text_size_summary">Font ailesi ve boyut belirle</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
+  <string name="prefs_screen_keep_on_title">Ekranı açık tut</string>
+  <string name="prefs_screen_keep_on_summary">Bu uygulamayı kullanırken ekranın kapanmasını önleyin</string>
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
+  <string name="reset_fontsize">Sıfırla</string>
+  <string name="all_text_options_window_menutitle">Bütün metin ayarları</string>
+  <string name="text_options_window_menutitle">Metin seçenekler</string>
+  <string name="auto_fullscreen">Kaydırarak tam ekran modusu</string>
+  <string name="prefs_advanced_settings_cat">Gelişmiş ayarlar</string>
+  <string name="workspace_text_display_settings_title">Metin seçenekler - %s</string>
+  <string name="window_text_display_settings_title">Metin seçenekler - Pencere %d</string>
+  <string name="prefs_text_display_settings_title">Biçimlendirme</string>
+  <string name="prefs_text_appearance_title">Görünüm</string>
+  <string name="prefs_line_spacing_pt">Satır aralığı %1.1fx</string>
+  <string name="pref_font_family_label">Yazı tipi ailesi</string>
+  <string name="prefs_hyphenation_title">Tireleme</string>
+  <string name="prefs_line_spacing_pt_title">Satır aralığı (%1.1fx)</string>
+  <string name="line_spacing_title">Satır aralığı</string>
+  <string name="line_spacing_summary">Satırlar arasındaki mesafeyi ayarla</string>
+  <string name="font_size_title">Yazı tipi boyutu</string>
+  <!--Colors preferences-->
+  <string name="prefs_text_colors_menutitle">Renk ayarları</string>
+  <string name="color_text">Metin rengi</string>
+  <string name="color_background">Arkaplan rengi</string>
+  <string name="colors_day_mode_title">Gündüz modu</string>
+  <string name="colors_night_mode_title">Gece modu</string>
+  <string name="cpv_default_title">Bir Renk Seçin</string>
+  <string name="cpv_select">Seç</string>
+  <string name="cpv_transparency">Saydamlık</string>
   <!--Window-->
+  <string name="new_window">Yeni pencere</string>
   <string name="windowClose">Kapat</string>
   <string name="windowMaximise">Büyüt</string>
   <string name="windowMinimise">Küçült</string>
   <string name="windowSynchronise">Senkronize et</string>
-  <string name="windowMoveFirst">Öne al</string>
+  <string name="copy_settings_to_workspace">Çalışma Alanı
+</string>
+  <string name="window_pin_mode">İğnele</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
   <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
@@ -88,8 +128,7 @@
   <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğünü indirin.</string>
   <!--Module download-->
   <string name="download">Belge İndir</string>
-  <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
-  <string name="download_source_message">Belgeler http://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org\nsitelerden indiriliyor</string>
+  <string name="download_confirmation">İnternet üzerinden Kutsal Kitap indirilsin mi?</string>
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
@@ -97,13 +136,16 @@
   <string name="storage_space_warning">Yerel depo yetersiz</string>
   <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
+  <string name="free_text_search_documents">Ara</string>
+  <string name="chooce_language_hint">Dil</string>
+  <string name="do_not_ask_again">Evet, tekrar sorma</string>
+  <string name="recommended_document">Tavsiye edilir!</string>
   <!--Install zip file-->
   <string name="install_zip">Zip\'ten Dökumanı Aç</string>
   <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
-  <string name="extracting_zip_file">Zip dosyasından çekiliyor...</string>
-  <string name="checking_zip_file">Verilen dosya kötrol ediliyor...</string>
   <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
   <string name="module_already_installed">Dosya zaten yüklenmiş bir modül içeriyor</string>
+  <string name="install_zip_title">Lütfen bekleyin. Zip dosyası yükleniyor.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
@@ -118,11 +160,11 @@
   <string name="delete_search_index_doc">%s\'in dizini silinsin mi?</string>
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
-  <string name="copy">Kopyala</string>
-  <string name="share_verse">Paylaş ...</string>
-  <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
+  <string name="verse_action_copy">Kopyala</string>
+  <string name="share_verse">Paylaş</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
   <!--Link context menu-->
+  <string name="open_link_in_new_window">Bağlantıyı yeni pencerede aç</string>
   <!--Bookmarks-->
   <string name="bookmarks">Yer İmleri</string>
   <string name="add_bookmark">Yer İmlerine ekle</string>
@@ -167,6 +209,22 @@
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Tekrar</string>
   <!--Speak - Bible-->
+  <string name="speak_advanced_settings">Gelişmiş Ayarlar</string>
+  <string name="speak_sleep_timer_title">Uyku süre ayarlayıcı</string>
+  <string name="conf_speak_synchronize">Metin seslendirmeyi takip etsin</string>
+  <string name="conf_replace_divinename">Kutsal adı Yahve ile değiştir</string>
+  <string name="conf_change_chapter">Bölüm değişiklikler</string>
+  <string name="conf_change_title">Başlıklar</string>
+  <string name="conf_speak_footnotes">Dipnotlar</string>
+  <string name="conf_speak_sleep_timer">Uyku süresi ayarla</string>
+  <string name="sleep_timer_title">Uyku süre dakika</string>
+  <string name="sleep_timer_set">Uygu süresi ayarlandı. Ölçer: %d dakika</string>
+  <string name="sleep_timer_started">Uyku süre başlatıldı, %d dakika</string>
+  <string name="sleep_timer_active_at">Uyku süre: %s dakika kaldı.</string>
+  <string name="speak_next">Sonraki</string>
+  <string name="speak_previous">Önceki</string>
+  <string name="widget_toggle_sleep_timer">Uygu süre ayarlayıcı değiştir</string>
+  <string name="speak_status_stopped">durduruldu</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -178,17 +236,36 @@
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
+  <string name="speak_chapter_changed">Bölüm</string>
+  <string name="speak_first">Birinci</string>
+  <string name="speak_second">İkinci</string>
+  <string name="speak_third">Üçüncü</string>
+  <string name="speak_fourth">Dördüncü</string>
+  <string name="speak_fifth">Beşinci</string>
   <!--User Notes-->
   <string name="mynotes">Notlarım</string>
   <string name="mynote_add">Notlarıma ekle</string>
   <string name="mynote_saved">Notlarım kaydedildi</string>
   <!--Backup and restore-->
-  <string name="backup_success">Not ve Yer İmileri hafiz kartına %s klasörüne kaydedildi.</string>
+  <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
+  <string name="backup_modules">Belgeler yedekleme hedefi...</string>
+  <string name="backup_app_database">Uygulama veritabanı yedekleme hedefi...</string>
+  <string name="restore_app_database">Uygulama veritabanı nereden geri getirilsin...</string>
+  <string name="loading_backup">Veritabanı yedeklemeden yükleniyor...</string>
+  <string name="backup_restore_title">Nereden geri getirilsin?</string>
+  <string name="backup_phone_storage">Telefon hafıza</string>
+  <string name="backup_manually">Dosya seç</string>
+  <string name="backup_backup_title">Nereye yedeklensin?</string>
+  <string name="backup_share">Paylaş</string>
+  <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <!--About-->
-  <string name="about_copyright">Telif Hakkı: %s</string>
-  <string name="about_version">Sürüm: %s</string>
-  <string name="about_versification">Ayetleme: %s</string>
+  <string name="module_about_copyright">Telif hakkı: %s</string>
+  <string name="module_about_installed_version">Mevcut sürüm: %s (%s)</string>
+  <string name="module_about_latest_version">Son çıkan sürüm: %s (%s)</string>
+  <string name="module_about_versification">Ayet düzeni: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Arıza bilgilendir</string>
+  <string name="report_bug_email_subject_2">%s için sorun bildirmesi: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>
@@ -203,17 +280,55 @@
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="error">Hata</string>
+  <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Düzelt</string>
+  <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
+  <string name="verse_not_found">Ayet bulunamadı</string>
   <!--Errors-->
   <string name="report_error">Bildiri Gönder</string>
   <string name="error_occurred">Bir hata oldu</string>
+  <string name="error_occurred_with_link">Bir hata oluştu. %s</string>
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
   <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
   <string name="error_key_not_in_document">Belgede bulunmadı</string>
   <string name="empty_list">Öğe bulunmadı</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Metin seslendirmesi</string>
   <!--Workspaces-->
+  <string name="new_workspace">Yeni</string>
+  <string name="switch_to_workspace">Çalışma alanları</string>
+  <string name="delete_workspace">Kaldır</string>
+  <string name="new_copied_workspace">Yeni olarak kopyala</string>
+  <string name="workspace_number">Çalışma Alanı %d</string>
+  <string name="rename_workspace">Yeniden Adlandır</string>
+  <string name="workspace_selector_title">Çalışma Alanı Seç</string>
+  <string name="workspace_settings">Ayarlar...</string>
+  <string name="give_name_workspace">Yeni çalışma alanı için isim ver</string>
+  <string name="save_and_exit">Kaydet</string>
+  <string name="workspace_save_changes">Çalışma alanlarına değişiklikler uygulansın mı?</string>
+  <string name="copy_of_workspace">%s kopyası</string>
+  <string name="copy_workspace_settings">Ayarları kopyala...</string>
+  <string name="copy_settings_title">Hangi ayarları kopyalansın?</string>
+  <string name="select_all">Hepsi seç</string>
+  <string name="copy_settings_workspaces_title">Ayarlar hagni çalışma alanıya kopyalansın?</string>
+  <string name="reset_settings">Sıfırla</string>
+  <string name="workspace_listing_with_current">%s (aktif)</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Bu deneme sürümdür!</string>
+  <string name="beta_notice_github_issues">Github sorun listesi</string>
+  <string name="beta_notice_github">Github</string>
+  <!--History-->
+  <!--Help-->
+  <string name="help_nav_title">Navigasyon</string>
+  <string name="help_mynote_title">Notum</string>
+  <string name="help_bookmarks_title">Yer İmleri</string>
+  <string name="help_search_title">Arama</string>
+  <string name="help_workspaces_title">Çalışma Alanları</string>
+  <string name="help_window_pinning_title">Pencere iğneleme</string>
+  <!--Uncategorized-->
+  <string name="close">Kapat</string>
+  <string name="first_time_help_do_not_show_again">Anladım</string>
+  <string name="first_time_help_show_next_time">Bir daha sefere tekrar göster</string>
 </resources>

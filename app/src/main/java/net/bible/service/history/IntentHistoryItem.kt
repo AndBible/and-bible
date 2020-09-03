@@ -58,6 +58,7 @@ class IntentHistoryItem(
         // need to get current activity and call startActivity on that
         val currentActivity = CurrentActivityHolder.getInstance().currentActivity
 
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         // start activity chosen from activity
         currentActivity.startActivityForResult(intent, STD_REQUEST_CODE)
     }

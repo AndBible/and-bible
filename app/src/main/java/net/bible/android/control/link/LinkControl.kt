@@ -171,9 +171,12 @@ class LinkControl @Inject constructor(
             // this uri request was handled by showing an error message
             return
         }
-        val strongsNumberKey = book.getKey(key)
-        showLink(book, strongsNumberKey)
+        val sanitizedKey = sanitizeStrongsKey(key) ?: return
+        showLink(book, book.getKey(sanitizedKey))
     }
+
+    private fun sanitizeStrongsKey(key: String): String? =
+        Regex("^([0-9]+).*").find(key)?.groups?.get(1)?.value?.padStart(5, '0')
 
     /** user has selected a morphology link so show morphology page for key in link
      */

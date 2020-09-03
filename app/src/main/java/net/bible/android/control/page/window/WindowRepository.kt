@@ -132,15 +132,20 @@ open class WindowRepository @Inject constructor(
     // window that was synchronized
     var lastSyncWindowId: Long? = null
 
-
     lateinit var dedicatedLinksWindow: LinksWindow
         private set
 
-    val visibleWindows get() =
-        if(isMaximized) {
-            listOf(getWindow(maximizedWindowId)!!)
+    val visibleWindows: List<Window> get() {
+        if (isMaximized) {
+            val maxWindow = getWindow(maximizedWindowId)
+            if (maxWindow != null) {
+                return listOf(maxWindow)
+            } else {
+                maximizedWindowId = null
+            }
         }
-        else getWindows(WindowState.SPLIT)
+        return getWindows(WindowState.SPLIT)
+    }
 
     val minimisedWindows  get() = getWindows(WindowState.MINIMISED)
 
@@ -205,7 +210,7 @@ open class WindowRepository @Inject constructor(
         if (!window.isLinksWindow) {
             dao.deleteWindow(window.id)
             destroy(window)
-            if(visibleWindows.size == 0) {
+            if(visibleWindows.isEmpty()) {
                 activeWindow = windowList[min(currentPos, windowList.size - 1)]
                 activeWindow.windowState = WindowState.SPLIT
             } else setDefaultActiveWindow()

@@ -22,9 +22,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
+import android.text.format.DateFormat.format
+import kotlinx.android.synthetic.main.history_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
@@ -32,7 +35,6 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.base.SharedActivityState.Companion.currentWorkspaceName
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
-import java.util.*
 import javax.inject.Inject
 
 /** show a history list and allow to go to history item
@@ -64,13 +66,20 @@ class History : ListActivityBase() {
      */
     protected fun createAdapter(): ListAdapter {
         mHistoryItemList = historyManager.history
-        val historyTextList: MutableList<CharSequence> = ArrayList()
-        for (item in mHistoryItemList!!) {
-            historyTextList.add(item.description)
-        }
-        return ArrayAdapter(this,
+        return object:ArrayAdapter<HistoryItem>(this,
             LIST_ITEM_TYPE,
-            historyTextList)
+            R.id.titleText,mHistoryItemList!!){
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+                val view = super.getView(position, convertView, parent)
+                view.titleText.text = mHistoryItemList!![position].description.toString()
+                val formattedDate = format("yyyy-MM-dd HH:mm", mHistoryItemList!![position].createdAt).toString()
+                view.dateText.text = formattedDate
+
+                return view
+
+            }
+    }
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -96,6 +105,6 @@ class History : ListActivityBase() {
 
     companion object {
         private const val TAG = "History"
-        private const val LIST_ITEM_TYPE = android.R.layout.simple_list_item_1
+        private const val LIST_ITEM_TYPE = R.layout.history_list_item
     }
 }

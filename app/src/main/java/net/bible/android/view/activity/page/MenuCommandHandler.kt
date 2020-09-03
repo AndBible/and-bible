@@ -44,7 +44,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.report.ErrorReportControl
@@ -61,15 +60,15 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_RESTORE_REQUEST
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.BACKUP_SAVE_REQUEST
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_DB
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.REQUEST_PICK_FILE_FOR_BACKUP_RESTORE
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
-import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DATABASE_NAME
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
@@ -83,11 +82,9 @@ class MenuCommandHandler @Inject
 constructor(private val callingActivity: MainBibleActivity,
             private val readingPlanControl: ReadingPlanControl,
             private val searchControl: SearchControl,
-            private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
             private val backupControl: BackupControl,
-            private val documentViewManager: DocumentViewManager,
             private val errorReportControl: ErrorReportControl
 ) {
 
@@ -103,6 +100,7 @@ constructor(private val callingActivity: MainBibleActivity,
             var handlerIntent: Intent? = null
             var requestCode = ActivityBase.STD_REQUEST_CODE
             // Handle item selection
+            val currentPage = windowControl.activeWindowPageManager.currentPage
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
                     val intent = Intent(callingActivity, ChooseDocument::class.java)
@@ -134,7 +132,11 @@ constructor(private val callingActivity: MainBibleActivity,
                     menuHelper.setForceShowIcon(true)
                     menuHelper.show()
                 }
-                R.id.searchButton -> handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument)
+                R.id.searchButton -> {
+                    if(currentPage.isSearchable) {
+                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument)
+                    }
+                }
                 R.id.settingsButton -> {
                     handlerIntent = Intent(callingActivity, SettingsActivity::class.java)
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
@@ -148,9 +150,10 @@ constructor(private val callingActivity: MainBibleActivity,
                 }
                 R.id.mynotesButton -> handlerIntent = Intent(callingActivity, MyNotes::class.java)
                 R.id.speakButton -> {
-                    val isBible = windowControl.activeWindowPageManager.currentPage
-                            .bookCategory == BookCategory.BIBLE
-                    handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    if(currentPage.isSpeakable) {
+                        val isBible = currentPage.bookCategory == BookCategory.BIBLE
+                        handlerIntent = Intent(callingActivity, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    }
                 }
                 R.id.dailyReadingPlanButton ->
                     // show todays plan or allow plan selection
@@ -213,20 +216,27 @@ constructor(private val callingActivity: MainBibleActivity,
                     d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
                 }
                 R.id.backup_app_database -> {
-                    mainBibleActivity.windowRepository.saveIntoDb()
-
                     AlertDialog.Builder(callingActivity)
                         .setTitle(callingActivity.getString(R.string.backup_backup_title))
                         .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) {dialog, which ->
-                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
+                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                                if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                    ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), BACKUP_SAVE_REQUEST)
+                                } else {
+                                    backupControl.backupDatabase()
+                                }
                             } else {
-                                backupControl.backupDatabase()
+                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                    addCategory(Intent.CATEGORY_OPENABLE)
+                                    type = "application/x-sqlite3"
+                                    putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
+                                }
+                                callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_DB)
                             }
                         }
                         .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-                            backupControl.backupDatabaseViaIntent(callingActivity)
+                            backupControl.backupDatabaseViaSendIntent(callingActivity)
                         }
                         .setNeutralButton(callingActivity.getString(R.string.cancel), null)
                         .show()
@@ -249,23 +259,29 @@ constructor(private val callingActivity: MainBibleActivity,
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.restore_app_database -> {
-                    AlertDialog.Builder(callingActivity)
-                        .setTitle(callingActivity.getString(R.string.backup_restore_title))
-                        .setMessage(callingActivity.getString(R.string.backup_restore_message))
-                        .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
-                            if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
-                            } else {
-                                backupControl.restoreDatabase()
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                        AlertDialog.Builder(callingActivity)
+                            .setTitle(callingActivity.getString(R.string.backup_restore_title))
+                            .setMessage(callingActivity.getString(R.string.backup_restore_message))
+                            .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
+                                if (ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                    ActivityCompat.requestPermissions(callingActivity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), BACKUP_RESTORE_REQUEST)
+                                } else {
+                                    backupControl.restoreDatabase()
+                                }
                             }
-                        }
-                        .setPositiveButton(callingActivity.getString(R.string.backup_manually)) { dialog, which ->
-                            val intent = Intent(Intent.ACTION_GET_CONTENT)
-                            intent.type = "application/*"
-                            callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
-                        }
-                        .setNeutralButton(callingActivity.getString(R.string.cancel), null)
-                        .show()
+                            .setPositiveButton(callingActivity.getString(R.string.backup_manually)) { dialog, which ->
+                                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                                intent.type = "application/*"
+                                callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                            }
+                            .setNeutralButton(callingActivity.getString(R.string.cancel), null)
+                            .show()
+                    } else {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT)
+                        intent.type = "application/*"
+                        callingActivity.startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+                    }
                     isHandled = true
                 }
             }
