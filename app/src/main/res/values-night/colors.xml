@@ -29,4 +29,6 @@
     <color name="bar_window_button_stroke_color">#686868</color>
 
     <color name="window_button_text_colour">#32FFFFFF</color>
+
+    <color name="navigation_bar">@color/black</color>
 </resources>
