@@ -27,6 +27,7 @@ import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.view.View.OnKeyListener
+import android.view.inputmethod.EditorInfo
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import kotlinx.android.synthetic.main.search.*
@@ -51,7 +52,6 @@ import javax.inject.Inject
 class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
-    override val customTheme: Boolean = false
     private lateinit var currentBookName: String
 
     @Inject lateinit var searchControl: SearchControl
@@ -106,16 +106,24 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
 
         title = getString(R.string.search_in, documentToSearch!!.abbreviation)
+        searchText.setOnEditorActionListener {v, actionId, event ->
+            return@setOnEditorActionListener when (actionId) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    onSearch(null)
+                    true
+                }
+                else -> false
+        }}
 
-        searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
-            // If the event is a key-down event on the "enter" button
-            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                // Perform action on key press
-                onSearch(null)
-                return@OnKeyListener true
-            }
-            false
-        })
+        //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
+        //    // If the event is a key-down event on the "enter" button
+        //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+        //        // Perform action on key press
+        //        onSearch(null)
+        //        return@OnKeyListener true
+        //    }
+        //    false
+        //})
 
         // pre-load search string if passed in
         val extras = intent.extras

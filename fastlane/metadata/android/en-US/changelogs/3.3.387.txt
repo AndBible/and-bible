@@ -1,0 +1,13 @@
+3.3.387:
+- Fixed bugs
+- Updated translations
+- Added new Bengali translation
+
+Version 3.3
+See video introduction and tutorials: https://youtu.be/wMjmEkYXtvA
+- Choose / Download documents improvements
+- Per-window and per-workspace settings (font, color, margins etc.)
+- Improved workspace selector
+- Pinned windows
+- Backup documents
+

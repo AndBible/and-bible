@@ -416,6 +416,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     preferences.edit().putString("beta-notice-displayed", ver).apply()
                     it.resume(true)
                 }
+                .setOnCancelListener {_ -> it.resume(false)}
                 .create()
             d.show()
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()

@@ -98,7 +98,7 @@ class FontWidget(context: Context, attributeSet: AttributeSet?): LinearLayout(co
         fontSizeSlider.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 value.fontSize = progress
-                updateValue()
+                if(fromUser) updateValue()
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
