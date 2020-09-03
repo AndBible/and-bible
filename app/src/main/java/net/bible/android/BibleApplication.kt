@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 
@@ -38,6 +39,7 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language
+import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
@@ -80,6 +82,9 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         ABEventBus.getDefault().register(this)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            WebResource.setHostnameWhitelist(listOf("crosswire.org", "andbible.org"))
+        }
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
