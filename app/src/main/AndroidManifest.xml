@@ -79,7 +79,6 @@
             android:windowSoftInputMode="adjustResize|adjustPan"/>
         <activity
             android:name="net.bible.android.view.activity.search.SearchResults"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             />
