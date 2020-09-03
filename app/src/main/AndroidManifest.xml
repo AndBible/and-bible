@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="net.bible.android.activity"
     android:installLocation="auto"
-    android:versionCode="389"
-    android:versionName="3.3.389">
+    android:versionCode="390"
+    android:versionName="3.3.390">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -78,7 +78,6 @@
             android:windowSoftInputMode="adjustResize|adjustPan"/>
         <activity
             android:name="net.bible.android.view.activity.search.SearchResults"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             />

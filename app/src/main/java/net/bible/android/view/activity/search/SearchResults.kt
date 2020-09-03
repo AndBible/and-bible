@@ -48,9 +48,6 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class SearchResults : ListActivityBase(R.menu.empty_menu) {
-    override val customTheme: Boolean
-        protected get() = false
-
     private var mSearchResultsHolder: SearchResultsDto? = null
     private var mCurrentlyDisplayedSearchResults: List<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
