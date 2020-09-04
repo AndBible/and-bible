@@ -43,9 +43,5 @@
         <item name="android:tint">?attr/transportButtonColor</item>
     </style>
 
-    <style name="MyDayNightTheme" parent="Theme.AppCompat.DayNight">
-        <item name="android:navigationBarColor" tools:targetApi="o">@color/white</item>
-    </style>
-
 
 </resources>

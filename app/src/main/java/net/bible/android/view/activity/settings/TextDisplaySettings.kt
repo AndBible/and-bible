@@ -209,9 +209,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
 
-    override val dayTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-    override val nightTheme = R.style.Theme_AppCompat_DayNight_Dialog_Alert
-
     internal lateinit var settingsBundle: SettingsBundle
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -288,7 +288,7 @@ object CommonUtils {
                 mainBibleActivity.theme
             } catch (e: UninitializedPropertyAccessException) {
                 resources.newTheme().apply {
-                    applyStyle(R.style.MyDayNightTheme, true)
+                    applyStyle(R.style.AppTheme, true)
                 }
             }
             resources.getColor(resourceId, theme)

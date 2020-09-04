@@ -69,7 +69,7 @@ object ScreenSettings {
         autoModeAvailable && preferences.getString("night_mode_pref3", "manual") == "automatic"
     val manualMode: Boolean get() =
         preferences.getString("night_mode_pref3", "manual") == "manual"
-    private val systemMode: Boolean get() =
+    val systemMode: Boolean get() =
         systemModeAvailable && preferences.getString("night_mode_pref3", "manual") == "system"
 
     val autoModeAvailable = lightSensor.isLightSensor

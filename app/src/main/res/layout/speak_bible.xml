@@ -182,7 +182,6 @@
         </LinearLayout>
     </ScrollView>
     <net.bible.android.view.util.widget.SpeakTransportWidget
-        android:background="?attr/speakTransportBackground"
         android:id="@+id/transportWidget"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"

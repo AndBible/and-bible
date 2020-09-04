@@ -45,6 +45,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
@@ -141,9 +142,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var documentControl: DocumentControl
     @Inject lateinit var navigationControl: NavigationControl
-
-    override var nightTheme = R.style.MainBibleViewNightTheme
-    override var dayTheme = R.style.MainBibleViewTheme
 
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
@@ -1065,18 +1063,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
         ScreenSettings.checkMonitoring()
-        val isNightMode = ScreenSettings.nightMode
-        if (currentNightMode != isNightMode) {
-            if(!windowRepository.isBusy) {
-                recreate()
-                currentNightMode = isNightMode
-                return true
-            } else {
-                // Cancel night mode setting
-                ScreenSettings.setLastNightMode(currentNightMode)
-            }
-        }
-        return false
+        applyTheme()
+        return true
     }
 
     fun onEvent(event: ScreenSettings.NightModeChanged) {

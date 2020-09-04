@@ -29,7 +29,6 @@
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/speak_status_background"
             android:paddingStart="@dimen/speak_row_padding"
             android:paddingEnd="@dimen/speak_row_padding"
             android:paddingTop="5dip"
