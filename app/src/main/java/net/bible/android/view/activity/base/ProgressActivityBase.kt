@@ -156,13 +156,6 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun hideButtons() {
-        val buttonPanel = findViewById<View>(R.id.button_panel)
-        if (buttonPanel != null) {
-            buttonPanel.visibility = View.INVISIBLE
-        }
-    }
-
     protected fun setMainText(text: String?) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
