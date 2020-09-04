@@ -188,6 +188,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
 
+    private var isPaused = false
     /**
      * return percentage scrolled down page
      */
@@ -224,25 +225,27 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var firstTime = true
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
-            val heightChanged =
-                bottomOffset1 != insets.systemWindowInsetBottom || topOffset1 != insets.systemWindowInsetTop
-            val widthChanged =
-                leftOffset1 != insets.systemWindowInsetLeft || rightOffset1 != insets.systemWindowInsetRight
-            bottomOffset1 = insets.systemWindowInsetBottom
-            topOffset1 = insets.systemWindowInsetTop
-            leftOffset1 = insets.systemWindowInsetLeft
-            rightOffset1 = insets.systemWindowInsetRight
-            Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
+            if (!isPaused) {
+                val heightChanged =
+                    bottomOffset1 != insets.systemWindowInsetBottom || topOffset1 != insets.systemWindowInsetTop
+                val widthChanged =
+                    leftOffset1 != insets.systemWindowInsetLeft || rightOffset1 != insets.systemWindowInsetRight
+                bottomOffset1 = insets.systemWindowInsetBottom
+                topOffset1 = insets.systemWindowInsetTop
+                leftOffset1 = insets.systemWindowInsetLeft
+                rightOffset1 = insets.systemWindowInsetRight
+                Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
 
-            if(firstTime) {
-                postInitialize()
+                if (firstTime) {
+                    postInitialize()
+                }
+
+                if (widthChanged || heightChanged)
+                    displaySizeChanged(firstTime)
+
+                if (firstTime)
+                    firstTime = false
             }
-
-            if (widthChanged || heightChanged)
-                displaySizeChanged(firstTime)
-
-            if(firstTime)
-                firstTime = false
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
@@ -471,6 +474,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onPause() {
         fullScreen = false;
+        isPaused = true;
         super.onPause()
     }
 
@@ -1357,6 +1361,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     override fun onResume() {
         super.onResume()
+        isPaused = false
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView?.asView()?.requestFocus()
     }
