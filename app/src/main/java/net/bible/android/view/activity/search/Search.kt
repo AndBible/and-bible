@@ -20,14 +20,12 @@ package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import kotlinx.android.synthetic.main.search.*
@@ -183,20 +181,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         searchText.requestFocus()
     }
 
-
-    override fun onPause() {
-        super.onPause()
-        closeKeyboard()
-    }
-
-    private fun closeKeyboard() {
-        try {
-            val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
-        } catch (e: Exception) {
-            Log.e("AndroidView", "closeKeyboard: $e")
-        }
-    }
 
     fun onRebuildIndex(v: View?) {
         startActivity(Intent(this, SearchIndex::class.java))
