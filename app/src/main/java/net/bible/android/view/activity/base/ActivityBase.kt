@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatDelegate
 
 import net.bible.android.view.util.locale.LocaleHelper
@@ -216,6 +217,17 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(localClassName, "onPause:" + this)
         if (isScreenOn && !ScreenSettings.isScreenOn) {
             onScreenTurnedOff()
+        }
+        closeKeyboard()
+    }
+
+
+    private fun closeKeyboard() {
+        try {
+            val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        } catch (e: Exception) {
+            Log.e(TAG, "closeKeyboard: $e")
         }
     }
 

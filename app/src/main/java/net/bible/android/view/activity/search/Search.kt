@@ -181,6 +181,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         searchText.requestFocus()
     }
 
+
     fun onRebuildIndex(v: View?) {
         startActivity(Intent(this, SearchIndex::class.java))
         finish()
