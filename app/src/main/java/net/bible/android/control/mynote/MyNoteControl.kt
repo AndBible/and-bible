@@ -123,9 +123,9 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
                 isSaved = true
             }
         }
-        if (isSaved) {
-            Toast.makeText(application.applicationContext, R.string.mynote_saved, Toast.LENGTH_SHORT).show()
-        }
+//        if (isSaved) {
+//            Toast.makeText(application.applicationContext, R.string.mynote_saved, Toast.LENGTH_SHORT).show()
+//        }
         return isSaved
     }
 
