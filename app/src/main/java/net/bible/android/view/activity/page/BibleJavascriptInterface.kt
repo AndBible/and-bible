@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 
 import android.util.Log
 import android.webkit.JavascriptInterface
+import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
@@ -35,11 +36,12 @@ import org.json.JSONObject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BibleJavascriptInterface(
-	private val verseActionModeMediator: VerseActionModeMediator,
-	private val windowControl: WindowControl,
-	private val verseCalculator: VerseCalculator,
-	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
-	private val bibleView: BibleView
+    private val verseActionModeMediator: VerseActionModeMediator,
+    private val windowControl: WindowControl,
+    private val verseCalculator: VerseCalculator,
+    private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
+    private val myNoteControl: MyNoteControl,
+    private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
 
@@ -134,6 +136,11 @@ class BibleJavascriptInterface(
     fun requestMoreTextAtEnd(chapter: Int, textId: String) {
         Log.d(TAG, "Request more text at end:$textId")
         bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
+    }
+
+    @JavascriptInterface
+    fun saveNote(text: String) {
+        myNoteControl.saveMyNoteText(text)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

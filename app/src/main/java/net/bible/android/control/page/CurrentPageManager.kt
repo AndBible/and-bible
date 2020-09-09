@@ -23,6 +23,7 @@ import android.util.Log
 
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
@@ -47,11 +48,11 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class CurrentPageManager @Inject constructor(
-        swordContentFacade: SwordContentFacade,
-        swordDocumentFacade: SwordDocumentFacade,
-        bibleTraverser: BibleTraverser,
-        myNoteDAO: MyNoteDAO,
-        val windowRepository: WindowRepository
+    swordContentFacade: SwordContentFacade,
+    swordDocumentFacade: SwordDocumentFacade,
+    bibleTraverser: BibleTraverser,
+    myNoteDAO: MyNoteDAO,
+    val windowRepository: WindowRepository
         )
 {
     // use the same verse in the commentary and bible to keep them in sync

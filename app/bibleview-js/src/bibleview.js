@@ -51,5 +51,12 @@ function getElementsByClass( searchClass, domNode, tagName) {
 export function initializeListeners() {
     $(document).bind("touchstart", event => stopScrolling());
     window.addEventListener("scroll", event => updateLocation());
+    var editor = document.getElementById("editor");
+    if (editor) {
+        editor.addEventListener("input", function(e) {
+            jsInterface.saveNote(e.srcElement.innerHTML)
+        }, false);
+    }
 }
+
 

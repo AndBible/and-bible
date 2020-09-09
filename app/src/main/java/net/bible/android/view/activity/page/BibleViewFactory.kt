@@ -68,7 +68,7 @@ class BibleViewFactory @Inject constructor(
             val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView)
             val verseCalculator = VerseCalculator()
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl,
-                verseCalculator, bibleInfiniteScrollPopulator, bibleView)
+                verseCalculator, bibleInfiniteScrollPopulator, myNoteControl, bibleView)
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()

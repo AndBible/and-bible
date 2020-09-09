@@ -153,7 +153,7 @@ open class Window (
     val initialized get() = lastUpdated != 0L
 
     fun updateText(notifyLocationChange: Boolean = false) {
-        if(pageManager.currentPage is CurrentMyNotePage) return
+//        if(pageManager.currentPage is CurrentMyNotePage) return
 
         val isVisible = isVisible
 
