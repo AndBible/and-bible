@@ -95,7 +95,7 @@ object SwordEnvironmentInitialisation {
         CWProject.setHome("jsword.home", SharedConstants.MODULE_DIR.absolutePath, SharedConstants.MANUAL_INSTALL_DIR.absolutePath)
         // the following causes Sword to initialise itself and can take quite a few seconds
 		// add manual install dir to this list
-        SwordBookPath.setAugmentPath(arrayOf(SharedConstants.MANUAL_INSTALL_DIR, SharedConstants.MANUAL_INSTALL_DIR2))
+        SwordBookPath.setAugmentPath(arrayOf(SharedConstants.MANUAL_INSTALL_DIR, SharedConstants.MANUAL_INSTALL_DIR2, SharedConstants.INTERNAL_MODULE_DIR))
     }
 
     /** JSword calls back to this listener in the event of some types of error
