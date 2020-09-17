@@ -175,7 +175,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         get() = if(isFullScreen && actionMode == null) 0 else field
 
     private var bottomOffset1 = 0
-        get() = if(isFullScreen || multiWinMode) 0 else field
+        get() = if(isFullScreen || (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && multiWinMode)) 0 else field
 
     var rightOffset1 = 0
         get() = if(isFullScreen) 0 else field
