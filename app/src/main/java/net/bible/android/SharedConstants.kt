@@ -51,8 +51,10 @@ object SharedConstants {
     val MANUAL_CSS_NIGHT_MODE_STYLESHEET = File(MANUAL_CSS_DIR, NIGHT_MODE_STYLESHEET)
     val LINE_SEPARATOR = System.getProperty("line.separator")
 
+    val INTERNAL_MODULE_DIR get() = File(application.filesDir, "modules")
+
     private val moduleDir: File
-        get() = application.getExternalFilesDir(null) ?: File(application.getFilesDir(), "modules")
+        get() = application.getExternalFilesDir(null) ?: INTERNAL_MODULE_DIR
 
 
     private val manualInstallDir: File
