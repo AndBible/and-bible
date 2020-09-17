@@ -19,7 +19,6 @@ package net.bible.android
 
 import android.os.Environment
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.BuildConfig
 import java.io.File
 
 /** Not used much yet but need to move the some of the more generic constants here
@@ -27,7 +26,6 @@ import java.io.File
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object SharedConstants {
-    const val PACKAGE_NAME = BuildConfig.APPLICATION_ID
     const val REQUIRED_MEGS_FOR_DOWNLOADS: Long = 50
     const val NO_VALUE = -1
 
@@ -37,8 +35,8 @@ object SharedConstants {
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
     val RECOMMENDED_JSON = "recommended_documents.json"
     val MODULE_DIR = moduleDir
-    val MANUAL_INSTALL_DIR = manualInstallDir
-    val MANUAL_INSTALL_DIR2 = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
+    val MANUAL_INSTALL_DIR get() = manualInstallDir
+    val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
 
     private const val FONT_SUBDIR_NAME = "fonts"
     val FONT_DIR = File(MODULE_DIR, FONT_SUBDIR_NAME)
@@ -53,7 +51,8 @@ object SharedConstants {
     val LINE_SEPARATOR = System.getProperty("line.separator")
 
     private val moduleDir: File
-        get() = application.getExternalFilesDir(null)!!
+        get() = application.getExternalFilesDir(null) ?: File(application.getFilesDir(), "modules")
+
 
     private val manualInstallDir: File
         get() {
