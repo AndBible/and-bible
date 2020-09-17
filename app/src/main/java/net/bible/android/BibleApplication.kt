@@ -82,9 +82,6 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         ABEventBus.getDefault().register(this)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            WebResource.setHostnameWhitelist(listOf("crosswire.org", "andbible.org"))
-        }
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
