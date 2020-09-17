@@ -200,7 +200,6 @@ dependencies {
     implementation files('libs/jsword.jar')
 
     // JSword related
-    implementation "org.apache.httpcomponents.client5:httpclient5:5.0.1"
     implementation 'org.apache.commons:commons-compress:1.12' // Note: versions > 1.12 will fail with Android Nougat and older.
     implementation "com.chenlb.mmseg4j:mmseg4j-analysis:1.8.6"
     implementation "com.chenlb.mmseg4j:mmseg4j-dic:1.8.6"
@@ -215,7 +214,6 @@ dependencies {
     // TESTS
     testImplementation "com.github.AndBible:robolectric:4.3.1-andbible3"
     //testImplementation "org.robolectric:shadows-multidex:4.3.1"
-    // maybe: org.robolectric:shadows-httpclient
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
     testImplementation 'org.hamcrest:hamcrest-library:2.2'
     testImplementation 'org.mockito:mockito-core:3.3.3'
