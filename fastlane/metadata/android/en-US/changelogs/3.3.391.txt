@@ -1,0 +1,11 @@
+3.3.391:
+- Fixed bugs
+
+Version 3.3
+See video introduction and tutorials: https://youtu.be/wMjmEkYXtvA
+- Choose / Download documents improvements
+- Per-window and per-workspace settings (font, color, margins etc.)
+- Improved workspace selector
+- Pinned windows
+- Backup documents
+
