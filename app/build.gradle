@@ -156,6 +156,11 @@ android {
 }
 
 dependencies {
+    def acraVersion = '5.7.0'
+    // log helper ACRA
+    implementation "ch.acra:acra-http:$acraVersion"
+    implementation "ch.acra:acra-dialog:$acraVersion"
+
     implementation project(':db')
     // Appcompat:
     // 1.1.0 crashes WebView on API 21..22. Waiting for 1.2.0 (alpha02 fixes)
