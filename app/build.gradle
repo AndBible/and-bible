@@ -122,8 +122,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     testOptions {
@@ -157,9 +157,6 @@ android {
 
 dependencies {
     def acraVersion = '5.7.0'
-    // log helper ACRA
-    implementation "ch.acra:acra-http:$acraVersion"
-    implementation "ch.acra:acra-dialog:$acraVersion"
 
     implementation project(':db')
     // Appcompat:
@@ -211,6 +208,9 @@ dependencies {
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.lucene:lucene-analyzers:3.6.2'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
+
+    // bug report helper ACRA
+    implementation "ch.acra:acra-http:$acraVersion"
 
     debugImplementation 'com.facebook.stetho:stetho:1.5.1'
 
