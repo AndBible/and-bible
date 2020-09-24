@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.os.Build
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
 
@@ -32,6 +32,7 @@ import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
@@ -39,7 +40,6 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language
-import org.crosswire.common.util.WebResource
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
@@ -75,6 +75,7 @@ open class BibleApplication : Application() {
         private set
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
+    private lateinit var errorHandler: ErrorReportControl
 
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
@@ -88,7 +89,7 @@ open class BibleApplication : Application() {
         Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
         Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
         Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
-
+        logSqliteVersion()
         // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
         // this affected jsword dynamic classloading
         Thread.currentThread().contextClassLoader = javaClass.classLoader
@@ -115,6 +116,22 @@ open class BibleApplication : Application() {
 
         ttsNotificationManager = TextToSpeechNotificationManager()
         ttsWidgetManager = SpeakWidgetManager()
+    }
+
+    private fun logSqliteVersion() {
+        var sqliteVersion = ""
+        try {
+            val cursor =
+                SQLiteDatabase.openOrCreateDatabase(":memory:", null)
+                    .rawQuery("select sqlite_version() AS sqlite_version", null)
+            while (cursor.moveToNext()) {
+                sqliteVersion += cursor.getString(0)
+            }
+            cursor.close()
+        } catch (e: Throwable) {
+            Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
+        }
+        Log.d(TAG, "SQLite version: $sqliteVersion")
     }
 
     /**
