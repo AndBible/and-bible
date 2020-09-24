@@ -19,10 +19,12 @@ package net.bible.android.view.activity.base
 
 import android.app.AlertDialog
 import android.util.Log
-import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.report.ErrorReportControl
+import org.acra.ACRA
 
 /**
  * Class to manage the display of various dialogs
@@ -30,7 +32,6 @@ import net.bible.android.control.report.ErrorReportControl
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Dialogs private constructor() {
-    private val errorReportControl: ErrorReportControl = application.applicationComponent.errorReportControl()
     private val doNothingCallback = Callback {
         // by default do nothing when user clicks okay
     }
@@ -78,8 +79,9 @@ class Dialogs private constructor() {
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     fun showErrorMsg(message: String?, e: Exception?) {
-        val reportCallback = Callback { errorReportControl.sendErrorReportEmail(e) }
-        showMsg(message, false, doNothingCallback, reportCallback)
+        showMsg(message, false, doNothingCallback, Callback {
+            ACRA.getErrorReporter().handleException(e)
+        })
     }
 
     @JvmOverloads
@@ -92,34 +94,30 @@ class Dialogs private constructor() {
     }
 
     private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: Callback, reportCallback: Callback?) {
-        Log.d(TAG, "showErrorMesage message:$msg")
-        try {
+        Log.d(TAG, "showErrorMessage message:$msg")
+        GlobalScope.launch(Dispatchers.Main) {
             val activity = CurrentActivityHolder.getInstance().currentActivity
-            if (activity != null) {
-                activity.runOnUiThread {
-                    val dlgBuilder = AlertDialog.Builder(activity)
-                        .setMessage(msg)
-                        .setCancelable(isCancelable)
-                        .setPositiveButton(R.string.okay) { dialog, buttonId -> okayCallback.okay() }
+            if(activity != null) {
+                val dlgBuilder = AlertDialog.Builder(activity)
+                    .setMessage(msg)
+                    .setCancelable(isCancelable)
+                    .setPositiveButton(R.string.okay) { dialog, buttonId -> okayCallback.okay() }
 
-                    // if cancelable then show a Cancel button
-                    if (isCancelable) {
-                        dlgBuilder.setNegativeButton(R.string.cancel) { dialog, buttonId ->
-                            // do nothing
-                        }
+                // if cancelable then show a Cancel button
+                if (isCancelable) {
+                    dlgBuilder.setNegativeButton(R.string.cancel) { dialog, buttonId ->
+                        // do nothing
                     }
-
-                    // enable report to andbible errors email list
-                    if (reportCallback != null) {
-                        dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
-                    }
-                    dlgBuilder.show()
                 }
+
+                // enable report to andbible errors email list
+                if (reportCallback != null) {
+                    dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.okay() }
+                }
+                dlgBuilder.show()
             } else {
-                Toast.makeText(application.applicationContext, msg, Toast.LENGTH_LONG).show()
+                okayCallback.okay()
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
         }
     }
 

@@ -26,18 +26,23 @@ import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
+import net.bible.android.activity.BuildConfig
+import net.bible.android.activity.R
 
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import org.acra.ACRA
+import org.acra.annotation.AcraCore
+import org.acra.annotation.AcraMailSender
+import org.acra.data.StringFormat
 
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.bridge.BookIndexer
@@ -63,6 +68,16 @@ class MyLocaleProvider: LocaleProvider {
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@AcraCore(
+    buildConfigClass = BuildConfig::class,
+    reportFormat = StringFormat.KEY_VALUE_LIST
+)
+@AcraMailSender(
+    resSubject = R.string.send_bug_report_title,
+    resBody = R.string.report_bug_email_message,
+    mailTo = "errors.andbible@gmail.com",
+    reportAsFile = false
+)
 open class BibleApplication : Application() {
     init {
         // save to a singleton to allow easy access from anywhere
@@ -75,7 +90,6 @@ open class BibleApplication : Application() {
         private set
     private var ttsNotificationManager: TextToSpeechNotificationManager? = null
     private var ttsWidgetManager: SpeakWidgetManager? = null
-    private lateinit var errorHandler: ErrorReportControl
 
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
@@ -139,6 +153,8 @@ open class BibleApplication : Application() {
      */
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
+
+        ACRA.init(this)
     }
 
     private fun upgradeSharedPreferences() {
