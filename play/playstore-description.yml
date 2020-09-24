@@ -1,0 +1,77 @@
+subtitle_1: Powerful Bible Study tool
+paragraph_1_1: >
+  Bible Study app by And Bible Open Source Project is a powerful, yet easy to use, offline Bible
+  study application for Android. The app does not aim to be simply a Bible reader, but focuses on
+  being an advanced tool to do in-depth personal Bible study.
+paragraph_1_2: >
+  This application is developed by Bible readers, for Bible readers. It aims at helping you make
+  your Bible study convenient, deep and fun. The best part about this non-profit community project
+  is that it is open-source, completely free, and contains no advertisements. Having been built
+  from the ground up for Android, it is a small download, and therefore very efficient and
+  remarkably fast.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  A few popular Bible versions (of the many available) are KJV, NASB, NET, and also popular
+  commentaries like Matthew Henry and John Gill.
+subtitle_2: Powerful Bible Study features
+paragraph_2_1: >
+  The application has many insightful, original features, that makes a complex and deep Bible study
+  experience smoother than ever. The most notable features are as follows:
+feature_01: Split text views that enable comparing translations and consulting commentaries
+feature_02: Workspaces allow multiple Bible study setups with their own settings
+feature_03: Strong's integration allows Greek and Hebrew word analysis
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Linked cross-references, footnotes, and documents; jump to cross-references
+  and footnotes by simply tapping a link; perform in-depth study of the Scriptures
+  by using hyperlinked commentaries ({{commentary_examples}}),
+  cross-reference collections ({{cross_reference_examples}}) and other resources.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: Gill, Matthew Henry etc. 
+# Examples of cross-reference collections.
+crossreference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
+feature_06: Flexible searching
+feature_07: Bookmarks, with custom colored bookmark groups
+feature_08: >
+  Personal notes: add your own study notes to any verse of the Bible
+feature_09: >
+  Reading plans: set goals for reading the Bible 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and
+  christian books, totaling over {{total_documents}} documents in over {{total_languages}} languages,
+  legally distributed by Crosswire and other SWORD repositories. 
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+feature_11: >
+  The provenance of all documents is researched to ensure that all documents can be legally
+  distributed or that permission has been granted by the copyright holder. That is also the reason
+  this app does not include documents like NIV and NKJV.
+feature_12: >
+  Offline: the only time you need internet is for downloading documents.
+subtitle_3: Let’s make the best Bible app together!
+paragraph_3_1: >
+  And Bible is an open-source community project. In practice, this means that anyone with
+  suitable skills can, and is encouraged to, contribute to the project by:
+contr_1: developing new features,
+contr_2: testing not-yet-released features,
+contr_3: keeping user interface translations up-to-date, and
+contr_4: helping with extending the module library.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: If you are a professional software engineer or tester, please consider contributing to
+  the project. For more information on how to contribute, please see {{how_to_contribute_url}}.
+subtitle_4: Links
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Homepage: {{homepage_url}}
+link_2: >
+  Like And Bible on Facebook: {{facebook_url}}
+link_3: >
+  Our Youtube Channel: {{youtube_url}}
+link_4: >
+  Frequently Asked Questions: {{faq_url}}
+link_5: >
+  Project page on Github: {{github_url}}
+

@@ -1,0 +1,43 @@
+<b>Powerful Bible Study tool</b>
+
+Bible Study app by And Bible Open Source Project is a powerful, yet easy to use, offline Bible study application for Android. The app does not aim to be simply a Bible reader, but focuses on being an advanced tool to do in-depth personal Bible study.
+
+This application is developed by Bible readers, for Bible readers. It aims at helping you make your Bible study convenient, deep and fun. The best part about this non-profit community project is that it is open-source, completely free, and contains no advertisements. Having been built from the ground up for Android, it is a small download, and therefore very efficient and remarkably fast.
+
+A few popular Bible versions (of the many available) are KJV, NASB, NET, and also popular commentaries like Matthew Henry and John Gill.
+
+<b>Powerful Bible Study features</b>
+
+The application has many insightful, original features, that makes a complex and deep Bible study experience smoother than ever. The most notable features are as follows:
+
+ - Split text views that enable comparing translations and consulting commentaries
+ - Workspaces allow multiple Bible study setups with their own settings
+ - Strong's integration allows Greek and Hebrew word analysis
+ - Linked cross-references, footnotes, and documents; jump to cross-references and footnotes by simply tapping a link; perform in-depth study of the Scriptures by using hyperlinked commentaries (Gill, Matthew Henry etc.), cross-reference collections () and other resources.
+ - Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
+ - Flexible searching
+ - Bookmarks, with custom colored bookmark groups
+ - Personal notes: add your own study notes to any verse of the Bible
+ - Reading plans: set goals for reading the Bible
+ - Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and christian books, totaling over 1500 documents in over 700 languages, legally distributed by Crosswire and other SWORD repositories.
+ - The provenance of all documents is researched to ensure that all documents can be legally distributed or that permission has been granted by the copyright holder. That is also the reason this app does not include documents like NIV and NKJV.
+ - Offline: the only time you need internet is for downloading documents.
+
+<b>Let’s make the best Bible app together!</b>
+
+And Bible is an open-source community project. In practice, this means that anyone with suitable skills can, and is encouraged to, contribute to the project by:
+
+ - developing new features,
+ - testing not-yet-released features,
+ - keeping user interface translations up-to-date, and
+ - helping with extending the module library.
+
+If you are a professional software engineer or tester, please consider contributing to the project. For more information on how to contribute, please see https://git.io/JUnaj.
+
+<b>Links</b>
+
+ - Homepage: https://andbible.github.io
+ - Like And Bible on Facebook: https://www.facebook.com/AndBible/
+ - Our Youtube Channel: https://www.youtube.com/c/AndBible
+ - Frequently Asked Questions: https://git.io/JJm8E
+ - Project page on Github: https://github.com/AndBible/and-bible
