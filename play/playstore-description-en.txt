@@ -13,7 +13,7 @@ The application has many insightful, original features, that makes a complex and
  - Split text views that enable comparing translations and consulting commentaries
  - Workspaces allow multiple Bible study setups with their own settings
  - Strong's integration allows Greek and Hebrew word analysis
- - Linked cross-references, footnotes, and documents; jump to cross-references and footnotes by simply tapping a link; perform in-depth study of the Scriptures by using hyperlinked commentaries (Gill, Matthew Henry etc.), cross-reference collections () and other resources.
+ - Linked cross-references, footnotes, and documents; jump to cross-references and footnotes by simply tapping a link; perform in-depth study of the Scriptures by using hyperlinked commentaries (Gill, Matthew Henry etc.), cross-reference collections (Treasure of Scripture Knowledge, TSKe) and other resources.
  - Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
  - Flexible searching
  - Bookmarks, with custom colored bookmark groups

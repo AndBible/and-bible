@@ -30,7 +30,7 @@ feature_04: >
 # are found in the app.
 commentary_examples: Gill, Matthew Henry etc. 
 # Examples of cross-reference collections.
-crossreference_examples: Treasure of Scripture Knowledge, TSKe
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
 feature_05: Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
 feature_06: Flexible searching
 feature_07: Bookmarks, with custom colored bookmark groups
