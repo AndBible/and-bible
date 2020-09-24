@@ -13,6 +13,11 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -22,7 +27,6 @@ android {
         }
     }
 }
-
 
 dependencies {
     implementation "androidx.room:room-runtime:$room_version"
