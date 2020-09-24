@@ -136,6 +136,8 @@
   <string name="color_background">Bakgrunnsfarge</string>
   <string name="colors_day_mode_title">Dagmodus</string>
   <string name="colors_night_mode_title">Nattmodus</string>
+  <string name="prefs_noise_title">Bakgrunnsstøy</string>
+  <string name="prefs_noise_summary">Det blir mer behagelig for øynene dersom man legger til litt støy i bakgrunnen.</string>
   <string name="cpv_default_title">Velg farge</string>
   <string name="cpv_select">Velg</string>
   <string name="cpv_transparency">Gjennomsiktighet</string>
@@ -183,7 +185,10 @@ bør du være forsiktig med å laste ned kristent materiell fra internett.
 Istedet kan du tryggere anskaffe moduler i ZIP-format og installere disse
 via \"Last inn moduler fra ZIP\". Er du sikker på at du ønsker å fortsette nedlastingen?
 Alle nedlastinger er krypterte (HTTPS).</string>
+  <string name="do_not_ask_again">Ja, ikke spør meg flere ganger</string>
   <string name="recommended_document">Anbefalt!</string>
+  <string name="about_version_history">Versjonshistorikk: %s</string>
+  <string name="download_failed">Nedlasting feilet på %s </string>
   <string name="download_errors">Nedlastingsfeil</string>
   <string name="failed_repositories_message">Kunne ikke koble til følgende modullager:\n\n%s\n\n</string>
   <string name="failed_downloads_message">Følgende filer kunne ikke lastes ned:\n\n%s\n\n</string>
@@ -223,6 +228,12 @@ i GT og NT hver dag.</string>
   <string name="plan_description_y1ot1nt1_OTthenNT">
 Les igjennom Bibelen på ett år fra 1. Mosebok
 og avslutt i Åpenbaringsboken. GT først, deretter NT.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 år, 4 kapittel/dag</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Professor Horner 10 kap./dag leseplan</string>
+  <string name="plan_name_y2ot1ntps2">2 år igjennom bibelen, NT+salmene to ganger</string>
+  <string name="plan_description_y2ot1ntps2">Les igjennom Bibelen på to år der du leser NT og salmene to ganger.
+Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
+</string>
   <!--Document context menu-->
   <string name="delete">Slett</string>
   <string name="delete_index">Slett søkeregister</string>
@@ -331,9 +342,55 @@ og avslutt i Åpenbaringsboken. GT først, deretter NT.</string>
   <string name="mynote_add">Legg til i mine notater</string>
   <string name="mynote_saved">Notater lagret</string>
   <!--Backup and restore-->
+  <string name="backup_and_restore">Sikkerhetskopiering</string>
+  <string name="backup_modules">Sikkerhetskopier dokumenter til...</string>
+  <string name="backup_app_database">Sikkerhetskopier applikasjonsdatabasen til...</string>
+  <string name="restore_app_database">Gjenopprett applikasjonsdatabasen fra...</string>
+  <string name="restore_confirmation">Overskrive Mine notater, bokmerker, leseplaner og arbeidsområder?</string>
+  <string name="restore_success">Fullført gjennopprettelsen av Mine notater, bokmerker, leseplaner og arbeidsområder</string>
+  <string name="loading_backup">Leser database fra sikkerhetskopi</string>
+  <string name="backup_success">Mine notater, bokmerker, leseplaner og arbeidsområder er sikkerhetskopiert til %s.</string>
+  <string name="error_no_backup_file">Filen for sikkerhetskopi ble ikke funnet</string>
+  <string name="backup_email_message_2">Din %s database som inneholder bokmerker, notater, leseplaner og arbeidsområder er vedlagt</string>
+  <string name="restore_unsuccessfull">Gjenoppretting av database feilet. Kanskje du har valgt feil databasefil.</string>
+  <string name="backup_restore_title">Gjenopprett fra hvor?</string>
+  <string name="backup_restore_message">Gjenopprett fra telefonlager eller velg fil manuelt (du kan også velge ifra Google Drive)?</string>
+  <string name="backup_phone_storage">Telefonlager</string>
+  <string name="backup_manually">Velg fil</string>
+  <string name="backup_backup_title">Sikkerhetskopier til hvor?</string>
+  <string name="backup_backup_message">Sikkerhetskopier til telefon eller andre steder via delefunksjonen (epost, Google Drive etc.)?</string>
+  <string name="backup_share">Del</string>
+  <string name="restore_modules">Gjenopprett dokumenter fra...</string>
+  <string name="send_backup_file">Send en sikkerhetskopi-fil</string>
+  <string name="backup_modules_title">Velg hvilke moduler som skal sikkerhetskopieres</string>
+  <string name="install_zip_canceled">Installasjon av modul avbrutt</string>
   <!--About-->
+  <string name="module_about_copyright">Opphavsrett: %s</string>
+  <string name="module_about_installed_version">Installert versjon: %s (%s)</string>
+  <string name="module_about_latest_version">Siste versjon: %s (%s)</string>
+  <string name="module_about_versification">Versifisering: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Rapportér en feil</string>
+  <string name="report_bug_email_subject_2">Feilrapport for %s %s</string>
+  <string name="report_bug_email_message">
+        --- SKRIV FEILRAPPORTEN DIN OVER DENNE LINJEN (PÅ ENGELSK) ---\n
+        Instructions:\n
+        Tell us briefly what did you do / what happened when issue
+        took place. Example: \n
+        \n
+        1. Opened app\n
+        2. Clicked window menu\n
+         -&gt; Crash\n
+        \n
+        Sometimes screenshot also is beneficial in resolving issues.
+        Please use this function to report as soon as you have noticed it taking place.
+        You can also use this function after opening app, after crash has taken place.
+        \n\n
+        Device info: \n
+        %s</string>
   <!--Document types-->
+  <string name="doc_type_all">Alle dokumenter</string>
   <string name="doc_type_bible">Bibler</string>
   <string name="doc_type_commentary">Bibelkommentarer</string>
   <string name="doc_type_dictionary">Bibelordbøker</string>
@@ -347,20 +404,58 @@ og avslutt i Åpenbaringsboken. GT først, deretter NT.</string>
   <string name="yes">Ja</string>
   <string name="no">Nei</string>
   <string name="error">Feil</string>
+  <string name="please_wait">Vennligst vent...</string>
   <string name="all">Alle</string>
   <string name="default_value">@string/lang_default</string>
   <string name="edit">Rediger</string>
+  <string name="watch_tutorial_video">Se opplæringsvideo (engelsk)</string>
+  <string name="verse_not_found">Vers ble ikke funnet</string>
   <!--Errors-->
   <string name="report_error">Send feilrapport</string>
   <string name="error_occurred">En feil har oppstått</string>
+  <string name="error_occurred_with_link">En feil har oppstått. %s</string>
   <string name="error_no_content">Ikke noe innhold i dette verset</string>
   <string name="error_page_too_large">Siden er for stor til å laste inn</string>
   <string name="error_key_not_in_document">Ikke funnet i modulen</string>
   <string name="empty_list">Ingen data å vise</string>
   <!--Notifications-->
+  <string name="notification_channel_tts_status">Tekst til tale</string>
   <!--Workspaces-->
+  <string name="new_workspace">Ny</string>
+  <string name="switch_to_workspace">Arbeidsområder</string>
+  <string name="delete_workspace">Fjern</string>
+  <string name="workspace_number">Arbeidsområde %d</string>
+  <string name="rename_workspace">Gi nytt navn</string>
+  <string name="workspace_selector_title">Velg arbeidsområde</string>
+  <string name="workspace_settings">Innstillinger...</string>
+  <string name="give_name_workspace">Gi navn til arbeidsområdet</string>
+  <string name="save_and_exit">Lagre</string>
+  <string name="workspace_save_changes">Gjør endringene gjeldende for arbeidsområdene?</string>
+  <string name="copy_workspace_settings">Kopier innstillinger...</string>
+  <string name="copy_settings_title">Hvilke innstillinger ønsker du å kopiere?</string>
+  <string name="select_all">Velg alle</string>
+  <string name="copy_settings_workspaces_title">Hvilke arbeidsområder ønsker du å kopiere innstillinger?</string>
+  <string name="reset_settings">Tilbakestill</string>
   <!--Beta notice-->
+  <string name="beta_notice_title">Dette er en prøveutgave (beta)</string>
+  <string name="beta_notice_content_1">
+        I prøveversjonen er det nye egenskaper som ikke er fullstendig testet, 
+         og derfor kan bruken føre til uventet oppførsel, bl.a. feil.
+         Det er anbefalt at vanlige brukere benytter stabile versjoner istedet.
+    </string>
+  <string name="beta_notice_content_2">Testere av prøveversjonen oppfordres til å rapportere feil via Google Play eller (foretrukket) via %s.</string>
+  <string name="beta_notice_content_3">Dersom du er en programmerer, vennligst vurder om du kan bidra med feilutbedringer (bugfix) via %s selv. :-)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
   <!--History-->
   <!--Help-->
+  <string name="help_mynote_title">Mine notater</string>
+  <string name="help_bookmarks_title">Bokmerker</string>
+  <string name="help_search_title">Søk</string>
+  <string name="help_workspaces_title">Arbeidsområder</string>
+  <string name="help_hidden_features_title">Skjulte snarveier</string>
   <!--Uncategorized-->
+  <string name="close">Lukk</string>
+  <string name="first_time_help_do_not_show_again">Jeg forstår</string>
+  <string name="first_time_help_show_next_time">Vis igjen neste gang</string>
 </resources>
