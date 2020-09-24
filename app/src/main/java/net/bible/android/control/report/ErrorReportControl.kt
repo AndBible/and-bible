@@ -45,13 +45,13 @@ import javax.inject.Inject
 
 @ApplicationScope
 class ErrorReportControl @Inject constructor() {
-    fun sendErrorReportEmail(e: Exception? = null) {
+    fun sendErrorReportEmail(e: Throwable? = null) {
 		GlobalScope.launch {
             reportBug(exception = e)
         }
     }
 
-    private fun createErrorText(exception: Exception?) = try {
+    private fun createErrorText(exception: Throwable?) = try {
 		val text = StringBuilder()
 		text.append("And Bible version: ").append(applicationVersionName).append("\n")
 		text.append("Android version: ").append(Build.VERSION.RELEASE).append("\n")
@@ -74,7 +74,7 @@ class ErrorReportControl @Inject constructor() {
 		"Exception occurred preparing error text:" + e.message
 	}
 
-    private fun getSubject(e: Exception?): String? {
+    private fun getSubject(e: Throwable?): String? {
         if (e == null || e.stackTrace.size == 0) {
             return applicationVersionName
         }
@@ -87,7 +87,7 @@ class ErrorReportControl @Inject constructor() {
         return e.message
     }
 
-	suspend fun reportBug(context_: Context? = null, exception: Exception? = null) {
+	suspend fun reportBug(context_: Context? = null, exception: Throwable? = null) {
 		val context = context_?: CurrentActivityHolder.getInstance().currentActivity
         val dir = File(context.filesDir, "/log")
         val f = File(dir, "logcat.txt.gz")
