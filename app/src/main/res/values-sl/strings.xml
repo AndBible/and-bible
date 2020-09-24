@@ -189,7 +189,7 @@
   <string name="free_text_search_documents">Iskanje</string>
   <string name="chooce_language_hint">Jezik</string>
   <string name="one_more_back_press">Z enim pritiskom gumba nazaj se aplikacija zapre</string>
-  <string name="document_filter_results">%d dokument</string>
+  <string name="document_filter_results">%d dokumentov</string>
   <string name="download_question_title">Ali želite nadaljevati s prenosom dokumentov?</string>
   <string name="download_question_message">Če živite v preganjani državi,
         boste morda morali biti previdni pri prenosu krščanskega gradiva prek interneta.
