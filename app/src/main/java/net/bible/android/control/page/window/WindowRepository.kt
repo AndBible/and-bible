@@ -266,7 +266,7 @@ open class WindowRepository @Inject constructor(
 
         val newWindow = Window(winEntity, pageManager, this)
         if(sourceWindow != null) {
-            pageManager.restoreFrom(sourceWindow.pageManager.entity)
+            pageManager.restoreFrom(sourceWindow.pageManager.entity, textDisplaySettings)
         }
         dao.insertPageManager(pageManager.entity)
         val pos =
