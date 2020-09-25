@@ -70,13 +70,14 @@ class MyLocaleProvider: LocaleProvider {
  */
 @AcraCore(
     buildConfigClass = BuildConfig::class,
-    reportFormat = StringFormat.KEY_VALUE_LIST
+    reportFormat = StringFormat.KEY_VALUE_LIST,
+    logcatArguments = [ "-t", "10000" ]
 )
 @AcraMailSender(
     resSubject = R.string.send_bug_report_title,
     resBody = R.string.report_bug_email_message,
     mailTo = "errors.andbible@gmail.com",
-    reportAsFile = false
+    reportAsFile = true
 )
 open class BibleApplication : Application() {
     init {
