@@ -199,6 +199,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Creating MainBibleActivity")
+
         // This is singleton so we can do this.
         mainBibleActivity = this
         ScreenSettings.refreshNightMode()

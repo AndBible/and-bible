@@ -24,6 +24,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.ActivityBase
@@ -37,7 +38,6 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Constants
 import net.bible.service.sword.SwordDocumentFacade
-import org.acra.ACRA
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
@@ -62,8 +62,9 @@ import javax.inject.Inject
 class LinkControl @Inject constructor(
 	private val windowControl: WindowControl,
 	private val searchControl: SearchControl,
-	private val swordDocumentFacade: SwordDocumentFacade
-) {
+	private val swordDocumentFacade: SwordDocumentFacade,
+	private val errorReportControl: ErrorReportControl)
+{
     private var windowMode = WINDOW_MODE_UNDEFINED
     /** Currently the only uris handled are for Strongs refs
      * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
@@ -90,7 +91,7 @@ class LinkControl @Inject constructor(
                     UriAnalyzer.DocType.MYNOTE -> showMyNote(uriAnalyzer.key)
                 }
 			} else if (uriAnalyzer.protocol == Constants.REPORT_PROTOCOL) {
-                ACRA.getErrorReporter().handleException(Exception("Error occurred in obtaining text"))
+				errorReportControl.sendErrorReportEmail(Exception("Error occurred in obtaining text"))
 			}
 
 			// handled this url (or at least attempted to)

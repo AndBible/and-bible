@@ -33,6 +33,7 @@ import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
@@ -59,6 +60,7 @@ interface ApplicationComponent {
 
     //Exposed to sub-graphs.
     fun warmUp(): WarmUp
+    fun errorReportControl(): ErrorReportControl
 
     fun swordDocumentFacade(): SwordDocumentFacade
     fun swordContentFacade(): SwordContentFacade
