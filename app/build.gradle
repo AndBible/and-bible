@@ -199,6 +199,10 @@ dependencies {
     // We are using our custom-built jsword.jar (see https://github.com/AndBible/jsword-tweaks)
     implementation files('libs/jsword.jar')
 
+    // bug report helper ACRA
+    def acraVersion = '5.7.0'
+    implementation "ch.acra:acra-mail:$acraVersion"
+
     // JSword related
     implementation 'org.apache.commons:commons-compress:1.12' // Note: versions > 1.12 will fail with Android Nougat and older.
     implementation "com.chenlb.mmseg4j:mmseg4j-analysis:1.8.6"

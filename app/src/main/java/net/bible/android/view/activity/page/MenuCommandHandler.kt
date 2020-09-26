@@ -46,7 +46,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -69,6 +68,7 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DATABASE_NAME
+import org.acra.ACRA
 import org.crosswire.jsword.book.BookCategory
 
 import javax.inject.Inject
@@ -84,8 +84,7 @@ constructor(private val callingActivity: MainBibleActivity,
             private val searchControl: SearchControl,
             private val windowControl: WindowControl,
             private val downloadControl: DownloadControl,
-            private val backupControl: BackupControl,
-            private val errorReportControl: ErrorReportControl
+            private val backupControl: BackupControl
 ) {
 
     /**
@@ -249,9 +248,7 @@ constructor(private val callingActivity: MainBibleActivity,
                     isHandled = true
                 }
                 R.id.bugReport -> {
-                    GlobalScope.launch {
-                        errorReportControl.reportBug(callingActivity)
-                    }
+                    ACRA.getErrorReporter().handleException(null)
                     isHandled = true
                 }
                 R.id.restore_modules -> {
