@@ -1,5 +1,6 @@
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 import {registerVersePositions} from "./bibleview";
+import {sleep} from "./utils";
 
 let currentScrollAnimation = null;
 let contentReady = false;
@@ -147,7 +148,8 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
     // requestAnimationFrame should make sure that contentReady is set only after
     // initial scrolling has been performed so that we don't get onScroll during initialization
     // in Java side.
-    requestAnimationFrame(() => {
+    //requestAnimationFrame(() => {
+    sleep(1000).then(() => {
         $("#content").css('visibility', 'visible');
         registerVersePositions();
         contentReady = true;
