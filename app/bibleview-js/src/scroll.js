@@ -128,7 +128,7 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
 
 
 export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
-    console.log(`setupContent, ${jumpToChapterVerse}, ${jumpToYOffsetRatio}, ${toolBarOffset}, ${displaySettings}`);
+    console.log(`setupContent`, jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings);
     setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
@@ -153,6 +153,7 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
         $("#content").css('visibility', 'visible');
         registerVersePositions();
         contentReady = true;
+        console.log("Content is set ready!");
         jsInterface.setContentReady();
     });
     console.log("setVisible OK");
