@@ -21,6 +21,26 @@ function initialize(settings) {
     setupContent(settings)
 }
 
+const origConsole = window.console;
+
+// Override normal console, so that argument values also propagate to Android logcat
+const myConsole = {
+    _msg(s, args) {
+        return `${s} ${args}`
+    },
+    log(s, ...args) {
+        origConsole.log(this._msg(s, args))
+    },
+    error(s, ...args) {
+        origConsole.error(this._msg(s, args))
+    },
+    warn(s, ...args) {
+        origConsole.warn(this._msg(s, args))
+    }
+}
+
+window.console = myConsole;
+
 window.andbible = {
     registerVersePositions,
 

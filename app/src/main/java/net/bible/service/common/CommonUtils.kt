@@ -401,7 +401,7 @@ object CommonUtils {
     }
 
     fun getWholeChapter(currentVerse: Verse, showIntros: Boolean): Key {
-        Log.i(TAG, "Get Chapter for:" + currentVerse.osisID)
+        Log.i(TAG, "getWholeChapter (Key) " + currentVerse.osisID)
         val versification = currentVerse.versification
         val book = currentVerse.book
         val chapter = currentVerse.chapter
