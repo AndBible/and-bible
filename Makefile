@@ -5,6 +5,7 @@ tx-pull:
 	# Download language corrections to english (en_GB in transifex, mapped to en via transifex config)
 	tx pull --lang en_GB --force --minimum-perc 1
 	rm -r fastlane/metadata/android/ar
+	python play/compile_description.py
 
 fastlane-supply:
 	# Remove languages unsupported by Google Play

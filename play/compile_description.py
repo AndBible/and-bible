@@ -13,21 +13,39 @@
 #  You should have received a copy of the GNU General Public License along with And Bible.
 #  If not, see http://www.gnu.org/licenses/.
 #
+import os
+import re
 
 import yaml
 import jinja2
 
-description = yaml.load(open("playstore-description.yml").read(), yaml.SafeLoader)
-constants = yaml.load(open("constants.yml").read(), yaml.SafeLoader)
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-template = jinja2.Template(open("playstore-description-template.txt").read())
+constants = yaml.load(open(os.path.join(dir_path, "constants.yml")).read(), yaml.SafeLoader)
+template = jinja2.Template(open(os.path.join(dir_path, "playstore-description-template.txt")).read())
 
-variables = dict(**description, **constants)
-variables = {key: str(value).strip() for key, value in variables.items()}
-variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
 
-rendered = template.render(**variables)
+def render(filename):
+    description = yaml.load(open(filename).read(), yaml.SafeLoader)
 
-with open("playstore-description-en.txt", "w") as f:
-    f.write(rendered)
-print(rendered)
+    variables = dict(**description, **constants)
+    variables = {key: str(value).strip() for key, value in variables.items()}
+    variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
+
+    return template.render(**variables)
+
+
+def give_path(lang):
+    return os.path.join(dir_path, f"../fastlane/metadata/android/{lang}/full_description.txt")
+
+
+with open(give_path("en-US"), "w") as f:
+    f.write(render(os.path.join(dir_path,"playstore-description.yml")))
+
+translation_folder = os.path.join(dir_path, "description-translations")
+matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
+for ymlfile in os.listdir(translation_folder):
+    lang = matcher.match(ymlfile).group(1)
+    with open(give_path(lang), "w") as f:
+        f.write(render(os.path.join(translation_folder, ymlfile)))
+
