@@ -89,6 +89,7 @@ jobs:
         tag_name: ${{ env.TAG_NAME }}
         release_name: ${{ env.RELEASE_TITLE }}
         body_path: ./RELEASENOTES.txt
+        prerelease: true
 
     - name: Upload Release Apk
       if: contains(github.ref, 'refs/tags/')
