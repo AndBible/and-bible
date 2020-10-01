@@ -1,0 +1,59 @@
+subtitle_1: Močno orodje za proučevanje Biblije
+paragraph_1_1: >
+  Aplikacija za proučevanje Biblije je zmogljiva, vendar enostavna aplikacija za proučevanje Biblije brez internetne povezave za naprave z operacijskim sistemom Android. Aplikacija ni namenjena zgolj branju Biblije, temveč se kot napredno orodje osredotoča na poglobljeno osebno proučevanje Biblije.
+paragraph_1_2: >
+  To aplikacijo so razvili bralci Biblije za bralce Biblije. Namen aplikacije je, da vam pomaga, da bo vaše biblijsko proučevanje priročno, poglobljeno in zabavno. Najboljše pri tem neprofitnem projektu skupnosti je, da je odprtokoden, popolnoma brezplačen in ne vsebuje oglasov. Ker je aplikacija od vsega začetka zasnovana za Android, je majhna za prenos in zato zelo učinkovita in izjemno hitra.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Nekaj priljubljenih Biblij (od številnih, ki so na voljo) so KJV, NASB, NET in priljubljeni komentarji, kot sta Matthew Henry in John Gill. na voljo so tudi slovenski prevodi Biblij.
+subtitle_2: Zmogljive funkcije za proučevanje Biblije
+paragraph_2_1: >
+  Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksna in poglobljena izkušnja preučevanja Biblije bolj gladka kot kdaj koli prej. Najbolj opazne lastnosti so naslednje:
+feature_01: Razdeljeni pogledi besedila omogočajo primerjavo prevodov in svetovanje komentarjev
+feature_02: Delovni prostori s svojimi nastavitvami omogočajo več nastavitev proučevanja Biblije
+feature_03: "* Strong-ova števila omogočajo grško in hebrejsko besedno analizo"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev ({{comment_examples}}), zbirk referenc ({{cross_reference_examples}}) in drugih virov.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry itd. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK"
+feature_05: "Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino."
+feature_06: Prilagodljivo iskanje
+feature_07: "Zaznamki, obarvani z raznimi barvami"
+feature_08: >
+  Osebne opombe: poljubnim biblijskim vrsticam dodajte lastne opombe
+feature_09: >
+  Načrti branja: določite si cilje za branje Biblije
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Ogromna knjižnica dokumentov: prevodi Biblije, komentarji, slovarji, zemljevidi in krščanske knjige, skupaj več kot {{total_documents}} dokumentov v več {{total_languages}} jezikih, ki jih zakonito distribuira Crosswire in druge SWORD shrambe.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+feature_11: >
+  Izvor vseh dokumentov se prouči, da se zagotovi zakonita distribucija vseh dokumentov, oziroma distribucija z dovoljenjem imetnika avtorskih pravic. To je tudi razlog, da ta aplikacija ne vključuje dokumentov, kot sta NIV in NKJV.
+feature_12: >
+  Brez internetne povezave: internet se potrebujete le za enkraten prenos dokumentov.
+subtitle_3: Skupaj naredimo najboljšo biblijsko aplikacijo!
+paragraph_3_1: >
+  And Bible je projekt odprtokodne skupnosti. V praksi to pomeni, da lahko vsak, ki ima ustrezna znanja, k projektu prispeva in ga spodbuja z:
+contr_1: "razvojem novih funkcij,"
+contr_2: "testiranjem še neobjavljenih funkcij,"
+contr_3: posodabljanjem prevodov uporabniškega vmesnika in
+contr_4: pomočjo pri razširitvi knjižnice modulov.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Če ste poklicni inženir ali preizkuševalec programske opreme, razmislite o sodelovanju pri projektu. Za več informacij o prispevanju glejte {{how_to_contribute_url}}."
+subtitle_4: Povezave
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Domača stran: {{homepage_url}}
+link_2: >
+  Všečkaj And Bible na Facebooku: {{facebook_url}}
+link_3: >
+  Naš Youtube kanal: {{youtube_url}}
+link_4: >
+  Pogosto zastavljena vprašanja: {{faq_url}}
+link_5: >
+  Projektna stran na Githubu: {{github_url}}
