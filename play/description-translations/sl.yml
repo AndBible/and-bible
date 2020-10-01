@@ -11,7 +11,7 @@ paragraph_2_1: >
   Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksna in poglobljena izkušnja preučevanja Biblije bolj gladka kot kdaj koli prej. Najbolj opazne lastnosti so naslednje:
 feature_01: Razdeljeni pogledi besedila omogočajo primerjavo prevodov in svetovanje komentarjev
 feature_02: Delovni prostori s svojimi nastavitvami omogočajo več nastavitev proučevanja Biblije
-feature_03: "* Strong-ova števila omogočajo grško in hebrejsko besedno analizo"
+feature_03: Strong-ova števila omogočajo grško in hebrejsko besedno analizo
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_04: >
   Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev ({{comment_examples}}), zbirk referenc ({{cross_reference_examples}}) in drugih virov.

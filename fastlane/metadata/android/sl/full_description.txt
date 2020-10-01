@@ -12,7 +12,7 @@ Aplikacija ima številne vpogledne, izvirne funkcije, zaradi česar je kompleksn
 
  - Razdeljeni pogledi besedila omogočajo primerjavo prevodov in svetovanje komentarjev
  - Delovni prostori s svojimi nastavitvami omogočajo več nastavitev proučevanja Biblije
- - * Strong-ova števila omogočajo grško in hebrejsko besedno analizo
+ - Strong-ova števila omogočajo grško in hebrejsko besedno analizo
  - Povezani sklici, opombe in dokumenti; skok na reference in opombe s preprostim dotikom povezave; izvedite poglobljeno preučevanje Svetega pisma z uporabo komentarjev (), zbirk referenc (Zakladnica znanja Božje besede - Treasure of Scripture Knowledge, TSK) in drugih virov.
  - Napredna pretvorba besedila v govor z zaznamki za govor, kar omogoča nemoteno izkušnjo poslušanja Biblije - ni še za slovenščino.
  - Prilagodljivo iskanje
