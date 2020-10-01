@@ -32,10 +32,18 @@ def render(filename):
     variables = {key: str(value).strip() for key, value in variables.items()}
     variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
 
-    return template.render(**variables)
+    rendered = template.render(**variables)
+    for issue in ["{{", "}}", "_"]:
+        if issue in rendered:
+            raise RuntimeError("Issue with template render")
+    return rendered
 
 
 def give_path(lang):
+    try:
+        os.mkdir(os.path.join(dir_path, f"../fastlane/metadata/android/{lang}"))
+    except FileExistsError:
+        pass
     return os.path.join(dir_path, f"../fastlane/metadata/android/{lang}/full_description.txt")
 
 
@@ -46,6 +54,7 @@ translation_folder = os.path.join(dir_path, "description-translations")
 matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
 for ymlfile in os.listdir(translation_folder):
     lang = matcher.match(ymlfile).group(1)
+
     with open(give_path(lang), "w") as f:
         f.write(render(os.path.join(translation_folder, ymlfile)))
 
