@@ -151,6 +151,7 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
         $("#content").css('visibility', 'visible');
         registerVersePositions();
         contentReady = true;
+        console.log("Content is set ready!");
         jsInterface.setContentReady();
     });
     console.log("setVisible OK");
