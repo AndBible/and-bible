@@ -1,3 +1,7 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: Bible Study app, by And Bible Open Source Project
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: Read the Bible, study commentaries or dictionaries, or read books offline.
 subtitle_1: Powerful Bible Study tool
 paragraph_1_1: >
   Bible Study app by And Bible Open Source Project is a powerful, yet easy to use, offline Bible
