@@ -148,11 +148,13 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
     // initial scrolling has been performed so that we don't get onScroll during initialization
     // in Java side.
     requestAnimationFrame(() => {
-        $("#content").css('visibility', 'visible');
-        registerVersePositions();
-        contentReady = true;
-        console.log("Content is set ready!");
-        jsInterface.setContentReady();
+        requestAnimationFrame(() => {
+            $("#content").css('visibility', 'visible');
+            registerVersePositions();
+            contentReady = true;
+            console.log("Content is set ready!");
+            jsInterface.setContentReady();
+        });
     });
     console.log("setVisible OK");
 }
