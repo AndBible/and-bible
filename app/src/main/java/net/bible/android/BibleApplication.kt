@@ -26,6 +26,7 @@ import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
+import net.bible.android.activity.R
 
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
@@ -39,6 +40,8 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordEnvironmentInitialisation
 
 import org.crosswire.common.util.Language
+import org.crosswire.common.util.PropertyMap
+import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
@@ -81,6 +84,10 @@ open class BibleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         ABEventBus.getDefault().register(this)
+        InstallManager.installSiteMap(
+            PropertyMap().apply {
+                load(resources.openRawResource(R.raw.repositories))
+            })
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
 
         Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
