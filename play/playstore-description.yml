@@ -48,12 +48,14 @@ feature_10: >
   Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and
   christian books, totaling over {{total_documents}} documents in over {{total_languages}} languages,
   legally distributed by Crosswire and other SWORD repositories. 
-# In addition or in addition to the mentioned documents also some of the commercial/modern bible
-# versions / documents of your language that are not (yet) available in the app.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_11: >
   The provenance of all documents is researched to ensure that all documents can be legally
   distributed or that permission has been granted by the copyright holder. That is also the reason
-  this app does not include documents like NIV and NKJV.
+  this app does not include documents like {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV, NIV and NKJV
 feature_12: >
   Offline: the only time you need internet is for downloading documents.
 subtitle_3: Let’s make the best Bible app together!

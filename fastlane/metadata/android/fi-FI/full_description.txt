@@ -20,7 +20,7 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
  - Omat muistiinpanot; voit lisätä omia muistiinpanoja ja huomioita mihin tahansa Raamatun jakeeseen
  - Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
  - Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
- - Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten NIV ja NKJV.
+ - Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten ESV, NIV and NKJV.
  - Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
 
 <b>Tehdään yhdessä paras Raamattusovellus!</b>
