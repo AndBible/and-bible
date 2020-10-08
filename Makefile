@@ -1,5 +1,9 @@
 TMP:=$(shell mktemp -d)
 
+# Pushing source files to transifex:
+# tx push -s -r andbible.play-store-main-description
+# tx push -s -r andbible.and-bible-stringsxml
+
 tx-pull:
 	tx pull --force --all
 	# Download language corrections to english (en_GB in transifex, mapped to en via transifex config)
