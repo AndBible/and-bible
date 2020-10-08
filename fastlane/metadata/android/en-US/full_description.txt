@@ -30,7 +30,7 @@ And Bible is an open-source community project. In practice, this means that anyo
  - developing new features,
  - testing not-yet-released features,
  - keeping user interface translations up-to-date, and
- - helping with extending the module library.
+ - helping to extend the module library by obtaining permissions from copyright holders, or by converting documents to SWORD format.
 
 If you are a professional software engineer or tester, please consider contributing to the project. For more information on how to contribute, please see https://git.io/JUnaj.
 

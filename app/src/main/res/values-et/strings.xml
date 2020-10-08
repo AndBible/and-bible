@@ -158,6 +158,7 @@
   <string name="install_zip">Laadi dokument ZIP-failist</string>
   <string name="install_zip_module">Paigalda Piibli moodul</string>
   <string name="install_zip_successfull">Moodul on paigaldatud</string>
+  <string name="checking_zip_file">Antud faili kontrollimine</string>
   <string name="invalid_module">Failis pole korrektset SWORD moodulit</string>
   <string name="module_already_installed">Failis on moodul, mis on juba paigaldatud</string>
   <string name="install_zip_title">Palun oota. ZIP-faili laaditakse.</string>
@@ -169,6 +170,9 @@
   <string name="rdg_plan_set_start_date">Määra alguskuupäev...</string>
   <string name="done">Valmis</string>
   <string name="reset">Nulli</string>
+  <string name="reset_plan_question">Oled sa kindel, et soovid selle kava nullida?</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 aasta VT+UT samaaegselt</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Aastaga piibel läbi</string>
   <!--Document context menu-->
   <string name="delete">Kustuta</string>
   <string name="delete_index">Kustuta otsinguindeks</string>
@@ -326,6 +330,10 @@
   <string name="mynote_saved">Minu märge on salvestatud</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Varundamine ja taastamine</string>
+  <string name="backup_modules">Varunda dokumendid kohta...</string>
+  <string name="backup_app_database">Varunda rakenduse andmebaas kohta...</string>
+  <string name="restore_app_database">Taasta rakenduse andmebaas...</string>
+  <string name="loading_backup">Andmebaasi laadimine varukoopiast...</string>
   <string name="error_no_backup_file">Varukoopia faili ei leitud</string>
   <string name="backup_restore_title">Kuskohast taastada?</string>
   <string name="backup_manually">Vali fail</string>
@@ -334,8 +342,11 @@
   <string name="send_backup_file">Saada varukoopia fail</string>
   <!--About-->
   <string name="module_about_copyright">Autoriõigused: %s</string>
+  <string name="module_about_installed_version">Paigaldatud versioon: %s (%s)</string>
+  <string name="module_about_latest_version">Viimane versioon: %s (%s)</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
   <!--Bug reporting-->
+  <string name="send_bug_report_title">Teata veast</string>
   <!--Document types-->
   <string name="doc_type_all">Kõik liigid</string>
   <string name="doc_type_bible">Piibel</string>
@@ -360,6 +371,7 @@
   <!--Errors-->
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>
+  <string name="error_occurred_with_link">Tekkis viga. %s</string>
   <string name="error_no_content">Valitud salmi jaoks sisu pole</string>
   <string name="error_page_too_large">Lehekülg on laadimiseks liiga suur</string>
   <string name="error_key_not_in_document">Dokumendist ei leitud</string>
@@ -380,12 +392,14 @@
   <string name="copy_workspace_settings">Kopeeri seaded...</string>
   <string name="select_all">Vali kõik</string>
   <string name="reset_settings">Nulli</string>
+  <string name="workspace_dismiss">Eira</string>
   <string name="workspace_listing_with_current">%s (praegune)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">See on beeta versioon!</string>
   <string name="beta_notice_github_issues">Githubi probleemid</string>
   <string name="beta_notice_github">Github</string>
   <!--History-->
+  <string name="history_for">Ajalugu (%s: Aken %d)</string>
   <!--Help-->
   <string name="help_nav_title">Navigeerimine</string>
   <string name="help_contextmenus_title">Kontekstimenüüd</string>
