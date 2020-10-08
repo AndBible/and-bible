@@ -1,47 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
-  <!--Startup & Help-->
-  <string name="splash_top_text">\n\"I řekl Bůh: Budiž světlo! A bylo světlo.\"\nGenesis 1:3</string>
-  <string name="help_text">Akce vyvoláte stisknutím tlačítka MENU\n\n
-        Na další nebo předchozí kapitolu se přesunete track-ballem,
-        D-padem nebo posuvem prstu doleva nebo doprava</string>
-  <string name="help_nav_title">Navigace</string>
-  <string name="help_nav_text">Na další či předchozí kapitolu se přesunete tažením prstu přes obrazovku.
-        Dvojdotykem na text Bible se zobrazení přepne na celou obrazovku. Okna Bible mají tlačítko menu v pravém horním rohu,
-         a k menu okna lze přistupovat dlouhým stiskem na nich.
-    </string>
-  <string name="help_speech_title">Řeč</string>
-  <string name="help_speech_text">Stiskněte Mluvit pro přístup ke spuštění či ukončení čtení</string>
-  <string name="help_mynote_title">Má poznámka</string>
-  <string name="help_mynote_text">Poznámky lze přidat položkou Má Poznámka z kontextového menu u verše.
-        K seznamu existujících poznámek se lze dostat přes hlavní menu.</string>
-  <string name="help_bookmarks_title">Záložky</string>
-  <string name="help_bookmarks_text">Poznámky přidat z kontextového menu u verše.
-        Správce poznámek je přístupný přes hlavní menu.
-        Kontextové menu správce poznámek dovoluje seskupovat záložky pomocí popisků.
-    </string>
-  <string name="help_search_title">Hledat</string>
-  <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
-        (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
-    </string>
-  <string name="help_contextmenus_title">Kontextová menu</string>
-  <string name="help_contextmenus_text">
-        Dlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš.
-        Dlouhým stiskem v okně pro výběr dokumentu lze dokument odstranit nebo o něm zobrazit informace.
-        Dlouhým stiskem tlačítka Zpět je možno přistupovat k seznamu s historií.
-    </string>
+  <string name="app_name_short">Studium Bible</string>
+  <string name="app_name_medium">Studium Bible (And Bible)</string>
+  <string name="app_name_long">Aplikace ke studiu Bible od And Bible Open Source projektu</string>
   <string name="version_text">Verze %s</string>
-  <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
+  <string name="no_sdcard_error">Prosím zasuňte SD kartu a restartujte aplikaci.</string>
   <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Pasáž</string>
   <string name="search">Hledat</string>
-  <string name="settings">Nastavení</string>
+  <string name="settings">Nastavení aplikace</string>
   <string name="history">Historie</string>
   <string name="speak">Mluvení</string>
   <string name="help">Nápověda</string>
+  <string name="other">Ostatní</string>
+  <string name="help_and_tips">Nápověda &amp; tipy</string>
   <string name="administration">Správa</string>
   <string name="rate_application">Ohodnotit a recenzovat na Google Play</string>
   <string name="chooce_document">Vybrat dokument</string>
@@ -53,13 +27,15 @@
   <string name="deuterocanonical">Deuterokanonické</string>
   <!--Search-->
   <string name="search_index">Vyhledávací index</string>
-  <string name="index_creation_required">Pro hledání jsou nutné indexy.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích možností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
-  <string name="search_index_unavailable">Bohužel vytváření indexu je dostupné jen pro Android 5.0 (Lollipop) a novější.</string>
+  <string name="index_creation_required">K hledání je nutný index.</string>
+  <string name="create_index_for">K hledání je nutný index. \n\nVytvořit index pro %s?</string>
+  <string name="rebuild_index_for">Znovu vytvořit index pro %s?</string>
   <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka Hledat.</string>
-  <string name="index_download">Stáhnout</string>
-  <string name="index_not_available_for_download">Tento index není dostupný ke stažení</string>
   <string name="index_create">Vytvořit</string>
   <string name="rebuild_index">Znovu vytvořit index</string>
+  <string name="search_in">Hledat v %s</string>
+  <string name="do_in_background">Pokračovat na pozadí</string>
+  <string name="rebuild_index_button">Znovu vytvořit</string>
   <!--Tasks-->
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
@@ -78,6 +54,9 @@
   <string name="search_current_book">Současná kniha</string>
   <string name="error_executing_search">Neplatný dotaz</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_summary">Ukázat čísla veršů</string>
+  <string name="prefs_red_letter_summary">Zobrazit Ježíšova slova červeně</string>
+  <string name="prefs_text_size_title">Nastavení písma</string>
   <string name="prefs_show_verseno_title">Čísla u veršů</string>
   <string name="prefs_verse_per_line_title">Jeden verš na řádku</string>
   <string name="prefs_show_bookmarks_title">Zobrazit záložky</string>
@@ -90,42 +69,31 @@
   <string name="prefs_section_title_title">Nadpisy oddílů</string>
   <string name="prefs_red_letter_title">Červená písmena</string>
   <string name="prefs_tilt_to_scroll_title">Naklonit pro posun</string>
-  <string name="prefs_tilt_to_scroll_summary">Naklonit zařízení pro posun stránky nahoru/dolu</string>
-  <string name="prefs_night_mode_title">Noční režim</string>
-  <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
+  <string name="prefs_night_mode_title">Přepínání na noční režím</string>
+  <string name="prefs_night_mode_summary">Zda se přepnout na noční režim automaticky (podpora zařízení nutná), ručně nebo přes nastavení systému (Android 10+).</string>
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_night_mode_system">Systém</string>
+  <string name="options_menu_night_mode">Noční režim</string>
   <string name="prefs_navigate_to_verse_title">Přejít na verš</string>
   <string name="prefs_navigate_to_verse_summary">Zadávat i verš při výběru pasáže</string>
   <string name="prefs_open_links_in_special_window_title">Otevřít odkazy ve zvláštním okně</string>
   <string name="prefs_open_links_in_special_window_summary">Pro rychlejší zobrazení křížových odkazů a Strongových čísel.</string>
-  <string name="prefs_text_size_title">Velikost textu</string>
-  <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
   <string name="prefs_screen_keep_on_title">Nechat obrazovka zapnutou</string>
   <string name="prefs_screen_keep_on_summary">Zamezí uspání displeje během používání aplikace</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
-  <string name="prefs_split_mode_vertical">Svisle</string>
-  <string name="prefs_split_mode_horizontal">Vodorovně</string>
-  <string name="prefs_split_mode_automatic">Automatický</string>
-  <string name="prefs_split_mode_summary">Jak rozdělit více oken na obrazovce?</string>
-  <string name="prefs_split_mode_title">Režim rozdělení okna</string>
   <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
-  <string name="prefs_request_sdcard_permission_summary">Zapne používání ručně instalovaných dokumentů ze složky jsword na SD kartě</string>
-  <string name="bible_text_options">Nastavení textu Bible</string>
   <string name="auto_fullscreen">Posunem textu na celou obrazovku</string>
-  <string name="switch_split_mode">Přepnout rozdělení okna</string>
   <string name="reversed_split_mode">Obrácené rozdělení okna</string>
-  <string name="prefs_auto_night_mode_title">Automatický noční režim</string>
-  <string name="prefs_auto_night_mode_summary">Přepnout automaticky na noční režim čidlem</string>
+  <!--Colors preferences-->
+  <string name="colors_night_mode_title">Noční režim</string>
   <!--Window-->
   <string name="new_window">Nové okno</string>
   <string name="windowClose">Zavřít</string>
   <string name="windowMaximise">Maximalizovat</string>
   <string name="windowMinimise">Minimalizovat</string>
   <string name="windowSynchronise">Synchronizovat</string>
-  <string name="windowMoveFirst">Přesunout první</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
   <string name="no_verse_notes">Verš neobsahuje poznámky</string>
@@ -139,17 +107,10 @@
   <string name="morph_robinson_not_installed">Stáhněte prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
   <!--Module download-->
   <string name="download">Stáhnout dokumenty</string>
-  <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
-  <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org\na http://ibt.org.ru\na http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Stáhnout </string>
   <string name="download_refreshing_book_list">Obnovuji seznam dostupných dokumentů</string>
   <string name="download_refresh_book_list_menu_item">Obnovit</string>
   <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
-  <string name="no_internet_connection">
-        Nelze se připojit ke stránce Crosswire\'s s moduly.
-        Vzdálený server může být vypnutý nebo nemáte internetové připojení.
-        Prosím zkuste to později znovu.
-    </string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
   <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
@@ -157,8 +118,6 @@
   <string name="install_zip">Načíst dokument ze Zip</string>
   <string name="install_zip_module">Instalace modulu Bible</string>
   <string name="install_zip_successfull">Modul byl úspěšně nainstalován</string>
-  <string name="extracting_zip_file">Rozbaluji Zip soubor...</string>
-  <string name="checking_zip_file">Ověřuji zadaný soubor...</string>
   <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
   <string name="module_already_installed">Soubor obsahuje modul, který je již nainstalován</string>
   <string name="install_zip_title">Čekejte prosím. Načítám Zip soubor.</string>
@@ -166,7 +125,6 @@
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>
   <string name="rdg_plan_day">Den %s</string>
-  <string name="rdg_plan_set_start_date">Nastavit datum začátku...</string>
   <string name="done">Hotovo</string>
   <string name="reset">Resetovat</string>
   <string name="reset_plan_question">Jste si jisti, že chcete resetovat tento plán?</string>
@@ -217,14 +175,10 @@
   <string name="delete_search_index_doc">Smazat index k %s?</string>
   <!--Verse context menu-->
   <string name="notes">Poznámky a odkazy</string>
-  <string name="copy">Kopírovat</string>
-  <string name="share_verse">Sdílet …</string>
-  <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
   <string name="compare_translations">Porovnat překlady</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Otevřít odkaz zde</string>
   <string name="open_link_in_new_window">Otevřít v novém okně</string>
-  <string name="open_link_in_main_window">Otevřít v hlavním okně</string>
   <string name="open_link_in_special_window">Otevřít ve speciálním okně</string>
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
@@ -362,20 +316,11 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="mynote_saved">Poznámka uložena</string>
   <!--Backup and restore-->
   <string name="backup_and_restore">Záloha a Obnova</string>
-  <string name="backup">Zálohovat do...</string>
-  <string name="backup_success">Poznámky a záložky uloženy na SD kartu do %s</string>
-  <string name="restore">Obnovit z...</string>
   <string name="restore_confirmation">Přepsat poznámky, záložky, plány čtení a pracovní plochy?</string>
   <string name="restore_success">Poznámky, záložky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
-  <string name="error_no_backup_file">Soubor zálohy se nepodařilo nalézt</string>
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
-  <string name="backup_email_subject">And Bible záloha databáze</string>
-  <string name="backup_email_message">Přiložena je Vaše And Bible databáze obsahující poznámky, záložky, plány čtení a pracovní plochy.</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
   <!--About-->
-  <string name="about_copyright">Autorská práva: %s</string>
-  <string name="about_version">Verze: %s</string>
-  <string name="about_versification">Veršování: %s</string>
   <!--Bug reporting-->
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
@@ -408,19 +353,7 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="notification_channel_tts_status">Převod textu na řeč</string>
   <string name="notification_channel_progress_status">Upozornění o průběh stavu pro stahování dokumentu atd.</string>
   <!--Workspaces-->
-  <string name="workspaces">Pracovní plochy</string>
-  <string name="new_workspace">Nová pracovní plocha</string>
-  <string name="switch_to_workspace">Přepnout na pracovní plochu...</string>
-  <string name="delete_workspace">Smazat pracovní plochu</string>
-  <string name="choose_workspace_to_open">Vybrat a otevřít pracovní plochu</string>
-  <string name="new_copied_workspace">Kopírovat pracovní plochu jako novou</string>
   <string name="workspace_number">Pracovní plocha %d</string>
-  <string name="workspace_name_contents">%s: %s</string>
-  <string name="rename_workspace">Přejmenovat pracovní plochu ...</string>
-  <string name="rename_workspace_title">Pojmenovat pracovní plochu</string>
-  <string name="new_workspace_from_dialog">Nový</string>
-  <string name="delete_workspace_from_dialog">Smazat současný</string>
-  <string name="history_title">Historie (%s)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verze!</string>
   <string name="beta_notice_content_1">
@@ -438,4 +371,21 @@ bylo spuštěno mluvení mimo stanovený rozsah veršů.</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Vzít na vědomí</string>
   <string name="beta_notice_dismiss_until_update">Vzít na vědomí do příští aktualizace</string>
+  <!--History-->
+  <!--Help-->
+  <string name="help_nav_title">Navigace</string>
+  <string name="help_contextmenus_title">Kontextová menu</string>
+  <string name="help_mynote_title">Má poznámka</string>
+  <string name="help_mynote_text">Poznámky lze přidat položkou Má Poznámka z kontextového menu u verše.
+        K seznamu existujících poznámek se lze dostat přes hlavní menu.</string>
+  <string name="help_bookmarks_title">Záložky</string>
+  <string name="help_bookmarks_text">Poznámky přidat z kontextového menu u verše.
+        Správce poznámek je přístupný přes hlavní menu.
+        Kontextové menu správce poznámek dovoluje seskupovat záložky pomocí popisků.
+    </string>
+  <string name="help_search_title">Hledat</string>
+  <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
+        (viz \"Apache Lucene - Query Parser Syntax\" pro více informací)
+    </string>
+  <!--Uncategorized-->
 </resources>

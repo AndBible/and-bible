@@ -13,21 +13,54 @@
 #  You should have received a copy of the GNU General Public License along with And Bible.
 #  If not, see http://www.gnu.org/licenses/.
 #
+import os
+import re
 
 import yaml
 import jinja2
 
-description = yaml.load(open("playstore-description.yml").read(), yaml.SafeLoader)
-constants = yaml.load(open("constants.yml").read(), yaml.SafeLoader)
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-template = jinja2.Template(open("playstore-description-template.txt").read())
+constants = yaml.load(open(os.path.join(dir_path, "constants.yml")).read(), yaml.SafeLoader)
+full_description_template = jinja2.Template(open(os.path.join(dir_path, "full_description_template.txt")).read())
+short_description_template = jinja2.Template("{{short_description}}")
+title_template = jinja2.Template("{{title}}")
 
-variables = dict(**description, **constants)
-variables = {key: str(value).strip() for key, value in variables.items()}
-variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
+def render(filename, template=full_description_template):
+    description = yaml.load(open(filename).read(), yaml.SafeLoader)
 
-rendered = template.render(**variables)
+    variables = dict(**description, **constants)
+    variables = {key: str(value).strip() for key, value in variables.items()}
+    variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
 
-with open("playstore-description-en.txt", "w") as f:
-    f.write(rendered)
-print(rendered)
+    rendered = template.render(**variables)
+    for issue in ["{{", "}}", "_"]:
+        if issue in rendered:
+            raise RuntimeError(f"Issue with full_description_template render {filename}: {rendered}")
+    return rendered
+
+
+def give_path(lang, txt_file="full_description.txt"):
+    try:
+        os.mkdir(os.path.join(dir_path, f"../fastlane/metadata/android/{lang}"))
+    except FileExistsError:
+        pass
+    return os.path.join(dir_path, f"../fastlane/metadata/android/{lang}/{txt_file}")
+
+
+with open(give_path("en-US"), "w") as f:
+    f.write(render(os.path.join(dir_path,"playstore-description.yml")))
+
+translation_folder = os.path.join(dir_path, "description-translations")
+matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
+for ymlfile in os.listdir(translation_folder):
+    lang = matcher.match(ymlfile).group(1)
+    yml_file = os.path.join(translation_folder, ymlfile)
+    with open(give_path(lang), "w") as f:
+        f.write(render(yml_file))
+
+    with open(give_path(lang, "short_description.txt"), "w") as f:
+        f.write(render(yml_file, short_description_template))
+
+    with open(give_path(lang, "title.txt"), "w") as f:
+        f.write(render(yml_file, title_template))

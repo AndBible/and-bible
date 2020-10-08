@@ -1,0 +1,64 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: App for Bibelstudium av And Bible-prosjektet
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Les Bibelen, studer bibelkommentarer og -ordbøker i frakoblet modus."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Kraftig bibelstudie-verktøy
+paragraph_1_1: >
+  Bibelstudie-applikasjonen fra And Bible Open Source Project er kraftig, samtidig som den er enkel å bruke, også når du ikke har internettilkobling. Applikasjonens mål er ikke bare å være for bibellesing, men også å være et avansert verktøy for dype bibelstudier.
+paragraph_1_2: >
+  Applikasjonen er utviklet av bibellesere, for bibellesere. Den fokuserer på å gjøre bibelstudier både lettvint, dyp og trivelig. Det beste med dette ikke-kommersielle dugnadsprosjektet er at kildekoden er åpen, fullstendig gratis og inneholder ingen reklame. Den har blitt bygget fullstendig fra grunnen av for Android, og er derfor liten å laste ned og dermed svært effektiv og rask å bruke.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Et utvalg populære bibeloversettelser er King James, Bibelen 1930 og Studentmållagsbibelen 1921. Du finner også bibelkommentarer som Matthew Henry og John Gill.
+subtitle_2: Kraftige bibelstudie-finesser
+paragraph_2_1: >
+  Applikasjonen har mange innsiktsfulle og originale finesser som gjør komplekse og dype bibelstudier lettere enn før. De mest bemerkelsesverdige finessene er:
+feature_01: Oppdeling av tekstvisningen for å sammenligne oversettelser og bibelkommentarer
+feature_02: Arbeidsområder tillater flere bibelstudieoppsett med egne innstillinger
+feature_03: Integrasjon med Strong's bibelordbøker åpner for greske og hebraiske ordanalyser
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Lenkede kryssreferanser, fotnoter og dokumenter; hopp til kryssreferanser og fotnoter ved å klikke på en lenke; gjør dybdestudier av Skiftene ved å benytte hyperlenkede kommentarer ({{commentary_examples}}), kryssreferansesamlinger ({{cross_reference_examples}}) og andre ressurser.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry osv."
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
+feature_06: Fleksibel søking
+feature_07: Bokmerker med valgfrie farger på bokmerkegrupper
+feature_08: >
+  Personlige notater: legg til egne studiekommentarer til bibelvers
+feature_09: >
+  Bibelleseplaner: sett mål for bibellesingen
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over {{total_documents}} moduler på over {{total_languages}} språk, fritt distribuert fra Crosswire og andre SWORD pakkebrønner (repositories). 
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+feature_11: >
+  Opprinnelsen til alle dokument er undersøkt for å sikre at de fritt kan distribueres, og tillatelse til distribusjon er gitt dersom opphavsrett gjelder. Dette er grunnen til at denne applikasjonen ikke inneholder bibeloversettelser som NO78/85 og NB88/07.
+feature_12: >
+  Frakoblet modus: du trenger bare være påkoblet internett når du skal laste ned moduler.
+subtitle_3: La oss bygge den beste Bibel-applikasjonen sammen!
+paragraph_3_1: >
+  And Bibel er et åpen kildekode-prosjekt. I praksis betyr dette at hvem som helst med riktige kvalifikasjoner kan, og oppfordres til å bidra i prosjektet ved å:
+contr_1: "utvikle nye funksjoner,"
+contr_2: "teste nye funksjoner som ikke er utgitt enda,"
+contr_3: "holde oversettelse av brukergrensesnittet oppdatert, og"
+contr_4: hjelpe til med å utvide biblioteket over moduler.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Dersom du er en profesjonell programvareutvikler eller programvaretester, vennligst vurder å bidra i prosjektet. For mer informasjon om hvordan du kan bidra, vennligst besøk {{how_to_contribute_url}}."
+subtitle_4: Lenker
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Hjemmeside: {{homepage_url}}
+link_2: >
+  Lik And Bible på Facebook: {{facebook_url}}
+link_3: >
+  Vår Youtube-kanal: {{youtube_url}}
+link_4: >
+  Ofte spurte spørsmål (FAQ): {{faq_url}}
+link_5: >
+  Prosjektsiden på Github: {{github_url}}

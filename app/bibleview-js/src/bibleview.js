@@ -10,7 +10,6 @@ import {sleep} from "./utils";
 export function registerVersePositions() {
     // Register verse positions after next screen refresh ensuring that css / font is rendered correctly.
     sleep(1000).then(() => {
-    //requestAnimationFrame(() => {
         const lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
         console.log("Registering verse positions", lineHeight);
         jsInterface.clearVersePositionCache();
