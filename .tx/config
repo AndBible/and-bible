@@ -13,4 +13,4 @@ lang_map = bn: bn-BD, pt: pt-PT, az@latin: az-AZ, cs: cs-CZ, de: de-DE, en_GB: e
 file_filter = play/description-translations/<lang>.yml
 source_file = play/playstore-description.yml
 source_lang = en
-minimum_perc = 75
+minimum_perc = 100
