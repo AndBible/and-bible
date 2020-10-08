@@ -35,10 +35,12 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli {{total_documents}} teosta yli  {{total_languages}} kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista . 
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >-
+  Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten {{unavailable_documents}}.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-feature_11: >-
-  Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten NIV ja NKJV.
+unavailable_documents: "ESV, NIV and NKJV"
 feature_12: >
   Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
 subtitle_3: Tehdään yhdessä paras Raamattusovellus!
