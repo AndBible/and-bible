@@ -22,10 +22,11 @@ import jinja2
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 constants = yaml.load(open(os.path.join(dir_path, "constants.yml")).read(), yaml.SafeLoader)
-template = jinja2.Template(open(os.path.join(dir_path, "playstore-description-template.txt")).read())
+full_description_template = jinja2.Template(open(os.path.join(dir_path, "full_description_template.txt")).read())
+short_description_template = jinja2.Template("{{short_description}}")
+title_template = jinja2.Template("{{title}}")
 
-
-def render(filename):
+def render(filename, template=full_description_template):
     description = yaml.load(open(filename).read(), yaml.SafeLoader)
 
     variables = dict(**description, **constants)
@@ -35,16 +36,16 @@ def render(filename):
     rendered = template.render(**variables)
     for issue in ["{{", "}}", "_"]:
         if issue in rendered:
-            raise RuntimeError(f"Issue with template render {filename}: {rendered}")
+            raise RuntimeError(f"Issue with full_description_template render {filename}: {rendered}")
     return rendered
 
 
-def give_path(lang):
+def give_path(lang, txt_file="full_description.txt"):
     try:
         os.mkdir(os.path.join(dir_path, f"../fastlane/metadata/android/{lang}"))
     except FileExistsError:
         pass
-    return os.path.join(dir_path, f"../fastlane/metadata/android/{lang}/full_description.txt")
+    return os.path.join(dir_path, f"../fastlane/metadata/android/{lang}/{txt_file}")
 
 
 with open(give_path("en-US"), "w") as f:
@@ -54,7 +55,12 @@ translation_folder = os.path.join(dir_path, "description-translations")
 matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")
 for ymlfile in os.listdir(translation_folder):
     lang = matcher.match(ymlfile).group(1)
-
+    yml_file = os.path.join(translation_folder, ymlfile)
     with open(give_path(lang), "w") as f:
-        f.write(render(os.path.join(translation_folder, ymlfile)))
+        f.write(render(yml_file))
 
+    with open(give_path(lang, "short_description.txt"), "w") as f:
+        f.write(render(yml_file, short_description_template))
+
+    with open(give_path(lang, "title.txt"), "w") as f:
+        f.write(render(yml_file, title_template))
