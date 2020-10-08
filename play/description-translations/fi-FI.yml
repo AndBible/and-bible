@@ -1,0 +1,64 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Raamattu, And Bible Open Source Projektilta"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Lue raamattua, tutki kommentaareja ja sanakirjoja ja lue kirjallisuutta."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Tehokas työkalu Raamatun tutkimiseen
+paragraph_1_1: >
+  Raamattu, And Bible Open Source Projektilta, on tehokas, ja silti helppokäyttöinen sovellus Raamatun tutkimiseen Androidilla. Sovellus ei pyri olemaan ainoastaan yksinkertainen raamatunlukuohjelma, vaan pyrkii myös olemaan monipuolinen työkalu, joka mahdollistaa syvällisen henkilökohtaisen Raamatun tutkiskelun.
+paragraph_1_2: >
+  Sovelluksen kehittäjät ovat itse sovelluksen aktiivisia käyttäjiä, ts. innokkaita Raamatun lukijoita, ja sovellus pyrkii vastaamaan Raamatun lukemisen ja tutkimisen tarpeisiin. Se pyrkii auttamaan tekemään Raamatun tutkiskelustasi käytännöllistä, syvällistä ja hauskaa. Parasta tässä voittoa tavoittelemattomassa, yhteisöllisessä projektissa on se, että se on avointa lähdekoodia, ja siten täysin ilmainen, eikä sisällä mainoksia. Koska sovellus on tehty alusta alkaen Android-alustalle, se on erityisen kevyt ja huomattavan nopeakäyttöinen.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Useista tarjolla olevista raamatunkäännöksistä muutamia suosituimpia ovat Raamattu Kansalle, -92, -33/38 -käännökset, ja englanninkielisistä KJV, NASB, NET. Sisältää myös kattavia Raamattukommentaareja, kuten Matthew Henryn ja John Gillin kommentaarit.
+subtitle_2: Tehokkaita ominaisuuksia Raamatun tutkimiseen
+paragraph_2_1: >
+  Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevät monipuolisesta ja syvällisestä Raamatun tutkiskelusta sujuvan kokemuksen. Seuraavat ovat sen merkittävimpiä ominaisuuksia: 
+feature_01: Jaetut tekstinäkymät jotka mahdollistavat raamatunkäännösten vertailun ja kommentaarien selailun
+feature_02: "Työtilojen avulla voit tallentaa erilaisia asetelmia erilaisiin raamatuntutkimistilanteisiin, siten että kussakin työtilassa on omat asetukset."
+feature_03: Strongin sanakirjan integraatio mahdollistaa kreikan ja heprean sanojen analysoinnin
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  Linkitetyt ristiviitteet, alaviitteet ja dokumentit; siirry ristiviitteisiin ja alaviitteisiin yksinkertaisesti napsauttamalla linkkiä; uppoudu Kirjoituksiin hyödyntämällä hyperlinkattuja kommentaareja ({{commentary_examples}}), ristiviitekokoelmia ({{cross_reference_examples}}) ja muita resursseja.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry jne. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, Quoting Passsages jne."
+feature_05: Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
+feature_06: Joustava hakutoiminto
+feature_07: Kirjanmerkit; kirjanmerkkiryhmät mukautettavilla väreillä
+feature_08: >
+  Omat muistiinpanot; voit lisätä omia muistiinpanoja ja huomioita mihin tahansa Raamatun jakeeseen
+feature_09: >
+  Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli {{total_documents}} teosta yli  {{total_languages}} kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista . 
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+feature_11: >-
+  Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten NIV ja NKJV.
+feature_12: >
+  Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
+subtitle_3: Tehdään yhdessä paras Raamattusovellus!
+paragraph_3_1: >
+  And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
+contr_1: "kehittämällä uusia ominaisuuksia,"
+contr_2: "testaamalla ominaisuuksia joita ei ole vielä julkaistu,"
+contr_3: "pitämällä käyttöliittymän käännökset ajan tasalla, ja"
+contr_4: auttamalla moduulikirjaston laajentamisessa; hankkimalla lupia tekijänoikeusten haltijoilta ja muuntamalla dokumentteja SWORD-muotoon.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Jos olet ohjelmistoalan ammattilainen (kehittäjä tai testaaja), pyydämme sinua harkistemaan aikasi antamista tälle projektille. Lue lisää tietoa siitä kuinka voit osallistua:  {{how_to_contribute_url}}."
+subtitle_4: Linkkejä
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  Kotisivu: {{homepage_url}}
+link_2: >
+  Tykkää And Biblesta Facebookissa: {{facebook_url}}
+link_3: >
+  Meidän Youtube-kanava: {{youtube_url}}
+link_4: >
+  Usein kysytyt kysymykset (FAQ): {{faq_url}}
+link_5: >
+  Projektin sivu Githubissa: {{github_url}}
