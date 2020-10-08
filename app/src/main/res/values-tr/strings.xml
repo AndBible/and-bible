@@ -4,7 +4,7 @@
   <string name="app_name_medium">İncil Çalışması (And İncil’i)</string>
   <string name="app_name_long">İncil Çalışması uygulama, And İncil’i Açık Kaynak Projesi’nden</string>
   <string name="version_text">Sürüm %s</string>
-  <string name="no_sdcard_error">Lütfen SD hafıza kartını takıp uygulamayı yeniden başlatın.</string>
+  <string name="no_sdcard_error">Lütfen bir hafıza kardı takıp uygulamayı yeniden başlatın</string>
   <!--Main menu-->
   <string name="menu">Menü</string>
   <string name="chooseBook">Belge</string>
@@ -86,6 +86,7 @@
   <string name="text_options_window_menutitle">Metin seçenekler</string>
   <string name="auto_fullscreen">Kaydırarak tam ekran modusu</string>
   <string name="prefs_advanced_settings_cat">Gelişmiş ayarlar</string>
+  <string name="prefs_behavior_customization_cat">Uygulama davranışı</string>
   <string name="workspace_text_display_settings_title">Metin seçenekler - %s</string>
   <string name="window_text_display_settings_title">Metin seçenekler - Pencere %d</string>
   <string name="prefs_text_display_settings_title">Biçimlendirme</string>
@@ -103,6 +104,7 @@
   <string name="color_background">Arkaplan rengi</string>
   <string name="colors_day_mode_title">Gündüz modu</string>
   <string name="colors_night_mode_title">Gece modu</string>
+  <string name="prefs_noise_title">Arkaplan sesi</string>
   <string name="cpv_default_title">Bir Renk Seçin</string>
   <string name="cpv_select">Seç</string>
   <string name="cpv_transparency">Saydamlık</string>

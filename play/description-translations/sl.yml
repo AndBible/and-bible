@@ -1,3 +1,8 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "Proučevanje Biblije, And Bible Open Source Project"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Berite Biblijo, komentarje, slovarje ali knjige v načinu brez povezave."
+# Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Močno orodje za proučevanje Biblije
 paragraph_1_1: >
   Aplikacija za proučevanje Biblije je zmogljiva, vendar enostavna aplikacija za proučevanje Biblije brez internetne povezave za naprave z operacijskim sistemom Android. Aplikacija ni namenjena zgolj branju Biblije, temveč se kot napredno orodje osredotoča na poglobljeno osebno proučevanje Biblije.

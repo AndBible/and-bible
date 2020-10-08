@@ -35,7 +35,7 @@ def render(filename):
     rendered = template.render(**variables)
     for issue in ["{{", "}}", "_"]:
         if issue in rendered:
-            raise RuntimeError("Issue with template render")
+            raise RuntimeError(f"Issue with template render {filename}: {rendered}")
     return rendered
 
 

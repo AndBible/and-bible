@@ -1,3 +1,8 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: App for Bibelstudium av And Bible-prosjektet
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Les Bibelen, studer bibelkommentarer og -ordbøker i frakoblet modus."
+# Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Kraftig bibelstudie-verktøy
 paragraph_1_1: >
   Bibelstudie-applikasjonen fra And Bible Open Source Project er kraftig, samtidig som den er enkel å bruke, også når du ikke har internettilkobling. Applikasjonens mål er ikke bare å være for bibellesing, men også å være et avansert verktøy for dype bibelstudier.
