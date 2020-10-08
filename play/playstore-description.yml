@@ -63,7 +63,7 @@ paragraph_3_1: >
 contr_1: developing new features,
 contr_2: testing not-yet-released features,
 contr_3: keeping user interface translations up-to-date, and
-contr_4: helping with extending the module library.
+contr_4: helping with extending the module library, by obtaining permissions from copyright holders and by converting documents to SWORD format.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 paragraph_4_1: If you are a professional software engineer or tester, please consider contributing to
   the project. For more information on how to contribute, please see {{how_to_contribute_url}}.
