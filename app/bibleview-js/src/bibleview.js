@@ -8,7 +8,7 @@ import {updateLocation, stopScrolling} from "./scroll";
 
 export function registerVersePositions() {
     // Register verse positions after next screen refresh ensuring that css / font is rendered correctly.
-    requestAnimationFrame(() => {
+    setTimeout(() => {
         const lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
         console.log("Registering verse positions", lineHeight);
         jsInterface.clearVersePositionCache();

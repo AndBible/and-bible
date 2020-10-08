@@ -144,10 +144,10 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
         console.log("scrolling to beginning of document (now)");
         scrollToVerse(null, true);
     }
-    // requestAnimationFrame should make sure that contentReady is set only after
-    // initial scrolling has been performed so that we don't get onScroll during initialization
-    // in Java side.
-    requestAnimationFrame(() => {
+    // setTimeout should make sure that contentReady is set only after
+    // initial scrolling has been performed (next iteration in event loop)
+    // so that we don't get onScroll during initialization in Java side.
+    setTimeout(() => {
         $("#content").css('visibility', 'visible');
         registerVersePositions();
         contentReady = true;
