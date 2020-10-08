@@ -96,7 +96,7 @@ class ErrorReportControl @Inject constructor() {
         withContext(Dispatchers.IO) {
             val log=StringBuilder()
             try {
-                val process = Runtime.getRuntime().exec("logcat -d -t 10000")
+                val process = Runtime.getRuntime().exec("logcat -d")
                 val bufferedReader = BufferedReader(
                     InputStreamReader(process.inputStream))
 
