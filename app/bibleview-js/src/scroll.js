@@ -149,10 +149,13 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
     // so that we don't get onScroll during initialization in Java side.
     setTimeout(() => {
         $("#content").css('visibility', 'visible');
-        registerVersePositions();
-        contentReady = true;
-        console.log("Content is set ready!");
-        jsInterface.setContentReady();
+        // Why is onScroll somehow happening only here?
+        setTimeout(() => {
+            registerVersePositions();
+            contentReady = true;
+            console.log("Content is set ready!");
+            jsInterface.setContentReady();
+        })
     });
     console.log("setVisible OK");
 }
