@@ -151,7 +151,8 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
         $("#content").css('visibility', 'visible');
         // Why is onScroll somehow happening only here?
         setTimeout(() => {
-            registerVersePositions();
+            registerVersePositions(true);
+
             contentReady = true;
             console.log("Content is set ready!");
             jsInterface.setContentReady();
