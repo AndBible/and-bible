@@ -1,5 +1,4 @@
 3.3.392:
-- Improved bug reporting
 - Fixed bugs
 
 Version 3.3
