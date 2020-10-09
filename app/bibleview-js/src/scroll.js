@@ -66,6 +66,14 @@ export function doScrolling(elementY, duration) {
 
 let lineSpacing = null;
 
+function attributesToString(elem) {
+    let result = "";
+    for(const attr of elem.attributes) {
+        result += `${attr.name}: ${attr.value}, `
+    }
+    return `[${elem.tagName} ${result} (${elem.innerText.slice(0, 50)}...)]`;
+}
+
 export function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
     stopScrolling();
@@ -79,7 +87,7 @@ export function scrollToVerse(toId, now, delta = toolbarOffset) {
         if(Math.abs(diff) > 800 / window.devicePixelRatio) {
             now = true;
         }
-        console.log("Scrolling to", toElement, toElement.offsetTop - delta);
+        console.log("Scrolling to", toElement, attributesToString(toElement), toElement.offsetTop - delta);
         const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
         if(lineSpacing != null) {
             const extra = (lineSpacing - 1) * 0.5;
@@ -132,6 +140,7 @@ export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, tool
     setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
+    $("#content").css('visibility', 'visible');
 
     await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
@@ -149,8 +158,6 @@ export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, tool
         scrollToVerse(null, true);
     }
 
-    $("#content").css('visibility', 'visible');
-
     await nextTick(); // set contentReady only after scrolling has been done
 
     registerVersePositions(true);
@@ -158,8 +165,6 @@ export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, tool
     contentReady = true;
     console.log("Content is set ready!");
     jsInterface.setContentReady();
-
-    console.log("setVisible OK");
 }
 export function hideContent() {
     $("#content").css('visibility', 'hidden');
