@@ -65,7 +65,7 @@ export function doScrolling(elementY, duration) {
 
 let lineSpacing = null;
 
-export async function scrollToVerse(toId, now, delta = toolbarOffset) {
+export function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
     stopScrolling();
     if(delta !== toolbarOffset) {
