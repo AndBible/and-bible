@@ -63,8 +63,6 @@ public class PassageChangeMediator {
 		} else {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}
-		String stackTrace = Log.getStackTraceString(new Exception());
-		Log.d(TAG, "CurrentVerseChangedEvent window: " + window + " stack: " + stackTrace);
 		ABEventBus.getDefault().post(new CurrentVerseChangedEvent(window));
 	}
 
@@ -75,8 +73,6 @@ public class PassageChangeMediator {
 	/** this is triggered on scroll
 	 */
 	public void onCurrentVerseChanged() {
-		String stackTrace = Log.getStackTraceString(new Exception());
-		Log.d(TAG, "CurrentVerseChangedEvent stack: " + stackTrace);
 		ABEventBus.getDefault().post(new CurrentVerseChangedEvent());
 	}
 
