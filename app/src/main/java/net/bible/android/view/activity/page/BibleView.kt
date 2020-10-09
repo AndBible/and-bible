@@ -26,6 +26,7 @@ import android.view.ContextMenu.ContextMenuInfo
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.webkit.ConsoleMessage
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -181,6 +182,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 Log.d(TAG, message)
                 result.confirm()
+                return true
+            }
+
+            override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
+                Log.d(TAG, "JS console ${consoleMessage.messageLevel()}: ${consoleMessage.message()}")
                 return true
             }
         }
