@@ -35,6 +35,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
@@ -71,7 +72,9 @@ object CommonUtils {
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
 
-	val JSON_CONFIG = JsonConfiguration(ignoreUnknownKeys = true)
+	val json = Json {
+        ignoreUnknownKeys = true
+    }
 
     private const val TAG = "CommonUtils"
     var isAndroid = true
@@ -455,12 +458,12 @@ object CommonUtils {
 @Serializable
 data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisplaySettings.Types>) {
     fun toJson(): String {
-        return json.stringify(serializer(), this)
+        return json.encodeToString(serializer(), this)
     }
 
     companion object {
         fun fromJson(jsonString: String): LastTypesSerializer {
-            return json.parse(serializer(), jsonString)
+            return json.decodeFromString(serializer(), jsonString)
         }
     }
 }

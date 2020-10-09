@@ -40,6 +40,7 @@ import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.NO_OPTIONS_MENU
 import net.bible.android.view.activity.base.RecommendedDocuments
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.GenericFileDownloader
@@ -85,7 +86,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
-            recommendedDocuments = Json(CommonUtils.JSON_CONFIG).parse(RecommendedDocuments.serializer(), jsonString)
+            recommendedDocuments = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
         }

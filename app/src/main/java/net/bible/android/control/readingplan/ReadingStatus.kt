@@ -19,9 +19,8 @@
 package net.bible.android.control.readingplan
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.JSON_CONFIG
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import javax.inject.Inject
@@ -29,6 +28,7 @@ import javax.inject.Inject
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
 open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
     @Inject
     lateinit var readingPlanRepo: ReadingPlanRepository
@@ -45,12 +45,12 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
         constructor(jsonString: String) : this(toArrayList(jsonString))
         companion object {
             private fun toArrayList(jsonString: String): ArrayList<ChapterRead> {
-                return Json(JSON_CONFIG).parse(serializer(), jsonString).chapterReadArray
+                return json.decodeFromString(serializer(), jsonString).chapterReadArray
             }
         }
 
         override fun toString(): String {
-            return Json(JSON_CONFIG).stringify(serializer(), this)
+            return json.encodeToString(serializer(), this)
         }
     }
 
