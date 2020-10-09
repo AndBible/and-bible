@@ -401,8 +401,7 @@ object CommonUtils {
     }
 
     fun getWholeChapter(currentVerse: Verse, showIntros: Boolean): Key {
-        val stackTrace: String? = Log.getStackTraceString(Exception())
-        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID} stack: ${stackTrace}")
+        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID}")
         val versification = currentVerse.versification
         val book = currentVerse.book
         val chapter = currentVerse.chapter
