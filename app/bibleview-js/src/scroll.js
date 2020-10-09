@@ -140,9 +140,10 @@ export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, tool
     setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
-    $("#content").css('visibility', 'visible');
 
     await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+
+    $("#content").css('visibility', 'visible');
 
     if (jumpToChapterVerse != null) {
         scrollToVerse(jumpToChapterVerse, true);
