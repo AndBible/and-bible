@@ -6,9 +6,9 @@
 
 import {updateLocation, stopScrolling} from "./scroll";
 
-export function registerVersePositions() {
+export function registerVersePositions(now = false) {
     // Register verse positions after next screen refresh ensuring that css / font is rendered correctly.
-    setTimeout(() => {
+    const fn = () => {
         const lineHeight = parseFloat(window.getComputedStyle(document.body).getPropertyValue('line-height'));
         console.log("Registering verse positions", lineHeight);
         jsInterface.clearVersePositionCache();
@@ -23,7 +23,8 @@ export function registerVersePositions() {
             jsInterface.registerVersePosition(verseTag.id, location);
         }
         updateLocation()
-    });
+    }
+    if(now) {fn()} else setTimeout(fn);
 }
 
 function getVerseElements() {
