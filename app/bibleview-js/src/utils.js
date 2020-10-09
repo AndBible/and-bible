@@ -72,3 +72,7 @@ export async function whenReady(fnc){
 export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export async function nextTick() {
+    await new Promise(resolve => setTimeout(resolve));
+}

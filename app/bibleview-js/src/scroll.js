@@ -1,5 +1,6 @@
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 import {registerVersePositions} from "./bibleview";
+import {nextTick} from "./utils";
 
 let currentScrollAnimation = null;
 let contentReady = false;
@@ -65,7 +66,7 @@ export function doScrolling(elementY, duration) {
 
 let lineSpacing = null;
 
-export async function scrollToVerse(toId, now, delta = toolbarOffset) {
+export function scrollToVerse(toId, now, delta = toolbarOffset) {
     console.log("scrollToVerse", toId, now, delta);
     stopScrolling();
     if(delta !== toolbarOffset) {
@@ -126,15 +127,18 @@ export function setDisplaySettings({marginLeft, marginRight, maxWidth, textColor
 }
 
 
-export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
+export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, displaySettings}  = {}) {
     console.log(`setupContent`, jumpToChapterVerse, jumpToYOffsetRatio, toolBarOffset, JSON.stringify(displaySettings));
     setDisplaySettings(displaySettings, true);
     const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
     setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
-    if(jumpToChapterVerse != null) {
+
+    await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+
+    if (jumpToChapterVerse != null) {
         scrollToVerse(jumpToChapterVerse, true);
         enableVerseLongTouchSelectionMode();
-    } else if(doScroll) {
+    } else if (doScroll) {
         console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
         const
             contentHeight = document.documentElement.scrollHeight,
@@ -144,20 +148,17 @@ export function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, toolBarOff
         console.log("scrolling to beginning of document (now)");
         scrollToVerse(null, true);
     }
-    // setTimeout should make sure that contentReady is set only after
-    // initial scrolling has been performed (next iteration in event loop)
-    // so that we don't get onScroll during initialization in Java side.
-    setTimeout(() => {
-        $("#content").css('visibility', 'visible');
-        // Why is onScroll somehow happening only here?
-        setTimeout(() => {
-            registerVersePositions(true);
 
-            contentReady = true;
-            console.log("Content is set ready!");
-            jsInterface.setContentReady();
-        })
-    });
+    $("#content").css('visibility', 'visible');
+
+    await nextTick(); // set contentReady only after scrolling has been done
+
+    registerVersePositions(true);
+
+    contentReady = true;
+    console.log("Content is set ready!");
+    jsInterface.setContentReady();
+
     console.log("setVisible OK");
 }
 export function hideContent() {
