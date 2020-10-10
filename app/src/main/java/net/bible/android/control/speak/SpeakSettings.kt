@@ -19,10 +19,12 @@
 package net.bible.android.control.speak
 import android.util.Log
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.JSON_CONFIG
+import net.bible.service.common.CommonUtils.json
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.system.Versifications
@@ -67,7 +69,7 @@ data class PlaybackSettings (
 
         fun fromJson(jsonString: String): PlaybackSettings {
             return try {
-                Json(JSON_CONFIG).parse(PlaybackSettings.serializer(), jsonString)
+                json.decodeFromString(serializer(), jsonString)
             } catch (ex: SerializationException) {
                 PlaybackSettings()
             } catch (ex: IllegalArgumentException) {
@@ -77,7 +79,7 @@ data class PlaybackSettings (
     }
 
     fun toJson(): String {
-        return Json(JSON_CONFIG).stringify(PlaybackSettings.serializer(), this)
+        return json.encodeToString(serializer(), this)
     }
 }
 
@@ -99,7 +101,7 @@ data class SpeakSettings(var synchronize: Boolean = true,
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
     private fun toJson(): String {
-        return Json(JSON_CONFIG).stringify(SpeakSettings.serializer(), this)
+        return json.encodeToString(serializer(), this)
     }
 
     fun makeCopy(): SpeakSettings {
@@ -129,7 +131,7 @@ data class SpeakSettings(var synchronize: Boolean = true,
 
         private fun fromJson(jsonString: String): SpeakSettings {
             return try {
-                Json(JSON_CONFIG).parse(SpeakSettings.serializer(), jsonString)
+                json.decodeFromString(serializer(), jsonString)
             } catch (ex: SerializationException) {
                 SpeakSettings()
             } catch (ex: IllegalArgumentException) {

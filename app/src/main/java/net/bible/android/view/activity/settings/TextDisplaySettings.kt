@@ -193,11 +193,11 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
 @Serializable
 data class DirtyTypesSerializer(val dirtyTypes: MutableSet<Types>) {
     fun toJson(): String {
-        return json.stringify(serializer(), this)
+        return json.encodeToString(serializer(), this)
     }
     companion object {
         fun fromJson(jsonString: String): DirtyTypesSerializer {
-            return json.parse(serializer(), jsonString)
+            return json.decodeFromString(serializer(), jsonString)
         }
     }
 }
