@@ -27,11 +27,12 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 import java.util.*
 
-val json = Json(JsonConfiguration.Stable)
+val json = Json {
+    allowStructuredMapKeys = true
+}
 
 class WorkspaceEntities {
     data class Page(
@@ -109,11 +110,11 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?
     ) {
         fun toJson(): String {
-            return json.stringify(serializer(), this)
+            return json.encodeToString(serializer(), this)
         }
         companion object {
             fun fromJson(jsonString: String): Colors {
-                return json.parse(serializer(), jsonString)
+                return json.decodeFromString(serializer(), jsonString)
             }
         }
     }
@@ -197,7 +198,7 @@ class WorkspaceEntities {
         }
 
         fun toJson(): String {
-            return json.stringify(serializer(), this)
+            return json.encodeToString(serializer(), this)
         }
 
         fun copyFrom(textDisplaySettings: TextDisplaySettings) {
@@ -208,7 +209,7 @@ class WorkspaceEntities {
 
         companion object {
             fun fromJson(jsonString: String): TextDisplaySettings {
-                return json.parse(serializer(), jsonString)
+                return json.decodeFromString(serializer(), jsonString)
             }
 
             val default get() = TextDisplaySettings(
@@ -362,11 +363,11 @@ data class SettingsBundle (
     }
 
     fun toJson(): String {
-        return json.stringify(serializer(), this)
+        return json.encodeToString(serializer(), this)
     }
     companion object {
         fun fromJson(jsonString: String): SettingsBundle {
-            return json.parse(serializer(), jsonString)
+            return json.decodeFromString(serializer(), jsonString)
         }
     }
 
