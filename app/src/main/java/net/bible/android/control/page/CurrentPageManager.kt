@@ -23,7 +23,6 @@ import android.util.Log
 
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository

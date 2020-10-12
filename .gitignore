@@ -15,3 +15,4 @@
 /db/build/
 *.env.*
 /projectFilesBackup/
+tags
