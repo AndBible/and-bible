@@ -112,16 +112,11 @@ class DownloadManager(
         val bookInitials = book.initials
         val installedBook = Books.installed().getBook(bookInitials)
         installedBook?.let { unregisterBook(it) }
-        try {
-            // An installer knows how to install books
-            val installer = installManager.getInstaller(repositoryName)
-            installer.install(book)
-
-            // reload metadata to ensure the correct location is set, otherwise maps won't show
-            (book.bookMetaData as SwordBookMetaData).reload { true }
-        } catch (ex: InstallException) {
-            instance.showErrorMsg(R.string.error_occurred, ex)
-        }
+        // An installer knows how to install books
+        val installer = installManager.getInstaller(repositoryName)
+        installer.install(book)
+        // reload metadata to ensure the correct location is set, otherwise maps won't show
+        (book.bookMetaData as SwordBookMetaData).reload { true }
     }
 
     /**
