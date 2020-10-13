@@ -3,7 +3,6 @@ package net.bible.android.control.bookmark
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
@@ -54,7 +53,9 @@ class BookmarkControlTest {
         }
         val labels = bookmarkControl!!.allLabels
         for (dto in labels) {
-            bookmarkControl!!.deleteLabel(dto)
+            if(dto.id != null && dto.id!! > 0) {
+                bookmarkControl!!.deleteLabel(dto)
+            }
         }
         bookmarkControl = null
         resetDatabase()
@@ -120,7 +121,7 @@ class BookmarkControlTest {
         labelList.add(label2)
 
         // add 2 labels and check they are saved
-        bookmarkControl!!.setBookmarkLabels(bookmark, labelList)
+        bookmarkControl!!.setBookmarkLabels(bookmark!!, labelList)
         val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
@@ -146,7 +147,7 @@ class BookmarkControlTest {
         labelList.add(label1)
 
         // add 2 labels and check they are saved
-        bookmarkControl!!.setBookmarkLabels(bookmark, labelList)
+        bookmarkControl!!.setBookmarkLabels(bookmark!!, labelList)
         val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
@@ -186,7 +187,7 @@ class BookmarkControlTest {
         var greenLabelDto = LabelDto()
         greenLabelDto.name = "G"
         greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabelDto = bookmarkControl!!.saveOrUpdateLabel(greenLabelDto)
+        greenLabelDto = bookmarkControl!!.insertOrUpdateLabel(greenLabelDto)
         bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabelDto))
         addBookmark("ps.17.10")
 
@@ -213,11 +214,11 @@ class BookmarkControlTest {
         var greenLabelDto = LabelDto()
         greenLabelDto.name = "G"
         greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabelDto = bookmarkControl!!.saveOrUpdateLabel(greenLabelDto)
+        greenLabelDto = bookmarkControl!!.insertOrUpdateLabel(greenLabelDto)
         var stargLabelDto = LabelDto()
         stargLabelDto.name = "S"
         stargLabelDto.bookmarkStyle = BookmarkStyle.YELLOW_STAR
-        stargLabelDto = bookmarkControl!!.saveOrUpdateLabel(stargLabelDto)
+        stargLabelDto = bookmarkControl!!.insertOrUpdateLabel(stargLabelDto)
         bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabelDto))
         bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(stargLabelDto))
 
@@ -242,11 +243,11 @@ class BookmarkControlTest {
         var label1 = LabelDto()
         label1.name = "S"
         label1.bookmarkStyle = BookmarkStyle.YELLOW_STAR
-        label1 = bookmarkControl!!.saveOrUpdateLabel(label1)
+        label1 = bookmarkControl!!.insertOrUpdateLabel(label1)
         var label2 = LabelDto()
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        label2 = bookmarkControl!!.saveOrUpdateLabel(label2)
+        label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
         bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(label1))
         bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(label2))
 
@@ -271,7 +272,7 @@ class BookmarkControlTest {
         var label2 = LabelDto()
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        label2 = bookmarkControl!!.saveOrUpdateLabel(label2)
+        label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
         bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(label2))
 
         // check only bookmark in range is returned
@@ -305,7 +306,7 @@ class BookmarkControlTest {
         currentTestLabel = nextTestLabel
         val label = LabelDto()
         label.name = currentTestLabel
-        return bookmarkControl!!.saveOrUpdateLabel(label)
+        return bookmarkControl!!.insertOrUpdateLabel(label)
     }
 
     private val nextTestVerse: String

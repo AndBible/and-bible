@@ -19,7 +19,6 @@ package net.bible.service.db
 
 import android.util.Log
 import androidx.room.Room
-import androidx.room.migration.Migration as RoomMigration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
 import net.bible.android.database.AppDatabase
@@ -27,6 +26,7 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
 import java.sql.SQLException
+import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -36,7 +36,7 @@ abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(star
     abstract fun doMigrate(db: SupportSQLiteDatabase)
     
     override fun migrate(db: SupportSQLiteDatabase) {
-        Log.d(TAG, "Migrating from version $startVersion to $endVersion" )
+        Log.d(TAG, "Migrating from version $startVersion to $endVersion")
         doMigrate(db)
     }
 }
@@ -551,6 +551,28 @@ private val SQUASH_30_33 = object : Migration(30, 33) {
     }
 }
 
+private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE bookmark RENAME TO bookmark_old;")
+            execSQL("ALTER TABLE label RENAME TO label_old;")
+
+            execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdOn` INTEGER, `key` TEXT NOT NULL, `versification` TEXT, `playbackSettings` TEXT)")
+            execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT)")
+            execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
+
+            execSQL("INSERT INTO Bookmark SELECT * from bookmark_old;")
+            execSQL("INSERT INTO Label SELECT * from label_old;")
+            execSQL("INSERT INTO BookmarkToLabel SELECT * from bookmark_label;")
+
+            execSQL("DROP TABLE bookmark_old;")
+            execSQL("DROP TABLE label_old;")
+            execSQL("DROP TABLE bookmark_label;")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -596,7 +618,8 @@ object DatabaseContainer {
                         MIGRATION_30_31,
                         MIGRATION_31_32,
                         SQUASH_30_33,
-                        MIGRATION_32_33
+                        MIGRATION_32_33,
+                        MIGRATION_33_34_Bookmarks
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

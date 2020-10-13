@@ -217,7 +217,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         // use context to setup backup control dirs
         BackupControl.setupDirs(this)
         // When I mess up database, I can re-create database like this.
-        //backupControl.resetDatabase()
+        // backupControl.resetDatabase()
 
         backupControl.clearBackupDir()
         windowRepository.initialize()

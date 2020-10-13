@@ -1,6 +1,5 @@
 package net.bible.service.device.speak
 
-import android.os.Looper.getMainLooper
 import kotlinx.android.synthetic.main.speak_bible.*
 import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.BibleApplication
@@ -18,7 +17,6 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
@@ -37,11 +35,9 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
-import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
@@ -113,7 +109,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Before
     fun setup() {
         mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
-        bookmarkControl.orCreateSpeakLabel
+        bookmarkControl.speakLabel
         val s = SpeakSettings(autoBookmark = true, restoreSettingsFromBookmarks = true)
         s.save()
 
@@ -510,7 +506,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 windowRepository, book, getVerse("Ps.14.1"))
-        bookmarkControl.orCreateSpeakLabel
+        bookmarkControl.speakLabel
         provider.settings = SpeakSettings(autoBookmark = true)
 
     }
@@ -537,7 +533,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var labelDto = LabelDto()
         labelDto.name = "Another"
-        labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
+        labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
 
         provider.setupReading(book, verse)
@@ -635,7 +631,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
         assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels( bookmarkControl.getBookmarkByKey(verse)).size, equalTo(0))
+        assertThat(bookmarkControl.getBookmarkLabels( bookmarkControl.getBookmarkByKey(verse)!!).size, equalTo(0))
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Ps.14.2")), notNullValue())
     }
 
@@ -643,7 +639,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Test
     fun autoBookmarkWhenThereIsAnotherSpeakBookmark() {
         var dto = BookmarkDto()
-        val speakLabel = bookmarkControl.orCreateSpeakLabel
+        val speakLabel = bookmarkControl.speakLabel
 
         dto.verseRange = VerseRange(book.versification, getVerse("Ps.14.2"))
         dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
@@ -702,18 +698,18 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
         provider.pause();
-        var dto = bookmarkControl.getBookmarkByKey(verse)
+        var dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(dto, notNullValue())
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.getBookmarkByKey(verse)
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.getBookmarkByKey(verse)
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
@@ -741,7 +737,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         dto = bookmarkControl.addOrUpdateBookmark(dto)
         var labelDto = LabelDto()
         labelDto.name = "Another"
-        labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
+        labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
 
         provider.setupReading(book, verse)
@@ -771,7 +767,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val labelDto = bookmarkControl.speakLabel
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.playbackSettings, notNullValue())
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
@@ -796,7 +792,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val labelDto = bookmarkControl.speakLabel
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         //assertThat(bookmark.playbackSettings, notNullValue())
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
@@ -824,7 +820,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.prepareForStartSpeaking()
         text = nextText()
         provider.stop(false);
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val labelDto = bookmarkControl.speakLabel
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))

@@ -359,7 +359,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
             val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)?: return
             val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
-            val speakLabel = bookmarkControl.orCreateSpeakLabel
+            val speakLabel = bookmarkControl.speakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
@@ -380,7 +380,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         var bookmarkDto: BookmarkDto = this.bookmarkDto ?: return
 
         val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto).toMutableList()
-        val speakLabel = bookmarkControl.orCreateSpeakLabel
+        val speakLabel = bookmarkControl.speakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 
         if(ttsLabel != null) {
@@ -420,7 +420,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
             }
 
-            labelList.add(bookmarkControl.orCreateSpeakLabel)
+            labelList.add(bookmarkControl.speakLabel)
 
             bookmarkControl.setBookmarkLabels(bookmarkDto, labelList, doNotSync)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmarkDto, ${settings.playbackSettings.speed}")

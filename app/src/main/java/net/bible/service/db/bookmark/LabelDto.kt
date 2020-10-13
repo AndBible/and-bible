@@ -20,6 +20,7 @@ package net.bible.service.db.bookmark
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.BookmarkEntities
 import org.apache.commons.lang3.StringUtils
 
 /**
@@ -40,6 +41,16 @@ class LabelDto : Comparable<LabelDto> {
         this.name = name
         this.bookmarkStyle = bookmarkStyle
     }
+    constructor(entity: BookmarkEntities.Label) {
+        id = entity.id
+        name = entity.name
+        val style = entity.bookmarkStyle
+        if(style != null) {
+            bookmarkStyle = BookmarkStyle.valueOf(style)
+        }
+    }
+
+    val entity: BookmarkEntities.Label get() = BookmarkEntities.Label(id ?: 0, name!!, bookmarkStyleAsString)
 
     override fun toString(): String {
         return name!!
@@ -69,7 +80,7 @@ class LabelDto : Comparable<LabelDto> {
         return true
     }
 
-    val bookmarkStyleAsString: String?
+    val bookmarkStyleAsString: String? // TODO: hmm...
         get() = if (bookmarkStyle == null) {
             null
         } else {

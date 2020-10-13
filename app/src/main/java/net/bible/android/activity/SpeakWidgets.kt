@@ -184,7 +184,7 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val labelDto = bookmarkControl.speakLabel
         if(!SpeakSettings.load().autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
         }

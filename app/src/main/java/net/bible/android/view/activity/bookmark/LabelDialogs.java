@@ -80,7 +80,7 @@ public class LabelDialogs {
 				String name = labelName.getText().toString();
 				label.setName(name);
 				label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
-				bookmarkControl.saveOrUpdateLabel(label);
+				bookmarkControl.insertOrUpdateLabel(label);
 
 				onCreateCallback.okay();
 			}

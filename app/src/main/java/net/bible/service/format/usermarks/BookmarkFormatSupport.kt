@@ -20,7 +20,7 @@ package net.bible.service.format.usermarks
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkStyle
 import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.db.bookmark.BookmarkDBAdapter
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.passage.Key
@@ -35,39 +35,39 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class BookmarkFormatSupport @Inject constructor() {
+
+    private val dao get() = DatabaseContainer.db.bookmarkDao()
+
     fun getVerseBookmarkStylesInPassage(passage: Key): Map<Int, MutableSet<BookmarkStyle>> {
         // assumes the passage only covers one book, which always happens to be the case here
         val firstVerse = KeyUtil.getVerse(passage)
         val book = firstVerse.book
 
         // get all Bookmarks in containing book to include variations due to differing versifications
-        val db = BookmarkDBAdapter()
         val bookmarkList: List<BookmarkDto>
         val defaultBookmarkStyle = BookmarkStyle.valueOf(sharedPreferences.getString(
             "default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!)
         val bookmarkStylesByVerseNoInPassage: MutableMap<Int, MutableSet<BookmarkStyle>> = HashMap()
         try {
-            bookmarkList = db.getBookmarksInBook(book)
+            bookmarkList = dao.bookmarksInBook(book).map { BookmarkDto(it) }
 
             // convert to required versification and check verse is in passage
-            if (bookmarkList != null) {
-                val requiredVersification = firstVerse.versification
-                for (bookmarkDto in bookmarkList) {
-                    val bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification)
-                    if (passage.contains(bookmarkVerseRange.start)) {
-                        val bookmarkLabels = db.getBookmarkLabels(bookmarkDto).toMutableList()
-                        if (bookmarkLabels.isEmpty()) {
-                            bookmarkLabels.add(LabelDto(null, null, defaultBookmarkStyle))
-                        }
-                        val bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle)
-                        for (verse in bookmarkVerseRange.toVerseArray()) {
-                            var stylesSet = bookmarkStylesByVerseNoInPassage[verse.verse]
-                            if (stylesSet != null) {
-                                stylesSet.addAll(bookmarkStyles)
-                            } else {
-                                stylesSet = TreeSet(bookmarkStyles)
-                                bookmarkStylesByVerseNoInPassage[verse.verse] = stylesSet
-                            }
+            val requiredVersification = firstVerse.versification
+            for (bookmarkDto in bookmarkList) {
+                val bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification)
+                if (passage.contains(bookmarkVerseRange.start)) {
+                    val bookmarkLabels = dao.labelsForBookmark(bookmarkDto.id!!).map { LabelDto(it) }.toMutableList()
+                    if (bookmarkLabels.isEmpty()) {
+                        bookmarkLabels.add(LabelDto(null, null, defaultBookmarkStyle))
+                    }
+                    val bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle)
+                    for (verse in bookmarkVerseRange.toVerseArray()) {
+                        var stylesSet = bookmarkStylesByVerseNoInPassage[verse.verse]
+                        if (stylesSet != null) {
+                            stylesSet.addAll(bookmarkStyles)
+                        } else {
+                            stylesSet = TreeSet(bookmarkStyles)
+                            bookmarkStylesByVerseNoInPassage[verse.verse] = stylesSet
                         }
                     }
                 }

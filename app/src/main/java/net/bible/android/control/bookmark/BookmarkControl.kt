@@ -29,6 +29,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.PlaybackSettings
+import net.bible.android.database.BookmarkEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.BookmarkLabels
@@ -37,7 +38,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.limitTextLength
 import net.bible.service.common.CommonUtils.saveSharedPreference
-import net.bible.service.db.bookmark.BookmarkDBAdapter
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.sword.SwordContentFacade
@@ -58,6 +59,7 @@ open class BookmarkControl @Inject constructor(
 {
     private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
 	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
+    val dao get() = DatabaseContainer.db.bookmarkDao()
 
 	fun updateBookmarkSettings(settings: PlaybackSettings) {
         if (activeWindowPageManagerProvider.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE) {
@@ -65,8 +67,8 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    private fun updateBookmarkSettings(v: Verse, settings: PlaybackSettings) {
-        var v = v
+    private fun updateBookmarkSettings(verse: Verse, settings: PlaybackSettings) {
+        var v = verse
         if (v.verse == 0) {
             v = Verse(v.versification, v.book, v.chapter, 1)
         }
@@ -78,59 +80,43 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun addBookmarkForVerseRange(verseRange: VerseRange): Boolean {
-        var bOk = false
+    fun addBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
             var bookmarkDto = getBookmarkByKey(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
-            var success = false
             var message: Int? = null
             if (bookmarkDto == null) { // prepare new bookmark and add to db
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = verseRange
                 bookmarkDto = addOrUpdateBookmark(bookmarkDto, true)
-                success = bookmarkDto != null
                 message = R.string.bookmark_added
             } else {
                 bookmarkDto = refreshBookmarkDate(bookmarkDto)
-                success = bookmarkDto != null
                 message = R.string.bookmark_date_updated
             }
             val affectedBookmark = bookmarkDto
-            if (success) { // success
-                val actionTextColor = getResourceColor(R.color.snackbar_action_text)
-                Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
-                    .setActionTextColor(actionTextColor)
-                    .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
-                bOk = true
-            } else {
-                Dialogs.instance.showErrorMsg(R.string.error_occurred)
-            }
+            val actionTextColor = getResourceColor(R.color.snackbar_action_text)
+            Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
+                .setActionTextColor(actionTextColor)
+                .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        return bOk
     }
 
-    fun deleteBookmarkForVerseRange(verseRange: VerseRange): Boolean {
-        val bOk = false
+    fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
             val bookmarkDto = getBookmarkByKey(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(android.R.id.content)
             if (bookmarkDto != null) {
-                if (deleteBookmark(bookmarkDto, true)) {
-                    Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
-                } else {
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred)
-                }
+                deleteBookmark(bookmarkDto, true)
+                Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
             }
         }
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        return bOk
     }
 
-    // Label related methods
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
             val bookmarkDto = getBookmarkByKey(verseRange)
@@ -162,187 +148,105 @@ open class BookmarkControl @Inject constructor(
         }
         return verseText
     }
-    // pure bookmark methods
-    /** get all bookmarks  */
-    val allBookmarks: List<BookmarkDto>
-        get() {
-            val db = BookmarkDBAdapter()
-            return try {
-                getSortedBookmarks(db.allBookmarks)
-            } finally {
-                emptyList<BookmarkDto>()
-            }
-        }
+
+    val allBookmarks: List<BookmarkDto> get() = getSortedBookmarks(dao.allBookmarks().map { BookmarkDto(it) })
 
     /** create a new bookmark  */
     fun addOrUpdateBookmark(bookmark: BookmarkDto, doNotSync: Boolean=false): BookmarkDto {
-        val db = BookmarkDBAdapter()
-        val newBookmark = try {
-            db.insertOrUpdateBookmark(bookmark)
-        } finally {}
+        if(bookmark.id != null) {
+            dao.update(bookmark.entity)
+        } else {
+            bookmark.id = dao.insert(bookmark.entity)
+        }
+
         if(!doNotSync) {
             ABEventBus.getDefault().post(SynchronizeWindowsEvent())
         }
-        return newBookmark
-    }
-
-    /** update bookmark date  */
-	private fun refreshBookmarkDate(bookmark: BookmarkDto?): BookmarkDto? {
-        val db = BookmarkDBAdapter()
-        var updatedBookmark: BookmarkDto? = null
-        updatedBookmark = try {
-            db.updateBookmarkDate(bookmark!!)
-        } finally {}
-        return updatedBookmark
-    }
-
-    /** get all bookmarks  */
-    fun getBookmarksById(ids: LongArray): List<BookmarkDto> {
-        val bookmarks: MutableList<BookmarkDto> = ArrayList()
-        val db = BookmarkDBAdapter()
-        try {
-            for (id in ids) {
-                val bookmark = db.getBookmarkDto(id)
-                if (bookmark != null) {
-                    bookmarks.add(bookmark)
-                }
-            }
-        } finally {}
-        return bookmarks
-    }
-
-    fun isBookmarkForKey(key: Key?): Boolean {
-        return key != null && getBookmarkByKey(key) != null
-    }
-
-    /** get bookmark with the same start verse as this key if it exists or return null  */
-    fun getBookmarkByKey(key: Key): BookmarkDto? {
-        return getBookmarkByOsisRef(key.osisRef)
-    }
-
-    /** get bookmark with the same start verse as this key if it exists or return null  */
-    fun getBookmarkByOsisRef(osisRef: String?): BookmarkDto? {
-        val db = BookmarkDBAdapter()
-        var bookmark: BookmarkDto? = null
-        bookmark = try {
-            db.getBookmarkByStartKey(osisRef!!)
-        } finally {}
         return bookmark
     }
 
-    /** delete this bookmark (and any links to labels)  */
-    fun deleteBookmark(bookmark: BookmarkDto?, doNotSync: Boolean = false): Boolean {
-        var bOk = false
-        if (bookmark?.id != null) {
-            val db = BookmarkDBAdapter()
-            bOk = try {
-                db.removeBookmark(bookmark)
-            } finally { }
-        }
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
-        }
-        return bOk
+	private fun refreshBookmarkDate(bookmark: BookmarkDto) = BookmarkDto(dao.updateBookmarkDate(bookmark.entity))
+
+    fun getBookmarksByIds(ids: LongArray): List<BookmarkDto> = dao.bookmarksByIds(ids).map { BookmarkDto(it) }
+
+    fun isBookmarkForKey(key: Key?): Boolean = key != null && getBookmarkByKey(key) != null
+
+    fun getBookmarkByKey(key: Key): BookmarkDto? = getBookmarkByOsisRef(key.osisRef)
+
+    fun getBookmarkByOsisRef(osisRef: String?): BookmarkDto? {
+        if(osisRef == null) return null
+        val entity = dao.bookmarkByOsisRef(osisRef) ?: return null
+        return BookmarkDto(entity)
     }
 
-    /** get bookmarks with the given label  */
-    fun getBookmarksWithLabel(label: LabelDto?): List<BookmarkDto> {
-        val db = BookmarkDBAdapter()
-		var bookmarkList: List<BookmarkDto>
-		try {
-            bookmarkList = when {
-				LABEL_ALL == label -> db.allBookmarks
-				LABEL_UNLABELLED == label -> db.unlabelledBookmarks
-				else -> db.getBookmarksWithLabel(label!!)
-			}
-            bookmarkList = getSortedBookmarks(bookmarkList)
-        } finally {}
-        return bookmarkList
-    }
-
-    /** get bookmarks associated labels  */
-    fun getBookmarkLabels(bookmark: BookmarkDto?): List<LabelDto> {
-        if (bookmark == null) {
-            return ArrayList()
-        }
-        val labels: List<LabelDto>
-        val db = BookmarkDBAdapter()
-        labels = try {
-            db.getBookmarkLabels(bookmark)
-        } finally {}
-        return labels
-    }
-
-    /** label the bookmark with these and only these labels  */
-    @JvmOverloads
-    fun setBookmarkLabels(bookmark: BookmarkDto?, labels_: List<LabelDto>, doNotSync: Boolean = false) { // never save LABEL_ALL
-		val labels = labels_.toMutableList()
-        labels.remove(LABEL_ALL)
-        labels.remove(LABEL_UNLABELLED)
-        val db = BookmarkDBAdapter()
-        try {
-            val prevLabels = db.getBookmarkLabels(bookmark!!)
-            //find those which have been deleted and remove them
-            val deleted: MutableSet<LabelDto> = HashSet(prevLabels)
-            deleted.removeAll(labels)
-            for (label in deleted) {
-                db.removeBookmarkLabelJoin(bookmark, label)
-            }
-            //find those which are new and persist them
-            val added: MutableSet<LabelDto> = HashSet(labels)
-            added.removeAll(prevLabels)
-            for (label in added) {
-                db.insertBookmarkLabelJoin(bookmark, label)
-            }
-        } finally {}
+    fun deleteBookmark(bookmark: BookmarkDto, doNotSync: Boolean = false) {
+        dao.delete(bookmark.entity)
         if(!doNotSync) {
             ABEventBus.getDefault().post(SynchronizeWindowsEvent())
         }
     }
 
-    fun saveOrUpdateLabel(label: LabelDto): LabelDto {
-        val db = BookmarkDBAdapter()
-        return try {
-            if (label.id == null) {
-                db.insertLabel(label)
-            } else {
-                db.updateLabel(label)
-            }
-        } finally {}
+    fun getBookmarksWithLabel(label: LabelDto): List<BookmarkDto> {
+		val bookmarkList = when {
+				LABEL_ALL == label -> dao.allBookmarks()
+				LABEL_UNLABELLED == label -> dao.unlabelledBookmarks()
+				else -> dao.bookmarksWithLabel(label.id!!)
+			}.map { BookmarkDto(it) }
+
+        return getSortedBookmarks(bookmarkList)
     }
 
-    /** delete this bookmark (and any links to labels)  */
-    fun deleteLabel(label: LabelDto?): Boolean {
-        var bOk = false
-        if (label?.id != null && LABEL_ALL != label && LABEL_UNLABELLED != label) {
-            val db = BookmarkDBAdapter()
-            bOk = try {
-                db.removeLabel(label)
-            } finally {}
-        }
-        return bOk
+    fun getBookmarkLabels(bookmark: BookmarkDto): List<LabelDto> {
+        return dao.labelsForBookmark(bookmark.id!!).map { LabelDto(it) }
     }
+
+    fun setBookmarkLabels(bookmark: BookmarkDto, labels: List<LabelDto>, doNotSync: Boolean = false) {
+		val lbls = labels.toMutableList()
+        lbls.remove(LABEL_ALL)
+        lbls.remove(LABEL_UNLABELLED)
+
+        val prevLabels = dao.labelsForBookmark(bookmark.id!!).map { LabelDto(it) }
+
+        //find those which have been deleted and remove them
+        val deleted = HashSet(prevLabels)
+        deleted.removeAll(lbls)
+
+        dao.delete(deleted.map { BookmarkEntities.BookmarkToLabel(bookmark.id!!, it.id!!) })
+
+        //find those which are new and persist them
+        val added = HashSet(lbls)
+        added.removeAll(prevLabels)
+
+        dao.insert(added.map { BookmarkEntities.BookmarkToLabel(bookmark.id!!, it.id!!) })
+
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        }
+    }
+
+    fun insertOrUpdateLabel(label: LabelDto): LabelDto {
+        if(label.id != null) {
+            dao.update(label.entity)
+        } else {
+            label.id = dao.insert(label.entity)
+        }
+        return label
+    }
+
+    fun deleteLabel(label: LabelDto) = dao.delete(label.entity)
+
 
     // add special label that is automatically associated with all-bookmarks
     val allLabels: List<LabelDto>
         get() {
-            val labelList = assignableLabels
+            val labelList = assignableLabels.toMutableList()
             // add special label that is automatically associated with all-bookmarks
             labelList.add(0, LABEL_UNLABELLED)
             labelList.add(0, LABEL_ALL)
             return labelList
         }
 
-    val assignableLabels: MutableList<LabelDto>
-        get() {
-            val db = BookmarkDBAdapter()
-            val labelList: MutableList<LabelDto> = ArrayList()
-            try {
-                labelList.addAll(db.allLabels)
-            } finally {}
-			labelList.sort()
-            return labelList
-        }
+    val assignableLabels: List<LabelDto> get() = dao.allLabels().map { LabelDto(it) }.sorted()
 
     fun changeBookmarkSortOrder() {
         bookmarkSortOrder = if (bookmarkSortOrder == BookmarkSortOrder.BIBLE_BOOK) {
@@ -353,7 +257,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     private var bookmarkSortOrder: BookmarkSortOrder
-        private get() {
+        get() {
             val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString())
             return BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
         }
@@ -383,7 +287,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     private val isCurrentDocumentBookmarkable: Boolean
-        private get() {
+        get() {
             val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
@@ -394,18 +298,10 @@ open class BookmarkControl @Inject constructor(
         currentActivity.startActivity(intent)
     }
 
-    val orCreateSpeakLabel: LabelDto
-        get() {
-            val db = BookmarkDBAdapter()
-            val label: LabelDto
-            label = try {
-                db.orCreateSpeakLabel
-            } finally {}
-            return label
-        }
+    val speakLabel: LabelDto get() = LabelDto(dao.getOrCreateSpeakLabel())
 
-    fun isSpeakBookmark(bookmark: BookmarkDto?): Boolean {
-        return getBookmarkLabels(bookmark).contains(orCreateSpeakLabel)
+    fun isSpeakBookmark(bookmark: BookmarkDto): Boolean {
+        return getBookmarkLabels(bookmark).contains(speakLabel)
     }
 
     companion object {

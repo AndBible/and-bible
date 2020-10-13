@@ -52,8 +52,8 @@ class BookmarkLabels : ListActivityBase() {
         super.onCreate(savedInstanceState, false)
         setContentView(R.layout.bookmark_labels)
         buildActivityComponent().inject(this)
-        val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)
-        bookmarks = bookmarkControl.getBookmarksById(bookmarkIds)
+        val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)!!
+        bookmarks = bookmarkControl.getBookmarksByIds(bookmarkIds)
         initialiseView()
     }
 

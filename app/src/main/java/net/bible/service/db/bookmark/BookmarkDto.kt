@@ -20,16 +20,37 @@ package net.bible.service.db.bookmark
 import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.versification.ConvertibleVerseRange
 import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser
+import net.bible.android.database.BookmarkEntities
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 import java.util.*
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkDto : ConvertibleVerseRangeUser {
+class BookmarkDto() : ConvertibleVerseRangeUser {
+    constructor(entity: BookmarkEntities.Bookmark) : this() {
+        id = entity.id
+
+        val v11n = Versifications.instance().getVersification(entity.versification)
+
+        createdOn = if(entity.createdOn === null) null else Date(entity.createdOn!!)
+        verseRange = VerseRangeFactory.fromString(v11n, entity.key)
+
+        val speakSettingsStr = entity.playbackSettings
+        if(speakSettingsStr != null) {
+            playbackSettings = PlaybackSettings.fromJson(speakSettingsStr)
+        }
+    }
+
+    val entity: BookmarkEntities.Bookmark get() = BookmarkEntities.Bookmark(
+        id?: 0, createdOn?.time, verseRange.osisRef, verseRange.versification.name, playbackSettings?.toJson()
+    )
+
     var id: Long? = null
     private var convertibleVerseRange: ConvertibleVerseRange? = null
     var createdOn: Date? = null

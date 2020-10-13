@@ -120,7 +120,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
         val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val labelDto = bookmarkControl.speakLabel
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 

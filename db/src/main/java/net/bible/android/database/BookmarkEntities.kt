@@ -18,55 +18,41 @@
 
 package net.bible.android.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.Query
 
 class BookmarkEntities {
-    @Entity(tableName = "bookmark")
+    @Entity
     data class Bookmark(
-        @PrimaryKey @ColumnInfo(name = "_id") val id: Int?,
-        @ColumnInfo(name = "created_on") val createdOn: Int?,
+        @PrimaryKey(autoGenerate = true) val id: Long = 0,
+        var createdOn: Long? = null,
         val key: String,
         val versification: String?,
-        @ColumnInfo(name = "speak_settings") val speakSettings: String?
+        val playbackSettings: String?
     )
 
 
     @Entity(
-        tableName = "bookmark_label",
-        primaryKeys = ["bookmark_id", "label_id"],
+        primaryKeys = ["bookmarkId", "labelId"],
         foreignKeys = [
-            ForeignKey(entity = Bookmark::class, parentColumns = ["_id"], childColumns = ["bookmark_id"], onDelete = ForeignKey.CASCADE),
-            ForeignKey(entity = Label::class, parentColumns = ["_id"], childColumns = ["label_id"], onDelete = ForeignKey.CASCADE)
+            ForeignKey(entity = Bookmark::class, parentColumns = ["id"], childColumns = ["bookmarkId"], onDelete = ForeignKey.CASCADE),
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
         ],
         indices = [
-            Index("label_id")
+            Index("labelId")
         ]
     )
     data class BookmarkToLabel(
-        @ColumnInfo(name = "bookmark_id") val bookmarkId: Int,
-        @ColumnInfo(name = "label_id") val labelId: Int
+        val bookmarkId: Long,
+        val labelId: Long
     )
 
-    @Entity(tableName = "label")
+    @Entity
     data class Label(
-        @PrimaryKey @ColumnInfo(name = "_id") val id: Int?,
-        @ColumnInfo(name = "name") val name: String,
-        @ColumnInfo(name = "bookmark_style") val bookmarkStyle: String?
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        val name: String,
+        val bookmarkStyle: String?
     )
-}
-
-@Dao
-interface BookmarkDao {
-    @Query("SELECT * from bookmark")
-    fun allBookmarks(): List<BookmarkEntities.Bookmark>
-
-    @Delete
-    fun deleteBookmark(b: BookmarkEntities.Bookmark)
 }
