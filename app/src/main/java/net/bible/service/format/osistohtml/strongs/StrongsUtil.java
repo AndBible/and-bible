@@ -40,27 +40,27 @@ public class StrongsUtil {
 	}
 	
 	public static String createStrongsLink(String protocol, String strongsNumber, String content, String cssClass) {
-		// pad with leading zeros to 5 characters
+
+		// create opening tag for Strong's link
+		// descriptive string
+		// link closing tag
+		return String.format("%s%s%s", createStrongsLinkOpenTag(protocol, strongsNumber, cssClass), content, createStrongsLinkCloseTag());
+	}
+
+	public static String createStrongsLinkOpenTag(String protocol, String strongsNumber) {
+		return createStrongsLinkOpenTag(protocol, strongsNumber, DEFAULT_CSS_CLASS);
+	}
+
+	public static String createStrongsLinkOpenTag(String protocol, String strongsNumber, String cssClass) {
 		String paddedRef = StringUtils.leftPad(strongsNumber, 5, "0");
 
-		StringBuilder tag = new StringBuilder();
-		// create opening tag for Strong's link
-		tag.append("<a href='");
-
 		// calculate uri e.g. H:01234
-		tag.append(protocol).append(":").append(paddedRef);
-
 		// set css class
-		tag.append("' class='"+cssClass+"'>");
+		return String.format("<a href='%s:%s' class='%s'>", protocol, paddedRef, cssClass);
+	}
 
-		// descriptive string
-		tag.append(content);
-
-		// link closing tag
-		tag.append("</a>");
-		
-		String strTag = tag.toString();
-		return strTag;
+	public static String createStrongsLinkCloseTag() {
+		return "</a>";
 	}
 
 	public static String getStrongsProtocol(String ref) {

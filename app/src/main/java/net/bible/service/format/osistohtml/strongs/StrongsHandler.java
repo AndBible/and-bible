@@ -29,6 +29,7 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,15 +72,27 @@ public class StrongsHandler implements OsisTagHandler {
 		// Strongs references
 		// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
 		// better example, because we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+		boolean wordLinks = true;
+
 		String strongsLemma = "";
-		if (parameters.isShowStrongs() && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+		if (TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
 			strongsLemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
 		}
 		String morphology = "";
 		if (parameters.isShowMorphology() && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_MORPH, attrs)) {
 			morphology = attrs.getValue(OSISUtil.ATTRIBUTE_W_MORPH);
 		}
-		
+
+		// TODO: add open tags here
+		// The problem here is how to handle words where there are multiple strongs numbers associated with a single word?
+		// We could filter את for example and show the main word... leaving the user to put strongs numbers in to get more control
+		// over which word is shown.
+		// Short terms solution is just to filter the strongs numbers list to the most prominent number. This would probably be okay
+		// for none original texts, and wouldn't be a problem for origional texts as there should be 1:1 mapping of strongs numbers.
+		// Later we could add support for showing multiple strongs numbers chained together in the strongs viewer.
+		String tag = getStrongsOpeningTag(strongsLemma);
+		writer.write(tag);
+
 		if (StringUtils.isNotBlank(strongsLemma) || StringUtils.isNotBlank(morphology)) {
 			pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
 		}
@@ -87,6 +100,9 @@ public class StrongsHandler implements OsisTagHandler {
 	
 	@Override
 	public void end() {
+		// TODO: add close tags here
+		writer.write("</a>");
+
 		if ((parameters.isShowStrongs() || parameters.isShowMorphology())) {
 			if (pendingStrongsAndMorphTags != null) {
 				for (int i = 0; i < pendingStrongsAndMorphTags.size(); i++) {
@@ -133,6 +149,32 @@ public class StrongsHandler implements OsisTagHandler {
 		// eth
 		Collections.reverse(mergedStrongsAndMorphTags);
 		return mergedStrongsAndMorphTags;
+	}
+
+	private String getStrongsOpeningTag(String strongsLemma) {
+		// Where there are multiple strongs numbers, only take the last one
+		// A better implementation might be an ignore list?
+
+		List<String> refs = Arrays.asList(strongsLemma.split(" "));
+		String ref = refs.get(refs.size()-1);
+		String tag = "";
+
+		// ignore if string doesn't start with "strong;"
+		if (ref.startsWith(OSISUtil.LEMMA_STRONGS)
+				&& ref.length() > OSISUtil.LEMMA_STRONGS.length() + 2) {
+			// reduce ref like "strong:H0430" to "H0430"
+			ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
+
+			// select Hebrew or Greek protocol
+			String protocol = StrongsUtil.getStrongsProtocol(ref);
+
+			if (protocol != null) {
+				// remove initial G or H
+				String strongsNumber = ref.substring(1);
+				tag = StrongsUtil.createStrongsLinkOpenTag(protocol, strongsNumber, "wordlink");
+			}
+		}
+		return tag;
 	}
 
 	private List<String> getStrongsTags(String strongsLemma) {

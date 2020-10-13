@@ -106,11 +106,15 @@ h1 a, .heading2, .heading3, .heading4 {
 	vertical-align: bottom;
 	font-size: 0.7em;
 }
+.wordlink {
+	color: #101010;
+	text-decoration: none;
+}
 .strongs {
 	color: #669999;
 	font-size: 0.7em;
 	vertical-align: sub;
-	text-decoration: none
+	text-decoration: none;
 }
 .redLetter {
 	color: #800;
