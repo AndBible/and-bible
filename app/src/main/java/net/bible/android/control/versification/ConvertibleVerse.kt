@@ -22,6 +22,7 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.Versifications
 
 /** Store a main verse and return it in requested versification after mapping (if map available)

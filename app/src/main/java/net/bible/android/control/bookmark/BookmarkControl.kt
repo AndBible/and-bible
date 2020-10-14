@@ -29,6 +29,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -43,8 +44,8 @@ import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import java.util.*
 import javax.inject.Inject
@@ -169,14 +170,17 @@ open class BookmarkControl @Inject constructor(
 
     fun getBookmarksByIds(ids: LongArray): List<BookmarkDto> = dao.bookmarksByIds(ids).map { BookmarkDto(it) }
 
-    fun isBookmarkForKey(key: Key?): Boolean = key != null && getBookmarkByKey(key) != null
+    // TODO: Rename: forVerse, TODO: can be done with a faster query
+    fun isBookmarkForKey(key: Verse): Boolean = getBookmarkByKey(key) != null
 
-    fun getBookmarkByKey(key: Key): BookmarkDto? = getBookmarkByOsisRef(key.osisRef)
+    // TODO: rename bookmarksForVerse
+    // TODO: better to not use *Start later. and provide a full list.
+    fun getBookmarkByKey(key: Verse): BookmarkDto? = dao.bookmarksForVerseStart(key).map { BookmarkDto(it) }.firstOrNull()
+    fun getBookmarkByKey(key: VerseRange): BookmarkDto? = dao.bookmarksForVerseStart(key.start).map { BookmarkDto(it) }.firstOrNull()
 
-    fun getBookmarkByOsisRef(osisRef: String?): BookmarkDto? {
-        if(osisRef == null) return null
-        val entity = dao.bookmarkByOsisRef(osisRef) ?: return null
-        return BookmarkDto(entity)
+    fun getSpeakBookmarkByOsisRef(osisRef: String): BookmarkDto {
+        val verse = VerseFactory.fromString(KJVA, osisRef)
+        return dao.bookmarksForVerseStartWithLabel(verse, speakLabel.id!!).map { BookmarkDto(it) }.first()
     }
 
     fun deleteBookmark(bookmark: BookmarkDto, doNotSync: Boolean = false) {
@@ -298,6 +302,7 @@ open class BookmarkControl @Inject constructor(
         currentActivity.startActivity(intent)
     }
 
+    // TODO: can be cached! Does not change (can't be changed!)
     val speakLabel: LabelDto get() = LabelDto(dao.getOrCreateSpeakLabel())
 
     fun isSpeakBookmark(bookmark: BookmarkDto): Boolean {

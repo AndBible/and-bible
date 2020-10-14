@@ -23,8 +23,13 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
 
 import java.util.*
 
@@ -36,6 +41,36 @@ class Converters {
 
     @TypeConverter
     fun dateToTimestamp(date: Date): Long = date.time
+
+    @TypeConverter
+    fun verseRangeToStr(v: VerseRange?): String? =
+        if (v!=null) "${v.versification.name}::${v.osisRef}" else null
+
+    @TypeConverter
+    fun strToVerseRange(s: String?): VerseRange? {
+        if(s == null) return null
+        val splitted = s.split("::")
+        val v11n = Versifications.instance().getVersification(splitted[0])
+        return VerseRangeFactory.fromString(v11n, splitted[1])
+    }
+
+    @TypeConverter
+    fun versificationToStr(v: Versification): String = v.name
+
+    @TypeConverter
+    fun strToVersification(s: String): Versification {
+        return Versifications.instance().getVersification(s)
+    }
+
+    @TypeConverter
+    fun playbackSettingsToStr(p: PlaybackSettings?): String? {
+        return p?.toJson()
+    }
+
+    @TypeConverter
+    fun strToPlaybackSettings(s: String?): PlaybackSettings? {
+        return if (s != null) PlaybackSettings.fromJson(s) else null
+    }
 }
 
 @Database(

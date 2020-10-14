@@ -2,12 +2,48 @@
   "formatVersion": 1,
   "database": {
     "version": 34,
-    "identityHash": "8c8a73fdef283ad971f88bf8c106d649",
+    "identityHash": "7bc2bfc321d88ba5e542c402e7c5807a",
     "entities": [
       {
         "tableName": "Bookmark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdOn` INTEGER, `key` TEXT NOT NULL, `versification` TEXT, `playbackSettings` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL)",
         "fields": [
+          {
+            "fieldPath": "kjvOrdinalStart",
+            "columnName": "kjvOrdinalStart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kjvOrdinalEnd",
+            "columnName": "kjvOrdinalEnd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinalStart",
+            "columnName": "ordinalStart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinalEnd",
+            "columnName": "ordinalEnd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v11n",
+            "columnName": "v11n",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playbackSettings",
+            "columnName": "playbackSettings",
+            "affinity": "TEXT",
+            "notNull": false
+          },
           {
             "fieldPath": "id",
             "columnName": "id",
@@ -15,28 +51,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "createdOn",
-            "columnName": "createdOn",
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "key",
-            "columnName": "key",
-            "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "versification",
-            "columnName": "versification",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "playbackSettings",
-            "columnName": "playbackSettings",
-            "affinity": "TEXT",
-            "notNull": false
           }
         ],
         "primaryKey": {
@@ -1052,7 +1070,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c8a73fdef283ad971f88bf8c106d649')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7bc2bfc321d88ba5e542c402e7c5807a')"
     ]
   }
 }

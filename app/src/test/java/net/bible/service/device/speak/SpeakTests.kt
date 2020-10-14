@@ -9,10 +9,12 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity

@@ -22,16 +22,77 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.VersificationConverter
+import org.crosswire.jsword.versification.system.SystemKJVA
+import org.crosswire.jsword.versification.system.Versifications
+import java.util.*
+
+val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
+val converter = VersificationConverter()
 
 class BookmarkEntities {
     @Entity
     data class Bookmark(
+        // Verse range in KJV ordinals
+        var kjvOrdinalStart: Int,
+        var kjvOrdinalEnd: Int,
+
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+        var v11n: Versification,
+
+        var playbackSettings: PlaybackSettings?,
+
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
-        var createdOn: Long? = null,
-        val key: String,
-        val versification: String?,
-        val playbackSettings: String?
-    )
+        var createdAt: Date = Date(System.currentTimeMillis()),
+    ) {
+        constructor(verseRange: VerseRange): this(
+            converter.convert(verseRange.start, KJVA).ordinal,
+            converter.convert(verseRange.end, KJVA).ordinal,
+            verseRange.start.ordinal,
+            verseRange.end.ordinal,
+            verseRange.versification,
+            null
+        )
+
+        constructor(id: Long, createdAt: Date, verseRange: VerseRange, playbackSettings: PlaybackSettings?): this(
+            converter.convert(verseRange.start, KJVA).ordinal,
+            converter.convert(verseRange.end, KJVA).ordinal,
+            verseRange.start.ordinal,
+            verseRange.end.ordinal,
+            verseRange.versification,
+            playbackSettings,
+            id,
+            createdAt
+        )
+
+        var verseRange: VerseRange
+            get() {
+                val begin = Verse(v11n, ordinalStart)
+                val end = Verse(v11n, ordinalEnd)
+                return VerseRange(v11n, begin, end)
+            }
+            set(value) {
+                v11n = value.versification
+                ordinalStart = value.start.ordinal
+                ordinalEnd = value.end.ordinal
+                kjvVerseRange = value
+            }
+
+        var kjvVerseRange: VerseRange
+            get() {
+                val begin = Verse(KJVA, kjvOrdinalStart)
+                val end = Verse(KJVA, kjvOrdinalEnd)
+                return VerseRange(KJVA, begin, end)
+            }
+            private set(value) {
+                kjvOrdinalStart = converter.convert(value.start, KJVA).ordinal
+                kjvOrdinalEnd = converter.convert(value.end, KJVA).ordinal
+            }
+    }
 
 
     @Entity(

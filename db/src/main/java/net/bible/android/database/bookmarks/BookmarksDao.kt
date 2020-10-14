@@ -24,7 +24,10 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
+import java.util.*
 
 @Dao
 interface BookmarkDao {
@@ -40,18 +43,40 @@ interface BookmarkDao {
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: LongArray): List<BookmarkEntities.Bookmark>
 
-    @Query("SELECT * from Bookmark where `key` = :osisRef")
-    fun bookmarkByOsisRefExact(osisRef: String): BookmarkEntities.Bookmark?
+    @Query("SELECT * from Bookmark where kjvOrdinalStart >= :start AND kjvOrdinalEnd <= :end")
+    fun bookmarksForKjvOrdinalRange(start: Int, end: Int): List<BookmarkEntities.Bookmark>
 
-    @Query("SELECT * from Bookmark where `key` LIKE :osisRef")
-    fun bookmarksByOsisRefLike(osisRef: String): List<BookmarkEntities.Bookmark>
+    @Query("SELECT * from Bookmark where kjvOrdinalStart <= :inBetween AND :inBetween <= kjvOrdinalEnd")
+    fun bookmarksForKjvOrdinal(inBetween: Int): List<BookmarkEntities.Bookmark>
 
-    fun bookmarksByOsisRefStarts(osisRef: String) = bookmarksByOsisRefLike("$osisRef-%")
+    @Query("""SELECT * from Bookmark where kjvOrdinalStart = :start""")
+    fun bookmarksForKjvOrdinalStart(start: Int): List<BookmarkEntities.Bookmark>
 
-    fun bookmarksInBook(book: BibleBook) = bookmarksByOsisRefLike("${book.osis}.%")
+    // Not sure if we ever need this though, and it gives ONLY verses that vere stored in specified v11n
+    @Query("SELECT * from Bookmark where ordinalStart >= :start AND ordinalEnd <= :end AND v11n = :v11n")
+    fun bookmarksForOrdinalRange(start: Int, end: Int, v11n: String): List<BookmarkEntities.Bookmark>
 
-    fun bookmarkByOsisRef(osisRef: String): BookmarkEntities.Bookmark? =
-        bookmarkByOsisRefExact(osisRef) ?: bookmarksByOsisRefStarts(osisRef).firstOrNull()
+    fun bookmarksForVerseRange(verseRange: VerseRange): List<BookmarkEntities.Bookmark> {
+        val v = converter.convert(verseRange, KJVA)
+        return bookmarksForKjvOrdinalRange(v.start.ordinal, v.end.ordinal)
+    }
+
+    fun bookmarksForVerse(verse: Verse): List<BookmarkEntities.Bookmark> =
+        bookmarksForKjvOrdinal(converter.convert(verse, KJVA).ordinal)
+
+    fun bookmarksForVerseStart(verse: Verse): List<BookmarkEntities.Bookmark> =
+        bookmarksForKjvOrdinalStart(converter.convert(verse, KJVA).ordinal)
+
+    fun bookmarksForVerseStartWithLabel(verse: Verse, labelId: Long): List<BookmarkEntities.Bookmark> =
+        bookmarksWithLabelAtVerseStart(labelId, converter.convert(verse, KJVA).ordinal)
+
+    fun bookmarksInBook(book: BibleBook): List<BookmarkEntities.Bookmark> {
+        val lastChap = KJVA.getLastChapter(book)
+        val lastVerse = KJVA.getLastVerse(book, lastChap)
+        val startVerse = Verse(KJVA, book, 0, 0).ordinal
+        val endVerse = Verse(KJVA, book, lastChap, lastVerse).ordinal
+        return bookmarksForKjvOrdinalRange(startVerse, endVerse)
+    }
 
     @Insert
     fun insert(entity: BookmarkEntities.Bookmark): Long
@@ -60,7 +85,7 @@ interface BookmarkDao {
     fun update(entity: BookmarkEntities.Bookmark)
 
     fun updateBookmarkDate(entity: BookmarkEntities.Bookmark): BookmarkEntities.Bookmark {
-        entity.createdOn = System.currentTimeMillis()
+        entity.createdAt = Date(System.currentTimeMillis())
         update(entity)
         return entity
     }
@@ -72,6 +97,14 @@ interface BookmarkDao {
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
         """)
     fun unlabelledBookmarks(): List<BookmarkEntities.Bookmark>
+
+    @Query("""
+        SELECT Bookmark.* FROM Bookmark 
+            JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
+            JOIN Label ON BookmarkToLabel.labelId = Label.id
+            WHERE Label.id = :labelId AND Bookmark.kjvOrdinalStart = :startOrdinal
+        """)
+    fun bookmarksWithLabelAtVerseStart(labelId: Long, startOrdinal: Int): List<BookmarkEntities.Bookmark>
 
     @Query("""
         SELECT Bookmark.* FROM Bookmark 

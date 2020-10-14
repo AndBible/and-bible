@@ -22,7 +22,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkStyle
-import net.bible.android.control.versification.VersificationConverter
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.common.CommonUtils.getResourceInteger
@@ -61,6 +60,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
 import org.xml.sax.ContentHandler
 import java.io.InputStream
