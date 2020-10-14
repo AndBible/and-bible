@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 /**
- * This is almost identical to the similar BookmarkDtoBibleOrderComparatorTest
+ * This is almost identical to the similar BookmarkBibleOrderComparatorTest
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */

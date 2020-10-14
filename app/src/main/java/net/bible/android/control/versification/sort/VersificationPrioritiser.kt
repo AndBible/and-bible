@@ -17,6 +17,7 @@
  */
 package net.bible.android.control.versification.sort
 
+import net.bible.android.database.bookmarks.VerseRangeUser
 import org.crosswire.jsword.versification.Versification
 import java.util.*
 

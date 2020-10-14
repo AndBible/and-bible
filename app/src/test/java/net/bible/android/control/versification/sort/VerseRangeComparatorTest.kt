@@ -1,7 +1,8 @@
 package net.bible.android.control.versification.sort
 
 import net.bible.android.control.versification.TestData
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.VerseRangeUser
 import org.crosswire.jsword.passage.VerseRange
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
@@ -18,10 +19,8 @@ class VerseRangeComparatorTest {
     private var verseRangeComparator: VerseRangeComparator? = null
     @Before
     fun setup() {
-        val bookmarkDto = BookmarkDto()
-        bookmarkDto.verseRange = TestData.SYN_PROT_PS_13_2_4
-        val bookmarkDto2 = BookmarkDto()
-        bookmarkDto2.verseRange = TestData.KJVA_1MACC_1_2_3
+        val bookmarkDto = Bookmark(TestData.SYN_PROT_PS_13_2_4)
+        val bookmarkDto2 = Bookmark(TestData.KJVA_1MACC_1_2_3)
         verseRangeComparator = VerseRangeComparator.Builder().withBookmarks(Arrays.asList(bookmarkDto, bookmarkDto2)).build()
     }
 

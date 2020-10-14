@@ -29,7 +29,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.db.bookmark.LabelDto
 import java.util.*
 import javax.inject.Inject
@@ -40,7 +40,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkLabels : ListActivityBase() {
-    private var bookmarks: List<BookmarkDto>? = null
+    private var bookmarks: List<Bookmark>? = null
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     private val labels: MutableList<LabelDto> = ArrayList()
@@ -110,7 +110,7 @@ class BookmarkLabels : ListActivityBase() {
 
     /** check labels associated with the bookmark
      */
-    private fun initialiseCheckedLabels(bookmarks: List<BookmarkDto>?) {
+    private fun initialiseCheckedLabels(bookmarks: List<Bookmark>?) {
         val allCheckedLabels: MutableSet<LabelDto> = HashSet()
         for (bookmark in bookmarks!!) {
             // pre-tick any labels currently associated with the bookmark

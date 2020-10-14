@@ -1,6 +1,7 @@
 package net.bible.android.control.versification.sort
 
 import net.bible.android.control.versification.TestData
+import net.bible.android.database.bookmarks.VerseRangeUser
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook

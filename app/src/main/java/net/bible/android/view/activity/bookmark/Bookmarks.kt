@@ -41,7 +41,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.db.bookmark.LabelDto
 import java.util.*
 import javax.inject.Inject
@@ -64,7 +64,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private var labelArrayAdapter: ArrayAdapter<LabelDto>? = null
 
     // the document list
-    private val bookmarkList: MutableList<BookmarkDto> = ArrayList()
+    private val bookmarkList: MutableList<Bookmark> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
 
     /** Called when the activity is first created.  */
@@ -113,7 +113,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<BookmarkDto> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl)
         listAdapter = bookmarkArrayAdapter
     }
 
@@ -159,7 +159,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<BookmarkDto>) {
+    private fun assignLabels(bookmarks: List<Bookmark>) {
         val bookmarkIds = LongArray(bookmarks.size)
         for (i in bookmarks.indices) {
             bookmarkIds[i] = bookmarks[i].id!!
@@ -169,7 +169,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         startActivityForResult(intent, 1)
     }
 
-    private fun delete(bookmarks: List<BookmarkDto>) {
+    private fun delete(bookmarks: List<Bookmark>) {
         for (bookmark in bookmarks) {
             bookmarkControl.deleteBookmark(bookmark, false)
         }
@@ -201,7 +201,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: BookmarkDto) {
+    private fun bookmarkSelected(bookmark: Bookmark) {
         Log.d(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
             if (bookmarkControl!!.isSpeakBookmark(bookmark)) {
@@ -267,8 +267,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BookmarkDto> {
-        val selectedBookmarks: MutableList<BookmarkDto> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<Bookmark> {
+        val selectedBookmarks: MutableList<Bookmark> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

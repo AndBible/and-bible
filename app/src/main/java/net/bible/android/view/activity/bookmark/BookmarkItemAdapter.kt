@@ -28,7 +28,7 @@ import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.util.widget.BookmarkListItem
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -37,9 +37,9 @@ import net.bible.service.db.bookmark.BookmarkDto
  */
 class BookmarkItemAdapter(
     context: Context,
-    items: List<BookmarkDto>,
+    items: List<Bookmark>,
     private val bookmarkControl: BookmarkControl
-) : ArrayAdapter<BookmarkDto>(context, R.layout.bookmark_list_item, items) {
+) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
 
@@ -68,8 +68,8 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the date text field
-        if (item.createdOn != null) {
-            val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdOn).toString()
+        if (item.createdAt != null) {
+            val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
             view.dateText.text = sDt
         }
 

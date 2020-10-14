@@ -18,7 +18,8 @@
 package net.bible.android.control.versification.sort
 
 import net.bible.android.control.versification.toV11n
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.VerseRangeUser
 import net.bible.service.db.mynote.MyNoteDto
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -52,7 +53,7 @@ class VerseRangeComparator private constructor(
 
     class Builder {
         private var prioritisedVersifications: List<Versification>? = null
-        fun withBookmarks(bookmarks: List<BookmarkDto>): Builder {
+        fun withBookmarks(bookmarks: List<Bookmark>): Builder {
             prioritisedVersifications = VersificationPrioritiser(bookmarks).prioritisedVersifications
             return this
         }

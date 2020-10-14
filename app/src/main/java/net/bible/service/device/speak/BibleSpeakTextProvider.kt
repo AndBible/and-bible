@@ -38,7 +38,7 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -74,7 +74,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var book = initialBook
     private var startVerse = initialVerse
     private var endVerse = initialVerse
-    private var bookmarkDto : BookmarkDto? = null
+    private var bookmarkDto : Bookmark? = null
     private var _currentVerse = initialVerse
     private var currentVerse: Verse
         get() = _currentVerse
@@ -379,7 +379,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun removeBookmark() {
-        var bookmarkDto: BookmarkDto = this.bookmarkDto ?: return
+        var bookmarkDto: Bookmark = this.bookmarkDto ?: return
 
         val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
@@ -404,29 +404,28 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun saveBookmark(doNotSync: Boolean){
         val labelList = ArrayList<LabelDto>()
         if(settings.autoBookmark) {
-            var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
+            var bookmark = bookmarkControl.getBookmarkByKey(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 
-            if(bookmarkDto == null) {
+            if(bookmark == null) {
                 playbackSettings.bookmarkWasCreated = true
-                bookmarkDto = BookmarkDto()
-                bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
-                bookmarkDto.playbackSettings = playbackSettings
-                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
+                bookmark = Bookmark(VerseRange(startVerse.versification, startVerse))
+                bookmark.playbackSettings = playbackSettings
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
             }
             else {
-                playbackSettings.bookmarkWasCreated = bookmarkDto.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
-                bookmarkDto.playbackSettings = playbackSettings
-                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto, true)
+                playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
+                labelList.addAll(bookmarkControl.getBookmarkLabels(bookmark))
+                bookmark.playbackSettings = playbackSettings
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
             }
 
             labelList.add(bookmarkControl.speakLabel)
 
-            bookmarkControl.setBookmarkLabels(bookmarkDto, labelList, doNotSync)
-            Log.d("SpeakBookmark", "Saved bookmark into $bookmarkDto, ${settings.playbackSettings.speed}")
-            this.bookmarkDto = bookmarkDto
+            bookmarkControl.setBookmarkLabels(bookmark, labelList, doNotSync)
+            Log.d("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
+            this.bookmarkDto = bookmark
         }
     }
 

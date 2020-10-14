@@ -19,9 +19,10 @@ package net.bible.service.format.usermarks
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -44,19 +45,19 @@ class BookmarkFormatSupport @Inject constructor() {
         val book = firstVerse.book
 
         // get all Bookmarks in containing book to include variations due to differing versifications
-        val bookmarkList: List<BookmarkDto>
+        val bookmarkList: List<Bookmark>
         val defaultBookmarkStyle = BookmarkStyle.valueOf(sharedPreferences.getString(
             "default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!)
         val bookmarkStylesByVerseNoInPassage: MutableMap<Int, MutableSet<BookmarkStyle>> = HashMap()
         try {
-            bookmarkList = dao.bookmarksInBook(book).map { BookmarkDto(it) }
+            bookmarkList = dao.bookmarksInBook(book)
 
             // convert to required versification and check verse is in passage
             val requiredVersification = firstVerse.versification
-            for (bookmarkDto in bookmarkList) {
-                val bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification)
+            for (bookmark in bookmarkList) {
+                val bookmarkVerseRange = bookmark.verseRange.toV11n(requiredVersification)
                 if (passage.contains(bookmarkVerseRange.start)) {
-                    val bookmarkLabels = dao.labelsForBookmark(bookmarkDto.id!!).map { LabelDto(it) }.toMutableList()
+                    val bookmarkLabels = dao.labelsForBookmark(bookmark.id).map { LabelDto(it) }.toMutableList()
                     if (bookmarkLabels.isEmpty()) {
                         bookmarkLabels.add(LabelDto(null, null, defaultBookmarkStyle))
                     }

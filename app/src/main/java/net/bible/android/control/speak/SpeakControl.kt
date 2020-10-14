@@ -33,7 +33,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.device.speak.TextToSpeechServiceManager
 
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -476,7 +476,7 @@ class SpeakControl @Inject constructor(
         return timerTask != null
     }
 
-    fun speakFromBookmark(dto: BookmarkDto) {
+    fun speakFromBookmark(dto: Bookmark) {
         val book = dto.speakBook as SwordBook?;
         if (isSpeaking || isPaused) {
             stop(true)

@@ -17,7 +17,7 @@
  */
 package net.bible.android.control.bookmark
 
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import java.util.*
 
 /**
@@ -25,8 +25,8 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkCreationDateComparator : Comparator<BookmarkDto> {
-    override fun compare(bookmark1: BookmarkDto, bookmark2: BookmarkDto): Int { // descending order
-        return bookmark2.createdOn!!.compareTo(bookmark1.createdOn)
+class BookmarkCreationDateComparator : Comparator<Bookmark> {
+    override fun compare(bookmark1: Bookmark, bookmark2: Bookmark): Int { // descending order
+        return bookmark2.createdAt!!.compareTo(bookmark1.createdAt)
     }
 }

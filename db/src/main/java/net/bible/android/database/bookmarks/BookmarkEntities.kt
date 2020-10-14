@@ -22,6 +22,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -33,22 +35,26 @@ import java.util.*
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 val converter = VersificationConverter()
 
+interface VerseRangeUser {
+    val verseRange: VerseRange
+}
+
 class BookmarkEntities {
     @Entity
-    data class Bookmark(
+    data class Bookmark (
         // Verse range in KJV ordinals
-        var kjvOrdinalStart: Int,
-        var kjvOrdinalEnd: Int,
+            var kjvOrdinalStart: Int,
+            var kjvOrdinalEnd: Int,
 
-        var ordinalStart: Int,
-        var ordinalEnd: Int,
-        var v11n: Versification,
+            var ordinalStart: Int,
+            var ordinalEnd: Int,
+            var v11n: Versification,
 
-        var playbackSettings: PlaybackSettings?,
+            var playbackSettings: PlaybackSettings?,
 
-        @PrimaryKey(autoGenerate = true) val id: Long = 0,
-        var createdAt: Date = Date(System.currentTimeMillis()),
-    ) {
+            @PrimaryKey(autoGenerate = true) var id: Long = 0,
+            var createdAt: Date = Date(System.currentTimeMillis()),
+    ): VerseRangeUser {
         constructor(verseRange: VerseRange): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
@@ -69,7 +75,7 @@ class BookmarkEntities {
             createdAt
         )
 
-        var verseRange: VerseRange
+        override var verseRange: VerseRange
             get() {
                 val begin = Verse(v11n, ordinalStart)
                 val end = Verse(v11n, ordinalEnd)
@@ -92,8 +98,14 @@ class BookmarkEntities {
                 kjvOrdinalStart = converter.convert(value.start, KJVA).ordinal
                 kjvOrdinalEnd = converter.convert(value.end, KJVA).ordinal
             }
-    }
 
+        val speakBook: Book?
+            get() = if (playbackSettings != null && playbackSettings!!.bookId != null) {
+                Books.installed().getBook(playbackSettings!!.bookId)
+            } else {
+                null
+            }
+    }
 
     @Entity(
         primaryKeys = ["bookmarkId", "labelId"],
