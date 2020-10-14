@@ -15,19 +15,16 @@
  * If not, see http://www.gnu.org/licenses/.
  *
  */
+package net.bible.android.control.versification.sort
 
-package net.bible.android.control.versification.sort;
-
-import net.bible.android.control.versification.ConvertibleVerseRange;
+import org.crosswire.jsword.passage.VerseRange
 
 /**
- * Something that uses/has a {@link ConvertibleVerseRange}
+ * Something that uses/has a [ConvertibleVerseRange]
  * Allows BookmarkDto and MyNoteDto to use comparator logic.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-public interface ConvertibleVerseRangeUser {
-
-	ConvertibleVerseRange getConvertibleVerseRange();
+interface VerseRangeUser {
+    val verseRange: VerseRange
 }

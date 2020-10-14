@@ -17,7 +17,7 @@
  */
 package net.bible.android.control.bookmark
 
-import net.bible.android.control.versification.sort.ConvertibleVerseRangeComparator
+import net.bible.android.control.versification.sort.VerseRangeComparator
 import net.bible.service.db.bookmark.BookmarkDto
 import java.util.*
 
@@ -29,7 +29,7 @@ import java.util.*
 
 class BookmarkDtoBibleOrderComparator(bookmarkDtos: List<BookmarkDto>) : Comparator<BookmarkDto> {
     private val convertibleVerseRangeComparator
-		= ConvertibleVerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build()
+		= VerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build()
 	override fun compare(o1: BookmarkDto, o2: BookmarkDto): Int {
         return convertibleVerseRangeComparator.compare(o1, o2)
     }

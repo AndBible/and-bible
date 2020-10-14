@@ -27,6 +27,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.crosswire.jsword.passage.Verse as JswordVerse
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.system.Versifications
 
 import java.util.*
 
@@ -46,7 +49,15 @@ class WorkspaceEntities {
         val bibleBook: Int,
         val chapterNo: Int,
         val verseNo: Int
-    )
+    ) {
+        val jswordVerse: JswordVerse get() {
+            val v11n = Versifications.instance().getVersification(versification)
+            val bibleBookNo = bibleBook
+            val chapterNo = chapterNo
+            val verseNo = verseNo
+            return JswordVerse(v11n, BibleBook.values()[bibleBookNo], chapterNo, verseNo, true)
+        }
+    }
 
     data class BiblePage(
         val document: String?,

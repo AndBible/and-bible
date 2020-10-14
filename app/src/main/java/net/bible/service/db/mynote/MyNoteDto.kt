@@ -17,8 +17,8 @@
  */
 package net.bible.service.db.mynote
 
-import net.bible.android.control.versification.ConvertibleVerseRange
-import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser
+import net.bible.android.control.versification.toV11n
+import net.bible.android.control.versification.sort.VerseRangeUser
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -30,9 +30,9 @@ import java.util.*
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteDto : ConvertibleVerseRangeUser {
+class MyNoteDto : VerseRangeUser {
     var id: Long? = null
-    private var convertibleVerseRange: ConvertibleVerseRange? = null
+    private var convertibleVerseRange: VerseRange? = null
     var noteText: String = ""
     var lastUpdatedOn: Date? = null
     var createdOn: Date? = null
@@ -44,18 +44,14 @@ class MyNoteDto : ConvertibleVerseRangeUser {
     val isEmpty: Boolean
         get() = StringUtils.isEmpty(noteText)
 
-    var verseRange: VerseRange
-        get() = convertibleVerseRange!!.verseRange
+    override var verseRange: VerseRange
+        get() = convertibleVerseRange!!
         set(verseRange) {
-            convertibleVerseRange = ConvertibleVerseRange(verseRange)
+            convertibleVerseRange = verseRange
         }
 
-    fun getVerseRange(versification: Versification?): VerseRange? {
-        return convertibleVerseRange?.getVerseRange(versification)
-    }
-
-    override fun getConvertibleVerseRange(): ConvertibleVerseRange {
-        return convertibleVerseRange!!
+    fun getVerseRange(versification: Versification): VerseRange? {
+        return convertibleVerseRange?.toV11n(versification)
     }
 
     override fun toString(): String {
@@ -68,10 +64,10 @@ class MyNoteDto : ConvertibleVerseRangeUser {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        result = if (convertibleVerseRange == null || convertibleVerseRange!!.verseRange == null) {
+        result = if (convertibleVerseRange == null || convertibleVerseRange == null) {
             prime * result
         } else {
-            val verseRange = convertibleVerseRange!!.verseRange
+            val verseRange = convertibleVerseRange
             prime * result + verseRange.hashCode()
         }
         return result

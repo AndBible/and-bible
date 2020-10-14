@@ -17,8 +17,8 @@
  */
 package net.bible.service.db.bookmark
 
-import net.bible.android.control.versification.ConvertibleVerseRange
-import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser
+import net.bible.android.control.versification.toV11n
+import net.bible.android.control.versification.sort.VerseRangeUser
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.PlaybackSettings
 import org.crosswire.jsword.book.Book
@@ -30,7 +30,7 @@ import java.util.*
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkDto() : ConvertibleVerseRangeUser {
+class BookmarkDto() : VerseRangeUser {
     constructor(entity: BookmarkEntities.Bookmark) : this() {
         id = entity.id
 
@@ -45,18 +45,18 @@ class BookmarkDto() : ConvertibleVerseRangeUser {
     )
 
     var id: Long? = null
-    private var convertibleVerseRange: ConvertibleVerseRange? = null
+    private var convertibleVerseRange: VerseRange? = null
     var createdOn: Date = Date(System.currentTimeMillis())
     var playbackSettings: PlaybackSettings? = null
 
-    var verseRange: VerseRange
-        get() = convertibleVerseRange!!.verseRange
+    override var verseRange: VerseRange
+        get() = convertibleVerseRange!!
         set(verseRange) {
-            convertibleVerseRange = ConvertibleVerseRange(verseRange)
+            convertibleVerseRange = verseRange
         }
 
-    fun getVerseRange(versification: Versification?): VerseRange {
-        return convertibleVerseRange!!.getVerseRange(versification)
+    fun getVerseRange(versification: Versification): VerseRange {
+        return convertibleVerseRange!!.toV11n(versification)
     }
 
     val speakBook: Book?
@@ -65,10 +65,6 @@ class BookmarkDto() : ConvertibleVerseRangeUser {
         } else {
             null
         }
-
-    override fun getConvertibleVerseRange(): ConvertibleVerseRange {
-        return convertibleVerseRange!!
-    }
 
     override fun toString(): String {
         return "BookmarkDto{" +
@@ -82,10 +78,10 @@ class BookmarkDto() : ConvertibleVerseRangeUser {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        result = if (convertibleVerseRange == null || convertibleVerseRange!!.verseRange == null) {
+        result = if (convertibleVerseRange == null || convertibleVerseRange == null) {
             prime * result
         } else {
-            val verseRange = convertibleVerseRange!!.verseRange
+            val verseRange = convertibleVerseRange!!
             prime * result + verseRange.hashCode()
         }
         return result

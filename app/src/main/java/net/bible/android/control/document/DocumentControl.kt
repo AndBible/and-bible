@@ -18,15 +18,13 @@
 
 package net.bible.android.control.document
 
-import android.util.Log
-
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.versification.ConvertibleVerse
+import net.bible.android.control.versification.toV11n
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
@@ -36,8 +34,8 @@ import org.crosswire.common.util.Filter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 
 import javax.inject.Inject
@@ -73,11 +71,11 @@ class DocumentControl @Inject constructor(
     // only show bibles that contain verse
 
     private val bookFilter = Filter<Book> { book ->
-        book.contains(requiredVerseForSuggestions.getVerse((book as AbstractPassageBook).versification))
+        book.contains(requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification))
     }
 
     private val commentaryFilter = Filter<Book> { book ->
-        val verse = requiredVerseForSuggestions.getVerse((book as AbstractPassageBook).versification)
+        val verse = requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification)
         if (!book.contains(verse)) {
             false
         } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
@@ -107,11 +105,8 @@ class DocumentControl @Inject constructor(
     /**
      * Possible books will often not include the current verse but most will include chap 1 verse 1
      */
-    private val requiredVerseForSuggestions: ConvertibleVerse
-        get() {
-            val currentVerse = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey
-            return ConvertibleVerse(currentVerse)
-        }
+    private val requiredVerseForSuggestions: Verse
+        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey
 
     /**
      * user wants to change to a different document/module
