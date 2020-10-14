@@ -16,7 +16,7 @@
  *
  */
 
-package net.bible.android.database
+package net.bible.android.database.bookmarks
 
 import androidx.room.Dao
 import androidx.room.Delete

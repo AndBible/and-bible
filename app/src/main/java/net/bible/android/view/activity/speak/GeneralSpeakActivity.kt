@@ -27,7 +27,8 @@ import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.event.SpeakEvent
 

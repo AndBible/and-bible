@@ -22,7 +22,7 @@ import android.os.Build
 import android.text.Html
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.device.speak.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import net.bible.service.format.osistohtml.taghandler.DivHandler

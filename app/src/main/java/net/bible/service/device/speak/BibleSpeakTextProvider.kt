@@ -22,7 +22,6 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.util.LruCache
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -36,6 +35,9 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.book.BookCategory

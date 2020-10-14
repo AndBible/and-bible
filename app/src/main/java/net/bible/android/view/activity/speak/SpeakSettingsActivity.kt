@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.speak_settings.*
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 
 @ActivityScope

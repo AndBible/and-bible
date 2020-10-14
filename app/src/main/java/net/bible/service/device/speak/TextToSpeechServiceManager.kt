@@ -31,9 +31,10 @@ import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent

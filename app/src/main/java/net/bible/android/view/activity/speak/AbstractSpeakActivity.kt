@@ -27,7 +27,9 @@ import android.widget.NumberPicker
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import javax.inject.Inject
 

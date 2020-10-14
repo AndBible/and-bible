@@ -17,10 +17,10 @@
  */
 package net.bible.service.db.bookmark
 
-import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.versification.ConvertibleVerseRange
 import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser
-import net.bible.android.database.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.PlaybackSettings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.VerseRange

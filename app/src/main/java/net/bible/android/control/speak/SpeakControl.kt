@@ -54,6 +54,7 @@ import javax.inject.Inject
 
 import dagger.Lazy
 import de.greenrobot.event.EventBus
+import net.bible.android.database.bookmarks.SpeakSettings
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

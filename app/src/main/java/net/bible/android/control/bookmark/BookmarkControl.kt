@@ -28,8 +28,8 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.speak.PlaybackSettings
-import net.bible.android.database.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.BookmarkLabels

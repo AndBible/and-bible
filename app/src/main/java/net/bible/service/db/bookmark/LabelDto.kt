@@ -20,7 +20,7 @@ package net.bible.service.db.bookmark
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkStyle
-import net.bible.android.database.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
 import org.apache.commons.lang3.StringUtils
 
 /**

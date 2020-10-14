@@ -22,8 +22,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import net.bible.android.control.event.ABEventBus;
-import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.speak.SpeakSettingsChangedEvent;
+import net.bible.android.database.bookmarks.SpeakSettings;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 

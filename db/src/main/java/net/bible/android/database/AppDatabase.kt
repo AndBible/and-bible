@@ -21,6 +21,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import net.bible.android.database.bookmarks.BookmarkDao
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 

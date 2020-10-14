@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
  * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
@@ -16,7 +16,7 @@
  *
  */
 
-package net.bible.android.database
+package net.bible.android.database.bookmarks
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
