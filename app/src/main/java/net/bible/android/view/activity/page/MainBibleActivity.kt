@@ -104,6 +104,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.util.Hourglass
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -1131,15 +1132,23 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                     CurrentActivityHolder.getInstance().currentActivity = this
                     Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
+                        val hourglass = Hourglass(this)
                         GlobalScope.launch(Dispatchers.IO) {
+                            hourglass.show()
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                                Log.d(TAG, "Restored database successfully")
+
                                 windowControl.windowSync.setResyncRequired()
+                                windowControl.windowSync.reloadAllWindows()
+
                                 withContext(Dispatchers.Main) {
+                                    Dialogs.instance.showMsg(R.string.restore_success)
                                     documentViewManager.clearBibleViewFactory()
                                     currentWorkspaceId = 0
                                 }
                             }
+                            hourglass.dismiss()
                         }
                     }
                 }

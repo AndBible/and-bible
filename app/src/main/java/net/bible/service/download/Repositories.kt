@@ -20,9 +20,7 @@ package net.bible.service.download
 
 import net.bible.service.sword.AcceptableBookTypeFilter
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
-import org.crosswire.jsword.book.install.InstallException
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 

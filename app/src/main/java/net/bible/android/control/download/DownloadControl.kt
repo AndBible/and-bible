@@ -150,7 +150,7 @@ class DownloadControl(
             try {
                 val newVersionObj = Version(document.bookMetaData.getProperty("Version"))
                 val installedVersionObj = Version(installedBook.bookMetaData.getProperty("Version"))
-                if (newVersionObj.compareTo(installedVersionObj) > 0) {
+                if (newVersionObj > installedVersionObj) {
                     return DocumentStatus(initials, DocumentInstallStatus.UPGRADE_AVAILABLE, 100)
                 }
             } catch (e: Exception) {
