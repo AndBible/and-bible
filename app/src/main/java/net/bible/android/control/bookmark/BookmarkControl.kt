@@ -43,7 +43,6 @@ import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.limitTextLength
 import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
@@ -60,8 +59,8 @@ open class BookmarkControl @Inject constructor(
 	private val swordContentFacade: SwordContentFacade,
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
 {
-    private val LABEL_ALL = LabelDto(-999L, resourceProvider.getString(R.string.all), null)
-	private val LABEL_UNLABELLED = LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null)
+    private val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all")
+	private val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled")
     val dao get() = DatabaseContainer.db.bookmarkDao()
 
 	fun updateBookmarkSettings(settings: PlaybackSettings) {
@@ -175,7 +174,7 @@ open class BookmarkControl @Inject constructor(
 
     fun getSpeakBookmarkByOsisRef(osisRef: String): Bookmark {
         val verse = VerseFactory.fromString(KJVA, osisRef)
-        return dao.bookmarksForVerseStartWithLabel(verse, speakLabel.id!!).first()
+        return dao.bookmarksForVerseStartWithLabel(verse, speakLabel.id).first()
     }
 
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
@@ -185,58 +184,58 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun getBookmarksWithLabel(label: LabelDto): List<Bookmark> {
+    fun getBookmarksWithLabel(label: Label): List<Bookmark> {
 		val bookmarkList = when {
 				LABEL_ALL == label -> dao.allBookmarks()
 				LABEL_UNLABELLED == label -> dao.unlabelledBookmarks()
-				else -> dao.bookmarksWithLabel(label.id!!)
+				else -> dao.bookmarksWithLabel(label.id)
 			}
 
         return getSortedBookmarks(bookmarkList)
     }
 
-    fun getBookmarkLabels(bookmark: Bookmark): List<LabelDto> {
-        return dao.labelsForBookmark(bookmark.id!!).map { LabelDto(it) }
+    fun getBookmarkLabels(bookmark: Bookmark): List<Label> {
+        return dao.labelsForBookmark(bookmark.id)
     }
 
-    fun setBookmarkLabels(bookmark: Bookmark, labels: List<LabelDto>, doNotSync: Boolean = false) {
+    fun setBookmarkLabels(bookmark: Bookmark, labels: List<Label>, doNotSync: Boolean = false) {
 		val lbls = labels.toMutableList()
         lbls.remove(LABEL_ALL)
         lbls.remove(LABEL_UNLABELLED)
 
-        val prevLabels = dao.labelsForBookmark(bookmark.id!!).map { LabelDto(it) }
+        val prevLabels = dao.labelsForBookmark(bookmark.id)
 
         //find those which have been deleted and remove them
         val deleted = HashSet(prevLabels)
         deleted.removeAll(lbls)
 
-        dao.delete(deleted.map { BookmarkToLabel(bookmark.id!!, it.id!!) })
+        dao.delete(deleted.map { BookmarkToLabel(bookmark.id, it.id) })
 
         //find those which are new and persist them
         val added = HashSet(lbls)
         added.removeAll(prevLabels)
 
-        dao.insert(added.map { BookmarkToLabel(bookmark.id!!, it.id!!) })
+        dao.insert(added.map { BookmarkToLabel(bookmark.id, it.id) })
 
         if(!doNotSync) {
             ABEventBus.getDefault().post(SynchronizeWindowsEvent())
         }
     }
 
-    fun insertOrUpdateLabel(label: LabelDto): LabelDto {
-        if(label.id != null) {
-            dao.update(label.entity)
+    fun insertOrUpdateLabel(label: Label): Label {
+        if(label.id != 0L) {
+            dao.update(label)
         } else {
-            label.id = dao.insert(label.entity)
+            label.id = dao.insert(label)
         }
         return label
     }
 
-    fun deleteLabel(label: LabelDto) = dao.delete(label.entity)
+    fun deleteLabel(label: Label) = dao.delete(label)
 
 
     // add special label that is automatically associated with all-bookmarks
-    val allLabels: List<LabelDto>
+    val allLabels: List<Label>
         get() {
             val labelList = assignableLabels.toMutableList()
             // add special label that is automatically associated with all-bookmarks
@@ -245,7 +244,7 @@ open class BookmarkControl @Inject constructor(
             return labelList
         }
 
-    val assignableLabels: List<LabelDto> get() = dao.allLabels().map { LabelDto(it) }.sorted()
+    val assignableLabels: List<Label> get() = dao.allLabels().sortedBy { it.name.toLowerCase(Locale.getDefault()) }
 
     fun changeBookmarkSortOrder() {
         bookmarkSortOrder = if (bookmarkSortOrder == BookmarkSortOrder.BIBLE_BOOK) {
@@ -293,12 +292,12 @@ open class BookmarkControl @Inject constructor(
 
     private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmarkDto: Bookmark?) { // Show label view for new bookmark
         val intent = Intent(currentActivity, BookmarkLabels::class.java)
-        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmarkDto!!.id!!))
+        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmarkDto!!.id))
         currentActivity.startActivity(intent)
     }
 
     // TODO: can be cached! Does not change (can't be changed!)
-    val speakLabel: LabelDto get() = LabelDto(dao.getOrCreateSpeakLabel())
+    val speakLabel: Label get() = dao.getOrCreateSpeakLabel()
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean {
         return getBookmarkLabels(bookmark).contains(speakLabel)

@@ -20,7 +20,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -533,7 +533,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val verseRange = VerseRange(verse.versification, verse)
         var dto = Bookmark(verseRange)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var labelDto = LabelDto()
+        var labelDto = Label()
         labelDto.name = "Another"
         labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
@@ -737,7 +737,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val verseRange = VerseRange(verse.versification, verse)
         var dto = Bookmark(verseRange)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var labelDto = LabelDto()
+        var labelDto = Label()
         labelDto.name = "Another"
         labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))

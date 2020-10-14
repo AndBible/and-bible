@@ -30,7 +30,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import java.util.*
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ class BookmarkLabels : ListActivityBase() {
     private var bookmarks: List<Bookmark>? = null
     @Inject lateinit var bookmarkControl: BookmarkControl
 
-    private val labels: MutableList<LabelDto> = ArrayList()
+    private val labels: MutableList<Label> = ArrayList()
     @Inject lateinit var labelDialogs: LabelDialogs
 
     /** Called when the activity is first created.  */
@@ -84,7 +84,7 @@ class BookmarkLabels : ListActivityBase() {
      */
     fun onNewLabel(v: View) {
         Log.i(TAG, "New label clicked")
-        val newLabel = LabelDto()
+        val newLabel = Label()
         labelDialogs.createLabel(this, newLabel) {
             val selectedLabels = checkedLabels
             Log.d(TAG, "Num labels checked pre reload:" + selectedLabels.size)
@@ -111,7 +111,7 @@ class BookmarkLabels : ListActivityBase() {
     /** check labels associated with the bookmark
      */
     private fun initialiseCheckedLabels(bookmarks: List<Bookmark>?) {
-        val allCheckedLabels: MutableSet<LabelDto> = HashSet()
+        val allCheckedLabels: MutableSet<Label> = HashSet()
         for (bookmark in bookmarks!!) {
             // pre-tick any labels currently associated with the bookmark
             allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark))
@@ -125,11 +125,11 @@ class BookmarkLabels : ListActivityBase() {
     /**
      * get checked status of all labels
      */
-    private var checkedLabels: List<LabelDto>
+    private var checkedLabels: List<Label>
         get() {
             // get selected labels
             val listView = listView
-            val checkedLabels: MutableList<LabelDto> = ArrayList()
+            val checkedLabels: MutableList<Label> = ArrayList()
             for (i in labels.indices) {
                 if (listView.isItemChecked(i)) {
                     val label = labels[i]

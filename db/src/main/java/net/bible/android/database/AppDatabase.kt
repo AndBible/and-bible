@@ -23,6 +23,7 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
@@ -36,6 +37,12 @@ import java.util.*
 const val DATABASE_VERSION = 34
 
 class Converters {
+    @TypeConverter
+    fun toBookmarkStyle(value: String?) = if(value==null) null else BookmarkStyle.valueOf(value)
+
+    @TypeConverter
+    fun fromBookmarkStyle(value: BookmarkStyle?) = value?.name
+
     @TypeConverter
     fun fromTimestamp(value: Long): Date = Date(value)
 

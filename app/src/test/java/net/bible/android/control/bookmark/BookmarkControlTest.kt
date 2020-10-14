@@ -4,7 +4,8 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -116,7 +117,7 @@ class BookmarkControlTest {
         val bookmark = addTestVerse()
         val label1 = addTestLabel()
         val label2 = addTestLabel()
-        val labelList: MutableList<LabelDto> = ArrayList()
+        val labelList: MutableList<Label> = ArrayList()
         labelList.add(label1)
         labelList.add(label2)
 
@@ -130,7 +131,7 @@ class BookmarkControlTest {
         Assert.assertEquals(bookmark, list2[0])
 
         // check 1 label is deleted if it is not linked
-        val labelList2: MutableList<LabelDto> = ArrayList()
+        val labelList2: MutableList<Label> = ArrayList()
         labelList2.add(label1)
         bookmarkControl!!.setBookmarkLabels(bookmark, labelList2)
         val list3 = bookmarkControl!!.getBookmarksWithLabel(label1)
@@ -143,7 +144,7 @@ class BookmarkControlTest {
     fun testGetBookmarksWithLabel() {
         val bookmark = addTestVerse()
         val label1 = addTestLabel()
-        val labelList: MutableList<LabelDto> = ArrayList()
+        val labelList: MutableList<Label> = ArrayList()
         labelList.add(label1)
 
         // add 2 labels and check they are saved
@@ -182,11 +183,11 @@ class BookmarkControlTest {
 
         // add bookmark in range
         val bookmarkDto = addBookmark("ps.17.1-ps.17.2")
-        var greenLabelDto = LabelDto()
-        greenLabelDto.name = "G"
-        greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabelDto = bookmarkControl!!.insertOrUpdateLabel(greenLabelDto)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabelDto))
+        var greenLabel = Label()
+        greenLabel.name = "G"
+        greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
+        greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
+        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabel))
         addBookmark("ps.17.10")
 
         // add bookmark out of range
@@ -209,16 +210,16 @@ class BookmarkControlTest {
         // add bookmark in range
         val bookmarkDto = addBookmark("ps.17.1-ps.17.2")
         val bookmarkDto2 = addBookmark("ps.17.2-ps.17.2")
-        var greenLabelDto = LabelDto()
-        greenLabelDto.name = "G"
-        greenLabelDto.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabelDto = bookmarkControl!!.insertOrUpdateLabel(greenLabelDto)
-        var stargLabelDto = LabelDto()
-        stargLabelDto.name = "S"
-        stargLabelDto.bookmarkStyle = BookmarkStyle.YELLOW_STAR
-        stargLabelDto = bookmarkControl!!.insertOrUpdateLabel(stargLabelDto)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabelDto))
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(stargLabelDto))
+        var greenLabel = Label()
+        greenLabel.name = "G"
+        greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
+        greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
+        var stargLabel = Label()
+        stargLabel.name = "S"
+        stargLabel.bookmarkStyle = BookmarkStyle.YELLOW_STAR
+        stargLabel = bookmarkControl!!.insertOrUpdateLabel(stargLabel)
+        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabel))
+        bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(stargLabel))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
@@ -238,11 +239,11 @@ class BookmarkControlTest {
         // add bookmark in range
         val bookmarkDto = addBookmark("ps.17.2-ps.17.2")
         val bookmarkDto2 = addBookmark("ps.17.1-ps.17.2")
-        var label1 = LabelDto()
+        var label1 = Label()
         label1.name = "S"
         label1.bookmarkStyle = BookmarkStyle.YELLOW_STAR
         label1 = bookmarkControl!!.insertOrUpdateLabel(label1)
-        var label2 = LabelDto()
+        var label2 = Label()
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
@@ -267,7 +268,7 @@ class BookmarkControlTest {
         // add bookmark in range
         val bookmarkDto = addBookmark("ps.17.2-ps.17.2")
         val bookmarkDto2 = addBookmark("ps.17.1-ps.17.2")
-        var label2 = LabelDto()
+        var label2 = Label()
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
@@ -300,10 +301,10 @@ class BookmarkControlTest {
         return bookmarkControl!!.addOrUpdateBookmark(bookmark, false)
     }
 
-    private fun addTestLabel(): LabelDto {
+    private fun addTestLabel(): Label {
         currentTestLabel = nextTestLabel
-        val label = LabelDto()
-        label.name = currentTestLabel
+        val label = Label()
+        label.name = currentTestLabel!!
         return bookmarkControl!!.insertOrUpdateLabel(label)
     }
 

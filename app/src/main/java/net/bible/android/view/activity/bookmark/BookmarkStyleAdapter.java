@@ -26,7 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.database.bookmarks.BookmarkStyle;
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper;
 import net.bible.service.common.CommonUtils;
 

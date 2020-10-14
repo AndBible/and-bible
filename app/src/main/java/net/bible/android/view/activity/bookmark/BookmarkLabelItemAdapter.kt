@@ -25,15 +25,15 @@ import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
 import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 
 /**
  * Adapter which shows highlight colour of labels
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkLabelItemAdapter(context: Context, items: List<LabelDto>)
-    : ArrayAdapter<LabelDto?>(context, android.R.layout.simple_list_item_multiple_choice, items)
+class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
+    : ArrayAdapter<Label?>(context, android.R.layout.simple_list_item_multiple_choice, items)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

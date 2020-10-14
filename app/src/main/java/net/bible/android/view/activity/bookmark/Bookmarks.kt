@@ -42,7 +42,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActiv
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import java.util.*
 import javax.inject.Inject
 
@@ -59,9 +59,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var speakControl: SpeakControl
 
     // language spinner
-    private val labelList: MutableList<LabelDto> = ArrayList()
+    private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
-    private var labelArrayAdapter: ArrayAdapter<LabelDto>? = null
+    private var labelArrayAdapter: ArrayAdapter<Label>? = null
 
     // the document list
     private val bookmarkList: MutableList<Bookmark> = ArrayList()

@@ -118,12 +118,12 @@ interface BookmarkDao {
     fun bookmarksWithLabel(labelId: Long): List<Bookmark>
 
     @Query("SELECT * from Label")
-    fun allLabels(): List<BookmarkEntities.Label>
+    fun allLabels(): List<Label>
 
     @Update
-    fun update(entity: BookmarkEntities.Label)
+    fun update(entity: Label)
 
-    @Delete fun delete(b: BookmarkEntities.Label)
+    @Delete fun delete(b: Label)
 
     @Query("""
         SELECT Label.* from Label 
@@ -131,10 +131,10 @@ interface BookmarkDao {
             JOIN Bookmark ON BookmarkToLabel.bookmarkId = Bookmark.id 
             WHERE Bookmark.id = :bookmarkId
     """)
-    fun labelsForBookmark(bookmarkId: Long): List<BookmarkEntities.Label>
+    fun labelsForBookmark(bookmarkId: Long): List<Label>
 
     @Insert
-    fun insert(entity: BookmarkEntities.Label): Long
+    fun insert(entity: Label): Long
 
     @Insert
     fun insert(entity: BookmarkToLabel): Long
@@ -149,11 +149,11 @@ interface BookmarkDao {
     fun insert(entities: List<BookmarkToLabel>): List<Long>
 
     @Query("SELECT * from Label WHERE bookmarkStyle = 'SPEAK'")
-    fun speakLabel(): BookmarkEntities.Label?
+    fun speakLabel(): Label?
 
     @Transaction
-    fun getOrCreateSpeakLabel(): BookmarkEntities.Label {
-        return speakLabel()?: BookmarkEntities.Label(name = "", bookmarkStyle = "SPEAK").apply {
+    fun getOrCreateSpeakLabel(): Label {
+        return speakLabel()?: Label(name = "", bookmarkStyle = BookmarkStyle.SPEAK).apply {
             id = insert(this)
         }
     }

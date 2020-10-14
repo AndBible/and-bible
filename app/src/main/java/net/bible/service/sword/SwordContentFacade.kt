@@ -21,7 +21,7 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.service.common.CommonUtils.getResourceInteger

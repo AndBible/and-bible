@@ -17,7 +17,7 @@
  */
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
 import java.util.*

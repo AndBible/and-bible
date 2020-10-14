@@ -30,10 +30,32 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
+import android.graphics.Color
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 val converter = VersificationConverter()
+
+/**
+ * How to represent bookmarks
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+enum class BookmarkStyle(val backgroundColor: Int) {
+    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
+    RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
+    YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
+    GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
+    BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
+    ORANGE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 165, 0)),
+    PURPLE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 128, 0, 128)),
+    UNDERLINE(0),
+
+    // Special hard-coded style for Speak bookmarks. This must be last one here.
+    // This is removed from the style lists.
+    SPEAK(Color.argb(0, 255, 255, 255));
+
+}
 
 interface VerseRangeUser {
     val verseRange: VerseRange
@@ -125,7 +147,7 @@ class BookmarkEntities {
     @Entity
     data class Label(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
-        val name: String,
-        val bookmarkStyle: String?
+        var name: String = "",
+        var bookmarkStyle: BookmarkStyle? = null,
     )
 }

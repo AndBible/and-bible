@@ -18,12 +18,12 @@
 package net.bible.service.format.usermarks
 
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import java.util.*
@@ -57,9 +57,9 @@ class BookmarkFormatSupport @Inject constructor() {
             for (bookmark in bookmarkList) {
                 val bookmarkVerseRange = bookmark.verseRange.toV11n(requiredVersification)
                 if (passage.contains(bookmarkVerseRange.start)) {
-                    val bookmarkLabels = dao.labelsForBookmark(bookmark.id).map { LabelDto(it) }.toMutableList()
+                    val bookmarkLabels = dao.labelsForBookmark(bookmark.id).toMutableList()
                     if (bookmarkLabels.isEmpty()) {
-                        bookmarkLabels.add(LabelDto(null, null, defaultBookmarkStyle))
+                        bookmarkLabels.add(Label(bookmarkStyle = defaultBookmarkStyle))
                     }
                     val bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle)
                     for (verse in bookmarkVerseRange.toVerseArray()) {
@@ -81,7 +81,7 @@ class BookmarkFormatSupport @Inject constructor() {
     /**
      * Get distinct styles in enum order
      */
-    private fun getBookmarkStyles(bookmarkLabels: List<LabelDto>, defaultStyle: BookmarkStyle): List<BookmarkStyle> {
+    private fun getBookmarkStyles(bookmarkLabels: List<Label>, defaultStyle: BookmarkStyle): List<BookmarkStyle> {
         val bookmarkStyles: MutableSet<BookmarkStyle> = TreeSet()
         for (label in bookmarkLabels) {
             val style = label.bookmarkStyle

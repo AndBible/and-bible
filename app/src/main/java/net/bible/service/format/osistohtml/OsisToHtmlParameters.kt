@@ -17,7 +17,7 @@
  */
 package net.bible.service.format.osistohtml
 
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
