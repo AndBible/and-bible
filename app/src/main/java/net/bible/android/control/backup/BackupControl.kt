@@ -174,11 +174,7 @@ class BackupControl @Inject constructor() {
             sqlDb.close()
         }
 
-        if (ok) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-            Log.d(TAG, "Restored database successfully")
-            Dialogs.instance.showMsg(R.string.restore_success)
-        } else {
+        if(!ok) {
             Log.e(TAG, "Error restoring database")
             Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
         }
