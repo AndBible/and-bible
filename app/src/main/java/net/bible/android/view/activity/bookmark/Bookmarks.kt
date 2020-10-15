@@ -43,6 +43,8 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.SwordDocumentFacade
 import java.util.*
 import javax.inject.Inject
 
@@ -57,6 +59,7 @@ import javax.inject.Inject
 class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var swordContentFacade: SwordContentFacade
 
     // language spinner
     private val labelList: MutableList<Label> = ArrayList()
@@ -113,7 +116,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade)
         listAdapter = bookmarkArrayAdapter
     }
 

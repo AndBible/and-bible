@@ -74,7 +74,7 @@ class BookmarkLabels : ListActivityBase() {
 
         //associate labels with bookmarks that were passed in
         for (bookmark in bookmarks!!) {
-            bookmarkControl.setBookmarkLabels(bookmark, selectedLabels)
+            bookmarkControl.setLabelsForBookmark(bookmark, selectedLabels)
         }
         finish()
     }
@@ -114,7 +114,7 @@ class BookmarkLabels : ListActivityBase() {
         val allCheckedLabels: MutableSet<Label> = HashSet()
         for (bookmark in bookmarks!!) {
             // pre-tick any labels currently associated with the bookmark
-            allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark))
+            allCheckedLabels.addAll(bookmarkControl.labelsForBookmark(bookmark))
         }
         checkedLabels = allCheckedLabels.toList()
     }// get selected labels// ensure ui is updated

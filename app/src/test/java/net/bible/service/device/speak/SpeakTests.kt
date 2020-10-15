@@ -7,6 +7,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
@@ -37,6 +38,7 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -248,12 +250,13 @@ open class AbstractSpeakTests {
 
     companion object {
         var idCount = 0;
-        val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
         val documentBibleBooksFactory = DocumentBibleBooksFactory()
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(swordContentFacade, windowControl, mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
+        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
+        val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(bookmarkControl), MyNoteFormatSupport(), activeWindowPageManagerProvider)
     }
 }
 
@@ -537,15 +540,15 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         var labelDto = Label()
         labelDto.name = "Another"
         labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
-        bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
+        bookmarkControl.setLabelsForBookmark(dto, listOf(labelDto))
 
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
         provider.pause()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -554,7 +557,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop(false)
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
     }
 
     @Test
@@ -567,19 +570,19 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
         provider.setupReading(book, verse)
         text = nextText()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         provider.prepareForStartSpeaking()
         provider.pause()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause() // does not remove bookmark as it was already there
         provider.prepareForStartSpeaking()
 
 
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -588,7 +591,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop(false) // does not remove bookmark as it was already there
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
     }
 
@@ -605,24 +608,24 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto, notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
 
         text = nextText()
@@ -634,7 +637,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels( bookmarkControl.firstBookmarkStartingAtVerse(verse)!!).size, equalTo(0))
+        assertThat(bookmarkControl.labelsForBookmark( bookmarkControl.firstBookmarkStartingAtVerse(verse)!!).size, equalTo(0))
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
     }
 
@@ -647,7 +650,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         var dto = Bookmark(verseRange)
         dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        bookmarkControl.setBookmarkLabels(dto, mutableListOf(speakLabel))
+        bookmarkControl.setLabelsForBookmark(dto, mutableListOf(speakLabel))
 
         var verse = getVerse("Ps.14.1")
 
@@ -659,7 +662,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
         verse = getVerse("Ps.14.2")
         provider.prepareForStartSpeaking()
@@ -673,7 +676,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto.playbackSettings!!.bookmarkWasCreated, equalTo(true))
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
         provider.prepareForStartSpeaking()
         text = nextText()
@@ -685,7 +688,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         verse = getVerse("Ps.14.3")
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
         // now there should not be any more original speak bookmark
         assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Ps.14.2")), nullValue())
@@ -703,20 +706,20 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.pause();
         var dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto, notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
 
         text = nextText()
@@ -741,16 +744,16 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         var labelDto = Label()
         labelDto.name = "Another"
         labelDto = bookmarkControl.insertOrUpdateLabel(labelDto)
-        bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
+        bookmarkControl.setLabelsForBookmark(dto, listOf(labelDto))
 
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto.playbackSettings, notNullValue())
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
         provider.pause()
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -761,7 +764,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.stop(false)
         dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
         assertThat(dto.playbackSettings, nullValue())
-        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
     }
 
     @Test

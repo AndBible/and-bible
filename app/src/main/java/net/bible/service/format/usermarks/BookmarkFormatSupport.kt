@@ -18,6 +18,7 @@
 package net.bible.service.format.usermarks
 
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.sharedPreferences
@@ -35,10 +36,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class BookmarkFormatSupport @Inject constructor() {
-
-    private val dao get() = DatabaseContainer.db.bookmarkDao()
-
+class BookmarkFormatSupport @Inject constructor(val bookmarkControl: BookmarkControl) {
     fun getVerseBookmarkStylesInPassage(passage: Key): Map<Int, MutableSet<BookmarkStyle>> {
         // assumes the passage only covers one book, which always happens to be the case here
         val firstVerse = KeyUtil.getVerse(passage)
@@ -50,14 +48,14 @@ class BookmarkFormatSupport @Inject constructor() {
             "default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!)
         val bookmarkStylesByVerseNoInPassage: MutableMap<Int, MutableSet<BookmarkStyle>> = HashMap()
         try {
-            bookmarkList = dao.bookmarksInBook(book)
+            bookmarkList = bookmarkControl.bookmarksInBook(book)
 
             // convert to required versification and check verse is in passage
             val requiredVersification = firstVerse.versification
             for (bookmark in bookmarkList) {
                 val bookmarkVerseRange = bookmark.verseRange.toV11n(requiredVersification)
                 if (passage.contains(bookmarkVerseRange.start)) {
-                    val bookmarkLabels = dao.labelsForBookmark(bookmark.id).toMutableList()
+                    val bookmarkLabels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
                     if (bookmarkLabels.isEmpty()) {
                         bookmarkLabels.add(Label(bookmarkStyle = defaultBookmarkStyle))
                     }

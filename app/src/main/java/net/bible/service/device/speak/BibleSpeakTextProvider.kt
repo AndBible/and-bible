@@ -360,7 +360,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val verse = currentVerse
 
             val bookmark = bookmarkControl.firstBookmarkStartingAtVerse(verse)?: return
-            val labelList = bookmarkControl.getBookmarkLabels(bookmark)
+            val labelList = bookmarkControl.labelsForBookmark(bookmark)
             val speakLabel = bookmarkControl.speakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
@@ -381,7 +381,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun removeBookmark() {
         var bookmark: Bookmark = this.bookmark ?: return
 
-        val labelList = bookmarkControl.getBookmarkLabels(bookmark).toMutableList()
+        val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
         val speakLabel = bookmarkControl.speakLabel
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 
@@ -390,7 +390,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
                 bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
-                bookmarkControl.setBookmarkLabels(bookmark, labelList)
+                bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
@@ -416,14 +416,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
-                labelList.addAll(bookmarkControl.getBookmarkLabels(bookmark))
+                labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
                 bookmark.playbackSettings = playbackSettings
                 bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
             }
 
             labelList.add(bookmarkControl.speakLabel)
 
-            bookmarkControl.setBookmarkLabels(bookmark, labelList, doNotSync)
+            bookmarkControl.setLabelsForBookmark(bookmark, labelList, doNotSync)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }

@@ -21,9 +21,13 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceInteger
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Constants
@@ -75,9 +79,11 @@ import javax.xml.parsers.SAXParser
 @ApplicationScope
 open class SwordContentFacade @Inject constructor(
     private val bookmarkFormatSupport: BookmarkFormatSupport,
-    private val myNoteFormatSupport: MyNoteFormatSupport
+    private val myNoteFormatSupport: MyNoteFormatSupport,
+    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
 ) {
     private val documentParseMethod = DocumentParseMethod()
+
     private val saxParserPool = SaxParserPool()
     private val cssControl = CssControl()
     /** top level method to fetch html from the raw document data
@@ -415,6 +421,19 @@ open class SwordContentFacade @Inject constructor(
             }
         }
         return false
+    }
+
+    fun getBookmarkVerseText(bookmark: BookmarkEntities.Bookmark): String? {
+        var verseText: String? = ""
+        try {
+            val currentBible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
+            val versification = currentBible.versification
+            verseText = getPlainText(currentBible.currentDocument, bookmark.verseRange.toV11n(versification))
+            verseText = CommonUtils.limitTextLength(verseText)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting verse text", e)
+        }
+        return verseText
     }
 
     companion object {

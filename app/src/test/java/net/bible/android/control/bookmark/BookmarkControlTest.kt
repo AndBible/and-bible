@@ -42,8 +42,8 @@ class BookmarkControlTest {
 
     @Before
     fun setUp() {
-        bookmarkControl = BookmarkControl(SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport()), Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java))
-        bookmarkFormatSupport = BookmarkFormatSupport()
+        bookmarkControl = BookmarkControl(Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java))
+        bookmarkFormatSupport = BookmarkFormatSupport(bookmarkControl!!)
     }
 
     @After
@@ -54,7 +54,7 @@ class BookmarkControlTest {
         }
         val labels = bookmarkControl!!.allLabels
         for (dto in labels) {
-            if(dto.id != null && dto.id!! > 0) {
+            if(dto.id > 0) {
                 bookmarkControl!!.deleteLabel(dto)
             }
         }
@@ -122,7 +122,7 @@ class BookmarkControlTest {
         labelList.add(label2)
 
         // add 2 labels and check they are saved
-        bookmarkControl!!.setBookmarkLabels(bookmark!!, labelList)
+        bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
         val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
@@ -133,7 +133,7 @@ class BookmarkControlTest {
         // check 1 label is deleted if it is not linked
         val labelList2: MutableList<Label> = ArrayList()
         labelList2.add(label1)
-        bookmarkControl!!.setBookmarkLabels(bookmark, labelList2)
+        bookmarkControl!!.setLabelsForBookmark(bookmark, labelList2)
         val list3 = bookmarkControl!!.getBookmarksWithLabel(label1)
         Assert.assertEquals(1, list3.size.toLong())
         val list4 = bookmarkControl!!.getBookmarksWithLabel(label2)
@@ -148,7 +148,7 @@ class BookmarkControlTest {
         labelList.add(label1)
 
         // add 2 labels and check they are saved
-        bookmarkControl!!.setBookmarkLabels(bookmark!!, labelList)
+        bookmarkControl!!.setLabelsForBookmark(bookmark!!, labelList)
         val list1 = bookmarkControl!!.getBookmarksWithLabel(label1)
         Assert.assertEquals(1, list1.size.toLong())
         Assert.assertEquals(bookmark, list1[0])
@@ -187,7 +187,7 @@ class BookmarkControlTest {
         greenLabel.name = "G"
         greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
-        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(greenLabel))
+        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(greenLabel))
         addBookmark("ps.17.10")
 
         // add bookmark out of range
@@ -218,8 +218,8 @@ class BookmarkControlTest {
         stargLabel.name = "S"
         stargLabel.bookmarkStyle = BookmarkStyle.YELLOW_STAR
         stargLabel = bookmarkControl!!.insertOrUpdateLabel(stargLabel)
-        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(greenLabel))
-        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(stargLabel))
+        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(greenLabel))
+        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(stargLabel))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
@@ -247,8 +247,8 @@ class BookmarkControlTest {
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(label1))
-        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(label2))
+        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(label1))
+        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label2))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
@@ -272,7 +272,7 @@ class BookmarkControlTest {
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(label2))
+        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label2))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)

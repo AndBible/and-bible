@@ -29,6 +29,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.util.widget.BookmarkListItem
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.service.sword.SwordContentFacade
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -38,7 +39,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 class BookmarkItemAdapter(
     context: Context,
     items: List<Bookmark>,
-    private val bookmarkControl: BookmarkControl
+    private val bookmarkControl: BookmarkControl,
+    private val swordContentFacade: SwordContentFacade
 ) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
@@ -68,14 +70,12 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the date text field
-        if (item.createdAt != null) {
-            val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
-            view.dateText.text = sDt
-        }
+        val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
+        view.dateText.text = sDt
 
         // set value for the second text field
         try {
-            val verseText = bookmarkControl.getBookmarkVerseText(item)
+            val verseText = swordContentFacade.getBookmarkVerseText(item)
             view.verseContentText.text = verseText
         } catch (e: Exception) {
             Log.e(TAG, "Error loading label verse text", e)

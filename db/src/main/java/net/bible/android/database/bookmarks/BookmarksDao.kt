@@ -70,8 +70,8 @@ interface BookmarkDao {
     fun bookmarksStartingAtVerse(verse: Verse): List<Bookmark> =
         bookmarksForKjvOrdinalStart(converter.convert(verse, KJVA).ordinal)
 
-    fun bookmarksForVerseStartWithLabel(verse: Verse, labelId: Long): List<Bookmark> =
-        bookmarksWithLabelAtVerseStart(labelId, converter.convert(verse, KJVA).ordinal)
+    fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<Bookmark> =
+        bookmarksWithLabelAtVerseStart(label.id, converter.convert(verse, KJVA).ordinal)
 
     fun bookmarksInBook(book: BibleBook): List<Bookmark> {
         val lastChap = KJVA.getLastChapter(book)

@@ -1,8 +1,13 @@
 package net.bible.service.sword
 
 import net.bible.android.TestBibleApplication
+import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.ParseException
+import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
@@ -25,6 +30,7 @@ import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
 import org.junit.Ignore
+import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -36,7 +42,10 @@ class SwordContentFacadeTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
+        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
+        val windowControl = Mockito.mock(WindowControl::class.java)
+        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        swordContentFacade = SwordContentFacade(BookmarkFormatSupport(bookmarkControl), MyNoteFormatSupport(), activeWindowPageManagerProvider)
     }
 
     @After
