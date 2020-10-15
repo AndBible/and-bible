@@ -29,8 +29,11 @@ import net.bible.android.database.bookmarks.converter
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.lang.Exception
 import java.sql.SQLException
 import androidx.room.migration.Migration as RoomMigration
 
@@ -575,12 +578,21 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
             while(!c.isAfterLast) {
                 val id = c.getLong(0)
                 val key = c.getString(1)
-                val v11n = Versifications.instance().getVersification(
-                    c.getString(2) ?: Versifications.DEFAULT_V11N
-                )
+                var v11n: Versification? = null
+                var verseRange: VerseRange? = null
+                var verseRangeInKjv: VerseRange? = null
 
-                val verseRange = VerseRangeFactory.fromString(v11n, key)
-                val verseRangeInKjv = converter.convert(verseRange, KJVA)
+                try {
+                    v11n = Versifications.instance().getVersification(
+                        c.getString(2) ?: Versifications.DEFAULT_V11N
+                    )
+                    verseRange = VerseRangeFactory.fromString(v11n, key)
+                    verseRangeInKjv = converter.convert(verseRange, KJVA)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
+                    c.moveToNext()
+                    continue
+                }
 
                 //Created date
                 val createdAt = c.getLong(3)
