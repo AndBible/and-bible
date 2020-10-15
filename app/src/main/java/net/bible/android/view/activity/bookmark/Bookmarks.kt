@@ -30,11 +30,11 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Spinner
 import android.widget.Toast
 import kotlinx.android.synthetic.main.bookmarks.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
@@ -44,7 +44,6 @@ import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.sword.SwordContentFacade
-import net.bible.service.sword.SwordDocumentFacade
 import java.util.*
 import javax.inject.Inject
 
@@ -60,6 +59,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var swordContentFacade: SwordContentFacade
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     // language spinner
     private val labelList: MutableList<Label> = ArrayList()
@@ -116,7 +116,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider)
         listAdapter = bookmarkArrayAdapter
     }
 
@@ -165,7 +165,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun assignLabels(bookmarks: List<Bookmark>) {
         val bookmarkIds = LongArray(bookmarks.size)
         for (i in bookmarks.indices) {
-            bookmarkIds[i] = bookmarks[i].id!!
+            bookmarkIds[i] = bookmarks[i].id
         }
         val intent = Intent(this, BookmarkLabels::class.java)
         intent.putExtra(BookmarkControl.BOOKMARK_IDS_EXTRA, bookmarkIds)
@@ -192,7 +192,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 bookmarkList.clear()
-                bookmarkList.addAll(bookmarkControl!!.getBookmarksWithLabel(selectedLabel))
+                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel))
                 notifyDataSetChanged()
 
                 // if in action mode then must exit because the data has changed, invalidating selections
@@ -207,8 +207,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun bookmarkSelected(bookmark: Bookmark) {
         Log.d(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
-            if (bookmarkControl!!.isSpeakBookmark(bookmark)) {
-                speakControl!!.speakFromBookmark(bookmark)
+            if (bookmarkControl.isSpeakBookmark(bookmark)) {
+                speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
             resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
@@ -236,8 +236,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.sortByToggle -> {
                 isHandled = true
                 try {
-                    bookmarkControl!!.changeBookmarkSortOrder()
-                    val sortDesc = bookmarkControl!!.bookmarkSortOrderDescription
+                    bookmarkControl.changeBookmarkSortOrder()
+                    val sortDesc = bookmarkControl.bookmarkSortOrderDescription
                     Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show()
                     loadBookmarkList()
                 } catch (e: Exception) {

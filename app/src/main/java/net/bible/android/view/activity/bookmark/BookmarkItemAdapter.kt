@@ -27,6 +27,8 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.versification.toV11n
 import net.bible.android.view.util.widget.BookmarkListItem
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.sword.SwordContentFacade
@@ -40,7 +42,8 @@ class BookmarkItemAdapter(
     context: Context,
     items: List<Bookmark>,
     private val bookmarkControl: BookmarkControl,
-    private val swordContentFacade: SwordContentFacade
+    private val swordContentFacade: SwordContentFacade,
+    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 ) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
@@ -61,12 +64,14 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the first text field
-        val key = bookmarkControl.getBookmarkVerseKey(item)
+        val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
+        val verseName = item.verseRange.toV11n(versification).name
+        //bookmarkControl.getBookmarkVerseKey(item)
         val book = item.speakBook
         if (isSpeak && book != null) {
-            view.verseText.text = context.getString(R.string.something_with_parenthesis, key, book.abbreviation)
+            view.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
         } else {
-            view.verseText.text = key
+            view.verseText.text = verseName
         }
 
         // Set value for the date text field

@@ -25,7 +25,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 
 fun Verse.isConvertibleTo(v11n: Versification): Boolean = converter.isConvertibleTo(this, v11n)
-fun Verse.toV11n(v11n: Versification) = converter.convert(this, v11n)
+fun Verse.toV11n(v11n: Versification): Verse = converter.convert(this, v11n)
 val Verse.entity get() = WorkspaceEntities.Verse(versification.name, book.ordinal, chapter, verse)
 val Verse.chapterVerse: ChapterVerse get() = ChapterVerse(chapter, verse)
 

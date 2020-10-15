@@ -41,38 +41,14 @@ interface BookmarkDao {
     fun bookmarkById(bookmarkId: Long): Bookmark
 
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
-    fun bookmarksByIds(bookmarkIds: LongArray): List<Bookmark>
+    fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
 
     @Query("SELECT * from Bookmark where kjvOrdinalStart >= :start AND kjvOrdinalEnd <= :end")
     fun bookmarksForKjvOrdinalRange(start: Int, end: Int): List<Bookmark>
-
-    @Query("SELECT * from Bookmark where kjvOrdinalStart <= :inBetween AND :inBetween <= kjvOrdinalEnd")
-    fun bookmarksForKjvOrdinal(inBetween: Int): List<Bookmark>
-
-    @Query("""SELECT * from Bookmark where kjvOrdinalStart = :start""")
-    fun bookmarksForKjvOrdinalStart(start: Int): List<Bookmark>
-
-    // Not sure if we ever need this though, and it gives ONLY verses that vere stored in specified v11n
-    @Query("SELECT * from Bookmark where ordinalStart >= :start AND ordinalEnd <= :end AND v11n = :v11n")
-    fun bookmarksForOrdinalRange(start: Int, end: Int, v11n: String): List<Bookmark>
-
-    @Query("SELECT count(*) > 0 from Bookmark where kjvOrdinalStart <= :verseOrdinal AND :verseOrdinal <= kjvOrdinalEnd LIMIT 1")
-    fun hasBookmarksForVerse(verseOrdinal: Int): Boolean
-
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
         val v = converter.convert(verseRange, KJVA)
         return bookmarksForKjvOrdinalRange(v.start.ordinal, v.end.ordinal)
     }
-
-    fun bookmarksForVerse(verse: Verse): List<Bookmark> =
-        bookmarksForKjvOrdinal(converter.convert(verse, KJVA).ordinal)
-
-    fun bookmarksStartingAtVerse(verse: Verse): List<Bookmark> =
-        bookmarksForKjvOrdinalStart(converter.convert(verse, KJVA).ordinal)
-
-    fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<Bookmark> =
-        bookmarksWithLabelAtVerseStart(label.id, converter.convert(verse, KJVA).ordinal)
-
     fun bookmarksInBook(book: BibleBook): List<Bookmark> {
         val lastChap = KJVA.getLastChapter(book)
         val lastVerse = KJVA.getLastVerse(book, lastChap)
@@ -80,6 +56,34 @@ interface BookmarkDao {
         val endVerse = Verse(KJVA, book, lastChap, lastVerse).ordinal
         return bookmarksForKjvOrdinalRange(startVerse, endVerse)
     }
+
+    @Query("SELECT * from Bookmark where kjvOrdinalStart <= :verseId AND :verseId <= kjvOrdinalEnd")
+    fun bookmarksForKjvOrdinal(verseId: Int): List<Bookmark>
+    fun bookmarksForVerse(verse: Verse): List<Bookmark> =
+        bookmarksForKjvOrdinal(converter.convert(verse, KJVA).ordinal)
+
+    @Query("""SELECT * from Bookmark where kjvOrdinalStart = :start""")
+    fun bookmarksForKjvOrdinalStart(start: Int): List<Bookmark>
+    fun bookmarksStartingAtVerse(verse: Verse): List<Bookmark> =
+        bookmarksForKjvOrdinalStart(converter.convert(verse, KJVA).ordinal)
+
+    // Not sure if we ever need this though, and it gives ONLY verses that vere stored in specified v11n
+    //@Query("SELECT * from Bookmark where ordinalStart >= :start AND ordinalEnd <= :end AND v11n = :v11n")
+    //fun bookmarksForOrdinalRange(start: Int, end: Int, v11n: String): List<Bookmark>
+
+    @Query("SELECT count(*) > 0 from Bookmark where kjvOrdinalStart <= :verseOrdinal AND :verseOrdinal <= kjvOrdinalEnd LIMIT 1")
+    fun hasBookmarksForVerse(verseOrdinal: Int): Boolean
+    fun hasBookmarksForVerse(verse: Verse): Boolean = hasBookmarksForVerse(converter.convert(verse, KJVA).ordinal)
+
+    @Query("""
+        SELECT Bookmark.* FROM Bookmark 
+            JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
+            JOIN Label ON BookmarkToLabel.labelId = Label.id
+            WHERE Label.id = :labelId AND Bookmark.kjvOrdinalStart = :startOrdinal
+        """)
+    fun bookmarksForVerseStartWithLabel(labelId: Long, startOrdinal: Int): List<Bookmark>
+    fun bookmarksForVerseStartWithLabel(verse: Verse, label: Label): List<Bookmark> =
+        bookmarksForVerseStartWithLabel(label.id, converter.convert(verse, KJVA).ordinal)
 
     @Insert
     fun insert(entity: Bookmark): Long
@@ -105,20 +109,18 @@ interface BookmarkDao {
         SELECT Bookmark.* FROM Bookmark 
             JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
             JOIN Label ON BookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId AND Bookmark.kjvOrdinalStart = :startOrdinal
-        """)
-    fun bookmarksWithLabelAtVerseStart(labelId: Long, startOrdinal: Int): List<Bookmark>
-
-    @Query("""
-        SELECT Bookmark.* FROM Bookmark 
-            JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
-            JOIN Label ON BookmarkToLabel.labelId = Label.id
             WHERE Label.id = :labelId
         """)
     fun bookmarksWithLabel(labelId: Long): List<Bookmark>
 
-    @Query("SELECT * from Label")
-    fun allLabels(): List<Label>
+
+    // Labels
+
+    @Query("SELECT * from Label ORDER BY name")
+    fun allLabelsSortedByName(): List<Label>
+
+    @Insert
+    fun insert(entity: Label): Long
 
     @Update
     fun update(entity: Label)
@@ -132,9 +134,6 @@ interface BookmarkDao {
             WHERE Bookmark.id = :bookmarkId
     """)
     fun labelsForBookmark(bookmarkId: Long): List<Label>
-
-    @Insert
-    fun insert(entity: Label): Long
 
     @Insert
     fun insert(entity: BookmarkToLabel): Long

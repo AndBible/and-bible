@@ -36,7 +36,6 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -351,7 +350,7 @@ class SpeakWidgetManager {
             if (intent?.action == ACTION_BOOKMARK) {
                 val osisRef = intent.data?.host ?: return
                 Log.d(TAG, "onReceive osisRef $osisRef")
-                val dto = bookmarkControl.getSpeakBookmarkByOsisRef(osisRef)
+                val dto = bookmarkControl.speakBookmarkByOsisRef(osisRef)
                 speakControl.speakFromBookmark(dto)
             }
         }

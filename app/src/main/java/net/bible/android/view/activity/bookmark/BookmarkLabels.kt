@@ -40,7 +40,7 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkLabels : ListActivityBase() {
-    private var bookmarks: List<Bookmark>? = null
+    private lateinit var bookmarks: List<Bookmark>
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     private val labels: MutableList<Label> = ArrayList()
@@ -53,7 +53,7 @@ class BookmarkLabels : ListActivityBase() {
         setContentView(R.layout.bookmark_labels)
         buildActivityComponent().inject(this)
         val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)!!
-        bookmarks = bookmarkControl.getBookmarksByIds(bookmarkIds)
+        bookmarks = bookmarkControl.bookmarksByIds(bookmarkIds.toList())
         initialiseView()
     }
 
@@ -73,7 +73,7 @@ class BookmarkLabels : ListActivityBase() {
         val selectedLabels = checkedLabels
 
         //associate labels with bookmarks that were passed in
-        for (bookmark in bookmarks!!) {
+        for (bookmark in bookmarks) {
             bookmarkControl.setLabelsForBookmark(bookmark, selectedLabels)
         }
         finish()

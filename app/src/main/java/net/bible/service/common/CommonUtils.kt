@@ -36,7 +36,6 @@ import androidx.preference.PreferenceManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate

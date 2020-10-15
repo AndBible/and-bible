@@ -28,7 +28,6 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
@@ -40,10 +39,8 @@ import net.bible.android.view.activity.bookmark.BookmarkLabels
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
-import net.bible.service.common.CommonUtils.limitTextLength
 import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
@@ -76,6 +73,7 @@ open class BookmarkControl @Inject constructor(
         if (v.verse == 0) {
             v = Verse(v.versification, v.book, v.chapter, 1)
         }
+        // TODO: what if there are more?
         val bookmark = dao.bookmarksForVerseStartWithLabel(v, speakLabel).firstOrNull()
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
@@ -96,14 +94,13 @@ open class BookmarkControl @Inject constructor(
             bookmark = addOrUpdateBookmark(bookmark, true)
             message = R.string.bookmark_added
         } else {
-            bookmark = refreshBookmarkDate(bookmark)
+            bookmark = dao.updateBookmarkDate(bookmark)
             message = R.string.bookmark_date_updated
         }
-        val affectedBookmark = bookmark
         val actionTextColor = getResourceColor(R.color.snackbar_action_text)
         Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
             .setActionTextColor(actionTextColor)
-            .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, affectedBookmark) }.show()
+            .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
         ABEventBus.getDefault().post(SynchronizeWindowsEvent())
     }
 
@@ -123,17 +120,12 @@ open class BookmarkControl @Inject constructor(
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
         if (!isCurrentDocumentBookmarkable) return
         // TODO: allow having many bookmarks in same verse
-        val bookmark = firstBookmarkStartingAtVerse(verseRange)
+        val bookmark = dao.bookmarksStartingAtVerse(verseRange.start).firstOrNull()?: return
         val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-        bookmark?.let { showBookmarkLabelsActivity(currentActivity, it) }
+        showBookmarkLabelsActivity(currentActivity, bookmark)
     }
 
-    fun getBookmarkVerseKey(bookmark: Bookmark): String {
-        val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
-        return bookmark.verseRange.toV11n(versification).name
-    }
-
-    val allBookmarks: List<Bookmark> get() = getSortedBookmarks(dao.allBookmarks())
+    val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
 
     /** create a new bookmark  */
     fun addOrUpdateBookmark(bookmark: Bookmark, doNotSync: Boolean=false): Bookmark {
@@ -149,16 +141,13 @@ open class BookmarkControl @Inject constructor(
         return bookmark
     }
 
-	private fun refreshBookmarkDate(bookmark: Bookmark) = dao.updateBookmarkDate(bookmark)
+    fun bookmarksByIds(ids: List<Long>): List<Bookmark> = dao.bookmarksByIds(ids)
 
-    fun getBookmarksByIds(ids: LongArray): List<Bookmark> = dao.bookmarksByIds(ids)
-
-    fun isBookmarkForKey(key: Verse): Boolean = dao.hasBookmarksForVerse(key.toV11n(KJVA).ordinal)
+    fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
     fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
-    private fun firstBookmarkStartingAtVerse(key: VerseRange): Bookmark? = dao.bookmarksStartingAtVerse(key.start).firstOrNull()
 
-    fun getSpeakBookmarkByOsisRef(osisRef: String): Bookmark {
+    fun speakBookmarkByOsisRef(osisRef: String): Bookmark {
         val verse = VerseFactory.fromString(KJVA, osisRef)
         return dao.bookmarksForVerseStartWithLabel(verse, speakLabel).first()
     }
@@ -231,13 +220,12 @@ open class BookmarkControl @Inject constructor(
             return labelList
         }
 
-    val assignableLabels: List<Label> get() = dao.allLabels().sortedBy { it.name.toLowerCase(Locale.getDefault()) }
+    val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
     fun changeBookmarkSortOrder() {
-        bookmarkSortOrder = if (bookmarkSortOrder == BookmarkSortOrder.BIBLE_BOOK) {
-            BookmarkSortOrder.DATE_CREATED
-        } else {
-            BookmarkSortOrder.BIBLE_BOOK
+        bookmarkSortOrder = when (bookmarkSortOrder) {
+            BookmarkSortOrder.BIBLE_BOOK -> BookmarkSortOrder.DATE_CREATED
+            else -> BookmarkSortOrder.BIBLE_BOOK
         }
     }
 
@@ -257,6 +245,7 @@ open class BookmarkControl @Inject constructor(
             getResourceString(R.string.sort_by_date)
         }
 
+    // TODO: what about sorting in db instead?
     private fun getSortedBookmarks(bookmarkList: List<Bookmark>): List<Bookmark> {
         val comparator: Comparator<Bookmark> = when (bookmarkSortOrder) {
             BookmarkSortOrder.DATE_CREATED -> BookmarkCreationDateComparator()
@@ -277,9 +266,9 @@ open class BookmarkControl @Inject constructor(
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
 
-    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark?) { // Show label view for new bookmark
+    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) { // Show label view for new bookmark
         val intent = Intent(currentActivity, BookmarkLabels::class.java)
-        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark!!.id))
+        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark.id))
         currentActivity.startActivity(intent)
     }
 

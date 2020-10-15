@@ -7,8 +7,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
-import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
@@ -160,7 +158,7 @@ class BookmarkControlTest {
         val newBookmark = Bookmark(verseRange)
         val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, false)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
-        Assert.assertThat(bookmarkControl!!.isBookmarkForKey(verseRange.start), IsEqual.equalTo(true))
+        Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
     }
 
     @Test
@@ -169,11 +167,11 @@ class BookmarkControlTest {
         val newBookmark = Bookmark(verseRange)
         bookmarkControl!!.addOrUpdateBookmark(newBookmark, false)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
-        Assert.assertThat(bookmarkControl!!.isBookmarkForKey(startVerse), IsEqual.equalTo(true))
+        Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
 
         // 1 has the same start as 10 but is not the same
         val verseWithSameStart = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1)
-        Assert.assertThat(bookmarkControl!!.isBookmarkForKey(verseWithSameStart), IsEqual.equalTo(false))
+        Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseWithSameStart), IsEqual.equalTo(false))
     }
 
     @Test
