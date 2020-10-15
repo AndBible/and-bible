@@ -359,7 +359,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             val verse = currentVerse
 
-            val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)?: return
+            val bookmarkDto = bookmarkControl.firstBookmarkStartingAtVerse(verse)?: return
             val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
             val speakLabel = bookmarkControl.speakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }
@@ -404,7 +404,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun saveBookmark(doNotSync: Boolean){
         val labelList = ArrayList<Label>()
         if(settings.autoBookmark) {
-            var bookmark = bookmarkControl.getBookmarkByKey(startVerse)
+            var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 

@@ -48,6 +48,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
+import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
 
@@ -74,7 +75,7 @@ open class BookmarkControl @Inject constructor(
         if (v.verse == 0) {
             v = Verse(v.versification, v.book, v.chapter, 1)
         }
-        val bookmarkDto = getBookmarkByKey(v)
+        val bookmarkDto = firstBookmarkStartingAtVerse(v)
         if (bookmarkDto?.playbackSettings != null) {
             bookmarkDto.playbackSettings = settings
             addOrUpdateBookmark(bookmarkDto)
@@ -84,7 +85,7 @@ open class BookmarkControl @Inject constructor(
 
     fun addBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            var bookmarkDto = getBookmarkByKey(verseRange)
+            var bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
             var message: Int? = null
@@ -107,7 +108,7 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = getBookmarkByKey(verseRange)
+            val bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(android.R.id.content)
             if (bookmarkDto != null) {
@@ -120,7 +121,7 @@ open class BookmarkControl @Inject constructor(
 
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = getBookmarkByKey(verseRange)
+            val bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             bookmarkDto?.let { showBookmarkLabelsActivity(currentActivity, it) }
         }
@@ -164,13 +165,10 @@ open class BookmarkControl @Inject constructor(
 
     fun getBookmarksByIds(ids: LongArray): List<Bookmark> = dao.bookmarksByIds(ids)
 
-    // TODO: Rename: forVerse, TODO: can be done with a faster query
-    fun isBookmarkForKey(key: Verse): Boolean = getBookmarkByKey(key) != null
+    fun isBookmarkForKey(key: Verse): Boolean = dao.hasBookmarksForVerse(key.toV11n(KJVA).ordinal)
 
-    // TODO: rename bookmarksForVerse
-    // TODO: better to not use *Start later. and provide a full list.
-    fun getBookmarkByKey(key: Verse): Bookmark? = dao.bookmarksForVerseStart(key).firstOrNull()
-    fun getBookmarkByKey(key: VerseRange): Bookmark? = dao.bookmarksForVerseStart(key.start).firstOrNull()
+    fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
+    private fun firstBookmarkStartingAtVerse(key: VerseRange): Bookmark? = dao.bookmarksStartingAtVerse(key.start).firstOrNull()
 
     fun getSpeakBookmarkByOsisRef(osisRef: String): Bookmark {
         val verse = VerseFactory.fromString(KJVA, osisRef)
@@ -223,7 +221,8 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun insertOrUpdateLabel(label: Label): Label {
-        if(label.id != 0L) {
+        if(label.id < 0) throw RuntimeException("Illegal negative label.id")
+        if(label.id > 0L) {
             dao.update(label)
         } else {
             label.id = dao.insert(label)
@@ -296,8 +295,12 @@ open class BookmarkControl @Inject constructor(
         currentActivity.startActivity(intent)
     }
 
-    // TODO: can be cached! Does not change (can't be changed!)
-    val speakLabel: Label get() = dao.getOrCreateSpeakLabel()
+    private lateinit var _speakLabel: Label
+    val speakLabel: Label get() {
+        if(!::_speakLabel.isInitialized)
+            _speakLabel = dao.getOrCreateSpeakLabel()
+        return _speakLabel
+    }
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean {
         return getBookmarkLabels(bookmark).contains(speakLabel)
