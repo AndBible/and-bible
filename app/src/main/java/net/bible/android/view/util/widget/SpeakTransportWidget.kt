@@ -120,20 +120,20 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
 
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
-        val bookmarkDtos = ArrayList<Bookmark>()
+        val bookmarks = ArrayList<Bookmark>()
         val labelDto = bookmarkControl.speakLabel
         for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                 Comparator<Bookmark> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 
             bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
-            bookmarkDtos.add(b)
+            bookmarks.add(b)
         }
 
         val adapter = ArrayAdapter<String>(context, android.R.layout.select_dialog_item, bookmarkTitles)
         AlertDialog.Builder(context)
                 .setTitle(R.string.speak_bookmarks_menu_title)
                 .setAdapter(adapter) { _, which ->
-                    speakControl.speakFromBookmark(bookmarkDtos[which])
+                    speakControl.speakFromBookmark(bookmarks[which])
                     if(SpeakSettings.load().synchronize) {
                         context.startActivity(Intent(context, MainBibleActivity::class.java))
                     }

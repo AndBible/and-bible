@@ -182,12 +182,12 @@ class BookmarkControlTest {
         val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
 
         // add bookmark in range
-        val bookmarkDto = addBookmark("ps.17.1-ps.17.2")
+        val bookmark = addBookmark("ps.17.1-ps.17.2")
         var greenLabel = Label()
         greenLabel.name = "G"
         greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabel))
+        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(greenLabel))
         addBookmark("ps.17.10")
 
         // add bookmark out of range
@@ -208,8 +208,8 @@ class BookmarkControlTest {
         val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
 
         // add bookmark in range
-        val bookmarkDto = addBookmark("ps.17.1-ps.17.2")
-        val bookmarkDto2 = addBookmark("ps.17.2-ps.17.2")
+        val bookmark = addBookmark("ps.17.1-ps.17.2")
+        val bookmark2 = addBookmark("ps.17.2-ps.17.2")
         var greenLabel = Label()
         greenLabel.name = "G"
         greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
@@ -218,8 +218,8 @@ class BookmarkControlTest {
         stargLabel.name = "S"
         stargLabel.bookmarkStyle = BookmarkStyle.YELLOW_STAR
         stargLabel = bookmarkControl!!.insertOrUpdateLabel(stargLabel)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(greenLabel))
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(stargLabel))
+        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(greenLabel))
+        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(stargLabel))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
@@ -237,8 +237,8 @@ class BookmarkControlTest {
         val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
 
         // add bookmark in range
-        val bookmarkDto = addBookmark("ps.17.2-ps.17.2")
-        val bookmarkDto2 = addBookmark("ps.17.1-ps.17.2")
+        val bookmark = addBookmark("ps.17.2-ps.17.2")
+        val bookmark2 = addBookmark("ps.17.1-ps.17.2")
         var label1 = Label()
         label1.name = "S"
         label1.bookmarkStyle = BookmarkStyle.YELLOW_STAR
@@ -247,8 +247,8 @@ class BookmarkControlTest {
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto, listOf(label1))
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(label2))
+        bookmarkControl!!.setBookmarkLabels(bookmark, listOf(label1))
+        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(label2))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
@@ -266,13 +266,13 @@ class BookmarkControlTest {
         val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
 
         // add bookmark in range
-        val bookmarkDto = addBookmark("ps.17.2-ps.17.2")
-        val bookmarkDto2 = addBookmark("ps.17.1-ps.17.2")
+        val bookmark = addBookmark("ps.17.2-ps.17.2")
+        val bookmark2 = addBookmark("ps.17.1-ps.17.2")
         var label2 = Label()
         label2.name = "G"
         label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
         label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setBookmarkLabels(bookmarkDto2, listOf(label2))
+        bookmarkControl!!.setBookmarkLabels(bookmark2, listOf(label2))
 
         // check only bookmark in range is returned
         val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)

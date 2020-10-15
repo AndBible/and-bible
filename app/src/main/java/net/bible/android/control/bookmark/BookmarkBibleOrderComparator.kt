@@ -27,9 +27,9 @@ import java.util.*
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class BookmarkBibleOrderComparator(bookmarkDtos: List<Bookmark>) : Comparator<Bookmark> {
+class BookmarkBibleOrderComparator(bookmarks: List<Bookmark>) : Comparator<Bookmark> {
     private val convertibleVerseRangeComparator
-		= VerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build()
+		= VerseRangeComparator.Builder().withBookmarks(bookmarks).build()
 	override fun compare(o1: Bookmark, o2: Bookmark): Int {
         return convertibleVerseRangeComparator.compare(o1, o2)
     }

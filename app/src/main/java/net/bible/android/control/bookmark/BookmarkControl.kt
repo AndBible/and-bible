@@ -61,7 +61,8 @@ open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
 {
     private val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all")
-	private val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled")
+    private val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled")
+
     val dao get() = DatabaseContainer.db.bookmarkDao()
 
 	fun updateBookmarkSettings(settings: PlaybackSettings) {
@@ -75,29 +76,29 @@ open class BookmarkControl @Inject constructor(
         if (v.verse == 0) {
             v = Verse(v.versification, v.book, v.chapter, 1)
         }
-        val bookmarkDto = firstBookmarkStartingAtVerse(v)
-        if (bookmarkDto?.playbackSettings != null) {
-            bookmarkDto.playbackSettings = settings
-            addOrUpdateBookmark(bookmarkDto)
-            Log.d("SpeakBookmark", "Updated bookmark settings " + bookmarkDto + settings.speed)
+        val bookmark = firstBookmarkStartingAtVerse(v)
+        if (bookmark?.playbackSettings != null) {
+            bookmark.playbackSettings = settings
+            addOrUpdateBookmark(bookmark)
+            Log.d("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
         }
     }
 
     fun addBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            var bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
+            var bookmark = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
             var message: Int? = null
-            if (bookmarkDto == null) { // prepare new bookmark and add to db
-                bookmarkDto = Bookmark(verseRange)
-                bookmarkDto = addOrUpdateBookmark(bookmarkDto, true)
+            if (bookmark == null) { // prepare new bookmark and add to db
+                bookmark = Bookmark(verseRange)
+                bookmark = addOrUpdateBookmark(bookmark, true)
                 message = R.string.bookmark_added
             } else {
-                bookmarkDto = refreshBookmarkDate(bookmarkDto)
+                bookmark = refreshBookmarkDate(bookmark)
                 message = R.string.bookmark_date_updated
             }
-            val affectedBookmark = bookmarkDto
+            val affectedBookmark = bookmark
             val actionTextColor = getResourceColor(R.color.snackbar_action_text)
             Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
                 .setActionTextColor(actionTextColor)
@@ -108,11 +109,11 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
+            val bookmark = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
             val currentView = currentActivity.findViewById<View>(android.R.id.content)
-            if (bookmarkDto != null) {
-                deleteBookmark(bookmarkDto, true)
+            if (bookmark != null) {
+                deleteBookmark(bookmark, true)
                 Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
             }
         }
@@ -121,9 +122,9 @@ open class BookmarkControl @Inject constructor(
 
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
         if (isCurrentDocumentBookmarkable) {
-            val bookmarkDto = firstBookmarkStartingAtVerse(verseRange)
+            val bookmark = firstBookmarkStartingAtVerse(verseRange)
             val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-            bookmarkDto?.let { showBookmarkLabelsActivity(currentActivity, it) }
+            bookmark?.let { showBookmarkLabelsActivity(currentActivity, it) }
         }
     }
 
@@ -289,9 +290,9 @@ open class BookmarkControl @Inject constructor(
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
 
-    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmarkDto: Bookmark?) { // Show label view for new bookmark
+    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark?) { // Show label view for new bookmark
         val intent = Intent(currentActivity, BookmarkLabels::class.java)
-        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmarkDto!!.id))
+        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark!!.id))
         currentActivity.startActivity(intent)
     }
 

@@ -19,9 +19,9 @@ class VerseRangeComparatorTest {
     private var verseRangeComparator: VerseRangeComparator? = null
     @Before
     fun setup() {
-        val bookmarkDto = Bookmark(TestData.SYN_PROT_PS_13_2_4)
-        val bookmarkDto2 = Bookmark(TestData.KJVA_1MACC_1_2_3)
-        verseRangeComparator = VerseRangeComparator.Builder().withBookmarks(Arrays.asList(bookmarkDto, bookmarkDto2)).build()
+        val bookmark = Bookmark(TestData.SYN_PROT_PS_13_2_4)
+        val bookmark2 = Bookmark(TestData.KJVA_1MACC_1_2_3)
+        verseRangeComparator = VerseRangeComparator.Builder().withBookmarks(Arrays.asList(bookmark, bookmark2)).build()
     }
 
     @Test
