@@ -35,7 +35,7 @@ import java.util.*
 interface BookmarkDao {
     @Query("SELECT * from Bookmark ORDER BY :orderBy")
     fun allBookmarks(orderBy: String): List<Bookmark>
-    fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_BOOK): List<Bookmark> =
+    fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
         allBookmarks(orderBy.sqlString)
 
     @Query("SELECT * from Bookmark where id = :bookmarkId")
@@ -100,7 +100,7 @@ interface BookmarkDao {
             ORDER BY :orderBy
         """)
     fun unlabelledBookmarks(orderBy: String): List<Bookmark>
-    fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_BOOK): List<Bookmark> =
+    fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
         unlabelledBookmarks(orderBy.sqlString)
 
 
@@ -111,7 +111,7 @@ interface BookmarkDao {
             WHERE Label.id = :labelId ORDER BY :orderBy
         """)
     fun bookmarksWithLabel(labelId: Long, orderBy: String): List<Bookmark>
-    fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_BOOK): List<Bookmark>
+    fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
         = bookmarksWithLabel(label.id, orderBy.sqlString)
 
     // Labels

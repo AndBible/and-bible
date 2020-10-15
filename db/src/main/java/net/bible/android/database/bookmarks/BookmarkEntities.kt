@@ -58,10 +58,10 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 }
 
 enum class BookmarkSortOrder {
-    BIBLE_BOOK, DATE_CREATED;
+    BIBLE_ORDER, CREATED_AT;
     val sqlString get() = when(this) {
-        BIBLE_BOOK -> "Bookmark.kjvStartOrdinal"
-        DATE_CREATED -> "Bookmark.createdAt"
+        BIBLE_ORDER -> "Bookmark.kjvStartOrdinal"
+        CREATED_AT -> "Bookmark.createdAt"
     }
 }
 

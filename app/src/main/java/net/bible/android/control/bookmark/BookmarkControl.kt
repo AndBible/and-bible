@@ -158,10 +158,26 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun getBookmarksWithLabel(label: Label): List<Bookmark> = when {
-        LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
-        LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
-        else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
+    fun getBookmarksWithLabel(label: Label): List<Bookmark> = getSortedBookmarks(
+        when {
+            LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
+            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
+            else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
+        })
+
+    // Not sure if this is really needed (or if per-ordinal sorting by DB is enough). Leaving this for now.
+    private fun getSortedBookmarks(bookmarkList: List<Bookmark>): List<Bookmark> {
+        if(bookmarkSortOrder == BookmarkSortOrder.CREATED_AT) return bookmarkList
+
+        val comparator = BookmarkBibleOrderComparator(bookmarkList)
+
+        // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
+        try {
+            Collections.sort(bookmarkList, comparator)
+        } catch (e: Exception) {
+            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+        }
+        return bookmarkList
     }
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
@@ -218,14 +234,14 @@ open class BookmarkControl @Inject constructor(
 
     fun changeBookmarkSortOrder() {
         bookmarkSortOrder = when (bookmarkSortOrder) {
-            BookmarkSortOrder.BIBLE_BOOK -> BookmarkSortOrder.DATE_CREATED
-            else -> BookmarkSortOrder.BIBLE_BOOK
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT
+            BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
         }
     }
 
     private var bookmarkSortOrder: BookmarkSortOrder
         get() {
-            val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString())
+            val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_ORDER.toString())
             return BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
         }
         private set(bookmarkSortOrder) {
@@ -233,7 +249,7 @@ open class BookmarkControl @Inject constructor(
         }
 
     val bookmarkSortOrderDescription: String
-        get() = if (BookmarkSortOrder.BIBLE_BOOK == bookmarkSortOrder) {
+        get() = if (BookmarkSortOrder.BIBLE_ORDER == bookmarkSortOrder) {
             getResourceString(R.string.sort_by_bible_book)
         } else {
             getResourceString(R.string.sort_by_date)
