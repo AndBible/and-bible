@@ -359,7 +359,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmark) {
             val verse = currentVerse
 
-            val bookmark = bookmarkControl.firstBookmarkStartingAtVerse(verse)?: return
+            val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
             val labelList = bookmarkControl.labelsForBookmark(bookmark)
             val speakLabel = bookmarkControl.speakLabel
             val ttsLabel = labelList.find { it.id == speakLabel.id }

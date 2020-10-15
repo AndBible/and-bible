@@ -33,7 +33,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
-    : ArrayAdapter<Label?>(context, android.R.layout.simple_list_item_multiple_choice, items)
+    : ArrayAdapter<Label>(context, android.R.layout.simple_list_item_multiple_choice, items)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {

@@ -274,13 +274,10 @@ open class BookmarkControl @Inject constructor(
         _speakLabel = null
     }
 
-    fun isSpeakBookmark(bookmark: Bookmark): Boolean {
-        return labelsForBookmark(bookmark).contains(speakLabel)
-    }
+    fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
+    fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
 
-    fun bookmarksInBook(book: BibleBook): List<Bookmark> {
-        return dao.bookmarksInBook(book)
-    }
+    fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
 
     companion object {
         const val BOOKMARK_IDS_EXTRA = "bookmarkIds"

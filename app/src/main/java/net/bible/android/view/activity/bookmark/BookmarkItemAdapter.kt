@@ -66,7 +66,6 @@ class BookmarkItemAdapter(
         // Set value for the first text field
         val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
         val verseName = item.verseRange.toV11n(versification).name
-        //bookmarkControl.getBookmarkVerseKey(item)
         val book = item.speakBook
         if (isSpeak && book != null) {
             view.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)

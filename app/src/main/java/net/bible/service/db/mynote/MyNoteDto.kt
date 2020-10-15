@@ -32,7 +32,7 @@ import java.util.*
  */
 class MyNoteDto : VerseRangeUser {
     var id: Long? = null
-    private var convertibleVerseRange: VerseRange? = null
+    private var _verseRange: VerseRange? = null
     var noteText: String = ""
     var lastUpdatedOn: Date? = null
     var createdOn: Date? = null
@@ -45,18 +45,16 @@ class MyNoteDto : VerseRangeUser {
         get() = StringUtils.isEmpty(noteText)
 
     override var verseRange: VerseRange
-        get() = convertibleVerseRange!!
+        get() = _verseRange!!
         set(verseRange) {
-            convertibleVerseRange = verseRange
+            _verseRange = verseRange
         }
 
-    fun getVerseRange(versification: Versification): VerseRange? {
-        return convertibleVerseRange?.toV11n(versification)
-    }
+    fun getVerseRange(versification: Versification): VerseRange = verseRange.toV11n(versification)
 
     override fun toString(): String {
         return "MyNoteDto{" +
-            "convertibleVerseRange=" + convertibleVerseRange +
+            "convertibleVerseRange=" + _verseRange +
             ", noteText='" + noteText + '\'' +
             '}'
     }
@@ -64,10 +62,10 @@ class MyNoteDto : VerseRangeUser {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        result = if (convertibleVerseRange == null || convertibleVerseRange == null) {
+        result = if (_verseRange == null || _verseRange == null) {
             prime * result
         } else {
-            val verseRange = convertibleVerseRange
+            val verseRange = _verseRange
             prime * result + verseRange.hashCode()
         }
         return result
@@ -84,9 +82,9 @@ class MyNoteDto : VerseRangeUser {
         if (id == null) {
             if (other.id != null) return false
         } else if (id != other.id) return false
-        if (convertibleVerseRange == null) {
-            if (other.convertibleVerseRange != null) return false
-        } else if (convertibleVerseRange != other.convertibleVerseRange) return false
+        if (_verseRange == null) {
+            if (other._verseRange != null) return false
+        } else if (_verseRange != other._verseRange) return false
         if (noteText == null) {
             if (other.noteText != null) return false
         } else if (noteText != other.noteText) return false
