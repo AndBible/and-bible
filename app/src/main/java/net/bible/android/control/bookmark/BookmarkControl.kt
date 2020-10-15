@@ -159,10 +159,10 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun getBookmarksWithLabel(label: Label): List<Bookmark> = when {
-            LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
-            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
-            else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
-        }
+        LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
+        LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
+        else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
+    }
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
