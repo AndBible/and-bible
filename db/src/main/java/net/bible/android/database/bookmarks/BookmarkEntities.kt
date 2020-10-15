@@ -57,6 +57,14 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 
 }
 
+enum class BookmarkSortOrder {
+    BIBLE_BOOK, DATE_CREATED;
+    val sqlString get() = when(this) {
+        BIBLE_BOOK -> "Bookmark.kjvStartOrdinal"
+        DATE_CREATED -> "Bookmark.createdAt"
+    }
+}
+
 interface VerseRangeUser {
     val verseRange: VerseRange
 }
@@ -117,7 +125,7 @@ class BookmarkEntities {
                 kjvVerseRange = value
             }
 
-        var kjvVerseRange: VerseRange
+        private var kjvVerseRange: VerseRange
             get() {
                 val begin = Verse(KJVA, kjvOrdinalStart)
                 val end = Verse(KJVA, kjvOrdinalEnd)

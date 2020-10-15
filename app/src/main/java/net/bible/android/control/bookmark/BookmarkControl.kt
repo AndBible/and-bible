@@ -31,6 +31,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -55,26 +56,26 @@ import javax.inject.Inject
  */
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
-	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, resourceProvider: ResourceProvider)
-{
+	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+    resourceProvider: ResourceProvider
+) {
     private val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all")
     private val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled")
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
 	fun updateBookmarkSettings(settings: PlaybackSettings) {
-        if (activeWindowPageManagerProvider.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE) {
-            updateBookmarkSettings(activeWindowPageManagerProvider.activeWindowPageManager.currentBible.singleKey, settings)
+        val pageManager = activeWindowPageManagerProvider.activeWindowPageManager
+        if (pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
+            updateBookmarkSettings(pageManager.currentBible.singleKey, settings)
         }
     }
 
-    private fun updateBookmarkSettings(verse: Verse, settings: PlaybackSettings) {
-        var v = verse
-        if (v.verse == 0) {
-            v = Verse(v.versification, v.book, v.chapter, 1)
-        }
+    private fun updateBookmarkSettings(v: Verse, settings: PlaybackSettings) {
+        val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
+
         // TODO: what if there are more?
-        val bookmark = dao.bookmarksForVerseStartWithLabel(v, speakLabel).firstOrNull()
+        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
             addOrUpdateBookmark(bookmark)
@@ -147,10 +148,8 @@ open class BookmarkControl @Inject constructor(
 
     fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun speakBookmarkByOsisRef(osisRef: String): Bookmark {
-        val verse = VerseFactory.fromString(KJVA, osisRef)
-        return dao.bookmarksForVerseStartWithLabel(verse, speakLabel).first()
-    }
+    fun speakBookmarkByOsisRef(osisRef: String): Bookmark =
+        dao.bookmarksForVerseStartWithLabel(VerseFactory.fromString(KJVA, osisRef), speakLabel).first()
 
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
         dao.delete(bookmark)
@@ -159,15 +158,11 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun getBookmarksWithLabel(label: Label): List<Bookmark> {
-		val bookmarkList = when {
-				LABEL_ALL == label -> dao.allBookmarks()
-				LABEL_UNLABELLED == label -> dao.unlabelledBookmarks()
-				else -> dao.bookmarksWithLabel(label.id)
-			}
-
-        return getSortedBookmarks(bookmarkList)
-    }
+    fun getBookmarksWithLabel(label: Label): List<Bookmark> = when {
+            LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
+            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
+            else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
+        }
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
@@ -209,7 +204,6 @@ open class BookmarkControl @Inject constructor(
 
     fun deleteLabel(label: Label) = dao.delete(label)
 
-
     // add special label that is automatically associated with all-bookmarks
     val allLabels: List<Label>
         get() {
@@ -245,28 +239,13 @@ open class BookmarkControl @Inject constructor(
             getResourceString(R.string.sort_by_date)
         }
 
-    // TODO: what about sorting in db instead?
-    private fun getSortedBookmarks(bookmarkList: List<Bookmark>): List<Bookmark> {
-        val comparator: Comparator<Bookmark> = when (bookmarkSortOrder) {
-            BookmarkSortOrder.DATE_CREATED -> BookmarkCreationDateComparator()
-            BookmarkSortOrder.BIBLE_BOOK -> BookmarkBibleOrderComparator(bookmarkList)
-        }
-        // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
-        try {
-            Collections.sort(bookmarkList, comparator)
-        } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
-        }
-        return bookmarkList
-    }
-
     private val isCurrentDocumentBookmarkable: Boolean
         get() {
             val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
 
-    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) { // Show label view for new bookmark
+    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
         val intent = Intent(currentActivity, BookmarkLabels::class.java)
         intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark.id))
         currentActivity.startActivity(intent)
