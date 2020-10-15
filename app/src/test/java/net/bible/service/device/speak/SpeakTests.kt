@@ -515,6 +515,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @After
     fun resetDatabase() {
+        bookmarkControl.reset()
         DatabaseResetter.resetDatabase()
     }
 

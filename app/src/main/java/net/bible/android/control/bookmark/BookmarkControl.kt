@@ -296,11 +296,11 @@ open class BookmarkControl @Inject constructor(
         currentActivity.startActivity(intent)
     }
 
-    private lateinit var _speakLabel: Label
-    val speakLabel: Label get() {
-        if(!::_speakLabel.isInitialized)
-            _speakLabel = dao.getOrCreateSpeakLabel()
-        return _speakLabel
+    private var _speakLabel: Label? = null
+    val speakLabel: Label get() = _speakLabel?: dao.getOrCreateSpeakLabel().also { _speakLabel = it }
+
+    fun reset() {
+        _speakLabel = null
     }
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean {

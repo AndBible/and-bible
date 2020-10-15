@@ -148,7 +148,7 @@ interface BookmarkDao {
     @Insert
     fun insert(entities: List<BookmarkToLabel>): List<Long>
 
-    @Query("SELECT * from Label WHERE bookmarkStyle = 'SPEAK'")
+    @Query("SELECT * from Label WHERE bookmarkStyle = 'SPEAK' LIMIT 1")
     fun speakLabel(): Label?
 
     @Transaction
