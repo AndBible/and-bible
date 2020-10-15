@@ -20,7 +20,6 @@ package net.bible.service.db
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
-import androidx.room.OnConflictStrategy
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
@@ -30,12 +29,9 @@ import net.bible.android.database.bookmarks.converter
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.VerseRangeFactory
-import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.sql.SQLException
-import java.util.*
 import androidx.room.migration.Migration as RoomMigration
 
 
@@ -568,6 +564,8 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
             execSQL("ALTER TABLE label RENAME TO label_old;")
 
             execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `Bookmark` (`kjvOrdinalEnd`)")
             execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT)")
             execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
             execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
@@ -578,7 +576,7 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
                 val id = c.getLong(0)
                 val key = c.getString(1)
                 val v11n = Versifications.instance().getVersification(
-                        c.getString(2) ?: Versifications.DEFAULT_V11N
+                    c.getString(2) ?: Versifications.DEFAULT_V11N
                 )
 
                 val verseRange = VerseRangeFactory.fromString(v11n, key)

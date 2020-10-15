@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 34,
-    "identityHash": "7bc2bfc321d88ba5e542c402e7c5807a",
+    "identityHash": "b9c76a14523f9d9dcecbc05a4ca3ffc8",
     "entities": [
       {
         "tableName": "Bookmark",
@@ -63,7 +63,24 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Bookmark_kjvOrdinalStart",
+            "unique": false,
+            "columnNames": [
+              "kjvOrdinalStart"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `${TABLE_NAME}` (`kjvOrdinalStart`)"
+          },
+          {
+            "name": "index_Bookmark_kjvOrdinalEnd",
+            "unique": false,
+            "columnNames": [
+              "kjvOrdinalEnd"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `${TABLE_NAME}` (`kjvOrdinalEnd`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -1070,7 +1087,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7bc2bfc321d88ba5e542c402e7c5807a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9c76a14523f9d9dcecbc05a4ca3ffc8')"
     ]
   }
 }

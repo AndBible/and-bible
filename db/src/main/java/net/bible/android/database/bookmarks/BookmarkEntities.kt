@@ -62,20 +62,27 @@ interface VerseRangeUser {
 }
 
 class BookmarkEntities {
-    @Entity
+    @Entity(
+        indices = [
+            Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
+        ]
+    )
     data class Bookmark (
-        // Verse range in KJV ordinals
-            var kjvOrdinalStart: Int,
-            var kjvOrdinalEnd: Int,
+        // Verse range in KJV ordinals. For generic lookups, we must store verse ranges in a "standard"
+        // versification. We store also verserange in original versification, as it conveys the more exact
+        // versification-specific information.
 
-            var ordinalStart: Int,
-            var ordinalEnd: Int,
-            var v11n: Versification,
+        var kjvOrdinalStart: Int,
+        var kjvOrdinalEnd: Int,
 
-            var playbackSettings: PlaybackSettings?,
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
+        var v11n: Versification,
 
-            @PrimaryKey(autoGenerate = true) var id: Long = 0,
-            var createdAt: Date = Date(System.currentTimeMillis()),
+        var playbackSettings: PlaybackSettings?,
+
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        var createdAt: Date = Date(System.currentTimeMillis()),
     ): VerseRangeUser {
         constructor(verseRange: VerseRange): this(
             converter.convert(verseRange.start, KJVA).ordinal,
