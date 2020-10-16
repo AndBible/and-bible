@@ -58,7 +58,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<Label> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		final Label labelDto = getItem(position);
+		final Label label = getItem(position);
 
 		View rowView;
 		if (convertView == null) {
@@ -68,18 +68,18 @@ public class ManageLabelItemAdapter extends ArrayAdapter<Label> {
 			rowView = convertView;
 		}
 		TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
-		nameView.setText(labelDto.getName());
-		if (labelDto.getBookmarkStyle() ==null) {
+		nameView.setText(label.getName());
+		if (label.getBookmarkStyle() ==null) {
 			nameView.setBackgroundColor(UiUtils.INSTANCE.getThemeBackgroundColour(getContext()));
 		} else {
-			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
+			bookmarkStyleAdapterHelper.styleView(nameView, label.getBookmarkStyle(), getContext(), false, false);
 		}
 
 		ImageView editButton = (ImageView)rowView.findViewById(R.id.editLabel);
 		editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				manageLabels.editLabel(labelDto);
+				manageLabels.editLabel(label);
 			}
 		});
 
@@ -87,11 +87,11 @@ public class ManageLabelItemAdapter extends ArrayAdapter<Label> {
 		deleteButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				manageLabels.delete(labelDto);
+				manageLabels.delete(label);
 			}
 		});
 
-		if(labelDto.getBookmarkStyle() == BookmarkStyle.SPEAK) {
+		if(label.getBookmarkStyle() == BookmarkStyle.SPEAK) {
 			editButton.setVisibility(View.GONE);
 			deleteButton.setVisibility(View.GONE);
 		}

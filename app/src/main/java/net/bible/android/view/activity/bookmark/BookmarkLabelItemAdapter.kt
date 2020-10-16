@@ -37,7 +37,7 @@ class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val labelDto = getItem(position)!!
+        val label = getItem(position)!!
         val rowView: View
         rowView = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -46,11 +46,11 @@ class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
             convertView
         }
         val nameView = rowView as CheckedTextView
-        nameView.text = labelDto.name
-        if (labelDto.bookmarkStyle == null) {
+        nameView.text = label.name
+        if (label.bookmarkStyle == null) {
             nameView.setBackgroundColor(getThemeBackgroundColour(context))
         } else {
-            bookmarkStyleAdapterHelper.styleView(nameView, labelDto.bookmarkStyle, context, false, false)
+            bookmarkStyleAdapterHelper.styleView(nameView, label.bookmarkStyle, context, false, false)
         }
         return rowView
     }

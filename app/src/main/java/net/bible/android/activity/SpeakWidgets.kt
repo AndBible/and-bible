@@ -185,12 +185,12 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.speakLabel
+        val label = bookmarkControl.speakLabel
         if(!SpeakSettings.load().autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
         }
 
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
+        for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith(
             { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b.verseRange.start.osisRef)
