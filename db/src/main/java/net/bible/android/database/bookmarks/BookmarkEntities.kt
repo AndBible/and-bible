@@ -164,5 +164,7 @@ class BookmarkEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var name: String = "",
         var bookmarkStyle: BookmarkStyle? = null,
-    )
+    ) {
+        override fun toString() = name
+    }
 }
