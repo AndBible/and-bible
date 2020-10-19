@@ -58,7 +58,11 @@ export function setEditMode(enable) {
         editor.contentEditable = "true"
         var range = document.createRange()
         var sel = window.getSelection()
-        range.selectNodeContents(editor)
+        if (editor.innerHTML == "") {
+            range.selectNodeContents(editor)
+        } else {
+            range.setStartBefore(editor.firstChild)
+        }
         sel.removeAllRanges()
         sel.addRange(range)
     } else {
