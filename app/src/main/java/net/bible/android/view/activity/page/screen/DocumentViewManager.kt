@@ -28,7 +28,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
-import net.bible.android.view.activity.mynote.MyNoteViewBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
@@ -43,7 +42,6 @@ class AfterRemoveWebViewEvent
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
-	private val myNoteViewBuilder: MyNoteViewBuilder,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
@@ -69,7 +67,6 @@ class DocumentViewManager @Inject constructor(
     private fun removeView() {
         parent.removeAllViews()
         ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
-        myNoteViewBuilder.afterRemove()
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {

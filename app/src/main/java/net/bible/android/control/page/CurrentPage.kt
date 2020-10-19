@@ -19,9 +19,6 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.view.Menu
-import android.webkit.JavascriptInterface
-import net.bible.service.common.ParseException
-import net.bible.service.format.Note
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
@@ -58,12 +55,6 @@ interface CurrentPage {
 
 	/** set key and update screens  */
 	fun setKey(key: Key)
-
-    /** save edited text */
-    @JavascriptInterface
-    fun save(text: String) {
-
-    }
 
     /** get key for 1 verse instead of whole chapter if bible
      */
