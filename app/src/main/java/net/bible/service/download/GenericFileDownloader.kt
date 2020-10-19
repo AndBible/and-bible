@@ -91,6 +91,8 @@ class GenericFileDownloader(
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
         val job = JobManager.createJob(jobName)
 
+        job.isNotifyUser = false;
+
         // Don't bother setting a size, we'll do it later.
         job.beginJob(jobName)
 
