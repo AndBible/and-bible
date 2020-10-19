@@ -60,7 +60,7 @@ class DownloadControl(
 
     /** @return a list of all available docs that have not already been downloaded, have no lang, or don't work
      */
-    fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): List<Book> = try {
+    suspend fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): List<Book> = try {
         val availableDocs = swordDocumentFacade.getDownloadableDocuments(repoFactory, refresh)
 
         // there are a number of books we need to filter out of the download list for various reasons
