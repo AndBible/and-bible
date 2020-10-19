@@ -68,7 +68,6 @@ class DownloadManager(
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
                 if (refresh || installer.books.size == 0) {
-                    //todo should warn user of implications of downloading book list e.g. from persecuted country
                     log.warn("Reloading book list")
                     installer.reloadBookList()
                 }
