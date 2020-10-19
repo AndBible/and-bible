@@ -159,6 +159,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (::documentControl.isInitialized) {
                 documentControl.isMyNotes
             } else false
+    val isEditing: Boolean
+        get() {
+            var bibleview = windowControl.activeWindow.bibleView
+            return bibleview != null && bibleview.isEditing
+        }
 
     val multiWinMode
         get() =
@@ -356,7 +361,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 var pinningText = getString(R.string.help_window_pinning_text)
 
                 pinningText += "<br><i><a href=\"https://youtu.be/27b1g-D3ibA\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
-                
+
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
                 } else {
@@ -536,6 +541,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         strongsButton.setOnLongClickListener {
             startActivityForResult(Intent(this, ChooseDictionaryWord::class.java), ActivityBase.STD_REQUEST_CODE)
             true
+        }
+
+        editButton.setOnClickListener {
+            windowControl.activeWindow.bibleView?.edit()
+            updateToolbar()
+        }
+
+        saveButton.setOnClickListener {
+            windowControl.activeWindow.bibleView?.save()
+            updateToolbar()
         }
 
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
@@ -770,6 +785,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val maxButtons: Int = (maxWidth / approximateSize).toInt()
         val showSearch = documentControl.isBibleBook || documentControl.isCommentary
 
+        editButton.visibility = if (visibleButtonCount < maxButtons && isMyNotes && !isEditing) {
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
+        saveButton.visibility = if (visibleButtonCount < maxButtons && isMyNotes && isEditing) {
+            visibleButtonCount += 1
+            View.VISIBLE
+        } else View.GONE
+
         bibleButton.visibility = if (visibleButtonCount < maxButtons && biblesForVerse.isNotEmpty()) {
             bibleButton.setOnClickListener { menuForDocs(it, biblesForVerse) }
             bibleButton.setOnLongClickListener {
@@ -799,7 +824,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             View.VISIBLE
         } else View.GONE
-
 
         fun addSearch() {
             searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch && !isMyNotes)

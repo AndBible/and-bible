@@ -125,6 +125,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             windowRef = WeakReference(value)
         }
 
+    var isEditing = false
+
     class BibleViewTouched(val onlyTouch: Boolean = false)
 
     init {
@@ -773,6 +775,22 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
+
+    /*
+        Enter editing mode (Currently only used for editing mynotes)
+     */
+    fun edit() {
+        isEditing = true
+        executeJavascriptOnUiThread("setEditMode(true)")
+    }
+
+    /*
+        Exit editing mode and save changes (Currently only used for editing mynotes)
+     */
+    fun save() {
+        isEditing = false
+        executeJavascriptOnUiThread( "setEditMode(false)")
+    }
 
     var onDestroy: (() -> Unit)? = null
 

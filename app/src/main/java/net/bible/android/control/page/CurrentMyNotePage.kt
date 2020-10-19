@@ -56,7 +56,7 @@ class CurrentMyNotePage internal constructor(
     override val currentPageContent: String get() {
         var text: String = myNoteDAO.getMyNoteTextByKey(key)
         text = text.replace("\n", "<br>")
-        text = "<div id=\"editor\" contentEditable=\"true\">$text</div>"
+        text = "<div id=\"editor\">$text</div>"
         text = HtmlMessageFormatter.format(text)
         return text
     }

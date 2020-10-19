@@ -48,15 +48,29 @@ function getElementsByClass( searchClass, domNode, tagName) {
     return matches;
 }
 
+export function setEditMode(enable) {
+    var editor = document.getElementById('editor')
+    if (!editor) {
+        console.log("No editor found")
+        return false
+    }
+    if (enable) {
+        editor.contentEditable = "true"
+        var range = document.createRange()
+        var sel = window.getSelection()
+        range.selectNodeContents(editor)
+        sel.removeAllRanges()
+        sel.addRange(range)
+    } else {
+        //Disable
+        editor.contentEditable = "false"
+        jsInterface.saveNote(editor.innerHTML)
+    }
+}
+
 export function initializeListeners() {
     $(document).bind("touchstart", event => stopScrolling());
     window.addEventListener("scroll", event => updateLocation());
-    var editor = document.getElementById("editor");
-    if (editor) {
-        editor.addEventListener("input", function(e) {
-            jsInterface.saveNote(e.srcElement.innerHTML)
-        }, false);
-    }
 }
 
 

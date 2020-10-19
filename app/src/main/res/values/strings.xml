@@ -472,6 +472,7 @@
     <string name="mynotes">My Notes</string>
     <string name="mynote_add">Add My Note</string>
     <string name="mynote_saved">My Note saved</string>
+    <string name="save">Save</string>
     
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>

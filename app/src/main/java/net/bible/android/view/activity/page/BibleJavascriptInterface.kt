@@ -141,6 +141,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun saveNote(text: String) {
         myNoteControl.saveMyNoteText(text)
+        windowControl.windowSync.reloadAllWindows(true)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

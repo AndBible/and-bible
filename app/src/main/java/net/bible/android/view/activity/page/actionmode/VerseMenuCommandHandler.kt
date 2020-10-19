@@ -72,7 +72,6 @@ open class VerseMenuCommandHandler(
                 isHandled = true
             }
             R.id.myNoteAddEdit -> {
-                mainActivity.fullScreen = false
                 myNoteControl.showMyNote(verseRange)
                 mainActivity.invalidateOptionsMenu()
                 mainActivity.documentViewManager.buildView()

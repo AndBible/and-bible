@@ -99,6 +99,24 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageButton
+                        android:id="@+id/editButton"
+                        style="@style/MyActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/edit"
+                        app:srcCompat="@drawable/ic_pen_24dp"
+                        />
+
+                    <ImageButton
+                        android:id="@+id/saveButton"
+                        style="@style/MyActionButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/save"
+                        app:srcCompat="@drawable/ic_save_white_24dp"
+                        />
+
+                    <ImageButton
                         android:id="@+id/searchButton"
                         style="@style/MyActionButton"
                         android:layout_width="wrap_content"

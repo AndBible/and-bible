@@ -5,7 +5,8 @@ import {scrollToVerse, setDisplaySettings, setToolbarOffset, setupContent} from 
 import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";
 import {
     registerVersePositions,
-    initializeListeners
+    initializeListeners,
+    setEditMode
 } from "./bibleview";
 import {
     clearVerseHighlight, disableVerseTouchSelection,
@@ -58,5 +59,7 @@ window.andbible = {
     scrollToVerse,
     setupContent,
     setDisplaySettings,
-    initialize
+    initialize,
+
+    setEditMode
 };
