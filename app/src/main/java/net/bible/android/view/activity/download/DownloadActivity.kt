@@ -188,7 +188,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show()
     }
 
-    override fun getDocumentsFromSource(refresh: Boolean): List<Book> {
+    override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         return downloadControl.getDownloadableDocuments(repoFactory, refresh)
     }
 

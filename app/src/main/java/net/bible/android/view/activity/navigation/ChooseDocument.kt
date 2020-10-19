@@ -71,7 +71,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     /** load list of docs to display
      *
      */
-    override fun getDocumentsFromSource(refresh: Boolean): List<Book> {
+    override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.d(TAG, "get document list from source")
         return swordDocumentFacade.documents
     }

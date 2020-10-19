@@ -68,7 +68,6 @@ class DownloadManager(
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
                 if (refresh || installer.books.size == 0) {
-                    //todo should warn user of implications of downloading book list e.g. from persecuted country
                     log.warn("Reloading book list")
                     installer.reloadBookList()
                 }
@@ -145,53 +144,6 @@ class DownloadManager(
         //book.getDriver().delete(book);
     }// Ask the Install Manager for a map of all known remote repositories
     // sites
-
-    /**
-     * Get a list of all known installers.
-     *
-     * @return the list of installers
-     */
-    val installers: Map<String, Installer>
-        get() =// Ask the Install Manager for a map of all known remote repositories
-            // sites
-            installManager.installers
-
-    /**
-     * Get a list of books in a repository by BookFilter.
-     *
-     * @param filter
-     * The book filter
-     * @see BookFilter
-     *
-     * @see Books
-     */
-    fun getRepositoryBooks(repositoryName: String?, filter: BookFilter?): List<Book> {
-        return installManager.getInstaller(repositoryName).getBooks(filter)
-    }
-
-    /**
-     * Reload the local cache for a remote repository.
-     *
-     * @param repositoryName
-     * @throws InstallException
-     */
-    @Throws(InstallException::class)
-    fun reloadBookList(repositoryName: String?) {
-        installManager.getInstaller(repositoryName).reloadBookList()
-    }
-
-    /**
-     * Get a Book from the repository. Note this does not install it.
-     *
-     * @param repositoryName
-     * the repository from which to get the book
-     * @param bookInitials
-     * the name of the book to get
-     * @return the Book
-     */
-    fun getRepositoryBook(repositoryName: String?, bookInitials: String?): Book {
-        return installManager.getInstaller(repositoryName).getBook(bookInitials)
-    }
 
     companion object {
         const val REPOSITORY_KEY = "repository"

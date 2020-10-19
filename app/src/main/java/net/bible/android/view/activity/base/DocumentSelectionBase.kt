@@ -119,7 +119,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
 
     /** ask subclass for documents to be displayed
      */
-    protected abstract fun getDocumentsFromSource(refresh: Boolean): List<Book>
+    protected abstract suspend fun getDocumentsFromSource(refresh: Boolean): List<Book>
     protected abstract fun handleDocumentSelection(selectedDocument: Book?)
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 

@@ -24,6 +24,8 @@ import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.service.common.Logger
 import net.bible.service.download.RepoBase
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.install.InstallException
+import java.lang.Exception
 import java.util.*
 import java.util.concurrent.ExecutorService
 
@@ -45,21 +47,26 @@ class DownloadQueue(private val executorService: ExecutorService) {
                 log.info("Downloading " + document.initials + " from repo " + repo.repoName)
                 try {
                     repo.downloadDocument(document)
-                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials, DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                        DocumentStatus.DocumentInstallStatus.INSTALLED, 100))
+                } catch (e: InstallException) {
+                    log.error("Error downloading $document", e)
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                        DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
+                    downloadError.add(document.initials)
+                    instance.showErrorMsg(R.string.error_downloading)
                 } catch (e: Exception) {
                     log.error("Error downloading $document", e)
-                    handleDownloadError(document)
-                } finally {
+                    instance.showErrorMsg(R.string.error_occurred, e)
+                    ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials,
+                        DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
+                    downloadError.add(document.initials)
+                }
+                finally {
                     beingQueued.remove(document.initials)
                 }
             }
         }
-    }
-
-    private fun handleDownloadError(document: Book) {
-        ABEventBus.getDefault().post(DocumentDownloadEvent(document.initials, DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0))
-        downloadError.add(document.initials)
-        instance.showErrorMsg(R.string.error_downloading)
     }
 
     fun isInQueue(document: Book): Boolean {

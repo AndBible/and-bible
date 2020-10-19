@@ -17,6 +17,11 @@
  */
 package net.bible.service.sword
 
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import net.bible.android.control.ApplicationScope
 import net.bible.service.common.Logger
 import net.bible.service.download.RepoBookDeduplicator
@@ -115,19 +120,25 @@ class SwordDocumentFacade @Inject constructor() {
     }
 
     @Throws(InstallException::class)
-    fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): MutableList<Book> {
+    suspend fun getDownloadableDocuments(repoFactory: RepoFactory, refresh: Boolean): MutableList<Book>  = coroutineScope{
         log.debug("Getting downloadable documents.  Refresh:$refresh")
-        return try {
+        return@coroutineScope try {
 			// there are so many sbmd's to load that we can only load what is required for the display list.
 			// If About is selected or a document is downloaded the sbmd is then loaded fully.
             SwordBookMetaData.setPartialLoading(true)
             val repoBookDeduplicator = RepoBookDeduplicator()
-            for(r in repoFactory.normalRepositories) {
-                repoBookDeduplicator.addAll(r.getRepoBooks(refresh))
+
+            val promises = mutableListOf<Deferred<List<Book>>>()
+            for (r in repoFactory.normalRepositories) {
+                promises.add( async { r.getRepoBooks(refresh) })
             }
-            for(r in repoFactory.betaRepositories) {
+            for (r in repoFactory.betaRepositories) {
                 // beta repo must never override live books especially if later version so use addIfNotExists
-                repoBookDeduplicator.addIfNotExists(r.getRepoBooks(refresh))
+                promises.add( async { r.getRepoBooks(refresh) })
+            }
+
+            for(l in promises.awaitAll()) {
+                repoBookDeduplicator.addAll(l)
             }
 
             val bookList = repoBookDeduplicator.books

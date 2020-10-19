@@ -155,10 +155,9 @@ open class Window (
     fun updateText(notifyLocationChange: Boolean = false) {
         if(pageManager.currentPage is CurrentMyNotePage) return
 
-        val stackMessage: String? = Log.getStackTraceString(Exception())
         val isVisible = isVisible
 
-        Log.d(TAG, "updateText, isVisible: $isVisible, stack: $stackMessage")
+        Log.d(TAG, "updateText, isVisible: $isVisible")
 
         if(!isVisible) return
 
