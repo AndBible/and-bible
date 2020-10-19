@@ -574,17 +574,23 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
             execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
 
             val c = db.query("SELECT * from bookmark_old")
+            val keyIdx = c.getColumnIndex("key")
+            val createdOnIdx = c.getColumnIndex("created_on")
+            val v11nIdx = c.getColumnIndex("versification")
+            val speakSettingsIdx = c.getColumnIndex("speak_settings")
+            val idIdx = c.getColumnIndex("_id")
+
             c.moveToFirst()
             while(!c.isAfterLast) {
-                val id = c.getLong(0)
-                val key = c.getString(1)
+                val id = c.getLong(idIdx)
+                val key = c.getString(keyIdx)
                 var v11n: Versification? = null
                 var verseRange: VerseRange? = null
                 var verseRangeInKjv: VerseRange? = null
 
                 try {
                     v11n = Versifications.instance().getVersification(
-                        c.getString(2) ?: Versifications.DEFAULT_V11N
+                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
                     )
                     verseRange = VerseRangeFactory.fromString(v11n, key)
                     verseRangeInKjv = converter.convert(verseRange, KJVA)
@@ -595,8 +601,8 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
                 }
 
                 //Created date
-                val createdAt = c.getLong(3)
-                val playbackSettingsStr = c.getString(4)
+                val createdAt = c.getLong(createdOnIdx)
+                val playbackSettingsStr = c.getString(speakSettingsIdx)
                 val newValues = ContentValues()
                 newValues.apply {
                     put("id", id)
