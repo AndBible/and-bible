@@ -196,7 +196,7 @@ dependencies {
     // 3.9 contains java8 bytecode, thus staying in 3.8
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
-    implementation 'com.github.AndBible:jsword:2.3.7'
+    implementation 'com.github.AndBible:jsword:2.3.8'
     implementation 'org.jdom:jdom2:2.0.6'
 
     debugImplementation 'com.facebook.stetho:stetho:1.5.1'
