@@ -125,7 +125,7 @@ open class CurrentPageManager @Inject constructor(
             nextPage = getBookPage(nextDocument)
 
             // is the next doc the same as the prev doc
-            val prevDocInPage = nextPage!!.currentDocument
+            val prevDocInPage = nextPage.currentDocument
             val sameDoc = nextDocument == prevDocInPage
 
             // must be in this order because History needs to grab the current doc before change
@@ -158,7 +158,6 @@ open class CurrentPageManager @Inject constructor(
         setCurrentDocumentAndKey(currentMyNotePage.currentDocument, verseRange)
     }
 
-    @JvmOverloads
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
                                  updateHistory: Boolean = true,
@@ -166,7 +165,7 @@ open class CurrentPageManager @Inject constructor(
     ): CurrentPage? {
         PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
 
-        val nextPage = getBookPage(currentBook)
+        val nextPage = if(currentBook == null) null else getBookPage(currentBook)
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
@@ -184,16 +183,9 @@ open class CurrentPageManager @Inject constructor(
         return nextPage
     }
 
-    fun getBookPage(book: Book?): CurrentPage? {
-        // book should never be null but it happened on one user's phone
-        return if (book == null) {
-            null
-        } else if (book == currentMyNotePage.currentDocument) {
-            currentMyNotePage
-        } else {
-            getBookPage(book.bookCategory)
-        }
-
+    fun getBookPage(book: Book): CurrentPage = when (book) {
+        currentMyNotePage.currentDocument -> currentMyNotePage
+        else -> getBookPage(book.bookCategory)
     }
 
     private fun getBookPage(bookCategory: BookCategory): CurrentPage =

@@ -124,12 +124,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
      * shown so if it is shown then it is correct
      */
     private fun updateInactiveBibleKey(inactiveWindow: Window, activeWindowKey: Key?) {
-        val page = if (inactiveWindow.displayedBook != null) {
-            inactiveWindow.pageManager.getBookPage(inactiveWindow.displayedBook)
+        val displayedBook = inactiveWindow.displayedBook
+        val page = if (displayedBook != null) {
+            inactiveWindow.pageManager.getBookPage(displayedBook)
         } else {
             inactiveWindow.pageManager.currentBible
         }
-        page?.doSetKey(activeWindowKey)
+        page.doSetKey(activeWindowKey)
     }
 
     /** refresh/synch inactive screen if required

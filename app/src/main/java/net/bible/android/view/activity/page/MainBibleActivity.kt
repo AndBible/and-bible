@@ -45,7 +45,6 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
@@ -165,7 +164,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             return bibleview != null && bibleview.isEditing
         }
 
-    val multiWinMode
+    private val multiWinMode
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 

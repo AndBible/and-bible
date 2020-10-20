@@ -70,6 +70,7 @@ import java.lang.ref.WeakReference
  * the object manually (not from a layout XML file).
  */
 
+@SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
