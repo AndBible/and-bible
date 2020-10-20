@@ -18,7 +18,6 @@
 package net.bible.android.control.page
 
 import android.util.Log
-import android.webkit.JavascriptInterface
 import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.versification.BibleTraverser
@@ -54,11 +53,8 @@ class CurrentMyNotePage internal constructor(
     private var fakeMyNoteBook: Book? = null
     private var fakeMyNoteBookVersification: Versification? = null
     override val currentPageContent: String get() {
-        var text: String = myNoteDAO.getMyNoteTextByKey(key)
-        text = text.replace("\n", "<br>")
-        text = "<div id=\"editor\">$text</div>"
-        text = HtmlMessageFormatter.format(text)
-        return text
+        val text= myNoteDAO.getMyNoteTextByKey(key).replace("\n", "<br>")
+        return HtmlMessageFormatter.format("<div id=\"editor\">$text</div>")
     }
 
     override val currentDocument: Book

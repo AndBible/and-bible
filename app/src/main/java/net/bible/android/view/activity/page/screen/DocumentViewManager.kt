@@ -95,10 +95,8 @@ class DocumentViewManager @Inject constructor(
     val documentView: DocumentView?
         get() = getDocumentView(windowControl.activeWindow)
 
-    fun getDocumentView(window: Window): DocumentView? {
-        // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-        return splitBibleArea?.bibleViewFactory?.getOrCreateBibleView(window)
-    }
+    private fun getDocumentView(window: Window): DocumentView? =
+        splitBibleArea?.bibleViewFactory?.getOrCreateBibleView(window)
 
     fun clearBibleViewFactory() {
         splitBibleArea!!.bibleViewFactory.clear()

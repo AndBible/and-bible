@@ -135,10 +135,10 @@ class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: Act
             text = myNote.noteText
             if (abbreviated) { //TODO allow longer lines if portrait or tablet
                 val singleLine = true
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString();
+                text = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString();
                 } else {
-                    text = Html.fromHtml(text).toString();
+                    Html.fromHtml(text).toString();
                 }
                 text = limitTextLength(text, 40, singleLine)
             }

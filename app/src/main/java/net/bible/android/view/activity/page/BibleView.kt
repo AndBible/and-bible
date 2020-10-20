@@ -126,6 +126,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             windowRef = WeakReference(value)
         }
 
+    // editing mode for MyNotes
     var isEditing = false
 
     class BibleViewTouched(val onlyTouch: Boolean = false)

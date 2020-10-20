@@ -158,10 +158,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             if (::documentControl.isInitialized) {
                 documentControl.isMyNotes
             } else false
-    val isEditing: Boolean
+
+    private val isEditing: Boolean
         get() {
-            var bibleview = windowControl.activeWindow.bibleView
-            return bibleview != null && bibleview.isEditing
+            val bibleView = windowControl.activeWindow.bibleView
+            return bibleView != null && bibleView.isEditing
         }
 
     private val multiWinMode
@@ -1471,4 +1472,3 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         private const val TAG = "MainBibleActivity"
     }
 }
-
