@@ -47,6 +47,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
+import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
@@ -242,7 +243,9 @@ open class BookmarkControl @Inject constructor(
     private var bookmarkSortOrder: BookmarkSortOrder
         get() {
             val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_ORDER.toString())
-            return BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
+            return try {
+                BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
+            } catch (e: IllegalArgumentException) { BookmarkSortOrder.BIBLE_ORDER }
         }
         private set(bookmarkSortOrder) {
             saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
