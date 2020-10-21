@@ -39,7 +39,7 @@ import kotlinx.serialization.json.Json
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
-import net.bible.android.activity.BuildConfig.GitDescribe
+import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.json
@@ -93,7 +93,7 @@ object CommonUtils {
                 versionName = "Error"
             }
 
-            return "$versionName#$GitDescribe (built $BuildDate)"
+            return "$versionName#$GitHash (built $BuildDate)"
         }
     val applicationVersionNumber: Int
         get() {
