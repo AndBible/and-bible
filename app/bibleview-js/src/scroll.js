@@ -67,11 +67,16 @@ export function doScrolling(elementY, duration) {
 let lineSpacing = null;
 
 function attributesToString(elem) {
-    let result = "";
-    for(const attr of elem.attributes) {
-        result += `${attr.name}: ${attr.value}, `
+    try {
+        let result = "";
+        for (const attr of elem.attributes) {
+            result += `${attr.name}: ${attr.value}, `
+        }
+        return `[${elem.tagName} ${result} (${elem.innerText.slice(0, 50)}...)]`;
+    } catch (e) {
+        console.error("attributesToString fails", e);
+        return `[${elem.tagName} (${elem.innerText.slice(0, 50)}...)]`;
     }
-    return `[${elem.tagName} ${result} (${elem.innerText.slice(0, 50)}...)]`;
 }
 
 export function scrollToVerse(toId, now, delta = toolbarOffset) {

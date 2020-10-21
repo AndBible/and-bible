@@ -25,7 +25,7 @@ const babelOptions = {
     presets: [
         ["env", {
             "targets": {
-                "browsers": ["Android >= 4"]
+                "browsers": ["Android >= 5"]
             }
         }]
     ]
@@ -35,7 +35,7 @@ let loaderOptions = {
     minimize: true,
     //debug: true,
     postcss: function () {
-        return [autoprefixer({browsers: ['Android >= 4']}), precss];
+        return [autoprefixer({browsers: ['Android >= 5']}), precss];
     }
 };
 
