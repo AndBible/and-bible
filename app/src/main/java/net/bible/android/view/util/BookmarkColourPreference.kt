@@ -27,7 +27,7 @@ import androidx.preference.ListPreference
 import androidx.preference.ListPreferenceDialogFragmentCompat
 import androidx.preference.PreferenceDialogFragmentCompat
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 
 /**
  * Allow selection of default Bookmark colour preference.

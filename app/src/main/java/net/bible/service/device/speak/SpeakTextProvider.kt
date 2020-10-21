@@ -18,8 +18,8 @@
 
 package net.bible.service.device.speak
 
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Verse
 

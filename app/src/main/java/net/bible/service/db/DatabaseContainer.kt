@@ -17,16 +17,25 @@
  */
 package net.bible.service.db
 
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
 import android.util.Log
 import androidx.room.Room
-import androidx.room.migration.Migration as RoomMigration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
 import net.bible.android.database.AppDatabase
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.converter
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
 import net.bible.service.db.readingplan.ReadingPlanDatabaseOperations
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
+import org.crosswire.jsword.versification.Versification
+import org.crosswire.jsword.versification.system.Versifications
+import java.lang.Exception
 import java.sql.SQLException
+import androidx.room.migration.Migration as RoomMigration
 
 
 const val DATABASE_NAME = "andBibleDatabase.db"
@@ -36,7 +45,7 @@ abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(star
     abstract fun doMigrate(db: SupportSQLiteDatabase)
     
     override fun migrate(db: SupportSQLiteDatabase) {
-        Log.d(TAG, "Migrating from version $startVersion to $endVersion" )
+        Log.d(TAG, "Migrating from version $startVersion to $endVersion")
         doMigrate(db)
     }
 }
@@ -551,6 +560,74 @@ private val SQUASH_30_33 = object : Migration(30, 33) {
     }
 }
 
+private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE bookmark RENAME TO bookmark_old;")
+            execSQL("ALTER TABLE label RENAME TO label_old;")
+
+            execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `Bookmark` (`kjvOrdinalEnd`)")
+            execSQL("CREATE TABLE IF NOT EXISTS `Label` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT)")
+            execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+            execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
+
+            val c = db.query("SELECT * from bookmark_old")
+            val keyIdx = c.getColumnIndex("key")
+            val createdOnIdx = c.getColumnIndex("created_on")
+            val v11nIdx = c.getColumnIndex("versification")
+            val speakSettingsIdx = c.getColumnIndex("speak_settings")
+            val idIdx = c.getColumnIndex("_id")
+
+            c.moveToFirst()
+            while(!c.isAfterLast) {
+                val id = c.getLong(idIdx)
+                val key = c.getString(keyIdx)
+                var v11n: Versification? = null
+                var verseRange: VerseRange? = null
+                var verseRangeInKjv: VerseRange? = null
+
+                try {
+                    v11n = Versifications.instance().getVersification(
+                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                    )
+                    verseRange = VerseRangeFactory.fromString(v11n, key)
+                    verseRangeInKjv = converter.convert(verseRange, KJVA)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
+                    c.moveToNext()
+                    continue
+                }
+
+                //Created date
+                val createdAt = c.getLong(createdOnIdx)
+                val playbackSettingsStr = c.getString(speakSettingsIdx)
+                val newValues = ContentValues()
+                newValues.apply {
+                    put("id", id)
+                    put("v11n", v11n.name)
+                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
+                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
+                    put("ordinalStart", verseRange.start.ordinal)
+                    put("ordinalEnd", verseRange.end.ordinal)
+                    put("createdAt", createdAt)
+                    put("playbackSettings", playbackSettingsStr)
+                }
+                db.insert("Bookmark", CONFLICT_FAIL, newValues)
+                c.moveToNext()
+            }
+
+            execSQL("INSERT INTO Label SELECT * from label_old;")
+            execSQL("INSERT INTO BookmarkToLabel SELECT * from bookmark_label;")
+
+            execSQL("DROP TABLE bookmark_old;")
+            execSQL("DROP TABLE label_old;")
+            execSQL("DROP TABLE bookmark_label;")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -596,7 +673,8 @@ object DatabaseContainer {
                         MIGRATION_30_31,
                         MIGRATION_31_32,
                         SQUASH_30_33,
-                        MIGRATION_32_33
+                        MIGRATION_32_33,
+                        MIGRATION_33_34_Bookmarks
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

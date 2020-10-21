@@ -17,25 +17,21 @@
  */
 package net.bible.android.control.bookmark
 
-import android.graphics.Color
+import net.bible.android.control.versification.sort.VerseRangeComparator
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import java.util.*
 
 /**
- * How to represent bookmarks
+ * Complex comparison of dtos ensuring the best v11n is used for each comparison.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-enum class BookmarkStyle(val backgroundColor: Int) {
-    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
-    RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
-    YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
-    GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
-    BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
-    ORANGE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 165, 0)),
-    PURPLE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 128, 0, 128)),
-    UNDERLINE(0),
 
-    // Special hard-coded style for Speak bookmarks. This must be last one here.
-    // This is removed from the style lists.
-    SPEAK(Color.argb(0, 255, 255, 255));
+class BookmarkBibleOrderComparator(bookmarks: List<Bookmark>) : Comparator<Bookmark> {
+    private val convertibleVerseRangeComparator
+		= VerseRangeComparator.Builder().withBookmarks(bookmarks).build()
+	override fun compare(o1: Bookmark, o2: Bookmark): Int {
+        return convertibleVerseRangeComparator.compare(o1, o2)
+    }
 
 }

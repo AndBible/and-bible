@@ -17,7 +17,7 @@
  */
 package net.bible.android.control.mynote
 
-import net.bible.android.control.versification.sort.ConvertibleVerseRangeComparator
+import net.bible.android.control.versification.sort.VerseRangeComparator
 import net.bible.service.db.mynote.MyNoteDto
 import java.util.*
 
@@ -26,11 +26,11 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteDtoBibleOrderComparator(myNoteDtos: List<MyNoteDto>?) : Comparator<MyNoteDto> {
-    private val convertibleVerseRangeComparator: ConvertibleVerseRangeComparator
-		= ConvertibleVerseRangeComparator.Builder().withMyNotes(myNoteDtos).build()
+class MyNoteDtoBibleOrderComparator(myNoteDtos: List<MyNoteDto>) : Comparator<MyNoteDto> {
+    private val verseRangeComparator: VerseRangeComparator
+		= VerseRangeComparator.Builder().withMyNotes(myNoteDtos).build()
 	override fun compare(o1: MyNoteDto, o2: MyNoteDto): Int {
-        return convertibleVerseRangeComparator.compare(o1, o2)
+        return verseRangeComparator.compare(o1, o2)
     }
 
 }

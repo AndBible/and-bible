@@ -27,10 +27,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.database.bookmarks.BookmarkStyle;
 import net.bible.android.view.util.UiUtils;
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper;
-import net.bible.service.db.bookmark.LabelDto;
+import net.bible.android.database.bookmarks.BookmarkEntities.Label;
 import net.bible.service.device.ScreenSettings;
 
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.List;
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
+public class ManageLabelItemAdapter extends ArrayAdapter<Label> {
 
 	private int resource;
 	private ManageLabels manageLabels;
@@ -49,7 +49,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
 	private static final String TAG = "ManageLabelItemAdapter";
 
-	public ManageLabelItemAdapter(Context context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
+	public ManageLabelItemAdapter(Context context, int resource, List<Label> items, ManageLabels manageLabels) {
 		super(context, resource, items);
 		this.resource = resource;
 		this.manageLabels = manageLabels;
@@ -58,7 +58,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		final LabelDto labelDto = getItem(position);
+		final Label label = getItem(position);
 
 		View rowView;
 		if (convertView == null) {
@@ -68,18 +68,18 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 			rowView = convertView;
 		}
 		TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
-		nameView.setText(labelDto.getName());
-		if (labelDto.getBookmarkStyle() ==null) {
+		nameView.setText(label.getName());
+		if (label.getBookmarkStyle() ==null) {
 			nameView.setBackgroundColor(UiUtils.INSTANCE.getThemeBackgroundColour(getContext()));
 		} else {
-			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
+			bookmarkStyleAdapterHelper.styleView(nameView, label.getBookmarkStyle(), getContext(), false, false);
 		}
 
 		ImageView editButton = (ImageView)rowView.findViewById(R.id.editLabel);
 		editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				manageLabels.editLabel(labelDto);
+				manageLabels.editLabel(label);
 			}
 		});
 
@@ -87,11 +87,11 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 		deleteButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				manageLabels.delete(labelDto);
+				manageLabels.delete(label);
 			}
 		});
 
-		if(labelDto.getBookmarkStyle() == BookmarkStyle.SPEAK) {
+		if(label.getBookmarkStyle() == BookmarkStyle.SPEAK) {
 			editButton.setVisibility(View.GONE);
 			deleteButton.setVisibility(View.GONE);
 		}

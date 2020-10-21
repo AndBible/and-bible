@@ -27,8 +27,11 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.bookmark_list_item.view.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.versification.toV11n
 import net.bible.android.view.util.widget.BookmarkListItem
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.service.sword.SwordContentFacade
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -37,9 +40,11 @@ import net.bible.service.db.bookmark.BookmarkDto
  */
 class BookmarkItemAdapter(
     context: Context,
-    items: List<BookmarkDto>,
-    private val bookmarkControl: BookmarkControl
-) : ArrayAdapter<BookmarkDto>(context, R.layout.bookmark_list_item, items) {
+    items: List<Bookmark>,
+    private val bookmarkControl: BookmarkControl,
+    private val swordContentFacade: SwordContentFacade,
+    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
 
@@ -59,23 +64,22 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the first text field
-        val key = bookmarkControl.getBookmarkVerseKey(item)
+        val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
+        val verseName = item.verseRange.toV11n(versification).name
         val book = item.speakBook
         if (isSpeak && book != null) {
-            view.verseText.text = context.getString(R.string.something_with_parenthesis, key, book.abbreviation)
+            view.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
         } else {
-            view.verseText.text = key
+            view.verseText.text = verseName
         }
 
         // Set value for the date text field
-        if (item.createdOn != null) {
-            val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdOn).toString()
-            view.dateText.text = sDt
-        }
+        val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
+        view.dateText.text = sDt
 
         // set value for the second text field
         try {
-            val verseText = bookmarkControl.getBookmarkVerseText(item)
+            val verseText = swordContentFacade.getBookmarkVerseText(item)
             view.verseContentText.text = verseText
         } catch (e: Exception) {
             Log.e(TAG, "Error loading label verse text", e)

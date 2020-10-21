@@ -20,7 +20,7 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.control.versification.ConvertibleVerseRange
+import net.bible.android.control.versification.toV11n
 import net.bible.service.download.FakeSwordBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -46,7 +46,7 @@ class CurrentMyNotePage internal constructor(
     pageManager: CurrentPageManager
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
-    private var currentNoteVerseRange: ConvertibleVerseRange? = null
+    private var currentNoteVerseRange: VerseRange? = null
     // just one fake book for every note
     private var fakeMyNoteBook: Book? = null
     private var fakeMyNoteBookVersification: Versification? = null
@@ -96,7 +96,7 @@ class CurrentMyNotePage internal constructor(
             } else {
                 VerseRange(verse.versification, verse)
             }
-            currentNoteVerseRange = ConvertibleVerseRange(verseRange)
+            currentNoteVerseRange = verseRange
             currentBibleVerse.setVerseSelected(versification, verse)
         }
     }
@@ -113,7 +113,7 @@ class CurrentMyNotePage internal constructor(
 	 */
     override val key: Key
         get() = if (currentNoteVerseRange != null) {
-            currentNoteVerseRange!!.getVerseRange(versification)
+            currentNoteVerseRange!!.toV11n(versification)
         } else {
             currentBibleVerse.getVerseSelected(versification)
         }
@@ -124,10 +124,10 @@ class CurrentMyNotePage internal constructor(
 	}
 
     override val numberOfVersesDisplayed: Int
-        get() = if (currentNoteVerseRange != null) currentNoteVerseRange!!.verseRange.cardinality else 1
+        get() = if (currentNoteVerseRange != null) currentNoteVerseRange!!.cardinality else 1
 
     override val isSingleKey: Boolean get()  {
-        return currentNoteVerseRange == null || currentNoteVerseRange!!.verseRange.cardinality == 1
+        return currentNoteVerseRange == null || currentNoteVerseRange!!.cardinality == 1
     }
 
     companion object {

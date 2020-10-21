@@ -17,8 +17,8 @@
  */
 package net.bible.service.db.mynote
 
-import net.bible.android.control.versification.ConvertibleVerseRange
-import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser
+import net.bible.android.control.versification.toV11n
+import net.bible.android.database.bookmarks.VerseRangeUser
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
@@ -30,9 +30,9 @@ import java.util.*
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteDto : ConvertibleVerseRangeUser {
+class MyNoteDto : VerseRangeUser {
     var id: Long? = null
-    private var convertibleVerseRange: ConvertibleVerseRange? = null
+    private var _verseRange: VerseRange? = null
     var noteText: String = ""
     var lastUpdatedOn: Date? = null
     var createdOn: Date? = null
@@ -44,23 +44,17 @@ class MyNoteDto : ConvertibleVerseRangeUser {
     val isEmpty: Boolean
         get() = StringUtils.isEmpty(noteText)
 
-    var verseRange: VerseRange
-        get() = convertibleVerseRange!!.verseRange
+    override var verseRange: VerseRange
+        get() = _verseRange!!
         set(verseRange) {
-            convertibleVerseRange = ConvertibleVerseRange(verseRange)
+            _verseRange = verseRange
         }
 
-    fun getVerseRange(versification: Versification?): VerseRange? {
-        return convertibleVerseRange?.getVerseRange(versification)
-    }
-
-    override fun getConvertibleVerseRange(): ConvertibleVerseRange {
-        return convertibleVerseRange!!
-    }
+    fun getVerseRange(versification: Versification): VerseRange = verseRange.toV11n(versification)
 
     override fun toString(): String {
         return "MyNoteDto{" +
-            "convertibleVerseRange=" + convertibleVerseRange +
+            "convertibleVerseRange=" + _verseRange +
             ", noteText='" + noteText + '\'' +
             '}'
     }
@@ -68,10 +62,10 @@ class MyNoteDto : ConvertibleVerseRangeUser {
     override fun hashCode(): Int {
         val prime = 31
         var result = 1
-        result = if (convertibleVerseRange == null || convertibleVerseRange!!.verseRange == null) {
+        result = if (_verseRange == null || _verseRange == null) {
             prime * result
         } else {
-            val verseRange = convertibleVerseRange!!.verseRange
+            val verseRange = _verseRange
             prime * result + verseRange.hashCode()
         }
         return result
@@ -88,9 +82,9 @@ class MyNoteDto : ConvertibleVerseRangeUser {
         if (id == null) {
             if (other.id != null) return false
         } else if (id != other.id) return false
-        if (convertibleVerseRange == null) {
-            if (other.convertibleVerseRange != null) return false
-        } else if (convertibleVerseRange != other.convertibleVerseRange) return false
+        if (_verseRange == null) {
+            if (other._verseRange != null) return false
+        } else if (_verseRange != other._verseRange) return false
         if (noteText == null) {
             if (other.noteText != null) return false
         } else if (noteText != other.noteText) return false

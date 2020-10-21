@@ -25,19 +25,19 @@ import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
 import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 
 /**
  * Adapter which shows highlight colour of labels
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkLabelItemAdapter(context: Context, items: List<LabelDto>)
-    : ArrayAdapter<LabelDto?>(context, android.R.layout.simple_list_item_multiple_choice, items)
+class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
+    : ArrayAdapter<Label>(context, android.R.layout.simple_list_item_multiple_choice, items)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val labelDto = getItem(position)!!
+        val label = getItem(position)!!
         val rowView: View
         rowView = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -46,11 +46,11 @@ class BookmarkLabelItemAdapter(context: Context, items: List<LabelDto>)
             convertView
         }
         val nameView = rowView as CheckedTextView
-        nameView.text = labelDto.name
-        if (labelDto.bookmarkStyle == null) {
+        nameView.text = label.name
+        if (label.bookmarkStyle == null) {
             nameView.setBackgroundColor(getThemeBackgroundColour(context))
         } else {
-            bookmarkStyleAdapterHelper.styleView(nameView, labelDto.bookmarkStyle, context, false, false)
+            bookmarkStyleAdapterHelper.styleView(nameView, label.bookmarkStyle, context, false, false)
         }
         return rowView
     }

@@ -24,13 +24,12 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.control.versification.ConvertibleVerseRange
+import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.getKeyDescription
 import net.bible.service.font.FontControl
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -85,10 +84,9 @@ class CompareTranslationsControl @Inject constructor(
         val retval: MutableList<TranslationDto> = ArrayList()
         val books = swordDocumentFacade.bibles
         val fontControl: FontControl = FontControl.instance
-        val convertibleVerseRange = ConvertibleVerseRange(verseRange)
         for (book in books) {
             try {
-                val text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange((book as AbstractPassageBook).versification))
+                val text = swordContentFacade.getPlainText(book, verseRange.toV11n((book as AbstractPassageBook).versification))
                 if (text.length > 0) {
 
                     // does this book require a custom font to display it

@@ -25,7 +25,7 @@ import android.text.style.UnderlineSpan
 import android.view.Gravity
 import android.widget.TextView
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.android.view.util.UiUtils.getThemeTextColour
 import net.bible.service.common.CommonUtils.convertDipsToPx

@@ -22,7 +22,7 @@ import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.database.bookmarks.SpeakSettings
 import java.util.*
 
 const val TAG = "SpeakCommands"

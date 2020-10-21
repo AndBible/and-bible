@@ -121,7 +121,7 @@ class VerseActionModeMediator(
         override fun onPrepareActionMode(actionMode: ActionMode, menu: Menu): Boolean {
             // if start verse already bookmarked then enable Delete and Labels Bookmark menu item
             val startVerse = startVerse
-            val isVerseBookmarked = startVerse != null && bookmarkControl.isBookmarkForKey(startVerse)
+            val isVerseBookmarked = startVerse != null && bookmarkControl.hasBookmarksForVerse(startVerse)
             val toolbar = actionMode.customView.findViewById<Toolbar>(R.id.toolbarContextual)
 
             toolbar.menu.findItem(R.id.add_bookmark).isVisible = true

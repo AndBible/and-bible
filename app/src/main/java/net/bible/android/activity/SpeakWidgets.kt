@@ -33,11 +33,12 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
+import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
@@ -184,13 +185,13 @@ class SpeakWidgetManager {
             bookmarksAdded = true
         }
 
-        val labelDto = bookmarkControl.orCreateSpeakLabel
+        val label = bookmarkControl.speakLabel
         if(!SpeakSettings.load().autoBookmark) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), "")
         }
 
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
+        for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith(
+            { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b.verseRange.start.osisRef)
             Log.d(TAG, "Added button for $b")
@@ -347,9 +348,9 @@ class SpeakWidgetManager {
             super.onReceive(context, intent)
             Log.d(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
-                val osisRef = intent.data!!.host
+                val osisRef = intent.data?.host ?: return
                 Log.d(TAG, "onReceive osisRef $osisRef")
-                val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
+                val dto = bookmarkControl.speakBookmarkByOsisRef(osisRef)
                 speakControl.speakFromBookmark(dto)
             }
         }

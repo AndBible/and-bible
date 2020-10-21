@@ -29,7 +29,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.db.bookmark.LabelDto;
+import net.bible.android.database.bookmarks.BookmarkEntities.Label;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ import javax.inject.Inject;
  */
 public class ManageLabels extends ListActivityBase {
 
-	private List<LabelDto> labels = new ArrayList<>();
+	private List<Label> labels = new ArrayList<>();
 
 	private BookmarkControl bookmarkControl;
 
@@ -72,11 +72,11 @@ public class ManageLabels extends ListActivityBase {
     	loadLabelList();
 
 		// prepare the document list view
-    	ArrayAdapter<LabelDto> listArrayAdapter = new ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this);
+    	ArrayAdapter<Label> listArrayAdapter = new ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this);
     	setListAdapter(listArrayAdapter);
     }
 
-	public void delete(LabelDto label) {
+	public void delete(Label label) {
 		// delete label from db
 		bookmarkControl.deleteLabel(label);
 		
@@ -90,7 +90,7 @@ public class ManageLabels extends ListActivityBase {
     public void onNewLabel(View v) {
     	Log.i(TAG, "New label clicked");
 
-    	LabelDto newLabel = new LabelDto();
+    	Label newLabel = new Label();
 		labelDialogs.createLabel(this, newLabel, new Callback() {
 			@Override
 			public void okay() {
@@ -102,7 +102,7 @@ public class ManageLabels extends ListActivityBase {
 	/**
 	 * New Label requested
 	 */
-	public void editLabel(LabelDto label) {
+	public void editLabel(Label label) {
 		Log.i(TAG, "Edit label clicked");
 
 		labelDialogs.editLabel(this, label, new Callback() {

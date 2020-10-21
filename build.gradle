@@ -3,7 +3,8 @@
 buildscript {
     ext.kotlin_version = '1.4.10'
     ext.room_version = '2.2.5'
-
+    ext.jsword_version = '2.3.10'
+    ext.kotlinx_serialization_version = '1.0.0'
     repositories {
         jcenter()
         google()

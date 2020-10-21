@@ -22,7 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ListAdapter
 import android.widget.TextView
-import net.bible.android.control.bookmark.BookmarkStyle
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import net.bible.android.view.util.widget.ListPrefWrapperAdapter
 

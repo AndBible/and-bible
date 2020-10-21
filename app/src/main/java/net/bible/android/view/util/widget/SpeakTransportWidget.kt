@@ -33,14 +33,15 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.load
+import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
-import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -119,20 +120,20 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
 
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
-        val bookmarkDtos = ArrayList<BookmarkDto>()
-        val labelDto = bookmarkControl.orCreateSpeakLabel
-        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
-                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
+        val bookmarks = ArrayList<Bookmark>()
+        val label = bookmarkControl.speakLabel
+        for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith(
+                Comparator<Bookmark> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
 
             bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
-            bookmarkDtos.add(b)
+            bookmarks.add(b)
         }
 
         val adapter = ArrayAdapter<String>(context, android.R.layout.select_dialog_item, bookmarkTitles)
         AlertDialog.Builder(context)
                 .setTitle(R.string.speak_bookmarks_menu_title)
                 .setAdapter(adapter) { _, which ->
-                    speakControl.speakFromBookmark(bookmarkDtos[which])
+                    speakControl.speakFromBookmark(bookmarks[which])
                     if(SpeakSettings.load().synchronize) {
                         context.startActivity(Intent(context, MainBibleActivity::class.java))
                     }

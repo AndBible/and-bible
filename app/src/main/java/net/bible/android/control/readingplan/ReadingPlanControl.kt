@@ -26,7 +26,6 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.versification.VersificationConverter
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.OneDaysReadingsDto
@@ -36,6 +35,7 @@ import net.bible.service.readingplan.ReadingPlanInfoDto
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.versification.VersificationConverter
 
 import java.util.ArrayList
 import java.util.Calendar

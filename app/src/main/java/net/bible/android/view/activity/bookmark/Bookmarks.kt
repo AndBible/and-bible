@@ -30,19 +30,20 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Spinner
 import android.widget.Toast
 import kotlinx.android.synthetic.main.bookmarks.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.db.bookmark.BookmarkDto
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.service.sword.SwordContentFacade
 import java.util.*
 import javax.inject.Inject
 
@@ -57,14 +58,16 @@ import javax.inject.Inject
 class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var swordContentFacade: SwordContentFacade
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     // language spinner
-    private val labelList: MutableList<LabelDto> = ArrayList()
+    private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
-    private var labelArrayAdapter: ArrayAdapter<LabelDto>? = null
+    private var labelArrayAdapter: ArrayAdapter<Label>? = null
 
     // the document list
-    private val bookmarkList: MutableList<BookmarkDto> = ArrayList()
+    private val bookmarkList: MutableList<Bookmark> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
 
     /** Called when the activity is first created.  */
@@ -113,7 +116,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<BookmarkDto> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider)
         listAdapter = bookmarkArrayAdapter
     }
 
@@ -159,17 +162,17 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<BookmarkDto>) {
+    private fun assignLabels(bookmarks: List<Bookmark>) {
         val bookmarkIds = LongArray(bookmarks.size)
         for (i in bookmarks.indices) {
-            bookmarkIds[i] = bookmarks[i].id!!
+            bookmarkIds[i] = bookmarks[i].id
         }
         val intent = Intent(this, BookmarkLabels::class.java)
         intent.putExtra(BookmarkControl.BOOKMARK_IDS_EXTRA, bookmarkIds)
         startActivityForResult(intent, 1)
     }
 
-    private fun delete(bookmarks: List<BookmarkDto>) {
+    private fun delete(bookmarks: List<Bookmark>) {
         for (bookmark in bookmarks) {
             bookmarkControl.deleteBookmark(bookmark, false)
         }
@@ -189,7 +192,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 bookmarkList.clear()
-                bookmarkList.addAll(bookmarkControl!!.getBookmarksWithLabel(selectedLabel))
+                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel))
                 notifyDataSetChanged()
 
                 // if in action mode then must exit because the data has changed, invalidating selections
@@ -201,11 +204,11 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun bookmarkSelected(bookmark: BookmarkDto) {
+    private fun bookmarkSelected(bookmark: Bookmark) {
         Log.d(TAG, "Bookmark selected:" + bookmark.verseRange)
         try {
-            if (bookmarkControl!!.isSpeakBookmark(bookmark)) {
-                speakControl!!.speakFromBookmark(bookmark)
+            if (bookmarkControl.isSpeakBookmark(bookmark)) {
+                speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
             resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
@@ -233,8 +236,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.sortByToggle -> {
                 isHandled = true
                 try {
-                    bookmarkControl!!.changeBookmarkSortOrder()
-                    val sortDesc = bookmarkControl!!.bookmarkSortOrderDescription
+                    bookmarkControl.changeBookmarkSortOrder()
+                    val sortDesc = bookmarkControl.bookmarkSortOrderDescription
                     Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show()
                     loadBookmarkList()
                 } catch (e: Exception) {
@@ -267,8 +270,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BookmarkDto> {
-        val selectedBookmarks: MutableList<BookmarkDto> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<Bookmark> {
+        val selectedBookmarks: MutableList<Bookmark> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

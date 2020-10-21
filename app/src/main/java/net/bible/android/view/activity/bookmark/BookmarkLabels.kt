@@ -29,8 +29,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.db.bookmark.BookmarkDto
-import net.bible.service.db.bookmark.LabelDto
+import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import java.util.*
 import javax.inject.Inject
 
@@ -40,10 +40,10 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BookmarkLabels : ListActivityBase() {
-    private var bookmarks: List<BookmarkDto>? = null
+    private lateinit var bookmarks: List<Bookmark>
     @Inject lateinit var bookmarkControl: BookmarkControl
 
-    private val labels: MutableList<LabelDto> = ArrayList()
+    private val labels: MutableList<Label> = ArrayList()
     @Inject lateinit var labelDialogs: LabelDialogs
 
     /** Called when the activity is first created.  */
@@ -52,8 +52,8 @@ class BookmarkLabels : ListActivityBase() {
         super.onCreate(savedInstanceState, false)
         setContentView(R.layout.bookmark_labels)
         buildActivityComponent().inject(this)
-        val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)
-        bookmarks = bookmarkControl.getBookmarksById(bookmarkIds)
+        val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)!!
+        bookmarks = bookmarkControl.bookmarksByIds(bookmarkIds.toList())
         initialiseView()
     }
 
@@ -73,8 +73,8 @@ class BookmarkLabels : ListActivityBase() {
         val selectedLabels = checkedLabels
 
         //associate labels with bookmarks that were passed in
-        for (bookmark in bookmarks!!) {
-            bookmarkControl.setBookmarkLabels(bookmark, selectedLabels)
+        for (bookmark in bookmarks) {
+            bookmarkControl.setLabelsForBookmark(bookmark, selectedLabels)
         }
         finish()
     }
@@ -84,7 +84,7 @@ class BookmarkLabels : ListActivityBase() {
      */
     fun onNewLabel(v: View) {
         Log.i(TAG, "New label clicked")
-        val newLabel = LabelDto()
+        val newLabel = Label()
         labelDialogs.createLabel(this, newLabel) {
             val selectedLabels = checkedLabels
             Log.d(TAG, "Num labels checked pre reload:" + selectedLabels.size)
@@ -110,11 +110,11 @@ class BookmarkLabels : ListActivityBase() {
 
     /** check labels associated with the bookmark
      */
-    private fun initialiseCheckedLabels(bookmarks: List<BookmarkDto>?) {
-        val allCheckedLabels: MutableSet<LabelDto> = HashSet()
+    private fun initialiseCheckedLabels(bookmarks: List<Bookmark>?) {
+        val allCheckedLabels: MutableSet<Label> = HashSet()
         for (bookmark in bookmarks!!) {
             // pre-tick any labels currently associated with the bookmark
-            allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark))
+            allCheckedLabels.addAll(bookmarkControl.labelsForBookmark(bookmark))
         }
         checkedLabels = allCheckedLabels.toList()
     }// get selected labels// ensure ui is updated
@@ -125,11 +125,11 @@ class BookmarkLabels : ListActivityBase() {
     /**
      * get checked status of all labels
      */
-    private var checkedLabels: List<LabelDto>
+    private var checkedLabels: List<Label>
         get() {
             // get selected labels
             val listView = listView
-            val checkedLabels: MutableList<LabelDto> = ArrayList()
+            val checkedLabels: MutableList<Label> = ArrayList()
             for (i in labels.indices) {
                 if (listView.isItemChecked(i)) {
                     val label = labels[i]

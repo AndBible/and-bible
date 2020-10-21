@@ -105,7 +105,7 @@ abstract class DocumentSelectionBase(optionsMenuId: Int, private val actionModeM
     private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
     private var isPopulated = false
-    private val dao = DatabaseContainer.db.documentDao()
+    private val dao get() = DatabaseContainer.db.documentDao()
 
     open val recommendedDocuments: RecommendedDocuments? = null
 
