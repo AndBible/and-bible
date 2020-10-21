@@ -378,7 +378,7 @@ open class SwordContentFacade @Inject constructor(
 				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!))
 				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
 				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
-				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key)
+				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key as VerseRange)
 				// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
 				val showStrongs = textDisplaySettings.showStrongs!!
 				osisToHtmlParameters.isShowStrongs = showStrongs

@@ -22,11 +22,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.control.versification.toV11n
 import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.db.DatabaseContainer
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.VerseRange
 import java.util.*
 import javax.inject.Inject
 
@@ -37,30 +34,27 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class BookmarkFormatSupport @Inject constructor(val bookmarkControl: BookmarkControl) {
-    fun getVerseBookmarkStylesInPassage(passage: Key): Map<Int, MutableSet<BookmarkStyle>> {
+    fun getVerseBookmarkStylesInPassage(verseRange: VerseRange): Map<Int, MutableSet<BookmarkStyle>> {
         // assumes the passage only covers one book, which always happens to be the case here
-        val firstVerse = KeyUtil.getVerse(passage)
-        val book = firstVerse.book
-
         // get all Bookmarks in containing book to include variations due to differing versifications
-        val bookmarkList: List<Bookmark>
         val defaultBookmarkStyle = BookmarkStyle.valueOf(sharedPreferences.getString(
             "default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!)
         val bookmarkStylesByVerseNoInPassage: MutableMap<Int, MutableSet<BookmarkStyle>> = HashMap()
         try {
-            bookmarkList = bookmarkControl.bookmarksInBook(book)
+            val bookmarkList = bookmarkControl.bookmarksForVerseRange(verseRange)
 
             // convert to required versification and check verse is in passage
-            val requiredVersification = firstVerse.versification
+            val requiredVersification = verseRange.versification
             for (bookmark in bookmarkList) {
                 val bookmarkVerseRange = bookmark.verseRange.toV11n(requiredVersification)
-                if (passage.contains(bookmarkVerseRange.start)) {
+                if (verseRange.overlaps((bookmarkVerseRange))) {
                     val bookmarkLabels = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
                     if (bookmarkLabels.isEmpty()) {
                         bookmarkLabels.add(Label(bookmarkStyle = defaultBookmarkStyle))
                     }
                     val bookmarkStyles = getBookmarkStyles(bookmarkLabels, defaultBookmarkStyle)
                     for (verse in bookmarkVerseRange.toVerseArray()) {
+                        if(!verseRange.contains(verse)) continue
                         var stylesSet = bookmarkStylesByVerseNoInPassage[verse.verse]
                         if (stylesSet != null) {
                             stylesSet.addAll(bookmarkStyles)

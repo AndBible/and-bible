@@ -281,6 +281,7 @@ open class BookmarkControl @Inject constructor(
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
 
     fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
+    fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> = dao.bookmarksForVerseRange(verseRange)
 
     companion object {
         const val BOOKMARK_IDS_EXTRA = "bookmarkIds"
