@@ -10,34 +10,34 @@ Et utvalg populære bibeloversettelser er King James, Bibelen 1930 og Studentmå
 
 Applikasjonen har mange innsiktsfulle og originale finesser som gjør komplekse og dype bibelstudier lettere enn før. De mest bemerkelsesverdige finessene er:
 
- - Oppdeling av tekstvisningen for å sammenligne oversettelser og bibelkommentarer
- - Arbeidsområder tillater flere bibelstudieoppsett med egne innstillinger
- - Integrasjon med Strong's bibelordbøker åpner for greske og hebraiske ordanalyser
- - Lenkede kryssreferanser, fotnoter og dokumenter; hopp til kryssreferanser og fotnoter ved å klikke på en lenke; gjør dybdestudier av Skiftene ved å benytte hyperlenkede kommentarer (Gill, Matthew Henry osv.), kryssreferansesamlinger (Treasure of Scripture Knowledge, TSKe) og andre ressurser.
- - Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
- - Fleksibel søking
- - Bokmerker med valgfrie farger på bokmerkegrupper
- - Personlige notater: legg til egne studiekommentarer til bibelvers
- - Bibelleseplaner: sett mål for bibellesingen
- - Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over 1500 moduler på over 700 språk, fritt distribuert fra Crosswire og andre SWORD pakkebrønner (repositories).
- - Opprinnelsen til alle dokument er undersøkt for å sikre at de fritt kan distribueres, og tillatelse til distribusjon er gitt dersom opphavsrett gjelder. Dette er grunnen til at denne applikasjonen ikke inneholder bibeloversettelser som NO78/85 og NB88/07.
- - Frakoblet modus: du trenger bare være påkoblet internett når du skal laste ned moduler.
+ * Oppdeling av tekstvisningen for å sammenligne oversettelser og bibelkommentarer
+ * Arbeidsområder tillater flere bibelstudieoppsett med egne innstillinger
+ * Integrasjon med Strong's bibelordbøker åpner for greske og hebraiske ordanalyser
+ * Lenkede kryssreferanser, fotnoter og dokumenter; hopp til kryssreferanser og fotnoter ved å klikke på en lenke; gjør dybdestudier av Skiftene ved å benytte hyperlenkede kommentarer (Gill, Matthew Henry osv.), kryssreferansesamlinger (Treasure of Scripture Knowledge, TSKe) og andre ressurser.
+ * Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
+ * Fleksibel søking
+ * Bokmerker med valgfrie farger på bokmerkegrupper
+ * Personlige notater: legg til egne studiekommentarer til bibelvers
+ * Bibelleseplaner: sett mål for bibellesingen
+ * Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over 1500 moduler på over 700 språk, fritt distribuert fra Crosswire og andre SWORD pakkebrønner (repositories).
+ * Opprinnelsen til alle dokument er undersøkt for å sikre at de fritt kan distribueres, og tillatelse til distribusjon er gitt dersom opphavsrett gjelder. Dette er grunnen til at denne applikasjonen ikke inneholder bibeloversettelser som NO78/85 og NB88/07.
+ * Frakoblet modus: du trenger bare være påkoblet internett når du skal laste ned moduler.
 
 <b>La oss bygge den beste Bibel-applikasjonen sammen!</b>
 
 And Bibel er et åpen kildekode-prosjekt. I praksis betyr dette at hvem som helst med riktige kvalifikasjoner kan, og oppfordres til å bidra i prosjektet ved å:
 
- - utvikle nye funksjoner,
- - teste nye funksjoner som ikke er utgitt enda,
- - holde oversettelse av brukergrensesnittet oppdatert, og
- - hjelpe til med å utvide biblioteket over moduler.
+ * utvikle nye funksjoner,
+ * teste nye funksjoner som ikke er utgitt enda,
+ * holde oversettelse av brukergrensesnittet oppdatert, og
+ * hjelpe til med å utvide biblioteket over moduler.
 
 Dersom du er en profesjonell programvareutvikler eller programvaretester, vennligst vurder å bidra i prosjektet. For mer informasjon om hvordan du kan bidra, vennligst besøk https://git.io/JUnaj.
 
 <b>Lenker</b>
 
- - Hjemmeside: https://andbible.github.io
- - Lik And Bible på Facebook: https://www.facebook.com/AndBible/
- - Vår Youtube-kanal: https://www.youtube.com/c/AndBible
- - Ofte spurte spørsmål (FAQ): https://git.io/JJm8E
- - Prosjektsiden på Github: https://github.com/AndBible/and-bible
+ * Hjemmeside: https://andbible.github.io
+ * Lik And Bible på Facebook: https://www.facebook.com/AndBible/
+ * Vår Youtube-kanal: https://www.youtube.com/c/AndBible
+ * Ofte spurte spørsmål (FAQ): https://git.io/JJm8E
+ * Prosjektsiden på Github: https://github.com/AndBible/and-bible

@@ -10,34 +10,34 @@ Useista tarjolla olevista raamatunkäännöksistä muutamia suosituimpia ovat Ra
 
 Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevät monipuolisesta ja syvällisestä Raamatun tutkiskelusta sujuvan kokemuksen. Seuraavat ovat sen merkittävimpiä ominaisuuksia:
 
- - Jaetut tekstinäkymät jotka mahdollistavat raamatunkäännösten vertailun ja kommentaarien selailun
- - Työtilojen avulla voit tallentaa erilaisia asetelmia erilaisiin raamatuntutkimistilanteisiin, siten että kussakin työtilassa on omat asetukset.
- - Strongin sanakirjan integraatio mahdollistaa kreikan ja heprean sanojen analysoinnin
- - Linkitetyt ristiviitteet, alaviitteet ja dokumentit; siirry ristiviitteisiin ja alaviitteisiin yksinkertaisesti napsauttamalla linkkiä; uppoudu Kirjoituksiin hyödyntämällä hyperlinkattuja kommentaareja (Gill, Matthew Henry jne.), ristiviitekokoelmia (Treasure of Scripture Knowledge, Quoting Passsages jne.) ja muita resursseja.
- - Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
- - Joustava hakutoiminto
- - Kirjanmerkit; kirjanmerkkiryhmät mukautettavilla väreillä
- - Omat muistiinpanot; voit lisätä omia muistiinpanoja ja huomioita mihin tahansa Raamatun jakeeseen
- - Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
- - Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
- - Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten ESV, NIV and NKJV.
- - Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
+ * Jaetut tekstinäkymät jotka mahdollistavat raamatunkäännösten vertailun ja kommentaarien selailun
+ * Työtilojen avulla voit tallentaa erilaisia asetelmia erilaisiin raamatuntutkimistilanteisiin, siten että kussakin työtilassa on omat asetukset.
+ * Strongin sanakirjan integraatio mahdollistaa kreikan ja heprean sanojen analysoinnin
+ * Linkitetyt ristiviitteet, alaviitteet ja dokumentit; siirry ristiviitteisiin ja alaviitteisiin yksinkertaisesti napsauttamalla linkkiä; uppoudu Kirjoituksiin hyödyntämällä hyperlinkattuja kommentaareja (Gill, Matthew Henry jne.), ristiviitekokoelmia (Treasure of Scripture Knowledge, Quoting Passsages jne.) ja muita resursseja.
+ * Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
+ * Joustava hakutoiminto
+ * Kirjanmerkit; kirjanmerkkiryhmät mukautettavilla väreillä
+ * Omat muistiinpanot; voit lisätä omia muistiinpanoja ja huomioita mihin tahansa Raamatun jakeeseen
+ * Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
+ * Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
+ * Dokumenttien alkuperä on huolellisesti tutkittu sen varmistamiseksi että niitä on laillista levittää tai että tekijänoikeuden haltijalta on saatu julkaisulupa. Tästä syystä sovelluksessa ei ole dokumentteja kuten ESV, NIV and NKJV.
+ * Offline: tarvitset internetyhteyttä vain dokumenttien lataamiseen.
 
 <b>Tehdään yhdessä paras Raamattusovellus!</b>
 
 And Bible on yhteisöllinen avoimen lähdekoodin projekti. Käytännössä se tarkoittaa että rohkaisemme kaikkia, jolla on tarvittava osaaminen, antamaan panoksensa projektiin:
 
- - kehittämällä uusia ominaisuuksia,
- - testaamalla ominaisuuksia joita ei ole vielä julkaistu,
- - pitämällä käyttöliittymän käännökset ajan tasalla, ja
- - auttamalla moduulikirjaston laajentamisessa; hankkimalla lupia tekijänoikeusten haltijoilta ja muuntamalla dokumentteja SWORD-muotoon.
+ * kehittämällä uusia ominaisuuksia,
+ * testaamalla ominaisuuksia joita ei ole vielä julkaistu,
+ * pitämällä käyttöliittymän käännökset ajan tasalla, ja
+ * auttamalla moduulikirjaston laajentamisessa; hankkimalla lupia tekijänoikeusten haltijoilta ja muuntamalla dokumentteja SWORD-muotoon.
 
 Jos olet ohjelmistoalan ammattilainen (kehittäjä tai testaaja), pyydämme sinua harkistemaan aikasi antamista tälle projektille. Lue lisää tietoa siitä kuinka voit osallistua:  https://git.io/JUnaj.
 
 <b>Linkkejä</b>
 
- - Kotisivu: https://andbible.github.io
- - Tykkää And Biblesta Facebookissa: https://www.facebook.com/AndBible/
- - Meidän Youtube-kanava: https://www.youtube.com/c/AndBible
- - Usein kysytyt kysymykset (FAQ): https://git.io/JJm8E
- - Projektin sivu Githubissa: https://github.com/AndBible/and-bible
+ * Kotisivu: https://andbible.github.io
+ * Tykkää And Biblesta Facebookissa: https://www.facebook.com/AndBible/
+ * Meidän Youtube-kanava: https://www.youtube.com/c/AndBible
+ * Usein kysytyt kysymykset (FAQ): https://git.io/JJm8E
+ * Projektin sivu Githubissa: https://github.com/AndBible/and-bible

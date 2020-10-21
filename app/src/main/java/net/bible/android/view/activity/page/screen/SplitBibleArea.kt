@@ -519,7 +519,7 @@ class SplitBibleArea(
                 restoreButtonsContainer.width -
                     (hideRestoreButton.width + hideRestoreButtonExtension.width)).toFloat() - mainBibleActivity.rightOffset1
 
-        Log.d(TAG, "updateRestoreButtons $animate $transX ${Log.getStackTraceString(Exception())}")
+        Log.d(TAG, "updateRestoreButtons $animate $transX")
 
         if(restoreButtonsVisible) {
             restoreButtonsContainer.isScrollable = true
