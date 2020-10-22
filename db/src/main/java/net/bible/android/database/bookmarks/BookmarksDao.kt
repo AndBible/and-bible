@@ -55,13 +55,7 @@ interface BookmarkDao {
         val v = converter.convert(verseRange, KJVA)
         return bookmarksForKjvOrdinalRange(v.start.ordinal, v.end.ordinal)
     }
-    fun bookmarksInBook(book: BibleBook): List<Bookmark> {
-        val lastChap = KJVA.getLastChapter(book)
-        val lastVerse = KJVA.getLastVerse(book, lastChap)
-        val startVerse = Verse(KJVA, book, 0, 0).ordinal
-        val endVerse = Verse(KJVA, book, lastChap, lastVerse).ordinal
-        return bookmarksForKjvOrdinalRange(startVerse, endVerse)
-    }
+    fun bookmarksInBook(book: BibleBook): List<Bookmark> = bookmarksForVerseRange(KJVA.allVerses)
 
     @Query("SELECT * from Bookmark where kjvOrdinalStart <= :verseId AND :verseId <= kjvOrdinalEnd")
     fun bookmarksForKjvOrdinal(verseId: Int): List<Bookmark>
