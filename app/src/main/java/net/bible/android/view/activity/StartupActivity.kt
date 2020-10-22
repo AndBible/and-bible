@@ -34,6 +34,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.WarmUp
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.FirstDownload
@@ -54,6 +55,7 @@ import kotlin.coroutines.suspendCoroutine
 open class StartupActivity : CustomTitlebarActivityBase() {
 
     @Inject lateinit var warmUp: WarmUp
+    @Inject lateinit var errorReportControl: ErrorReportControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +90,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
 
         GlobalScope.launch {
+            val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
+            if(crashed) {
+                CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
+                val msg = getString(R.string.error_occurred)
+                errorReportControl.showErrorDialog(this@StartupActivity, msg)
+            }
             try {
                 // force Sword to initialise itself
                 withContext(Dispatchers.IO) {

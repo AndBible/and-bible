@@ -91,6 +91,7 @@ class Dialogs private constructor() {
         showErrorMsg(msg, Callback(okayCallback))
     }
 
+    // TODO: use instead ErrorReportControl.showErrorDialog coroutine for error messages.
     private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: Callback, reportCallback: Callback?) {
         Log.d(TAG, "showErrorMesage message:$msg")
         try {
