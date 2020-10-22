@@ -24,26 +24,24 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Environment
 import android.os.StatFs
-
 import android.util.Log
 import androidx.preference.PreferenceManager
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-
 import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.json
-
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -55,12 +53,9 @@ import org.crosswire.common.util.IOUtil
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-
 import java.io.File
 import java.io.FileInputStream
-import java.util.Calendar
-import java.util.Date
-import java.util.Properties
+import java.util.*
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -112,6 +107,14 @@ object CommonUtils {
 
             return versionNumber
         }
+
+    private val packageInfo: PackageInfo
+        get () {
+            val manager = BibleApplication.application.packageManager
+            return manager.getPackageInfo(BibleApplication.application.packageName, 0)
+        }
+
+    val isFirstInstall get() = packageInfo.firstInstallTime == packageInfo.lastUpdateTime
 
     val isSplitVertically: Boolean get() {
         val reverse = mainBibleActivity.windowRepository.windowBehaviorSettings.enableReverseSplitMode
@@ -447,7 +450,7 @@ object CommonUtils {
         val lastTypes = lastDisplaySettings.toMutableList()
         lastTypes.remove(type)
         while (lastTypes.size >= 5) {
-            lastTypes.removeAt(lastTypes.size-1)
+            lastTypes.removeAt(lastTypes.size - 1)
         }
         lastTypes.add(0, type)
         sharedPreferences.edit().putString("lastDisplaySettings", LastTypesSerializer(lastTypes).toJson()).apply()
