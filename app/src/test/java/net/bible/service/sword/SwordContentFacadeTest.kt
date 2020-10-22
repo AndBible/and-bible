@@ -19,6 +19,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.passage.VerseRangeFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -58,8 +60,8 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     fun testReadFragment() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
-
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "John 11:35")
         val html = getHtml(esv, key, true)
         assertThat(html, not(containsString("<html")))
     }
@@ -69,7 +71,8 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     fun testReadWordsOfChrist() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Luke 15:4")
 
         val html = getHtml(esv, key, false)
         assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
@@ -80,22 +83,25 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     fun testReadCanonicalText() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Gen 1:1")
 
         val html = swordContentFacade.getCanonicalText(esv, key)
         assertThat("Wrong canonical text", html, equalTo("In the beginning, God created the heavens and the earth. "))
     }
 
-    protected fun getVerse(book: Book, verseStr: String): Verse {
-        val verse = book.getKey(verseStr) as RangedPassage
-        return verse.getVerseAt(0)
+    protected fun getVerse(book: Book, verseStr: String): VerseRange {
+        val key = VerseRangeFactory.fromString((book as SwordBook).versification, verseStr)
+        //val verse = book.getKey(verseStr) as RangedPassage
+        return key
     }
 
     //@Ignore("Until ESV comes back")
     @Test
     fun testReadEsvIssue141a() {
         val esv = getBook("ESV2011")
-        val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
+        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Matt 18")
+        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
             swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
