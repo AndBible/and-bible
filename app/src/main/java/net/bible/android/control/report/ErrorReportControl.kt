@@ -163,7 +163,7 @@ class ErrorReportControl @Inject constructor() {
                 }
                 if (report) {
                     dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
-                    dlgBuilder.setNeutralButton(R.string.cancel) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
+                    dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
                 }
                 dlgBuilder.show()
             }

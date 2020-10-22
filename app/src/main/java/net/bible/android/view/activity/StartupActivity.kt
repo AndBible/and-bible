@@ -93,7 +93,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
             if(crashed) {
                 CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
-                val msg = getString(R.string.error_occurred)
+                val msg = getString(R.string.error_occurred_crash_last_time)
                 errorReportControl.showErrorDialog(this@StartupActivity, msg)
             }
             try {
