@@ -26,8 +26,6 @@ import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 
 import net.bible.android.activity.SpeakWidgetManager
