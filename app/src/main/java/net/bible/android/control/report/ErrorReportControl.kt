@@ -156,13 +156,14 @@ class ErrorReportControl @Inject constructor() {
                     .setOnCancelListener { _ -> it.resume(AlertDialogResult.CANCEL) }
                     .setPositiveButton(R.string.okay) { _, _ -> it.resume(AlertDialogResult.OKAY) }
 
-                if (isCancelable) {
+                if (isCancelable && !report) {
                     dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
                         it.resume(AlertDialogResult.CANCEL)
                     }
                 }
                 if (report) {
-                    dlgBuilder.setNeutralButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
+                    dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(AlertDialogResult.REPORT) }
+                    dlgBuilder.setNeutralButton(R.string.cancel) { _, _ -> it.resume(AlertDialogResult.CANCEL) }
                 }
                 dlgBuilder.show()
             }
