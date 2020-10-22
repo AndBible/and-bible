@@ -351,7 +351,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private suspend fun showFirstTimeHelp()  {
         val pinningHelpShown = preferences.getBoolean("pinning-help-shown", false)
         if(!pinningHelpShown) {
-            val save = suspendCoroutine<Boolean> {
+            val save = CommonUtils.isFirstInstall || suspendCoroutine<Boolean> {
                 val pinningTitle = getString(R.string.help_window_pinning_title)
                 var pinningText = getString(R.string.help_window_pinning_text)
 
