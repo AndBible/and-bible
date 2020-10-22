@@ -1252,7 +1252,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 updateActions()
                 return
             }
-            else -> throw RuntimeException("Unhandled request code $requestCode")
         }
         super.onActivityResult(requestCode, resultCode, data)
         when {
