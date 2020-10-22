@@ -20,6 +20,7 @@ package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -30,6 +31,8 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatDelegate
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
@@ -295,10 +298,37 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    private var currentCode : Int = 0
+    private var resultByCode = mutableMapOf<Int, CompletableDeferred<Instrumentation.ActivityResult?>>()
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        resultByCode[requestCode - ASYNC_REQUEST_CODE_START]?.let {
+            it.complete(Instrumentation.ActivityResult(resultCode, data))
+            resultByCode.remove(requestCode)
+        } ?: run {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    suspend fun awaitIntent(intent: Intent) : Instrumentation.ActivityResult?
+    {
+        val activityResult = CompletableDeferred<Instrumentation.ActivityResult?>()
+
+        if (intent.resolveActivity(packageManager) != null) {
+            val resultCode = currentCode++
+            resultByCode[resultCode] = activityResult
+            startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
+        } else {
+            activityResult.complete(null)
+        }
+        return activityResult.await()
+    }
+
     companion object {
 
         // standard request code for startActivityForResult
         const val STD_REQUEST_CODE = 1
+        const val ASYNC_REQUEST_CODE_START = 1900
 
         // Special result that requests all activities to exit until the main/top Activity is reached
         const val RESULT_RETURN_TO_TOP = 900

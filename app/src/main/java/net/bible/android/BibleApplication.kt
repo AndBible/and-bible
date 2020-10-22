@@ -26,6 +26,8 @@ import android.content.res.Resources
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import android.widget.Toast
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 
 import net.bible.android.activity.SpeakWidgetManager
@@ -83,6 +85,11 @@ open class BibleApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            defaultExceptionHandler.uncaughtException(t, e)
+        }
         ABEventBus.getDefault().register(this)
         InstallManager.installSiteMap(
             PropertyMap().apply {
