@@ -149,7 +149,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     @SuppressLint("SetJavaScriptEnabled")
     fun initialise() {
-
+        Log.d(TAG, "initialise")
         /* WebViewClient must be set BEFORE calling loadUrl! */
         webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
@@ -237,10 +237,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** apply settings set by the user using Preferences
      */
     override fun applyPreferenceSettings() {
+        Log.d(TAG, "applyPreferenceSettings")
         applyFontSize()
     }
 
     private fun applyFontSize() {
+        Log.d(TAG, "applyFontSize")
         val fontSize = pageControl.getDocumentFontSize(window)
         val oldFontSize = settings.defaultFontSize
         val fontFamily = window.pageManager.actualTextDisplaySettings.font!!.fontFamily!!
@@ -254,6 +256,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** may need updating depending on environmental brightness
      */
     override fun updateBackgroundColor() {
+        Log.d(TAG, "updateBackgroundColor")
         setBackgroundColor(backgroundColor)
     }
 
@@ -334,6 +337,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun updateTextDisplaySettings() {
+        Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
         executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
@@ -382,6 +386,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Enable or disable zoom controls depending on whether map is currently shown
      */
     private fun enableZoomForMap(isMap: Boolean) {
+        Log.d(TAG, "enableZoomForMap $isMap")
         settings.builtInZoomControls = true
         settings.setSupportZoom(isMap)
         settings.displayZoomControls = false
@@ -425,7 +430,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
-        Log.d(TAG, "Focus changed so start/stop scroll")
+        Log.d(TAG, "Focus changed so start/stop scroll $hasWindowFocus")
         if (hasWindowFocus) {
             resumeTiltScroll()
         } else {
@@ -434,14 +439,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun pauseTiltScroll() {
-        Log.d(TAG, "Pausing tilt to scroll $window")
         pageTiltScroller.enableTiltScroll(false)
     }
 
     private fun resumeTiltScroll() {
         // but if multiple windows then only if the current active window
         if (windowControl.isActiveWindow(window)) {
-            Log.d(TAG, "Resuming tilt to scroll $window")
             pageTiltScroller.enableTiltScroll(true)
         }
     }
