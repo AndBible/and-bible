@@ -52,6 +52,7 @@ class PageTiltScroller(
      */
     fun enableTiltScroll(enable: Boolean) {
         if (pageTiltScrollControl.enableTiltScroll(enable)) {
+            Log.d(TAG, "enableTiltScroll $enable")
             if (enable) {
                 recalculateViewingPosition()
                 kickOffScrollThread()
@@ -151,13 +152,12 @@ class PageTiltScroller(
         }
     }
 
-    companion object {
+    private val TAG get() = "PageTiltScroller[${webView.windowRef.get()?.id}]"
 
+    companion object {
         private val FORWARD_KEY = "Forward"
 
         private val SCROLL_PIXELS_KEY = "ScrollPixels"
-
-        private val TAG = "PageTiltScroller"
     }
 
 }
