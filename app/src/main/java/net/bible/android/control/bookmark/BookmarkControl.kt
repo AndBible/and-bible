@@ -149,9 +149,6 @@ open class BookmarkControl @Inject constructor(
 
     fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun speakBookmarkByOsisRef(osisRef: String): Bookmark =
-        dao.bookmarksForVerseStartWithLabel(VerseFactory.fromString(KJVA, osisRef), speakLabel).first()
-
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
         dao.delete(bookmark)
         if(!doNotSync) {

@@ -125,7 +125,7 @@ class BookmarkEntities {
                 kjvVerseRange = value
             }
 
-        private var kjvVerseRange: VerseRange
+        var kjvVerseRange: VerseRange
             get() {
                 val begin = Verse(KJVA, kjvOrdinalStart)
                 val end = Verse(KJVA, kjvOrdinalEnd)

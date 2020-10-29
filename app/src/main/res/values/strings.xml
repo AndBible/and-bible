@@ -4,7 +4,7 @@
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <resources>
-    <string name="app_name_short">Bible Study</string>
+    <string name="app_name_short">Bible Study Beta</string>
     <string name="app_name_medium">Bible Study (And Bible)</string>
     <string name="app_name_long">Bible Study app, by And Bible Open Source Project</string>
 
