@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: Studi Biblion (And Biblio)
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "Studi Biblion, legi komentojn kaj vortarojn; malkonekte."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Ampleksa aplikaĵo por studi Biblion
+paragraph_1_1: >
+  Studi Biblion de la malfermkoda projekto And Biblio estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+paragraph_1_2: >
+  Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon. Programita cele por Android, la aplikaĵo estas malgranda, do tre efika kaj rapida.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >-
+  Esperanta Londona Biblio.
+subtitle_2: Eblaĵo de la aplikaĵo
+paragraph_2_1: >
+  La aplikaĵo distingiĝas per pluraj sagaj, originalaj eblaĵoj, kiuj plifaciligas profundan studadon de Biblio. La plej gravaj trajtoj estas:
+feature_01: dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
+feature_02: "laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj"
+feature_03: numeroj de Strong por analizi vortojn en greka kaj hebrea
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_04: >
+  entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj ({{commentary_examples}}), kolektoj de internaj referencoj ({{cross_reference_examples}}) kaj aliaj tekstoj
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: nedisponeblaj en EO
+# Examples of cross-reference collections.
+cross_reference_examples: nedisponeblaj en EO
+feature_05: teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
+feature_06: fleksebla serĉo
+feature_07: legosignoj kun propre koloreblaj grupoj da legosignoj
+feature_08: >
+  personaj notoj: aldonu viajn proprajn notojn al ĉiu verso
+feature_09: >
+  planoj de legado: difinu viajn celojn por legi Biblion
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol {{total_documents}} dokumentoj en {{total_languages}} lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  deveno de ĉiuj dokumentoj estas kontrolita por certigi, ke ĉiuj dokumentoj povas esti laŭleĝe distribuataj aŭ ricevis permeson de kopirajt‑posedantoj {{unavailable_documents}}
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: " "
+feature_12: >-
+  funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+subtitle_3: Ni kune faru la plej bonan apon por legi Biblion!
+paragraph_3_1: >-
+  And Biblio estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
+contr_1: programi novajn eblaĵojn;
+contr_2: testi beta-eblaĵojn;
+contr_3: traduki la programon; kaj per
+contr_4: helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe {{how_to_contribute_url}}"
+subtitle_4: Ligiloj
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  hejmpaĝo: {{homepage_url}}
+link_2: >
+  ŝatu la apon Studi Biblion ĉe {{facebook_url}}
+link_3: >
+  nia YouTube-kanalo: {{youtube_url}}
+link_4: >
+  oftaj demandoj (en la angla) {{faq_url}}
+link_5: >
+  projekt-paĝo ĉe GitHub: {{github_url}}
