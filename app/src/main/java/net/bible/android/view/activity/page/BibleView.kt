@@ -77,7 +77,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
                 private val linkControl: LinkControl) :
-        WebView(mainBibleActivity),
+        WebView(mainBibleActivity.applicationContext),
         DocumentView,
         VerseActionModeMediator.VerseHighlightControl
 {
