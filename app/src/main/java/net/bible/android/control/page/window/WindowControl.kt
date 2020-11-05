@@ -189,7 +189,7 @@ open class WindowControl @Inject constructor(
 
     fun isWindowRemovable(window: Window): Boolean {
         var normalWindows = windowRepository.windows.size
-        if (windowRepository.dedicatedLinksWindow.isVisible) {
+        if (!windowRepository.dedicatedLinksWindow.isClosed) {
             normalWindows--
         }
 
