@@ -1,9 +1,8 @@
 import Vue from 'vue'
-import App from './App.vue'
-import "./code"
+import BibleView from "@/components/BibleView";
 
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(App),
+  render: h => h(BibleView),
 }).$mount('#app')
