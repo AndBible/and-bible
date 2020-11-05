@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 
+def jsDir = "bibleview-js"
+
 def getGitHash = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
@@ -23,9 +25,9 @@ def getGitDescribe = { ->
 }
 
 task npmUpgrade(type: Exec) {
-    inputs.file "bibleview-js/package.json"
-    outputs.file "bibleview-js/node_modules/.bin/npm"
-    workingDir "bibleview-js"
+    inputs.file "$jsDir/package.json"
+    outputs.file "$jsDir/node_modules/.bin/npm"
+    workingDir jsDir
     // Workaround for F-droid, which has buggy npm version 5.8, that always fails when installing packages.
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine "npx.cmd", "npm@latest", "install", "--save-dev", "npm@latest"
@@ -36,12 +38,12 @@ task npmUpgrade(type: Exec) {
 }
 
 task npmInstall(type: Exec, dependsOn: npmUpgrade) {
-    inputs.file "bibleview-js/package.json"
-    outputs.dir "bibleview-js/node_modules"
+    inputs.file "$jsDir/package.json"
+    outputs.dir "$jsDir/node_modules"
 
-    workingDir "bibleview-js"
+    workingDir jsDir
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/npm.cmd", "install"
+        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "install"
     }
     else {
         commandLine "node_modules/.bin/npm", "install"
@@ -49,23 +51,23 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
 }
 
 task webpack(type: Exec, dependsOn: npmInstall) {
-    inputs.file "bibleview-js/package.json"
-    inputs.dir "bibleview-js/src"
-    inputs.file "bibleview-js/webpack.config.js"
-    outputs.file "bibleview-js/dist/loader.js"
+    inputs.file "$jsDir/package.json"
+    inputs.dir "$jsDir/src"
+    //inputs.file "$jsDir/webpack.config.js"
+    outputs.dir "$jsDir/dist"
 
-    workingDir "bibleview-js"
+    workingDir jsDir
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "$rootDir/app/bibleview-js/node_modules/.bin/webpack.cmd"
+        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", "build"
     }
     else {
-        commandLine "node_modules/.bin/webpack"
+        commandLine "node_modules/.bin/npm", "run", "build"
     }
 }
 
 task buildLoaderJs(type: Copy, dependsOn: webpack) {
-    from("bibleview-js/dist/loader.js")
-    into("src/main/assets/web")
+    from("$jsDir/dist")
+    into("src/main/assets/web/bibleview-js")
 }
 
 preBuild.dependsOn buildLoaderJs

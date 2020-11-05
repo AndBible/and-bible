@@ -1,6 +1,9 @@
 import {enableVerseLongTouchSelectionMode} from "./highlighting";
 import {registerVersePositions} from "./bibleview";
 import {nextTick} from "./utils";
+import Vue from "vue";
+import BibleView from "../components/BibleView";
+import $ from "jquery"
 
 let currentScrollAnimation = null;
 let contentReady = false;
@@ -171,7 +174,19 @@ export async function setupContent({jumpToChapterVerse, jumpToYOffsetRatio, tool
     contentReady = true;
     console.log("Content is set ready!");
     jsInterface.setContentReady();
+    startVue();
 }
+
+function startVue() {
+    console.log("Init vue");
+    new Vue({
+        el: "#vue",
+        components: { BibleView },
+        template: '<BibleView/>'
+    });
+    console.log("..finished");
+}
+
 export function hideContent() {
     $("#content").css('visibility', 'hidden');
 }

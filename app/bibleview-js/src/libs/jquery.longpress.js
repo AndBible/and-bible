@@ -15,6 +15,7 @@
  *
  * Copyright (c) 2008-2013, Vaidik Kapoor (kapoor [*dot*] vaidik -[at]- gmail [*dot*] com)
  */
+import jQuery from "jquery"
 
 (function($) {
     $.fn.longpress = function(longCallback, shortCallback, duration) {
@@ -60,7 +61,7 @@
                     if (typeof shortCallback === "function") {
                         shortCallback.call($(this), e);
                     } else if (typeof shortCallback === "undefined") {
-                        ;
+                        
                     } else {
                         $.error('Optional callback for short press should be a function.');
                     }

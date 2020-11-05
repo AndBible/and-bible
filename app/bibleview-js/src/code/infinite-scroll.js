@@ -4,7 +4,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 import {registerVersePositions} from "./bibleview";
-import {stopScrolling} from "./scroll";
+import $ from "jquery"
 
 function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
                       insertAfterAtTop, insertBeforeAtBottom) {

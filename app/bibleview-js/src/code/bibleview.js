@@ -5,6 +5,7 @@
  */
 
 import {updateLocation, stopScrolling} from "./scroll";
+import $ from "jquery"
 
 export function registerVersePositions(now = false) {
     // Register verse positions after next screen refresh ensuring that css / font is rendered correctly.

@@ -121,6 +121,7 @@ class OsisToHtmlSaxHandler(// properties
                     dir='$direction'>
                 <head>
                     $styleSheetTags
+                    <link rel="stylesheet" href="file:///android_asset/web/bibleview-js/BibleView.css">
                     $customFontStyle
                     <meta charset='utf-8'/>
                 </head>
@@ -173,17 +174,17 @@ class OsisToHtmlSaxHandler(// properties
         if (!parameters.isLeftToRight) {
             write("</span>")
         }
-        val jsTag = """
-           <script type='text/javascript' 
-                   src='file:///android_asset/web/loader.js'>
-           </script>"""
 
         // only put top/bottom insert positions in main/non-fragment page
         if (!parameters.isAsFragment) {
             write("""
+                    <div id="app">
+                        <BibleView></BibleView>
+                    </div>                
                     <div id='bottomOfBibleText'></div>
                  </div>
-                 $jsTag
+                <script type='text/javascript' 
+                    src='file:///android_asset/web/bibleview-js/BibleView.umd.js'></script>                    
                 <script type='text/javascript'>
                     andbible.initialize(INITIALIZE_SETTINGS);
                 </script>

@@ -1,5 +1,3 @@
-import "libs/jquery.longpress"
-import "jquery-nearest"
 
 import {scrollToVerse, setDisplaySettings, setToolbarOffset, setupContent} from "./scroll";
 import {initializeInfiniScroll, insertThisTextAtEnd, insertThisTextAtTop} from "./infinite-scroll";

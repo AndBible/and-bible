@@ -1,4 +1,7 @@
-import {doScrolling, toolbarOffset} from "./scroll";
+import {doScrolling} from "./scroll";
+import $ from "jquery"
+import "@/libs/jquery.nearest"
+import "@/libs/jquery.longpress"
 
 /**
  * Monitor verse selection via long press
