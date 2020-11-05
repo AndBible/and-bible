@@ -112,24 +112,21 @@ class OsisToHtmlSaxHandler(// properties
         // if not fragment then add head section
         if (!parameters.isAsFragment) {
             //jsTag += "\n<script type='text/javascript' src='file:///android_asset/web/loader.js.map'></script>\n";
-            val styleSheetTags = parameters.cssStylesheets
-            val customFontStyle: String = FontControl.instance.getHtmlFontStyle(parameters.font, parameters.cssClassForCustomFont)
             write("""
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
                 <html xmlns='http://www.w3.org/1999/xhtml' 
                     lang='${parameters.languageCode}' 
                     dir='$direction'>
                 <head>
-                    $styleSheetTags
+                    ${parameters.cssStylesheets}
                     <link rel="stylesheet" href="file:///android_asset/web/bibleview-js/BibleView.css">
-                    $customFontStyle
+                    ${FontControl.instance.getHtmlFontStyle(parameters.font, parameters.cssClassForCustomFont)}
                     <meta charset='utf-8'/>
                 </head>
                 <body>
                     <div id='start'></div>
-                    <div id='vue'></div>
                     <div id='content' style='visibility: hidden;'>
-                    """)
+                    """.trimIndent())
         }
 
         // force rtl for rtl languages - rtl support on Android is poor but
@@ -142,6 +139,7 @@ class OsisToHtmlSaxHandler(// properties
         if (!parameters.isAsFragment) {
             write("<div id='topOfBibleText'></div>")
         }
+        write("<div id='app'></div>")
         chapterDivider.doStart()
         contentWritten = false
     }
@@ -178,9 +176,6 @@ class OsisToHtmlSaxHandler(// properties
         // only put top/bottom insert positions in main/non-fragment page
         if (!parameters.isAsFragment) {
             write("""
-                    <div id="app">
-                        <BibleView></BibleView>
-                    </div>                
                     <div id='bottomOfBibleText'></div>
                  </div>
                 <script type='text/javascript' 
@@ -189,7 +184,7 @@ class OsisToHtmlSaxHandler(// properties
                     andbible.initialize(INITIALIZE_SETTINGS);
                 </script>
                 </body>
-                </html>""")
+                </html>""".trimIndent())
         }
     }
 
@@ -263,7 +258,7 @@ class OsisToHtmlSaxHandler(// properties
     }
 
     private val direction: String
-        private get() = if (parameters.isLeftToRight) "ltr" else "rtl"
+        get() = if (parameters.isLeftToRight) "ltr" else "rtl"
 
     val notesList: List<Note>
         get() = noteHandler.notesList
