@@ -114,8 +114,21 @@ class OsisToHtmlSaxHandler(// properties
             //jsTag += "\n<script type='text/javascript' src='file:///android_asset/web/loader.js.map'></script>\n";
             val styleSheetTags = parameters.cssStylesheets
             val customFontStyle: String = FontControl.instance.getHtmlFontStyle(parameters.font, parameters.cssClassForCustomFont)
-            write("""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> <html xmlns='http://www.w3.org/1999/xhtml' lang='${parameters.languageCode}' dir='$direction'><head>$styleSheetTags
-$customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div id='content' style='visibility: hidden;'>""")
+            write("""
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+                <html xmlns='http://www.w3.org/1999/xhtml' 
+                    lang='${parameters.languageCode}' 
+                    dir='$direction'>
+                <head>
+                    $styleSheetTags
+                    $customFontStyle
+                    <meta charset='utf-8'/>
+                </head>
+                <body>
+                    <div id='start'></div>
+                    <div id='vue'></div>
+                    <div id='content' style='visibility: hidden;'>
+                    """)
         }
 
         // force rtl for rtl languages - rtl support on Android is poor but
@@ -160,11 +173,22 @@ $customFontStyle<meta charset='utf-8'/></head><body><div id='start'></div><div i
         if (!parameters.isLeftToRight) {
             write("</span>")
         }
-        val jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/loader.js'></script>\n"
+        val jsTag = """
+           <script type='text/javascript' 
+                   src='file:///android_asset/web/loader.js'>
+           </script>"""
 
         // only put top/bottom insert positions in main/non-fragment page
         if (!parameters.isAsFragment) {
-            write("<div id='bottomOfBibleText'></div></div>$jsTag<script type='text/javascript'>andbible.initialize(INITIALIZE_SETTINGS);</script></body></html>")
+            write("""
+                    <div id='bottomOfBibleText'></div>
+                 </div>
+                 $jsTag
+                <script type='text/javascript'>
+                    andbible.initialize(INITIALIZE_SETTINGS);
+                </script>
+                </body>
+                </html>""")
         }
     }
 
