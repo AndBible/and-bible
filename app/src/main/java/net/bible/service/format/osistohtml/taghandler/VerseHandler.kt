@@ -55,7 +55,7 @@ class VerseHandler(private val parameters: OsisToHtmlParameters, private val ver
         }
         val classes: MutableList<String?> = ArrayList(1)
         classes.add("verse")
-        classes.addAll(bookmarkMarker.bookmarkClasses)
+        //classes.addAll(bookmarkMarker.bookmarkClasses)
         writeVerseStart(verseNo, classes)
 
         // initialise other related handlers that write content at start of verse

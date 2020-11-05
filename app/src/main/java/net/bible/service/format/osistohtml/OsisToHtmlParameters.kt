@@ -67,6 +67,7 @@ class OsisToHtmlParameters {
     var extraFooter: String? = null
     var isConvertStrongsRefsToLinks = false
     var versesWithNotes: List<Verse>? = null
+    // TODO: remove
     var bookmarkStylesByBookmarkedVerse: Map<Int, Set<BookmarkStyle>>? = null
     var moduleBasePath: URI? = null
     var indentDepth = 2
@@ -81,7 +82,7 @@ class OsisToHtmlParameters {
             }
             return builder.toString()
         }
-
+    // TODO: remove
     fun setDefaultBookmarkStyle(defaultBookmarkStyle: BookmarkStyle) {
         this.defaultBookmarkStyle = defaultBookmarkStyle
     }
