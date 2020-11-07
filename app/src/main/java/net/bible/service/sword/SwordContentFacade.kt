@@ -231,22 +231,17 @@ open class SwordContentFacade @Inject constructor(
         }
     }
 
-    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> {
-        return try {
-            val data = BookData(book, key)
-            val frag = data.getOsisFragment(false)
-            var doc = frag.document
-            if (doc == null) {
-                doc = Document(frag)
-            }
-            val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
-            val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
-            osissep.provideSAXEvents(osisHandler)
-            (osisHandler as OsisToBibleSpeak).speakCommands
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting text from book", e)
-            ArrayList()
-        }
+    private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {
+        val data = BookData(book, key)
+        val frag = data.getOsisFragment(false)
+        val doc = frag.document ?: Document(frag)
+        val osissep: SAXEventProvider = JDOMSAXEventProvider(doc)
+        val osisHandler: ContentHandler = OsisToBibleSpeak(settings, book.language.code)
+        osissep.provideSAXEvents(osisHandler)
+        (osisHandler as OsisToBibleSpeak).speakCommands
+    } catch (e: Exception) {
+        Log.e(TAG, "Error getting text from book", e)
+        ArrayList()
     }
 
     fun getSpeakCommands(settings: SpeakSettings, book: SwordBook, verse: Verse?): SpeakCommandArray {

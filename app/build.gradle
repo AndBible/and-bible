@@ -198,6 +198,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 
     implementation "com.github.AndBible:jsword:$jsword_version"
+
+    // make sure this is same version as in jsword!
     implementation 'org.jdom:jdom2:2.0.6'
 
     debugImplementation 'com.facebook.stetho:stetho:1.5.1'
