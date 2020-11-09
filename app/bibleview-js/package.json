@@ -5,13 +5,15 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --inline-vue --name BibleView src/main.js",
+    "web": "vue-cli-service build",
     "app": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "~3.6.5",
     "vue": "~2.6.11",
-    "jquery": "~3.5.0"
+    "jquery": "~3.5.0",
+    "@vue/composition-api": "~1.0.0-beta.11"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
