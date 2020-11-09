@@ -26,7 +26,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.Ver
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class HtmlTextWriter {
-    private val writer: StringBuilder
+    private val writer: StringBuilder = StringBuilder()
     private var dontWriteRequestCount = 0
     private var writeTempStoreRequestCount = 0
     private val tempStore = StringBuilder()
@@ -130,7 +130,4 @@ class HtmlTextWriter {
         private val log = Logger("HtmlTextWriter")
     }
 
-    init {
-        writer = StringBuilder()
-    }
 }
