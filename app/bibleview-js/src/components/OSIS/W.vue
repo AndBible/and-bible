@@ -16,10 +16,10 @@
   -->
 
 <template>
-  <span v-if="(config.showStrongs && lemma) && (config.showMorph && morph)"><a class="strongs" :href="`link://${lemma}`"><slot/></a><a class="morph" :href="`link://${morph}`"> ({{morph|split(':', 1)}})</a></span>
-  <a v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)" class="strongs" :href="`link://${lemma}`"><slot/></a>
-  <a v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)" class="morph" :href="`link://${morph}`"><slot/></a>
-  <span v-else><slot/></span>
+  <span v-if="(config.showStrongs && lemma) && (config.showMorph && morph)"><a class="strongs" :href="`link://${lemma}`" ref="contentTag"><slot/></a><a class="morph" :href="`link://${morph}`"> ({{morph|split(':', 1)}})</a></span>
+  <a v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)" class="strongs" :href="`link://${lemma}`" ref="contentTag"><slot/></a>
+  <a v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)" class="morph" :href="`link://${morph}`" ref="contentTag"><slot/></a>
+  <span v-else ref="contentTag"><slot/></span>
 </template>
 
 <script>

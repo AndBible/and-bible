@@ -18,7 +18,7 @@
 <template>
   <div>
     <h2 v-if="config.chapterNumbers && startTag">{{strings.chapterNum | sprintf(chapterNum)}}</h2>
-    <slot/>
+    <div class="inlineDiv" ref="contentTag"><slot/></div>
   </div>
 </template>
 

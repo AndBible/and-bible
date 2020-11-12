@@ -17,6 +17,7 @@
 
 <template>
   <div>
+    <div class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
     <OsisFragment
         v-for="(osisFragment, index) in osisFragments" :key="index"
         :content="osisFragment"
@@ -28,6 +29,7 @@
   import OsisFragment from "@/components/OsisFragment";
   import {provide, reactive} from "@vue/composition-api";
   import {testData} from "@/testdata";
+  import highlightRange from "dom-highlight-range";
 
   function useConfig() {
     return reactive({
@@ -84,8 +86,69 @@
             color: "#00FF00"
           }
         ]
-
       }
-    }
+    },
+    methods: {
+      highLight() {
+        //const first = document.getElementById("2Thess.2.12");
+        //const second = document.getElementById("2Thess.2.15");
+        const startCount = 16;
+        const endCount = 53;
+        const startOff = 75;
+        const endOff = 78;
+        const first = document.querySelector(`[data-element-count="${startCount}"]`).childNodes[0];
+        const second = document.querySelector(`[data-element-count="${endCount}"]`).childNodes[0];
+        const range = new Range();
+        range.setStart(first, startOff);
+        range.setEnd(second, endOff);
+        const removeHighlights = highlightRange(range, 'span', { class: 'highlighted' });
+      },
+      getSelection() {
+
+        const selection = window.getSelection();
+        if (!selection.isCollapsed) {
+          const range = selection.getRangeAt(0);
+          console.log("range", range);
+
+          const findElemWithOsisID = (elem) => {
+            // This needs to be done unique for each OsisFragment (as there can be many).
+            if(elem.dataset && elem.dataset.osisID) {
+              return elem;
+            }
+            else {
+              return findElemWithOsisID(elem.parentElement);
+            }
+          }
+
+          const startElem = findElemWithOsisID(range.startContainer);
+          const endElem = findElemWithOsisID(range.endContainer);
+
+          console.log(
+              startElem.dataset.osisID,
+              startElem.dataset.elementCount,
+              range.startOffset
+          );
+          console.log(
+              endElem.dataset.osisID,
+              endElem.dataset.elementCount,
+              range.endOffset
+          );
+        }
+      }
+    },
   }
 </script>
+<style>
+.highlighted {
+  background-color: yellow;
+}
+.highlightButton {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: yellow;
+}
+.inlineDiv {
+  display: inline;
+}
+</style>

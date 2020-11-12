@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span :class="{redLetters: config.showRedLetters && isJesus}"><slot/></span></template>
+<template><span :class="{redLetters: config.showRedLetters && isJesus}" ref="contentTag"><slot/></span></template>
 
 <script>
 import TagMixin from "@/components/TagMixin";

@@ -10,11 +10,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "core-js": "~3.6.5",
-    "vue": "~2.6.11",
-    "jquery": "~3.5.0",
     "@vue/composition-api": "~1.0.0-beta.11",
-    "sprintf-js": "~1.1.2"
+    "core-js": "~3.6.5",
+    "dom-highlight-range": "^3.0.1",
+    "jquery": "~3.5.0",
+    "sprintf-js": "~1.1.2",
+    "vue": "~2.6.11"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

@@ -39,6 +39,7 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
+import {provide, ref} from "@vue/composition-api";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
@@ -62,9 +63,12 @@ export default {
       type: String,
       required: true,
     }
-
   },
   components: prefixComponents(components),
+  setup() {
+    const elementCount = ref(0);
+    provide("elementCount", elementCount);
+  },
   created() {
     this.$options.template = this.content
         // Prefix all tags to differentiate from standard HTML tags

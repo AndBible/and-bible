@@ -16,9 +16,9 @@
   -->
 
 <template>
-  <span class="paragraphBreak" v-if="isParagraph"/>
-  <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
-  <span v-else><slot/></span>
+  <span class="paragraphBreak" ref="contentTag" v-if="isParagraph"/>
+  <VerseNumber ref="contentTag" v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
+  <div v-else class="inlineDiv" ref="contentTag"><slot/></div>
 </template>
 
 <script>

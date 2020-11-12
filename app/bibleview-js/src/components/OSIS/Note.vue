@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><div style="display:inline;"><sup :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</sup><div class="noteBlock" v-show="showNote"><slot/></div></div></template>
+<template><div class="inlineDiv"><sup :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</sup><div class="noteBlock" v-show="showNote" ref="contentTag"><slot/></div></div></template>
 
 <script>
 import TagMixin from "@/components/TagMixin";

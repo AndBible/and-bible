@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span :class="hiStyle"><slot/></span>
+  <div ref="contentTag" :class="hiStyle"><slot/></div>
 </template>
 
 <script>

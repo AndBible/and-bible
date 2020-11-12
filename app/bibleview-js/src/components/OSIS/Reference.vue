@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span><a class="reference" :href="`link://${osisRef}`"><slot/></a></span>
+  <span><a class="reference" :href="`link://${osisRef}`" ref="contentTag"><slot/></a></span>
 </template>
 
 <script>

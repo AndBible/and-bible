@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export const testData = [
+export let testData = [
 // Test 1
 `<div>
 <verse osisID='Gen.2.0'>
@@ -54,3 +54,4 @@ export const testData = [
     `
 ]
 testData.reverse();
+testData = [testData[4]];

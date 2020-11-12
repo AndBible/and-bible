@@ -16,18 +16,14 @@
   -->
 
 <template>
-  <div :class="{noLineBreak: !config.versePerLine}"><VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/><slot/></div>
+  <div :id="osisID" :class="{noLineBreak: !config.versePerLine}"><VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/><div class="inlineDiv" ref="contentTag"><slot/></div></div>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
 import {provide, reactive, ref} from "@vue/composition-api";
 import VerseNumber from "@/components/VerseNumber";
-
-function getVerseInfo(osisID) {
-  const [book, chapter, verse] = osisID.split(".")
-  return {book, chapter: parseInt(chapter), verse: parseInt(verse)}
-}
+import {getVerseInfo} from "@/utils";
 
 export default {
   name: "Verse",

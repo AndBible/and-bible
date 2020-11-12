@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span class="verseNumber">{{strings.verseNum | sprintf(verseNum)}}</span></template>
+<template><span class="verseNumber" ref="contentTag">{{strings.verseNum | sprintf(verseNum)}}</span></template>
 
 <script>
 import TagMixin from "@/components/TagMixin";

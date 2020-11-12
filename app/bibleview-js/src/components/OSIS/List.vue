@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <ul class="listStyle"><slot/></ul>
+  <ul class="listStyle" ref="contentTag"><slot/></ul>
 </template>
 
 <script>

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <h3 class="titleStyle" v-if="show"><slot/></h3>
+  <h3 :class="{isSubTitle, titleStyle: true}" v-show="show" ref="contentTag"><slot/></h3>
 </template>
 
 <script>
@@ -36,7 +36,8 @@ export default {
         && ((config.showNonCanonical && !isCanonical) || isCanonical)
         && !(type === "sub" && subType === "x-Chapter")
         && type !== "x-gen",
-    isCanonical: ({canonical}) => canonical === "true"
+    isCanonical: ({canonical}) => canonical === "true",
+    isSubTitle: ({type}) => type === "sub",
   }
 }
 </script>
@@ -44,5 +45,10 @@ export default {
 <style scoped type="text/scss">
 .listStyle .titleStyle {
   margin-inline-start: -1em;
+}
+
+h3.isSubTitle {
+  font-size: 110%;
+  margin-inline-start: 1em;
 }
 </style>
