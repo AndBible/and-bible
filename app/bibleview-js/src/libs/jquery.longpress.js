@@ -1,19 +1,18 @@
-/**
- * Longpress is a jQuery plugin that makes it easy to support long press
- * events on mobile devices and desktop borwsers.
+/*
+ * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
  *
- * Customised to add pageX and pageY to event.
+ * This file is part of And Bible (http://github.com/AndBible/and-bible).
  *
- * @name longpress
- * @version 0.1.2
- * @requires jQuery v1.2.3+
- * @author Vaidik Kapoor
- * @license MIT License - http://www.opensource.org/licenses/mit-license.php
+ * And Bible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
- * For usage and examples, check out the README at:
- * http://github.com/vaidik/jquery-longpress/
+ * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- * Copyright (c) 2008-2013, Vaidik Kapoor (kapoor [*dot*] vaidik -[at]- gmail [*dot*] com)
+ * You should have received a copy of the GNU General Public License along with And Bible.
+ * If not, see http://www.gnu.org/licenses/.
  */
 import jQuery from "jquery"
 

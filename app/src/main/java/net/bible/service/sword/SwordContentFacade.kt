@@ -66,6 +66,8 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.VersificationConverter
 import org.jdom2.Document
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
 import org.xml.sax.ContentHandler
 import java.io.InputStream
 import java.util.*
@@ -105,7 +107,7 @@ open class SwordContentFacade @Inject constructor(
 			// try to parse using optimised method first if a suitable document and it has not failed previously
             var isParsedOk = false
             if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
-                documentParseMethod.isFastParseOkay(book, key)) {
+                documentParseMethod.isFastParseOkay(book, key) && false) {
                 try {
                     retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
                     isParsedOk = true
@@ -176,6 +178,8 @@ open class SwordContentFacade @Inject constructor(
         val retVal: String
         return try {
             val data = BookData(book, key)
+            val outputter = XMLOutputter(Format.getRawFormat())
+            val xmlString = outputter.outputString(data.osisFragment)
             val osissep = data.saxEventProvider
             retVal = if (osissep == null) {
                 Log.e(TAG, "No osis SEP returned")

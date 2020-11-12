@@ -13,7 +13,8 @@
     "core-js": "~3.6.5",
     "vue": "~2.6.11",
     "jquery": "~3.5.0",
-    "@vue/composition-api": "~1.0.0-beta.11"
+    "@vue/composition-api": "~1.0.0-beta.11",
+    "sprintf-js": "~1.1.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
