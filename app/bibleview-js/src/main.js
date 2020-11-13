@@ -15,14 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import BibleView from "@/components/BibleView";
-import VueCompositionApi from "@vue/composition-api";
+import {sprintf} from "sprintf-js";
 
-Vue.config.productionTip = false
-Vue.use(VueCompositionApi);
+const app = createApp(BibleView);
+app.config.globalProperties.$filters = {
 
-new Vue({
-  render: h => h(BibleView),
-}).$mount('#app')
-
+}
+app.mount('#app')

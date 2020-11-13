@@ -15,10 +15,11 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span class="verseNumber" ref="contentTag">{{strings.verseNum | sprintf(verseNum)}}</span></template>
+<template><span class="verseNumber" ref="contentTag">{{sprintf(strings.verseNum, verseNum)}}</span></template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "VerseNumber",
@@ -26,6 +27,9 @@ export default {
     verseNum: {type: Number, required: true}
   },
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  }
 }
 </script>
 

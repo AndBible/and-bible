@@ -17,14 +17,15 @@
 
 <template>
   <span class="paragraphBreak" ref="contentTag" v-if="isParagraph"/>
-  <VerseNumber ref="contentTag" v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
+  <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
   <div v-else class="inlineDiv" ref="contentTag"><slot/></div>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
-import {inject, ref} from "@vue/composition-api";
+import {inject, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
+import {useCommon} from "@/utils";
 
 const isPreVerse = ({type, subType}) => type === "x-milestone" && subType === "x-preverse";
 
@@ -41,7 +42,8 @@ export default {
       }
       verseInfo.showStack.push(shown);
     }
-    return {verseInfo, shown};
+    const common = useCommon(props);
+    return {verseInfo, shown, ...common};
   },
   computed : {
     isParagraph: ({type}) => type === 'x-p',

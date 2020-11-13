@@ -21,6 +21,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "TransChange",
@@ -31,7 +32,10 @@ export default {
   computed: {
     isNonCanonical: ({type}) => type.toLowerCase() === "added",
     show: ({isNonCanonical, config}) => (!isNonCanonical) || (isNonCanonical && config.showNonCanonical),
-  }
+  },
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

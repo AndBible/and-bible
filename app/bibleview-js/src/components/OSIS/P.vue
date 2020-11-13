@@ -21,10 +21,14 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "P",
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

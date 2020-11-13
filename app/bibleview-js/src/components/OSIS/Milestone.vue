@@ -21,6 +21,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Milestone",
@@ -29,7 +30,10 @@ export default {
     subType: {type: String, default: null},
     type: {type: String, default: null},
     marker: {type: String, default: ""},
-  }
+  },
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

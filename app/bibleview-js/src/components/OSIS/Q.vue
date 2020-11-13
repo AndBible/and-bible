@@ -19,6 +19,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Q",
@@ -31,7 +32,10 @@ export default {
   mixins: [TagMixin],
   computed: {
     isJesus: ({who}) => who && who.toLowerCase() === "jesus"
-  }
+  },
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

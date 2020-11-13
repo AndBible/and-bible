@@ -27,7 +27,7 @@
 <script>
   //import "@/code"
   import OsisFragment from "@/components/OsisFragment";
-  import {provide, reactive} from "@vue/composition-api";
+  import {provide, reactive} from "@vue/runtime-core";
   import {testData} from "@/testdata";
   import highlightRange from "dom-highlight-range";
 

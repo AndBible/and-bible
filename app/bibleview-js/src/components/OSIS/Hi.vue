@@ -16,17 +16,21 @@
   -->
 
 <template>
-  <div ref="contentTag" :class="hiStyle"><slot/></div>
+  <span ref="contentTag" :class="hiStyle"><slot/></span>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Hi",
   mixins: [TagMixin],
   props: {
     type: {type: String, default: null}
+  },
+  setup(props) {
+    return useCommon(props);
   },
   computed: {
     hiStyle: ({type}) => {

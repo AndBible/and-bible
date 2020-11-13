@@ -16,14 +16,13 @@
   -->
 
 <template>
-  <div>
-    <h2 v-if="config.chapterNumbers && startTag">{{strings.chapterNum | sprintf(chapterNum)}}</h2>
-    <div class="inlineDiv" ref="contentTag"><slot/></div>
-  </div>
+  <h2 v-if="config.chapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</h2>
+  <div class="inlineDiv" ref="contentTag"><slot/></div>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Chapter",
@@ -34,6 +33,9 @@ export default {
     eID: {type: String, default: null},
   },
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  },
   computed: {
     startTag: ({eID}) => eID === null,
     chapterNum: ({osisID}) => osisID.split(".")[1]

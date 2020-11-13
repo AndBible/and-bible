@@ -24,6 +24,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "W",
@@ -32,6 +33,9 @@ export default {
     morph: {type: String, default: null}, // strongMorph:TH8792
   },
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

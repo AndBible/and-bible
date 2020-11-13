@@ -39,7 +39,7 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
-import {provide, ref} from "@vue/composition-api";
+import {h, provide, ref} from "@vue/runtime-core";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
@@ -64,17 +64,18 @@ export default {
       required: true,
     }
   },
-  components: prefixComponents(components),
   setup() {
     const elementCount = ref(0);
     provide("elementCount", elementCount);
   },
-  created() {
-    this.$options.template = this.content
-        // Prefix all tags to differentiate from standard HTML tags
-        .replaceAll(/(<\/?)(\w)(\w*)([^>]*>)/g,
-            (m, tagStart, tagFirst, tagRest, tagEnd) =>
-                `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`)
-  }
+  render() {
+    return h({
+      template: this.content
+          .replaceAll(/(<\/?)(\w)(\w*)([^>]*>)/g,
+              (m, tagStart, tagFirst, tagRest, tagEnd) =>
+                  `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`),
+      components: prefixComponents(components),
+    });
+  },
 }
 </script>

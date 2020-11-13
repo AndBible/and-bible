@@ -21,9 +21,13 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "CatchWord",
+  setup(props) {
+    return useCommon(props);
+  },
   mixins: [TagMixin],
 }
 </script>

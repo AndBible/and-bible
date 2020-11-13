@@ -21,6 +21,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 /** The lg or "line group" element is used to contain any group of poetic lines.
  * Poetic lines are handled at the line level by And Bible, not line group
@@ -30,6 +31,9 @@ import TagMixin from "@/components/TagMixin";
 export default {
   name: "Lg",
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

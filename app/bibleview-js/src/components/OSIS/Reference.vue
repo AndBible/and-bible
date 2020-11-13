@@ -16,11 +16,12 @@
   -->
 
 <template>
-  <span><a class="reference" :href="`link://${osisRef}`" ref="contentTag"><slot/></a></span>
+  <a class="reference" :href="`link://${osisRef}`" ref="contentTag"><slot/></a>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Reference",
@@ -29,6 +30,9 @@ export default {
     osisRef: {type: String, default: null},
     source: {type: String, default: null},
     type: {type: String, default: null},
+  },
+  setup(props) {
+    return useCommon(props);
   },
 }
 </script>

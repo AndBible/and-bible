@@ -15,10 +15,11 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><div class="inlineDiv"><sup :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</sup><div class="noteBlock" v-show="showNote" ref="contentTag"><slot/></div></div></template>
+<template><sup :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</sup><div class="noteBlock" v-show="showNote" ref="contentTag"><slot/></div></template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -47,8 +48,10 @@ export default {
     handle: ({n}) => n || runningHandle(),
     isFootNote: ({type}) => ["explanation", "translation"].includes(type),
     isCrossReference: ({type}) => type === "crossReference"
-  }
-
+  },
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

@@ -15,8 +15,34 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import {inject, onMounted, ref} from "@vue/runtime-core";
+import {sprintf} from "sprintf-js";
+
 export function getVerseInfo(osisID) {
     if(!osisID) return null;
     const [book, chapter, verse] = osisID.split(".")
     return {osisID: osisID, book, chapter: parseInt(chapter), verse: parseInt(verse)}
+}
+
+export function useCommon(props) {
+    const config = inject("config");
+    const strings = inject("strings");
+    const verseInfo = inject("verseInfo", getVerseInfo(props.osisID));
+    const elementCount = inject("elementCount");
+    const contentTag = ref(null);
+    const thisCount = ref(-1);
+    onMounted(() => {
+        thisCount.value = elementCount.value;
+        elementCount.value ++;
+        if(contentTag.value) {
+            contentTag.value.dataset.elementCount = thisCount.value.toString();
+            contentTag.value.dataset.osisID = verseInfo ? JSON.stringify(verseInfo.osisID) : null;
+        }
+    });
+
+    function split(string, separator, n) {
+        return string.split(separator)[n]
+    }
+
+    return {config, strings, contentTag, elementCount, sprintf, split}
 }

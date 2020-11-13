@@ -21,9 +21,9 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
-import {provide, reactive, ref} from "@vue/composition-api";
+import {provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
-import {getVerseInfo} from "@/utils";
+import {getVerseInfo, useCommon} from "@/utils";
 
 export default {
   name: "Verse",
@@ -38,7 +38,8 @@ export default {
     verseInfo.showStack = reactive([shown]);
 
     provide("verseInfo", verseInfo);
-    return {shown}
+    const common = useCommon(props);
+    return {shown, ...common}
   },
   mixins: [TagMixin],
   computed: {

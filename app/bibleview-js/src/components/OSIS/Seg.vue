@@ -16,15 +16,19 @@
   -->
 
 <template>
-  <span ref="contentTag"><slot/></span>
+  <div class="inlineDiv" ref="contentTag"><slot/></div>
 </template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Seg",
   mixins: [TagMixin],
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 

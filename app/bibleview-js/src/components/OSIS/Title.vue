@@ -21,6 +21,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
+import {useCommon} from "@/utils";
 
 export default {
   name: "Title",
@@ -38,7 +39,10 @@ export default {
         && type !== "x-gen",
     isCanonical: ({canonical}) => canonical === "true",
     isSubTitle: ({type}) => type === "sub",
-  }
+  },
+  setup(props) {
+    return useCommon(props);
+  },
 }
 </script>
 
