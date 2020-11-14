@@ -16,10 +16,26 @@
   -->
 
 <template>
-  <span v-if="(config.showStrongs && lemma) && (config.showMorph && morph)"><a class="strongs" :href="`link://${lemma}`" ref="contentTag"><slot/></a><a class="morph" :href="`link://${morph}`"> ({{morph|split(':', 1)}})</a></span>
-  <a v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)" class="strongs" :href="`link://${lemma}`" ref="contentTag"><slot/></a>
-  <a v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)" class="morph" :href="`link://${morph}`" ref="contentTag"><slot/></a>
-  <span v-else ref="contentTag"><slot/></span>
+  <span ref="contentTag">
+    <template v-if="config.showStrongsSeparately">
+      <template v-if="(config.showStrongs && lemma) && (config.showMorph && morph)">
+        <slot/> <a class="strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+      </template>
+      <template v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)">
+        <slot/> <a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
+      </template>
+      <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)">
+        <slot/> <a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+      </template>
+      <template v-else><slot/></template>
+    </template>
+    <template v-else>
+      <span v-if="(config.showStrongs && lemma) && (config.showMorph && morph)"><a class="strongs" :href="formatLink(lemma, morph)"><slot/></a></span>
+      <a v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)" class="strongs" :href="formatLink(lemma)"><slot/></a>
+      <a v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)" class="morph" :href="formatLink(morph)"><slot/></a>
+      <span v-else ref="contentTag"><slot/></span>
+    </template>
+  </span>
 </template>
 
 <script>
@@ -34,7 +50,30 @@ export default {
   },
   mixins: [TagMixin],
   setup(props) {
-    return useCommon(props);
+    function prep(string) {
+      let remainingString = string;
+      const res = []
+      do {
+        const s = remainingString.match(/([^ :]+:)([^:]+)$/)[0]
+        res.push(s);
+        remainingString = remainingString.slice(0, remainingString.length - s.length)
+      } while(remainingString.trim().length > 0)
+      return res;
+    }
+    function formatName(string) {
+        return prep(string).map(s => {
+          return s.match(/([^ :]+:)([^:]+)$/)[2]
+        }).join(", ")
+    }
+    function formatLink(first, second) {
+      let linkBody = prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+")
+      if(second) {
+        linkBody += "+" + prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+")
+      }
+      return "link://" + linkBody
+    }
+    const common = useCommon(props);
+    return {formatLink, formatName, ...common};
   },
 }
 </script>

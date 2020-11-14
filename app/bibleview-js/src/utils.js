@@ -28,13 +28,14 @@ export function useConfig() {
     return reactive({
         chapterNumbers: true,
         verseNumbers: true,
-        showStrongs: false,
-        showMorph: false,
+        showStrongs: true,
+        showMorph: true,
         showRedLetters: false,
         versePerLine: false,
         showNonCanonical: true,
         makeNonCanonicalItalic: true,
         showTitles: true,
+        showStrongsSeparately: false,
     })
 }
 
