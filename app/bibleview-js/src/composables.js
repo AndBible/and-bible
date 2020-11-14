@@ -31,6 +31,8 @@ export function useConfig() {
         makeNonCanonicalItalic: true,
         showTitles: true,
         showStrongsSeparately: false,
+        showCrossReferences: true,
+        showFootnotes: true,
 
         maxWidth: 170,
         textColor: "black",

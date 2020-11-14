@@ -14,20 +14,21 @@
   - You should have received a copy of the GNU General Public License along with And Bible.
   - If not, see http://www.gnu.org/licenses/.
   -->
-
 <template>
-  <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
-  <Modal @close="showNote = false" v-show="showNote">
-    <slot/>
-    <template #title>
-      <template v-if="isFootNote">
-        {{strings.noteText}}
+  <template v-if="(config.showCrossReferences && isCrossReference) || (config.showFootnotes && isFootNote)">
+    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
+    <Modal @close="showNote = false" v-show="showNote">
+      <slot/>
+      <template #title>
+        <template v-if="isFootNote">
+          {{strings.noteText}}
+        </template>
+        <template v-else>
+          {{strings.crossReferenceText}}
+        </template>
       </template>
-      <template v-else>
-       {{strings.crossReferenceText}}
-      </template>
-    </template>
-  </Modal>
+    </Modal>
+  </template>
 </template>
 
 <script>
