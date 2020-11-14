@@ -19,7 +19,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
-import {useCommon} from "@/utils";
+import {useCommon} from "@/composables";
 
 export default {
   name: "VerseNumber",

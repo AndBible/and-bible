@@ -27,12 +27,11 @@
   </div>
 </template>
 <script>
-  //import "@/code"
   import OsisFragment from "@/components/OsisFragment";
   import {provide} from "@vue/runtime-core";
   import {testData} from "@/testdata";
   import highlightRange from "dom-highlight-range";
-  import {useConfig, useStrings} from "@/utils";
+  import {useBookmarkLabels, useBookmarks, useConfig, useStrings} from "@/composables";
 
   export default {
     name: "BibleView",
@@ -40,9 +39,15 @@
     setup() {
       const config = useConfig();
       const strings = useStrings();
+      const bookmarks = useBookmarks();
+      const bookmarkLabels = useBookmarkLabels();
+
+      provide("bookmarks", bookmarks);
+      provide("bookmarkLabels", bookmarkLabels);
       provide("config", config);
       provide("strings", strings);
-      return {config, strings};
+
+      return {config, strings, osisFragments: testData};
     },
     computed: {
       styleConfig({config}) {
@@ -64,27 +69,6 @@
         return style;
       }
     },
-    data() {
-      return {
-        osisFragments: testData,
-        bookmarks: [
-          {
-            range: [1, 2], // ordinal range
-            labels: [1, 2]
-          }
-        ],
-        labelsStyles: [
-          {
-            id: 1,
-            color: "#FF0000"
-          },
-          {
-            id: 2,
-            color: "#00FF00"
-          }
-        ]
-      }
-    },
     methods: {
       highLight() {
         //const first = document.getElementById("2Thess.2.12");
@@ -101,7 +85,6 @@
         const removeHighlights = highlightRange(range, 'span', { class: 'highlighted' });
       },
       getSelection() {
-
         const selection = window.getSelection();
         if (!selection.isCollapsed) {
           const range = selection.getRangeAt(0);

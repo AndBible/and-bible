@@ -32,7 +32,7 @@
 
 <script>
 import TagMixin from "@/components/TagMixin";
-import {useCommon} from "@/utils";
+import {useCommon} from "@/composables";
 import Modal from "@/components/Modal";
 
 let count = 0;

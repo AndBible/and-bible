@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/utils";
+import {useCommon} from "@/composables";
 
 export default {
   name: "Modal",

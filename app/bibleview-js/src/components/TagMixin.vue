@@ -21,12 +21,12 @@ export default {
   name: "TagMixin",
   created() {
     if(Object.values(this.$attrs).length > 0) {
-      console.error(this.$options.name, this.$attrs);
+      console.error("Unhandled attributes", this.$options.name, this.$attrs);
     }
   },
   mounted() {
     if(this.contentTag === null) {
-      console.error("contentTag", this.$options.name);
+      console.error("contentTag does not exist", this.$options.name);
     }
   }
 }

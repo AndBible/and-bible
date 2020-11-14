@@ -25,7 +25,7 @@
 import TagMixin from "@/components/TagMixin";
 import {inject, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
-import {useCommon} from "@/utils";
+import {useCommon} from "@/composables";
 
 const isPreVerse = ({type, subType}) => type === "x-milestone" && subType === "x-preverse";
 

@@ -23,7 +23,8 @@
 import TagMixin from "@/components/TagMixin";
 import {provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
-import {getVerseInfo, useCommon} from "@/utils";
+import {useCommon} from "@/composables";
+import {getVerseInfo} from "@/utils";
 
 export default {
   name: "Verse",
