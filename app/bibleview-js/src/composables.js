@@ -40,7 +40,7 @@ export function useConfig() {
         noiseOpacity: 50,
         lineSpacing: 16,
         justifyText: false,
-        marginLeft: null,
+        marginLeft: 5,
         marginRight: null,
     })
 }
@@ -55,28 +55,49 @@ export function useStrings() {
 }
 
 export function useBookmarks() {
-    const bookmarks = {
-        bookmarks: [
+    const bookmarks = reactive([
             {
-                range: [1, 2], // ordinal range
+                range: [30839, 30842],
                 labels: [1, 2]
+            },
+            {
+                range: [30842, 30842],
+                labels: [3]
+            },
+            {
+                range: [30842, 30843],
+                labels: [1, 3]
             }
-        ],
-    };
+    ]);
     return {bookmarks}
 }
 
 export function useBookmarkLabels() {
-    const labels = [
-            {
-                id: 1,
-                color: "#FF0000"
-            },
-            {
-                id: 2,
-                color: "#00FF00"
+    const inputData = [
+        {
+            id: 1,
+            style: {
+                color: [255, 0, 0]
             }
-        ]
+        },
+        {
+            id: 2,
+            style: {
+                color: [0, 255, 0],
+            }
+        },
+        {
+            id: 3,
+            style: {
+                color: [0, 0, 255],
+            }
+        },
+    ];
+    const data = new Map();
+    for(const v of inputData) {
+        data.set(v.id, v.style);
+    }
+    const labels = reactive(data);
     return {labels}
 }
 
