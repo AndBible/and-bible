@@ -27,30 +27,10 @@
 <script>
   //import "@/code"
   import OsisFragment from "@/components/OsisFragment";
-  import {provide, reactive} from "@vue/runtime-core";
+  import {provide} from "@vue/runtime-core";
   import {testData} from "@/testdata";
   import highlightRange from "dom-highlight-range";
-
-  function useConfig() {
-    return reactive({
-      chapterNumbers: true,
-      verseNumbers: true,
-      showStrongs: false,
-      showMorph: false,
-      showRedLetters: false,
-      versePerLine: false,
-      showNonCanonical: true,
-      makeNonCanonicalItalic: true,
-      showTitles: true,
-    })
-  }
-
-  function useStrings() {
-    return {
-      chapterNum: "Chapter %d. ",
-      verseNum: "%d "
-    }
-  }
+  import {useConfig, useStrings} from "@/utils";
 
   export default {
     name: "BibleView",

@@ -15,13 +15,34 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {inject, onMounted, ref} from "@vue/runtime-core";
+import {inject, onMounted, reactive, ref} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 
 export function getVerseInfo(osisID) {
     if(!osisID) return null;
     const [book, chapter, verse] = osisID.split(".")
     return {osisID: osisID, book, chapter: parseInt(chapter), verse: parseInt(verse)}
+}
+
+export function useConfig() {
+    return reactive({
+        chapterNumbers: true,
+        verseNumbers: true,
+        showStrongs: false,
+        showMorph: false,
+        showRedLetters: false,
+        versePerLine: false,
+        showNonCanonical: true,
+        makeNonCanonicalItalic: true,
+        showTitles: true,
+    })
+}
+
+export function useStrings() {
+    return {
+        chapterNum: "Chapter %d. ",
+        verseNum: "%d "
+    }
 }
 
 export function useCommon(props) {
