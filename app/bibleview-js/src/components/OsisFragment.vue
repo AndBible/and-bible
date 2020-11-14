@@ -55,7 +55,6 @@ function prefixComponents() {
   return result;
 }
 
-
 export default {
   name: "OsisFragment",
   props: {

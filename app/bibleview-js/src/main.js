@@ -17,9 +17,5 @@
 
 import { createApp } from 'vue'
 import BibleView from "@/components/BibleView";
-
 const app = createApp(BibleView);
-app.config.globalProperties.$filters = {
-
-}
 app.mount('#app')

@@ -18,7 +18,7 @@
 <template>
   <span class="paragraphBreak" ref="contentTag" v-if="isParagraph"/>
   <VerseNumber v-else-if="isPreVerse && shown" :verse-num="verseInfo.verse"/>
-  <div v-else class="inlineDiv" ref="contentTag"><slot/></div>
+  <div v-else-if="isCanonical || (!isCanonical && config.showNonCanonical)" class="inlineDiv" ref="contentTag"><slot/></div>
 </template>
 
 <script>
@@ -47,7 +47,8 @@ export default {
   },
   computed : {
     isParagraph: ({type}) => type === 'x-p',
-    isPreVerse
+    isPreVerse,
+    isCanonical: ({canonical}) => canonical !== "false",
   },
   props: {
     osisID: {type: String, default: null},
@@ -56,6 +57,7 @@ export default {
     type: {type: String, default: null},
     subType: {type: String, default: null},
     annotateRef: {type: String, default: null},
+    canonical: {type: String, default: null},
     annotateType: {type: String, default: null},
   },
   mixins: [TagMixin],
