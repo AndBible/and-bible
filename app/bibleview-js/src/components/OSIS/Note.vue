@@ -15,11 +15,25 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><sup :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</sup><div class="noteBlock" v-show="showNote" ref="contentTag"><slot/></div></template>
+<template>
+  <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
+  <Modal @close="showNote = false" v-show="showNote">
+    <slot/>
+    <template #title>
+      <template v-if="isFootNote">
+        {{strings.noteText}}
+      </template>
+      <template v-else>
+       {{strings.crossReferenceText}}
+      </template>
+    </template>
+  </Modal>
+</template>
 
 <script>
 import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/utils";
+import Modal from "@/components/Modal";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -31,6 +45,7 @@ function runningHandle() {
 export default {
   name: "Note",
   mixins: [TagMixin],
+  components: {Modal},
   props: {
     osisID: {type: String, default: null},
     osisRef: {type: String, default: null},
@@ -55,19 +70,20 @@ export default {
 }
 </script>
 
-<style scoped>
-.noteBlock {
-  border: 15px red;
-  border-radius: 6px;
-  padding: 15px;
-  background-color: lightyellow;
+<style scoped lang="scss">
+.noteHandleBase {
+  vertical-align: text-top;
+  font-size: 0.9em;
+  padding: 0.3em;
 }
-.noteHandle {
-}
+
 .isCrossReference {
+  @extend .noteHandleBase;
   color: orange;
 }
+
 .isFootNote {
-  color: #019c1a;
+  @extend .noteHandleBase;
+  color: #b63afd;
 }
 </style>
