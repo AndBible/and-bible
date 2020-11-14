@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style scoped type="text/scss">
+<style scoped lang="scss">
 .redLetters {
   color: red !important;
 }

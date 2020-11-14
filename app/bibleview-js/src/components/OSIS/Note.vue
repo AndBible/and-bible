@@ -73,9 +73,9 @@ export default {
 
 <style scoped lang="scss">
 .noteHandleBase {
-  vertical-align: text-top;
-  font-size: 0.9em;
-  padding: 0.3em;
+  vertical-align: top;
+  font-size: 0.7em;
+  padding: 0.5em;
 }
 
 .isCrossReference {
