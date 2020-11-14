@@ -30,9 +30,7 @@
       <template v-else><slot/></template>
     </template>
     <template v-else>
-      <span v-if="(config.showStrongs && lemma) && (config.showMorph && morph)"><a class="strongs" :href="formatLink(lemma, morph)"><slot/></a></span>
-      <a v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)" class="strongs" :href="formatLink(lemma)"><slot/></a>
-      <a v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)" class="morph" :href="formatLink(morph)"><slot/></a>
+      <span v-if="(config.showStrongs && lemma) || (config.showMorph && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
       <span v-else ref="contentTag"><slot/></span>
     </template>
   </span>
@@ -66,11 +64,14 @@ export default {
         }).join(", ")
     }
     function formatLink(first, second) {
-      let linkBody = prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+")
-      if(second) {
-        linkBody += "+" + prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+")
+      const linkBodies = [];
+      if(first) {
+        linkBodies.push(prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+"))
       }
-      return "link://" + linkBody
+      if(second) {
+        linkBodies.push(prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+"))
+      }
+      return "link://" + linkBodies.join("+")
     }
     const common = useCommon(props);
     return {formatLink, formatName, ...common};
@@ -79,6 +80,10 @@ export default {
 </script>
 
 <style scoped>
+  .linkstyle {
+    color: black;
+    text-decoration: underline dotted;
+  }
   .strongs {
     color: #4b9700;
   }
