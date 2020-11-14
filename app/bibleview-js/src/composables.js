@@ -65,8 +65,8 @@ export function useBookmarks() {
                 labels: [3]
             },
             {
-                range: [30842, 30843],
-                labels: [1, 3]
+                range: [30842, 30846],
+                labels: [3]
             }
     ]);
     return {bookmarks}

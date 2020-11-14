@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :style="bookmarkStyle" :id="osisID" :class="{noLineBreak: !config.versePerLine}"><VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/><div class="inlineDiv" ref="contentTag"><slot/></div></div>
+  <div :style="bookmarkStyle" class="bookmarkStyle" :id="`v-${ordinal}`" :class="{noLineBreak: !config.versePerLine}"><VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/><div class="inlineDiv" ref="contentTag"><slot/></div></div>
 </template>
 
 <script>
@@ -57,15 +57,31 @@ export default {
           labels.add(l);
         }
       }
-      return Array.from(labels).map(l => globalBookmarkLabels.labels.get(l));
+      return Array.from(labels).map(l => globalBookmarkLabels.labels.get(l)).filter(v => v);
     },
     bookmarkStyle({bookmarkLabels}) {
-      const colors = [];
+      let colors = [];
       for(const s of bookmarkLabels) {
-        const c = `rgba(${s.color[0]}, ${s.color[1]}, ${s.color[2]}, 20%)`
+        const c = `rgba(${s.color[0]}, ${s.color[1]}, ${s.color[2]}, 15%)`
         colors.push(c);
       }
-      return `background-image: linear-gradient(to bottom, ${colors.join(",")})`;
+      if(colors.length === 1) {
+          colors.push(colors[0]);
+      }
+      const span = 100/colors.length;
+      const colorStr = colors.map((v, idx) => {
+        let percent;
+        if (idx === 0) {
+          percent = `${span}%`
+        } else if (idx === colors.length - 1) {
+          percent = `${span * (colors.length - 1)}%`
+        } else {
+          percent = `${span * idx}% ${span * (idx + 1)}%`
+        }
+        return `${v} ${percent}`;
+      }).join(", ")
+
+      return `background-image: linear-gradient(to bottom, ${colorStr})`;
     },
     ordinal() {
       return parseInt(this.verseOrdinal);
@@ -86,5 +102,9 @@ export default {
 <style scoped>
 .noLineBreak {
   display: inline;
+}
+
+.bookmarkStyle {
+  border-radius: 0.2em;
 }
 </style>
