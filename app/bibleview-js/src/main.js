@@ -17,7 +17,6 @@
 
 import { createApp } from 'vue'
 import BibleView from "@/components/BibleView";
-import {sprintf} from "sprintf-js";
 
 const app = createApp(BibleView);
 app.config.globalProperties.$filters = {

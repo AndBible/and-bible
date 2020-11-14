@@ -31,6 +31,7 @@ export default {
   components: {VerseNumber},
   props: {
     osisID: { type: String, required: true},
+    verseOrdinal: { type: String, required: true},
   },
   setup(props) {
     const verseInfo = getVerseInfo(props.osisID);
@@ -40,10 +41,14 @@ export default {
 
     provide("verseInfo", verseInfo);
     const common = useCommon(props);
+
     return {shown, ...common}
   },
   mixins: [TagMixin],
   computed: {
+    ordinal() {
+      return parseInt(this.verseOrdinal);
+    },
     book() {
       return this.osisID.split(".")[0]
     },

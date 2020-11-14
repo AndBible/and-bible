@@ -37,7 +37,7 @@ export function useConfig() {
         hyphenation: true,
         noiseOpacity: 50,
         lineSpacing: 16,
-        justifyText: true,
+        justifyText: false,
         marginLeft: null,
         marginRight: null,
     })
