@@ -16,7 +16,10 @@
   -->
 
 <template>
-  <div :style="bookmarkStyle" class="bookmarkStyle" :id="`v-${ordinal}`" :class="{noLineBreak: !config.versePerLine}"><VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/><div class="inlineDiv" ref="contentTag"><slot/></div></div>
+  <div :style="bookmarkStyle" class="bookmarkStyle" :id="`v-${ordinal}`" :class="{noLineBreak: !config.versePerLine}">
+    <VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/>
+    <div class="inlineDiv" ref="contentTag"><slot/></div>
+  </div>
 </template>
 
 <script>
