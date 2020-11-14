@@ -22,9 +22,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <span class="close" @click="$emit('close')">&times;</span>
-        <h2>
+        <span class="title">
           <slot name="title"/>
-        </h2>
+        </span>
       </div>
       <div class="modal-body">
         <p><slot/></p>
@@ -54,7 +54,7 @@ export default {
   display: block; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
+  padding-top: 10px; /* Location of the box */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
@@ -98,9 +98,10 @@ export default {
 }
 
 .modal-header {
-  padding: 2px 16px;
+  padding: 0.5em;
   background-color: #5cb85c;
   color: white;
+  font-weight: bold;
 }
 
 .modal-body {padding: 2px 16px;}

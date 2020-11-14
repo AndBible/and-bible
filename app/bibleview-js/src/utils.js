@@ -36,6 +36,15 @@ export function useConfig() {
         makeNonCanonicalItalic: true,
         showTitles: true,
         showStrongsSeparately: false,
+
+        maxWidth: 170,
+        textColor: "black",
+        hyphenation: true,
+        noiseOpacity: 50,
+        lineSpacing: 16,
+        justifyText: true,
+        marginLeft: null,
+        marginRight: null,
     })
 }
 

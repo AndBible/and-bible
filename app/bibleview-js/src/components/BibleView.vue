@@ -18,10 +18,12 @@
 <template>
   <div>
     <div class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
-    <OsisFragment
-        v-for="(osisFragment, index) in osisFragments" :key="index"
-        :content="osisFragment"
-    />
+    <div :style="styleConfig">
+      <OsisFragment
+          v-for="(osisFragment, index) in osisFragments" :key="index"
+          :content="osisFragment"
+      />
+    </div>
   </div>
 </template>
 <script>
@@ -35,17 +37,32 @@
   export default {
     name: "BibleView",
     components: {OsisFragment},
-    filters: {
-      toId(verse) {
-        return `${verse.chapter}.${verse.verse}`;
-      }
-    },
     setup() {
       const config = useConfig();
       const strings = useStrings();
       provide("config", config);
       provide("strings", strings);
       return {config, strings};
+    },
+    computed: {
+      styleConfig({config}) {
+        let style = `
+          max-width: ${config.maxWidth};
+          color: ${config.textColor};
+          hyphens: ${config.hyphenation ? "auto": "none"};
+          noise-opacity: ${config.noiseOpacity/100};
+          line-spacing: ${config.lineSpacing / 10}em;
+          line-height: ${config.lineSpacing / 10}em;
+          text-align: ${config.justifyText ? "justify" : "start"};
+          `;
+        if(config.marginLeft || config.marginRight) {
+          style += `
+            margin-left: ${config.marginLeft}mm;
+            margin-right: ${config.marginRight}mm;
+          `;
+        }
+        return style;
+      }
     },
     data() {
       return {
