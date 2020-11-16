@@ -54,7 +54,7 @@ class CurrentMyNotePage internal constructor(
     private var fakeMyNoteBookVersification: Versification? = null
     override val currentPageContent: String get() {
         val text= myNoteDAO.getMyNoteTextByKey(key).replace("\n", "<br>")
-        return HtmlMessageFormatter.format("<div id=\"editor\">$text</div>")
+        return HtmlMessageFormatter.format("<div id=\"editor\" placeholder=\"Make a note...\">$text</div>")
     }
 
     override val currentDocument: Book

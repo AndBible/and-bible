@@ -221,3 +221,10 @@ h1 a, .heading2, .heading3, .heading4 {
 .selected {
 	background-color: #91A7FF;
 }
+
+#editor[placeholder]:empty:before {
+  content: attr(placeholder);
+  position: absolute;
+  color: gray;
+  background-color: transparent;
+}
