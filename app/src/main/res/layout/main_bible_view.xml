@@ -112,7 +112,7 @@
                         style="@style/MyActionButton"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/save"
+                        android:contentDescription="@string/mynote_save"
                         app:srcCompat="@drawable/ic_save_white_24dp"
                         />
 
