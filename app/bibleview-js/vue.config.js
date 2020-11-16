@@ -1,5 +1,7 @@
 // vue.config.js
 module.exports = {
   lintOnSave: false,
-  runtimeCompiler: true
+  runtimeCompiler: true,
+  productionSourceMap: false,
+  publicPath: "",
 }
