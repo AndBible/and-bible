@@ -139,8 +139,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun editNote() {
+        bibleView.edit()
+    }
+
+    @JavascriptInterface
     fun saveNote(text: String) {
         myNoteControl.saveMyNoteText(text)
+        bibleView.isEditing = false
         windowControl.windowSync.reloadAllWindows(true)
     }
 

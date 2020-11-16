@@ -54,15 +54,12 @@ export function setEditMode(enable) {
         console.log("No editor found")
         return false
     }
+    editor.onblur = () => setEditMode(false)
     if (enable) {
         editor.contentEditable = "true"
         var range = document.createRange()
         var sel = window.getSelection()
-        if (editor.innerHTML == "") {
-            range.selectNodeContents(editor)
-        } else {
-            range.setStartBefore(editor.firstChild)
-        }
+        range.setStartBefore(editor.firstChild)
         sel.removeAllRanges()
         sel.addRange(range)
     } else {
@@ -75,6 +72,12 @@ export function setEditMode(enable) {
 export function initializeListeners() {
     $(document).bind("touchstart", event => stopScrolling());
     window.addEventListener("scroll", event => updateLocation());
+    var editor = document.getElementById('editor')
+    if (editor) {
+        if (editor.innerHTML == "") {
+            jsInterface.editNote()
+        }
+    }
 }
 
 
