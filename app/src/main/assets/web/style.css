@@ -131,7 +131,12 @@ h1 a, .heading2, .heading3, .heading4 {
 }
 
 .myNoteImg {
-	padding-right: 0.2em;
+	margin-right: 0.2em;
+	background-image: url(file:///android_asset/images/pencil16x16.png);
+	background-size: 16px 16px;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
 }
 
 /** styles for hi tag e.g. <hi type="italic">123</hi> */ 
