@@ -38,8 +38,8 @@ export default {
     isCanonical: ({canonical}) => canonical === "true",
     isSubTitle: ({type}) => type === "sub",
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

@@ -24,8 +24,8 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "List",
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

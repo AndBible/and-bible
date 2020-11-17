@@ -45,6 +45,7 @@ function runningHandle() {
 export default {
   name: "Note",
   components: {Modal},
+  noContentTag: true,
   props: {
     osisID: {type: String, default: null},
     osisRef: {type: String, default: null},
@@ -63,8 +64,8 @@ export default {
     isFootNote: ({type}) => ["explanation", "translation"].includes(type),
     isCrossReference: ({type}) => type === "crossReference"
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

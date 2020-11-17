@@ -24,8 +24,8 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "P",
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

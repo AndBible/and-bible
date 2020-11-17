@@ -25,8 +25,8 @@ export default {
   props: {
     verseNum: {type: Number, required: true}
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   }
 }
 </script>

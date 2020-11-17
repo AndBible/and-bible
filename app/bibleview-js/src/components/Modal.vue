@@ -38,13 +38,9 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
 
 export default {
   name: "Modal",
-  setup(props) {
-    return useCommon(props);
-  }
 }
 </script>
 

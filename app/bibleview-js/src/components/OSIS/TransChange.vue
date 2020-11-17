@@ -31,8 +31,8 @@ export default {
     isNonCanonical: ({type}) => type.toLowerCase() === "added",
     show: ({isNonCanonical, config}) => (!isNonCanonical) || (isNonCanonical && config.showNonCanonical),
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

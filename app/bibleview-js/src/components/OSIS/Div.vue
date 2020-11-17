@@ -41,7 +41,7 @@ export default {
       }
       verseInfo.showStack.push(shown);
     }
-    const common = useCommon(props);
+    const common = useCommon();
     return {verseInfo, shown, ...common};
   },
   computed : {

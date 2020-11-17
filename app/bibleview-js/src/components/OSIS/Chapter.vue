@@ -31,8 +31,8 @@ export default {
     sID: {type: String, default: null},
     eID: {type: String, default: null},
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
   computed: {
     startTag: ({eID}) => eID === null,

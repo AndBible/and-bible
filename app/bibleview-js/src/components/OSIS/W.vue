@@ -45,7 +45,7 @@ export default {
     lemma: {type: String, default: null}, // strong:H8064
     morph: {type: String, default: null}, // strongMorph:TH8792
   },
-  setup(props) {
+  setup() {
     function prep(string) {
       let remainingString = string;
       const res = []
@@ -71,7 +71,7 @@ export default {
       }
       return "link://" + linkBodies.join("+")
     }
-    const common = useCommon(props);
+    const common = useCommon();
     return {formatLink, formatName, ...common};
   },
 }

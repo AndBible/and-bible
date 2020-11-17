@@ -27,8 +27,8 @@ export default {
   props: {
     type: {type: String, default: null}
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
   computed: {
     hiStyle: ({type}) => {

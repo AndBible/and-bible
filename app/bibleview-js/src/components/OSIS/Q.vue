@@ -31,8 +31,8 @@ export default {
   computed: {
     isJesus: ({who}) => who && who.toLowerCase() === "jesus"
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

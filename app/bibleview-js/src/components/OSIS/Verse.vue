@@ -44,7 +44,7 @@ export default {
     const bookmarks = inject("bookmarks");
     const bookmarkLabels = inject("bookmarkLabels");
     provide("verseInfo", verseInfo);
-    const common = useCommon(props);
+    const common = useCommon();
 
     return {shown, ...common, globalBookmarks: bookmarks, globalBookmarkLabels: bookmarkLabels}
   },

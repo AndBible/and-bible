@@ -29,8 +29,8 @@ export default {
     type: {type: String, default: null},
     marker: {type: String, default: ""},
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>

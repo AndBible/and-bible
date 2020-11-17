@@ -29,8 +29,8 @@ export default {
     source: {type: String, default: null},
     type: {type: String, default: null},
   },
-  setup(props) {
-    return useCommon(props);
+  setup() {
+    return useCommon();
   },
 }
 </script>
