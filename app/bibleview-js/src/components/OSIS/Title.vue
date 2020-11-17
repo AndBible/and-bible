@@ -20,12 +20,10 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
   name: "Title",
-  mixins: [TagMixin],
   props: {
     type: {type: String, default: null},
     subType: {type: String, default: null},

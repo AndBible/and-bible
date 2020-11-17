@@ -20,12 +20,10 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
   name: "Reference",
-  mixins: [TagMixin],
   props: {
     osisRef: {type: String, default: null},
     source: {type: String, default: null},

@@ -18,7 +18,6 @@
 <template><span :class="{redLetters: config.showRedLetters && isJesus}" ref="contentTag"><slot/></span></template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
@@ -29,7 +28,6 @@ export default {
     eID: {type: String, default: null},
     who: {type: String, default: null},
   },
-  mixins: [TagMixin],
   computed: {
     isJesus: ({who}) => who && who.toLowerCase() === "jesus"
   },

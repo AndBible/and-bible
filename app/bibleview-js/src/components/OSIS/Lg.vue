@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 /** The lg or "line group" element is used to contain any group of poetic lines.
@@ -30,7 +29,6 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "Lg",
-  mixins: [TagMixin],
   setup(props) {
     return useCommon(props);
   },

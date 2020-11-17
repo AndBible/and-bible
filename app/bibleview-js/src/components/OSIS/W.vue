@@ -37,7 +37,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
@@ -46,7 +45,6 @@ export default {
     lemma: {type: String, default: null}, // strong:H8064
     morph: {type: String, default: null}, // strongMorph:TH8792
   },
-  mixins: [TagMixin],
   setup(props) {
     function prep(string) {
       let remainingString = string;

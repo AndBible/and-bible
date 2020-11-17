@@ -18,7 +18,6 @@
 <template><span class="verseNumber" ref="contentTag">{{sprintf(strings.verseNum, verseNum)}}</span></template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
@@ -26,7 +25,6 @@ export default {
   props: {
     verseNum: {type: Number, required: true}
   },
-  mixins: [TagMixin],
   setup(props) {
     return useCommon(props);
   }

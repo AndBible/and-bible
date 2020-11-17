@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 import Modal from "@/components/Modal";
 
@@ -45,7 +44,6 @@ function runningHandle() {
 
 export default {
   name: "Note",
-  mixins: [TagMixin],
   components: {Modal},
   props: {
     osisID: {type: String, default: null},

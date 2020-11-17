@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {inject, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
@@ -60,7 +59,6 @@ export default {
     canonical: {type: String, default: null},
     annotateType: {type: String, default: null},
   },
-  mixins: [TagMixin],
 }
 </script>
 

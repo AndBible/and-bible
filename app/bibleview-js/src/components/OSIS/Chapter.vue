@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {useCommon} from "@/composables";
 
 export default {
@@ -32,7 +31,6 @@ export default {
     sID: {type: String, default: null},
     eID: {type: String, default: null},
   },
-  mixins: [TagMixin],
   setup(props) {
     return useCommon(props);
   },

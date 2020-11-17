@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {inject, onMounted, reactive, ref} from "@vue/runtime-core";
+import {getCurrentInstance, inject, onMounted, reactive, ref} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {getVerseInfo} from "@/utils";
 
@@ -108,7 +108,19 @@ export function useCommon(props) {
     const elementCount = inject("elementCount");
     const contentTag = ref(null);
     const thisCount = ref(-1);
+
+    const currentInstance = getCurrentInstance();
+
+    const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
+    if(unusedAttrs.length > 0) {
+        console.error("Unhandled attributes", currentInstance.type.name, unusedAttrs);
+    }
+
     onMounted(() => {
+        if(contentTag.value === null) {
+            console.error(`${currentInstance.type.name}: contentTag does not exist`);
+        }
+
         thisCount.value = elementCount.value;
         elementCount.value ++;
         if(contentTag.value) {

@@ -23,7 +23,6 @@
 </template>
 
 <script>
-import TagMixin from "@/components/TagMixin";
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
@@ -49,7 +48,6 @@ export default {
 
     return {shown, ...common, globalBookmarks: bookmarks, globalBookmarkLabels: bookmarkLabels}
   },
-  mixins: [TagMixin],
   computed: {
     bookmarks: ({globalBookmarks, ordinal}) =>
         globalBookmarks.bookmarks.filter(({range}) => (range[0] <= ordinal) && (ordinal <= range[1])),
