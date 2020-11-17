@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :href="`link://${osisRef}`" ref="contentTag"><slot/></a>
+  <a class="reference" :href="`andbible://?osisRef=${osisRef}`" ref="contentTag"><slot/></a>
 </template>
 
 <script>

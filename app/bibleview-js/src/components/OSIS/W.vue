@@ -64,12 +64,14 @@ export default {
     function formatLink(first, second) {
       const linkBodies = [];
       if(first) {
-        linkBodies.push(prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+"))
+        linkBodies.push(prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "=")).join("&"))
       }
       if(second) {
-        linkBodies.push(prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "-")).join("+"))
+        linkBodies.push(prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "=")).join("&"))
       }
-      return "link://" + linkBodies.join("+")
+      // Link format:
+      // andbible://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
+      return "andbible://?" + linkBodies.join("&")
     }
     const common = useCommon();
     return {formatLink, formatName, ...common};
