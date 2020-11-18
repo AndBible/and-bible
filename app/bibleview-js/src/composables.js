@@ -20,7 +20,7 @@ import {sprintf} from "sprintf-js";
 import {getVerseInfo} from "@/utils";
 
 export function useConfig() {
-    return reactive({
+    const config = reactive({
         chapterNumbers: true,
         verseNumbers: true,
         showStrongs: true,
@@ -43,6 +43,16 @@ export function useConfig() {
         marginLeft: 5,
         marginRight: null,
     })
+    // Expose configuration to java side to be manipulated.
+    window.bibleView.config = config;
+    return config;
+}
+
+export function useAndroid() {
+    return {
+        // eslint-disable-next-line no-undef
+        ...window.jsInterface
+    }
 }
 
 export function useStrings() {

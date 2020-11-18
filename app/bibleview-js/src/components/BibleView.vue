@@ -31,7 +31,7 @@
   import {provide} from "@vue/runtime-core";
   import {testData} from "@/testdata";
   import highlightRange from "dom-highlight-range";
-  import {useBookmarkLabels, useBookmarks, useConfig, useStrings} from "@/composables";
+  import {useAndroid, useBookmarkLabels, useBookmarks, useConfig, useStrings} from "@/composables";
 
   export default {
     name: "BibleView",
@@ -41,12 +41,14 @@
       const strings = useStrings();
       const bookmarks = useBookmarks();
       const bookmarkLabels = useBookmarkLabels();
+      const android = useAndroid();
 
       provide("bookmarks", bookmarks);
       provide("bookmarkLabels", bookmarkLabels);
       provide("config", config);
       provide("strings", strings);
-
+      provide("android", android);
+      console.log("android", android);
       return {config, strings, osisFragments: testData};
     },
     computed: {
