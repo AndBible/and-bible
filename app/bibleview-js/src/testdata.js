@@ -64,8 +64,6 @@ if(process.env.NODE_ENV === "development") {
     let count = 0;
     //testData.reverse();
     testData.splice(0, testData.length - 3);
-    testData = testData.map(v => ({key: count++, content: v}));
-    window.testData = testData;
 
     testBookmarks = [
         {
@@ -103,5 +101,8 @@ if(process.env.NODE_ENV === "development") {
                 color: [0, 0, 255],
             }
         },
-    ]
+    ];
+    testData = testData.map(v => ({key: count++, content: v, bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
+    window.testData = testData;
+
 }

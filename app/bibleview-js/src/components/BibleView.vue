@@ -36,7 +36,7 @@
   import {provide, reactive, watch} from "@vue/runtime-core";
   import highlightRange from "dom-highlight-range";
   import {useAndroid, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
-  import {testBookmarkLabels, testBookmarks, testData} from "@/testdata";
+  import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
 
@@ -67,8 +67,9 @@
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {
             bookmarks.updateBookmarks(frag.bookmarks);
+            bookmarks.updateBookmarkLabels(frag.bookmarkLabels);
         }
-      });
+      }, {deep: true});
 
       window.bibleViewDebug.osisFragments = osisFragments;
 
@@ -79,8 +80,8 @@
       }
 
       if(process.env.NODE_ENV === "development") {
-        bookmarks.updateBookmarkLabels(testBookmarkLabels)
-        bookmarks.updateBookmarks(testBookmarks)
+        //bookmarks.updateBookmarkLabels(testBookmarkLabels)
+        //bookmarks.updateBookmarks(testBookmarks)
         replaceOsis(...testData)
       }
 

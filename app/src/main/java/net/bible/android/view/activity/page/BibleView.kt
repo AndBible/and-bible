@@ -420,8 +420,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Serializable
     data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
 
+
     @Serializable
-    data class ClientBookmarkLabel(val id: Long, val style: List<Int>?)
+    data class ClientBookmarkStyle(val color: List<Int>)
+
+    @Serializable
+    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle?)
 
 
     private fun replaceOsis() {
@@ -441,13 +445,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             //    contentVisible = true
             //}
         }
-        
+
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.bookmarkStyle?.colorArray)
+            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) })
         })
         val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
-            val labels = bookmarkControl.labelsForBookmark(it)
-            ClientBookmark(it.id, arrayListOf(), labels.map { it.id } )
+            val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
+            if(labels.isEmpty())
+                labels.add(bookmarkControl.LABEL_UNLABELLED)
+            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), labels.map { it.id } )
         })
 
         executeJavascriptOnUiThread("""

@@ -32,6 +32,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -58,8 +59,9 @@ open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
     resourceProvider: ResourceProvider
 ) {
-    private val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all")
-    private val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled")
+    // TODO: proper styles!!!
+    val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all", BookmarkStyle.GREEN_HIGHLIGHT)
+    val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", BookmarkStyle.BLUE_HIGHLIGHT)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
