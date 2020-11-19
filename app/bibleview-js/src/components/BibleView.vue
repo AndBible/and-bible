@@ -77,11 +77,7 @@
       }
 
       const currentVerse = ref(null);
-
-      watch(() => currentVerse.value,  (value) => {
-          console.log("Verse changed", value);
-          android.scrolledToVerse(value);
-      });
+      watch(() => currentVerse.value,  value => android.scrolledToVerse(value));
 
       const lineHeight = computed(() => parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height')));
 

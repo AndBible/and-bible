@@ -15,152 +15,15 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, onMounted, reactive, ref, nextTick} from "@vue/runtime-core";
+import {getCurrentInstance, inject, onMounted, reactive, ref} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {getVerseInfo} from "@/utils";
+import {scrollFunctions} from "@/code/scroll";
 let developmentMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;
 }
-
-function bibleViewFunctions(config) {
-    let currentScrollAnimation = null;
-
-    function setToolbarOffset(value, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", value, doNotScroll, immediate);
-        const diff = config.toolbarOffset - value;
-        config.toolbarOffset = value;
-        const delay = immediate ? 0 : 500;
-
-        if(diff !== 0 && !doNotScroll) {
-            doScrolling(window.pageYOffset + diff, delay)
-        }
-    }
-
-    function stopScrolling() {
-        if(currentScrollAnimation != null) {
-            window.cancelAnimationFrame(currentScrollAnimation);
-            currentScrollAnimation = null;
-            console.log("Animation ends");
-        }
-    }
-
-    function doScrolling(elementY, duration) {
-        console.log("doScrolling", elementY, duration);
-        stopScrolling();
-        const startingY = window.pageYOffset;
-        const diff = elementY - startingY;
-        let start;
-
-        if(duration === 0) {
-            window.scrollTo(0, elementY);
-            return;
-        }
-
-        // Bootstrap our animation - it will get called right before next frame shall be rendered.
-        console.log("Animation starts");
-        currentScrollAnimation = window.requestAnimationFrame(function step(timestamp) {
-            if (!start) start = timestamp;
-            // Elapsed milliseconds since start of scrolling.
-            const time = timestamp - start;
-            // Get percent of completion in range [0, 1].
-            const percent = Math.min(time / duration, 1);
-
-            window.scrollTo(0, startingY + diff * percent);
-
-            // Proceed with animation as long as we wanted it to.
-            if (time < duration) {
-                currentScrollAnimation = window.requestAnimationFrame(step);
-            }
-            else {
-                //updateLocation();
-            }
-        })
-    }
-    function attributesToString(elem) {
-        try {
-            let result = "";
-            for (const attr of elem.attributes) {
-                result += `${attr.name}: ${attr.value}, `
-            }
-            return `[${elem.tagName} ${result} (${elem.innerText.slice(0, 50)}...)]`;
-        } catch (e) {
-            console.error("attributesToString fails", e);
-            return `[${elem.tagName} (${elem.innerText.slice(0, 50)}...)]`;
-        }
-    }
-
-    function scrollToVerse(toId, now, delta = config.toolbarOffset) {
-        console.log("scrollToVerse", toId, now, delta);
-        stopScrolling();
-        if(delta !== config.toolbarOffset) {
-            config.toolbarOffset = delta;
-        }
-        const toElement = document.getElementById(toId) || document.getElementById("top");
-
-        if (toElement != null) {
-            const diff = toElement.offsetTop - window.pageYOffset;
-            if(Math.abs(diff) > 800 / window.devicePixelRatio) {
-                now = true;
-            }
-            console.log("Scrolling to", toElement, attributesToString(toElement), toElement.offsetTop - delta);
-            const lineHeight = parseFloat(window.getComputedStyle(toElement).getPropertyValue('line-height'));
-            if(config.lineSpacing != null) {
-                const extra = (config.lineSpacing - 1) * 0.5;
-                console.log(`Adding extra ${extra}`);
-                delta += (lineHeight/config.lineSpacing) * extra;
-            }
-            if(now===true) {
-                window.scrollTo(0, toElement.offsetTop - delta);
-            }
-            else {
-                doScrolling(toElement.offsetTop - delta, 1000);
-            }
-        }
-    }
-
-    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, toolBarOffset}  = {}) {
-        console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, toolBarOffset);
-
-        const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
-        setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
-
-        await nextTick(); // Do scrolling only after view has been settled (fonts etc)
-
-        //$("#content").css('visibility', 'visible');
-
-        if (jumpToOrdinal != null) {
-            scrollToVerse(`v-${jumpToOrdinal}`, true);
-            //enableVerseLongTouchSelectionMode();
-        } else if (doScroll) {
-            console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
-            const
-                contentHeight = document.documentElement.scrollHeight,
-                y = contentHeight * jumpToYOffsetRatio / window.devicePixelRatio;
-            doScrolling(y, 0)
-        } else {
-            console.log("scrolling to beginning of document (now)");
-            scrollToVerse(null, true);
-        }
-
-        //await nextTick(); // set contentReady only after scrolling has been done
-
-        //registerVersePositions(true);
-
-        //contentReady = true;
-        console.log("Content is set ready!");
-        //jsInterface.setContentReady();
-        //startVue();
-    }
-
-    return {
-        setToolbarOffset,
-        scrollToVerse,
-        setupContent,
-    }
-}
-
 
 export function useConfig() {
     const config = reactive({
@@ -222,7 +85,7 @@ export function useConfig() {
                 }
             }
         },
-        ...bibleViewFunctions(config),
+        ...scrollFunctions(config),
     }
     return {config};
 }
