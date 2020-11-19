@@ -46,7 +46,7 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
         val key = currentPage.key
-        val verse = window.pageManager.currentVersePage.currentBibleVerse.chapterVerse
+        val verse = window.pageManager.currentVersePage.currentBibleVerse.verse
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
         val previousDocument = window.displayedBook
         val prevVerse = window.displayedKey
@@ -59,7 +59,7 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
             && window.hasChapterLoaded(verse.chapter)
         )
         {
-            window.bibleView?.scrollOrJumpToVerseOnUIThread(ChapterVerse(verse.chapter, verse.verse))
+            window.bibleView?.scrollOrJumpToVerseOnUIThread(verse)
             PassageChangeMediator.getInstance().contentChangeFinished()
         }
         else {

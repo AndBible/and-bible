@@ -17,8 +17,11 @@
 
 <template>
   <div :style="`height:${config.toolbarOffset}px`"/>
-  <div v-if="config.developmentMode" :style="`position: fixed; top:0; width:100%; background-color: rgba(0, 255, 0, 0.2); height:${config.toolbarOffset}px`"/>
   <div id="notes"/>
+  <div v-if="config.developmentMode"
+      :style="`position: fixed; top:0; width:100%;  background-color: rgba(0, 255, 0, 0.2);
+               height:${config.toolbarOffset}px`"
+  />
   <div v-if="config.developmentMode" class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <OsisFragment

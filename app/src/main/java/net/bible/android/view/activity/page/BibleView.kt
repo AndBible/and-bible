@@ -33,7 +33,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
 import kotlinx.android.synthetic.main.main_bible_view.view.*
-import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -50,6 +49,7 @@ import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.versification.toV11n
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
@@ -58,7 +58,6 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.json
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
@@ -300,13 +299,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val currentPage = window.pageManager.currentPage
 
             //var jumpToChapterVerse = chapterVerse
-            jumpToVerse = verse
+            initialVerse = verse
             var jumpToYOffsetRatio = yOffsetRatio
 
             if (lastUpdated == 0L || updateLocation) {
                 if (currentPage is CurrentBiblePage) {
                     //jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
-                    jumpToVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
+                    initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
                     //jumpToVerse = KeyUtil.getVerse(window.pageManager.currentBible.key)
                 } else {
                     jumpToYOffsetRatio = currentPage.currentYOffsetRatio
@@ -322,7 +321,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             contentVisible = false
             loadedChapters.clear()
 
-            val chapter = jumpToVerse?.chapter
+            val chapter = initialVerse?.chapter
             if (chapter != null) {
                 loadedChapters.add(chapter)
             }
@@ -335,7 +334,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             //    "displaySettings: $displaySettingsJson}"
 
             //val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
-            Log.d(TAG, "Show $jumpToVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
+            Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
             //finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             lastestXml = finalHtml
@@ -349,7 +348,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private var jumpToVerse: Verse? = null
+    private var initialVerse: Verse? = null
 
     //@Serializable
     //data class CurrentSettings(val toolbarOffset: Float) {
@@ -394,6 +393,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun replaceOsis() {
         var xml = ""
+
         synchronized(this) {
             xml = lastestXml
             needsOsisContent = false
@@ -411,7 +411,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.setConfig(${displaySettings.toJson()});
             bibleView.replaceOsis(`$xml`);
             bibleView.setupContent({
-                jumpToOrdinal: ${jumpToVerse?.ordinal}, 
+                jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
                 toolBarOffset: $toolbarOffset,
             });            
@@ -576,7 +576,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: ScrollSecondaryWindowEvent) {
         if (window == event.window) {
-            scrollOrJumpToVerseOnUIThread(event.chapterVerse)
+            scrollOrJumpToVerseOnUIThread(event.verse)
         }
     }
 
@@ -632,7 +632,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             executeJavascript("bibleView.setToolbarOffset($toolbarOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 executeJavascript("registerVersePositions()")
-                scrollOrJumpToVerse(window.pageManager.currentBible.currentChapterVerse, true)
+                scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
             checkWindows = false
         }
@@ -668,7 +668,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /** move the view so the selected verse is at the top or at least visible
      * @param verse
      */
-    fun scrollOrJumpToVerseOnUIThread(verse: ChapterVerse) {
+    fun scrollOrJumpToVerseOnUIThread(verse: Verse) {
         val restoreOngoing = window.restoreOngoing
         runOnUiThread {
             scrollOrJumpToVerse(verse, restoreOngoing)
@@ -677,10 +677,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     /** move the view so the selected verse is at the top or at least visible
      */
-    private fun scrollOrJumpToVerse(chapterVerse: ChapterVerse, restoreOngoing: Boolean = false) {
-        Log.d(TAG, "Scroll or jump to:$chapterVerse")
+    private fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
+        Log.d(TAG, "Scroll or jump to:$verse")
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("scrollToVerse('${getIdToJumpTo(chapterVerse)}', $now, $toolbarOffset)")
+        executeJavascript("bibleView.scrollToVerse('${getIdToJumpTo(verse)}', $now, $toolbarOffset);")
     }
 
     internal inner class BibleViewLongClickListener(private var defaultValue: Boolean) : View.OnLongClickListener {
@@ -701,12 +701,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * if verse 1 then jump to just after chapter divider at top of screen
      */
-    private fun getIdToJumpTo(chapterVerse: ChapterVerse): String {
-        return if (chapterVerse.verse > 1) {
-            chapterVerse.toHtmlId()
-        } else {
-            chapterVerse.toChapterHtmlId()
-        }
+    private fun getIdToJumpTo(verse: Verse): String {
+        return "v-${verse.toV11n(initialVerse!!.versification).ordinal}"
     }
 
     /**
@@ -770,7 +766,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {
-        runOnUiThread { executeJavascript2(javascript) }
+        runOnUiThread { executeJavascript(javascript) }
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
@@ -781,13 +777,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private fun executeJavascript2(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
-        Log.d(TAG, "Executing JS: $javascript")
-        evaluateJavascript("$javascript;", callBack)
-    }
+    //private fun executeJavascript2(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
+    //    Log.d(TAG, "Executing JS: $javascript")
+    //    evaluateJavascript("$javascript;", callBack)
+    //}
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
         Log.d(TAG, "Executing JS: $javascript")
+        evaluateJavascript("$javascript;", callBack)
         //evaluateJavascript("andbible.$javascript;", callBack)
     }
 
