@@ -25,18 +25,20 @@
   <div v-if="config.developmentMode" class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <OsisFragment
-        v-for="(osisFragment, index) in osisFragments" :key="index"
-        :content="osisFragment"
+        v-for="{key, content} in osisFragments" :key="key"
+        :content="content"
     />
   </div>
+  <div id="bottom"/>
 </template>
 <script>
   import OsisFragment from "@/components/OsisFragment";
   import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
   import highlightRange from "dom-highlight-range";
-  import {useAndroid, useBookmarkLabels, useBookmarks, useConfig, useStrings} from "@/composables";
+  import {useAndroid, useBookmarkLabels, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {computed, ref} from "@vue/reactivity";
+  import {useInfiniteScroll} from "@/code/infinite-scroll";
 
   function findElemWithOsisID(elem) {
     if(elem === null) return;
@@ -60,6 +62,10 @@
       const android = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
+      useInfiniteScroll(config, android, osisFragments);
+      useVerseNotifier(config, android, topElement);
+
+      window.bibleView.osisFragments = osisFragments;
 
       function replaceOsis(...s) {
         console.log("replaceOsis");
@@ -75,32 +81,6 @@
       window.bibleView.setTitle = (title) => {
         document.title = title;
       }
-
-      const currentVerse = ref(null);
-      watch(() => currentVerse.value,  value => android.scrolledToVerse(value));
-
-      const lineHeight = computed(() => parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height')));
-
-      function onScroll() {
-        const y = config.toolbarOffset + lineHeight.value*0.8;
-
-        // Find element, starting from right
-        const step = 10;
-        let element;
-        for(let x = window.innerWidth - step; x > 0; x-=step) {
-          element = document.elementFromPoint(x, y)
-          if(element) {
-            element = element.closest(".verse");
-            if(element) {
-              currentVerse.value = parseInt(element.id.slice(2))
-              break;
-            }
-          }
-        }
-      }
-
-      onMounted(() => window.addEventListener('scroll', onScroll));
-      onUnmounted(() => window.removeEventListener('scroll', onScroll));
 
       provide("bookmarks", bookmarks);
 

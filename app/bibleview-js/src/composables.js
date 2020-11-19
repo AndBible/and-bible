@@ -15,14 +15,44 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, onMounted, reactive, ref} from "@vue/runtime-core";
+import {getCurrentInstance, inject, onMounted, onUnmounted, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {getVerseInfo} from "@/utils";
 import {scrollFunctions} from "@/code/scroll";
+import {computed} from "@vue/reactivity";
 let developmentMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;
+}
+
+export function useVerseNotifier(config, android, topElement) {
+    const currentVerse = ref(null);
+    watch(() => currentVerse.value,  value => android.scrolledToVerse(value));
+
+    const lineHeight = computed(() => parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height')));
+
+    function onScroll() {
+        const y = config.toolbarOffset + lineHeight.value*0.8;
+
+        // Find element, starting from right
+        const step = 10;
+        let element;
+        for(let x = window.innerWidth - step; x > 0; x-=step) {
+            element = document.elementFromPoint(x, y)
+            if(element) {
+                element = element.closest(".verse");
+                if(element) {
+                    currentVerse.value = parseInt(element.id.slice(2))
+                    break;
+                }
+            }
+        }
+    }
+
+    onMounted(() => window.addEventListener('scroll', onScroll));
+    onUnmounted(() => window.removeEventListener('scroll', onScroll));
+
 }
 
 export function useConfig() {
@@ -69,6 +99,8 @@ export function useConfig() {
         },
 
         toolbarOffset: 100,
+        infiniteScroll: true,
+
         developmentMode: developmentMode,
     })
 
@@ -94,6 +126,8 @@ export function useAndroid() {
     if(process.env.NODE_ENV === 'development') return {
         setClientReady() {},
         scrolledToVerse() {},
+        requestMoreTextAtTop() {},
+        requestMoreTextAtEnd() {},
     };
 
     onMounted(() => {

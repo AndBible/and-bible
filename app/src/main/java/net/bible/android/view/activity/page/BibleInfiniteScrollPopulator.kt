@@ -35,32 +35,32 @@ class BibleInfiniteScrollPopulator(
     private val bibleView: BibleView) : AnkoLogger
 {
 
-    fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {
+    fun requestMoreTextAtTop() {
         debug("requestMoreTextAtTop")
         // do in background thread
         doAsync {
             // get page fragment for previous chapter
             val currentPage = bibleView.window.pageManager.currentPage
             if (currentPage is CurrentBiblePage) {
-                var fragment = currentPage.getFragmentForChapter(chapter)
-                fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-                bibleView.insertTextAtTop(chapter, textId, fragment)
+                val newChap = bibleView.minChapter - 1
+                var fragment = currentPage.getFragmentForChapter(newChap) ?: return@doAsync
+                //fragment = StringEscapeUtils.escapeEcmaScript(fragment)
+                bibleView.insertTextAtTop(newChap, fragment)
             }
-            // tell js interface that insert is complete
-            callback.okay()
         }
     }
 
-    fun requestMoreTextAtEnd(chapter: Int, textId: String) {
+    fun requestMoreTextAtEnd() {
         debug("requestMoreTextAtEnd")
         // do in background thread
         doAsync {
             // get page fragment for previous chapter
             val currentPage = bibleView.window.pageManager.currentPage
             if (currentPage is CurrentBiblePage) {
-                var fragment = currentPage.getFragmentForChapter(chapter)
-                fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-                bibleView.insertTextAtEnd(chapter, textId, fragment)
+                val newChap = bibleView.maxChapter + 1
+                var fragment = currentPage.getFragmentForChapter(newChap)?: return@doAsync
+                //fragment = StringEscapeUtils.escapeEcmaScript(fragment)
+                bibleView.insertTextAtEnd(newChap, fragment)
             }
         }
     }

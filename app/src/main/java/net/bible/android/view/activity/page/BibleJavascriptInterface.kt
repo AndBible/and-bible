@@ -45,7 +45,7 @@ class BibleJavascriptInterface(
 
     var notificationsEnabled = false
 
-    private var addingContentAtTop = false
+//    private var addingContentAtTop = false
 
     private var prevCurrentChapterVerse = ChapterVerse(0, 0)
 
@@ -68,31 +68,31 @@ class BibleJavascriptInterface(
 		return jsonObject.toString()
 	}
 
-    @JavascriptInterface
-    fun onScroll(newYPos_: Int) {
-        var newYPos = newYPos_
-        // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-        if (notificationsEnabled
-            && !addingContentAtTop
-            && !windowControl.isSeparatorMoving
-            && bibleView.contentVisible)
-        {
-            if (currentPageManager.isBibleShown) {
-                // All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
-                // I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
-
-                // if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
-                if (!SharedActivityState.instance.isFullScreen && bibleView.isTopWindow) {
-                    newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
-                }
-                val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)
-                if (currentChapterVerse != prevCurrentChapterVerse) {
-                    currentPageManager.currentBible.currentChapterVerse = currentChapterVerse
-                    prevCurrentChapterVerse = currentChapterVerse
-                }
-            }
-        }
-    }
+//    @JavascriptInterface
+//    fun onScroll(newYPos_: Int) {
+//        var newYPos = newYPos_
+//        // do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
+//        if (notificationsEnabled
+//            && !addingContentAtTop
+//            && !windowControl.isSeparatorMoving
+//            && bibleView.contentVisible)
+//        {
+//            if (currentPageManager.isBibleShown) {
+//                // All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
+//                // I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
+//
+//                // if not fullscreen, and (if windows are split vertically and is firstwindow) or (windows are split horizontally) we need to add some offset
+//                if (!SharedActivityState.instance.isFullScreen && bibleView.isTopWindow) {
+//                    newYPos += (bibleView.mainBibleActivity.topOffset2 / bibleView.resources.displayMetrics.density).toInt()
+//                }
+//                val currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos)
+//                if (currentChapterVerse != prevCurrentChapterVerse) {
+//                    currentPageManager.currentBible.currentChapterVerse = currentChapterVerse
+//                    prevCurrentChapterVerse = currentChapterVerse
+//                }
+//            }
+//        }
+//    }
 
     @JavascriptInterface
     fun scrolledToVerse(verseOrdinal: Int) {
@@ -137,16 +137,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtTop(chapter: Int, textId: String) {
-        Log.d(TAG, "Request more text at top:$textId")
-        addingContentAtTop = true
-        bibleInfiniteScrollPopulator.requestMoreTextAtTop(chapter, textId, Callback { addingContentAtTop = false })
+    fun requestMoreTextAtTop() {
+        Log.d(TAG, "Request more text at top")
+//        addingContentAtTop = true
+        bibleInfiniteScrollPopulator.requestMoreTextAtTop()
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtEnd(chapter: Int, textId: String) {
-        Log.d(TAG, "Request more text at end:$textId")
-        bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId)
+    fun requestMoreTextAtEnd() {
+        Log.d(TAG, "Request more text at end")
+        bibleInfiniteScrollPopulator.requestMoreTextAtEnd()
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

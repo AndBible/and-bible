@@ -59,6 +59,7 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.apache.commons.lang3.StringEscapeUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -96,7 +97,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
-    private var loadedChapters = mutableSetOf<Int>()
+
+    internal var minChapter = -1
+    internal var maxChapter = -1
+
+    //private var loadedChapters = mutableSetOf<Int>()
 
 
     private var gestureDetector: GestureDetectorCompat
@@ -319,11 +324,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
             contentVisible = false
-            loadedChapters.clear()
+            //loadedChapters.clear()
 
             val chapter = initialVerse?.chapter
             if (chapter != null) {
-                loadedChapters.add(chapter)
+                addChapter(chapter)
+                //loadedChapters.add(chapter)
             }
 
             //val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
@@ -345,6 +351,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             synchronized(this) {
                 needsOsisContent = true
             }
+        }
+    }
+
+    private fun addChapter(chapter: Int) {
+        if(chapter < minChapter) {
+            minChapter = chapter
+        } else if(chapter > maxChapter) {
+            maxChapter = chapter
+        } else {
+            Log.e(TAG, "Chapter already included")
         }
     }
 
@@ -393,11 +409,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun replaceOsis() {
         var xml = ""
-
         synchronized(this) {
             xml = lastestXml
+            //StringEscapeUtils.escapeEcmaScript(xml)
             needsOsisContent = false
             contentVisible = true
+            minChapter = initialVerse?.chapter ?: -1
+            maxChapter = initialVerse?.chapter ?: -1
             //val containsDocument = xml.contains("andbible.initialize")
             //if (containsDocument) {
             //    updateOngoing = true
@@ -409,7 +427,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("""
             bibleView.setTitle("BibleView-${window.id}");
             bibleView.setConfig(${displaySettings.toJson()});
-            bibleView.replaceOsis(`$xml`);
+            bibleView.replaceOsis({key: ${initialVerse?.chapter},content: `$xml`});
             bibleView.setupContent({
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
@@ -788,14 +806,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         //evaluateJavascript("andbible.$javascript;", callBack)
     }
 
-    fun insertTextAtTop(chapter: Int, textId: String, text: String) {
-        loadedChapters.add(chapter)
-        executeJavascriptOnUiThread("insertThisTextAtTop('$textId','$text')")
+    fun insertTextAtTop(chapter: Int, osisFragment: String) {
+        addChapter(chapter)
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop({key: $chapter, content: `$osisFragment`});")
     }
 
-    fun insertTextAtEnd(chapter: Int, textId: String, text: String) {
-        loadedChapters.add(chapter)
-        executeJavascriptOnUiThread("insertThisTextAtEnd('$textId','$text')")
+    fun insertTextAtEnd(chapter: Int, osisFragment: String) {
+        addChapter(chapter)
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd({key: $chapter, content: `$osisFragment`});")
     }
 
     fun setContentReady() {
@@ -811,7 +829,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
+    fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
         htmlLoadingOngoing = false;

@@ -15,6 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import {nextTick} from "@vue/runtime-core";
+
 export function scrollFunctions(config) {
     let currentScrollAnimation = null;
 

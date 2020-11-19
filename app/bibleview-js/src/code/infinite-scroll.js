@@ -20,28 +20,25 @@
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-import {registerVersePositions} from "./bibleview";
+//import {registerVersePositions} from "./bibleview";
 import $ from "jquery"
+import {onMounted, onUnmounted} from "@vue/runtime-core";
+import {nextTick} from "@/code/utils";
 
-function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
-                      insertAfterAtTop, insertBeforeAtBottom) {
-    // up is very hard when still scrolling so make the margin tiny to cause scroll to stop before pre-filling up
+export function useInfiniteScroll(config, android, osisFragments) {
     const UP_MARGIN = 2;
     const DOWN_MARGIN = 200;
     let currentPos = scrollPosition();
 
-    let topId = initialId;
-    let endId = initialId;
-
     let lastAddMoreTime = 0;
     let addMoreAtTopOnTouchUp = false;
 
-    const scrollHandler = function () {
+    function scrollHandler() {
         const previousPos = currentPos;
         currentPos = scrollPosition();
         const scrollingUp = currentPos < previousPos;
         const scrollingDown = currentPos > previousPos;
-        if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - DOWN_MARGIN && Date.now() > lastAddMoreTime + 1000) {
+        if (scrollingDown && currentPos >= ($('#bottom').offset().top - $(window).height()) - DOWN_MARGIN && Date.now() > lastAddMoreTime + 1000) {
             lastAddMoreTime = Date.now();
             addMoreAtEnd();
         } else if (scrollingUp && currentPos < UP_MARGIN && Date.now() > lastAddMoreTime + 1000) {
@@ -49,143 +46,101 @@ function infiniScroll(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId,
             addMoreAtTop();
         }
         currentPos = scrollPosition();
-    };
+    }
 
-    // Could add start() and stop() methods
-    $(window).scroll(scrollHandler);
-    //$(window).unbind("scroll", scrollHandler);
-    window.addEventListener('touchstart', touchstartListener, false);
-    window.addEventListener('touchend', touchendListener, false);
-    window.addEventListener("touchcancel", touchendListener, false);
+    onMounted(() => {
+        window.addEventListener("scroll", scrollHandler)
+        window.addEventListener('touchstart', touchstartListener, false);
+        window.addEventListener('touchend', touchendListener, false);
+        window.addEventListener("touchcancel", touchendListener, false);
+    });
+
+    onUnmounted(() => {
+        window.removeEventListener("scroll", scrollHandler)
+        window.removeEventListener('touchstart', touchstartListener, false);
+        window.removeEventListener('touchend', touchendListener, false);
+        window.removeEventListener("touchcancel", touchendListener, false);
+    });
 
     function addMoreAtEnd() {
-        if (endId<maxId && !stillLoading) {
-            stillLoading = true;
-            const id = ++endId;
-            const textId = 'insertedText' + id;
-            // place marker for text which may take longer to load
-            const placeMarker = '<span id="' + textId + '" class="page_section">&nbsp;</span>';
-            $(insertBeforeAtBottom).before(placeMarker);
-
-            fnLoadTextAtEnd(id, textId);
-        }
+        loadTextAtEnd();
     }
 
     function addMoreAtTop() {
         if (touchDown) {
             // adding at top is tricky and if the user is stil holding there seems no way to set the scroll position after insert
             addMoreAtTopOnTouchUp = true;
-        } else if (topId>minId && !stillLoading) {
-            stillLoading = true;
-            const id = --topId;
-            const textId = 'insertedText' + id;
-            // place marker for text which may take longer to load
-            const placeMarker = '<span id="' + textId + '" class="page_section">&nbsp;</span>';
-            insertAtTop($(insertAfterAtTop), placeMarker);
-
-            fnLoadTextAtTop(id, textId);
+        } else {
+            loadTextAtTop();
         }
     }
 
-    function insertAtTop($afterComponent, text) {
-        const priorHeight = bodyHeight();
-        $afterComponent.after(text);
-        const changeInHeight = bodyHeight() - priorHeight;
-        const adjustedPosition = currentPos + changeInHeight;
-        setScrollPosition(adjustedPosition);
-    }
-
-    function touchstartListener(event){
+    function touchstartListener() {
         touchDown = true;
     }
-    function touchendListener(event){
+
+    function touchendListener() {
         touchDown = false;
-        if (textToBeInsertedAtTop && idToInsertTextAt) {
-            const text = textToBeInsertedAtTop;
-            const id = idToInsertTextAt;
-            textToBeInsertedAtTop = null;
-            idToInsertTextAt = null;
-            insertThisTextAtTop(id, text);
+        if (textToBeInsertedAtTop) {
+            insertThisTextAtTop(textToBeInsertedAtTop);
         }
         if (addMoreAtTopOnTouchUp) {
             addMoreAtTopOnTouchUp = false;
             addMoreAtTop()
         }
     }
-}
 
-let stillLoading = false;
-let touchDown = false;
-let textToBeInsertedAtTop = null;
-let idToInsertTextAt = null;
+    let touchDown = false;
+    let textToBeInsertedAtTop = null;
 
-export function initializeInfiniScroll() {
-    const chapterInfo = JSON.parse(jsInterface.getChapterInfo());
-    if (chapterInfo.infinite_scroll) {
-        infiniScroll(
-            loadTextAtTop,
-            loadTextAtEnd,
-            chapterInfo.chapter,
-            chapterInfo.first_chapter,
-            chapterInfo.last_chapter,
-            "#topOfBibleText",
-            "#bottomOfBibleText");
+    function bodyHeight() {
+        return document.body.scrollHeight;
     }
-}
 
-function bodyHeight() {
-    return document.body.scrollHeight;
-}
-
-function scrollPosition() {
-    return window.pageYOffset;
-}
-
-function setScrollPosition(offset) {
-    // Android 6 fails with window.scrollTop = offset but jquery works
-    $(window).scrollTop(offset);
-}
-
-/**
- * Ask java to get more text to be loaded into page
- */
-function loadTextAtTop(chapter, textId) {
-    console.log("js:loadTextAtTop");
-    jsInterface.requestMoreTextAtTop(chapter, textId);
-}
-
-function loadTextAtEnd(chapter, textId) {
-    console.log("js:loadTextAtEnd");
-    jsInterface.requestMoreTextAtEnd(chapter, textId);
-}
-
-/**
- * called from java after actual text has been retrieved to request text is inserted
- */
-export function insertThisTextAtTop(textId, text) {
-    if (touchDown) {
-        textToBeInsertedAtTop = text;
-        idToInsertTextAt = textId;
-    } else {
-        const priorHeight = bodyHeight();
-        const origPosition = scrollPosition();
-
-        const $divToInsertInto = $('#' + textId);
-        $divToInsertInto.html(text);
-
-        // do no try to get scrollPosition here becasue it has not settled
-        const adjustedTop = origPosition - priorHeight + bodyHeight();
-        setScrollPosition(adjustedTop);
-
-        registerVersePositions();
-        stillLoading = false;
+    function scrollPosition() {
+        return window.pageYOffset;
     }
-}
 
-export function insertThisTextAtEnd(textId, text) {
-    console.log("js:insertThisTextAtEnd into:"+textId);
-    $('#' + textId).html(text);
+    function setScrollPosition(offset) {
+        // Android 6 fails with window.scrollTop = offset but jquery works
+        $(window).scrollTop(offset);
+    }
 
-    registerVersePositions();
-    stillLoading = false;
+    /**
+     * Ask java to get more text to be loaded into page
+     */
+    function loadTextAtTop() {
+        console.log("js:loadTextAtTop");
+        android.requestMoreTextAtTop();
+    }
+
+    function loadTextAtEnd() {
+        console.log("js:loadTextAtEnd");
+        android.requestMoreTextAtEnd();
+    }
+
+    async function insertThisTextAtTop(osisFragment) {
+        if (touchDown) {
+            textToBeInsertedAtTop = osisFragment;
+        } else {
+            const priorHeight = bodyHeight();
+            const origPosition = scrollPosition();
+
+            osisFragments.unshift(osisFragment);
+            await nextTick();
+
+            // do no try to get scrollPosition here because it has not settled
+            const adjustedTop = origPosition - priorHeight + bodyHeight();
+            setScrollPosition(adjustedTop);
+        }
+    }
+
+    function insertThisTextAtEnd(osisFragment) {
+        osisFragments.push(osisFragment);
+    }
+    window.bibleView = {
+        ...window.bibleView,
+        insertThisTextAtTop,
+        insertThisTextAtEnd
+    }
 }

@@ -68,9 +68,9 @@ class OsisMessageFormatter {
 
             // only require special formatting for nightmode
             if (!isNightMode) {
-                formattedText = DAY_HEADER + text + DAY_FOOTER
+                formattedText = """<div>$text</div>""" //DAY_HEADER + text + DAY_FOOTER
             } else {
-                formattedText = NIGHT_HEADER + text + NIGHT_FOOTER
+                formattedText = """<div>$text</div>""" //NIGHT_HEADER + text + NIGHT_FOOTER
             }
             return formattedText
         }
