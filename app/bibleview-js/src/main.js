@@ -16,10 +16,15 @@
  */
 
 import { createApp } from 'vue'
-
+import {testData} from "@/testdata";
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 window.bibleView = {};
 
 import BibleView from "@/components/BibleView";
 const app = createApp(BibleView);
 app.mount('#app')
+
+if(process.env.NODE_ENV === "development") {
+    window.bibleView.config.osisFragments.push(...testData)
+}
+

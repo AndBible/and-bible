@@ -42,6 +42,8 @@ export function useConfig() {
         justifyText: false,
         marginLeft: 5,
         marginRight: null,
+
+        osisFragments: []
     })
     // Expose configuration to java side to be manipulated.
     window.bibleView.config = config;

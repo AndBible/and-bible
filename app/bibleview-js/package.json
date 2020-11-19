@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "andbible-build": "vue-cli-service build --target app --formats umd-min --inline-vue",
+    "build-old": "vue-cli-service build",
+    "build": "vue-cli-service build --target app --formats umd-min --inline-vue",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "lint": "vue-cli-service lint"
   },

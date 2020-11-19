@@ -29,7 +29,6 @@
 <script>
   import OsisFragment from "@/components/OsisFragment";
   import {provide} from "@vue/runtime-core";
-  import {testData} from "@/testdata";
   import highlightRange from "dom-highlight-range";
   import {useAndroid, useBookmarkLabels, useBookmarks, useConfig, useStrings} from "@/composables";
 
@@ -49,7 +48,7 @@
       provide("strings", strings);
       provide("android", android);
       console.log("android", android);
-      return {config, strings, osisFragments: testData};
+      return {config, strings, osisFragments: config.osisFragments};
     },
     computed: {
       styleConfig({config}) {
