@@ -19,9 +19,7 @@
 package net.bible.android.view.activity.page
 
 import net.bible.android.control.page.CurrentBiblePage
-import net.bible.android.view.activity.base.Callback
 
-import org.apache.commons.lang3.StringEscapeUtils
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.debug
 import org.jetbrains.anko.doAsync
@@ -43,7 +41,10 @@ class BibleInfiniteScrollPopulator(
             val currentPage = bibleView.window.pageManager.currentPage
             if (currentPage is CurrentBiblePage) {
                 val newChap = bibleView.minChapter - 1
-                var fragment = currentPage.getFragmentForChapter(newChap) ?: return@doAsync
+
+                if(newChap < 0) return@doAsync
+
+                val fragment = currentPage.getFragmentForChapter(newChap) ?: return@doAsync
                 //fragment = StringEscapeUtils.escapeEcmaScript(fragment)
                 bibleView.insertTextAtTop(newChap, fragment)
             }
@@ -58,7 +59,10 @@ class BibleInfiniteScrollPopulator(
             val currentPage = bibleView.window.pageManager.currentPage
             if (currentPage is CurrentBiblePage) {
                 val newChap = bibleView.maxChapter + 1
-                var fragment = currentPage.getFragmentForChapter(newChap)?: return@doAsync
+                val verse = currentPage.currentBibleVerse.verse
+                val lastChap = verse.versification.getLastVerse(verse.book, verse.chapter)
+                if(newChap > lastChap) return@doAsync
+                val fragment = currentPage.getFragmentForChapter(newChap)?: return@doAsync
                 //fragment = StringEscapeUtils.escapeEcmaScript(fragment)
                 bibleView.insertTextAtEnd(newChap, fragment)
             }
