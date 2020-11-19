@@ -70,7 +70,7 @@ export default {
   render() {
     return h({
       template: this.content
-          .replaceAll(/(<\/?)(\w)(\w*)([^>]*>)/g,
+          .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
               (m, tagStart, tagFirst, tagRest, tagEnd) =>
                   `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`),
       components: prefixComponents(components),

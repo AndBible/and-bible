@@ -22,11 +22,9 @@ import android.view.Menu
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
-import net.bible.service.common.ParseException
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
-import net.bible.service.format.HtmlMessageFormatter.Companion.format
-import net.bible.service.format.Note
+import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
@@ -123,11 +121,11 @@ abstract class CurrentPageBase protected constructor(
         return try {
             val currentDocument = currentDocument!!
             synchronized(currentDocument) {
-                var htmlText = swordContentFacade.readHtmlText(currentDocument, key, asFragment, pageManager.actualTextDisplaySettings)
-                if (StringUtils.isEmpty(htmlText)) {
-                    htmlText = format(R.string.error_no_content)
+                var xmlText = swordContentFacade.readOsisFragment(currentDocument, key)
+                if (StringUtils.isEmpty(xmlText)) {
+                    xmlText = format(R.string.error_no_content)
                 }
-                htmlText
+                xmlText
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)

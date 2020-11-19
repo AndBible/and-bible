@@ -26,8 +26,8 @@ import net.bible.service.device.ScreenSettings
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class HtmlMessageFormatter {
-
+class OsisMessageFormatter {
+    // TODO: change code from HTML to OSIS
 
     companion object {
 

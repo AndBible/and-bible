@@ -17,30 +17,38 @@
 
 <template>
   <!-- The Modal -->
-  <div ref="myModal" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="close" @click="$emit('close')">&times;</span>
-        <span class="title">
-          <slot name="title"/>
-        </span>
+  <teleport to="#notes">
+    <div ref="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
+        <div class="modal-header">
+          <span class="close" @click="$emit('close')">&times;</span>
+          <span class="title">
+            <slot name="title"/>
+          </span>
+        </div>
+        <div class="modal-body">
+          <p><slot/></p>
+        </div>
+        <div class="modal-footer">
+        </div>
       </div>
-      <div class="modal-body">
-        <p><slot/></p>
-      </div>
-      <div class="modal-footer">
-      </div>
-    </div>
 
-  </div>
+    </div>
+  </teleport>
 
 </template>
 
 <script>
 
+import {inject} from "@vue/runtime-core";
+
 export default {
   name: "Modal",
+  setup() {
+    const config = inject("config")
+    return {config}
+  }
 }
 </script>
 
@@ -57,7 +65,7 @@ export default {
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  background-color: rgba(0,0,0,0.1); /* Black w/ opacity */
 }
 
 /* Modal Content */

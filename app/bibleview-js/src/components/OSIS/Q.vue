@@ -27,6 +27,7 @@ export default {
     sID: {type: String, default: null},
     eID: {type: String, default: null},
     who: {type: String, default: null},
+    level: {type: String, default: null},
   },
   computed: {
     isJesus: ({who}) => who && who.toLowerCase() === "jesus"

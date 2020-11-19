@@ -7,7 +7,6 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.ParseException
-import net.bible.service.device.speak.AbstractSpeakTests
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
@@ -16,9 +15,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.RangedPassage
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.junit.After
@@ -31,7 +27,6 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
-import org.junit.Ignore
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
@@ -104,7 +99,7 @@ class SwordContentFacadeTest {
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readXmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
         } catch (e: ParseException) {
             "broken"
         }
@@ -119,7 +114,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readXmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
         } catch (e: ParseException) {
             "broken"
         }
@@ -135,7 +130,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+                swordContentFacade.readXmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
             } catch (e: ParseException) {
                 "broken"
             }
@@ -148,7 +143,7 @@ class SwordContentFacadeTest {
     private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
         val settings = WorkspaceEntities.TextDisplaySettings.default
         settings.showStrongs = true
-        return swordContentFacade.readHtmlText(book, key, asFragment, settings)
+        return swordContentFacade.readOsisFragment(book, key, asFragment, settings)
     }
 
     private fun getBook(initials: String): Book {

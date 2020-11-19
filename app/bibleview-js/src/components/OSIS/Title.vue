@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     show:  ({type, subType, config, isCanonical}) =>
-        config.showTitles
+        config.showSectionTitles
         && ((config.showNonCanonical && !isCanonical) || isCanonical)
         && !(type === "sub" && subType === "x-Chapter")
         && type !== "x-gen",

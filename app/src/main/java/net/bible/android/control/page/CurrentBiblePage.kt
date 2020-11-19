@@ -178,6 +178,17 @@ class CurrentBiblePage(
             }
         }
 
+    var currentVerseOrdinal: Int
+        get() = currentBibleVerse.verse.ordinal
+        set(value) {
+            val old = currentBibleVerse.verse.ordinal
+
+            if(value != old) {
+                currentBibleVerse.verse = Verse(currentBibleVerse.verse.versification, value)
+                onVerseChange()
+            }
+        }
+
     //TODO allow japanese search - japanese bibles use smartcn which is not available
     /** can we enable the main menu search button
      */

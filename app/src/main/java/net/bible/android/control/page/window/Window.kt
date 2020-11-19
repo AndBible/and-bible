@@ -33,9 +33,11 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.format.HtmlMessageFormatter
+import net.bible.service.format.OsisMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.Verse
 
 class WindowChangedEvent(val window: Window)
 
@@ -163,11 +165,13 @@ open class Window (
 
         Log.d(TAG, "Loading html in background")
         var chapterVerse: ChapterVerse? = null
+        var verse: Verse? = null
         var yOffsetRatio: Float? = null
         val currentPage = pageManager.currentPage
 
         if(currentPage is CurrentBiblePage) {
             chapterVerse = currentPage.currentChapterVerse
+            verse = KeyUtil.getVerse(currentPage.key)
         } else {
             yOffsetRatio = currentPage.currentYOffsetRatio
         }
@@ -177,15 +181,15 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
 
-            val text = fetchText()
+            val xml = fetchOsis()
 
             withContext(Dispatchers.Main) {
                 lastUpdated = System.currentTimeMillis()
 
                 if(notifyLocationChange) {
-                    bibleView?.show(text, updateLocation = true)
+                    bibleView?.show(xml, updateLocation = true)
                 } else {
-                    bibleView?.show(text, chapterVerse = chapterVerse, yOffsetRatio = yOffsetRatio)
+                    bibleView?.show(xml, verse = verse, yOffsetRatio = yOffsetRatio)
                 }
             }
 
@@ -194,7 +198,7 @@ open class Window (
             }
         }
 
-    private suspend fun fetchText(): String = withContext(Dispatchers.IO) {
+    private suspend fun fetchOsis(): String = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -203,7 +207,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            HtmlMessageFormatter.format(R.string.error_page_too_large)
+            OsisMessageFormatter.format(R.string.error_page_too_large)
         }
     }
 

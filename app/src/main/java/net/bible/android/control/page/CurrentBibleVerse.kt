@@ -31,7 +31,7 @@ import org.crosswire.jsword.versification.system.Versifications
  */
 class CurrentBibleVerse {
     val entity get() = verse.entity
-    private var verse = Verse(
+    var verse = Verse(
         Versifications.instance().getVersification(Versifications.DEFAULT_V11N),
         BibleBook.GEN, 1, 1
     )

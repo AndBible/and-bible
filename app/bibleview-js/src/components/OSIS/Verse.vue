@@ -16,8 +16,8 @@
   -->
 
 <template>
-  <div :style="bookmarkStyle" class="bookmarkStyle" :id="`v-${ordinal}`" :class="{noLineBreak: !config.versePerLine}">
-    <VerseNumber v-if="shown && config.verseNumbers && verse !== 0" :verse-num="verse"/>
+  <div :style="bookmarkStyle" class="verse bookmarkStyle" :id="`v-${ordinal}`" :class="{noLineBreak: !config.showVersePerLine}">
+    <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/>
     <div class="inlineDiv" ref="contentTag"><slot/></div>
   </div>
 </template>

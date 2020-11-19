@@ -32,6 +32,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
+import kotlinx.android.synthetic.main.main_bible_view.view.*
+import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -56,8 +58,11 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.json
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.passage.KeyUtil
+import org.crosswire.jsword.passage.Verse
 import java.lang.ref.WeakReference
 
 /** The WebView component that shows the main bible and commentary text
@@ -70,6 +75,7 @@ import java.lang.ref.WeakReference
  * the object manually (not from a layout XML file).
  */
 
+@SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
                 private val windowControl: WindowControl,
@@ -109,9 +115,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var lastestHtml: String = ""
-    private var needsUpdate: Boolean = false
-    private var updateOngoing: Boolean = false
+    private var lastestXml: String = ""
+    private var needsOsisContent: Boolean = false
+    private var htmlLoadingOngoing: Boolean = false
         set(value) {
             if(value != field) {
                 ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
@@ -144,7 +150,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     fun setBibleJavascriptInterface(bibleJavascriptInterface: BibleJavascriptInterface) {
         this.bibleJavascriptInterface = bibleJavascriptInterface
-        addJavascriptInterface(bibleJavascriptInterface, "jsInterface")
+        addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -201,12 +207,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
+
+        htmlLoadingOngoing = true;
+        loadUrl("file:///android_asset/bibleview-js/index.html")
     }
 
     override fun destroy() {
         toBeDestroyed = true
         pageTiltScroller.destroy()
-        removeJavascriptInterface("jsInterface")
+        removeJavascriptInterface("android")
     }
 
     var listenEvents: Boolean = false
@@ -268,13 +277,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var lastUpdated = 0L
 
     fun show(html: String,
-                      updateLocation: Boolean = false,
-                      chapterVerse: ChapterVerse? = null,
-                      yOffsetRatio: Float? = null)
+             updateLocation: Boolean = false,
+             verse: Verse? = null,
+             yOffsetRatio: Float? = null)
     {
         synchronized(this) {
             var finalHtml = html
             // set background colour if necessary
+
             updateBackgroundColor()
 
             // call this from here because some documents may require an adjusted font size e.g. those using Greek font
@@ -289,12 +299,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             val currentPage = window.pageManager.currentPage
 
-            var jumpToChapterVerse = chapterVerse
+            //var jumpToChapterVerse = chapterVerse
+            jumpToVerse = verse
             var jumpToYOffsetRatio = yOffsetRatio
 
             if (lastUpdated == 0L || updateLocation) {
                 if (currentPage is CurrentBiblePage) {
-                    jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+                    //jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
+                    jumpToVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
+                    //jumpToVerse = KeyUtil.getVerse(window.pageManager.currentBible.key)
                 } else {
                     jumpToYOffsetRatio = currentPage.currentYOffsetRatio
                 }
@@ -309,77 +322,101 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             contentVisible = false
             loadedChapters.clear()
 
-            val chapter = jumpToChapterVerse?.chapter
+            val chapter = jumpToVerse?.chapter
             if (chapter != null) {
                 loadedChapters.add(chapter)
             }
 
-            val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
+            //val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
 
-            val settingsString = "{jumpToChapterVerse: $jumpId, " +
-                "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
-                "toolBarOffset: $toolbarOffset," +
-                "displaySettings: $displaySettingsJson}"
+            //val settingsString = "{jumpToChapterVerse: $jumpId, " +
+            //    "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
+            //    "toolBarOffset: $toolbarOffset," +
+            //    "displaySettings: $displaySettingsJson}"
 
-            val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
-            Log.d(TAG, "Show $jumpToChapterVerse, $jumpToYOffsetRatio Window:$window, settings: $settingsString, \n actualSettings: $actualSettingsJson")
+            //val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
+            Log.d(TAG, "Show $jumpToVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
-            finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
-            lastestHtml = finalHtml
+            //finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
+            lastestXml = finalHtml
         }
-        if(!updateOngoing) {
-            loadHtml()
+        if(!htmlLoadingOngoing) {
+            replaceOsis()
         } else {
             synchronized(this) {
-                needsUpdate = true
+                needsOsisContent = true
             }
         }
     }
+
+    private var jumpToVerse: Verse? = null
+
+    //@Serializable
+    //data class CurrentSettings(val toolbarOffset: Float) {
+    //    fun toJson(): String {
+    //        return json.encodeToString(serializer(), this)
+    //    }
+    //}
+    //private val currentSettings get() = CurrentSettings(toolbarOffset)
+    private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
     fun updateTextDisplaySettings() {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
-        executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
+        //executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
+        executeJavascriptOnUiThread("bibleView.setConfig(${displaySettings.toJson()});")
+
     }
 
-    private val displaySettingsJson: String get() {
-        val colors = window.pageManager.actualTextDisplaySettings.colors!!
-        val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
-        val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
-        val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
-        val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
-        val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
-        val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
-        val hyphenation = window.pageManager.actualTextDisplaySettings.hyphenation!!
-        val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
-        val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
+//    private val displaySettingsJson: String get() {
+//        val colors = window.pageManager.actualTextDisplaySettings.colors!!
+//        val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
+//        val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
+//        val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
+//        val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
+//        val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
+//        val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
+//        val hyphenation = window.pageManager.actualTextDisplaySettings.hyphenation!!
+//        val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
+//        val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
+//
+//        return "{marginLeft: $marginLeft, " +
+//            "marginRight: $marginRight, " +
+//            "maxWidth: $maxWidth, " +
+//            "textColor: '$textColorStr', " +
+//            "noiseOpacity: $noise, " +
+//            "justifyText: $justifyText, " +
+//            "hyphenation: $hyphenation, " +
+//            "lineSpacing: $lineSpacing" +
+//            "}"
+//    }
 
-        return "{marginLeft: $marginLeft, " +
-            "marginRight: $marginRight, " +
-            "maxWidth: $maxWidth, " +
-            "textColor: '$textColorStr', " +
-            "noiseOpacity: $noise, " +
-            "justifyText: $justifyText, " +
-            "hyphenation: $hyphenation, " +
-            "lineSpacing: $lineSpacing" +
-            "}"
-    }
-
-    private fun loadHtml() {
-        var html = ""
+    private fun replaceOsis() {
+        var xml = ""
         synchronized(this) {
-            html = lastestHtml
-            val containsDocument = html.contains("andbible.initialize")
-            needsUpdate = false
-            if (containsDocument) {
-                updateOngoing = true
-            } else {
-                updateOngoing = false
-                contentVisible = true
-            }
+            xml = lastestXml
+            needsOsisContent = false
+            contentVisible = true
+            //val containsDocument = xml.contains("andbible.initialize")
+            //if (containsDocument) {
+            //    updateOngoing = true
+            //} else {
+            //    updateOngoing = false
+            //    contentVisible = true
+            //}
         }
-        loadDataWithBaseURL("file:///android_asset/window-${window.id}", html, "text/html", "UTF-8", "http://andbible-window-${window.id}")
+        executeJavascriptOnUiThread("""
+            bibleView.setTitle("BibleView-${window.id}");
+            bibleView.setConfig(${displaySettings.toJson()});
+            bibleView.replaceOsis(`$xml`);
+            bibleView.setupContent({
+                jumpToOrdinal: ${jumpToVerse?.ordinal}, 
+                jumpToYOffsetRatio: null,
+                toolBarOffset: $toolbarOffset,
+            });            
+            """.trimIndent()
+        )
     }
 
     /**
@@ -551,12 +588,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible)
-            executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset, {immediate: true});")
+            executeJavascriptOnUiThread("bibleView.setToolbarOffset($toolbarOffset, {immediate: true});")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("setToolbarOffset($toolbarOffset);")
+            executeJavascriptOnUiThread("bibleView.setToolbarOffset($toolbarOffset);")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
@@ -592,7 +629,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("setToolbarOffset($toolbarOffset, {doNotScroll: true});")
+            executeJavascript("bibleView.setToolbarOffset($toolbarOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 executeJavascript("registerVersePositions()")
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentChapterVerse, true)
@@ -733,7 +770,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {
-        runOnUiThread { executeJavascript(javascript) }
+        runOnUiThread { executeJavascript2(javascript) }
     }
 
     private fun runOnUiThread(runnable: () -> Unit) {
@@ -744,9 +781,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    private fun executeJavascript2(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
+        Log.d(TAG, "Executing JS: $javascript")
+        evaluateJavascript("$javascript;", callBack)
+    }
+
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
         Log.d(TAG, "Executing JS: $javascript")
-        evaluateJavascript("andbible.$javascript;", callBack)
+        //evaluateJavascript("andbible.$javascript;", callBack)
     }
 
     fun insertTextAtTop(chapter: Int, textId: String, text: String) {
@@ -761,18 +803,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun setContentReady() {
         synchronized(this) {
-            if(needsUpdate) {
+            if(needsOsisContent) {
                 runOnUiThread {
-                    loadHtml()
+                    replaceOsis()
                 }
             } else {
-                updateOngoing = false
+                htmlLoadingOngoing = false
                 contentVisible = true
             }
         }
     }
 
     fun hasChapterLoaded(chapter: Int) = loadedChapters.contains(chapter)
+
+    fun setClientReady() {
+        htmlLoadingOngoing = false;
+        replaceOsis()
+    }
 
     var onDestroy: (() -> Unit)? = null
 

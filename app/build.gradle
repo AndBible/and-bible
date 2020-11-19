@@ -69,7 +69,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
 
 task buildLoaderJs(type: Sync, dependsOn: webpack) {
     from("$jsDir/dist")
-    into("src/main/assets/web/bibleview-js")
+    into("src/main/assets/bibleview-js")
 }
 
 preBuild.dependsOn buildLoaderJs

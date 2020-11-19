@@ -18,19 +18,19 @@
 <template>
   <span ref="contentTag">
     <template v-if="config.showStrongsSeparately">
-      <template v-if="(config.showStrongs && lemma) && (config.showMorph && morph)">
+      <template v-if="(config.showStrongs && lemma) && (config.showMorphology && morph)">
         <slot/> <a class="strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
       </template>
-      <template v-else-if="(config.showStrongs && lemma) && (!config.showMorph || !morph)">
+      <template v-else-if="(config.showStrongs && lemma) && (!config.showMorphology || !morph)">
         <slot/> <a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
       </template>
-      <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorph && morph)">
+      <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorphology && morph)">
         <slot/> <a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
       </template>
       <template v-else><slot/></template>
     </template>
     <template v-else>
-      <span v-if="(config.showStrongs && lemma) || (config.showMorph && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
+      <span v-if="(config.showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
       <span v-else ref="contentTag"><slot/></span>
     </template>
   </span>
@@ -64,10 +64,10 @@ export default {
     function formatLink(first, second) {
       const linkBodies = [];
       if(first) {
-        linkBodies.push(prep(first).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "=")).join("&"))
+        linkBodies.push(prep(first).map(s => s.trim().replace(/ /g, "_").replace(/:/g, "=")).join("&"))
       }
       if(second) {
-        linkBodies.push(prep(second).map(s => s.trim().replaceAll(" ", "_").replaceAll(":", "=")).join("&"))
+        linkBodies.push(prep(second).map(s => s.trim().replace(/ /g, "_").replaceAll(/:/g, "=")).join("&"))
       }
       // Link format:
       // andbible://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.

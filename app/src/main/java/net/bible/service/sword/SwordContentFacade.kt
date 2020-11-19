@@ -37,7 +37,7 @@ import net.bible.service.css.CssControl
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.font.FontControl
-import net.bible.service.format.HtmlMessageFormatter.Companion.format
+import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.format.OSISInputStream
 import net.bible.service.format.SaxParserPool
@@ -91,7 +91,7 @@ open class SwordContentFacade @Inject constructor(
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class)
-    fun readHtmlText(book: Book?, key: Key?, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
+    fun readOsisFragment(book: Book?, key: Key?,): String {
         var retVal = ""
         if (book == null || key == null) {
             retVal = ""
@@ -106,18 +106,18 @@ open class SwordContentFacade @Inject constructor(
 			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
 			// try to parse using optimised method first if a suitable document and it has not failed previously
             var isParsedOk = false
-            if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
-                documentParseMethod.isFastParseOkay(book, key) && false) {
-                try {
-                    retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
-                    isParsedOk = true
-                } catch (pe: ParseException) {
-                    documentParseMethod.failedToParse(book, key)
-                }
-            }
+            //if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
+            //    documentParseMethod.isFastParseOkay(book, key) && false) {
+            //    try {
+            //        retVal = readXmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
+            //        isParsedOk = true
+            //    } catch (pe: ParseException) {
+            //        documentParseMethod.failedToParse(book, key)
+            //    }
+            //}
             // fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
             if (!isParsedOk) {
-                retVal = readHtmlTextStandardJSwordMethod(book, key, asFragment, textDisplaySettings)
+                retVal = readXmlTextStandardJSwordMethod(book, key)
             }
         }
         return retVal
@@ -145,51 +145,13 @@ open class SwordContentFacade @Inject constructor(
         }
     }
 
-    /**
-     * Use OSISInputStream which loads a single verse at a time as required.
-     * This reduces memory requirements compared to standard JDom SaxEventProvider
-     */
     @Throws(ParseException::class)
-    internal fun readHtmlTextOptimizedZTextOsis(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
-        log.debug("Using fast method to fetch document data")
-        /*
-		  When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader;
-		  then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step,
-		  reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
-		 */
-        val inputStream: InputStream = OSISInputStream(book, key)
-        val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
-        var parser: SAXParser? = null
-        try {
-            parser = saxParserPool.obtain()
-            parser.parse(inputStream, osisToHtml)
-        } catch (e: Exception) {
-            log.error("Parsing error", e)
-            throw ParseException("Parsing error", e)
-        } finally {
-            saxParserPool.recycle(parser)
-        }
-        return osisToHtml.toString()
-    }
-
-    @Throws(ParseException::class)
-    private fun readHtmlTextStandardJSwordMethod(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): String {
+    private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): String {
         log.debug("Using standard JSword to fetch document data")
-        val retVal: String
         return try {
             val data = BookData(book, key)
             val outputter = XMLOutputter(Format.getRawFormat())
-            val xmlString = outputter.outputString(data.osisFragment)
-            val osissep = data.saxEventProvider
-            retVal = if (osissep == null) {
-                Log.e(TAG, "No osis SEP returned")
-                "Error fetching osis SEP"
-            } else {
-                val osisToHtml = getSaxHandler(book, key, asFragment, textDisplaySettings)
-                osissep.provideSAXEvents(osisToHtml)
-                osisToHtml.toString()
-            }
-            retVal
+            outputter.outputString(data.osisFragment)
         } catch (e: Exception) {
             log.error("Parsing error", e)
             throw ParseException("Parsing error", e)

@@ -95,9 +95,22 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun scrolledToVerse(verseOrdinal: Int) {
+        if (currentPageManager.isBibleShown) {
+            currentPageManager.currentBible.currentVerseOrdinal = verseOrdinal
+        }
+    }
+
+    @JavascriptInterface
     fun setContentReady() {
         Log.d(TAG, "set content ready")
         bibleView.setContentReady()
+    }
+
+    @JavascriptInterface
+    fun setClientReady() {
+        Log.d(TAG, "set client ready")
+        bibleView.setClientReady()
     }
 
     @JavascriptInterface

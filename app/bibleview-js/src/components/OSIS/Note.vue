@@ -15,9 +15,9 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <template v-if="(config.showCrossReferences && isCrossReference) || (config.showFootnotes && isFootNote)">
+  <template v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)">
     <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
-    <Modal @close="showNote = false" v-show="showNote">
+    <Modal @close="showNote = false" v-if="showNote">
       <slot/>
       <template #title>
         <template v-if="isFootNote">
