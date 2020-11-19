@@ -32,7 +32,6 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -44,7 +43,6 @@ import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import java.lang.IllegalArgumentException

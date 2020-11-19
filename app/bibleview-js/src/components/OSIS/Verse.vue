@@ -41,8 +41,7 @@ export default {
     const shown = ref(true);
     verseInfo.ordinal = parseInt(props.verseOrdinal);
     verseInfo.showStack = reactive([shown]);
-    const bookmarks = inject("bookmarks");
-    const bookmarkLabels = inject("bookmarkLabels");
+    const {bookmarks, bookmarkLabels} = inject("bookmarks");
     provide("verseInfo", verseInfo);
     const common = useCommon();
 
@@ -50,7 +49,7 @@ export default {
   },
   computed: {
     bookmarks: ({globalBookmarks, ordinal}) =>
-        globalBookmarks.bookmarks.filter(({range}) => (range[0] <= ordinal) && (ordinal <= range[1])),
+        Array.from(globalBookmarks.values()).filter(({range}) => (range[0] <= ordinal) && (ordinal <= range[1])),
     bookmarkLabels({bookmarks, globalBookmarkLabels}) {
       const labels = new Set();
       for(const b of bookmarks) {
@@ -58,7 +57,7 @@ export default {
           labels.add(l);
         }
       }
-      return Array.from(labels).map(l => globalBookmarkLabels.labels.get(l)).filter(v => v);
+      return Array.from(labels).map(l => globalBookmarkLabels.get(l)).filter(v => v);
     },
     bookmarkStyle({bookmarkLabels}) {
       let colors = [];

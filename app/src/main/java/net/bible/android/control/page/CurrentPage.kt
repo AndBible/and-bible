@@ -19,8 +19,6 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.view.Menu
-import net.bible.service.common.ParseException
-import net.bible.service.format.Note
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key

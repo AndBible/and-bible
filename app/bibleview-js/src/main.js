@@ -19,6 +19,7 @@ import { createApp } from 'vue'
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 window.bibleView = {};
+window.bibleViewDebug = {};
 
 import BibleView from "@/components/BibleView";
 const app = createApp(BibleView);

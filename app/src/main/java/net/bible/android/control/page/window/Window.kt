@@ -164,14 +164,12 @@ open class Window (
         if(!isVisible) return
 
         Log.d(TAG, "Loading html in background")
-        var chapterVerse: ChapterVerse? = null
         var verse: Verse? = null
         var yOffsetRatio: Float? = null
         val currentPage = pageManager.currentPage
 
         if(currentPage is CurrentBiblePage) {
-            chapterVerse = currentPage.currentChapterVerse
-            verse = KeyUtil.getVerse(currentPage.key)
+            verse = currentPage.currentBibleVerse.verse
         } else {
             yOffsetRatio = currentPage.currentYOffsetRatio
         }
@@ -182,14 +180,15 @@ open class Window (
             }
 
             val xml = fetchOsis()
+            val bookmarks = pageManager.currentBible.bookmarksForChapter
 
             withContext(Dispatchers.Main) {
                 lastUpdated = System.currentTimeMillis()
 
                 if(notifyLocationChange) {
-                    bibleView?.show(xml, updateLocation = true)
+                    bibleView?.show(xml, bookmarks, updateLocation = true)
                 } else {
-                    bibleView?.show(xml, verse = verse, yOffsetRatio = yOffsetRatio)
+                    bibleView?.show(xml, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
                 }
             }
 

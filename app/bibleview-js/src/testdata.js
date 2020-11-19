@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU General Public License along with And Bible.
  * If not, see http://www.gnu.org/licenses/.
  */
-export let testData
+
+export let testData, testBookmarks, testBookmarkLabels;
+
 if(process.env.NODE_ENV === "development") {
     testData = [
 // Test 1
@@ -64,4 +66,42 @@ if(process.env.NODE_ENV === "development") {
     testData.splice(0, testData.length - 3);
     testData = testData.map(v => ({key: count++, content: v}));
     window.testData = testData;
+
+    testBookmarks = [
+        {
+            id: 0,
+            range: [30839, 30842],
+            labels: [1, 2]
+        },
+        {
+            id: 1,
+            range: [30842, 30842],
+            labels: [3]
+        },
+        {
+            id: 2,
+            range: [30842, 30846],
+            labels: [3]
+        }
+    ];
+    testBookmarkLabels = [
+        {
+            id: 1,
+            style: {
+                color: [255, 0, 0]
+            }
+        },
+        {
+            id: 2,
+            style: {
+                color: [0, 255, 0],
+            }
+        },
+        {
+            id: 3,
+            style: {
+                color: [0, 0, 255],
+            }
+        },
+    ]
 }

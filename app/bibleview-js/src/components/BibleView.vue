@@ -33,11 +33,11 @@
 </template>
 <script>
   import OsisFragment from "@/components/OsisFragment";
-  import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+  import {provide, reactive, watch} from "@vue/runtime-core";
   import highlightRange from "dom-highlight-range";
-  import {useAndroid, useBookmarkLabels, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
-  import {testData} from "@/testdata";
-  import {computed, ref} from "@vue/reactivity";
+  import {useAndroid, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
+  import {testBookmarkLabels, testBookmarks, testData} from "@/testdata";
+  import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
 
   function findElemWithOsisID(elem) {
@@ -57,23 +57,30 @@
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
-      const bookmarks = useBookmarks();
-      const bookmarkLabels = useBookmarkLabels();
       const android = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
       useInfiniteScroll(config, android, osisFragments);
       useVerseNotifier(config, android, topElement);
+      const bookmarks = useBookmarks();
 
-      window.bibleView.osisFragments = osisFragments;
+      watch(() => osisFragments, () => {
+        for(const frag of osisFragments) {
+            bookmarks.updateBookmarks(frag.bookmarks);
+        }
+      });
+
+      window.bibleViewDebug.osisFragments = osisFragments;
 
       function replaceOsis(...s) {
-        console.log("replaceOsis");
-        osisFragments.splice(0);
-        osisFragments.push(...s);
+        console.log("replaceOsis")
+        osisFragments.splice(0)
+        osisFragments.push(...s)
       }
 
       if(process.env.NODE_ENV === "development") {
+        bookmarks.updateBookmarkLabels(testBookmarkLabels)
+        bookmarks.updateBookmarks(testBookmarks)
         replaceOsis(...testData)
       }
 
@@ -83,8 +90,6 @@
       }
 
       provide("bookmarks", bookmarks);
-
-      provide("bookmarkLabels", bookmarkLabels);
       provide("config", config);
       provide("strings", strings);
       provide("android", android);

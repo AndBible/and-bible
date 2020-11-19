@@ -32,9 +32,11 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
-import kotlinx.android.synthetic.main.main_bible_view.view.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -50,6 +52,9 @@ import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.toV11n
+import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
@@ -59,7 +64,6 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.apache.commons.lang3.StringEscapeUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -82,7 +86,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val bibleKeyHandler: BibleKeyHandler,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
-                private val linkControl: LinkControl) :
+                private val linkControl: LinkControl,
+                private val bookmarkControl: BookmarkControl
+) :
         WebView(mainBibleActivity.applicationContext),
         DocumentView,
         VerseActionModeMediator.VerseHighlightControl
@@ -279,29 +285,31 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     var lastUpdated = 0L
+    var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
+    var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
 
-    fun show(html: String,
+    fun show(xml: String,
+             bookmarks: List<BookmarkEntities.Bookmark>,
              updateLocation: Boolean = false,
              verse: Verse? = null,
              yOffsetRatio: Float? = null)
     {
         synchronized(this) {
-            var finalHtml = html
             // set background colour if necessary
-
             updateBackgroundColor()
 
             // call this from here because some documents may require an adjusted font size e.g. those using Greek font
             applyFontSize()
 
-            val startPaddingHeight = (
-                mainBibleActivity.topOffset2
-                    / mainBibleActivity.resources.displayMetrics.density
-                    // Add some extra extra so that infinite scrolling can activate
-                    + 20)
-            finalHtml = finalHtml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
+            //val startPaddingHeight = (
+            //    mainBibleActivity.topOffset2
+            //        / mainBibleActivity.resources.displayMetrics.density
+            //        // Add some extra extra so that infinite scrolling can activate
+            //        + 20)
+            //finalXml = finalXml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
             val currentPage = window.pageManager.currentPage
+            bookmarkLabels = bookmarkControl.allLabels
 
             //var jumpToChapterVerse = chapterVerse
             initialVerse = verse
@@ -343,7 +351,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
             //finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
-            lastestXml = finalHtml
+            latestBookmarks = bookmarks
+            lastestXml = xml
         }
         if(!htmlLoadingOngoing) {
             replaceOsis()
@@ -407,6 +416,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 //            "}"
 //    }
 
+
+    @Serializable
+    data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
+
+    @Serializable
+    data class ClientBookmarkLabel(val id: Long, val style: List<Int>?)
+
+
     private fun replaceOsis() {
         var xml = ""
         synchronized(this) {
@@ -424,10 +441,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             //    contentVisible = true
             //}
         }
+        
+        val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
+            ClientBookmarkLabel(it.id, it.bookmarkStyle?.colorArray)
+        })
+        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
+            val labels = bookmarkControl.labelsForBookmark(it)
+            ClientBookmark(it.id, arrayListOf(), labels.map { it.id } )
+        })
+
         executeJavascriptOnUiThread("""
             bibleView.setTitle("BibleView-${window.id}");
             bibleView.setConfig(${displaySettings.toJson()});
-            bibleView.replaceOsis({key: ${initialVerse?.chapter},content: `$xml`});
+            bibleView.replaceOsis({
+                key: ${initialVerse?.chapter},
+                content: `$xml`,
+                bookmarks: $bookmarks,
+                bookmarkLabels: $bookmarkLabels,
+            });
             bibleView.setupContent({
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,

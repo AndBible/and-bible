@@ -147,50 +147,23 @@ export function useStrings() {
 }
 
 export function useBookmarks() {
-    const bookmarks = reactive([
-            {
-                range: [30839, 30842],
-                labels: [1, 2]
-            },
-            {
-                range: [30842, 30842],
-                labels: [3]
-            },
-            {
-                range: [30842, 30846],
-                labels: [3]
-            }
-    ]);
-    return {bookmarks}
-}
+    const bookmarkLabels = reactive(new Map());
+    const bookmarks = reactive(new Map());
 
-export function useBookmarkLabels() {
-    const inputData = [
-        {
-            id: 1,
-            style: {
-                color: [255, 0, 0]
-            }
-        },
-        {
-            id: 2,
-            style: {
-                color: [0, 255, 0],
-            }
-        },
-        {
-            id: 3,
-            style: {
-                color: [0, 0, 255],
-            }
-        },
-    ];
-    const data = new Map();
-    for(const v of inputData) {
-        data.set(v.id, v.style);
+    function updateBookmarkLabels(inputData) {
+        for(const v of inputData) {
+            bookmarkLabels.set(v.id, v.style)
+        }
     }
-    const labels = reactive(data);
-    return {labels}
+
+    function updateBookmarks(inputData) {
+        for(const v of inputData) {
+            bookmarks.set(v.id, v)
+        }
+    }
+    window.bibleViewDebug.bookmarks = bookmarks;
+    window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
+    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
 }
 
 export function useCommon() {

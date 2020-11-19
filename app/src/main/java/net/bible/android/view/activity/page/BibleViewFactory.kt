@@ -46,7 +46,7 @@ class BibleViewFactory @Inject constructor(
     private val bibleKeyHandler: BibleKeyHandler,
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
-    private val myNoteControl: MyNoteControl
+    private val myNoteControl: MyNoteControl,
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
@@ -62,7 +62,7 @@ class BibleViewFactory @Inject constructor(
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
-                pageControl, pageTiltScrollControl, linkControl)
+                pageControl, pageTiltScrollControl, linkControl, bookmarkControl)
             val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl,
                 VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
             val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView)
