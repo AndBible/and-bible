@@ -52,7 +52,7 @@ export function useVerseNotifier(config, android, topElement) {
 
     onMounted(() => window.addEventListener('scroll', onScroll));
     onUnmounted(() => window.removeEventListener('scroll', onScroll));
-
+    return {currentVerse}
 }
 
 export function useConfig() {

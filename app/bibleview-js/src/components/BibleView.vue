@@ -19,9 +19,11 @@
   <div :style="`height:${config.toolbarOffset}px`"/>
   <div id="notes"/>
   <div v-if="config.developmentMode"
-      :style="`position: fixed; top:0; width:100%;  background-color: rgba(0, 255, 0, 0.2);
+      :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
                height:${config.toolbarOffset}px`"
-  />
+  >
+     Current verse: {{currentVerse}}
+  </div>
   <div v-if="config.developmentMode" class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <OsisFragment
@@ -61,7 +63,7 @@
       const osisFragments = reactive([]);
       const topElement = ref(null);
       useInfiniteScroll(config, android, osisFragments);
-      useVerseNotifier(config, android, topElement);
+      const {currentVerse} = useVerseNotifier(config, android, topElement);
       const bookmarks = useBookmarks();
 
       watch(() => osisFragments, () => {
@@ -95,7 +97,7 @@
       provide("strings", strings);
       provide("android", android);
       console.log("android", android);
-      return {config, strings, osisFragments, topElement};
+      return {config, strings, osisFragments, topElement, currentVerse};
     },
     computed: {
       styleConfig({config}) {
