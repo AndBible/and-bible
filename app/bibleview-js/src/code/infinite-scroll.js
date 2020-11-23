@@ -21,8 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {onMounted, onUnmounted} from "@vue/runtime-core";
-import {nextTick} from "@/code/utils";
+import {nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
 
 export function useInfiniteScroll(config, android, osisFragments) {
     let

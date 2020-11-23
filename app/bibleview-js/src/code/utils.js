@@ -70,26 +70,7 @@ export class Deferred {
     }
 }
 
-let waiters = [];
-
-export function addWaiter(deferred) {
-    waiters.push(deferred);
-}
-
-export async function waitForWaiters() {
-    await Promise.all(waiters.map(w => w.promise));
-    waiters = waiters.filter(w => !w.isReady);
-}
-
-export async function whenReady(fnc){
-    await waitForWaiters();
-    fnc();
-}
-
 export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function nextTick() {
-    await new Promise(resolve => setTimeout(resolve));
-}
