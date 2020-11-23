@@ -5,14 +5,13 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build-old": "vue-cli-service build",
-    "build": "vue-cli-service build --target app --formats umd-min --inline-vue",
+    "build": "vue-cli-service build --target app --inline-vue",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "dom-highlight-range": "~3.0.1",
     "sprintf-js": "~1.1.2",
-    "jquery": "~3.5.0",
     "core-js": "~3.6.5",
     "vue": "~3.0.0"
   },
@@ -45,6 +44,6 @@
     "rules": {}
   },
   "browserslist": [
-    "Android >= 5"
+    "last 2 Android version"
   ]
 }
