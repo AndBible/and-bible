@@ -20,6 +20,8 @@ import {sprintf} from "sprintf-js";
 import {getVerseInfo} from "@/utils";
 import {scrollFunctions} from "@/code/scroll";
 import {computed} from "@vue/reactivity";
+import {throttle} from "lodash";
+
 let developmentMode = false;
 
 if(process.env.NODE_ENV === "development") {
@@ -32,7 +34,7 @@ export function useVerseNotifier(config, android, topElement) {
 
     const lineHeight = computed(() => parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height')));
 
-    function onScroll() {
+    const onScroll = throttle(() => {
         const y = config.toolbarOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
@@ -48,7 +50,7 @@ export function useVerseNotifier(config, android, topElement) {
                 }
             }
         }
-    }
+    }, 50);
 
     onMounted(() => window.addEventListener('scroll', onScroll));
     onUnmounted(() => window.removeEventListener('scroll', onScroll));
