@@ -52,7 +52,6 @@ import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.toV11n
-import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
@@ -126,7 +125,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var lastestXml: String = ""
+    private var latestXml: String = ""
     private var needsOsisContent: Boolean = false
     private var htmlLoadingOngoing: Boolean = false
         set(value) {
@@ -296,64 +295,38 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
              yOffsetRatio: Float? = null)
     {
         synchronized(this) {
-            // set background colour if necessary
             updateBackgroundColor()
 
-            // call this from here because some documents may require an adjusted font size e.g. those using Greek font
             applyFontSize()
-
-            //val startPaddingHeight = (
-            //    mainBibleActivity.topOffset2
-            //        / mainBibleActivity.resources.displayMetrics.density
-            //        // Add some extra extra so that infinite scrolling can activate
-            //        + 20)
-            //finalXml = finalXml.replace("<div id='start'>", "<div id='start' style='height:${startPaddingHeight}px'>")
 
             val currentPage = window.pageManager.currentPage
             bookmarkLabels = bookmarkControl.allLabels
-
-            //var jumpToChapterVerse = chapterVerse
             initialVerse = verse
+
             var jumpToYOffsetRatio = yOffsetRatio
 
             if (lastUpdated == 0L || updateLocation) {
                 if (currentPage is CurrentBiblePage) {
-                    //jumpToChapterVerse = window.pageManager.currentBible.currentChapterVerse
                     initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
-                    //jumpToVerse = KeyUtil.getVerse(window.pageManager.currentBible.key)
                 } else {
                     jumpToYOffsetRatio = currentPage.currentYOffsetRatio
                 }
             }
 
-            // either enable verse selection or the default text selection
             enableSelection()
-
-            // allow zooming if map
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
 
             contentVisible = false
-            //loadedChapters.clear()
 
             val chapter = initialVerse?.chapter
             if (chapter != null) {
                 addChapter(chapter)
-                //loadedChapters.add(chapter)
             }
 
-            //val jumpId = jumpToChapterVerse?.let { "'${getIdToJumpTo(it)}'" }
-
-            //val settingsString = "{jumpToChapterVerse: $jumpId, " +
-            //    "jumpToYOffsetRatio: $jumpToYOffsetRatio, " +
-            //    "toolBarOffset: $toolbarOffset," +
-            //    "displaySettings: $displaySettingsJson}"
-
-            //val actualSettingsJson = window.pageManager.actualTextDisplaySettings.toJson()
             Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
-            //finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             latestBookmarks = bookmarks
-            lastestXml = StringEscapeUtils.escapeEcmaScript(xml)
+            latestXml = StringEscapeUtils.escapeEcmaScript(xml)
         }
         if(!htmlLoadingOngoing) {
             replaceOsis()
@@ -399,7 +372,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun replaceOsis() {
         var xml = ""
         synchronized(this) {
-            xml = lastestXml
+            xml = latestXml
             needsOsisContent = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
@@ -792,15 +765,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    //private fun executeJavascript2(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
-    //    Log.d(TAG, "Executing JS: $javascript")
-    //    evaluateJavascript("$javascript;", callBack)
-    //}
-
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
         Log.d(TAG, "Executing JS: $javascript")
         evaluateJavascript("$javascript;", callBack)
-        //evaluateJavascript("andbible.$javascript;", callBack)
     }
 
     fun insertTextAtTop(chapter: Int, osisFragment: String) {
