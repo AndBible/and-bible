@@ -64,6 +64,7 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import org.apache.commons.lang3.StringEscapeUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -352,7 +353,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             //finalHtml = finalHtml.replace("INITIALIZE_SETTINGS", settingsString)
             latestBookmarks = bookmarks
-            lastestXml = xml
+            lastestXml = StringEscapeUtils.escapeEcmaScript(xml)
         }
         if(!htmlLoadingOngoing) {
             replaceOsis()
@@ -399,7 +400,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var xml = ""
         synchronized(this) {
             xml = lastestXml
-            //StringEscapeUtils.escapeEcmaScript(xml)
             needsOsisContent = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
@@ -421,7 +421,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.setConfig(${displaySettings.toJson()});
             bibleView.replaceOsis({
                 key: ${initialVerse?.chapter},
-                content: `$xml`,
+                content: '$xml',
                 bookmarks: $bookmarks,
                 bookmarkLabels: $bookmarkLabels,
             });
@@ -805,12 +805,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun insertTextAtTop(chapter: Int, osisFragment: String) {
         addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop({key: $chapter, content: `$osisFragment`});")
+        val fragment = StringEscapeUtils.escapeEcmaScript(osisFragment)
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop({key: $chapter, content: '$fragment'});")
     }
 
     fun insertTextAtEnd(chapter: Int, osisFragment: String) {
         addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd({key: $chapter, content: `$osisFragment`});")
+        val fragment = StringEscapeUtils.escapeEcmaScript(osisFragment)
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd({key: $chapter, content: '$fragment'});")
     }
 
     fun setContentReady() {
