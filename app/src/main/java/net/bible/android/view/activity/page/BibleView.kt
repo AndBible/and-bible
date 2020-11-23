@@ -374,48 +374,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private var initialVerse: Verse? = null
-
-    //@Serializable
-    //data class CurrentSettings(val toolbarOffset: Float) {
-    //    fun toJson(): String {
-    //        return json.encodeToString(serializer(), this)
-    //    }
-    //}
-    //private val currentSettings get() = CurrentSettings(toolbarOffset)
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
     fun updateTextDisplaySettings() {
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
-        //executeJavascriptOnUiThread("setDisplaySettings($displaySettingsJson);")
         executeJavascriptOnUiThread("bibleView.setConfig(${displaySettings.toJson()});")
 
     }
-
-//    private val displaySettingsJson: String get() {
-//        val colors = window.pageManager.actualTextDisplaySettings.colors!!
-//        val textColor = (if(ScreenSettings.nightMode) colors.nightTextColor else colors.dayTextColor) ?: UiUtils.bibleViewDefaultTextColour
-//        val noise = if(ScreenSettings.nightMode) colors.nightNoise else colors.dayNoise
-//        val marginLeft = window.pageManager.actualTextDisplaySettings.marginSize!!.marginLeft
-//        val marginRight = window.pageManager.actualTextDisplaySettings.marginSize!!.marginRight
-//        val maxWidth = window.pageManager.actualTextDisplaySettings.marginSize!!.maxWidth
-//        val justifyText = window.pageManager.actualTextDisplaySettings.justifyText!!
-//        val hyphenation = window.pageManager.actualTextDisplaySettings.hyphenation!!
-//        val lineSpacing = window.pageManager.actualTextDisplaySettings.lineSpacing!!
-//        val textColorStr = String.format("#%06X", 0xFFFFFF and textColor)
-//
-//        return "{marginLeft: $marginLeft, " +
-//            "marginRight: $marginRight, " +
-//            "maxWidth: $maxWidth, " +
-//            "textColor: '$textColorStr', " +
-//            "noiseOpacity: $noise, " +
-//            "justifyText: $justifyText, " +
-//            "hyphenation: $hyphenation, " +
-//            "lineSpacing: $lineSpacing" +
-//            "}"
-//    }
-
 
     @Serializable
     data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
@@ -437,13 +404,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
             maxChapter = initialVerse?.chapter ?: -1
-            //val containsDocument = xml.contains("andbible.initialize")
-            //if (containsDocument) {
-            //    updateOngoing = true
-            //} else {
-            //    updateOngoing = false
-            //    contentVisible = true
-            //}
         }
 
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {

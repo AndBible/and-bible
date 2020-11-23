@@ -24,6 +24,8 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+// TODO: Remove
 class VerseCalculator {
     private var verseByOffset: SortedMap<Int, ChapterVerse> = TreeMap()
 
