@@ -89,7 +89,7 @@
 
       window.bibleView.replaceOsis = replaceOsis;
       window.bibleView.setTitle = (title) => {
-        document.title = title;
+        document.title = `${title} (${process.env.NODE_ENV})`;
       }
 
       provide("bookmarks", bookmarks);

@@ -58,12 +58,20 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.dir "$jsDir/public"
     outputs.dir "$jsDir/dist"
 
+    // TODO!!! Get build type somehow here.
+    def buildType = "debug"
+    def buildCmd
+    if(buildType == "release") {
+        buildCmd = "build-production"
+    } else {
+        buildCmd = "build-debug"
+    }
     workingDir jsDir
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", "build"
+        commandLine "$rootDir/app/$jsDir/node_modules/.bin/npm.cmd", "run", buildCmd
     }
     else {
-        commandLine "node_modules/.bin/npm", "run", "build"
+        commandLine "node_modules/.bin/npm", "run", buildCmd
     }
 }
 

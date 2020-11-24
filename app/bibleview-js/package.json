@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build-old": "vue-cli-service build",
-    "build": "vue-cli-service build --target app --inline-vue",
+    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue",
+    "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "lint": "vue-cli-service lint"
   },
@@ -22,6 +23,7 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "~3.0.2",
     "babel-eslint": "~10.1.0",
+    "cross-env": "~7.0.2",
     "eslint": "~6.7.2",
     "eslint-plugin-vue": "~7.1.0-0",
     "npm": "^6.14.9",
