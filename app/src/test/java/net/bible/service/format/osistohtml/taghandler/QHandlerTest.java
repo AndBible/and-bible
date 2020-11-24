@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.TextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
 import org.crosswire.jsword.book.OSISUtil;
@@ -14,14 +14,14 @@ import static org.junit.Assert.assertThat;
 public class QHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
-	private HtmlTextWriter writer;
+	private TextWriter writer;
 	
 	private QHandler qHandler;
 
 	@Before
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
-		writer = new HtmlTextWriter();
+		writer = new TextWriter();
 		
 		qHandler = new QHandler(osisToHtmlParameters, writer);
 	}

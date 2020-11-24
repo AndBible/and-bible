@@ -18,14 +18,13 @@
 package net.bible.service.format.osistohtml
 
 import net.bible.service.common.Logger
-import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
 
 /**
  * Write characters out to a StringBuilder - used while creating html for display
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class HtmlTextWriter {
+class TextWriter {
     private val writer: StringBuilder = StringBuilder()
     private var dontWriteRequestCount = 0
     private var writeTempStoreRequestCount = 0
@@ -46,19 +45,6 @@ class HtmlTextWriter {
             tempStore.append(htmlText)
         }
         return true
-    }
-
-    /** allow line breaks and titles to be moved before verse number
-     */
-    fun writeOptionallyBeforeVerse(s: String?, verseInfo: VerseInfo) {
-        val writeBeforeVerse = !verseInfo.isTextSinceVerse
-        if (writeBeforeVerse) {
-            beginInsertAt(verseInfo.positionToInsertBeforeVerse)
-        }
-        write(s)
-        if (writeBeforeVerse) {
-            finishInserting()
-        }
     }
 
     /** allow pre-verse headings

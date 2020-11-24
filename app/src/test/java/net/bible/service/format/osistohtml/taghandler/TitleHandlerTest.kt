@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
 import org.crosswire.jsword.book.OSISUtil
@@ -14,7 +14,7 @@ import org.xml.sax.helpers.AttributesImpl
 class TitleHandlerTest {
     private var osisToHtmlParameters: OsisToHtmlParameters? = null
     private var verseInfo: VerseInfo? = null
-    private var htmlTextWriter: HtmlTextWriter? = null
+    private var textWriter: TextWriter? = null
     private var titleHandler: TitleHandler? = null
 
     @Before
@@ -22,8 +22,8 @@ class TitleHandlerTest {
     fun setUp() {
         osisToHtmlParameters = OsisToHtmlParameters()
         verseInfo = VerseInfo()
-        htmlTextWriter = HtmlTextWriter()
-        titleHandler = TitleHandler(osisToHtmlParameters!!, verseInfo!!, htmlTextWriter!!)
+        textWriter = TextWriter()
+        titleHandler = TitleHandler(osisToHtmlParameters!!, verseInfo!!, textWriter!!)
     }
 
     /**
@@ -35,9 +35,9 @@ class TitleHandlerTest {
     fun testSimpleTitle() {
         val attr: Attributes = AttributesImpl()
         titleHandler!!.start(attr)
-        htmlTextWriter!!.write("The Creation")
+        textWriter!!.write("The Creation")
         titleHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("<h1 class='heading1'>The Creation</h1>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("<h1 class='heading1'>The Creation</h1>"))
     }
 
     /**
@@ -53,18 +53,18 @@ class TitleHandlerTest {
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "preverse")
 
         // verse comes first
-        htmlTextWriter!!.write("v1")
+        textWriter!!.write("v1")
         verseInfo!!.currentVerseNo = 1
         verseInfo!!.positionToInsertBeforeVerse = 0
         verseInfo!!.isTextSinceVerse = false
 
         // then the title which needs to be moved pre-verse
         titleHandler!!.start(attrs)
-        htmlTextWriter!!.write("Title")
+        textWriter!!.write("Title")
         titleHandler!!.end()
 
         // then some verse content which stays after the verse
-        htmlTextWriter!!.write("Verse content")
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("<h1 class='heading1'>Title</h1>v1Verse content"))
+        textWriter!!.write("Verse content")
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("<h1 class='heading1'>Title</h1>v1Verse content"))
     }
 }

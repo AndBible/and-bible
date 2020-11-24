@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.TextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
@@ -38,7 +38,7 @@ public class ReferenceHandlerTest {
 	
 	private NoteHandler noteHandler;
 	
-	private HtmlTextWriter writer;
+	private TextWriter writer;
 	
 	private ReferenceHandler referenceHandler;
 	
@@ -46,7 +46,7 @@ public class ReferenceHandlerTest {
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		verseInfo = new VerseInfo();
-		writer = new HtmlTextWriter();
+		writer = new TextWriter();
 
 		noteHandler = new NoteHandler(osisToHtmlParameters, verseInfo, writer);
 		

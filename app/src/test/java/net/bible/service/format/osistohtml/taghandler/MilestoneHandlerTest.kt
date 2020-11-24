@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import net.bible.service.format.osistohtml.OSISUtil2
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.PassageInfo
@@ -23,7 +23,7 @@ class MilestoneHandlerTest {
     private var osisToHtmlParameters: OsisToHtmlParameters? = null
     private var passageInfo: PassageInfo? = null
     private var verseInfo: VerseInfo? = null
-    private var writer: HtmlTextWriter? = null
+    private var writer: TextWriter? = null
     private var milestoneHandler: MilestoneHandler? = null
 
     @Before
@@ -32,7 +32,7 @@ class MilestoneHandlerTest {
         osisToHtmlParameters = OsisToHtmlParameters()
         passageInfo = PassageInfo()
         verseInfo = VerseInfo()
-        writer = HtmlTextWriter()
+        writer = TextWriter()
         milestoneHandler = MilestoneHandler(osisToHtmlParameters!!, passageInfo!!, verseInfo!!, writer!!)
     }
 

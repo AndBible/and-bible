@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.PassageInfo
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
@@ -15,7 +15,7 @@ class DivHandlerTest {
     private var osisToHtmlParameters: OsisToHtmlParameters? = null
     private var passageInfo: PassageInfo? = null
     private var verseInfo: VerseInfo? = null
-    private var htmlTextWriter: HtmlTextWriter? = null
+    private var textWriter: TextWriter? = null
     private var divHandler: DivHandler? = null
 
     @Before
@@ -24,8 +24,8 @@ class DivHandlerTest {
         osisToHtmlParameters = OsisToHtmlParameters()
         passageInfo = PassageInfo()
         verseInfo = VerseInfo()
-        htmlTextWriter = HtmlTextWriter()
-        divHandler = DivHandler(osisToHtmlParameters!!, verseInfo!!, passageInfo!!, htmlTextWriter!!)
+        textWriter = TextWriter()
+        divHandler = DivHandler(osisToHtmlParameters!!, verseInfo!!, passageInfo!!, textWriter!!)
     }
 
     /**
@@ -41,14 +41,14 @@ class DivHandlerTest {
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "paragraph")
         divHandler!!.start(attrs)
         divHandler!!.end()
-        htmlTextWriter!!.write("Some text")
+        textWriter!!.write("Some text")
         passageInfo!!.isAnyTextWritten = true
         val attrs2 = AttributesImpl()
         attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7681")
         attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "paragraph")
         divHandler!!.start(attrs2)
         divHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
     }
 
     /**
@@ -61,10 +61,10 @@ class DivHandlerTest {
         val attrs = AttributesImpl()
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "paragraph")
         divHandler!!.start(attrs)
-        htmlTextWriter!!.write("Some text")
+        textWriter!!.write("Some text")
         passageInfo!!.isAnyTextWritten = true
         divHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
     }
 
     /**
@@ -80,14 +80,14 @@ class DivHandlerTest {
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p")
         divHandler!!.start(attrs)
         divHandler!!.end()
-        htmlTextWriter!!.write("Some text")
+        textWriter!!.write("Some text")
         passageInfo!!.isAnyTextWritten = true
         val attrs2 = AttributesImpl()
         attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7681")
         attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p")
         divHandler!!.start(attrs2)
         divHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("Some text<div class='breakline'></div>"))
     }
 
     /**
@@ -98,7 +98,7 @@ class DivHandlerTest {
     @Test
     fun testEsvsTitleInPreVerseDiv() {
         // verse comes first
-        htmlTextWriter!!.write("v1")
+        textWriter!!.write("v1")
         verseInfo!!.currentVerseNo = 1
         verseInfo!!.positionToInsertBeforeVerse = 0
         verseInfo!!.isTextSinceVerse = false
@@ -109,15 +109,15 @@ class DivHandlerTest {
         attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "pv2905")
         divHandler!!.start(attrsSidOpen)
         divHandler!!.end()
-        htmlTextWriter!!.write("Preverse text")
+        textWriter!!.write("Preverse text")
         passageInfo!!.isAnyTextWritten = true
         val attrsEidOpen = AttributesImpl()
         attrsEidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-preverse")
         attrsEidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "pv2905")
         divHandler!!.start(attrsEidOpen)
         divHandler!!.end()
-        htmlTextWriter!!.write("Verse content")
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("Preverse textv1Verse content"))
+        textWriter!!.write("Verse content")
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("Preverse textv1Verse content"))
     }
 
     /**
@@ -129,11 +129,11 @@ class DivHandlerTest {
     @Test
     fun testErvUnMatchedFinalPreVerseDiv() {
         // verse comes first
-        htmlTextWriter!!.write("v1")
+        textWriter!!.write("v1")
         verseInfo!!.currentVerseNo = 1
         verseInfo!!.positionToInsertBeforeVerse = 0
         verseInfo!!.isTextSinceVerse = false
-        htmlTextWriter!!.write("Verse content")
+        textWriter!!.write("Verse content")
         verseInfo!!.isTextSinceVerse = true
 
         // then a div with a pre-verse attribute
@@ -145,7 +145,7 @@ class DivHandlerTest {
         divHandler!!.end()
 
         // no matching eid
-        htmlTextWriter!!.abortAnyUnterminatedInsertion()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo("v1Verse content"))
+        textWriter!!.abortAnyUnterminatedInsertion()
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo("v1Verse content"))
     }
 }

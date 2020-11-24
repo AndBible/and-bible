@@ -39,13 +39,10 @@ import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.font.FontControl
 import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
-import net.bible.service.format.OSISInputStream
 import net.bible.service.format.SaxParserPool
-import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
-import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
@@ -132,9 +129,11 @@ open class SwordContentFacade @Inject constructor(
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
             if (osissep != null) {
-                val osisToHtml = getSaxHandler(book!!, key!!, true, textDisplaySettings)
-                osissep.provideSAXEvents(osisToHtml)
-                retVal = osisToHtml.notesList
+                retVal = emptyList()
+                // TODO! Not sure if this is still needed though...
+                //val osisToHtml = getSaxHandler(book!!, key!!, true, textDisplaySettings)
+                //osissep.provideSAXEvents(osisToHtml)
+                //retVal = osisToHtml.notesList
             } else {
                 Log.e(TAG, "No osis SEP returned")
             }
@@ -235,7 +234,7 @@ open class SwordContentFacade @Inject constructor(
             val data = BookData(book, key)
             val osissep = data.saxEventProvider
             val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
-            val osisHandler: ContentHandler = OsisToSpeakTextSaxHandler(sayReferences)
+            val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
         } catch (e: Exception) {
@@ -303,68 +302,6 @@ open class SwordContentFacade @Inject constructor(
         val key = bible.find(searchText) //$NON-NLS-1$
         Log.d(TAG, "There are " + key.cardinality + " verses containing " + searchText)
         return key
-    }
-
-    private fun getSaxHandler(book: Book, key: Key, asFragment: Boolean, textDisplaySettings: TextDisplaySettings): OsisToHtmlSaxHandler {
-        val osisToHtmlParameters = OsisToHtmlParameters()
-        val bookCategory = book.bookCategory
-        val bmd = book.bookMetaData
-        osisToHtmlParameters.isAsFragment = asFragment
-        osisToHtmlParameters.isLeftToRight = bmd.isLeftToRight
-        osisToHtmlParameters.languageCode = book.language.code
-        osisToHtmlParameters.moduleBasePath = book.bookMetaData.location
-        osisToHtmlParameters.isBible = BookCategory.BIBLE == bookCategory
-        // If Bible or Commentary then set Basis for partial references to current Key/Verse
-        if (BookCategory.BIBLE == bookCategory || BookCategory.COMMENTARY == bookCategory) {
-            osisToHtmlParameters.setBasicRef(key)
-            osisToHtmlParameters.documentVersification = (book as AbstractPassageBook).versification
-            // only show chapter divider in Bibles
-            osisToHtmlParameters.isShowChapterDivider = BookCategory.BIBLE == bookCategory
-            // but commentaries also have a verse tag which requires a chapter part
-            osisToHtmlParameters.chapter = if(key is VerseRange) key.end.chapter else KeyUtil.getVerse(key).chapter
-        }
-        if (isAndroid) { // HunUj has an error in that refs are not wrapped so automatically add notes around refs
-            osisToHtmlParameters.isAutoWrapUnwrappedRefsInNote = "HunUj" == book.initials
-            val preferences = sharedPreferences
-			// prefs applying to any doc type
-			osisToHtmlParameters.isShowNotes = textDisplaySettings.showFootNotes!!
-			osisToHtmlParameters.isRedLetter = textDisplaySettings.showRedLetters!!
-			osisToHtmlParameters.cssStylesheetList = cssControl.allStylesheetLinks
-			// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
-			if (BookCategory.BIBLE == bookCategory) {
-				osisToHtmlParameters.isShowVerseNumbers = textDisplaySettings.showVerseNumbers!! && BookCategory.BIBLE == bookCategory
-				osisToHtmlParameters.isVersePerline = textDisplaySettings.showVersePerLine!!
-				osisToHtmlParameters.isShowMyNotes = textDisplaySettings.showMyNotes!!
-				osisToHtmlParameters.isShowBookmarks = textDisplaySettings.showBookmarks!!
-				osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name)!!))
-				osisToHtmlParameters.isShowTitles = textDisplaySettings.showSectionTitles!!
-				osisToHtmlParameters.versesWithNotes = myNoteFormatSupport.getVersesWithNotesInPassage(key)
-				osisToHtmlParameters.bookmarkStylesByBookmarkedVerse = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key as VerseRange)
-				// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
-				val showStrongs = textDisplaySettings.showStrongs!!
-				osisToHtmlParameters.isShowStrongs = showStrongs
-				osisToHtmlParameters.isShowMorphology = showStrongs && textDisplaySettings.showMorphology!!
-			}
-			if (BookCategory.DICTIONARY == bookCategory) {
-				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) { //add allHebrew refs link
-					val prompt = application.getString(R.string.all_hebrew_occurrences)
-					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-					//convert text refs to links
-					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-				} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) { //add allGreek refs link
-					val prompt = application.getString(R.string.all_greek_occurrences)
-					osisToHtmlParameters.extraFooter = "<br /><a href='" + Constants.ALL_GREEK_OCCURRENCES_PROTOCOL + ":" + key.name + "' class='allStrongsRefsLink'>" + prompt + "</a>"
-					//convert text refs to links
-					osisToHtmlParameters.isConvertStrongsRefsToLinks = true
-				}
-			}
-			// which font, if any
-			osisToHtmlParameters.font = FontControl.instance.getFontForBook(book)
-			osisToHtmlParameters.cssClassForCustomFont = FontControl.instance.getCssClassForCustomFont(book)
-			// indent depth - larger screens have a greater indent
-			osisToHtmlParameters.indentDepth = getResourceInteger(R.integer.poetry_indent_chars)
-		}
-        return OsisToHtmlSaxHandler(osisToHtmlParameters)
     }
 
     /**

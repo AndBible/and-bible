@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.strongs;
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.TextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
 import org.crosswire.jsword.book.OSISUtil;
@@ -18,7 +18,7 @@ public class StrongsHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
 	
-	private HtmlTextWriter writer;
+	private TextWriter writer;
 	
 	private StrongsHandler strongsHandler;
 	
@@ -28,7 +28,7 @@ public class StrongsHandlerTest {
 		osisToHtmlParameters.setShowStrongs(true);
 		osisToHtmlParameters.setShowMorphology(true);
 		
-		writer = new HtmlTextWriter();
+		writer = new TextWriter();
 
 		strongsHandler = new StrongsHandler(osisToHtmlParameters, writer);
 	}

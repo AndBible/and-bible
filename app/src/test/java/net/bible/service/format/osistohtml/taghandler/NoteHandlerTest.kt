@@ -2,7 +2,7 @@ package net.bible.service.format.osistohtml.taghandler
 
 import net.bible.service.common.Constants
 import net.bible.service.format.Note
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
 import net.bible.test.DatabaseResetter
@@ -26,7 +26,7 @@ import org.xml.sax.helpers.AttributesImpl
 class NoteHandlerTest {
     private var osisToHtmlParameters: OsisToHtmlParameters? = null
     private var verseInfo: VerseInfo? = null
-    private var writer: HtmlTextWriter? = null
+    private var writer: TextWriter? = null
     private var referenceHandler: ReferenceHandler? = null
     private var noteHandler: NoteHandler? = null
     private var basisRef: Verse? = null
@@ -42,7 +42,7 @@ class NoteHandlerTest {
         basisRef = Verse(KJV, BibleBook.PS, 14, 0)
         verseInfo!!.osisID = verse.osisID
         osisToHtmlParameters!!.basisRef = basisRef!!
-        writer = HtmlTextWriter()
+        writer = TextWriter()
         noteHandler = NoteHandler(osisToHtmlParameters!!, verseInfo!!, writer!!)
         referenceHandler = ReferenceHandler(osisToHtmlParameters!!, noteHandler!!, writer!!)
     }

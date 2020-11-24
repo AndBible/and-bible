@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.TextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
 import org.crosswire.jsword.book.OSISUtil;
@@ -15,16 +15,16 @@ import static org.junit.Assert.assertThat;
 public class LHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
-	private HtmlTextWriter htmlTextWriter;
+	private TextWriter textWriter;
 	
 	private LHandler lHandler;
 	
 	@Before
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
-		htmlTextWriter = new HtmlTextWriter();
+		textWriter = new TextWriter();
 		
-		lHandler = new LHandler(osisToHtmlParameters, htmlTextWriter);
+		lHandler = new LHandler(osisToHtmlParameters, textWriter);
 	}
 
 	/**
@@ -36,10 +36,10 @@ public class LHandlerTest {
 	public void testSimpleL() {
 		Attributes attr = new AttributesImpl();
 		lHandler.start(attr);
-		htmlTextWriter.write("Single line");
+		textWriter.write("Single line");
 		lHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo("Single line<br />"));
+		assertThat(textWriter.getHtml(), equalTo("Single line<br />"));
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class LHandlerTest {
 		lHandler.start(attrs);
 		lHandler.end();
 		
-		htmlTextWriter.write("Praise the Lord, all nations!");
+		textWriter.write("Praise the Lord, all nations!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7681");
@@ -65,7 +65,7 @@ public class LHandlerTest {
 		lHandler.start(attrs2);
 		lHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo("Praise the Lord, all nations!<br />"));
+		assertThat(textWriter.getHtml(), equalTo("Praise the Lord, all nations!<br />"));
 	}
 	
 	/** ESV Ps.117.1
@@ -79,7 +79,7 @@ public class LHandlerTest {
 		lHandler.start(attrs);
 		lHandler.end();
 		
-		htmlTextWriter.write("Extol him, all peoples!");
+		textWriter.write("Extol him, all peoples!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7682");
@@ -87,7 +87,7 @@ public class LHandlerTest {
 		lHandler.start(attrs2);
 		lHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo("&#160;&#160;Extol him, all peoples!<br />"));
+		assertThat(textWriter.getHtml(), equalTo("&#160;&#160;Extol him, all peoples!<br />"));
 	}
 
 	/** ESV Ps.117.2 no type=x-br on eid, but still print BR
@@ -100,14 +100,14 @@ public class LHandlerTest {
 		lHandler.start(attrs);
 		lHandler.end();
 		
-		htmlTextWriter.write("Praise the Lord!");
+		textWriter.write("Praise the Lord!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7685");
 		lHandler.start(attrs2);
 		lHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo("Praise the Lord!<br />"));
+		assertThat(textWriter.getHtml(), equalTo("Praise the Lord!<br />"));
 	}
 
 	/** 
@@ -127,7 +127,7 @@ public class LHandlerTest {
 		lHandler.start(attrs);
 		lHandler.end();
 		
-		htmlTextWriter.write("Славьте Вечного, все народы,");
+		textWriter.write("Славьте Вечного, все народы,");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7685");
@@ -137,6 +137,6 @@ public class LHandlerTest {
 		lHandler.start(attrs2);
 		lHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo("&#160;&#160;Славьте Вечного, все народы,<br />"));
+		assertThat(textWriter.getHtml(), equalTo("&#160;&#160;Славьте Вечного, все народы,<br />"));
 	}
 }

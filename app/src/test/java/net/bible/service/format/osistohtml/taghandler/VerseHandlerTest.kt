@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler
 
-import net.bible.service.format.osistohtml.HtmlTextWriter
+import net.bible.service.format.osistohtml.TextWriter
 import net.bible.service.format.osistohtml.OsisToHtmlParameters
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo
 import org.crosswire.jsword.book.OSISUtil
@@ -17,7 +17,7 @@ class VerseHandlerTest {
     private var verseInfo: VerseInfo? = null
     private var bookmarkMarkerMock: BookmarkMarker? = null
     private var myNoteMarker: MyNoteMarker? = null
-    private var htmlTextWriter: HtmlTextWriter? = null
+    private var textWriter: TextWriter? = null
     private var verseHandler: VerseHandler? = null
 
     @Before
@@ -28,9 +28,9 @@ class VerseHandlerTest {
         osisToHtmlParameters!!.isBible = true
         verseInfo = VerseInfo()
         bookmarkMarkerMock = Mockito.mock(BookmarkMarker::class.java)
-        htmlTextWriter = HtmlTextWriter()
-        myNoteMarker = MyNoteMarker(osisToHtmlParameters!!, verseInfo!!, htmlTextWriter!!)
-        verseHandler = VerseHandler(osisToHtmlParameters!!, verseInfo!!, bookmarkMarkerMock!!, myNoteMarker!!, htmlTextWriter!!)
+        textWriter = TextWriter()
+        myNoteMarker = MyNoteMarker(osisToHtmlParameters!!, verseInfo!!, textWriter!!)
+        verseHandler = VerseHandler(osisToHtmlParameters!!, verseInfo!!, bookmarkMarkerMock!!, myNoteMarker!!, textWriter!!)
     }
 
     /**
@@ -44,10 +44,10 @@ class VerseHandlerTest {
         val attrs = AttributesImpl()
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_OSISID, null, "Ezek.40.5")
         verseHandler!!.start(attrs)
-        htmlTextWriter!!.write("The Creation")
+        textWriter!!.write("The Creation")
         verseInfo!!.isTextSinceVerse = true
         verseHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo(" <span class='verse' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo(" <span class='verse' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
     }
 
     /**
@@ -62,10 +62,10 @@ class VerseHandlerTest {
         val attrs = AttributesImpl()
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_OSISID, null, "Ezek.40.5")
         verseHandler!!.start(attrs)
-        htmlTextWriter!!.write("The Creation")
+        textWriter!!.write("The Creation")
         verseInfo!!.isTextSinceVerse = true
         verseHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
     }
 
     /**
@@ -79,10 +79,10 @@ class VerseHandlerTest {
         val attrs = AttributesImpl()
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_OSISID, null, "Ezek.40.5")
         verseHandler!!.start(attrs)
-        htmlTextWriter!!.write("The Creation")
+        textWriter!!.write("The Creation")
         verseInfo!!.isTextSinceVerse = true
         verseHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo(" <span class='verse' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo(" <span class='verse' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
     }
 
     /**
@@ -97,9 +97,9 @@ class VerseHandlerTest {
         val attrs = AttributesImpl()
         attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_OSISID, null, "Ezek.40.5")
         verseHandler!!.start(attrs)
-        htmlTextWriter!!.write("The Creation")
+        textWriter!!.write("The Creation")
         verseInfo!!.isTextSinceVerse = true
         verseHandler!!.end()
-        Assert.assertThat(htmlTextWriter!!.html, CoreMatchers.equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
+        Assert.assertThat(textWriter!!.html, CoreMatchers.equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo position-marker'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"))
     }
 }

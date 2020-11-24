@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.TextWriter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,13 +10,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class ListHandlerTest {
-	private HtmlTextWriter writer;
+	private TextWriter writer;
 	private ListHandler listHandler;
 	private ListItemHandler itemHandler;
 
 	@Before
 	public void setUp() throws Exception {
-		writer = new HtmlTextWriter();
+		writer = new TextWriter();
 
 		listHandler = new ListHandler(writer);
 		itemHandler = new ListItemHandler(writer);
