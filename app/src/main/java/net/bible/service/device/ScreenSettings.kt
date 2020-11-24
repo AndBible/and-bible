@@ -24,11 +24,8 @@ import net.bible.service.common.CommonUtils
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.os.Build
 import android.os.PowerManager
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import org.jetbrains.anko.configuration
 
 /** Manage screen related functions
  *

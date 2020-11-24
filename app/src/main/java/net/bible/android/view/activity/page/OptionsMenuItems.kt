@@ -35,7 +35,6 @@ import net.bible.android.view.util.widget.FontWidget
 import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.jetbrains.anko.configuration
 
 interface OptionsMenuItemInterface {
     var value: Any
@@ -326,7 +325,7 @@ class SplitModePreference :
     private val wsBehaviorSettings = mainBibleActivity.windowRepository.windowBehaviorSettings
     override fun handle() {
         mainBibleActivity.windowControl.windowSizesChanged()
-        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.configuration))
+        ABEventBus.getDefault().post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
     }
 
     override var value: Any

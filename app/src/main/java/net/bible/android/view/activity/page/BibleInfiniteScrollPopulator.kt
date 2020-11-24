@@ -18,54 +18,46 @@
 
 package net.bible.android.view.activity.page
 
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentBiblePage
-import org.apache.commons.lang3.StringEscapeUtils
-
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.debug
-import org.jetbrains.anko.doAsync
 
 /**
  * Get next or previous page for insertion at the top or bottom of the current webview.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleInfiniteScrollPopulator(
-    private val bibleView: BibleView) : AnkoLogger
-{
+class BibleInfiniteScrollPopulator(private val bibleView: BibleView) {
+    private val TAG get() = "Populator[${bibleView.window.id}]"
 
-    fun requestMoreTextAtTop() {
-        debug("requestMoreTextAtTop")
-        // do in background thread
-        doAsync {
-            // get page fragment for previous chapter
-            val currentPage = bibleView.window.pageManager.currentPage
-            if (currentPage is CurrentBiblePage) {
-                val newChap = bibleView.minChapter - 1
+    fun requestMoreTextAtTop() = GlobalScope.launch(Dispatchers.IO) {
+        Log.d(TAG, "requestMoreTextAtTop")
+        // get page fragment for previous chapter
+        val currentPage = bibleView.window.pageManager.currentPage
+        if (currentPage is CurrentBiblePage) {
+            val newChap = bibleView.minChapter - 1
 
-                if(newChap < 0) return@doAsync
+            if(newChap < 0) return@launch
 
-                val fragment = currentPage.getFragmentForChapter(newChap) ?: return@doAsync
-                bibleView.insertTextAtTop(newChap, fragment)
-            }
+            val fragment = currentPage.getFragmentForChapter(newChap) ?: return@launch
+            bibleView.insertTextAtTop(newChap, fragment)
         }
     }
 
-    fun requestMoreTextAtEnd() {
-        debug("requestMoreTextAtEnd")
-        // do in background thread
-        doAsync {
-            // get page fragment for previous chapter
-            val currentPage = bibleView.window.pageManager.currentPage
-            if (currentPage is CurrentBiblePage) {
-                val newChap = bibleView.maxChapter + 1
-                val verse = currentPage.currentBibleVerse.verse
-                val lastChap = verse.versification.getLastVerse(verse.book, verse.chapter)
-                if(newChap > lastChap) return@doAsync
-                val fragment = currentPage.getFragmentForChapter(newChap)?: return@doAsync
-                //fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-                bibleView.insertTextAtEnd(newChap, fragment)
-            }
+
+    fun requestMoreTextAtEnd() = GlobalScope.launch(Dispatchers.IO) {
+        Log.d(TAG, "requestMoreTextAtEnd")
+        val currentPage = bibleView.window.pageManager.currentPage
+        if (currentPage is CurrentBiblePage) {
+            val newChap = bibleView.maxChapter + 1
+            val verse = currentPage.currentBibleVerse.verse
+            val lastChap = verse.versification.getLastVerse(verse.book, verse.chapter)
+            if(newChap > lastChap) return@launch
+            val fragment = currentPage.getFragmentForChapter(newChap)?: return@launch
+            bibleView.insertTextAtEnd(newChap, fragment)
         }
     }
+
 }
