@@ -45,7 +45,6 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
@@ -993,25 +992,16 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        if (menuInfo != null) {
-            val inflater = menuInflater
-            inflater.inflate(R.menu.link_context_menu, menu)
-            val openLinksInSpecialWindowByDefault = preferences.getBoolean("open_links_in_special_window_pref", true)
-            val item =
-                if(openLinksInSpecialWindowByDefault)
-                    menu.findItem(R.id.open_link_in_special_window)
-                else
-                    menu.findItem(R.id.open_link_in_this_window)
-            item.isVisible = false
+        if(menuInfo is BibleView.BibleViewContextMenuInfo) {
+            menuInfo.onCreateContextMenu(menu, v, menuInflater)
         }
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        val info = item.menuInfo as BibleView.BibleViewContextMenuInfo?
-        if (info != null) {
-            info.activate(item.itemId)
-            return true
+        item.menuInfo.let {
+            if (it is BibleView.BibleViewContextMenuInfo) {
+                return it.onContextItemSelected(item)
+            }
         }
         return false
     }

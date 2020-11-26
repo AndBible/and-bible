@@ -1,11 +1,22 @@
 // vue.config.js
-module.exports = {
+const isProduction = process.env.NODE_ENV !== "production";
+
+let config = {
   lintOnSave: false,
   runtimeCompiler: true,
-  //productionSourceMap: false,
   transpileDependencies: ["dom-highlight-range"],
   publicPath: "",
-  configureWebpack: {
-    devtool: 'inline-source-map'
+}
+
+if(isProduction) {
+  config.productionSourceMap = true;
+} else {
+  config = {
+    ...config,
+    configureWebpack: {
+      devtool: 'inline-source-map'
+    }
   }
 }
+
+module.exports = config;

@@ -22,16 +22,23 @@ import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.os.Looper
 import android.util.Log
+import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.view.GestureDetectorCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
@@ -63,7 +70,6 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.apache.commons.lang3.StringEscapeUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
@@ -93,9 +99,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         DocumentView,
         VerseActionModeMediator.VerseHighlightControl
 {
-
-    private var contextMenuInfo: BibleViewContextMenuInfo? = null
-
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
     private lateinit var pageTiltScroller: PageTiltScroller
@@ -125,7 +128,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var latestXml: String = ""
+    private var latestOsisObjStr: String = ""
     private var needsOsisContent: Boolean = false
     private var htmlLoadingOngoing: Boolean = false
         set(value) {
@@ -163,51 +166,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         addJavascriptInterface(bibleJavascriptInterface, "android")
     }
 
+    class BibleLink(val type: String, val target: String) {
+        val url get() = "$type:$target"
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     fun initialise() {
         Log.d(TAG, "initialise")
-        /* WebViewClient must be set BEFORE calling loadUrl! */
-        webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                // load Strongs refs when a user clicks on a link
-                val loaded = linkControl.loadApplicationUrl(url)
-
-                if(loaded) {
-                    gestureListener.setDisableSingleTapOnce(true)
-                    super.shouldOverrideUrlLoading(view, url)
-                    return true
-                }
-                else {
-                    return super.shouldOverrideUrlLoading(view, url)
-                }
-            }
-
-            override fun onLoadResource(view: WebView, url: String) {
-                Log.d(TAG, "onLoadResource:$url")
-                super.onLoadResource(view, url)
-            }
-
-            override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
-                Log.e(TAG, description)
-            }
-        }
-
-        // handle alerts
+        webViewClient = BibleViewClient()
         webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 Log.d(TAG, message)
                 result.confirm()
                 return true
             }
-
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
                 Log.d(TAG, "JS console ${consoleMessage.messageLevel()}: ${consoleMessage.message()}")
                 return true
             }
         }
 
-        // need javascript to enable jump to anchors/verses
         settings.javaScriptEnabled = true
 
         applyPreferenceSettings()
@@ -253,6 +231,135 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         onDestroy?.invoke()
     }
 
+    object UriConstants {
+        const val SCHEME_W = "ab-w"
+        const val SCHEME_REFERENCE = "ab-reference"
+    }
+
+    private inner class BibleViewClient: WebViewClient() {
+        override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
+            val uri = req.url
+            val loaded = when(uri.scheme) {
+                UriConstants.SCHEME_W -> {
+                    val links = mutableListOf<BibleLink>()
+                    for(paramName in uri.queryParameterNames) {
+                        links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
+                    }
+                    if(links.size > 1) {
+                        //contextMenuInfo = MultiLinkContextMenuInfo(links)
+                        //view.showContextMenu()
+                        linkControl.loadApplicationUrl(links)
+                    } else {
+                        // TODO: open link directly if only one entry
+                        linkControl.loadApplicationUrl(links.first())
+                    }
+                    true
+                }
+                UriConstants.SCHEME_REFERENCE -> {
+                    true
+                }
+                else -> true // TODO: throw some error document instead
+            }
+
+            if(loaded) {
+                gestureListener.setDisableSingleTapOnce(true)
+                super.shouldOverrideUrlLoading(view, req)
+                return true
+            }
+            else {
+                return super.shouldOverrideUrlLoading(view, req)
+            }
+        }
+
+        override fun onLoadResource(view: WebView, url: String) {
+            Log.d(TAG, "onLoadResource:$url")
+            super.onLoadResource(view, url)
+        }
+
+        override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
+            super.onReceivedError(view, errorCode, description, failingUrl)
+            Log.e(TAG, description)
+        }
+    }
+
+    private var contextMenuInfo: BibleViewContextMenuInfo? = null
+    override fun getContextMenuInfo(): ContextMenuInfo? {
+        return contextMenuInfo
+    }
+
+    private inner class BibleViewLongClickListener(private var defaultValue: Boolean) : OnLongClickListener {
+        override fun onLongClick(v: View): Boolean {
+            Log.d(TAG, "onLongClickListener")
+            val result = hitTestResult
+            return if (result.type == HitTestResult.SRC_ANCHOR_TYPE) {
+                contextMenuInfo = LinkLongPressContextMenuInfo(result.extra!!)
+                v.showContextMenu()
+            } else {
+                contextMenuInfo = null
+                defaultValue
+            }
+        }
+    }
+
+    /**
+     * Either enable verse selection or the default text selection
+     */
+    private fun enableSelection() {
+        if (window.pageManager.isBibleShown) {
+            // handle long click ourselves and prevent webview showing text selection automatically
+            setOnLongClickListener(BibleViewLongClickListener(true))
+            isLongClickable = false
+        } else {
+            // reset handling of long press
+            setOnLongClickListener(BibleViewLongClickListener(false))
+        }
+    }
+
+    internal interface BibleViewContextMenuInfo: ContextMenuInfo {
+        fun onContextItemSelected(item: MenuItem): Boolean
+        fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater)
+    }
+
+    internal inner class MultiLinkContextMenuInfo(private val links: List<BibleLink>): BibleViewContextMenuInfo {
+        override fun onContextItemSelected(item: MenuItem): Boolean {
+            return linkControl.loadApplicationUrl(links[item.itemId])
+        }
+
+        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
+            links.forEachIndexed { i, l ->
+                val title = "${l.type}:${l.target}"
+                menu.add(Menu.NONE, i, Menu.NONE, title)
+            }
+        }
+
+    }
+
+    internal inner class LinkLongPressContextMenuInfo(private val targetLink: String) : BibleViewContextMenuInfo {
+        override fun onContextItemSelected(item: MenuItem): Boolean {
+            when (item.itemId) {
+                R.id.open_link_in_special_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
+                R.id.open_link_in_new_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
+                R.id.open_link_in_this_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
+            }
+            linkControl.loadApplicationUrl(targetLink)
+            linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)
+            contextMenuInfo = null
+            return true
+        }
+
+        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.link_context_menu, menu)
+            val openLinksInSpecialWindowByDefault = CommonUtils.sharedPreferences.getBoolean("open_links_in_special_window_pref", true)
+            val item =
+                if(openLinksInSpecialWindowByDefault)
+                    menu.findItem(R.id.open_link_in_special_window)
+                else
+                    menu.findItem(R.id.open_link_in_this_window)
+            item.isVisible = false
+        }
+    }
+
+
     /** apply settings set by the user using Preferences
      */
     override fun applyPreferenceSettings() {
@@ -288,48 +395,49 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
 
-    fun show(xml: String,
+    suspend fun show(xmls: List<String>,
              bookmarks: List<BookmarkEntities.Bookmark>,
              updateLocation: Boolean = false,
              verse: Verse? = null,
              yOffsetRatio: Float? = null)
     {
-        synchronized(this) {
-            updateBackgroundColor()
+        val currentPage = window.pageManager.currentPage
+        bookmarkLabels = bookmarkControl.allLabels
+        initialVerse = verse
 
-            applyFontSize()
+        var jumpToYOffsetRatio = yOffsetRatio
 
-            val currentPage = window.pageManager.currentPage
-            bookmarkLabels = bookmarkControl.allLabels
-            initialVerse = verse
-
-            var jumpToYOffsetRatio = yOffsetRatio
-
-            if (lastUpdated == 0L || updateLocation) {
-                if (currentPage is CurrentBiblePage) {
-                    initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
-                } else {
-                    jumpToYOffsetRatio = currentPage.currentYOffsetRatio
-                }
+        if (lastUpdated == 0L || updateLocation) {
+            if (currentPage is CurrentBiblePage) {
+                initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
+            } else {
+                jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             }
+        }
 
+        contentVisible = false
+
+        val chapter = initialVerse?.chapter
+        if (chapter != null) {
+            addChapter(chapter)
+        }
+
+        Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
+
+        latestBookmarks = bookmarks
+        latestOsisObjStr = getOsisObjStr(xmls, initialVerse?.chapter.toString())
+
+        withContext(Dispatchers.Main) {
+            updateBackgroundColor()
+            applyFontSize()
             enableSelection()
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
-
-            contentVisible = false
-
-            val chapter = initialVerse?.chapter
-            if (chapter != null) {
-                addChapter(chapter)
-            }
-
-            Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
-
-            latestBookmarks = bookmarks
-            latestXml = StringEscapeUtils.escapeEcmaScript(xml)
         }
+
         if(!htmlLoadingOngoing) {
-            replaceOsis()
+            withContext(Dispatchers.Main) {
+                replaceOsis()
+            }
         } else {
             synchronized(this) {
                 needsOsisContent = true
@@ -358,46 +466,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     }
 
-    @Serializable
-    data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
-
-
-    @Serializable
-    data class ClientBookmarkStyle(val color: List<Int>)
-
-    @Serializable
-    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle?)
-
-
     private fun replaceOsis() {
-        var xml = ""
+        var osisObjStr = ""
         synchronized(this) {
-            xml = latestXml
+            osisObjStr = latestOsisObjStr
             needsOsisContent = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
             maxChapter = initialVerse?.chapter ?: -1
         }
 
-        val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) })
-        })
-        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
-            val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
-            if(labels.isEmpty())
-                labels.add(bookmarkControl.LABEL_UNLABELLED)
-            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), labels.map { it.id } )
-        })
-
         executeJavascriptOnUiThread("""
             bibleView.setTitle("BibleView-${window.id}");
             bibleView.setConfig(${displaySettings.toJson()});
-            bibleView.replaceOsis({
-                key: ${initialVerse?.chapter},
-                content: '$xml',
-                bookmarks: $bookmarks,
-                bookmarkLabels: $bookmarkLabels,
-            });
+            bibleView.replaceOsis($osisObjStr);
             bibleView.setupContent({
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
@@ -667,67 +749,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     private fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
         Log.d(TAG, "Scroll or jump to:$verse")
+        val jumpToId = "v-${verse.toV11n(initialVerse!!.versification).ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.scrollToVerse('${getIdToJumpTo(verse)}', $now, $toolbarOffset);")
-    }
-
-    internal inner class BibleViewLongClickListener(private var defaultValue: Boolean) : View.OnLongClickListener {
-
-        override fun onLongClick(v: View): Boolean {
-            Log.d(TAG, "onLongClickListener")
-            val result = hitTestResult
-            return if (result.type == HitTestResult.SRC_ANCHOR_TYPE) {
-                setContextMenuInfo(result.extra!!)
-                v.showContextMenu()
-            } else {
-                contextMenuInfo = null
-                defaultValue
-            }
-        }
-    }
-
-    /**
-     * if verse 1 then jump to just after chapter divider at top of screen
-     */
-    private fun getIdToJumpTo(verse: Verse): String {
-        return "v-${verse.toV11n(initialVerse!!.versification).ordinal}"
-    }
-
-    /**
-     * Either enable verse selection or the default text selection
-     */
-    private fun enableSelection() {
-        if (window.pageManager.isBibleShown) {
-            // handle long click ourselves and prevent webview showing text selection automatically
-            setOnLongClickListener(BibleViewLongClickListener(true))
-            isLongClickable = false
-        } else {
-            // reset handling of long press
-            setOnLongClickListener(BibleViewLongClickListener(false))
-        }
-    }
-
-    private fun setContextMenuInfo(target: String) {
-        this.contextMenuInfo = BibleViewContextMenuInfo(this, target)
-    }
-
-    override fun getContextMenuInfo(): ContextMenuInfo? {
-        return contextMenuInfo
-    }
-
-    internal inner class BibleViewContextMenuInfo(targetView: View, private var targetLink: String) : ContextMenuInfo {
-        private var targetView: BibleView = targetView as BibleView
-
-        fun activate(itemId: Int) {
-            when (itemId) {
-                R.id.open_link_in_special_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL)
-                R.id.open_link_in_new_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
-                R.id.open_link_in_this_window -> targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
-            }
-            targetView.linkControl.loadApplicationUrl(targetLink)
-            targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)
-            contextMenuInfo = null
-        }
+        executeJavascript("bibleView.scrollToVerse('$jumpToId', $now, $toolbarOffset);")
     }
 
     override fun enableVerseTouchSelection() {
@@ -770,16 +794,44 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         evaluateJavascript("$javascript;", callBack)
     }
 
-    fun insertTextAtTop(chapter: Int, osisFragment: String) {
-        addChapter(chapter)
-        val fragment = StringEscapeUtils.escapeEcmaScript(osisFragment)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop({key: $chapter, content: '$fragment'});")
+
+    @Serializable
+    data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
+
+    @Serializable
+    data class ClientBookmarkStyle(val color: List<Int>)
+
+    @Serializable
+    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle?)
+
+    fun getOsisObjStr(xmls: List<String>, key: String): String {
+        val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
+            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) })
+        })
+        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
+            val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
+            if(labels.isEmpty())
+                labels.add(bookmarkControl.LABEL_UNLABELLED)
+            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), labels.map { it.id } )
+        })
+        val xmlList = xmls.map {"`$it`"}.joinToString(",")
+        return """{
+            key: '$key',
+            contents: [$xmlList],
+            bookmarks: $bookmarks,
+            bookmarkLabels: $bookmarkLabels,
+        }"""
+
     }
 
-    fun insertTextAtEnd(chapter: Int, osisFragment: String) {
+    fun insertTextAtTop(chapter: Int, osisFragment: List<String>) {
         addChapter(chapter)
-        val fragment = StringEscapeUtils.escapeEcmaScript(osisFragment)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd({key: $chapter, content: '$fragment'});")
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop(${getOsisObjStr(osisFragment, chapter.toString())});")
+    }
+
+    fun insertTextAtEnd(chapter: Int, osisFragment: List<String>) {
+        addChapter(chapter)
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd(${getOsisObjStr(osisFragment, chapter.toString())});")
     }
 
     fun setContentReady() {

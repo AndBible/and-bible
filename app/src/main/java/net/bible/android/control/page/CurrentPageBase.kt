@@ -45,10 +45,10 @@ abstract class CurrentPageBase protected constructor(
 
     override var isInhibitChangeNotifications: Boolean = false
 
-	override var _key: Key? = null
+    override var _key: Key? = null
 
-	// just pretend we are at the top of the page if error occurs
-	// if key has changed then offsetRatio must be reset because user has changed page
+    // just pretend we are at the top of the page if error occurs
+    // if key has changed then offsetRatio must be reset because user has changed page
 
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
@@ -74,13 +74,14 @@ abstract class CurrentPageBase protected constructor(
         }
     private var keyWhenYOffsetRatioSet: Key? = null
     private var docWhenYOffsetRatioSet: Book? = null
+
     // all bibles and commentaries share the same key
     override var isShareKeyBetweenDocs: Boolean = false
 
     private val swordContentFacade: SwordContentFacade
     val swordDocumentFacade: SwordDocumentFacade
 
-	/** notify mediator that page has changed and a lot of things need to update themselves
+    /** notify mediator that page has changed and a lot of things need to update themselves
      */
     protected fun beforePageChange() {
         if (!isInhibitChangeNotifications) {
@@ -96,16 +97,17 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    override val singleKey: Key? get () = key
+    override val singleKey: Key? get() = key
 
-	override fun setKey(key: Key) {
-		beforePageChange()
-		doSetKey(key)
-		pageChange()
-	}
+    override fun setKey(key: Key) {
+        beforePageChange()
+        doSetKey(key)
+        pageChange()
+    }
 
     override fun next() {}
     override fun previous() {}
+
     /** add or subtract a number of pages from the current position and return Page
      * default is one key per page - all except bible use this default
      */
@@ -115,17 +117,18 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
-    override val currentPageContent: String get() = getPageContent(key, false)
+    override val currentPageContent: List<String> get() = getPageContent(key)
 
-    protected fun getPageContent(key: Key?, asFragment: Boolean): String {
+    protected fun getPageContent(key: Key?): List<String> {
         return try {
             val currentDocument = currentDocument!!
             synchronized(currentDocument) {
-                var xmlText = swordContentFacade.readOsisFragment(currentDocument, key)
-                if (StringUtils.isEmpty(xmlText)) {
-                    xmlText = format(R.string.error_no_content)
+                swordContentFacade.readOsisFragment(currentDocument, key).map {
+                    if (StringUtils.isEmpty(it)) {
+                        format(R.string.error_no_content)
+                    } else
+                        it
                 }
-                xmlText
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
@@ -133,7 +136,7 @@ abstract class CurrentPageBase protected constructor(
             val reportBug = app.getString(R.string.send_bug_report_title)
             val link = "<a href='report://'>${reportBug}</a>."
             val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
-            format(string)
+            listOf(format(string))
         }
     }
 
@@ -146,15 +149,15 @@ abstract class CurrentPageBase protected constructor(
         return _currentDocument != null
     }
 
-	private var _currentDocument: Book? = null
+    private var _currentDocument: Book? = null
 
-	override val currentDocument: Book?
-		get() { 
-			if (_currentDocument == null) {
-				_currentDocument = getDefaultBook()
-			}
-			return _currentDocument
-		}
+    override val currentDocument: Book?
+        get() {
+            if (_currentDocument == null) {
+                _currentDocument = getDefaultBook()
+            }
+            return _currentDocument
+        }
 
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
@@ -168,20 +171,19 @@ abstract class CurrentPageBase protected constructor(
     }
 
     override fun setCurrentDocument(doc: Book?) {
-		Log.d(TAG, "Set current doc to $doc")
-		val prevDoc = _currentDocument
-		if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
-			doSetKey(null)
-		}
-		localSetCurrentDocument(doc)
-		// try to clear memory to prevent OutOfMemory errors
-		if (_currentDocument != prevDoc) {
-			Activator.deactivate(prevDoc)
-		}
-	}
-	
-    val isCurrentDocumentSet: Boolean get() = _currentDocument != null
+        Log.d(TAG, "Set current doc to $doc")
+        val prevDoc = _currentDocument
+        if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
+            doSetKey(null)
+        }
+        localSetCurrentDocument(doc)
+        // try to clear memory to prevent OutOfMemory errors
+        if (_currentDocument != prevDoc) {
+            Activator.deactivate(prevDoc)
+        }
+    }
 
+    val isCurrentDocumentSet: Boolean get() = _currentDocument != null
 
 
     /* Set new doc and if possible show new doc
@@ -219,11 +221,13 @@ abstract class CurrentPageBase protected constructor(
         }
     }
 
-    val pageEntity get() = WorkspaceEntities.Page(
-        currentDocument?.initials,
-        key?.osisID,
-        currentYOffsetRatio
-    )
+    val pageEntity: WorkspaceEntities.Page get() {
+            return WorkspaceEntities.Page(
+                currentDocument?.initials,
+                key,
+                currentYOffsetRatio
+            )
+        }
 
     fun restoreFrom(entity: WorkspaceEntities.Page?) {
         if(entity == null) return
@@ -235,11 +239,7 @@ abstract class CurrentPageBase protected constructor(
             // bypass setter to avoid automatic notifications
             localSetCurrentDocument(book)
             try {
-                val keyName = entity.key
-                if (StringUtils.isNotEmpty(keyName)) {
-                    doSetKey(book.getKey(keyName))
-                    Log.d(TAG, "Restored key:$keyName")
-                }
+                doSetKey(entity.key)
             } catch (e: Exception) {
                 Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
             }

@@ -21,22 +21,19 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.link.BookAndKey
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.toV11n
-import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.getResourceInteger
 import net.bible.service.common.CommonUtils.sharedPreferences
-import net.bible.service.common.Constants
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.css.CssControl
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
-import net.bible.service.font.FontControl
 import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.format.SaxParserPool
@@ -53,11 +50,9 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.FeatureType
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -66,10 +61,8 @@ import org.jdom2.Document
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import org.xml.sax.ContentHandler
-import java.io.InputStream
 import java.util.*
 import javax.inject.Inject
-import javax.xml.parsers.SAXParser
 
 /** JSword facade
  *
@@ -88,36 +81,36 @@ open class SwordContentFacade @Inject constructor(
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class)
-    fun readOsisFragment(book: Book?, key: Key?,): String {
-        var retVal = ""
-        if (book == null || key == null) {
-            retVal = ""
-        } else if (Books.installed().getBook(book.initials) == null) {
-            Log.w(TAG, "Book may have been uninstalled:$book")
-            val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-            retVal = format(errorMsg)
-        } else if (!bookContainsAnyOf(book, key)) {
-            Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-            retVal = format(R.string.error_key_not_in_document)
-        } else {
-			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags
-			// try to parse using optimised method first if a suitable document and it has not failed previously
-            var isParsedOk = false
-            //if ("OSIS" == book.bookMetaData.getProperty("SourceType") && arrayOf("zText", "zCom").contains(book.bookMetaData.getProperty("ModDrv")) &&
-            //    documentParseMethod.isFastParseOkay(book, key) && false) {
-            //    try {
-            //        retVal = readXmlTextOptimizedZTextOsis(book, key, asFragment, textDisplaySettings)
-            //        isParsedOk = true
-            //    } catch (pe: ParseException) {
-            //        documentParseMethod.failedToParse(book, key)
-            //    }
-            //}
-            // fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
-            if (!isParsedOk) {
-                retVal = readXmlTextStandardJSwordMethod(book, key)
+    fun readOsisFragment(book: Book?, key: Key?,): List<String> {
+        var book = book
+        var key = key
+        if(key is BookAndKey) {
+            book = key.document
+            key = key.key
+        }
+        val retVal = when {
+            book == null || key == null -> ""
+            Books.installed().getBook(book.initials) == null -> {
+                Log.w(TAG, "Book may have been uninstalled:$book")
+                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
+                format(errorMsg)
+            }
+            key is DefaultKeyList -> {
+                return key.map {
+                    if(it is BookAndKey) {
+                        readXmlTextStandardJSwordMethod(it.document, it.key)
+                    } else throw RuntimeException("Not supported")
+                }
+            }
+            !bookContainsAnyOf(book, key) -> {
+                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
+                format(R.string.error_key_not_in_document)
+            }
+            else -> {
+                readXmlTextStandardJSwordMethod(book, key)
             }
         }
-        return retVal
+        return listOf(retVal)
     }
 
     /** Get Footnotes and references from specified document page

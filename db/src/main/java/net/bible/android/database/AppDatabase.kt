@@ -17,6 +17,7 @@
  */
 package net.bible.android.database
 
+import android.util.Base64
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
@@ -27,10 +28,16 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.StreamCorruptedException
 
 import java.util.*
 
@@ -77,6 +84,27 @@ class Converters {
     @TypeConverter
     fun strToPlaybackSettings(s: String?): PlaybackSettings? {
         return if (s != null) PlaybackSettings.fromJson(s) else null
+    }
+
+    @TypeConverter
+    fun keyToStr(key: Key?): String? {
+        if(key == null) return null
+        val out = ByteArrayOutputStream()
+        val obj = ObjectOutputStream(out)
+        obj.writeObject(key)
+        return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT)
+    }
+
+    @TypeConverter
+    fun strToKey(s: String?): Key? {
+        if(s == null) return null
+        try {
+            val inp = ByteArrayInputStream(Base64.decode(s, Base64.DEFAULT))
+            val obj = ObjectInputStream(inp)
+            return obj.readObject() as Key
+        } catch (e: StreamCorruptedException) {
+            return null
+        }
     }
 }
 

@@ -50,7 +50,7 @@ class CurrentMyNotePage internal constructor(
     // just one fake book for every note
     private var fakeMyNoteBook: Book? = null
     private var fakeMyNoteBookVersification: Versification? = null
-    override val currentPageContent: String get() = myNoteDAO.getMyNoteTextByKey(key)
+    override val currentPageContent: List<String> get() = listOf(myNoteDAO.getMyNoteTextByKey(key))
 
     override val currentDocument: Book
 		get () {

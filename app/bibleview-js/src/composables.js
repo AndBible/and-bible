@@ -180,7 +180,7 @@ export function useCommon() {
 
     const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
     if(unusedAttrs.length > 0) {
-        console.error("Unhandled attributes", currentInstance.attrs);
+        console.error("Unhandled attributes", currentInstance.type.name, currentInstance.attrs);
     }
 
     onMounted(() => {

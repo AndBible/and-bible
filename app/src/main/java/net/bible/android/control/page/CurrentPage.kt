@@ -67,7 +67,7 @@ interface CurrentPage {
 
     fun checkCurrentDocumentStillInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: String
+    val currentPageContent: List<String>
 
     fun updateOptionsMenu(menu: Menu)
 

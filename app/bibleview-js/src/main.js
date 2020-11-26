@@ -39,7 +39,9 @@ const myConsole = {
     }
 }
 
-window.console = myConsole;
+if(process.env.NODE_ENV === "productin") {
+    window.console = myConsole;
+}
 
 import BibleView from "@/components/BibleView";
 const app = createApp(BibleView);

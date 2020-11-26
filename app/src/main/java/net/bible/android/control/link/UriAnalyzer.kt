@@ -17,20 +17,31 @@
  */
 package net.bible.android.control.link
 
-import net.bible.service.common.Constants
+import android.net.Uri
 import org.apache.commons.lang3.StringUtils
+import java.net.URI
 
-/** Analyse typical standard Sword uri: sword://module/key
- * e.g. sword://StrongsRealGreek/01909
- * Job.3.3
- *
- * Also And Bible specific links:
- *
- * see http://www.crosswire.org/wiki/Frontends:URI_Standard
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
 class UriAnalyzer {
+    companion object {
+        const val REPORT_PROTOCOL = "report" // Report a bug, special link
+        const val SWORD_PROTOCOL = "sword" //$NON-NLS-1$
+        const val BIBLE_PROTOCOL = "bible" //$NON-NLS-1$
+        const val DICTIONARY_PROTOCOL = "dict" //$NON-NLS-1$
+        const val GREEK_DEF_PROTOCOL = "gdef" //$NON-NLS-1$
+        const val HEBREW_DEF_PROTOCOL = "hdef" //$NON-NLS-1$
+        const val NOTE_PROTOCOL = "note"
+        const val MYNOTE_PROTOCOL = "mynote"
+        const val ALL_GREEK_OCCURRENCES_PROTOCOL = "allgoccur" //$NON-NLS-1$
+        const val ALL_HEBREW_OCCURRENCES_PROTOCOL = "allhoccur" //$NON-NLS-1$
+        const val ROBINSON_GREEK_MORPH_PROTOCOL = "robinson" //$NON-NLS-1$
+        const val STRONG_PROTOCOL = "strong" //$NON-NLS-1$
+        const val HEBREW_MORPH_PROTOCOL = "hmorph" //$NON-NLS-1$
+        const val COMMENTARY_PROTOCOL = "comment" //$NON-NLS-1$
+
+        const val SCHEME_W = "ab-w" // from OSIS w tags
+        const val SCHEME_REFERENCE = "ab-reference" // from OSIS reference tags
+    }
+
     enum class DocType {
         BIBLE, GREEK_DIC, HEBREW_DIC, ROBINSON, ALL_GREEK, ALL_HEBREW, SPECIFIC_DOC, NOTE, MYNOTE
     }
@@ -45,38 +56,34 @@ class UriAnalyzer {
 	var protocol = ""
 		private set
 
-	fun analyze(uri: String): Boolean { // check for urls like gdef:01234
-        var ref: String
+	fun analyze(urlStr: String): Boolean { // check for urls like gdef:01234
         // split the prefix from the book
-        if (!uri.contains(":")) {
-            protocol = Constants.BIBLE_PROTOCOL
-            ref = uri
+        var ref = if (!urlStr.contains(":")) {
+            protocol = BIBLE_PROTOCOL
+            urlStr
         } else {
-            val uriTokens = uri.split(":").toTypedArray()
+            val uriTokens = urlStr.split(":").toTypedArray()
             protocol = uriTokens[0]
-            ref = uriTokens[1]
+            uriTokens[1]
         }
-        // Doc type
-        docType = if (Constants.SWORD_PROTOCOL == protocol) {
-            DocType.SPECIFIC_DOC
-        } else if (Constants.BIBLE_PROTOCOL == protocol) {
-            DocType.BIBLE
-        } else if (Constants.GREEK_DEF_PROTOCOL == protocol) {
-            DocType.GREEK_DIC
-        } else if (Constants.HEBREW_DEF_PROTOCOL == protocol) {
-            DocType.HEBREW_DIC
-        } else if (Constants.ROBINSON_GREEK_MORPH_PROTOCOL == protocol) {
-            DocType.ROBINSON
-        } else if (Constants.ALL_GREEK_OCCURRENCES_PROTOCOL == protocol) {
-            DocType.ALL_GREEK
-        } else if (Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL == protocol) {
-            DocType.ALL_HEBREW
-        } else if (Constants.NOTE_PROTOCOL == protocol) {
-            DocType.NOTE
-        } else if (Constants.MYNOTE_PROTOCOL == protocol) {
-            DocType.MYNOTE
-        } else { // not a valid Strongs Uri
-            return false
+        docType = when (protocol) {
+            SWORD_PROTOCOL -> DocType.SPECIFIC_DOC
+            BIBLE_PROTOCOL -> DocType.BIBLE
+            GREEK_DEF_PROTOCOL -> DocType.GREEK_DIC
+            HEBREW_DEF_PROTOCOL -> DocType.HEBREW_DIC
+            ROBINSON_GREEK_MORPH_PROTOCOL -> DocType.ROBINSON
+            STRONG_PROTOCOL -> {
+                val firstLetter = ref.first()
+                ref = ref.slice(1 until ref.length)
+                if (firstLetter == 'G') {
+                    DocType.GREEK_DIC
+                } else {
+                    DocType.HEBREW_DIC
+                }
+            }
+            NOTE_PROTOCOL -> DocType.NOTE
+            MYNOTE_PROTOCOL -> DocType.MYNOTE
+            else -> return false
         }
         // Document
         if (StringUtils.isEmpty(ref)) {
@@ -90,7 +97,7 @@ class UriAnalyzer {
             val firstSlash = ref.indexOf("/")
             book = ref.substring(0, firstSlash)
             // handle uri like sword://Bible/John.17.11 found in Calvin's commentary avoiding any attempt to find a book named Bible that will fail
-            if (Constants.BIBLE_PROTOCOL.equals(book, ignoreCase = true)) {
+            if (BIBLE_PROTOCOL.equals(book, ignoreCase = true)) {
                 docType = DocType.BIBLE
             }
             // safe to grab after slash because slash can't be on end due to above strip("/")

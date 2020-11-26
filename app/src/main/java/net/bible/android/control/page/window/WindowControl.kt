@@ -91,6 +91,10 @@ open class WindowControl @Inject constructor(
      * Show link using whatever is the current Bible in the Links window
      */
     fun showLinkUsingDefaultBible(key: Key) {
+        showLink(defaultBibleDoc, key)
+    }
+
+    val defaultBibleDoc: Book get() {
         val linksWindow = windowRepository.dedicatedLinksWindow
         val currentBiblePage = linksWindow.pageManager.currentBible
 
@@ -103,11 +107,7 @@ open class WindowControl @Inject constructor(
         } else {
             windowRepository.activeWindow.pageManager.currentBible.currentDocument
         }
-        if(defaultBible == null) {
-            Log.e(TAG, "Default bible is null! Can't show link.")
-            return
-        }
-        showLink(if (isBible && bibleDoc != null) bibleDoc else defaultBible, key)
+        return if (isBible && bibleDoc != null) bibleDoc else defaultBible!!
     }
 
     fun showLink(document: Book, key: Key) {

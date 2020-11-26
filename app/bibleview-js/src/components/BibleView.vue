@@ -26,10 +26,12 @@
   </div>
   <div v-if="config.developmentMode" class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
-    <OsisFragment
-        v-for="{key, content} in osisFragments" :key="key"
-        :content="content"
-    />
+    <div v-for="({key, contents}, index) in osisFragments" :key="key || index">
+      <template v-for="(content, idx) in contents" :key="`${key}-${idx}`">
+        <OsisFragment :content="content"/>
+        <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
+      </template>
+    </div>
   </div>
   <div id="bottom"/>
 </template>
@@ -76,14 +78,12 @@
       window.bibleViewDebug.osisFragments = osisFragments;
 
       function replaceOsis(...s) {
-        console.log("replaceOsis")
         osisFragments.splice(0)
         osisFragments.push(...s)
       }
 
       if(process.env.NODE_ENV === "development") {
-        //bookmarks.updateBookmarkLabels(testBookmarkLabels)
-        //bookmarks.updateBookmarks(testBookmarks)
+        console.log("populating test data");
         replaceOsis(...testData)
       }
 
@@ -170,5 +170,13 @@
 }
 .inlineDiv {
   display: inline;
+}
+
+.divider {
+  height: 1em;
+}
+
+#bottom {
+  padding-bottom: 100vh;
 }
 </style>

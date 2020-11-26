@@ -99,7 +99,7 @@ class MyNoteEditTextView(private val mainBibleActivity: MainBibleActivity, priva
     fun load() {
         applyPreferenceSettings()
         val currentPage = myNoteControl.activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage
-        setText(currentPage.currentPageContent)
+        setText(currentPage.currentPageContent.first())
         updatePadding()
     }
 

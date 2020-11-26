@@ -182,14 +182,12 @@ open class Window (
             val xml = fetchOsis()
             val bookmarks = pageManager.currentBible.bookmarksForChapter
 
-            withContext(Dispatchers.Main) {
-                lastUpdated = System.currentTimeMillis()
+            lastUpdated = System.currentTimeMillis()
 
-                if(notifyLocationChange) {
-                    bibleView?.show(xml, bookmarks, updateLocation = true)
-                } else {
-                    bibleView?.show(xml, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
-                }
+            if(notifyLocationChange) {
+                bibleView?.show(xml, bookmarks, updateLocation = true)
+            } else {
+                bibleView?.show(xml, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
             }
 
             if(notifyLocationChange)
@@ -197,7 +195,7 @@ open class Window (
             }
         }
 
-    private suspend fun fetchOsis(): String = withContext(Dispatchers.IO) {
+    private suspend fun fetchOsis(): List<String> = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -206,7 +204,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            OsisMessageFormatter.format(R.string.error_page_too_large)
+            listOf(OsisMessageFormatter.format(R.string.error_page_too_large))
         }
     }
 

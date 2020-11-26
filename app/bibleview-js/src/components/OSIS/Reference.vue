@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :href="`andbible://?osisRef=${osisRef}`" ref="contentTag"><slot/></a>
+  <a class="reference" :href="`ab-reference://?osis=${parsedOsisRef}`" ref="contentTag"><slot/></a>
 </template>
 
 <script>
@@ -28,6 +28,12 @@ export default {
     osisRef: {type: String, default: null},
     source: {type: String, default: null},
     type: {type: String, default: null},
+  },
+  computed: {
+    parsedOsisRef() {
+      if(!this.osisRef) return null
+      return this.osisRef.replace(/ /g, "_")
+    }
   },
   setup() {
     return useCommon();

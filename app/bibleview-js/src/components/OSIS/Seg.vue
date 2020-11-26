@@ -24,6 +24,9 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "Seg",
+  props: {
+    type: {type: String, default: null}, // for example: 'font-size: -1;'
+  },
   setup() {
     return useCommon();
   },

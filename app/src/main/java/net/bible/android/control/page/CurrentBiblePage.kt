@@ -62,10 +62,10 @@ class CurrentBiblePage(
     /**
      * Get a fragment for specified chapter of Bible to be inserted at top of bottom of original text
      */
-    fun getFragmentForChapter(chapter: Int): String? {
+    fun getFragmentForChapter(chapter: Int): List<String> {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
         val wholeChapter = getWholeChapter(verseForFragment, showIntros)
-        return getPageContent(wholeChapter, true)
+        return getPageContent(wholeChapter)
     }
 
     private fun nextChapter() {

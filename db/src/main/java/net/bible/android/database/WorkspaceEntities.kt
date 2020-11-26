@@ -27,6 +27,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -40,7 +41,7 @@ val json = Json {
 class WorkspaceEntities {
     data class Page(
         val document: String?,
-        val key: String?,
+        val key: Key?,
         val currentYOffsetRatio: Float?
     )
 
