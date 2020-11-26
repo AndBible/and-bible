@@ -23,6 +23,9 @@ import java.net.URI
 
 class UriAnalyzer {
     companion object {
+        const val OSIS_PROTOCOL = "osis" //$NON-NLS-1$
+        const val CONTENT_PROTOCOL = "content" //$NON-NLS-1$
+
         const val REPORT_PROTOCOL = "report" // Report a bug, special link
         const val SWORD_PROTOCOL = "sword" //$NON-NLS-1$
         const val BIBLE_PROTOCOL = "bible" //$NON-NLS-1$
@@ -68,6 +71,10 @@ class UriAnalyzer {
         }
         docType = when (protocol) {
             SWORD_PROTOCOL -> DocType.SPECIFIC_DOC
+            OSIS_PROTOCOL -> DocType.BIBLE
+            // TODO: parse string and use current doc...
+            CONTENT_PROTOCOL -> DocType.BIBLE
+            // TODO: parse string here too, might be verse range, general book link etc...
             BIBLE_PROTOCOL -> DocType.BIBLE
             GREEK_DEF_PROTOCOL -> DocType.GREEK_DIC
             HEBREW_DEF_PROTOCOL -> DocType.HEBREW_DIC

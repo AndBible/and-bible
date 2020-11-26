@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :href="`ab-reference://?osis=${parsedOsisRef}`" ref="contentTag"><slot/></a>
+  <a class="reference" :href="`ab-reference://?${queryParams}`" ref="contentTag"><slot/></a>
 </template>
 
 <script>
@@ -30,9 +30,11 @@ export default {
     type: {type: String, default: null},
   },
   computed: {
-    parsedOsisRef() {
-      if(!this.osisRef) return null
-      return this.osisRef.replace(/ /g, "_")
+    queryParams() {
+      if(!this.osisRef && this.contentTag) {
+        return "content=" + encodeURI(this.contentTag.innerText);
+      }
+      return "osis=" + encodeURI(this.osisRef)
     }
   },
   setup() {

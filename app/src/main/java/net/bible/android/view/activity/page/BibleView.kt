@@ -256,6 +256,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     true
                 }
                 UriConstants.SCHEME_REFERENCE -> {
+                    val osisRef = uri.getQueryParameter("osis")
+                    if(osisRef != null) {
+                        linkControl.loadApplicationUrl(BibleLink("osis", osisRef))
+                    } else {
+                        val contentRef = uri.getQueryParameter("content")!!
+                        linkControl.loadApplicationUrl(BibleLink("content", contentRef))
+                    }
                     true
                 }
                 else -> true // TODO: throw some error document instead
