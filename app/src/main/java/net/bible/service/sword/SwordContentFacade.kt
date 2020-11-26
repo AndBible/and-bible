@@ -22,6 +22,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.link.BookAndKey
+import net.bible.android.control.link.BookAndKeyList
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -51,7 +52,6 @@ import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
@@ -95,7 +95,7 @@ open class SwordContentFacade @Inject constructor(
                 val errorMsg = application.getString(R.string.document_not_installed, book.initials)
                 format(errorMsg)
             }
-            key is DefaultKeyList -> {
+            key is BookAndKeyList -> {
                 return key.map {
                     if(it is BookAndKey) {
                         readXmlTextStandardJSwordMethod(it.document, it.key)

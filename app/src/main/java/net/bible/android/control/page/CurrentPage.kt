@@ -27,6 +27,9 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 interface CurrentPage {
+    val currentDocumentAbbreviation: String get () = currentDocument?.abbreviation?: ""
+    val currentDocumentName: String get() = currentDocument?.name?:""
+
     val bookCategory: BookCategory
     val pageManager: CurrentPageManager
 

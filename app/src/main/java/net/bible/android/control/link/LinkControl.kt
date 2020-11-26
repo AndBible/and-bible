@@ -157,6 +157,8 @@ class BookAndKey(document: Book, val key: Key): Key {
     }
 }
 
+class BookAndKeyList: DefaultKeyList()
+
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
  *
@@ -178,7 +180,7 @@ class LinkControl @Inject constructor(
      */
 
     fun loadApplicationUrl(links: List<BibleView.BibleLink>): Boolean {
-        val key = DefaultKeyList()
+        val key = BookAndKeyList()
         val bookKeys = links.map { getBookAndKey(it.url) }.filterNotNull()
         for(k in bookKeys) {
             key.addAll(k)

@@ -695,7 +695,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     }
 
     private val documentTitleText: String
-        get() = pageControl.currentPageManager.currentPage.currentDocument?.name?:""
+        get() = pageControl.currentPageManager.currentPage.currentDocumentName
 
     class KeyIsNull: Exception()
 

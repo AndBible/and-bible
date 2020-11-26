@@ -22,6 +22,8 @@ import android.view.Menu
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.link.BookAndKey
+import net.bible.android.control.link.BookAndKeyList
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
 import net.bible.service.format.OsisMessageFormatter.Companion.format
@@ -44,6 +46,24 @@ abstract class CurrentPageBase protected constructor(
 ) : CurrentPage {
 
     override var isInhibitChangeNotifications: Boolean = false
+
+    override val currentDocumentName: String
+        get() {
+            val key = key
+            if(key is BookAndKeyList) {
+                return key.map { (it as BookAndKey).document.initials }.joinToString(", ")
+            }
+            return super.currentDocumentName
+        }
+
+    override val currentDocumentAbbreviation: String
+        get() {
+            val key = key
+            if(key is BookAndKeyList) {
+                return key.map { (it as BookAndKey).document.abbreviation }.joinToString(", ")
+            }
+            return super.currentDocumentName
+        }
 
     override var _key: Key? = null
 

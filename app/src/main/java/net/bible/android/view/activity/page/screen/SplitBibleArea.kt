@@ -593,7 +593,7 @@ class SplitBibleArea(
      */
     private fun getDocumentAbbreviation(window: Window): String {
         return try {
-            val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
+            val abbrv = window.pageManager.currentPage.currentDocumentAbbreviation
             return abbrv ?: ""
             //abbrv?.substring(0, 1) ?: ""
         } catch (e: Exception) {
