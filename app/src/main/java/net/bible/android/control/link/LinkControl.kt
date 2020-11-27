@@ -155,9 +155,17 @@ class BookAndKey(document: Book, val key: Key): Key {
     override fun blur(by: Int, restrict: RestrictionType?) {
         throw UnsupportedOperationException()
     }
+
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
 }
 
-class BookAndKeyList: DefaultKeyList()
+class BookAndKeyList: DefaultKeyList() {
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
+}
 
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
