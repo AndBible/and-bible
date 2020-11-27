@@ -23,6 +23,11 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
+class OsisFragment(val xml: String, val key: String, val bookId: String) {
+    constructor(xml: String, key: Key?, bookId: String): this(xml, key?.osisID?: "error", bookId)
+    val keyStr: String get () = "$bookId:$key"
+}
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -70,7 +75,7 @@ interface CurrentPage {
 
     fun checkCurrentDocumentStillInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: List<String>
+    val currentPageContent: List<OsisFragment>
 
     fun updateOptionsMenu(menu: Menu)
 

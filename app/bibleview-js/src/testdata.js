@@ -105,7 +105,7 @@ if(process.env.NODE_ENV === "development") {
             }
         },
     ];
-    testData = testData.map(v => ({key: count++, contents: [v], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
+    testData = testData.map(v => ({contents: [{xml: v, key:count++}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
     window.testData = testData;
 
 }

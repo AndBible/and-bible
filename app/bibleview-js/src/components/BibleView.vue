@@ -26,9 +26,9 @@
   </div>
   <div v-if="config.developmentMode" class="highlightButton"><span @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
-    <div v-for="({key, contents}, index) in osisFragments" :key="key || index">
-      <template v-for="(content, idx) in contents" :key="`${key}-${idx}`">
-        <OsisFragment :content="content"/>
+    <div v-for="({contents}, index) in osisFragments" :key="index">
+      <template v-for="({xml, key}, idx) in contents" :key="key">
+        <OsisFragment :xml="xml" :fragment-key="key"/>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
       </template>
     </div>
@@ -37,7 +37,7 @@
 </template>
 <script>
   import OsisFragment from "@/components/OsisFragment";
-  import {provide, reactive, watch} from "@vue/runtime-core";
+  import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
   import highlightRange from "dom-highlight-range";
   import {useAndroid, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
@@ -91,6 +91,26 @@
       window.bibleView.setTitle = (title) => {
         document.title = `${title} (${process.env.NODE_ENV})`;
       }
+      const handler = (ev) => {
+        const {x, y} = ev;
+        const element = document.elementFromPoint(x, y)
+        //console.log("elem", element, element.parentElement, element.parentElement.parentElement);
+        const osisElem = findElemWithOsisID(element);
+        if(osisElem) {
+          console.log(osisElem.dataset.osisID);
+        }
+
+        ev.preventDefault()
+        ev.stopPropagation()
+      };
+      const evType = "mouseover";
+      onMounted(() => {
+        window.addEventListener(evType, handler)
+      })
+
+      onUnmounted( () => {
+        window.removeEventListener(evType, handler)
+      });
 
       provide("bookmarks", bookmarks);
       provide("config", config);
@@ -147,7 +167,6 @@
 
         const startElem = findElemWithOsisID(range.startContainer);
         const endElem = findElemWithOsisID(range.endContainer);
-
         console.log(
             startElem.dataset.osisID,
             startElem.dataset.elementCount,
@@ -158,6 +177,7 @@
             endElem.dataset.elementCount,
             range.endOffset
         );
+        return range
       }
     },
   }

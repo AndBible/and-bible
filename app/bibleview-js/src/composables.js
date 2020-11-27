@@ -174,7 +174,7 @@ export function useCommon() {
     const config = inject("config");
     const strings = inject("strings");
     const verseInfo = inject("verseInfo", getVerseInfo(currentInstance.props.osisID));
-    const elementCount = inject("elementCount");
+    const {elementCount, fragmentKey} = inject("fragmentInfo");
     const contentTag = ref(null);
     const thisCount = ref(-1);
 

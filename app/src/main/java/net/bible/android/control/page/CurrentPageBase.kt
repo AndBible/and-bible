@@ -137,17 +137,17 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
-    override val currentPageContent: List<String> get() = getPageContent(key)
+    override val currentPageContent: List<OsisFragment> get() = getPageContent(key)
 
-    protected fun getPageContent(key: Key?): List<String> {
+    protected fun getPageContent(key: Key?): List<OsisFragment> {
         return try {
             val currentDocument = currentDocument!!
             synchronized(currentDocument) {
                 swordContentFacade.readOsisFragment(currentDocument, key).map {
                     if (StringUtils.isEmpty(it)) {
-                        format(R.string.error_no_content)
+                        OsisFragment(format(R.string.error_no_content), key, currentDocument.initials)
                     } else
-                        it
+                        OsisFragment(it, key, currentDocument.initials)
                 }
             }
         } catch (e: Exception) {
@@ -156,7 +156,7 @@ abstract class CurrentPageBase protected constructor(
             val reportBug = app.getString(R.string.send_bug_report_title)
             val link = "<a href='report://'>${reportBug}</a>."
             val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
-            listOf(format(string))
+            listOf(OsisFragment(format(string), key, currentDocument?.initials?: "error"))
         }
     }
 

@@ -58,18 +58,16 @@ function prefixComponents() {
 export default {
   name: "OsisFragment",
   props: {
-    content: {
-      type: String,
-      required: true,
-    }
+    xml: {type: String, required: true},
+    fragmentKey: {type: String, required: true}
   },
-  setup() {
+  setup(props) {
     const elementCount = ref(0);
-    provide("elementCount", elementCount);
+    provide("fragmentInfo", {fragmentKey: props.fragmentKey, elementCount});
   },
   render() {
     return h({
-      template: this.content
+      template: this.xml
           .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
               (m, tagStart, tagFirst, tagRest, tagEnd) =>
                   `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`),

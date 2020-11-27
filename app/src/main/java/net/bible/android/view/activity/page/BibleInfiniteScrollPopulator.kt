@@ -53,7 +53,8 @@ class BibleInfiniteScrollPopulator(private val bibleView: BibleView) {
         if (currentPage is CurrentBiblePage) {
             val newChap = bibleView.maxChapter + 1
             val verse = currentPage.currentBibleVerse.verse
-            val lastChap = verse.versification.getLastVerse(verse.book, verse.chapter)
+            val lastChap = verse.versification.getLastChapter(verse.book)
+
             if(newChap > lastChap) return@launch
             val fragment = currentPage.getFragmentForChapter(newChap)?: return@launch
             bibleView.insertTextAtEnd(newChap, fragment)

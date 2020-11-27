@@ -56,6 +56,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.OsisFragment
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -487,11 +488,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
 
-    suspend fun show(xmls: List<String>,
-             bookmarks: List<BookmarkEntities.Bookmark>,
-             updateLocation: Boolean = false,
-             verse: Verse? = null,
-             yOffsetRatio: Float? = null)
+    suspend fun show(osisFrags: List<OsisFragment>,
+                     bookmarks: List<BookmarkEntities.Bookmark>,
+                     updateLocation: Boolean = false,
+                     verse: Verse? = null,
+                     yOffsetRatio: Float? = null)
     {
         val currentPage = window.pageManager.currentPage
         bookmarkLabels = bookmarkControl.allLabels
@@ -517,7 +518,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
         latestBookmarks = bookmarks
-        latestOsisObjStr = getOsisObjStr(xmls, initialVerse?.chapter.toString())
+        latestOsisObjStr = getOsisObjStr(osisFrags)
 
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
@@ -896,7 +897,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @Serializable
     data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle?)
 
-    fun getOsisObjStr(xmls: List<String>, key: String): String {
+    private fun getOsisObjStr(frags: List<OsisFragment>): String {
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
             ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) })
         })
@@ -906,9 +907,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 labels.add(bookmarkControl.LABEL_UNLABELLED)
             ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), labels.map { it.id } )
         })
-        val xmlList = xmls.map {"`$it`"}.joinToString(",")
+        val xmlList = frags.map {"{xml: `${it.xml}`, key:'${it.keyStr}'}"}.joinToString(",")
         return """{
-            key: '$key',
             contents: [$xmlList],
             bookmarks: $bookmarks,
             bookmarkLabels: $bookmarkLabels,
@@ -916,14 +916,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     }
 
-    fun insertTextAtTop(chapter: Int, osisFragment: List<String>) {
+    fun insertTextAtTop(chapter: Int, osisFragment: List<OsisFragment>) {
         addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop(${getOsisObjStr(osisFragment, chapter.toString())});")
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop(${getOsisObjStr(osisFragment)});")
     }
 
-    fun insertTextAtEnd(chapter: Int, osisFragment: List<String>) {
+    fun insertTextAtEnd(chapter: Int, osisFragment: List<OsisFragment>) {
         addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd(${getOsisObjStr(osisFragment, chapter.toString())});")
+        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd(${getOsisObjStr(osisFragment)});")
     }
 
     fun setContentReady() {

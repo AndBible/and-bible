@@ -26,17 +26,16 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.OsisFragment
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.format.OsisMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 
 class WindowChangedEvent(val window: Window)
@@ -179,15 +178,15 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
 
-            val xml = fetchOsis()
+            val osisFrag = fetchOsis()
             val bookmarks = pageManager.currentBible.bookmarksForChapter
 
             lastUpdated = System.currentTimeMillis()
 
             if(notifyLocationChange) {
-                bibleView?.show(xml, bookmarks, updateLocation = true)
+                bibleView?.show(osisFrag, bookmarks, updateLocation = true)
             } else {
-                bibleView?.show(xml, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
+                bibleView?.show(osisFrag, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
             }
 
             if(notifyLocationChange)
@@ -195,7 +194,7 @@ open class Window (
             }
         }
 
-    private suspend fun fetchOsis(): List<String> = withContext(Dispatchers.IO) {
+    private suspend fun fetchOsis(): List<OsisFragment> = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -204,7 +203,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            listOf(OsisMessageFormatter.format(R.string.error_page_too_large))
+            listOf(OsisFragment(OsisMessageFormatter.format(R.string.error_page_too_large), currentPage.key, "error"))
         }
     }
 
