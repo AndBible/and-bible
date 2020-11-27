@@ -41,6 +41,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.iterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -212,6 +213,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             val wasUpdated = callback.onPrepareActionMode(mode, menu)
+            val menuItems = ArrayList<MenuItem>()
+            for(m in menu) {
+                menuItems.add(m)
+            }
+            menu.clear()
+            for(m in menuItems.reversed()) {
+                menu.add(0, m.itemId, m.order, m.title)
+            }
             return wasUpdated
         }
 
