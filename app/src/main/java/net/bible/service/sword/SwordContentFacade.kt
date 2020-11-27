@@ -32,18 +32,14 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
-import net.bible.service.css.CssControl
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
-import net.bible.service.format.SaxParserPool
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToCopyTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import org.crosswire.common.xml.JDOMSAXEventProvider
 import org.crosswire.common.xml.SAXEventProvider
 import org.crosswire.jsword.book.Book
@@ -70,14 +66,9 @@ import javax.inject.Inject
  */
 @ApplicationScope
 open class SwordContentFacade @Inject constructor(
-    private val bookmarkFormatSupport: BookmarkFormatSupport,
-    private val myNoteFormatSupport: MyNoteFormatSupport,
     private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
 ) {
-    private val documentParseMethod = DocumentParseMethod()
 
-    private val saxParserPool = SaxParserPool()
-    private val cssControl = CssControl()
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class)

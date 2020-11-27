@@ -59,6 +59,7 @@ import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
 
+// TODO: move away from here.
 class BookAndKey(document: Book, val key: Key): Key {
     private val documentInitials = document.initials
 
