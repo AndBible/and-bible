@@ -119,6 +119,12 @@
         return style;
       }
     },
+    mounted() {
+      window.bibleView.highlight1 = () => {
+        console.log("Highlight 1 JS!");
+        this.getSelection()
+      }
+    },
     methods: {
       highLight() {
         //const first = document.getElementById("2Thess.2.12");
@@ -136,24 +142,22 @@
       },
       getSelection() {
         const selection = window.getSelection();
-        if (!selection.isCollapsed) {
-          const range = selection.getRangeAt(0);
-          console.log("range", range);
+        const range = selection.getRangeAt(0);
+        console.log("range", range);
 
-          const startElem = findElemWithOsisID(range.startContainer);
-          const endElem = findElemWithOsisID(range.endContainer);
+        const startElem = findElemWithOsisID(range.startContainer);
+        const endElem = findElemWithOsisID(range.endContainer);
 
-          console.log(
-              startElem.dataset.osisID,
-              startElem.dataset.elementCount,
-              range.startOffset
-          );
-          console.log(
-              endElem.dataset.osisID,
-              endElem.dataset.elementCount,
-              range.endOffset
-          );
-        }
+        console.log(
+            startElem.dataset.osisID,
+            startElem.dataset.elementCount,
+            range.startOffset
+        );
+        console.log(
+            endElem.dataset.osisID,
+            endElem.dataset.elementCount,
+            range.endOffset
+        );
       }
     },
   }

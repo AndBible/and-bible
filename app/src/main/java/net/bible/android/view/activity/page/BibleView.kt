@@ -20,8 +20,11 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
+import android.graphics.Rect
+import android.os.Build
 import android.os.Looper
 import android.util.Log
+import android.view.ActionMode
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.KeyEvent
@@ -36,6 +39,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -156,6 +160,87 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 true
             } else v.performClick()
         }
+    }
+
+    private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.highlight1 -> {
+                executeJavascript("bibleView.highlight1();")
+                mode.finish()
+                return true
+            }
+            else -> false
+        }
+    }
+
+    private fun onPrepareActionMenu(mode: ActionMode, menu: Menu) {
+        mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+        //menu.add(Menu.FIRST, 0, 100, "Test")
+    }
+
+    // TODO: remove after Lollipop support is dropped.
+    private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            callback.onCreateActionMode(mode, menu)
+            onPrepareActionMenu(mode, menu)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            val wasUpdated = callback.onPrepareActionMode(mode, menu)
+            return wasUpdated
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            return callback.onDestroyActionMode(mode)
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            callback.onCreateActionMode(mode, menu)
+            onPrepareActionMenu(mode, menu)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            val wasUpdated = callback.onPrepareActionMode(mode, menu)
+            return wasUpdated
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            return callback.onDestroyActionMode(mode)
+        }
+
+        override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+            if(callback is ActionMode.Callback2) {
+                return callback.onGetContentRect(mode, view, outRect)
+            } else {
+                return super.onGetContentRect(mode, view, outRect)
+            }
+        }
+    }
+
+    override fun startActionMode(callback: ActionMode.Callback, type: Int): ActionMode {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            super.startActionMode(ActionModeCallback2(callback), type)
+        } else {
+            super.startActionMode(ActionModeCallback(callback), type)
+        }
+    }
+
+    override fun startActionMode(callback: ActionMode.Callback): ActionMode {
+        return super.startActionMode(ActionModeCallback(callback))
     }
 
     /**
@@ -314,8 +399,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun enableSelection() {
         if (window.pageManager.isBibleShown) {
             // handle long click ourselves and prevent webview showing text selection automatically
-            setOnLongClickListener(BibleViewLongClickListener(true))
-            isLongClickable = false
+            setOnLongClickListener(BibleViewLongClickListener(false))
+            //isLongClickable = false
         } else {
             // reset handling of long press
             setOnLongClickListener(BibleViewLongClickListener(false))
@@ -437,7 +522,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
             applyFontSize()
-            enableSelection()
+            //enableSelection()
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
         }
 
