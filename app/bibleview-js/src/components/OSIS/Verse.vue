@@ -36,10 +36,9 @@ export default {
     verseOrdinal: { type: String, required: true},
   },
   setup(props) {
-    const verseInfo = getVerseInfo(props.osisID);
+    const verseInfo = getVerseInfo(props);
 
     const shown = ref(true);
-    verseInfo.ordinal = parseInt(props.verseOrdinal);
     verseInfo.showStack = reactive([shown]);
     const {bookmarks, bookmarkLabels} = inject("bookmarks");
     provide("verseInfo", verseInfo);

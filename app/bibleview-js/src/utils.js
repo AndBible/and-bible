@@ -15,8 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export function getVerseInfo(osisID) {
-    if(!osisID) return null;
-    const [book, chapter, verse] = osisID.split(".")
-    return {osisID: osisID, book, chapter: parseInt(chapter), verse: parseInt(verse)}
+export function getVerseInfo(props) {
+    if(!props.verseOrdinal) return null;
+    const [book, chapter, verse] = props.osisID.split(".")
+    return {ordinal: parseInt(props.verseOrdinal), osisID: props.osisID, book, chapter: parseInt(chapter), verse: parseInt(verse)}
 }

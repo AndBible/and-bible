@@ -61,8 +61,8 @@ export function useConfig() {
     const config = reactive({
         chapterNumbers: true,
         showVerseNumbers: true,
-        showStrongs: true,
-        showMorphology: true,
+        showStrongs: false,
+        showMorphology: false,
         showRedLetters: false,
         showVersePerLine: false,
         showNonCanonical: true,
@@ -151,10 +151,11 @@ export function useStrings() {
 export function useBookmarks() {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
+    let count = 0;
 
     function updateBookmarkLabels(inputData) {
         for(const v of inputData) {
-            bookmarkLabels.set(v.id, v.style)
+            bookmarkLabels.set(v.id || -(count++), v.style)
         }
     }
 
@@ -173,7 +174,7 @@ export function useCommon() {
 
     const config = inject("config");
     const strings = inject("strings");
-    const verseInfo = inject("verseInfo", getVerseInfo(currentInstance.props.osisID));
+    const verseInfo = inject("verseInfo", getVerseInfo(currentInstance.props));
     const {elementCount, fragmentKey} = inject("fragmentInfo");
     const contentTag = ref(null);
     const thisCount = ref(-1);
@@ -191,7 +192,9 @@ export function useCommon() {
         thisCount.value = elementCount.value;
         elementCount.value ++;
         if(contentTag.value) {
+            contentTag.value.classList.add("osis");
             contentTag.value.dataset.elementCount = thisCount.value.toString();
+            contentTag.value.dataset.ordinal = verseInfo ? JSON.stringify(verseInfo.ordinal) : null;
             contentTag.value.dataset.osisID = verseInfo ? JSON.stringify(verseInfo.osisID) : null;
         }
     });
