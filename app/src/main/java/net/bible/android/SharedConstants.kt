@@ -35,7 +35,7 @@ object SharedConstants {
     private const val MANUAL_INSTALL_SUBDIR2 = "sword"
     val RECOMMENDED_JSON = "recommended_documents.json"
     val MODULE_DIR = moduleDir
-    val MANUAL_INSTALL_DIR get() = manualInstallDir
+    val MANUAL_INSTALL_DIR get() = File(application.filesDir, "jsword")
     val MANUAL_INSTALL_DIR2 get() = File(Environment.getExternalStorageDirectory(), MANUAL_INSTALL_SUBDIR2)
 
     private const val FONT_SUBDIR_NAME = "fonts"
