@@ -73,11 +73,12 @@ object SwordEnvironmentInitialisation {
                 System.setProperty("jsword.home", moduleDir.absolutePath)
                 CWProject.instance().setFrontendName("and-bible")
                 // Permission is requested at MainBibleActivitiy.checkSdcardReadPermission and app is restarted if permission is granted.
-                if (ContextCompat.checkSelfPermission(application, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    enableDefaultAndManualInstallFolder()
-                } else {
-                    CWProject.setHome("jsword.home", moduleDir.absolutePath, null)
-                }
+                enableDefaultAndManualInstallFolder()
+                //if (ContextCompat.checkSelfPermission(application, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                //    enableDefaultAndManualInstallFolder()
+                //} else {
+                //    CWProject.setHome("jsword.home", moduleDir.absolutePath, null)
+                //}
                 log.debug("Main JSword path:" + CWProject.instance().writableProjectDir)
                 // 10 sec is too low, 15 may do but put it at 20 secs
                 WebResource.setTimeout(20000)
