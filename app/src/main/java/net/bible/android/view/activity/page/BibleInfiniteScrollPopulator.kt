@@ -41,7 +41,7 @@ class BibleInfiniteScrollPopulator(private val bibleView: BibleView) {
 
             if(newChap < 0) return@launch
 
-            val fragment = currentPage.getFragmentForChapter(newChap) ?: return@launch
+            val fragment = currentPage.getFragmentForChapter(newChap)
             bibleView.insertTextAtTop(newChap, fragment)
         }
     }
@@ -56,7 +56,7 @@ class BibleInfiniteScrollPopulator(private val bibleView: BibleView) {
             val lastChap = verse.versification.getLastChapter(verse.book)
 
             if(newChap > lastChap) return@launch
-            val fragment = currentPage.getFragmentForChapter(newChap)?: return@launch
+            val fragment = currentPage.getFragmentForChapter(newChap)
             bibleView.insertTextAtEnd(newChap, fragment)
         }
     }

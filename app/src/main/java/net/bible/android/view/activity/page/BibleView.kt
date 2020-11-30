@@ -898,7 +898,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
 
     @Serializable
-    data class ClientBookmark(val id: Long, val range: List<Int>, val labels: List<Long>)
+    data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val labels: List<Long>)
 
     @Serializable
     data class ClientBookmarkStyle(val color: List<Int>)

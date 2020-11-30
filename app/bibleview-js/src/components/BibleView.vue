@@ -28,7 +28,9 @@
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
       <template v-for="({xml, key}, idx) in contents" :key="key">
-        <OsisFragment :xml="xml" :fragment-key="`${key}`"/>
+        <div :class="`frag frag-${key}`">
+          <OsisFragment :xml="xml" :fragment-key="`${key}`"/>
+        </div>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
       </template>
     </div>
@@ -193,9 +195,8 @@
         const endElem = findElemWithOsisID(range.endContainer);
         this.updateBookmarks([{
           id: -lblCount,
-          range: [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)],
-          element: [parseInt(startElem.dataset.elementCount), parseInt(endElem.dataset.elementCount)],
-          offset: [range.startOffset, range.endOffset],
+          ordinalRange: [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)],
+          elementRange: [[parseInt(startElem.dataset.elementCount), range.startOffset], [parseInt(endElem.dataset.elementCount), range.endOffset]],
           labels: [-(lblCount++ % 5 + 1)]
         }])
         //const startElem = range.startContainer.closest(".osis");

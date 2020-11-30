@@ -71,17 +71,17 @@ if(process.env.NODE_ENV === "development") {
     testBookmarks = [
         {
             id: 0,
-            range: [30839, 30842],
+            ordinalRange: [30839, 30842],
             labels: [1, 2]
         },
         {
             id: 1,
-            range: [30842, 30842],
+            ordinalRange: [30842, 30842],
             labels: [3]
         },
         {
             id: 2,
-            range: [30842, 30846],
+            ordinalRange: [30842, 30846],
             labels: [3]
         }
     ];
