@@ -63,7 +63,7 @@
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
-      const android = useAndroid();
+      const {android, androidBibleView} = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
       useInfiniteScroll(config, android, osisFragments);
@@ -107,6 +107,7 @@
         ev.stopPropagation()
       };
       const evType = "mouseover";
+
       onMounted(() => {
         window.addEventListener(evType, handler)
       })

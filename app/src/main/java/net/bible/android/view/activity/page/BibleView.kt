@@ -21,6 +21,7 @@ package net.bible.android.view.activity.page
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -42,6 +43,8 @@ import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.iterator
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -269,6 +272,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun initialise() {
         Log.d(TAG, "initialise")
         webViewClient = BibleViewClient()
+
+        //WebViewCompat.postWebMessage(this, WebMessageCompat("test"))
+        if(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            val listener = WebViewCompat.WebMessageListener { view, message, sourceOrigin, isMainFrame, replyProxy ->
+                //TODO("Not yet implemented")
+                Log.d(TAG, "Message from js: ${message.data}")
+                replyProxy.postMessage("test back to js side!")
+
+            }
+            val rules = setOf("*")
+            WebViewCompat.addWebMessageListener(this, "androidBibleView", rules, listener)
+        }
+
         webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
                 Log.d(TAG, message)

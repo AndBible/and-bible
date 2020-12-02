@@ -125,6 +125,11 @@ export function useConfig() {
 }
 
 export function useAndroid() {
+    function msgListener(event) {
+        console.log("message!", event);
+        //androidBibleView.postMessage("Android calling!");
+    }
+
     if(process.env.NODE_ENV === 'development') return {
         setClientReady() {},
         scrolledToVerse() {},
@@ -133,12 +138,12 @@ export function useAndroid() {
     };
 
     onMounted(() => {
+        androidBibleView.onmessage = msgListener
         android.setClientReady();
     });
 
-    return android;
+    return {android, androidBibleView}; // TODO: rename these ....
 }
-
 export function useStrings() {
     return {
         chapterNum: "Chapter %d. ",
