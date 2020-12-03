@@ -31,12 +31,7 @@ import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import org.crosswire.jsword.passage.VerseRangeFactory
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
@@ -62,10 +57,10 @@ enum class BookmarkStyle(val backgroundColor: Int) {
     SPEAK(Color.argb(0, 255, 255, 255));
     val colorArray: List<Int> get() {
         val ar = ArrayList<Int>()
-        ar.add(Color.alpha(backgroundColor))
         ar.add(Color.red(backgroundColor))
         ar.add(Color.green(backgroundColor))
         ar.add(Color.blue(backgroundColor))
+        ar.add(Color.alpha(backgroundColor))
         return ar
     }
 

@@ -118,7 +118,7 @@
 
       bookmarks.updateBookmarkLabels([{
         id: -5,
-        style: {color: [255,0,0,255]}
+        style: {color: [255,0,0]}
       },
         {
           id: -1,

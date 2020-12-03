@@ -28,7 +28,7 @@ import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {getVerseInfo} from "@/utils";
 import highlightRange from "dom-highlight-range";
-import {sortBy, sortedUniq} from "lodash";
+import {sortBy, sortedUniq, uniqWith} from "lodash";
 
 export default {
   name: "Verse",
@@ -65,26 +65,47 @@ export default {
     bookmarkStyle({bookmarkLabels}) {
       return this.styleForLabels(bookmarkLabels)
     },
-    styleRanges({bookmarks}) {
+    styleRanges({bookmarks, leq}) {
       let splitPoints = [];
       for(const b of bookmarks) {
         splitPoints.push(b.elementRange[0])
         splitPoints.push(b.elementRange[1])
       }
-      splitPoints = sortedUniq(sortBy(splitPoints, [v => v[0], v => v[1]]));
-      
+      splitPoints = uniqWith(
+          sortBy(splitPoints, [v => v[0], v => v[1]]),
+          (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]
+      );
 
+      const styleRanges = [];
+      for(let i = 0; i < splitPoints.length-1; i++) {
+        const elementRange = [splitPoints[i], splitPoints[i+1]];
+        const [r1, r2] = elementRange;
+        const labels = new Set();
+        const bookmarksSet = new Set();
+        bookmarks
+            .filter(
+            b => {
+              const [b1, b2] = b.elementRange;
+              // Same comparison as in kotlin side BookmarksDao.bookmarksForVerseRange
+              return (
+                  (leq(r1, b1) && leq(b1, r2))
+                  || (leq(r1, b2) && leq(b2, r2))
+                  || (leq(b1, r2) && leq(b2, r1))
+                  || (leq(b1, r1) && leq(r1, b2) && leq(b1, r2) && leq(r2, b2))
+              );
+            })
+            .forEach(b => {
+              bookmarksSet.add(b.id);
+              b.labels.forEach(l => labels.add(l))
+            });
 
-      const sortedBookmarks = sortBy(bookmarks, [v => v.elementRange[0][0], v => v.elementRange[0][1]]);
-
-
-      return [
-        {
-          elementRange: [[0, 5], [0, 10]],
-          labels: new Set([1, 2, 3]),
-          bookmarks: new Set([1, 2])
-        }
-      ]
+        styleRanges.push({
+          elementRange,
+          labels,
+          bookmarks: bookmarksSet,
+        });
+      }
+      return styleRanges;
     },
     ordinal() {
       return parseInt(this.verseOrdinal);
@@ -107,6 +128,11 @@ export default {
   //  }
   //},
   methods: {
+    leq([v11, v12], [v21, v22]) {
+      if(v11 < v21) return true
+      if(v11 === v21) return v12 <= v22;
+      return false;
+    },
     highlight(bookmark) {
       const [[startCount, startOff], [endCount, endOff]] = bookmark.elementRange;
       //const [startOff, endOff] = bookmark.offsetRange;

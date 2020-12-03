@@ -20,3 +20,15 @@ export function getVerseInfo(props) {
     const [book, chapter, verse] = props.osisID.split(".")
     return {ordinal: parseInt(props.verseOrdinal), osisID: props.osisID, book, chapter: parseInt(chapter), verse: parseInt(verse)}
 }
+
+export function setFrom(...args) {
+    const set = new Set();
+    args.forEach(v => set.add(v))
+    return set;
+}
+
+export function mapFrom(arr, keyFn, valueFn) {
+    const map = new Map();
+    arr.forEach(v => map.set(keyFn(v), valueFn(v)));
+    return map;
+}
