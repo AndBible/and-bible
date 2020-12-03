@@ -110,12 +110,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
         }
-
-
-
-        GlobalScope.launch {
-
-        }
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
