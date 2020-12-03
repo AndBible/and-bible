@@ -34,6 +34,18 @@
 			android:gravity="center|top|center_vertical"
 			android:padding="5dip"
 			android:text="@string/app_name_long" />
+
+		<Button
+			android:id="@+id/downloadButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/download" />
+
+		<Button
+			android:id="@+id/importButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/install_zip" />
 	</LinearLayout>
 
 	<TextView

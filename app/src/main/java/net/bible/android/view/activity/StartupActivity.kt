@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -121,28 +122,20 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             showActivity()
-            if(askIfGotoDownloadActivity()) {
+            var downloadButton = findViewById<Button>(R.id.downloadButton)
+            downloadButton.setOnClickListener {
                 doGotoDownloadActivity()
-            } else {
-                finish()
-                // ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised
-                System.exit(2)
+            }
+
+            var importButton = findViewById<Button>(R.id.importButton)
+            importButton.setOnClickListener {
+                onLoadFromZip(it)
             }
 
         } else {
             Log.i(TAG, "Going to main bible view")
             gotoMainBibleActivity()
         }
-    }
-
-    private suspend fun askIfGotoDownloadActivity() = suspendCoroutine<Boolean> {
-        val view = layoutInflater.inflate(R.layout.first_time_dialog, null)
-        AlertDialog.Builder(this)
-                .setView(view)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, id -> it.resume(true) }
-                .setNegativeButton(R.string.cancel) { dialog, id -> it.resume(false)}
-            .create().show()
     }
 
     private fun doGotoDownloadActivity() {
