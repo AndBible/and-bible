@@ -28,6 +28,7 @@ import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
 import {getVerseInfo} from "@/utils";
 import highlightRange from "dom-highlight-range";
+import {sortBy, sortedUniq} from "lodash";
 
 export default {
   name: "Verse",
@@ -50,7 +51,8 @@ export default {
   },
   computed: {
     bookmarks: ({globalBookmarks, ordinal}) =>
-        Array.from(globalBookmarks.values()).filter(({ordinalRange}) => (ordinalRange[0] <= ordinal) && (ordinal <= ordinalRange[1])),
+        Array.from(globalBookmarks.values())
+            .filter(({ordinalRange}) => (ordinalRange[0] <= ordinal) && (ordinal <= ordinalRange[1])),
     bookmarkLabels({bookmarks, globalBookmarkLabels}) {
       const labels = new Set();
       for(const b of bookmarks) {
@@ -64,11 +66,23 @@ export default {
       return this.styleForLabels(bookmarkLabels)
     },
     styleRanges({bookmarks}) {
+      let splitPoints = [];
+      for(const b of bookmarks) {
+        splitPoints.push(b.elementRange[0])
+        splitPoints.push(b.elementRange[1])
+      }
+      splitPoints = sortedUniq(sortBy(splitPoints, [v => v[0], v => v[1]]));
+      
+
+
+      const sortedBookmarks = sortBy(bookmarks, [v => v.elementRange[0][0], v => v.elementRange[0][1]]);
+
+
       return [
         {
           elementRange: [[0, 5], [0, 10]],
-          labels: [1, 2, 3],
-          bookmarks: [1, 2]
+          labels: new Set([1, 2, 3]),
+          bookmarks: new Set([1, 2])
         }
       ]
     },

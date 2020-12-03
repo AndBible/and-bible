@@ -51,7 +51,7 @@ abstract class CurrentPageBase protected constructor(
         get() {
             val key = key
             if(key is BookAndKeyList) {
-                return key.map { (it as BookAndKey).document.initials }.joinToString(", ")
+                return key.joinToString(", ") { (it as BookAndKey).document.initials }
             }
             return super.currentDocumentName
         }
@@ -60,7 +60,7 @@ abstract class CurrentPageBase protected constructor(
         get() {
             val key = key
             if(key is BookAndKeyList) {
-                return key.map { (it as BookAndKey).document.abbreviation }.joinToString(", ")
+                return key.joinToString(", ") { (it as BookAndKey).document.abbreviation }
             }
             return super.currentDocumentName
         }

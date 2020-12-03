@@ -136,7 +136,7 @@ export function useAndroid() {
         requestMoreTextAtTop() {},
         requestMoreTextAtEnd() {},
     };
-
+    const androidBibleView = {}
     onMounted(() => {
         androidBibleView.onmessage = msgListener
         android.setClientReady();
