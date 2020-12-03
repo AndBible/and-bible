@@ -20,9 +20,10 @@ import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
 import {useConfig, useStrings} from "@/composables";
 import {ref} from "@vue/reactivity";
-import {arrayLeq, mapFrom, setFrom} from "@/utils";
+import {arrayLeq, mapFrom, rangesOverlap, setFrom} from "@/utils";
+import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 
-describe("Verse.vue", () => {
+xdescribe("Verse.vue", () => {
     let wrapper;
     beforeAll(() => {
         const bookmarkLabels = mapFrom([
@@ -105,3 +106,54 @@ describe("Verse.vue", () => {
         expect(wrapper.vm.styleRanges.map(({bookmarks, elementRange, labels}) => ({bookmarks, elementRange, labels}))).toStrictEqual(result);
     });
 })
+
+const testBookmarkLabels =  [
+    {
+        id: 0,
+        style: {color: [255, 0, 0, 255]}
+    },
+    {
+        id: 1,
+        style: {color: [255, 0, 0, 255]}
+    },
+    {
+        id: 2,
+        style: {color: [255, 0, 0, 255]}
+    }];
+
+
+describe ("bookmark test", () => {
+    it("Test styleranges 2", () => {
+        const globalBookmarks = useGlobalBookmarks();
+        const {updateBookmarks, updateBookmarkLabels} = globalBookmarks;
+        const props = {ordinalRange: [0, 100]};
+        const {styleRanges} = useBookmarks(props, globalBookmarks);
+        updateBookmarkLabels(testBookmarkLabels);
+        const ordinalRange = [0,1];
+        updateBookmarks({
+            id: 1,
+            ordinalRange,
+            elementRange: [[1, 0], [2, 0]],
+            labels: [0]
+        })
+        expect(styleRanges.value).toEqual([{bookmarks: [1], labels: [0], elementRange: [[1,0], [2,0]]}]);
+
+        updateBookmarks({
+            id: 2,
+            ordinalRange,
+            elementRange: [[3, 0], [4, 0]],
+            labels: [0]
+        })
+        expect(styleRanges.value).toEqual([
+            {bookmarks: [1], labels: [0], elementRange: [[1,0], [2,0]]},
+            {bookmarks: [2], labels: [0], elementRange: [[3,0], [4,0]]},
+        ]);
+    });
+    it("Ranges overlap", () => {
+        expect(rangesOverlap([[3, 0], [4,0]], [[1,0], [2,0]])).toBe(false);
+
+        expect(rangesOverlap([[1, 0], [4,0]], [[1,0], [2,0]])).toBe(true);
+
+        expect(rangesOverlap([[1, 0], [2,0]], [[3,0], [4,0]])).toBe(false);
+    });
+});

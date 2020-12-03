@@ -47,9 +47,9 @@ interface BookmarkDao {
     @Query("""SELECT * from Bookmark where
         :rangeStart <= kjvOrdinalStart <= :rangeEnd OR
         :rangeStart <= kjvOrdinalEnd <= :rangeEnd OR 
-        (kjvOrdinalStart <= :rangeEnd AND :rangeStart >= kjvOrdinalEnd) OR
+        (kjvOrdinalStart <= :rangeEnd AND :rangeStart >= kjvOrdinalEnd) OR 
         (kjvOrdinalStart <= :rangeStart <= kjvOrdinalEnd AND kjvOrdinalStart <= :rangeEnd <= kjvOrdinalEnd)
-        """)
+        """) // TODO: kolmannessa lauseessa on varmaan bugi...
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
         val v = converter.convert(verseRange, KJVA)

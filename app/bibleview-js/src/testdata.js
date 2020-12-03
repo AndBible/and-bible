@@ -66,7 +66,8 @@ if(process.env.NODE_ENV === "development") {
     ]
     let count = 0;
     //testData.reverse();
-    testData.splice(0, testData.length - 3);
+    //testData.splice(0, testData.length -1);
+    testData = [testData[testData.length -2]];
 
     testBookmarks = [
         {

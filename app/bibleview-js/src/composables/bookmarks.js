@@ -26,20 +26,17 @@ export function useGlobalBookmarks() {
     const bookmarks = reactive(new Map());
     let count = 1;
 
-    function updateBookmarkLabels(inputData) {
+    function updateBookmarkLabels(...inputData) {
         for(const v of inputData) {
             bookmarkLabels.set(v.id || -(count++), v.style)
         }
     }
 
-    function updateBookmarks(inputData) {
+    function updateBookmarks(...inputData) {
         for(const v of inputData) {
             bookmarks.set(v.id, v)
         }
     }
-
-    window.bibleViewDebug.bookmarks = bookmarks;
-    window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
 
     return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
 }
@@ -90,16 +87,17 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
                 .filter( b => rangesOverlap(b.elementRange, elementRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
+                    console.log(b.elementRange, elementRange, rangesOverlap(b.elementRange, elementRange));
                     b.labels.forEach(l => labels.add(l))
                 });
 
             styleRanges.push({
                 elementRange,
-                labels,
-                bookmarks: bookmarksSet,
+                labels: Array.from(labels),
+                bookmarks: Array.from(bookmarksSet),
             });
         }
-        return styleRanges;
+        return styleRanges.filter(v => v.labels.length > 0);
     })
 
     function styleForLabelIds(bookmarkLabelIds) {
@@ -137,7 +135,7 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         const [[startCount, startOff], [endCount, endOff]] = styleRange.elementRange;
         const firstElem = document.querySelector(`.frag-${props.fragmentKey} [data-element-count="${startCount}"]`);
         const secondElem = document.querySelector(`.frag-${props.fragmentKey} [data-element-count="${endCount}"]`);
-        console.log("styleRange", styleRange, props.fragmentKey, startCount, endCount);
+        console.log("styleRange", styleRange, props.fragmentKey, startCount, endCount, firstElem, secondElem);
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
         const range = new Range();
@@ -149,15 +147,20 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
     }
 
     watch(styleRanges, (newValue) => {
+        console.log("styleRanges changed!", accurateBookmarks.value, newValue);
         undoHighlights.forEach(v => {
             console.log("Running undo", v);
             v()
         })
         undoHighlights.splice(0);
-        for(const s of newValue) {
-            highlightStyleRange(s);
+        for (const s of newValue) {
+            try {
+                highlightStyleRange(s);
+            } catch (e) {
+                console.error("Error occurred", e);
+            }
         }
     });
 
-    return {bookmarksForWholeVerse, styleForLabels}
+    return {bookmarksForWholeVerse, styleForLabels, styleRanges}
 }

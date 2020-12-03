@@ -67,23 +67,48 @@ export function arrayEq([v11, v12], [v21, v22]) {
     return (v11 === v21) && (v12 === v22)
 }
 
+export function findElemWithOsisID(elem) {
+    if(elem === null) return;
+    // This needs to be done unique for each OsisFragment (as there can be many).
+    if(elem.dataset && elem.dataset.osisID) {
+        return elem;
+    }
+    else if (elem.parentElement) {
+        return elem.parentElement.closest('.osis') //findElemWithOsisID(elem.parentElement);
+        //return findElemWithOsisID(elem.parentElement);
+    }
+}
+
 export function findNodeAtOffset(elem, startOffset) {
     let offset = startOffset;
     for(const c of elem.childNodes) {
         if(c.nodeType === 1) { // element
             const textLength = c.textContent.length;
-            if(textLength > offset) {
+            if(textLength >= offset) {
                 return findNodeAtOffset(c, offset);
             } else {
                 offset -= textLength;
             }
         } else if(c.nodeType === 3) { // text
-            if(c.length > offset) {
+            if(c.length >= offset) {
                 return [c, offset];
             } else {
                 offset -= c.length;
             }
         }
+    }
+}
+
+export function findLegalPosition(elem, offset) {
+    const e = findElemWithOsisID(elem);
+    const elementCount = parseInt(e.dataset.elementCount)
+    const ordinal = parseInt(e.dataset.ordinal)
+    return [ordinal, elementCount, offset];
+    const half = elem.length / 2;
+    if(offset > half) {
+
+    } else {
+
     }
 }
 
@@ -100,11 +125,11 @@ export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
     }
 
     // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
-    return (
-        (arrayLeq(rs, bs) && arrayLe(bs, re))
-        || (arrayLe(rs, be) && arrayLeq(be, re))
-        || (arrayLe(bs, re) && arrayGe(rs, be))
-        || (arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be))
-    )
+    const ex1 = arrayLeq(rs, bs) && arrayLe(bs, re);
+    const ex2 = arrayLe(rs, be) && arrayLeq(be, re);
+    const ex3 = false; //arrayLe(bs, re) && arrayGe(rs, be);
+    const ex4 = arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be);
+
+    return (ex1 || ex2 || ex3 || ex4)
 }
 

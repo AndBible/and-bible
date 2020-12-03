@@ -45,17 +45,8 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
+  import {findElemWithOsisID, findLegalPosition} from "@/utils";
 
-  function findElemWithOsisID(elem) {
-    if(elem === null) return;
-    // This needs to be done unique for each OsisFragment (as there can be many).
-    if(elem.dataset && elem.dataset.osisID) {
-      return elem;
-    }
-    else if (elem.parentElement) {
-      return elem.parentElement.closest('.osis') //findElemWithOsisID(elem.parentElement);
-    }
-  }
   let lblCount = 0;
   export default {
     name: "BibleView",
@@ -72,8 +63,8 @@
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {
-            globalBookmarks.updateBookmarks(frag.bookmarks);
-            globalBookmarks.updateBookmarkLabels(frag.bookmarkLabels);
+            globalBookmarks.updateBookmarks(...frag.bookmarks);
+            globalBookmarks.updateBookmarkLabels(...frag.bookmarkLabels);
         }
       }, {deep: true});
 
@@ -154,15 +145,24 @@
         if(selection.rangeCount < 1) return;
         const range = selection.getRangeAt(0);
 
-        const startElem = findElemWithOsisID(range.startContainer);
-        const endElem = findElemWithOsisID(range.endContainer);
-        this.updateBookmarks([{
-          id: -lblCount,
-          ordinalRange: [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)],
-          elementRange: [[parseInt(startElem.dataset.elementCount), range.startOffset], [parseInt(endElem.dataset.elementCount), range.endOffset]],
+        const [startOrdinal, startCount, startOffset] = findLegalPosition(range.startContainer, range.startOffset);
+        const [endOrdinal, endCount, endOffset] = findLegalPosition(range.endContainer, range.endOffset);
+        //const ordinalRange = [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)];
+        const ordinalRange = [startOrdinal, endOrdinal];
+        const elementRange = [
+          //[parseInt(startElem.dataset.elementCount), range.startOffset],
+          //[parseInt(endElem.dataset.elementCount), range.endOffset]
+          [startCount, startOffset],
+          [endCount, endOffset]
+        ];
+        console.log("adding bmark", {ordinalRange, elementRange, range});
+        this.updateBookmarks({
+          id: -lblCount -1,
+          ordinalRange,
+          elementRange,
           book: "KJV",
           labels: [-(lblCount++ % 5) - 1]
-        }])
+        })
 
         selection.removeAllRanges();
         return range
@@ -171,9 +171,7 @@
   }
 </script>
 <style>
-.highlighted {
-  background-color: yellow;
-}
+
 .highlightButton {
   position: fixed;
   bottom: 0;
