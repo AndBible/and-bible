@@ -89,6 +89,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         super.onCreate(savedInstanceState);
         val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         buildActivityComponent().inject(this)
+        setContentView(R.layout.spinner)
         supportActionBar!!.hide()
         GlobalScope.launch {
             if (crashed) {
