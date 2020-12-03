@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build-old": "vue-cli-service build",
-    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue",
-    "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
-    "lint": "vue-cli-service lint"
+    "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
+    "build-old": "vue-cli-service build",
+    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue"
   },
   "dependencies": {
     "core-js": "~3.6.5",
@@ -20,8 +21,10 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-unit-jest": "^4.5.9",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "~3.0.2",
+    "@vue/test-utils": "^2.0.0-0",
     "babel-eslint": "~10.1.0",
     "cross-env": "~7.0.2",
     "eslint": "~6.7.2",
@@ -30,7 +33,9 @@
     "sass": "~1.29.0",
     "sass-loader": "~10.1.0",
     "stylus": "~0.54.8",
-    "stylus-loader": "~4.3.0"
+    "stylus-loader": "~4.3.0",
+    "typescript": "~3.9.3",
+    "vue-jest": "^5.0.0-0"
   },
   "eslintConfig": {
     "root": true,
@@ -44,7 +49,18 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {},
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
   "browserslist": [
     "last 2 Android version"
