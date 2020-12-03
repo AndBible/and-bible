@@ -72,17 +72,23 @@ if(process.env.NODE_ENV === "development") {
         {
             id: 0,
             ordinalRange: [30839, 30842],
-            labels: [1, 2]
+            labels: [1, 2],
+            elementRange: null,
+            book: null,
         },
         {
             id: 1,
             ordinalRange: [30842, 30842],
-            labels: [3]
+            labels: [3],
+            elementRange: null,
+            book: null,
         },
         {
             id: 2,
             ordinalRange: [30842, 30846],
-            labels: [3]
+            labels: [3],
+            elementRange: null,
+            book: null,
         }
     ];
     testBookmarkLabels = [
@@ -105,7 +111,7 @@ if(process.env.NODE_ENV === "development") {
             }
         },
     ];
-    testData = testData.map(v => ({contents: [{xml: v, key:count++}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
+    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
     window.testData = testData;
 
 }

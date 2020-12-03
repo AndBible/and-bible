@@ -63,7 +63,7 @@
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
-      const {android, androidBibleView} = useAndroid();
+      const android = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
       useInfiniteScroll(config, android, osisFragments);
@@ -100,7 +100,7 @@
         //const osisElem = element.closest(".osis");
         const osisElem = findElemWithOsisID(element);
         if(osisElem) {
-          console.log(osisElem.dataset.osisID);
+          //console.log(osisElem.dataset.osisID);
         }
 
         ev.preventDefault()
@@ -116,15 +116,15 @@
         window.removeEventListener(evType, handler)
       });
 
-      bookmarks.updateBookmarkLabels([{
-        id: -5,
-        style: {color: [255,0,0]}
-      },
+      bookmarks.updateBookmarkLabels([
+        {
+          id: -5,
+          style: {color: [255,0,0,255]}
+        },
         {
           id: -1,
           style: {color: [255,0,0,255]}
         },
-
         {
           id: -2,
           style: {color: [255,255,0,255]}
@@ -189,6 +189,9 @@
       },
       getSelection() {
         const selection = window.getSelection();
+        if(selection.rangeCount < 1) return;
+        window.sel = selection;
+        console.log("Selection", selection);
         const range = selection.getRangeAt(0);
         console.log("range", range);
 
@@ -198,7 +201,8 @@
           id: -lblCount,
           ordinalRange: [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)],
           elementRange: [[parseInt(startElem.dataset.elementCount), range.startOffset], [parseInt(endElem.dataset.elementCount), range.endOffset]],
-          labels: [-(lblCount++ % 5 + 1)]
+          book: "KJV",
+          labels: [-(lblCount++ % 5) - 1]
         }])
         //const startElem = range.startContainer.closest(".osis");
         //const endElem = range.endContainer.closest(".osis");
@@ -213,6 +217,7 @@
             endElem.dataset.elementCount,
             range.endOffset
         );
+        selection.removeAllRanges();
         return range
       }
     },

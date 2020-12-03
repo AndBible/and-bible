@@ -22,12 +22,16 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -41,7 +45,7 @@ import java.io.StreamCorruptedException
 
 import java.util.*
 
-const val DATABASE_VERSION = 34
+const val DATABASE_VERSION = 35
 
 class Converters {
     @TypeConverter
@@ -75,6 +79,18 @@ class Converters {
     fun strToVersification(s: String): Versification {
         return Versifications.instance().getVersification(s)
     }
+
+    @TypeConverter
+    fun bookToStr(v: Book?): String? = v?.initials
+
+    @TypeConverter
+    fun strToBook(s: String?): Book? = s?.let { Books.installed().getBook(s) }
+
+    @TypeConverter
+    fun textRangeToStr(v: BookmarkEntities.TextRange?): String? = v?.let { json.encodeToString(serializer(), v) }
+
+    @TypeConverter
+    fun strToTextRange(s: String?): BookmarkEntities.TextRange? = s?.let { json.decodeFromString(serializer(), it) }
 
     @TypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {

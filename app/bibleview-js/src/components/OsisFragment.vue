@@ -63,7 +63,10 @@ export default {
   },
   setup(props) {
     const elementCount = ref(0);
-    provide("fragmentInfo", {fragmentKey: props.fragmentKey, elementCount});
+    // eslint-disable-next-line vue/no-setup-props-destructure
+    const fragmentKey = props.fragmentKey;
+    const [book, osisID] = fragmentKey.split("--");
+    provide("fragmentInfo", {fragmentKey, book, osisID, elementCount});
   },
   render() {
     return h({

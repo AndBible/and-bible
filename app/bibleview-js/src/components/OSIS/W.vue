@@ -16,24 +16,22 @@
   -->
 
 <template>
-  <span ref="contentTag">
-    <template v-if="config.showStrongsSeparately">
-      <template v-if="(config.showStrongs && lemma) && (config.showMorphology && morph)">
-        <slot/> <a class="strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
-      </template>
-      <template v-else-if="(config.showStrongs && lemma) && (!config.showMorphology || !morph)">
-        <slot/> <a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
-      </template>
-      <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorphology && morph)">
-        <slot/> <a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
-      </template>
-      <template v-else><slot/></template>
+  <template v-if="config.showStrongsSeparately">
+    <template v-if="(config.showStrongs && lemma) && (config.showMorphology && morph)">
+      <span ref="contentTag"><slot/></span> <a class="strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
     </template>
-    <template v-else>
-      <span v-if="(config.showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
-      <span v-else ref="contentTag"><slot/></span>
+    <template v-else-if="(config.showStrongs && lemma) && (!config.showMorphology || !morph)">
+      <span ref="contentTag"><slot/></span> <a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
     </template>
-  </span>
+    <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorphology && morph)">
+      <span ref="contentTag"><slot/></span> <a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+    </template>
+    <template v-else ref="contentTag"><slot/></template>
+  </template>
+  <template v-else>
+    <span v-if="(config.showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
+    <span v-else ref="contentTag"><slot/></span>
+  </template>
 </template>
 
 <script>

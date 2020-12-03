@@ -136,13 +136,13 @@ export function useAndroid() {
         requestMoreTextAtTop() {},
         requestMoreTextAtEnd() {},
     };
-    const androidBibleView = {}
+    //const androidBibleView = {}
     onMounted(() => {
-        androidBibleView.onmessage = msgListener
+        //androidBibleView.onmessage = msgListener
         android.setClientReady();
     });
 
-    return {android, androidBibleView}; // TODO: rename these ....
+    return android; // TODO: rename these ....
 }
 export function useStrings() {
     return {

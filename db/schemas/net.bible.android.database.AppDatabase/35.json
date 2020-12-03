@@ -1,0 +1,1105 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 35,
+    "identityHash": "c3b7e4fd36a2ac729794fbf4fd0ae29e",
+    "entities": [
+      {
+        "tableName": "Bookmark",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `textRange` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "kjvOrdinalStart",
+            "columnName": "kjvOrdinalStart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kjvOrdinalEnd",
+            "columnName": "kjvOrdinalEnd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinalStart",
+            "columnName": "ordinalStart",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinalEnd",
+            "columnName": "ordinalEnd",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v11n",
+            "columnName": "v11n",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playbackSettings",
+            "columnName": "playbackSettings",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "book",
+            "columnName": "book",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "textRange",
+            "columnName": "textRange",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Bookmark_kjvOrdinalStart",
+            "unique": false,
+            "columnNames": [
+              "kjvOrdinalStart"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `${TABLE_NAME}` (`kjvOrdinalStart`)"
+          },
+          {
+            "name": "index_Bookmark_kjvOrdinalEnd",
+            "unique": false,
+            "columnNames": [
+              "kjvOrdinalEnd"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `${TABLE_NAME}` (`kjvOrdinalEnd`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Label",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `bookmarkStyle` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookmarkStyle",
+            "columnName": "bookmarkStyle",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "BookmarkToLabel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "bookmarkId",
+            "columnName": "bookmarkId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "labelId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "bookmarkId",
+            "labelId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_BookmarkToLabel_labelId",
+            "unique": false,
+            "columnNames": [
+              "labelId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `${TABLE_NAME}` (`labelId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Bookmark",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "bookmarkId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Label",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "labelId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "mynote",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`_id` INTEGER, `key` TEXT NOT NULL, `versification` TEXT, `mynote` TEXT NOT NULL, `last_updated_on` INTEGER, `created_on` INTEGER, PRIMARY KEY(`_id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "versification",
+            "columnName": "versification",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "myNote",
+            "columnName": "mynote",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdatedOn",
+            "columnName": "last_updated_on",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdOn",
+            "columnName": "created_on",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "mynote_key",
+            "unique": false,
+            "columnNames": [
+              "key"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `mynote_key` ON `${TABLE_NAME}` (`key`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "readingplan",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, `_id` INTEGER PRIMARY KEY AUTOINCREMENT)",
+        "fields": [
+          {
+            "fieldPath": "planCode",
+            "columnName": "plan_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planStartDate",
+            "columnName": "plan_start_date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planCurrentDay",
+            "columnName": "plan_current_day",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_readingplan_plan_code",
+            "unique": true,
+            "columnNames": [
+              "plan_code"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_readingplan_plan_code` ON `${TABLE_NAME}` (`plan_code`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "readingplan_status",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`plan_code` TEXT NOT NULL, `plan_day` INTEGER NOT NULL, `reading_status` TEXT NOT NULL, `_id` INTEGER PRIMARY KEY AUTOINCREMENT)",
+        "fields": [
+          {
+            "fieldPath": "planCode",
+            "columnName": "plan_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planDay",
+            "columnName": "plan_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "readingStatus",
+            "columnName": "reading_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "_id",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "_id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "code_day",
+            "unique": true,
+            "columnNames": [
+              "plan_code",
+              "plan_day"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `code_day` ON `${TABLE_NAME}` (`plan_code`, `plan_day`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Workspace",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` INTEGER, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT 0, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `window_behavior_settings_autoPin` INTEGER DEFAULT 1)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentsText",
+            "columnName": "contentsText",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "unPinnedWeight",
+            "columnName": "unPinnedWeight",
+            "affinity": "REAL",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "maximizedWindowId",
+            "columnName": "maximizedWindowId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "textDisplaySettings.showStrongs",
+            "columnName": "text_display_settings_showStrongs",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showMorphology",
+            "columnName": "text_display_settings_showMorphology",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showFootNotes",
+            "columnName": "text_display_settings_showFootNotes",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showRedLetters",
+            "columnName": "text_display_settings_showRedLetters",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showSectionTitles",
+            "columnName": "text_display_settings_showSectionTitles",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showVerseNumbers",
+            "columnName": "text_display_settings_showVerseNumbers",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showVersePerLine",
+            "columnName": "text_display_settings_showVersePerLine",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showBookmarks",
+            "columnName": "text_display_settings_showBookmarks",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showMyNotes",
+            "columnName": "text_display_settings_showMyNotes",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.justifyText",
+            "columnName": "text_display_settings_justifyText",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.hyphenation",
+            "columnName": "text_display_settings_hyphenation",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.lineSpacing",
+            "columnName": "text_display_settings_lineSpacing",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.marginLeft",
+            "columnName": "text_display_settings_margin_size_marginLeft",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.marginRight",
+            "columnName": "text_display_settings_margin_size_marginRight",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.maxWidth",
+            "columnName": "text_display_settings_margin_size_maxWidth",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayTextColor",
+            "columnName": "text_display_settings_colors_dayTextColor",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayBackground",
+            "columnName": "text_display_settings_colors_dayBackground",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayNoise",
+            "columnName": "text_display_settings_colors_dayNoise",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightTextColor",
+            "columnName": "text_display_settings_colors_nightTextColor",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightBackground",
+            "columnName": "text_display_settings_colors_nightBackground",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightNoise",
+            "columnName": "text_display_settings_colors_nightNoise",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.font.fontSize",
+            "columnName": "text_display_settings_font_fontSize",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.font.fontFamily",
+            "columnName": "text_display_settings_font_fontFamily",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "windowBehaviorSettings.enableTiltToScroll",
+            "columnName": "window_behavior_settings_enableTiltToScroll",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "windowBehaviorSettings.enableReverseSplitMode",
+            "columnName": "window_behavior_settings_enableReverseSplitMode",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "windowBehaviorSettings.autoPin",
+            "columnName": "window_behavior_settings_autoPin",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Window",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "workspaceId",
+            "columnName": "workspaceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSynchronized",
+            "columnName": "isSynchronized",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPinMode",
+            "columnName": "isPinMode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isLinksWindow",
+            "columnName": "isLinksWindow",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windowLayout.state",
+            "columnName": "window_layout_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windowLayout.weight",
+            "columnName": "window_layout_weight",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_Window_workspaceId",
+            "unique": false,
+            "columnNames": [
+              "workspaceId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `${TABLE_NAME}` (`workspaceId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Workspace",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "workspaceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "HistoryItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`windowId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `document` TEXT NOT NULL, `key` TEXT NOT NULL, `yOffsetRatio` REAL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "windowId",
+            "columnName": "windowId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "document",
+            "columnName": "document",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "yOffsetRatio",
+            "columnName": "yOffsetRatio",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_HistoryItem_windowId",
+            "unique": false,
+            "columnNames": [
+              "windowId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_HistoryItem_windowId` ON `${TABLE_NAME}` (`windowId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Window",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "windowId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "PageManager",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`windowId` INTEGER NOT NULL, `currentCategoryName` TEXT NOT NULL, `bible_document` TEXT, `bible_verse_versification` TEXT NOT NULL, `bible_verse_bibleBook` INTEGER NOT NULL, `bible_verse_chapterNo` INTEGER NOT NULL, `bible_verse_verseNo` INTEGER NOT NULL, `commentary_document` TEXT, `commentary_currentYOffsetRatio` REAL, `dictionary_document` TEXT, `dictionary_key` TEXT, `dictionary_currentYOffsetRatio` REAL, `general_book_document` TEXT, `general_book_key` TEXT, `general_book_currentYOffsetRatio` REAL, `map_document` TEXT, `map_key` TEXT, `map_currentYOffsetRatio` REAL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, PRIMARY KEY(`windowId`), FOREIGN KEY(`windowId`) REFERENCES `Window`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "windowId",
+            "columnName": "windowId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentCategoryName",
+            "columnName": "currentCategoryName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biblePage.document",
+            "columnName": "bible_document",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "biblePage.verse.versification",
+            "columnName": "bible_verse_versification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biblePage.verse.bibleBook",
+            "columnName": "bible_verse_bibleBook",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biblePage.verse.chapterNo",
+            "columnName": "bible_verse_chapterNo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "biblePage.verse.verseNo",
+            "columnName": "bible_verse_verseNo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commentaryPage.document",
+            "columnName": "commentary_document",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "commentaryPage.currentYOffsetRatio",
+            "columnName": "commentary_currentYOffsetRatio",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dictionaryPage.document",
+            "columnName": "dictionary_document",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dictionaryPage.key",
+            "columnName": "dictionary_key",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dictionaryPage.currentYOffsetRatio",
+            "columnName": "dictionary_currentYOffsetRatio",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generalBookPage.document",
+            "columnName": "general_book_document",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generalBookPage.key",
+            "columnName": "general_book_key",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generalBookPage.currentYOffsetRatio",
+            "columnName": "general_book_currentYOffsetRatio",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mapPage.document",
+            "columnName": "map_document",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mapPage.key",
+            "columnName": "map_key",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mapPage.currentYOffsetRatio",
+            "columnName": "map_currentYOffsetRatio",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "textDisplaySettings.showStrongs",
+            "columnName": "text_display_settings_showStrongs",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showMorphology",
+            "columnName": "text_display_settings_showMorphology",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showFootNotes",
+            "columnName": "text_display_settings_showFootNotes",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showRedLetters",
+            "columnName": "text_display_settings_showRedLetters",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showSectionTitles",
+            "columnName": "text_display_settings_showSectionTitles",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showVerseNumbers",
+            "columnName": "text_display_settings_showVerseNumbers",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showVersePerLine",
+            "columnName": "text_display_settings_showVersePerLine",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showBookmarks",
+            "columnName": "text_display_settings_showBookmarks",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.showMyNotes",
+            "columnName": "text_display_settings_showMyNotes",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.justifyText",
+            "columnName": "text_display_settings_justifyText",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.hyphenation",
+            "columnName": "text_display_settings_hyphenation",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.lineSpacing",
+            "columnName": "text_display_settings_lineSpacing",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.marginLeft",
+            "columnName": "text_display_settings_margin_size_marginLeft",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.marginRight",
+            "columnName": "text_display_settings_margin_size_marginRight",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.marginSize.maxWidth",
+            "columnName": "text_display_settings_margin_size_maxWidth",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayTextColor",
+            "columnName": "text_display_settings_colors_dayTextColor",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayBackground",
+            "columnName": "text_display_settings_colors_dayBackground",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.dayNoise",
+            "columnName": "text_display_settings_colors_dayNoise",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightTextColor",
+            "columnName": "text_display_settings_colors_nightTextColor",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightBackground",
+            "columnName": "text_display_settings_colors_nightBackground",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.colors.nightNoise",
+            "columnName": "text_display_settings_colors_nightNoise",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.font.fontSize",
+            "columnName": "text_display_settings_font_fontSize",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "textDisplaySettings.font.fontFamily",
+            "columnName": "text_display_settings_font_fontFamily",
+            "affinity": "TEXT",
+            "notNull": false,
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "windowId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_PageManager_windowId",
+            "unique": true,
+            "columnNames": [
+              "windowId"
+            ],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PageManager_windowId` ON `${TABLE_NAME}` (`windowId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Window",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "windowId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [],
+        "tableName": "Document",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "osisId",
+            "columnName": "osisId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "abbreviation",
+            "columnName": "abbreviation",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repository",
+            "columnName": "repository",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowId",
+            "columnName": "rowid",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "rowid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c3b7e4fd36a2ac729794fbf4fd0ae29e')"
+    ]
+  }
+}

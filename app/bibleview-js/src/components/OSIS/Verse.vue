@@ -26,7 +26,7 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {arrayLeq, getVerseInfo} from "@/utils";
+import {addAll, arrayGe, arrayLe, arrayLeq, findNodeAtOffset, getVerseInfo} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {sortBy, sortedUniq, uniqWith} from "lodash";
 
@@ -43,11 +43,11 @@ export default {
     const shown = ref(true);
     verseInfo.showStack = reactive([shown]);
     const {bookmarks, bookmarkLabels} = inject("bookmarks");
-    const {fragmentKey} = inject("fragmentInfo");
+    const {fragmentKey, book} = inject("fragmentInfo");
     provide("verseInfo", verseInfo);
     const common = useCommon();
-
-    return {shown, fragmentKey, ...common, globalBookmarks: bookmarks, globalBookmarkLabels: bookmarkLabels}
+    const undoHighlights = [];
+    return {undoHighlights, bookDocument: book, shown, fragmentKey, ...common, globalBookmarks: bookmarks, globalBookmarkLabels: bookmarkLabels}
   },
   computed: {
     bookmarks: ({globalBookmarks, ordinal}) =>
@@ -55,18 +55,18 @@ export default {
             .filter(({ordinalRange}) => (ordinalRange[0] <= ordinal) && (ordinal <= ordinalRange[1])),
     bookmarkLabels({bookmarks, globalBookmarkLabels}) {
       const labels = new Set();
-      for(const b of bookmarks) {
-        for(const l of b.labels) {
-          labels.add(l);
-        }
+      for(const b of bookmarks.filter(b => this.showBookmarkForWholeVerse(b))) {
+        addAll(labels, ...b.labels);
       }
       return Array.from(labels).map(l => globalBookmarkLabels.get(l)).filter(v => v);
     },
     bookmarkStyle({bookmarkLabels}) {
       return this.styleForLabels(bookmarkLabels)
     },
-    styleRanges({bookmarks}) {
+    styleRanges({bookmarks: origBookmarks}) {
       let splitPoints = [];
+      const bookmarks = origBookmarks.filter(b => !this.showBookmarkForWholeVerse(b));
+
       for(const b of bookmarks) {
         splitPoints.push(b.elementRange[0])
         splitPoints.push(b.elementRange[1])
@@ -79,19 +79,19 @@ export default {
       const styleRanges = [];
       for(let i = 0; i < splitPoints.length-1; i++) {
         const elementRange = [splitPoints[i], splitPoints[i+1]];
-        const [r1, r2] = elementRange;
+        const [rs, re] = elementRange;
         const labels = new Set();
         const bookmarksSet = new Set();
         bookmarks
-            .filter(
-            b => {
-              const [b1, b2] = b.elementRange;
-              // Same comparison as in kotlin side BookmarksDao.bookmarksForVerseRange
+            .filter( b => {
+              const [bs, be] = b.elementRange;
+              // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
               return (
-                  (arrayLeq(r1, b1) && arrayLeq(b1, r2))
-                  || (arrayLeq(r1, b2) && arrayLeq(b2, r2))
-                  || (arrayLeq(b1, r2) && arrayLeq(b2, r1))
-                  || (arrayLeq(b1, r1) && arrayLeq(r1, b2) && arrayLeq(b1, r2) && arrayLeq(r2, b2))
+
+                  (arrayLeq(rs, bs) && arrayLe(bs, re))
+                  || (arrayLe(rs, be) && arrayLeq(be, re))
+                  || (arrayLe(bs, re) && arrayGe(rs, be))
+                  || (arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be))
               );
             })
             .forEach(b => {
@@ -120,23 +120,46 @@ export default {
       return parseInt(this.osisID.split(".")[2])
     },
   },
-  //watch: {
-  //  bookmarks(newBookmarks, oldBoookmarks) {
-  //    for(const b of newBookmarks) {
-  //      this.highlight(b);
-  //    }
-  //  }
-  //},
+  watch: {
+    styleRanges(newValue) {
+      this.undoHighlights.forEach(v => {
+        console.log("Running undo", v);
+        v()
+      })
+      this.undoHighlights.splice(0);
+      if(newValue.length > 0) {
+        console.log("New styleRanges", newValue);
+      }
+      for(const b of newValue) {
+        this.highlight(b);
+      }
+    }
+  },
   methods: {
-    highlight(bookmark) {
-      const [[startCount, startOff], [endCount, endOff]] = bookmark.elementRange;
+    showBookmarkForWholeVerse(bookmark) {
+      return bookmark.elementRange === null || bookmark.book !== this.bookDocument
+    },
+    highlight(styleRange) {
+      const [[startCount, startOff], [endCount, endOff]] = styleRange.elementRange;
       //const [startOff, endOff] = bookmark.offsetRange;
-      const first = document.querySelector(`.frag-${this.fragmentKey} > [data-element-count="${startCount}"]`).childNodes[0];
-      const second = document.querySelector(`.frag-${this.fragmentKey} > [data-element-count="${endCount}"]`).childNodes[0];
+      const firstElem = document.querySelector(`.frag-${this.fragmentKey} [data-element-count="${startCount}"]`);
+      const secondElem = document.querySelector(`.frag-${this.fragmentKey} [data-element-count="${endCount}"]`);
+      console.log("styleRange", styleRange);
+      window.style = styleRange;
+      const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
+      const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
+      //const second = secondElem.childNodes[1];
+      window.first = first;
+      window.second = second;
       const range = new Range();
-      range.setStart(first, startOff);
-      range.setEnd(second, endOff);
-      bookmark.undoHighlight = highlightRange(range, 'span', { class: `highlighted-${bookmark.id}` });
+      range.setStart(first, startOff1);
+      range.setEnd(second, endOff1);
+      const style = this.styleForLabelIds(styleRange.labels)
+      const undo = highlightRange(range, 'span', { style });
+      this.undoHighlights.push(undo);
+    },
+    styleForLabelIds(bookmarkLabelIds) {
+      return this.styleForLabels(Array.from(bookmarkLabelIds).map(v => this.globalBookmarkLabels.get(v)));
     },
     styleForLabels(bookmarkLabels) {
       let colors = [];

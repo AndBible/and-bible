@@ -25,7 +25,7 @@ import org.crosswire.jsword.passage.Key
 
 class OsisFragment(val xml: String, val key: String, val bookId: String) {
     constructor(xml: String, key: Key?, bookId: String): this(xml, key?.osisID?: "error", bookId)
-    val keyStr: String get () = "$bookId:$key"
+    val keyStr: String get () = "$bookId--$key"
 }
 
 /**

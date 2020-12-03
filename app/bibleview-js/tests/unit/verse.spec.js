@@ -102,6 +102,6 @@ describe("Verse.vue", () => {
             },
             {"bookmarks": setFrom(1, 2, 3), "elementRange": [[10, 15], [15, 3]], "labels": setFrom(0, 1, 2)},
             {"bookmarks": setFrom(1, 2, 3), "elementRange": [[15, 3], [15, 5]], "labels": setFrom(0, 1, 2)}]
-        expect(wrapper.vm.styleRanges).toStrictEqual(result);
+        expect(wrapper.vm.styleRanges.map(({bookmarks, elementRange, labels}) => ({bookmarks, elementRange, labels}))).toStrictEqual(result);
     });
 })

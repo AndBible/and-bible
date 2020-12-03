@@ -103,7 +103,7 @@ class VerseActionModeMediator(
                 // Similar to menu handling in Activity.onOptionsItemSelected()
                 val verseRange = verseRange
                 if(verseRange != null) {
-                    verseMenuCommandHandler.handleMenuRequest(item.itemId, verseRange)
+                    verseMenuCommandHandler.handleMenuRequest(item.itemId, pageControl.currentPageManager.currentPassageDocument, verseRange)
                 }
 
                 endVerseActionMode()

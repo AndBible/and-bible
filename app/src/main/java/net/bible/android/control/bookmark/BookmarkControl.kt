@@ -42,6 +42,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.db.DatabaseContainer
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -84,7 +85,7 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun addBookmarkForVerseRange(verseRange: VerseRange) {
+    fun addBookmarkForVerseRange(book: Book?, verseRange: VerseRange) {
         if (!isCurrentDocumentBookmarkable) return
         // TODO: allow having many bookmarks in same verse
         var bookmark = dao.bookmarksStartingAtVerse(verseRange.start).firstOrNull()
@@ -92,7 +93,7 @@ open class BookmarkControl @Inject constructor(
         val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
         var message: Int? = null
         if (bookmark == null) { // prepare new bookmark and add to db
-            bookmark = Bookmark(verseRange)
+            bookmark = Bookmark(verseRange, null, book)
             bookmark = addOrUpdateBookmark(bookmark, true)
             message = R.string.bookmark_added
         } else {

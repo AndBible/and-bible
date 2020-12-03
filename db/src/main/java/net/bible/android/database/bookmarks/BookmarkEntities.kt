@@ -79,6 +79,15 @@ interface VerseRangeUser {
 }
 
 class BookmarkEntities {
+    @Serializable
+    class TextLocation(val element: Int, val offset: Int)
+
+    @Serializable
+    class TextRange(val start: TextLocation, val end: TextLocation) {
+        fun toClientList(): List<List<Int>> =
+            listOf(listOf(start.element, start.offset), listOf(end.element, end.offset))
+    }
+
     @Entity(
         indices = [
             Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
@@ -100,17 +109,22 @@ class BookmarkEntities {
 
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var createdAt: Date = Date(System.currentTimeMillis()),
+
+        var book: Book? = null,
+        val textRange: TextRange? = null,
     ): VerseRangeUser {
-        constructor(verseRange: VerseRange): this(
+        constructor(verseRange: VerseRange, textRange: TextRange?,  book: Book?): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
             verseRange.start.ordinal,
             verseRange.end.ordinal,
             verseRange.versification,
-            null
+            null,
+            book = book,
+            textRange = textRange
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, playbackSettings: PlaybackSettings?): this(
+        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
             verseRange.start.ordinal,
@@ -118,7 +132,9 @@ class BookmarkEntities {
             verseRange.versification,
             playbackSettings,
             id,
-            createdAt
+            createdAt,
+            book,
+            textRange,
         )
 
         override var verseRange: VerseRange

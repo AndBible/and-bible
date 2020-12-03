@@ -27,6 +27,12 @@ export function setFrom(...args) {
     return set;
 }
 
+export function addAll(set, ...args) {
+    for(const a of args) {
+        set.add(a);
+    }
+}
+
 export function mapFrom(arr, keyFn, valueFn) {
     const map = new Map();
     arr.forEach(v => map.set(keyFn(v), valueFn(v)));
@@ -38,3 +44,47 @@ export function arrayLeq([v11, v12], [v21, v22]) {
     if(v11 === v21) return v12 <= v22;
     return false;
 }
+
+export function arrayGeq([v11, v12], [v21, v22]) {
+    if(v11 > v21) return true
+    if(v11 === v21) return v12 >= v22;
+    return false;
+}
+
+export function arrayLe([v11, v12], [v21, v22]) {
+    if(v11 < v21) return true
+    if(v11 === v21) return v12 < v22;
+    return false;
+}
+
+export function arrayGe([v11, v12], [v21, v22]) {
+    if(v11 > v21) return true
+    if(v11 === v21) return v12 > v22;
+    return false;
+}
+
+export function arrayEq([v11, v12], [v21, v22]) {
+    return (v11 === v21) && (v12 === v22)
+}
+
+export function findNodeAtOffset(elem, startOffset) {
+    let offset = startOffset;
+    for(const c of elem.childNodes) {
+        if(c.nodeType === 1) { // element
+            const textLength = c.textContent.length;
+            if(textLength > offset) {
+                return findNodeAtOffset(c, offset);
+            } else {
+                offset -= textLength;
+            }
+        } else if(c.nodeType === 3) { // text
+            if(c.length > offset) {
+                return [c, offset];
+            } else {
+                offset -= c.length;
+            }
+        }
+    }
+}
+
+window.findNodeAtoffset = findNodeAtOffset;

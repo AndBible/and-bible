@@ -628,6 +628,13 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
     }
 }
 
+private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `book` TEXT")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `textRange` TEXT")
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -674,7 +681,8 @@ object DatabaseContainer {
                         MIGRATION_31_32,
                         SQUASH_30_33,
                         MIGRATION_32_33,
-                        MIGRATION_33_34_Bookmarks
+                        MIGRATION_33_34_Bookmarks,
+                        BOOKMARKS_BOOK_34_35,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

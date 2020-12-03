@@ -27,6 +27,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.comparetranslations.CompareTranslations
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity
 import net.bible.android.view.activity.page.MainBibleActivity
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.VerseRange
 
 /** Handle requests from the selected verse action menu
@@ -44,7 +45,7 @@ open class VerseMenuCommandHandler(
     /**
      * on Click handler for Selected verse menu
      */
-    fun handleMenuRequest(menuItemId: Int, verseRange: VerseRange): Boolean {
+    fun handleMenuRequest(menuItemId: Int, book: Book?, verseRange: VerseRange): Boolean {
         var isHandled = false
         var handlerIntent: Intent? = null
         val requestCode = ActivityBase.STD_REQUEST_CODE
@@ -58,7 +59,7 @@ open class VerseMenuCommandHandler(
                 isHandled = true
             }
             R.id.add_bookmark -> {
-                bookmarkControl.addBookmarkForVerseRange(verseRange)
+                bookmarkControl.addBookmarkForVerseRange(book, verseRange)
                 // refresh view to show new bookmark icon
                 isHandled = true
             }
