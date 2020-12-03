@@ -57,15 +57,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var warmUp: WarmUp
     @Inject lateinit var errorReportControl: ErrorReportControl
 
-    /** Called when the activity is first created.  */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.startup_view)
-
-        buildActivityComponent().inject(this)
-
+    private fun showActivity() {
         // do not show an actionBar/title on the splash screen
-        supportActionBar!!.hide()
+        setContentView(R.layout.startup_view)
 
         val versionTextView = findViewById<View>(R.id.versionText) as TextView
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
@@ -88,10 +82,16 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             // this aborts further warmUp but leaves blue splashscreen activity
             return
         }
+    }
 
+    /** Called when the activity is first created.  */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState);
+        val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
+        buildActivityComponent().inject(this)
+        supportActionBar!!.hide()
         GlobalScope.launch {
-            val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
-            if(crashed) {
+            if (crashed) {
                 CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
                 val msg = getString(R.string.error_occurred_crash_last_time)
                 errorReportControl.showErrorDialog(this@StartupActivity, msg)
@@ -108,11 +108,18 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
         }
+
+
+
+        GlobalScope.launch {
+
+        }
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
+            showActivity()
             if(askIfGotoDownloadActivity()) {
                 doGotoDownloadActivity()
             } else {
