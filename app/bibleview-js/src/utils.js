@@ -87,4 +87,24 @@ export function findNodeAtOffset(elem, startOffset) {
     }
 }
 
-window.findNodeAtoffset = findNodeAtOffset;
+export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
+    let rs, re, bs, be;
+    if(addRange) {
+        rs = [testRange[0], 0];
+        re = [testRange[1], 0];
+        bs = [bookmarkRange[0], 0];
+        be = [bookmarkRange[1], 0];
+    } else {
+        [rs, re] = testRange;
+        [bs, be] = bookmarkRange;
+    }
+
+    // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
+    return (
+        (arrayLeq(rs, bs) && arrayLe(bs, re))
+        || (arrayLe(rs, be) && arrayLeq(be, re))
+        || (arrayLe(bs, re) && arrayGe(rs, be))
+        || (arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be))
+    )
+}
+

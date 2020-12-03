@@ -44,11 +44,11 @@ interface BookmarkDao {
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
 
-    @Query("""SELECT * from Bookmark where 
-        :rangeStart <= kjvOrdinalStart < :rangeEnd OR
-        :rangeStart < kjvOrdinalEnd <= :rangeEnd OR 
-        (kjvOrdinalStart < :rangeEnd AND :rangeStart > kjvOrdinalEnd) OR
-        (kjvOrdinalStart <= :rangeStart < kjvOrdinalEnd AND kjvOrdinalStart < :rangeEnd <= kjvOrdinalEnd)
+    @Query("""SELECT * from Bookmark where
+        :rangeStart <= kjvOrdinalStart <= :rangeEnd OR
+        :rangeStart <= kjvOrdinalEnd <= :rangeEnd OR 
+        (kjvOrdinalStart <= :rangeEnd AND :rangeStart >= kjvOrdinalEnd) OR
+        (kjvOrdinalStart <= :rangeStart <= kjvOrdinalEnd AND kjvOrdinalStart <= :rangeEnd <= kjvOrdinalEnd)
         """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {

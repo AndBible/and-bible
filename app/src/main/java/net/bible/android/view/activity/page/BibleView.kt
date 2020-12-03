@@ -21,7 +21,6 @@ package net.bible.android.view.activity.page
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -932,7 +931,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 labels.add(bookmarkControl.LABEL_UNLABELLED)
             ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.toClientList(), labels.map { it.id }, it.book?.initials )
         })
-        val xmlList = frags.map {"{xml: `${it.xml}`, key:'${it.keyStr}'}"}.joinToString(",")
+        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', ordinalRange: ${it.ordinalRangeJson}"""}.joinToString(",")
         return """{
             contents: [$xmlList],
             bookmarks: $bookmarks,

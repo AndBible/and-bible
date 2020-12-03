@@ -110,8 +110,29 @@ if(process.env.NODE_ENV === "development") {
                 color: [0, 0, 255],
             }
         },
+        {
+            id: -5,
+            style: {color: [255,0,0,255]}
+        },
+        {
+            id: -1,
+            style: {color: [255,0,0,255]}
+        },
+        {
+            id: -2,
+            style: {color: [255,255,0,255]}
+        },
+        {
+            id: -3,
+            style: {color: [255,0,255,255]}
+        },
+        {
+            id: -4,
+            style: {color: [0,255,255,255]}
+        }
     ];
-    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
+
+    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`, ordinalRange: [0, 1000000]}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
     window.testData = testData;
 
 }

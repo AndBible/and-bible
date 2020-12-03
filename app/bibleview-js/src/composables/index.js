@@ -153,27 +153,6 @@ export function useStrings() {
     }
 }
 
-export function useBookmarks() {
-    const bookmarkLabels = reactive(new Map());
-    const bookmarks = reactive(new Map());
-    let count = 0;
-
-    function updateBookmarkLabels(inputData) {
-        for(const v of inputData) {
-            bookmarkLabels.set(v.id || -(count++), v.style)
-        }
-    }
-
-    function updateBookmarks(inputData) {
-        for(const v of inputData) {
-            bookmarks.set(v.id, v)
-        }
-    }
-    window.bibleViewDebug.bookmarks = bookmarks;
-    window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
-    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
-}
-
 export function useCommon() {
     const currentInstance = getCurrentInstance();
 

@@ -39,7 +39,8 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
-import {h, provide, ref} from "@vue/runtime-core";
+import {h, inject, provide, ref} from "@vue/runtime-core";
+import {useBookmarks} from "@/composables/bookmarks";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
@@ -59,13 +60,19 @@ export default {
   name: "OsisFragment",
   props: {
     xml: {type: String, required: true},
-    fragmentKey: {type: String, required: true}
+    fragmentKey: {type: String, required: true},
+    ordinalRange: {type: Array, default: null},
   },
   setup(props) {
     const elementCount = ref(0);
-    // eslint-disable-next-line vue/no-setup-props-destructure
     const fragmentKey = props.fragmentKey;
+    // TODO: check if these are used
     const [book, osisID] = fragmentKey.split("--");
+
+    const globalBookmarks = inject("globalBookmarks");
+    const bookmarks = useBookmarks(props, globalBookmarks, book);
+
+    provide("bookmarks", bookmarks);
     provide("fragmentInfo", {fragmentKey, book, osisID, elementCount});
   },
   render() {

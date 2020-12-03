@@ -22,10 +22,16 @@ import android.view.Menu
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.VerseRange
 
-class OsisFragment(val xml: String, val key: String, val bookId: String) {
-    constructor(xml: String, key: Key?, bookId: String): this(xml, key?.osisID?: "error", bookId)
-    val keyStr: String get () = "$bookId--$key"
+class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
+    val ordinalRangeJson: String get () {
+        val key = key;
+        return if(key is VerseRange) {
+            "[${key.start.ordinal}, ${key.end.ordinal}]"
+        } else "null"
+    }
+    val keyStr: String get () = "$bookId--${key?.osisID?: "error"}"
 }
 
 /**

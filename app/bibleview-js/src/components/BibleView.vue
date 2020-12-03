@@ -27,9 +27,9 @@
   <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
-      <template v-for="({xml, key}, idx) in contents" :key="key">
+      <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
         <div :class="`frag frag-${key}`">
-          <OsisFragment :xml="xml" :fragment-key="`${key}`"/>
+          <OsisFragment :xml="xml" :fragment-key="`${key}`" :ordinal-range="ordinalRange"/>
         </div>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
       </template>
@@ -40,11 +40,11 @@
 <script>
   import OsisFragment from "@/components/OsisFragment";
   import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
-  import highlightRange from "dom-highlight-range";
-  import {useAndroid, useBookmarks, useConfig, useStrings, useVerseNotifier} from "@/composables";
+  import {useAndroid, useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
+  import {useGlobalBookmarks} from "@/composables/bookmarks";
 
   function findElemWithOsisID(elem) {
     if(elem === null) return;
@@ -68,12 +68,12 @@
       const topElement = ref(null);
       useInfiniteScroll(config, android, osisFragments);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
-      const bookmarks = useBookmarks();
+      const globalBookmarks = useGlobalBookmarks();
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {
-            bookmarks.updateBookmarks(frag.bookmarks);
-            bookmarks.updateBookmarkLabels(frag.bookmarkLabels);
+            globalBookmarks.updateBookmarks(frag.bookmarks);
+            globalBookmarks.updateBookmarkLabels(frag.bookmarkLabels);
         }
       }, {deep: true});
 
@@ -116,35 +116,11 @@
         window.removeEventListener(evType, handler)
       });
 
-      bookmarks.updateBookmarkLabels([
-        {
-          id: -5,
-          style: {color: [255,0,0,255]}
-        },
-        {
-          id: -1,
-          style: {color: [255,0,0,255]}
-        },
-        {
-          id: -2,
-          style: {color: [255,255,0,255]}
-        },
-        {
-          id: -3,
-          style: {color: [255,0,255,255]}
-        },
-        {
-          id: -4,
-          style: {color: [0,255,255,255]}
-        }
-      ])
-
-      provide("bookmarks", bookmarks);
+      provide("globalBookmarks", globalBookmarks);
       provide("config", config);
       provide("strings", strings);
       provide("android", android);
-      console.log("android", android);
-      return {config, strings, osisFragments, topElement, currentVerse, updateBookmarks: bookmarks.updateBookmarks};
+      return {updateBookmarks: globalBookmarks.updateBookmarks, config, strings, osisFragments, topElement, currentVerse};
     },
     computed: {
       styleConfig({config}) {
@@ -173,27 +149,10 @@
       }
     },
     methods: {
-      highLight() {
-        //const first = document.getElementById("2Thess.2.12");
-        //const second = document.getElementById("2Thess.2.15");
-        const startCount = 16;
-        const endCount = 53;
-        const startOff = 75;
-        const endOff = 78;
-        const first = document.querySelector(`[data-element-count="${startCount}"]`).childNodes[0];
-        const second = document.querySelector(`[data-element-count="${endCount}"]`).childNodes[0];
-        const range = new Range();
-        range.setStart(first, startOff);
-        range.setEnd(second, endOff);
-        const removeHighlights = highlightRange(range, 'span', { class: 'highlighted' });
-      },
       getSelection() {
         const selection = window.getSelection();
         if(selection.rangeCount < 1) return;
-        window.sel = selection;
-        console.log("Selection", selection);
         const range = selection.getRangeAt(0);
-        console.log("range", range);
 
         const startElem = findElemWithOsisID(range.startContainer);
         const endElem = findElemWithOsisID(range.endContainer);
@@ -204,19 +163,7 @@
           book: "KJV",
           labels: [-(lblCount++ % 5) - 1]
         }])
-        //const startElem = range.startContainer.closest(".osis");
-        //const endElem = range.endContainer.closest(".osis");
 
-        console.log(
-            startElem.dataset.ordinal,
-            startElem.dataset.elementCount,
-            range.startOffset
-        );
-        console.log(
-            endElem.dataset.ordinal,
-            endElem.dataset.elementCount,
-            range.endOffset
-        );
         selection.removeAllRanges();
         return range
       }
