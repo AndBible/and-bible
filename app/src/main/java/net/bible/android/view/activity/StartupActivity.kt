@@ -18,7 +18,6 @@
 
 package net.bible.android.view.activity
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -34,7 +33,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.control.WarmUp
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -46,8 +44,6 @@ import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /** Called first to show download screen if no documents exist
  *
@@ -55,7 +51,6 @@ import kotlin.coroutines.suspendCoroutine
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
 
-    @Inject lateinit var warmUp: WarmUp
     @Inject lateinit var errorReportControl: ErrorReportControl
 
     private fun showActivity() {
@@ -65,7 +60,9 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val versionTextView = findViewById<View>(R.id.versionText) as TextView
         val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
         versionTextView.text = versionMsg
+    }
 
+    private fun checkForExternalStorage() {
         var abortErrorMsgId = 0
 
         // check for external storage
@@ -92,22 +89,16 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         buildActivityComponent().inject(this)
         setContentView(R.layout.spinner)
         supportActionBar!!.hide()
+        checkForExternalStorage()
         GlobalScope.launch {
             if (crashed) {
                 CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
                 val msg = getString(R.string.error_occurred_crash_last_time)
                 errorReportControl.showErrorDialog(this@StartupActivity, msg)
             }
-            try {
-                // force Sword to initialise itself
-                withContext(Dispatchers.IO) {
-                    warmUp.warmUpSwordNow()
-                }
-            } finally {
-                // switch back to ui thread to continue
-                withContext(Dispatchers.Main) {
-                    postBasicInitialisationControl()
-                }
+            // switch back to ui thread to continue
+            withContext(Dispatchers.Main) {
+                postBasicInitialisationControl()
             }
         }
     }
@@ -115,6 +106,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
+            // only show the splash screen if user has no bibles
             showActivity()
             var downloadButton = findViewById<Button>(R.id.downloadButton)
             downloadButton.setOnClickListener {
