@@ -32,3 +32,9 @@ export function mapFrom(arr, keyFn, valueFn) {
     arr.forEach(v => map.set(keyFn(v), valueFn(v)));
     return map;
 }
+
+export function arrayLeq([v11, v12], [v21, v22]) {
+    if(v11 < v21) return true
+    if(v11 === v21) return v12 <= v22;
+    return false;
+}

@@ -20,7 +20,7 @@ import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
 import {useConfig, useStrings} from "@/composables";
 import {ref} from "@vue/reactivity";
-import {mapFrom, setFrom} from "@/utils";
+import {arrayLeq, mapFrom, setFrom} from "@/utils";
 
 describe("Verse.vue", () => {
     let wrapper;
@@ -84,15 +84,14 @@ describe("Verse.vue", () => {
 
     })
     it("Test that leq works", () => {
-        expect(wrapper.vm.leq([0, 0], [0, 1])).toBe(true);
-        expect(wrapper.vm.leq([0, 0], [1, 1])).toBe(true);
-        expect(wrapper.vm.leq([0, 1], [1, 1])).toBe(true);
-        expect(wrapper.vm.leq([1, 1], [1, 1])).toBe(true);
-
-        expect(wrapper.vm.leq([1, 1], [1, 0])).toBe(false);
-        expect(wrapper.vm.leq([1, 1], [0, 0])).toBe(false);
-        expect(wrapper.vm.leq([1, 0], [0, 0])).toBe(false);
-        expect(wrapper.vm.leq([1, 0], [0, 0])).toBe(false);
+        expect(arrayLeq([0, 0], [0, 1])).toBe(true);
+        expect(arrayLeq([0, 0], [1, 1])).toBe(true);
+        expect(arrayLeq([0, 1], [1, 1])).toBe(true);
+        expect(arrayLeq([1, 1], [1, 1])).toBe(true);
+        expect(arrayLeq([1, 1], [1, 0])).toBe(false);
+        expect(arrayLeq([1, 1], [0, 0])).toBe(false);
+        expect(arrayLeq([1, 0], [0, 0])).toBe(false);
+        expect(arrayLeq([1, 0], [0, 0])).toBe(false);
     });
     it("Test styleranges", () => {
         const result = [

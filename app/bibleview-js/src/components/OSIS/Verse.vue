@@ -26,7 +26,7 @@
 import {inject, provide, reactive, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
 import {useCommon} from "@/composables";
-import {getVerseInfo} from "@/utils";
+import {arrayLeq, getVerseInfo} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {sortBy, sortedUniq, uniqWith} from "lodash";
 
@@ -65,7 +65,7 @@ export default {
     bookmarkStyle({bookmarkLabels}) {
       return this.styleForLabels(bookmarkLabels)
     },
-    styleRanges({bookmarks, leq}) {
+    styleRanges({bookmarks}) {
       let splitPoints = [];
       for(const b of bookmarks) {
         splitPoints.push(b.elementRange[0])
@@ -88,10 +88,10 @@ export default {
               const [b1, b2] = b.elementRange;
               // Same comparison as in kotlin side BookmarksDao.bookmarksForVerseRange
               return (
-                  (leq(r1, b1) && leq(b1, r2))
-                  || (leq(r1, b2) && leq(b2, r2))
-                  || (leq(b1, r2) && leq(b2, r1))
-                  || (leq(b1, r1) && leq(r1, b2) && leq(b1, r2) && leq(r2, b2))
+                  (arrayLeq(r1, b1) && arrayLeq(b1, r2))
+                  || (arrayLeq(r1, b2) && arrayLeq(b2, r2))
+                  || (arrayLeq(b1, r2) && arrayLeq(b2, r1))
+                  || (arrayLeq(b1, r1) && arrayLeq(r1, b2) && arrayLeq(b1, r2) && arrayLeq(r2, b2))
               );
             })
             .forEach(b => {
@@ -128,11 +128,6 @@ export default {
   //  }
   //},
   methods: {
-    leq([v11, v12], [v21, v22]) {
-      if(v11 < v21) return true
-      if(v11 === v21) return v12 <= v22;
-      return false;
-    },
     highlight(bookmark) {
       const [[startCount, startOff], [endCount, endOff]] = bookmark.elementRange;
       //const [startOff, endOff] = bookmark.offsetRange;
