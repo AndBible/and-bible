@@ -40,6 +40,7 @@ import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 
 import org.apache.commons.lang3.StringUtils
 
@@ -103,20 +104,21 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    private val previousInstallDetected: Boolean
+        get() {
+            return false;
+        }
+
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
             showActivity()
-            var downloadButton = findViewById<Button>(R.id.downloadButton)
-            downloadButton.setOnClickListener {
-                doGotoDownloadActivity()
+
+            if (previousInstallDetected) {
+
             }
 
-            var importButton = findViewById<Button>(R.id.importButton)
-            importButton.setOnClickListener {
-                onLoadFromZip(it)
-            }
 
         } else {
             Log.i(TAG, "Going to main bible view")
@@ -124,7 +126,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    private fun doGotoDownloadActivity() {
+    fun doGotoDownloadActivity(v: View) {
         var errorMessage: String? = null
 
         if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
@@ -144,7 +146,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     fun onLoadFromZip(v: View) {
         Log.i(TAG, "Load from Zip clicked")
-
         val handlerIntent = Intent(this, InstallZip::class.java)
         startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST)
     }
