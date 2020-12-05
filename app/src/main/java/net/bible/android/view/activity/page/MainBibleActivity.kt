@@ -45,7 +45,6 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
@@ -78,6 +77,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.DocumentBackup
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -110,6 +110,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.service.download.DownloadManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -153,7 +154,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     private var transportBarVisible = false
 
     val dao get() = DatabaseContainer.db.workspaceDao()
-
+    val docDao get() = DatabaseContainer.db.documentBackupDao()
     val isMyNotes
         get() =
             if (::documentControl.isInitialized) {
@@ -327,6 +328,32 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             }
         }
         initialized = true
+        GlobalScope.launch {
+            checkDocBackupDBInSync()
+        }
+    }
+
+    /**
+     * Checks if the list of documents installed matches the list of
+     * books in the backup database.
+     *
+     * Backup database is used to allow user to quickly reinstall all
+     * available books if moving to a new device.
+     */
+    private fun checkDocBackupDBInSync() {
+        val docs = swordDocumentFacade.documents;
+        val knownInstalled = docDao.getKnownInstalled()
+        if (knownInstalled.isEmpty()) {
+            Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");
+            val allDocs = docs.map {
+                DocumentBackup(it.osisID, it.name, it.abbreviation, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "")
+            }
+            docDao.insertDocuments(allDocs);
+        } else {
+            knownInstalled.map {
+                Log.d(TAG, "The ${it.name} is installed")
+            }
+        }
     }
 
     private fun postInitialize() {

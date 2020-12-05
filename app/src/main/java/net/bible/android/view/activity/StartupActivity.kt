@@ -18,6 +18,8 @@
 
 package net.bible.android.view.activity
 
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -29,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
@@ -36,6 +40,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -54,16 +59,57 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     @Inject lateinit var errorReportControl: ErrorReportControl
 
-    private fun showActivity() {
-        // do not show an actionBar/title on the splash screen
-        setContentView(R.layout.startup_view)
+    val docs get() = DatabaseContainer.db.documentBackupDao()
+    private val previousInstallDetected: Boolean get() = docs.getKnownInstalled().isNotEmpty();
 
-        val versionTextView = findViewById<View>(R.id.versionText) as TextView
-        val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
-        versionTextView.text = versionMsg
+
+    private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<String>? {
+        var result: List<String>?;
+        withContext(Dispatchers.Main) {
+            result = suspendCoroutine {
+                val books = docs.getKnownInstalled().sortedBy { it.language }
+                val bookNames = books.map {
+                    context.getString(R.string.something_with_parenthesis, it.name, it.language)
+                }.toTypedArray()
+
+                val checkedItems = bookNames.map { true }.toBooleanArray()
+                val dialog = AlertDialog.Builder(context)
+                    .setPositiveButton(R.string.okay) { d, _ ->
+                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }.map{ it.osisId }
+                        if(selectedBooks.isEmpty()) {
+                            it.resume(null)
+                        } else {
+                            it.resume(selectedBooks)
+                        }
+                    }
+                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
+                        checkedItems[pos] = value
+                    }
+                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
+                    .setOnCancelListener {_ -> it.resume(null)}
+                    .setTitle(getString(R.string.redownload))
+                    .create()
+
+                dialog.setOnShowListener {
+                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                        val allSelected = checkedItems.find { !it } == null
+                        val newValue = !allSelected
+                        val v = dialog.listView
+                        for (i in 0 until v.count) {
+                            v.setItemChecked(i, newValue)
+                            checkedItems[i] = newValue
+                        }
+                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
+                    }
+                }
+                dialog.show()
+            }
+        }
+        return result;
     }
 
-    private fun checkForExternalStorage() {
+    private fun checkForExternalStorage(): Boolean {
         var abortErrorMsgId = 0
 
         // check for external storage
@@ -79,18 +125,21 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 finish()
             }
             // this aborts further warmUp but leaves blue splashscreen activity
-            return
+            return false;
         }
+        return true
     }
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState);
-        val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
+
+        // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         setContentView(R.layout.spinner)
         supportActionBar!!.hide()
-        checkForExternalStorage()
+        if (!checkForExternalStorage()) return;
+        val crashed = CommonUtils.sharedPreferences.getBoolean("app-crashed", false)
         GlobalScope.launch {
             if (crashed) {
                 CommonUtils.sharedPreferences.edit().putBoolean("app-crashed", false).commit()
@@ -104,26 +153,49 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    private val previousInstallDetected: Boolean
-        get() {
-            return false;
-        }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if (swordDocumentFacade.bibles.isEmpty()) {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
-            showActivity()
-
-            if (previousInstallDetected) {
-
-            }
-
-
+            showFirstLayout()
         } else {
             Log.i(TAG, "Going to main bible view")
             gotoMainBibleActivity()
         }
+    }
+
+    private fun showFirstLayout() {
+
+        setContentView(R.layout.startup_view)
+
+        val versionTextView = findViewById<TextView>(R.id.versionText)
+        val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
+        versionTextView.text = versionMsg
+
+
+        // if a previous list of books is available to be installed,
+        // allow the user to requickly redownload them all.
+        var redownloadButton = findViewById<Button>(R.id.redownloadButton)
+        if (previousInstallDetected) {
+            // do something
+            Log.i(TAG, "A previous install was detected")
+            redownloadButton?.setOnClickListener {
+                GlobalScope.launch(Dispatchers.Main)  {
+                    var books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
+                    if (books != null) {
+                        val intentHandler = Intent(this@StartupActivity, FirstDownload::class.java);
+                        intentHandler.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, ArrayList(books));
+                        startActivityForResult(intentHandler, DOWNLOAD_DOCUMENT_REQUEST)
+                    }
+                }
+            }
+        } else {
+            Log.d(TAG, "Hiding button because nothing to redownload")
+            // hide button because nothing to download
+            redownloadButton.visibility = View.GONE
+        }
+
     }
 
     fun doGotoDownloadActivity(v: View) {

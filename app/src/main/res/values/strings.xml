@@ -207,6 +207,7 @@
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
+    <string name="redownload">Redownload Documents</string>
     <string name="download_confirmation">Download a Bible from the Internet?</string>
     <string name="download_source_message">Documents are downloaded from:\n https://crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
     <string name="download_document_confirm_prefix">Download</string>

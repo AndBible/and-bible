@@ -628,6 +628,14 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
     }
 }
 
+private val MIGRATION_34_35_DocumentBackup = object : Migration(34, 35) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("""CREATE TABLE IF NOT EXISTS `DocumentBackup` (`osisId` TEXT PRIMARY KEY NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL);""")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -674,7 +682,8 @@ object DatabaseContainer {
                         MIGRATION_31_32,
                         SQUASH_30_33,
                         MIGRATION_32_33,
-                        MIGRATION_33_34_Bookmarks
+                        MIGRATION_33_34_Bookmarks,
+                        MIGRATION_34_35_DocumentBackup
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

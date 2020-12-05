@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
@@ -79,6 +78,8 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
     private val repoFactory = RepoFactory(downloadManager)
+    private var booksToDownload: ArrayList<String>? = null
+    private val booksNotFound = ArrayList<String>()
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
         val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
@@ -163,7 +164,23 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
                 withContext(Dispatchers.Main) {
                     isRefreshing = false
                     invalidateOptionsMenu()
+                    booksToDownload = intent.extras?.getStringArrayList(DOCUMENT_IDS_EXTRA)
+                    if (booksToDownload != null) {
+                        downloadRequestedBooks(booksToDownload!!)
+                    }
                 }
+            }
+        }
+    }
+
+    private fun downloadRequestedBooks(osisIds: ArrayList<String>) {
+        osisIds.forEach {
+            Log.i(TAG, "User request to redownload $it")
+            val book: Book? = findBookByOsisID(it)
+            if (book != null) {
+                doDownload(book)
+            } else {
+                booksNotFound.add(it)
             }
         }
     }
@@ -334,6 +351,7 @@ open class DownloadActivity : DocumentSelectionBase(NO_OPTIONS_MENU, R.menu.down
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 10
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
+        const val DOCUMENT_IDS_EXTRA = "documentIds"
         const val DOWNLOAD_FINISH = 1
         private const val TAG = "Download"
     }

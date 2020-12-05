@@ -48,6 +48,12 @@
 			android:layout_height="wrap_content"
 			android:onClick="onLoadFromZip"
 			android:text="@string/install_zip" />
+
+		<Button
+			android:id="@+id/redownloadButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Quick Redownload" />
 	</LinearLayout>
 
 	<TextView
