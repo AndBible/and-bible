@@ -99,17 +99,36 @@ export function findNodeAtOffset(elem, startOffset) {
     }
 }
 
-export function findLegalPosition(elem, offset) {
-    const e = findElemWithOsisID(elem);
-    const elementCount = parseInt(e.dataset.elementCount)
-    const ordinal = parseInt(e.dataset.ordinal)
-    return [ordinal, elementCount, offset];
-    const half = elem.length / 2;
-    if(offset > half) {
+function contentLength(elem) {
+    return elem.innerText.length;
+}
 
-    } else {
+function hasOsisContent(element) {
+    // something with content that should be counted in offset
+    return element.classList.contains("osis")
+}
 
+export function findLegalPosition(node, offset) {
+    let e = node;
+
+    let offsetNow = offset;
+
+    while (e.previousSibling !== null) {
+        e = e.previousSibling
+        if (e.nodeType === 3) {
+            offsetNow += e.length;
+        } else if (e.nodeType === 1) {
+            offsetNow += contentLength(e);
+        }
     }
+
+    if(!hasOsisContent(e.parentElement)) {
+        return findLegalPosition(e.parentElement, offsetNow-1);
+    }
+
+    const elementCount = parseInt(e.parentElement.dataset.elementCount)
+    const ordinal = parseInt(e.parentElement.dataset.ordinal)
+    return [ordinal, elementCount, offsetNow];
 }
 
 export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
