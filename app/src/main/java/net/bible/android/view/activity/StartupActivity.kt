@@ -18,6 +18,7 @@
 
 package net.bible.android.view.activity
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -37,13 +38,18 @@ import kotlin.coroutines.suspendCoroutine
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
+import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 
@@ -58,6 +64,7 @@ import javax.inject.Inject
 open class StartupActivity : CustomTitlebarActivityBase() {
 
     @Inject lateinit var errorReportControl: ErrorReportControl
+    @Inject lateinit var backupControl: BackupControl
 
     val docs get() = DatabaseContainer.db.documentBackupDao()
     private val previousInstallDetected: Boolean get() = docs.getKnownInstalled().isNotEmpty();
@@ -151,6 +158,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 postBasicInitialisationControl()
             }
         }
+
+        BackupControl.setupDirs(this)
     }
 
 
@@ -193,7 +202,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         } else {
             Log.d(TAG, "Hiding button because nothing to redownload")
             // hide button because nothing to download
-            redownloadButton.visibility = View.GONE
+            redownloadButton.text = getString(R.string.restore_database)
+            redownloadButton.setOnClickListener {
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "application/*"
+                startActivityForResult(intent, REQUEST_PICK_FILE_FOR_BACKUP_RESTORE)
+            }
         }
 
     }
@@ -250,6 +264,28 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     postBasicInitialisationControl()
                 }
             }
+        } else if (requestCode == REQUEST_PICK_FILE_FOR_BACKUP_RESTORE) {
+            // this and the one in MainActivity could potentially be merged into the same thing
+            if (resultCode == Activity.RESULT_OK) {
+                CurrentActivityHolder.getInstance().currentActivity = this
+                Dialogs.instance.showMsg(R.string.restore_confirmation, true) {
+                    ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
+                    val hourglass = Hourglass(this)
+                    GlobalScope.launch(Dispatchers.IO) {
+                        hourglass.show()
+                        val inputStream = contentResolver.openInputStream(data!!.data!!)
+                        if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
+                            Log.d(TAG, "Restored database successfully")
+
+                            withContext(Dispatchers.Main) {
+                                Dialogs.instance.showMsg(R.string.restore_success)
+                                postBasicInitialisationControl()
+                            }
+                        }
+                        hourglass.dismiss()
+                    }
+                }
+            }
         }
     }
 
@@ -258,5 +294,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         private val TAG = "StartupActivity"
 
         private val DOWNLOAD_DOCUMENT_REQUEST = 2
+        private val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 1
     }
 }
