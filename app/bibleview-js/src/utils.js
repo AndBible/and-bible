@@ -165,64 +165,14 @@ export function* walkBackText(e, onlyOsis = false) {
 }
 
 export function findNext(e, last, onlyOsis=false) {
-    if(!hasParent(e, last)) return null
-    if(e.nodeType === 3 && e === last) return last;
-    let next;
+    const iterator = walkBackText(e, onlyOsis);
     if(e.nodeType === 3) {
-        next = e.previousSibling
-    } else if (e.nodeType === 1) {
-        if(!onlyOsis || (onlyOsis && e.classList.contains("osis"))) {
-            next = e.lastChild || e.previousSibling;
-        } else {
-            next = e.previousSibling
-        }
-    } else if(e.nodeType === 8) {
-        const next2 = nextNonComment(e)
-        if(next2) {
-            return findNext(next2, last, onlyOsis);
-        } else {
-            return null
-        }
-    } else {
-        throw new Error(`Unknown node type ${e.nodeType}`);
+        iterator.next();
     }
-    if(next) {
-        if(next.nodeType === 1) {
-            return findNext(next, last, onlyOsis);
-        } else if(next.nodeType === 3) {
-            return next;
-        } else throw new Error(`Unknown node type ${next.nodeType}`);
-    }
-    while (!next) {
-        next = e.parentNode
-        if(next === last) return next;
 
-        let next2 = next.previousSibling
-        if(next2) {
-            if(next2.nodeType === 3) {
-                return next2;
-            } else if (next2.nodeType === 1) {
-                let next3
-                if(!onlyOsis || (onlyOsis && next2.classList.contains("osis"))) {
-                    next3 = next2.lastChild || next2.previousSibling;
-                } else {
-                    next3 = next2.previousSibling
-                }
-                if(next3) {
-                    if (next3.nodeType === 3) {
-                        return next3;
-                    } else {
-                        return findNext(next3, last, onlyOsis);
-                    }
-                } else {
-                    return findNext(next2, last, onlyOsis);
-                }
-            } else throw new Error(`Unknown node type ${next2.nodeType}`);
-        }
-        e = next;
-    }
-    if(next === last) return next;
-    return null;
+    const next = iterator.next().value;
+    if(!hasParent(next, last)) return null
+    return next;
 }
 
 function ordinalFromVerseElement(v) {
@@ -252,11 +202,13 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
         if(!hasOsisContent(e.parentNode)) {
             offsetNow = 0;
         }
+    }  else if(e.nodeType === 8) {
+        offsetNow = 0;
     } else throw new Error(`Unknown node type ${e.nodeType}`);
 
     for(
         e = findNext(e, parent, true);
-        e !== parent;
+        e && e !== parent;
         e = findNext(e, parent, true)
     ) {
         if (e.nodeType === 1) {
@@ -307,9 +259,9 @@ export function findParentsBeforeVerseSibling(node) {
 
 export function calculateOffsetToVerse(node, offset, start = true) {
     let parent;
-    if(node.nodeType === 3) {
+    if([3,8].includes(node.nodeType)) {
         parent = node.parentNode.closest(".verse");
-    } else {
+    } else if(node.nodeType === 1){
         parent = node.closest(".verse");
         node = node.firstChild || node.previousSibling
     }
@@ -320,6 +272,7 @@ export function calculateOffsetToVerse(node, offset, start = true) {
         if(hasOsisContent(lastSibling)) {
             const t = findNext(node, lastSibling, true);
             if (t) offsetNow += calculateOffsetToParent(t, lastSibling, offset)
+            else offsetNow += offset;
         }
 
         for(const s of siblings.filter(s => hasOsisContent(s))) {

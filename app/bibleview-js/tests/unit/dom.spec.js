@@ -20,7 +20,7 @@ import {
     calculateOffsetToVerse, contentLength,
     findNext, findNodeAtOffset,
     findParentsBeforeVerseSibling,
-    findPreviousSiblingWithClass, nextNonComment, walkBack, walkBackText
+    findPreviousSiblingWithClass, walkBackText
 } from "@/utils";
 
 const test1 = `
@@ -254,7 +254,7 @@ describe("findNext tests", () => {
         const e = document.querySelector("#between-2").firstChild
         const next = findNext(e, null)
         expect(next.nodeType).toBe(3)
-        expect(next.textContent).toBe("Outside of verse");
+        expect(next.textContent).toBe("verse");
     })
     it("test5.1", () => {
         const e = document.querySelector("#between-2").firstChild
@@ -290,6 +290,12 @@ describe("findNext tests", () => {
         const e = document.querySelector("#between-1")
         const next = findNext(e, e, true)
         expect(next).toBe(null);
+    })
+
+    it("test10", () => {
+        const e = document.querySelector("#between-2").firstChild
+        const next = findNext(e, e.parentNode, true)
+        expect(next).toBe(null)
     })
 });
 
