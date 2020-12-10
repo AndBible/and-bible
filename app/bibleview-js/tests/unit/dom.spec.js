@@ -26,49 +26,49 @@ import {
 const test1 = `
 <!DOCTYPE html>
 <div>
-  <div class="verse osis" id="v-0">
+  <div class="verse" id="v-0">
     text1
-    <div id="id1-1" class="osis">
+    <div id="id1-1">
       text2
       <!-- comment -->
-      <b id="id1-1-1" class="osis"><!--test-->te2.1</b>
+      <b id="id1-1-1"><!--test-->te2.1</b>
       <!-- comment -->
       te2.2
     </div>
-    <div id="id1-2">
+    <div id="id1-2" class="skip-offset">
       <!-- comment -->
       note to be ignored
       <b id="id1-3">bold</b>
     </div>
-    <div id="id1-4" class="osis">
+    <div id="id1-4">
       <!-- comment -->
       text3
-      <b id="id1-5">to be ignored</b>
+      <b id="id1-5" class="skip-offset">to be ignored</b>
       text4
     </div>    
     text5
   </div>
-  <div id="between-1">Outside of <!-- test -->verse</div>
-  <div id="between-2" class="osis">legal</div>
-  <div id="between-3">Outside of verse
+  <div id="between-1" class="skip-offset">Outside of <!-- test -->verse</div>
+  <div id="between-2">legal</div>
+  <div id="between-3" class="skip-offset">Outside of verse
     test
     <!-- test -->
-    <b id="b-3-1">test</b>
-    <b class="osis" id="b-3-2">test1</b>
+    <b class="skip-offset" id="b-3-1">test</b>
+    <b id="b-3-2">test1</b>
     test
   </div>
-  <div class="verse osis" id="v-0">
+  <div class="verse" id="v-0">
     text6
-    <div id="id2-1" class="osis">
+    <div id="id2-1">
       text7
     </div>
-    <div id="id2-2">
+    <div id="id2-2" class="skip-offset">
       note to be ignored
       <b id="id2-3">bold</b>
     </div>
-    <div id="id2-4" class="osis">
+    <div id="id2-4">
       text8
-      <b id="id2-5">to be ignored</b>
+      <b id="id2-5" class="skip-offset">to be ignored</b>
       text9
     </div>
     tex10
@@ -449,9 +449,9 @@ describe("findNodeAtOffset tests", () => {
         () => testOffset(36, "legal", 1));
 
     it("findNodeAtOffset test 12",
-        () => testOffset(41, "test1", 1));
+        () => testOffset(41, "text6", 1));
 
     it("findNodeAtOffset test 13",
-        () => testOffset(46, "text6", 1));
+        () => testOffset(46, "text7", 1));
 
 });

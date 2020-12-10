@@ -65,7 +65,7 @@ export function contentLength(elem) {
 function hasOsisContent(element) {
     // something with content that should be counted in offset
     if(element === null) return false;
-    return element.classList.contains("osis")
+    return !element.closest(".skip-offset")
 }
 
 function hasParent(e, p) {
