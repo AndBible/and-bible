@@ -136,17 +136,17 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
     const undoHighlights = [];
 
     function highlightStyleRange(styleRange) {
-        const [[startCount, startOff], [endCount, endOff]] = styleRange.elementRange;
-        const firstElem = document.querySelector(`.frag-${props.fragmentKey} [data-element-count="${startCount}"]`);
-        const secondElem = document.querySelector(`.frag-${props.fragmentKey} [data-element-count="${endCount}"]`);
-        console.log("styleRange", styleRange, props.fragmentKey, startCount, endCount, firstElem, secondElem);
+        const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
+        const firstElem = document.querySelector(`.frag-${props.fragmentKey} #v-${startOrdinal}`);
+        const secondElem = document.querySelector(`.frag-${props.fragmentKey} #v-${endOrdinal}`);
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
+        console.log("styleRange", {styleRange, fragKey: props.fragmentKey, startOrdinal, endOrdinal, firstElem, secondElem, first, second});
         const range = new Range();
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);
         const style = styleForLabelIds(styleRange.labels)
-        const undo = highlightRange(range, 'span', { style });
+        const undo = highlightRange(range, 'span', { class: "osis", style });
         undoHighlights.push(undo);
     }
 

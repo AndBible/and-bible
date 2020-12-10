@@ -21,7 +21,7 @@ import {
     findNext, findNodeAtOffset,
     findParentsBeforeVerseSibling,
     findPreviousSiblingWithClass, walkBackText
-} from "@/utils";
+} from "@/dom";
 
 const test1 = `
 <!DOCTYPE html>

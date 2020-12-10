@@ -45,7 +45,7 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {calculateOffsetToVerse, findElemWithOsisID, findLegalPosition} from "@/utils";
+  import {calculateOffsetToVerse, findElemWithOsisID} from "@/dom";
 
   let lblCount = 0;
   export default {
@@ -146,7 +146,7 @@
         const range = selection.getRangeAt(0);
 
         const {ordinal: startOrdinal, offset: startOffset} = calculateOffsetToVerse(range.startContainer, range.startOffset, true);
-        const {ordinal: endOrdinal, offset: endOffset} = calculateOffsetToVerse(range.endContainer, range.endContainer);
+        const {ordinal: endOrdinal, offset: endOffset} = calculateOffsetToVerse(range.endContainer, range.endOffset);
         //const ordinalRange = [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)];
         const ordinalRange = [startOrdinal, endOrdinal];
         const offsetRange = [startOffset, endOffset];
