@@ -81,54 +81,234 @@ export function findElemWithOsisID(elem) {
 
 export function findNodeAtOffset(elem, startOffset) {
     let offset = startOffset;
-    for(const c of elem.childNodes) {
-        if(c.nodeType === 1) { // element
-            const textLength = c.textContent.length;
-            if(textLength >= offset) {
-                return findNodeAtOffset(c, offset);
-            } else {
-                offset -= textLength;
-            }
-        } else if(c.nodeType === 3) { // text
-            if(c.length >= offset) {
-                return [c, offset];
-            } else {
-                offset -= c.length;
+    do {
+        for (const c of elem.childNodes) {
+            if (c.nodeType === 1 && hasOsisContent(c)) { // element
+                const textLength = contentLength(c);
+                if (textLength >= offset) {
+                    return findNodeAtOffset(c, offset);
+                } else {
+                    offset -= textLength;
+                }
+            } else if (c.nodeType === 3 && hasOsisContent(c.parentElement)) { // text
+                if (c.length >= offset) {
+                    return [c, offset];
+                } else {
+                    offset -= c.length;
+                }
             }
         }
-    }
+        elem = elem.nextSibling
+    } while(elem)
 }
 
-function contentLength(elem) {
-    return elem.innerText.length;
+export function contentLength(elem) {
+    let length = 0;
+    for(const c of elem.childNodes) {
+        if(c.nodeType === 3 && hasOsisContent(c.parentNode)) {
+            length += c.length;
+        } else if(c.nodeType === 1) {
+            length += contentLength(c)
+        }
+    }
+    return length;
 }
 
 function hasOsisContent(element) {
     // something with content that should be counted in offset
+    if(element === null) return false;
     return element.classList.contains("osis")
 }
 
-export function findLegalPosition(node, offset) {
+function hasParent(e, p) {
+    if(p === null) return true
+    while(e) {
+        if(e === p) return true
+        e = e.parentNode;
+    }
+    return false;
+}
+
+export function findNext(e, last, onlyOsis=false) {
+    if(!hasParent(e, last)) return null
+    if(e.nodeType === 3 && e === last) return last;
+    let next;
+    if(e.nodeType === 3) {
+        next = e.previousSibling
+    } else {
+        if(!onlyOsis || (onlyOsis && e.classList.contains("osis"))) {
+            next = e.lastChild || e.previousSibling;
+        } else {
+            next = e.previousSibling
+        }
+    }
+    if(next) {
+        if(next.nodeType === 1) {
+            return findNext(next, last, onlyOsis);
+        } else {
+            return next;
+        }
+    }
+    while (!next) {
+        next = e.parentNode
+        if(next === last) return next;
+
+        let next2 = next.previousSibling
+        if(next2) {
+            if(next2.nodeType === 3) {
+                return next2;
+            } else {
+                let next3
+                if(!onlyOsis || (onlyOsis && next2.classList.contains("osis"))) {
+                    next3 = next2.lastChild || next2.previousSibling;
+                } else {
+                    next3 = next2.previousSibling
+                }
+                if(next3) {
+                    if (next3.nodeType === 3) {
+                        return next3;
+                    } else {
+                        return findNext(next3, last, onlyOsis);
+                    }
+                } else {
+                    return findNext(next2, last, onlyOsis);
+                }
+            }
+        }
+        e = next;
+    }
+    if(next === last) return next;
+    return null;
+}
+
+function ordinalFromVerseElement(v) {
+    return parseInt(v.id.split("-")[1]);
+}
+
+export function calculateOffsetToParent(node, parent, offset, start = true, {forceFromEnd = false} = {}) {
+    let e = node;
+
+    let offsetNow = offset;
+    if(e.nodeType === 1) {
+        if(!forceFromEnd) {
+            if(parent === e) {
+                return offset
+            } else {
+                e = findNext(e, parent, true);
+            }
+        } else {
+            const next = e.lastChild
+            if(next.nodeType === 3) {
+                return calculateOffsetToParent(next, offsetNow + next.length, start)
+            } else {
+                return calculateOffsetToParent(next, offsetNow, start)
+            }
+        }
+    } else {
+        if(!hasOsisContent(e.parentNode)) {
+            offsetNow = 0;
+        }
+    }
+
+    for(
+        e = findNext(e, parent, true);
+        e !== parent;
+        e = findNext(e, parent, true)
+    ) {
+        if (e.nodeType !== 3) throw new Error("Error!");
+        if (hasOsisContent(e.parentNode)) {
+            offsetNow += e.length;
+        }
+    }
+    return offsetNow
+}
+
+export function findPreviousSiblingWithClass(node, cls) {
+    let candidate = node;
+    if(candidate.nodeType === 3) {
+        node = node.parentNode;
+        candidate = node;
+    }
+    const siblings = [];
+    // TODO: SIMPLIFY
+    if(candidate && !candidate.classList.contains(cls)) {
+        siblings.push(candidate);
+    }
+    while(candidate && !candidate.classList.contains(cls)) {
+        candidate = candidate.previousElementSibling;
+        if(candidate && !candidate.classList.contains(cls)) {
+            siblings.push(candidate);
+        }
+    }
+    return {node, siblings, verseNode: candidate};
+}
+
+export function findParentsBeforeVerseSibling(node) {
+    let candidate = findPreviousSiblingWithClass(node, "verse");
+    if(candidate.verseNode) {
+        return {
+            parent: candidate.node,
+            siblings: candidate.siblings,
+            verseNode: candidate.verseNode
+        };
+    } else {
+        return findParentsBeforeVerseSibling(node.parentNode)
+    }
+}
+
+export function calculateOffsetToVerse(node, offset, start = true) {
+    let parent;
+    if(node.nodeType === 3) {
+        parent = node.parentNode.closest(".verse");
+    } else {
+        parent = node.closest(".verse");
+        node = node.firstChild || node.previousSibling
+    }
+    let offsetNow = 0;
+    if(!parent) {
+        const {verseNode, siblings} = findParentsBeforeVerseSibling(node)
+        const lastSibling = siblings.shift();
+        if(hasOsisContent(lastSibling)) {
+            const t = findNext(node, lastSibling, true);
+            if (t) offsetNow += calculateOffsetToParent(t, lastSibling, offset)
+        }
+
+        for(const s of siblings.filter(s => hasOsisContent(s))) {
+            const t = findNext(s, s, true);
+            if(t) offsetNow += calculateOffsetToParent(t, s, t.length)
+        }
+        parent = verseNode
+        node = findNext(verseNode, verseNode, true)
+        offset = node.length
+    }
+
+    offsetNow += calculateOffsetToParent(node, parent, offset, start);
+    return {offset: offsetNow, ordinal: ordinalFromVerseElement(parent)}
+}
+
+export function findLegalPositionOld(node, offset, start) {
     let e = node;
 
     let offsetNow = offset;
 
-    while (e.previousSibling !== null) {
-        e = e.previousSibling
-        if (e.nodeType === 3) {
-            offsetNow += e.length;
-        } else if (e.nodeType === 1) {
-            offsetNow += contentLength(e);
+    if(!start) {
+        while (e.previousSibling !== null) {
+            e = e.previousSibling
+            if (e.nodeType === 3) {
+                offsetNow += e.length;
+            } else if (e.nodeType === 1) {
+                offsetNow += contentLength(e);
+            }
         }
     }
 
     if(!hasOsisContent(e.parentElement)) {
-        return findLegalPosition(e.parentElement, offsetNow-1);
+        return findLegalPosition(e.parentElement, offsetNow-1, start);
     }
 
     const elementCount = parseInt(e.parentElement.dataset.elementCount)
     const ordinal = parseInt(e.parentElement.dataset.ordinal)
-    return [ordinal, elementCount, offsetNow];
+    return {ordinal, elementCount, offset: offsetNow};
 }
 
 export function rangesOverlap(bookmarkRange, testRange, addRange = false) {

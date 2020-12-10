@@ -145,8 +145,8 @@
         if(selection.rangeCount < 1) return;
         const range = selection.getRangeAt(0);
 
-        const [startOrdinal, startCount, startOffset] = findLegalPosition(range.startContainer, range.startOffset);
-        const [endOrdinal, endCount, endOffset] = findLegalPosition(range.endContainer, range.endOffset);
+        const [startOrdinal, startCount, startOffset] = findLegalPosition(range.startContainer, range.startOffset, true);
+        const [endOrdinal, endCount, endOffset] = findLegalPosition(range.endContainer, range.endOffset, false);
         //const ordinalRange = [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)];
         const ordinalRange = [startOrdinal, endOrdinal];
         const elementRange = [
