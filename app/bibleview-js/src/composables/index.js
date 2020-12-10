@@ -158,10 +158,10 @@ export function useCommon() {
 
     const config = inject("config");
     const strings = inject("strings");
-    const verseInfo = inject("verseInfo", getVerseInfo(currentInstance.props));
-    const {elementCount} = inject("fragmentInfo");
+    //const verseInfo = inject("verseInfo", getVerseInfo(currentInstance.props));
+    //const {elementCount} = inject("fragmentInfo");
     const contentTag = ref(null);
-    const thisCount = ref(-1);
+    //const thisCount = ref(-1);
 
     const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
     if(unusedAttrs.length > 0) {
@@ -173,19 +173,19 @@ export function useCommon() {
             console.error(`${currentInstance.type.name}: contentTag does not exist`);
         }
 
-        thisCount.value = elementCount.value;
-        elementCount.value ++;
-        if(contentTag.value) {
-            contentTag.value.classList.add("osis");
-            contentTag.value.dataset.elementCount = thisCount.value.toString();
-            contentTag.value.dataset.ordinal = verseInfo ? JSON.stringify(verseInfo.ordinal) : null;
-            contentTag.value.dataset.osisID = verseInfo ? JSON.stringify(verseInfo.osisID) : null;
-        }
+        //thisCount.value = elementCount.value;
+        //elementCount.value ++;
+        //if(contentTag.value) {
+        //    contentTag.value.classList.add("osis");
+        //    contentTag.value.dataset.elementCount = thisCount.value.toString();
+        //    contentTag.value.dataset.ordinal = verseInfo ? JSON.stringify(verseInfo.ordinal) : null;
+        //    contentTag.value.dataset.osisID = verseInfo ? JSON.stringify(verseInfo.osisID) : null;
+        //}
     });
 
     function split(string, separator, n) {
         return string.split(separator)[n]
     }
 
-    return {config, strings, contentTag, elementCount, sprintf, split}
+    return {config, strings, contentTag, sprintf, split}
 }

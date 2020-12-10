@@ -41,6 +41,7 @@ import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
 import {h, inject, provide, ref} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
+import {computed} from "@vue/reactivity";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,
@@ -64,16 +65,15 @@ export default {
     ordinalRange: {type: Array, default: null},
   },
   setup(props) {
-    const elementCount = ref(0);
-    const fragmentKey = props.fragmentKey;
+    const fragmentKey = computed(() => props.fragmentKey);
     // TODO: check if these are used
-    const [book, osisID] = fragmentKey.split("--");
+    const [book, osisID] = props.fragmentKey.split("--");
 
     const globalBookmarks = inject("globalBookmarks");
     const bookmarks = useBookmarks(props, globalBookmarks, book);
 
     provide("bookmarks", bookmarks);
-    provide("fragmentInfo", {fragmentKey, book, osisID, elementCount});
+    provide("fragmentInfo", {fragmentKey, book, osisID});
   },
   render() {
     return h({
