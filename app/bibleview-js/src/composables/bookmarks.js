@@ -17,9 +17,10 @@
 
 import {reactive, watch} from "@vue/runtime-core";
 import {sortBy, uniqWith} from "lodash";
-import {findNodeAtOffset, rangesOverlap} from "@/utils";
+import {rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed} from "@vue/reactivity";
+import {findNodeAtOffset} from "@/dom";
 
 export function useGlobalBookmarks() {
     const bookmarkLabels = reactive(new Map());
@@ -139,9 +140,10 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
         const firstElem = document.querySelector(`.frag-${props.fragmentKey} #v-${startOrdinal}`);
         const secondElem = document.querySelector(`.frag-${props.fragmentKey} #v-${endOrdinal}`);
+        console.log("styleRange", {styleRange, fragKey: props.fragmentKey, startOrdinal, endOrdinal, startOff, endOff, firstElem, secondElem});
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
-        console.log("styleRange", {styleRange, fragKey: props.fragmentKey, startOrdinal, endOrdinal, firstElem, secondElem, first, second});
+        console.log("styleRange", {first, second});
         const range = new Range();
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);

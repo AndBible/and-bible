@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <template v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)">
+  <span class="skip-offset" v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)">
     <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
@@ -28,7 +28,7 @@
         </template>
       </template>
     </Modal>
-  </template>
+  </span>
 </template>
 
 <script>
