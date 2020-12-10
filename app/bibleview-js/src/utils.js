@@ -129,25 +129,69 @@ function hasParent(e, p) {
     return false;
 }
 
+export function* walkBackText(e, onlyOsis = false) {
+    let next = e
+    do {
+        if([3,8].includes(next.nodeType)) {
+            if(next.nodeType === 3 && (!onlyOsis || (onlyOsis && hasOsisContent(next.parentNode))) ) {
+                yield next;
+            }
+            let next2 = next.previousSibling;
+            if(next2) {
+                next = next2;
+            } else {
+                while (!next2) {
+                    next = next.parentNode;
+                    if (next) {
+                        let next3 = next.previousSibling;
+                        if (next3) {
+                            next2 = next3;
+                        }
+                    }
+                }
+                next = next2
+            }
+        } else if(next.nodeType === 1) {
+            const next2 = next.lastChild;
+            if(next2) {
+                next = next2
+            } else {
+                next = next.previousSibling
+            }
+        } else {
+            throw Error(`Unsupported ${next.nodeType}`);
+        }
+    } while(next);
+}
+
 export function findNext(e, last, onlyOsis=false) {
     if(!hasParent(e, last)) return null
     if(e.nodeType === 3 && e === last) return last;
     let next;
     if(e.nodeType === 3) {
         next = e.previousSibling
-    } else {
+    } else if (e.nodeType === 1) {
         if(!onlyOsis || (onlyOsis && e.classList.contains("osis"))) {
             next = e.lastChild || e.previousSibling;
         } else {
             next = e.previousSibling
         }
+    } else if(e.nodeType === 8) {
+        const next2 = nextNonComment(e)
+        if(next2) {
+            return findNext(next2, last, onlyOsis);
+        } else {
+            return null
+        }
+    } else {
+        throw new Error(`Unknown node type ${e.nodeType}`);
     }
     if(next) {
         if(next.nodeType === 1) {
             return findNext(next, last, onlyOsis);
-        } else {
+        } else if(next.nodeType === 3) {
             return next;
-        }
+        } else throw new Error(`Unknown node type ${next.nodeType}`);
     }
     while (!next) {
         next = e.parentNode
@@ -157,7 +201,7 @@ export function findNext(e, last, onlyOsis=false) {
         if(next2) {
             if(next2.nodeType === 3) {
                 return next2;
-            } else {
+            } else if (next2.nodeType === 1) {
                 let next3
                 if(!onlyOsis || (onlyOsis && next2.classList.contains("osis"))) {
                     next3 = next2.lastChild || next2.previousSibling;
@@ -173,7 +217,7 @@ export function findNext(e, last, onlyOsis=false) {
                 } else {
                     return findNext(next2, last, onlyOsis);
                 }
-            }
+            } else throw new Error(`Unknown node type ${next2.nodeType}`);
         }
         e = next;
     }
@@ -204,20 +248,25 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
                 return calculateOffsetToParent(next, offsetNow, start)
             }
         }
-    } else {
+    } else if (e.nodeType === 3) {
         if(!hasOsisContent(e.parentNode)) {
             offsetNow = 0;
         }
-    }
+    } else throw new Error(`Unknown node type ${e.nodeType}`);
 
     for(
         e = findNext(e, parent, true);
         e !== parent;
         e = findNext(e, parent, true)
     ) {
-        if (e.nodeType !== 3) throw new Error("Error!");
-        if (hasOsisContent(e.parentNode)) {
-            offsetNow += e.length;
+        if (e.nodeType === 1) {
+            throw new Error(`Error! ${e} ${e.nodeType}`);
+        } else if(e.nodeType === 3) {
+            if (hasOsisContent(e.parentNode)) {
+                offsetNow += e.length;
+            }
+        } else {
+            console.error("Unknown node type", e.nodeType, e);
         }
     }
     return offsetNow

@@ -45,7 +45,7 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {findElemWithOsisID, findLegalPosition} from "@/utils";
+  import {calculateOffsetToVerse, findElemWithOsisID, findLegalPosition} from "@/utils";
 
   let lblCount = 0;
   export default {
@@ -145,21 +145,17 @@
         if(selection.rangeCount < 1) return;
         const range = selection.getRangeAt(0);
 
-        const [startOrdinal, startCount, startOffset] = findLegalPosition(range.startContainer, range.startOffset, true);
-        const [endOrdinal, endCount, endOffset] = findLegalPosition(range.endContainer, range.endOffset, false);
+        const {ordinal: startOrdinal, offset: startOffset} = calculateOffsetToVerse(range.startContainer, range.startOffset, true);
+        const {ordinal: endOrdinal, offset: endOffset} = calculateOffsetToVerse(range.endContainer, range.endContainer);
         //const ordinalRange = [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)];
         const ordinalRange = [startOrdinal, endOrdinal];
-        const elementRange = [
-          //[parseInt(startElem.dataset.elementCount), range.startOffset],
-          //[parseInt(endElem.dataset.elementCount), range.endOffset]
-          [startCount, startOffset],
-          [endCount, endOffset]
-        ];
-        console.log("adding bmark", {ordinalRange, elementRange, range});
+        const offsetRange = [startOffset, endOffset];
+
+        console.log("adding bmark", {ordinalRange, offsetRange, range});
         this.updateBookmarks({
           id: -lblCount -1,
           ordinalRange,
-          elementRange,
+          offsetRange,
           book: "KJV",
           labels: [-(lblCount++ % 5) - 1]
         })

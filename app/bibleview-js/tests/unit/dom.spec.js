@@ -20,7 +20,7 @@ import {
     calculateOffsetToVerse, contentLength,
     findNext, findNodeAtOffset,
     findParentsBeforeVerseSibling,
-    findPreviousSiblingWithClass
+    findPreviousSiblingWithClass, nextNonComment, walkBack, walkBackText
 } from "@/utils";
 
 const test1 = `
@@ -30,24 +30,29 @@ const test1 = `
     text1
     <div id="id1-1" class="osis">
       text2
-      <b id="id1-1-1" class="osis">te2.1</b>
+      <!-- comment -->
+      <b id="id1-1-1" class="osis"><!--test-->te2.1</b>
+      <!-- comment -->
       te2.2
     </div>
     <div id="id1-2">
+      <!-- comment -->
       note to be ignored
       <b id="id1-3">bold</b>
     </div>
     <div id="id1-4" class="osis">
+      <!-- comment -->
       text3
       <b id="id1-5">to be ignored</b>
       text4
     </div>    
     text5
   </div>
-  <div id="between-1">Outside of verse</div>
+  <div id="between-1">Outside of <!-- test -->verse</div>
   <div id="between-2" class="osis">legal</div>
   <div id="between-3">Outside of verse
     test
+    <!-- test -->
     <b id="b-3-1">test</b>
     <b class="osis" id="b-3-2">test1</b>
     test
@@ -133,6 +138,51 @@ describe("findParentsBeforeVerseSiblings tests", () => {
     });
 });
 
+
+describe("walkBack tests", () => {
+    let dom, document;
+    beforeEach(() => {
+        dom = getDom(test1);
+        document = dom.window.document;
+    })
+
+    it("test1", () => {
+        const e = document.querySelector("#id1-1").firstChild
+        const vals = Array.from(walkBackText(e)).map(v => v.textContent);
+        expect(vals).toEqual(["text2", "text1"]);
+    })
+
+    it("test2", () => {
+        const e = document.querySelector("#id1-1-1").firstChild
+        const vals = Array.from(walkBackText(e)).map(v => v.textContent);
+        expect(vals).toEqual(["text2", "text1"]);
+    })
+
+    it("test3", () => {
+        const e = document.querySelector("#id1-1-1").lastChild
+        const vals = Array.from(walkBackText(e)).map(v => v.textContent);
+        expect(vals).toEqual(["te2.1", "text2", "text1"]);
+    })
+
+    it("test4", () => {
+        const e = document.querySelector("#id1-1-1")
+        const vals = Array.from(walkBackText(e)).map(v => v.textContent);
+        expect(vals).toEqual(["te2.1", "text2", "text1"]);
+    })
+
+    it("test5", () => {
+        const e = document.querySelector("#id1-2")
+        const vals = Array.from(walkBackText(e)).map(v => v.textContent);
+        expect(vals).toEqual(["bold", "note to be ignored", "te2.2", "te2.1", "text2", "text1"]);
+    })
+
+    it("test6", () => {
+        const e = document.querySelector("#id1-2")
+        const vals = Array.from(walkBackText(e, true)).map(v => v.textContent);
+        expect(vals).toEqual(["te2.2", "te2.1", "text2", "text1"]);
+    })
+});
+
 describe("findNext tests", () => {
     let dom, document;
     beforeEach(() => {
@@ -153,7 +203,7 @@ describe("findNext tests", () => {
         expect(next.textContent).toBe("te2.1");
     })
     it("test1.2", () => {
-        const e = document.querySelector("#id1-1-1").firstChild
+        const e = document.querySelector("#id1-1-1").lastChild
         const next = findNext(e, null)
         expect(next.nodeType).toBe(3)
         expect(next.textContent).toBe("text2");

@@ -43,7 +43,7 @@ export function useGlobalBookmarks() {
 
 export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
     function showBookmarkForWholeVerse(bookmark) {
-        return bookmark.elementRange === null || bookmark.book !== book
+        return bookmark.offsetRange === null || bookmark.book !== book
     }
 
     const noOrdinalNeeded = (b) => b.ordinalRange === null && props.ordinalRange === null
@@ -63,13 +63,17 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         return fragmentBookmarks.value.filter(b => !showBookmarkForWholeVerse(b));
     });
 
+    function combinedRange(b) {
+        return [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]] ]
+    }
+
     const styleRanges = computed(() => {
         let splitPoints = [];
         const bookmarks = accurateBookmarks.value;
 
         for(const b of bookmarks) {
-            splitPoints.push(b.elementRange[0])
-            splitPoints.push(b.elementRange[1])
+            splitPoints.push(combinedRange(b)[0])
+            splitPoints.push(combinedRange(b)[1])
         }
         splitPoints = uniqWith(
             sortBy(splitPoints, [v => v[0], v => v[1]]),
@@ -84,10 +88,10 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
             const bookmarksSet = new Set();
 
             bookmarks
-                .filter( b => rangesOverlap(b.elementRange, elementRange))
+                .filter( b => rangesOverlap(combinedRange(b), elementRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    console.log(b.elementRange, elementRange, rangesOverlap(b.elementRange, elementRange));
+                    console.log(combinedRange(b), elementRange, rangesOverlap(combinedRange(b), elementRange));
                     b.labels.forEach(l => labels.add(l))
                 });
 
