@@ -28,6 +28,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -139,8 +140,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
-
+        super.onCreate(savedInstanceState)
         // do not show an actionBar/title on the splash screen
         buildActivityComponent().inject(this)
         setContentView(R.layout.spinner)
@@ -186,9 +186,12 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         // if a previous list of books is available to be installed,
         // allow the user to requickly redownload them all.
         var redownloadButton = findViewById<Button>(R.id.redownloadButton)
+        val redownloadTextView = findViewById<TextView>(R.id.redownloadMessage)
         if (previousInstallDetected) {
             // do something
             Log.i(TAG, "A previous install was detected")
+            redownloadTextView.text = getString(R.string.redownload_message)
+            redownloadTextView.visibility = View.VISIBLE
             redownloadButton?.setOnClickListener {
                 GlobalScope.launch(Dispatchers.Main)  {
                     var books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
@@ -200,7 +203,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                 }
             }
         } else {
-            Log.d(TAG, "Hiding button because nothing to redownload")
+            Log.d(TAG, "Showing restore button because nothing to redownload")
             // hide button because nothing to download
             redownloadButton.text = getString(R.string.restore_database)
             redownloadButton.setOnClickListener {
