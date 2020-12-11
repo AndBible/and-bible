@@ -23,24 +23,22 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
 import net.bible.service.sword.SwordDocumentFacade
-
 import javax.inject.Inject
 
 /** Base class for activities
@@ -77,11 +75,25 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
                 AppCompatDelegate.MODE_NIGHT_NO
             }
         }
+        val currentNightMode = this.resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK
+
+        val oldNightMode = AppCompatDelegate.getDefaultNightMode()
         AppCompatDelegate.setDefaultNightMode(newNightMode)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 val uiFlags = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 window.decorView.systemUiVisibility = uiFlags
+            }
+        }
+        // force recreate activity to immediately apply changes
+        // if night mode changed
+        if (oldNightMode != newNightMode) {
+            // and if thew new mode does not match the current mode
+            if (currentNightMode == Configuration.UI_MODE_NIGHT_NO && newNightMode == AppCompatDelegate.MODE_NIGHT_YES
+                || currentNightMode == Configuration.UI_MODE_NIGHT_YES && newNightMode == AppCompatDelegate.MODE_NIGHT_NO) {
+                // then recreate
+                this.recreate()
             }
         }
 
