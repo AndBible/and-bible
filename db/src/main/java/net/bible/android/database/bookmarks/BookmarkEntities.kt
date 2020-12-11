@@ -80,12 +80,8 @@ interface VerseRangeUser {
 
 class BookmarkEntities {
     @Serializable
-    class TextLocation(val element: Int, val offset: Int)
-
-    @Serializable
-    class TextRange(val start: TextLocation, val end: TextLocation) {
-        fun toClientList(): List<List<Int>> =
-            listOf(listOf(start.element, start.offset), listOf(end.element, end.offset))
+    class TextRange(val start: Int, val end: Int) {
+        val clientList get() = listOf(start, end)
     }
 
     @Entity(

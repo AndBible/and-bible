@@ -913,7 +913,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
 
     @Serializable
-    data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val elementRange: List<List<Int>>?, val labels: List<Long>, val book: String?)
+    data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?, val labels: List<Long>, val book: String?)
 
     @Serializable
     data class ClientBookmarkStyle(val color: List<Int>)
@@ -929,9 +929,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
             if(labels.isEmpty())
                 labels.add(bookmarkControl.LABEL_UNLABELLED)
-            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.toClientList(), labels.map { it.id }, it.book?.initials )
+            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.clientList, labels.map { it.id }, it.book?.initials )
         })
-        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', ordinalRange: ${it.ordinalRangeJson}"""}.joinToString(",")
+        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', ordinalRange: ${it.ordinalRangeJson}}"""}.joinToString(",")
         return """{
             contents: [$xmlList],
             bookmarks: $bookmarks,

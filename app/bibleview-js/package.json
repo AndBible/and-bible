@@ -9,7 +9,8 @@
     "andbible-build-old": "vue-cli-service build --target app --formats umd-min --inline-vue --name BibleView src/main.js",
     "build-debug": "cross-env NODE_ENV=debug vue-cli-service build --target app --inline-vue",
     "build-old": "vue-cli-service build",
-    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue"
+    "build-production": "cross-env NODE_ENV=production vue-cli-service build --target app --inline-vue",
+    "build-development": "cross-env NODE_ENV=development vue-cli-service build --target app --inline-vue"
   },
   "dependencies": {
     "core-js": "~3.6.5",
@@ -63,6 +64,6 @@
     ]
   },
   "browserslist": [
-    "last 2 Android version"
+    "last 10 Android version"
   ]
 }
