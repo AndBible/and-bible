@@ -38,7 +38,6 @@ export function useAndroid() {
     }
 
     function querySelection() {
-        console.log("Querying selection");
         const selection = window.getSelection();
         if(selection.rangeCount < 1) return;
         const range = selection.getRangeAt(0);
@@ -51,7 +50,9 @@ export function useAndroid() {
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
 
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset};
+        const returnValue = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset};
+        console.log("Querying selection: ", returnValue);
+        return returnValue
     }
 
     window.bibleView.response = response;

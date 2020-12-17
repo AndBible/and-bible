@@ -210,6 +210,7 @@ export function findParentsBeforeVerseSibling(node) {
     }
 }
 
+// TODO: remove start parameter if not used...
 export function calculateOffsetToVerse(node, offset, start = true) {
     let parent;
     if([3,8].includes(node.nodeType)) {

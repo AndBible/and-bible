@@ -89,6 +89,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import java.lang.ref.WeakReference
+import kotlin.math.min
 
 /** The WebView component that shows the main bible and commentary text
  *
@@ -970,7 +971,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun executeJavascript(javascript: String, callBack: ((rv: String) -> Unit)? = null) {
-        Log.d(TAG, "Executing JS: $javascript")
+        val end = min(javascript.length, 500)
+        val subStr = javascript.slice(0 until end)
+
+        Log.d(TAG, "Executing JS: $subStr")
         evaluateJavascript("$javascript;", callBack)
     }
 
