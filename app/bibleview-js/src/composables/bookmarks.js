@@ -15,12 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive, watch} from "@vue/runtime-core";
+import {onMounted, reactive, watch} from "@vue/runtime-core";
 import {sortBy, uniqWith} from "lodash";
 import {rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
-import {computed} from "@vue/reactivity";
-import {calculateOffsetToVerse, findNodeAtOffset} from "@/dom";
+import {computed, ref} from "@vue/reactivity";
+import {calculateOffsetToVerse, findNodeAtOffset, textLength} from "@/dom";
 import {Events, setupEventBusListener} from "@/eventbus";
 
 export function useGlobalBookmarks({makeBookmark}) {
@@ -64,6 +64,9 @@ export function useGlobalBookmarks({makeBookmark}) {
 }
 
 export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
+    const isMounted = ref(0);
+    onMounted(() => isMounted.value ++)
+
     function showBookmarkForWholeVerse(bookmark) {
         return bookmark.offsetRange === null || bookmark.book !== book
     }
@@ -78,18 +81,27 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
     });
 
     const bookmarksForWholeVerse = computed(() => {
-        return fragmentBookmarks.value.filter(b => showBookmarkForWholeVerse(b));
+        return []; //fragmentBookmarks.value.filter(b => showBookmarkForWholeVerse(b));
     });
 
     const accurateBookmarks = computed(() => {
-        return fragmentBookmarks.value.filter(b => !showBookmarkForWholeVerse(b));
+        return fragmentBookmarks.value; //.filter(b => !showBookmarkForWholeVerse(b));
     });
 
     function combinedRange(b) {
-        return [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]] ]
+        let offsetRange = b.offsetRange;
+        if(!offsetRange) {
+            const startOffset = 0;
+            const verseElement = document.querySelector(`#f-${props.fragmentKey} #v-${b.ordinalRange[1]}`);
+            const endOffset = textLength(verseElement);
+            offsetRange = [startOffset, endOffset];
+        }
+        return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]] ]
     }
 
     const styleRanges = computed(() => {
+        if(!isMounted.value) return [];
+
         let splitPoints = [];
         const bookmarks = accurateBookmarks.value;
 

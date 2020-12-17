@@ -123,6 +123,11 @@ export function findNext(e, last, onlyOsis=false) {
     return next;
 }
 
+export function textLength(element) {
+    const lastElem = walkBackText(element, true).next().value;
+    return calculateOffsetToParent(lastElem, element, lastElem.length)
+}
+
 function ordinalFromVerseElement(v) {
     return parseInt(v.id.split("-")[1]);
 }

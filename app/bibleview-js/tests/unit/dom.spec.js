@@ -20,7 +20,7 @@ import {
     calculateOffsetToVerse, contentLength,
     findNext, findNodeAtOffset,
     findParentsBeforeVerseSibling,
-    findPreviousSiblingWithClass, walkBackText
+    findPreviousSiblingWithClass, textLength, walkBackText
 } from "@/dom";
 
 const test1 = `
@@ -81,6 +81,21 @@ function getDom(html) {
     let stripped = html.replace(/ *\n */g, "");
     return new JSDOM(stripped);
 }
+
+describe("textLength tests", () => {
+    let dom, document;
+    beforeEach(() => {
+        dom = getDom(test1);
+        document = dom.window.document;
+    })
+
+    it("test1", () => {
+        const e = document.querySelector("#v-0")
+        const length = textLength(e);
+        expect(length).toBe(35);
+    });
+});
+
 describe("findPreviousSiblingsWithClass tests", () => {
     let dom, document;
     beforeEach(() => {

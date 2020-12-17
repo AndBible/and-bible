@@ -20,7 +20,6 @@
       :id="`v-${ordinal}`"
       class="verse bookmarkStyle"
       :class="{noLineBreak: !config.showVersePerLine}"
-      :style="bookmarkStyle"
   >
     <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/>
     <div class="inlineDiv" ref="contentTag"><slot/></div>
@@ -46,37 +45,37 @@ export default {
     const shown = ref(true);
     verseInfo.showStack = reactive([shown]);
 
-    const {bookmarksForWholeVerse, styleForLabels} = inject("bookmarks");
-    const {bookmarkLabels} = inject("globalBookmarks");
+    //const {bookmarksForWholeVerse, styleForLabels} = inject("bookmarks");
+    //const {bookmarkLabels} = inject("globalBookmarks");
 
     provide("verseInfo", verseInfo);
 
     const common = useCommon();
-    const undoHighlights = [];
+    //const undoHighlights = [];
     return {
-      styleForLabels,
-      undoHighlights,
+      //styleForLabels,
+      //undoHighlights,
       shown,
       ...common,
-      globalBookmarks: bookmarksForWholeVerse,
-      globalBookmarkLabels: bookmarkLabels
+      //globalBookmarks: bookmarksForWholeVerse,
+      //globalBookmarkLabels: bookmarkLabels
     }
   },
   computed: {
     // TODO: this is not very fast as we do same filtering for each bookmark.
-    bookmarks({globalBookmarks, ordinal}) {
-      return globalBookmarks.filter(({ordinalRange}) => (ordinalRange[0] <= ordinal) && (ordinal <= ordinalRange[1]))
-    },
-    bookmarkLabels({bookmarks, globalBookmarkLabels}) {
-      const labels = new Set();
-      for(const b of bookmarks) {
-        addAll(labels, ...b.labels);
-      }
-      return Array.from(labels).map(l => globalBookmarkLabels.get(l)).filter(v => v);
-    },
-    bookmarkStyle({bookmarkLabels}) {
-      return this.styleForLabels(bookmarkLabels)
-    },
+//    bookmarks({globalBookmarks, ordinal}) {
+//      return globalBookmarks.filter(({ordinalRange}) => (ordinalRange[0] <= ordinal) && (ordinal <= ordinalRange[1]))
+//    },
+//    bookmarkLabels({bookmarks, globalBookmarkLabels}) {
+//      const labels = new Set();
+//      for(const b of bookmarks) {
+//        addAll(labels, ...b.labels);
+//      }
+//      return Array.from(labels).map(l => globalBookmarkLabels.get(l)).filter(v => v);
+//    },
+//    bookmarkStyle({bookmarkLabels}) {
+//      return this.styleForLabels(bookmarkLabels)
+//    },
     ordinal() {
       return parseInt(this.verseOrdinal);
     },
