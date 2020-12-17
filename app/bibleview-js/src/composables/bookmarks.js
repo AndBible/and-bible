@@ -59,7 +59,7 @@ export function useGlobalBookmarks({makeBookmark}) {
 
     setupEventBusListener(Events.MAKE_BOOKMARK, makeBookmarkFromSelection)
 
-    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
+    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks, makeBookmarkFromSelection}
 }
 
 export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {

@@ -24,7 +24,7 @@
   >
      Current verse: {{currentVerse}}
   </div>
-  <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="getSelection">Get selection!</span></div>
+  <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="makeBookmarkFromSelection">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
       <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
@@ -106,7 +106,12 @@
       provide("config", config);
       provide("strings", strings);
       provide("android", android);
-      return {updateBookmarks: globalBookmarks.updateBookmarks, config, strings, osisFragments, topElement, currentVerse};
+
+      return {
+        makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
+        updateBookmarks: globalBookmarks.updateBookmarks,
+        config, strings, osisFragments, topElement, currentVerse
+      };
     },
     computed: {
       styleConfig({config}) {

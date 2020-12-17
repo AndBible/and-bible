@@ -74,7 +74,19 @@ export function useAndroid() {
 
     const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, makeBookmark}
 
-    if(process.env.NODE_ENV === 'development') return stubsFor(exposed)
+    let lblCount = 0;
+    if(process.env.NODE_ENV === 'development') return {
+        ...stubsFor(exposed),
+        makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset) {
+            return {
+                id: -lblCount -1,
+                ordinalRange: [startOrdinal, endOrdinal],
+                offsetRange: [startOffset, endOffset],
+                book: "KJV",
+                labels: [-(lblCount++ % 5) - 1]
+            }
+        }
+    }
 
     onMounted(() => {
         setClientReady();
