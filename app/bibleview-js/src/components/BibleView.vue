@@ -67,8 +67,8 @@
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {
-            globalBookmarks.updateBookmarks(...frag.bookmarks);
             globalBookmarks.updateBookmarkLabels(...frag.bookmarkLabels);
+            globalBookmarks.updateBookmarks(...frag.bookmarks);
         }
       }, {deep: true});
 

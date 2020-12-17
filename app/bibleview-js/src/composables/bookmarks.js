@@ -76,9 +76,8 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         b.ordinalRange !== null && ordinalRange.value !== null
         && rangesOverlap(b.ordinalRange, ordinalRange.value, true);
 
-    const fragmentBookmarks = computed(() => {
-        return Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b));
-    });
+    const fragmentBookmarks = computed(() =>
+        Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b)));
 
     function combinedRange(b) {
         let offsetRange = b.offsetRange;
@@ -188,5 +187,5 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
                 console.error("Error occurred", e);
             }
         }
-    });
+    }, {flush: 'post'});
 }
