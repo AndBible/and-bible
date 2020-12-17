@@ -124,10 +124,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
 
-    internal var minChapter = -1
-    internal var maxChapter = -1
-
-    //private var loadedChapters = mutableSetOf<Int>()
+    private var minChapter = -1
+    private var maxChapter = -1
 
 
     private var gestureDetector: GestureDetectorCompat
@@ -193,7 +191,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun makeBookmark() {
+    private fun makeBookmark() {
         val selection = currentSelection?: return
         Log.d(TAG, "makeBookmark")
         val book = Books.installed().getBook(selection.bookInitials)
@@ -244,7 +242,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     currentSelection = sel
                 }
 
-                // Check if there are bookmarks.
+                // TODO Check if there are bookmarks.
                 // Allow user to
                 //  - remove bookmark.
                 //    * overlapping: allow user to choose removed bookmark, js side, highlighting.
@@ -517,20 +515,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /**
-     * Either enable verse selection or the default text selection
-     */
-    private fun enableSelection() {
-        if (window.pageManager.isBibleShown) {
-            // handle long click ourselves and prevent webview showing text selection automatically
-            setOnLongClickListener(BibleViewLongClickListener(false))
-            //isLongClickable = false
-        } else {
-            // reset handling of long press
-            setOnLongClickListener(BibleViewLongClickListener(false))
-        }
-    }
-
     internal interface BibleViewContextMenuInfo: ContextMenuInfo {
         fun onContextItemSelected(item: MenuItem): Boolean
         fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater)
@@ -574,7 +558,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             item.isVisible = false
         }
     }
-
 
     /** apply settings set by the user using Preferences
      */
@@ -646,7 +629,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
             applyFontSize()
-            //enableSelection()
             enableZoomForMap(pageControl.currentPageManager.isMapShown)
         }
 
