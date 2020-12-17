@@ -38,6 +38,7 @@ export function useAndroid() {
     }
 
     function querySelection() {
+        console.log("Querying selection");
         const selection = window.getSelection();
         if(selection.rangeCount < 1) return;
         const range = selection.getRangeAt(0);
@@ -46,8 +47,6 @@ export function useAndroid() {
             calculateOffsetToVerse(range.startContainer, range.startOffset, true);
         const {ordinal: endOrdinal, offset: endOffset} =
             calculateOffsetToVerse(range.endContainer, range.endOffset);
-
-        //selection.removeAllRanges();
 
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
@@ -92,20 +91,12 @@ export function useAndroid() {
         )
     }
 
-    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, makeBookmark}
+    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, makeBookmark, querySelection}
 
     let lblCount = 0;
     if(process.env.NODE_ENV === 'development') return {
         ...stubsFor(exposed),
-        makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset) {
-            return {
-                id: -lblCount -1,
-                ordinalRange: [startOrdinal, endOrdinal],
-                offsetRange: [startOffset, endOffset],
-                book: "KJV",
-                labels: [-(lblCount++ % 5) - 1]
-            }
-        }
+        querySelection
     }
 
     onMounted(() => {

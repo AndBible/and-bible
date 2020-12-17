@@ -53,6 +53,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkAddedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -197,19 +198,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         bookmarkControl.addOrUpdateBookmark(bookmark)
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_bookmarks", 
-                {bookmarks: [{
-                    id: ${bookmark.id},
-                    ordinalRange: [${selection.startOrdinal}, ${selection.endOrdinal}],
-                    offsetRange: [${selection.startOffset}, ${selection.endOffset}],
-                    book: "${selection.bookInitials}",
-                    labels: [${bookmarkControl.LABEL_UNLABELLED.id}],
-                }], 
-                labels: []});
-            """.trimIndent())
     }
-
 
     @Serializable
     class Selection(val bookInitials: String, val startOrdinal: Int, val startOffset: Int, val endOrdinal: Int, val endOffset: Int)
@@ -805,6 +794,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun asView(): View {
         return this
+    }
+
+    fun onEvent(event: BookmarkAddedEvent) {
+        val b = event.bookmark
+        val initials = b.book?.initials
+        val bookStr = if(initials === null) null else "\"$initials\""
+        // TODO: labels!
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_bookmarks", 
+                {bookmarks: [{
+                    id: ${b.id},
+                    ordinalRange: [${b.verseRange.start.ordinal}, ${b.verseRange.end.ordinal}],
+                    offsetRange: [${b.startOffset}, ${b.endOffset}],
+                    book: $bookStr,
+                    labels: [${bookmarkControl.LABEL_UNLABELLED.id}],
+                }], 
+                labels: []});
+            """.trimIndent())
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

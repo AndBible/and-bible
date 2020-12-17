@@ -54,7 +54,7 @@ import javax.inject.Inject
 abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
-class BookmarkAddedEvent: BookmarkEvent()
+class BookmarkAddedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarkDeletedEvent: BookmarkEvent()
 class BookmarkLabelsSet: BookmarkEvent()
 
@@ -110,7 +110,7 @@ open class BookmarkControl @Inject constructor(
         Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
             .setActionTextColor(actionTextColor)
             .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
-        ABEventBus.getDefault().post(BookmarkAddedEvent())
+        ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark))
     }
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
@@ -145,7 +145,7 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkAddedEvent()) // TODO: make sure this talks with bibleview.js properly
+            ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark)) // TODO: make sure this talks with bibleview.js properly
         }
         return bookmark
     }

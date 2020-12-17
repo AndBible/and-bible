@@ -24,7 +24,7 @@
   >
      Current verse: {{currentVerse}}
   </div>
-  <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="makeBookmarkFromSelection">Get selection!</span></div>
+  <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="testMakeBookmark">Get selection!</span></div>
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
       <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
@@ -47,7 +47,7 @@
   import {useGlobalBookmarks} from "@/composables/bookmarks";
   import {findElemWithOsisID} from "@/dom";
   import {setupWindowEventListener} from "@/utils";
-  import {Events, setupEventBusListener} from "@/eventbus";
+  import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/code/scroll";
   import {useAndroid} from "@/composables/android";
 
@@ -107,10 +107,24 @@
       provide("strings", strings);
       provide("android", android);
 
+      let lblCount = 0;
+
+      function testMakeBookmark() {
+        const selection = android.querySelection()
+        const bookmark = {
+          id: -lblCount -1,
+          ordinalRange: [selection.startOrdinal, selection.endOrdinal],
+          offsetRange: [selection.startOffset, selection.endOffset],
+          book: selection.bookInitials,
+          labels: [-(lblCount++ % 5) - 1]
+        }
+        emit(Events.ADD_BOOKMARKS, {bookmarks: [bookmark], labels: []})
+      }
+
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks,
-        config, strings, osisFragments, topElement, currentVerse
+        config, strings, osisFragments, topElement, currentVerse, testMakeBookmark
       };
     },
     computed: {

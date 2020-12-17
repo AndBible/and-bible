@@ -20,10 +20,10 @@ import {sortBy, uniqWith} from "lodash";
 import {rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed, ref} from "@vue/reactivity";
-import {calculateOffsetToVerse, findNodeAtOffset, textLength} from "@/dom";
+import {findNodeAtOffset, textLength} from "@/dom";
 import {Events, setupEventBusListener} from "@/eventbus";
 
-export function useGlobalBookmarks({makeBookmark}) {
+export function useGlobalBookmarks() {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     let count = 1;
@@ -40,14 +40,8 @@ export function useGlobalBookmarks({makeBookmark}) {
         }
     }
 
-    //async function makeBookmarkFromSelection() {
-
-    //    updateBookmarks(await makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset));
-    //}
-
-    //setupEventBusListener(Events.MAKE_BOOKMARK, makeBookmarkFromSelection)
-
     setupEventBusListener(Events.ADD_BOOKMARKS, ({bookmarks, labels}) => {
+        window.getSelection().removeAllRanges();
         updateBookmarkLabels(...labels)
         updateBookmarks(...bookmarks)
     });
