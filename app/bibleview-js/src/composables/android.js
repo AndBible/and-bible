@@ -16,11 +16,37 @@
  */
 import {emit} from "@/eventbus";
 import {Deferred} from "@/code/utils";
-import {setupDocumentEventListener, setupWindowEventListener, stubsFor} from "@/utils";
+import {setupDocumentEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
+import {isFunction} from "lodash";
 
 let callId = 0;
+
+export function patchAndroidConsole() {
+    const origConsole = window.console;
+
+    // Override normal console, so that argument values also propagate to Android logcat
+    const enableAndroidLogging = true;
+    window.console = {
+        _msg(s, args) {
+            const printableArgs = args.map(v => isFunction(v) ? v : JSON.stringify(v).slice(0, 500));
+            return `${s} ${printableArgs}`
+        },
+        log(s, ...args) {
+            if(enableAndroidLogging) android.console('log', this._msg(s, args))
+            origConsole.log(s, ...args)
+        },
+        error(s, ...args) {
+            if(enableAndroidLogging) android.console('error', this._msg(s, args))
+            origConsole.error(s, ...args)
+        },
+        warn(s, ...args) {
+            if(enableAndroidLogging) android.console('warn', this._msg(s, args))
+            origConsole.warn(s, ...args)
+        }
+    }
+}
 
 export function useAndroid() {
     const responsePromises = new Map();

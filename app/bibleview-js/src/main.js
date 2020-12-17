@@ -15,9 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {patchAndroidConsole} from "@/utils";
-
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
+import {patchAndroidConsole} from "@/composables/android";
+
 window.bibleView = {};
 window.bibleViewDebug = {};
 

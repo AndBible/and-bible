@@ -159,6 +159,7 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
         offsetNow = 0;
     } else throw new Error(`Unknown node type ${e.nodeType}`);
 
+    // TODO: simplify (walkBack iteration)
     for(
         e = findNext(e, parent, true);
         e && e !== parent;

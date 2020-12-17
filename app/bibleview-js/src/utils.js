@@ -38,31 +38,6 @@ export function stubsFor(object) {
     return stubs;
 }
 
-export function patchAndroidConsole() {
-    const origConsole = window.console;
-
-    // Override normal console, so that argument values also propagate to Android logcat
-    const enableAndroidLogging = true;
-    window.console = {
-        _msg(s, args) {
-            const printableArgs = args.map(v => isFunction(v) ? v : JSON.stringify(v).slice(0, 500));
-            return `${s} ${printableArgs}`
-        },
-        log(s, ...args) {
-            if(enableAndroidLogging) android.console('log', this._msg(s, args))
-            origConsole.log(s, ...args)
-        },
-        error(s, ...args) {
-            if(enableAndroidLogging) android.console('error', this._msg(s, args))
-            origConsole.error(s, ...args)
-        },
-        warn(s, ...args) {
-            if(enableAndroidLogging) android.console('warn', this._msg(s, args))
-            origConsole.warn(s, ...args)
-        }
-    }
-}
-
 export function getVerseInfo(props) {
     if(!props.verseOrdinal) return null;
     const [book, chapter, verse] = props.osisID.split(".")
