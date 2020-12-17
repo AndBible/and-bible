@@ -31,7 +31,6 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
  */
 class BibleJavascriptInterface(
 	private val verseActionModeMediator: VerseActionModeMediator,
-	private val bibleInfiniteScrollPopulator: BibleInfiniteScrollPopulator,
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
@@ -64,15 +63,15 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtTop() {
+    fun requestMoreTextAtTop(callId: Long) {
         Log.d(TAG, "Request more text at top")
-        bibleInfiniteScrollPopulator.requestMoreTextAtTop()
+        bibleView.requestMoreTextAtTop(callId)
     }
 
     @JavascriptInterface
-    fun requestMoreTextAtEnd() {
+    fun requestMoreTextAtEnd(callId: Long) {
         Log.d(TAG, "Request more text at end")
-        bibleInfiniteScrollPopulator.requestMoreTextAtEnd()
+        bibleView.requestMoreTextAtEnd(callId)
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

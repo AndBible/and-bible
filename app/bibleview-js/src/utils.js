@@ -15,6 +15,45 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import {onMounted, onUnmounted} from "@vue/runtime-core";
+
+export function setupWindowEventListener(eventType, handler) {
+    onMounted(() => window.addEventListener(eventType, handler))
+    onUnmounted(() => window.removeEventListener(eventType, handler))
+}
+
+export function stubsFor(object) {
+    const stubs = {};
+    for(const key in object) {
+        stubs[key] = (...args) => {
+            console.log(`Stub for ${key}(${args}) called`)
+        }
+    }
+    return stubs;
+}
+
+export function patchAndroidConsole() {
+    const origConsole = window.console;
+
+    // Override normal console, so that argument values also propagate to Android logcat
+    const myConsole = {
+        _msg(s, args) {
+            return `${s} ${args}`
+        },
+        log(s, ...args) {
+            origConsole.log(this._msg(s, args))
+        },
+        error(s, ...args) {
+            origConsole.error(this._msg(s, args))
+        },
+        warn(s, ...args) {
+            origConsole.warn(this._msg(s, args))
+        }
+    }
+
+    window.console = myConsole;
+}
+
 export function getVerseInfo(props) {
     if(!props.verseOrdinal) return null;
     const [book, chapter, verse] = props.osisID.split(".")

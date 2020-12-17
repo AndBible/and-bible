@@ -39,13 +39,16 @@
 </template>
 <script>
   import OsisFragment from "@/components/OsisFragment";
-  import {onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
+  import {provide, reactive, watch} from "@vue/runtime-core";
   import {useAndroid, useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
   import {calculateOffsetToVerse, findElemWithOsisID} from "@/dom";
+  import {setupWindowEventListener} from "@/utils";
+  import {Events, setupEventBusListener} from "@/eventbus";
+  import {useScroll} from "@/code/scroll";
 
   let lblCount = 0;
   export default {
@@ -57,6 +60,7 @@
       const android = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
+      useScroll(config);
       useInfiniteScroll(config, android, osisFragments);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
       const globalBookmarks = useGlobalBookmarks();
@@ -68,23 +72,25 @@
         }
       }, {deep: true});
 
-      window.bibleViewDebug.osisFragments = osisFragments;
-
       function replaceOsis(...s) {
         osisFragments.splice(0)
         osisFragments.push(...s)
       }
+
+      setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
 
       if(process.env.NODE_ENV === "development") {
         console.log("populating test data");
         replaceOsis(...testData)
       }
 
-      window.bibleView.replaceOsis = replaceOsis;
-      window.bibleView.setTitle = (title) => {
-        document.title = `${title} (${process.env.NODE_ENV})`;
-      }
-      const handler = (ev) => {
+      setupEventBusListener(Events.SET_TITLE,
+          (title) => document.title = `${title} (${process.env.NODE_ENV})`
+      );
+
+      setupEventBusListener(Events.MAKE_BOOKMARK, () => this.getSelection());
+
+      setupWindowEventListener("mouseover", (ev) => {
         const {x, y} = ev;
         const element = document.elementFromPoint(x, y)
         //console.log("elem", element, element.parentElement, element.parentElement.parentElement);
@@ -96,15 +102,6 @@
 
         ev.preventDefault()
         ev.stopPropagation()
-      };
-      const evType = "mouseover";
-
-      onMounted(() => {
-        window.addEventListener(evType, handler)
-      })
-
-      onUnmounted( () => {
-        window.removeEventListener(evType, handler)
       });
 
       provide("globalBookmarks", globalBookmarks);
@@ -131,12 +128,6 @@
           `;
         }
         return style;
-      }
-    },
-    mounted() {
-      window.bibleView.highlight1 = () => {
-        console.log("Highlight 1 JS!");
-        this.getSelection()
       }
     },
     methods: {

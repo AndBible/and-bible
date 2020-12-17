@@ -38,8 +38,8 @@ export function useInfiniteScroll(config, android, osisFragments) {
         bodyHeight = () => document.body.scrollHeight,
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = offset => window.scrollTo(0, offset),
-        loadTextAtTop = () => android.requestMoreTextAtTop(),
-        loadTextAtEnd = () => android.requestMoreTextAtEnd(),
+        loadTextAtTop = async () => insertThisTextAtTop(await android.requestMoreTextAtTop()),
+        loadTextAtEnd = async () => insertThisTextAtEnd(await android.requestMoreTextAtEnd()),
         addMoreAtEnd = () => loadTextAtEnd(),
         addMoreAtTop = () => {
             if (touchDown) {
@@ -117,10 +117,4 @@ export function useInfiniteScroll(config, android, osisFragments) {
         window.removeEventListener('touchend', touchendListener, false);
         window.removeEventListener("touchcancel", touchendListener, false);
     });
-
-    window.bibleView = {
-        ...window.bibleView,
-        insertThisTextAtTop,
-        insertThisTextAtEnd
-    }
 }

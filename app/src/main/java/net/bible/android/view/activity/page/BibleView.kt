@@ -45,6 +45,8 @@ import androidx.core.view.iterator
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
@@ -169,7 +171,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.highlight1 -> {
-                executeJavascript("bibleView.highlight1();")
+                executeJavascript("bibleView.emit('make_bookmark');")
                 mode.finish()
                 return true
             }
@@ -579,8 +581,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
-        executeJavascriptOnUiThread("bibleView.setConfig(${displaySettings.toJson()});")
-
+        executeJavascriptOnUiThread("bibleView.emit('set_config', ${displaySettings.toJson()});")
     }
 
     private fun replaceOsis() {
@@ -594,10 +595,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         executeJavascriptOnUiThread("""
-            bibleView.setTitle("BibleView-${window.id}");
-            bibleView.setConfig(${displaySettings.toJson()});
-            bibleView.replaceOsis($osisObjStr);
-            bibleView.setupContent({
+            bibleView.emit("set_title", "BibleView-${window.id}");
+            bibleView.emit("set_config", ${displaySettings.toJson()});
+            bibleView.emit("replace_osis", $osisObjStr);
+            bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
                 toolBarOffset: $toolbarOffset,
@@ -775,12 +776,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible)
-            executeJavascriptOnUiThread("bibleView.setToolbarOffset($toolbarOffset, {immediate: true});")
+            executeJavascriptOnUiThread("bibleView.emit('set_toolbar_offset', $toolbarOffset, {immediate: true});")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.setToolbarOffset($toolbarOffset);")
+            executeJavascriptOnUiThread("bibleView.emit('set_toolbar_offset', $toolbarOffset);")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
@@ -816,7 +817,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("bibleView.setToolbarOffset($toolbarOffset, {doNotScroll: true});")
+            executeJavascript("bibleView.emit('set_toolbar_offset', $toolbarOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 executeJavascript("registerVersePositions()")
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
@@ -868,7 +869,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "Scroll or jump to:$verse")
         val jumpToId = "v-${verse.toV11n(initialVerse!!.versification).ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.scrollToVerse('$jumpToId', $now, $toolbarOffset);")
+        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $toolbarOffset);")
     }
 
     override fun enableVerseTouchSelection() {
@@ -940,14 +941,33 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     }
 
-    fun insertTextAtTop(chapter: Int, osisFragment: List<OsisFragment>) {
-        addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtTop(${getOsisObjStr(osisFragment)});")
+    fun requestMoreTextAtTop(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+        Log.d(TAG, "requestMoreTextAtTop")
+        val currentPage = window.pageManager.currentPage
+        if (currentPage is CurrentBiblePage) {
+            val newChap = minChapter - 1
+
+            if(newChap < 0) return@launch
+
+            val fragment = currentPage.getFragmentForChapter(newChap)
+            addChapter(newChap)
+            executeJavascriptOnUiThread("bibleView.response($callId, ${getOsisObjStr(fragment)});")
+        }
     }
 
-    fun insertTextAtEnd(chapter: Int, osisFragment: List<OsisFragment>) {
-        addChapter(chapter)
-        executeJavascriptOnUiThread("bibleView.insertThisTextAtEnd(${getOsisObjStr(osisFragment)});")
+    fun requestMoreTextAtEnd(callId: Long) = GlobalScope.launch(Dispatchers.IO) {
+        Log.d(TAG, "requestMoreTextAtEnd")
+        val currentPage = window.pageManager.currentPage
+        if (currentPage is CurrentBiblePage) {
+            val newChap = maxChapter + 1
+            val verse = currentPage.currentBibleVerse.verse
+            val lastChap = verse.versification.getLastChapter(verse.book)
+
+            if(newChap > lastChap) return@launch
+            val fragment = currentPage.getFragmentForChapter(newChap)
+            addChapter(newChap)
+            executeJavascriptOnUiThread("bibleView.response($callId, ${getOsisObjStr(fragment)});")
+        }
     }
 
     fun setContentReady() {

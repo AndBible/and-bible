@@ -15,33 +15,17 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import { createApp } from 'vue'
+import {patchAndroidConsole} from "@/utils";
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 window.bibleView = {};
 window.bibleViewDebug = {};
 
-const origConsole = window.console;
-
-// Override normal console, so that argument values also propagate to Android logcat
-const myConsole = {
-    _msg(s, args) {
-        return `${s} ${args}`
-    },
-    log(s, ...args) {
-        origConsole.log(this._msg(s, args))
-    },
-    error(s, ...args) {
-        origConsole.error(this._msg(s, args))
-    },
-    warn(s, ...args) {
-        origConsole.warn(this._msg(s, args))
-    }
+if (process.env.NODE_ENV !== "development") {
+    patchAndroidConsole();
 }
 
-if(process.env.NODE_ENV === "productin") {
-    window.console = myConsole;
-}
+import { createApp } from 'vue'
 
 import BibleView from "@/components/BibleView";
 const app = createApp(BibleView);

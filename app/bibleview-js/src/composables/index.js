@@ -17,10 +17,11 @@
 
 import {getCurrentInstance, inject, onMounted, onUnmounted, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {getVerseInfo} from "@/utils";
-import {scrollFunctions} from "@/code/scroll";
+import {stubsFor} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
+import {Deferred} from "@/code/utils";
+import {Events, emit, setupEventBusListener} from "@/eventbus";
 
 let developmentMode = false;
 
@@ -106,43 +107,72 @@ export function useConfig() {
         developmentMode: developmentMode,
     })
 
-    // Expose configuration to java side to be manipulated.
-    window.bibleView = {
-        ...window.bibleView,
-        config,
-        setConfig(c) {
-            for (const i in c) {
-                if (config[i] !== undefined) {
-                    config[i] = c[i];
-                } else {
-                    console.error("Unknown setting", i, c[i]);
-                }
+    setupEventBusListener(Events.SET_CONFIG, (c) => {
+        for (const i in c) {
+            if (config[i] !== undefined) {
+                config[i] = c[i];
+            } else {
+                console.error("Unknown setting", i, c[i]);
             }
-        },
-        ...scrollFunctions(config),
-    }
+        }
+    })
+
     return {config};
 }
 
 export function useAndroid() {
-    function msgListener(event) {
-        console.log("message!", event);
-        //androidBibleView.postMessage("Android calling!");
+
+    let callId = 0;
+    const responsePromises = new Map();
+
+    function response(callId, returnValue) {
+        const promise = responsePromises.get(callId);
+        if(promise) {
+            responsePromises.delete(callId);
+            promise.resolve(returnValue);
+        } else {
+            console.error("Promise not found for callId", callId)
+        }
     }
 
-    if(process.env.NODE_ENV === 'development') return {
-        setClientReady() {},
-        scrolledToVerse() {},
-        requestMoreTextAtTop() {},
-        requestMoreTextAtEnd() {},
-    };
-    //const androidBibleView = {}
-    onMounted(() => {
-        //androidBibleView.onmessage = msgListener
+    window.bibleView.response = response;
+    window.bibleView.emit = emit;
+
+    async function deferredCall(func, ...args) {
+        const promise = new Deferred();
+        const thisCall = callId ++;
+        responsePromises.set(thisCall, promise);
+        console.log("Calling function", func, thisCall, args);
+        func(thisCall, ...args);
+        const returnValue = await promise.wait();
+        console.log("Response came to", thisCall, args);
+        return returnValue
+    }
+
+    async function requestMoreTextAtTop() {
+        return await deferredCall((callId) => android.requestMoreTextAtTop(callId));
+    }
+
+    async function requestMoreTextAtEnd() {
+        return await deferredCall((callId) => android.requestMoreTextAtEnd(callId));
+    }
+
+    function scrolledToVerse(ordinal) {
+        android.scrolledToVerse(ordinal)
+    }
+
+    function setClientReady() {
         android.setClientReady();
+    }
+    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady}
+
+    if(process.env.NODE_ENV === 'development') return stubsFor(exposed)
+
+    onMounted(() => {
+        setClientReady();
     });
 
-    return android; // TODO: rename these ....
+    return exposed;
 }
 export function useStrings() {
     return {

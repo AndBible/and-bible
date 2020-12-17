@@ -16,8 +16,9 @@
  */
 
 import {nextTick} from "@vue/runtime-core";
+import {Events, setupEventBusListener} from "@/eventbus";
 
-export function scrollFunctions(config) {
+export function useScroll(config) {
     let currentScrollAnimation = null;
 
     function setToolbarOffset(value, {doNotScroll = false, immediate = false} = {}) {
@@ -147,10 +148,8 @@ export function scrollFunctions(config) {
         //startVue();
     }
 
-    return {
-        setToolbarOffset,
-        scrollToVerse,
-        setupContent,
-    }
+    setupEventBusListener(Events.SET_TOOLBAR_OFFSET, setToolbarOffset)
+    setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToVerse)
+    setupEventBusListener(Events.SETUP_CONTENT, setupContent)
 }
 
