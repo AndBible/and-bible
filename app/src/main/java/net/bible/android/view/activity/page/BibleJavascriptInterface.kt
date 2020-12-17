@@ -69,31 +69,7 @@ class BibleJavascriptInterface(
         Log.d(TAG, "Console[$loggerName] $message")
     }
 
-    @JavascriptInterface
-    fun makeBookmark(callId: Long, bookInitials: String, startOrdinal: Int, startOffset: Int, endOrdinal: Int, endOffset: Int) {
-        Log.d(TAG, "makeBookmark")
-        val book = Books.installed().getBook(bookInitials)
-        if(book !is SwordBook) {
-            // TODO: error response to JS
-            return
-        }
-
-        val v11n = book.versification
-        val verseRange = VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
-        val textRange = BookmarkEntities.TextRange(startOffset, endOffset)
-        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        bibleView.bookmarkControl.addOrUpdateBookmark(bookmark)
-        bibleView.executeJavascriptOnUiThread("""
-            bibleView.response($callId, 
-                {
-                    id: ${bookmark.id},
-                    ordinalRange: [$startOrdinal, $endOrdinal],
-                    offsetRange: [$startOffset, $endOffset],
-                    book: "$bookInitials",
-                    labels: [${bibleView.bookmarkControl.LABEL_UNLABELLED.id}],
-                });
-            """.trimIndent())
-    }
+    //@JavascriptInterface
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

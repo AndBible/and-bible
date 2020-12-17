@@ -18,6 +18,7 @@ import {emit} from "@/eventbus";
 import {Deferred} from "@/code/utils";
 import {stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
+import {calculateOffsetToVerse} from "@/dom";
 
 let callId = 0;
 
@@ -36,8 +37,27 @@ export function useAndroid() {
         }
     }
 
+    function querySelection() {
+        const selection = window.getSelection();
+        if(selection.rangeCount < 1) return;
+        const range = selection.getRangeAt(0);
+
+        const {ordinal: startOrdinal, offset: startOffset} =
+            calculateOffsetToVerse(range.startContainer, range.startOffset, true);
+        const {ordinal: endOrdinal, offset: endOffset} =
+            calculateOffsetToVerse(range.endContainer, range.endOffset);
+
+        //selection.removeAllRanges();
+
+        const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
+        const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
+
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset};
+    }
+
     window.bibleView.response = response;
     window.bibleView.emit = emit;
+    window.bibleView.querySelection = querySelection
 
     async function deferredCall(func) {
         const promise = new Deferred();

@@ -30,7 +30,8 @@ export const Events = {
     SET_TITLE: "set_title",
     SETUP_CONTENT: "setup_content",
     SCROLL_TO_VERSE: "scroll_to_verse",
-    MAKE_BOOKMARK: "make_bookmark",
+    MAKE_BOOKMARK: "make_bookmark", // TODO deprecate?
+    ADD_BOOKMARKS: "add_bookmarks",
     SET_TOOLBAR_OFFSET: "set_toolbar_offset",
 }
 

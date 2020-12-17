@@ -40,27 +40,19 @@ export function useGlobalBookmarks({makeBookmark}) {
         }
     }
 
-    async function makeBookmarkFromSelection() {
-        const selection = window.getSelection();
-        if(selection.rangeCount < 1) return;
-        const range = selection.getRangeAt(0);
+    //async function makeBookmarkFromSelection() {
 
-        const {ordinal: startOrdinal, offset: startOffset} =
-            calculateOffsetToVerse(range.startContainer, range.startOffset, true);
-        const {ordinal: endOrdinal, offset: endOffset} =
-            calculateOffsetToVerse(range.endContainer, range.endOffset);
+    //    updateBookmarks(await makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset));
+    //}
 
-        selection.removeAllRanges();
+    //setupEventBusListener(Events.MAKE_BOOKMARK, makeBookmarkFromSelection)
 
-        const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
-        const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
+    setupEventBusListener(Events.ADD_BOOKMARKS, ({bookmarks, labels}) => {
+        updateBookmarkLabels(...labels)
+        updateBookmarks(...bookmarks)
+    });
 
-        updateBookmarks(await makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset));
-    }
-
-    setupEventBusListener(Events.MAKE_BOOKMARK, makeBookmarkFromSelection)
-
-    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks, makeBookmarkFromSelection}
+    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
 }
 
 export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book) {

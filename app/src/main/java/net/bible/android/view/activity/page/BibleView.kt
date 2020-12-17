@@ -44,6 +44,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.iterator
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -81,8 +82,11 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import java.lang.ref.WeakReference
 
 /** The WebView component that shows the main bible and commentary text
@@ -171,7 +175,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.highlight1 -> {
-                executeJavascript("bibleView.emit('make_bookmark');")
+                makeBookmark()
                 mode.finish()
                 return true
             }
@@ -179,8 +183,47 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    fun makeBookmark() {
+        val selection = currentSelection?: return
+        Log.d(TAG, "makeBookmark")
+        val book = Books.installed().getBook(selection.bookInitials)
+        if(book !is SwordBook) {
+            // TODO: error response to JS
+            return
+        }
+
+        val v11n = book.versification
+        val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+        val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
+        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
+        bookmarkControl.addOrUpdateBookmark(bookmark)
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_bookmarks", 
+                {bookmarks: [{
+                    id: ${bookmark.id},
+                    ordinalRange: [${selection.startOrdinal}, ${selection.endOrdinal}],
+                    offsetRange: [${selection.startOffset}, ${selection.endOffset}],
+                    book: "${selection.bookInitials}",
+                    labels: [${bookmarkControl.LABEL_UNLABELLED.id}],
+                }], 
+                labels: []});
+            """.trimIndent())
+    }
+
+
+    @Serializable
+    class Selection(val bookInitials: String, val startOrdinal: Int, val startOffset: Int, val endOrdinal: Int, val endOffset: Int)
+
+    var currentSelection: Selection? = null
+
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu) {
-        mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+        GlobalScope.launch(Dispatchers.Main) {
+            val result = evaluateJavascriptAsync("bibleView.querySelection()")
+            currentSelection = json.decodeFromString(Selection.serializer(), result)
+            // Check if there are bookmarks.
+            mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+            mode.invalidate()
+        }
         //menu.add(Menu.FIRST, 0, 100, "Test")
     }
 
@@ -218,11 +261,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             val wasUpdated = callback.onPrepareActionMode(mode, menu)
             val menuItems = ArrayList<MenuItem>()
-            for(m in menu) {
+            for (m in menu) {
                 menuItems.add(m)
             }
             menu.clear()
-            for(m in menuItems.reversed()) {
+            for (m in menuItems.reversed()) {
                 menu.add(0, m.itemId, m.order, m.title)
             }
             return wasUpdated
@@ -912,6 +955,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         evaluateJavascript("$javascript;", callBack)
     }
 
+    private suspend fun evaluateJavascriptAsync(javascript: String): String {
+        val result = CompletableDeferred<String>()
+        withContext(Dispatchers.Main) {
+            evaluateJavascript(javascript) { result.complete(it) }
+        }
+        return result.await()
+    }
 
     @Serializable
     data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?, val labels: List<Long>, val book: String?)
