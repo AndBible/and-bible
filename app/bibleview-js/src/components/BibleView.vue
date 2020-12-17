@@ -24,7 +24,9 @@
   >
      Current verse: {{currentVerse}}
   </div>
-  <div v-if="config.developmentMode" class="highlightButton"><span v-show="false" @click="highLight">Highlight!</span> <span @mouseenter="testMakeBookmark">Get selection!</span></div>
+  <div v-if="config.developmentMode" class="highlightButton">
+    <span @mouseenter="testMakeBookmark">Get selection!</span>
+  </div>
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
       <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
@@ -45,8 +47,6 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {findElemWithOsisID} from "@/dom";
-  import {setupWindowEventListener} from "@/utils";
   import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/code/scroll";
   import {useAndroid} from "@/composables/android";
@@ -88,20 +88,6 @@
           (title) => document.title = `${title} (${process.env.NODE_ENV})`
       );
 
-      setupWindowEventListener("mouseover", (ev) => {
-        const {x, y} = ev;
-        const element = document.elementFromPoint(x, y)
-        //console.log("elem", element, element.parentElement, element.parentElement.parentElement);
-        //const osisElem = element.closest(".osis");
-        const osisElem = findElemWithOsisID(element);
-        if(osisElem) {
-          //console.log(osisElem.dataset.osisID);
-        }
-
-        ev.preventDefault()
-        ev.stopPropagation()
-      });
-
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);
       provide("strings", strings);
@@ -111,6 +97,7 @@
 
       function testMakeBookmark() {
         const selection = android.querySelection()
+        if(!selection) return
         const bookmark = {
           id: -lblCount -1,
           ordinalRange: [selection.startOrdinal, selection.endOrdinal],
@@ -119,6 +106,7 @@
           labels: [-(lblCount++ % 5) - 1]
         }
         emit(Events.ADD_BOOKMARKS, {bookmarks: [bookmark], labels: []})
+        emit(Events.REMOVE_RANGES)
       }
 
       return {

@@ -65,7 +65,7 @@ export function useAndroid() {
 
     function querySelection() {
         const selection = window.getSelection();
-        if(selection.rangeCount < 1) return;
+        if(selection.rangeCount < 1 || selection.collapsed) return null;
         const range = selection.getRangeAt(0);
 
         const {ordinal: startOrdinal, offset: startOffset} =
