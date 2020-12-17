@@ -63,7 +63,7 @@ export function useGlobalBookmarks({makeBookmark}) {
     return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks, makeBookmarkFromSelection}
 }
 
-export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
+export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book) {
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
@@ -71,28 +71,20 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         return bookmark.offsetRange === null || bookmark.book !== book
     }
 
-    const noOrdinalNeeded = (b) => b.ordinalRange === null && props.ordinalRange === null
+    const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange.value === null
     const checkOrdinal = (b) =>
-        b.ordinalRange !== null && props.ordinalRange !== null
-        && rangesOverlap(b.ordinalRange, props.ordinalRange, true);
+        b.ordinalRange !== null && ordinalRange.value !== null
+        && rangesOverlap(b.ordinalRange, ordinalRange.value, true);
 
     const fragmentBookmarks = computed(() => {
         return Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b));
     });
 
-    const bookmarksForWholeVerse = computed(() => {
-        return []; //fragmentBookmarks.value.filter(b => showBookmarkForWholeVerse(b));
-    });
-
-    const accurateBookmarks = computed(() => {
-        return fragmentBookmarks.value; //.filter(b => !showBookmarkForWholeVerse(b));
-    });
-
     function combinedRange(b) {
         let offsetRange = b.offsetRange;
-        if(!offsetRange) {
+        if(showBookmarkForWholeVerse(b)) {
             const startOffset = 0;
-            const verseElement = document.querySelector(`#f-${props.fragmentKey} #v-${b.ordinalRange[1]}`);
+            const verseElement = document.querySelector(`#f-${fragmentKey.value} #v-${b.ordinalRange[1]}`);
             const endOffset = textLength(verseElement);
             offsetRange = [startOffset, endOffset];
         }
@@ -103,7 +95,7 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         if(!isMounted.value) return [];
 
         let splitPoints = [];
-        const bookmarks = accurateBookmarks.value;
+        const bookmarks = fragmentBookmarks.value;
 
         for(const b of bookmarks) {
             splitPoints.push(combinedRange(b)[0])
@@ -125,7 +117,6 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
                 .filter( b => rangesOverlap(combinedRange(b), elementRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    console.log(combinedRange(b), elementRange, rangesOverlap(combinedRange(b), elementRange));
                     b.labels.forEach(l => labels.add(l))
                 });
 
@@ -171,12 +162,10 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
 
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
-        const firstElem = document.querySelector(`#f-${props.fragmentKey} #v-${startOrdinal}`);
-        const secondElem = document.querySelector(`#f-${props.fragmentKey} #v-${endOrdinal}`);
-        console.log("styleRange", {styleRange, fragKey: props.fragmentKey, startOrdinal, endOrdinal, startOff, endOff, firstElem, secondElem});
+        const firstElem = document.querySelector(`#f-${fragmentKey.value} #v-${startOrdinal}`);
+        const secondElem = document.querySelector(`#f-${fragmentKey.value} #v-${endOrdinal}`);
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
-        console.log("styleRange", {first, second});
         const range = new Range();
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);
@@ -186,7 +175,7 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
     }
 
     watch(styleRanges, (newValue) => {
-        console.log("styleRanges changed!", accurateBookmarks.value, newValue);
+        console.error("styleRanges changed!", fragmentBookmarks.value, newValue);
         undoHighlights.forEach(v => {
             console.log("Running undo", v);
             v()
@@ -200,6 +189,4 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
             }
         }
     });
-
-    return {bookmarksForWholeVerse, styleForLabels, styleRanges}
 }

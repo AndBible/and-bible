@@ -293,7 +293,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
-                Log.d(TAG, "JS console ${consoleMessage.messageLevel()}: ${consoleMessage.message()}")
+                // Console logging is handled in js interface so we don't want anything from here anymore.
                 return true
             }
         }

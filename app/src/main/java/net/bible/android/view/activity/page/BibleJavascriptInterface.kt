@@ -65,6 +65,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun console(loggerName: String, message: String) {
+        Log.d(TAG, "Console[$loggerName] $message")
+    }
+
+    @JavascriptInterface
     fun makeBookmark(callId: Long, bookInitials: String, startOrdinal: Int, startOffset: Int, endOrdinal: Int, endOffset: Int) {
         Log.d(TAG, "makeBookmark")
         val book = Books.installed().getBook(bookInitials)

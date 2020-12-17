@@ -66,13 +66,13 @@ export default {
   },
   setup(props) {
     const fragmentKey = computed(() => props.fragmentKey);
+    const ordinalRange = computed(() => props.ordinalRange);
     // TODO: check if these are used
     const [book, osisID] = props.fragmentKey.split("--");
 
     const globalBookmarks = inject("globalBookmarks");
-    const bookmarks = useBookmarks(props, globalBookmarks, book);
+    useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book);
 
-    provide("bookmarks", bookmarks);
     provide("fragmentInfo", {fragmentKey, book, osisID});
   },
   render() {

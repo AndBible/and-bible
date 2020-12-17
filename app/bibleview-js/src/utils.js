@@ -43,16 +43,16 @@ export function patchAndroidConsole() {
             return `${s} ${printableArgs}`
         },
         log(s, ...args) {
-            origConsole.log(this._msg(s, args))
-            //origConsole.log(s, ...args)
+            android.console('log', this._msg(s, args))
+            origConsole.log(s, ...args)
         },
         error(s, ...args) {
-            origConsole.error(this._msg(s, args))
-            //origConsole.error(s, ...args)
+            android.console('error', this._msg(s, args))
+            origConsole.error(s, ...args)
         },
         warn(s, ...args) {
-            origConsole.warn(this._msg(s, args))
-            //origConsole.warn(s, ...args)
+            android.console('warn', this._msg(s, args))
+            origConsole.warn(s, ...args)
         }
     }
 }
