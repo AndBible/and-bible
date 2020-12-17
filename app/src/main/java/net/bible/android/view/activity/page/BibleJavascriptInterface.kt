@@ -69,7 +69,11 @@ class BibleJavascriptInterface(
         Log.d(TAG, "Console[$loggerName] $message")
     }
 
-    //@JavascriptInterface
+    @JavascriptInterface
+    fun selectionCleared() {
+        Log.d(TAG, "Selection cleared!")
+        bibleView.stopSelection()
+    }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

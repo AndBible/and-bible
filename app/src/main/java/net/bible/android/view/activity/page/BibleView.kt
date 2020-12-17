@@ -55,6 +55,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedEvent
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -176,10 +177,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when(item.itemId) {
-            R.id.highlight1 -> {
+            R.id.add_bookmark -> {
                 makeBookmark()
                 mode.finish()
                 return true
+            }
+            R.id.remove_bookmark -> {
+                val bookmarks = bookmarksForSelection
+                if(bookmarks?.isNotEmpty() == true) {
+                    bookmarkControl.deleteBookmarks(bookmarks)
+                }
+                return true;
             }
             else -> false
         }
@@ -202,86 +210,108 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     @Serializable
-    class Selection(val bookInitials: String, val startOrdinal: Int, val startOffset: Int, val endOrdinal: Int, val endOffset: Int)
-
-    var currentSelection: Selection? = null
-
-    private fun onPrepareActionMenu(mode: ActionMode, menu: Menu) {
-        GlobalScope.launch {
-            val result = evaluateJavascriptAsync("bibleView.querySelection()")
-            currentSelection = json.decodeFromString(Selection.serializer(), result)
-            // Check if there are bookmarks.
-            // Allow user to
-            //  - remove bookmark.
-            //    * overlapping: allow user to choose removed bookmark, js side, highlighting.
-            //    * let's start by removing them all!!!
-            //  - compare translations
-            //  - share
-            //  - copy
-            //  - make "my notes"?
-            //  - "footnotes and references" - deprecated?
-
-            withContext(Dispatchers.Main) {
-                mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
-                mode.invalidate()
-            }
+    class Selection(val bookInitials: String, val startOrdinal: Int,
+                    val startOffset: Int, val endOrdinal: Int, val endOffset: Int)
+    {
+        val verseRange: VerseRange get() {
+            val v11n = (Books.installed().getBook(bookInitials) as SwordBook).versification
+            return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
         }
-        //menu.add(Menu.FIRST, 0, 100, "Test")
+
     }
 
-    // TODO: remove after Lollipop support is dropped.
-    private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            callback.onCreateActionMode(mode, menu)
-            onPrepareActionMenu(mode, menu)
+    var menuPrepared = false
+    var currentSelection: Selection? = null
+    var bookmarksForSelection: List<BookmarkEntities.Bookmark>? = null
+
+    private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
+        mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+
+        if(menuPrepared) {
+            if (bookmarksForSelection?.isEmpty() == true) {
+                val item = menu.findItem(R.id.remove_bookmark)
+                item.isVisible = false
+            }
+            menuPrepared = false
             return true
         }
+        else {
+            GlobalScope.launch {
+                val result = evaluateJavascriptAsync("bibleView.querySelection()")
+                val sel = json.decodeFromString(serializer<Selection?>(), result)
+                if(sel !== null) {
+                    bookmarksForSelection = bookmarkControl.bookmarksForVerseRange(sel.verseRange)
+                    currentSelection = sel
+                }
 
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val wasUpdated = callback.onPrepareActionMode(mode, menu)
-            return wasUpdated
-        }
+                // Check if there are bookmarks.
+                // Allow user to
+                //  - remove bookmark.
+                //    * overlapping: allow user to choose removed bookmark, js side, highlighting.
+                //    * let's start by removing them all!!!
+                //  - compare translations
+                //  - share
+                //  - copy
+                //  - make "my notes"?
+                //  - "footnotes and references" - deprecated?
 
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode?) {
-            return callback.onDestroyActionMode(mode)
+                menuPrepared = true
+                withContext(Dispatchers.Main) {
+                    menu.clear()
+                    mode.invalidate()
+                }
+            }
+            return false
         }
     }
 
+    fun stopSelection(removeRanges: Boolean = false) {
+        currentSelection = null
+        bookmarksForSelection = null
+        menuPrepared = false
+        if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private inner class ActionModeCallback2(val callback: ActionMode.Callback): ActionMode.Callback2() {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            callback.onCreateActionMode(mode, menu)
-            onPrepareActionMenu(mode, menu)
-            return true
+            val wasUpdated2 = callback.onCreateActionMode(mode, menu)
+            val wasUpdated1 = false
+            return wasUpdated1 || wasUpdated2
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val wasUpdated = callback.onPrepareActionMode(mode, menu)
+            val wasUpdated1 = onPrepareActionMenu(mode, menu)
+            val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
+
+            // Hack: by changing groupId to 0, we can get our items in front.
             val menuItems = ArrayList<MenuItem>()
             for (m in menu) {
                 menuItems.add(m)
             }
             menu.clear()
-            for (m in menuItems.reversed()) {
-                menu.add(0, m.itemId, m.order, m.title)
+            for (m in menuItems) {
+                val newItem = menu.add(0, m.itemId, m.order, m.title)
+                newItem.isVisible = m.isVisible
+                newItem.isCheckable = m.isCheckable
+                newItem.isChecked= m.isChecked
+                newItem.isEnabled= m.isEnabled
             }
-            return wasUpdated
+
+            return wasUpdated1 || wasUpdated2
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+            val handled = onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+            if(handled) stopSelection(true)
+            return handled
         }
 
-        override fun onDestroyActionMode(mode: ActionMode?) {
+        override fun onDestroyActionMode(mode: ActionMode) {
             return callback.onDestroyActionMode(mode)
         }
 
-        override fun onGetContentRect(mode: ActionMode?, view: View?, outRect: Rect?) {
+        override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
             if(callback is ActionMode.Callback2) {
                 return callback.onGetContentRect(mode, view, outRect)
             } else {
@@ -300,6 +330,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     override fun startActionMode(callback: ActionMode.Callback): ActionMode {
         return super.startActionMode(ActionModeCallback(callback))
+    }
+
+    // TODO: remove after Lollipop support is dropped.
+    private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            callback.onCreateActionMode(mode, menu)
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            val wasUpdated1 = callback.onPrepareActionMode(mode, menu)
+            val wasUpdated2 = onPrepareActionMenu(mode, menu)
+            return wasUpdated1 || wasUpdated2
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            return onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            return callback.onDestroyActionMode(mode)
+        }
     }
 
     /**
@@ -813,6 +865,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }], 
                 labels: []});
             """.trimIndent())
+    }
+
+    fun onEvent(event: BookmarksDeletedEvent) {
+        val bookmarkIds = json.encodeToString(serializer(), event.bookmarks.map { it.id })
+        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
     }
 
     fun onEvent(event: CurrentWindowChangedEvent) {

@@ -45,11 +45,12 @@ interface BookmarkDao {
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
 
     @Query("""SELECT * from Bookmark where
-        :rangeStart <= kjvOrdinalStart <= :rangeEnd OR
-        :rangeStart <= kjvOrdinalEnd <= :rangeEnd OR 
-        (kjvOrdinalStart <= :rangeEnd AND :rangeStart >= kjvOrdinalEnd) OR 
-        (kjvOrdinalStart <= :rangeStart <= kjvOrdinalEnd AND kjvOrdinalStart <= :rangeEnd <= kjvOrdinalEnd)
-        """) // TODO: kolmannessa lauseessa on varmaan bugi...
+        kjvOrdinalStart BETWEEN :rangeStart AND :rangeEnd OR
+        kjvOrdinalEnd BETWEEN :rangeStart AND :rangeEnd OR 
+        (:rangeStart BETWEEN kjvOrdinalStart AND kjvOrdinalEnd AND 
+         :rangeEnd BETWEEN kjvOrdinalStart AND kjvOrdinalEnd
+        )
+        """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
         val v = converter.convert(verseRange, KJVA)
@@ -91,6 +92,7 @@ interface BookmarkDao {
         return entity
     }
 
+    @Delete fun deleteBookmarks(bs: List<Bookmark>)
     @Delete fun delete(b: Bookmark)
 
     @Query("""

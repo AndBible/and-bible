@@ -55,7 +55,7 @@ abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
 class BookmarkAddedEvent(val bookmark: Bookmark): BookmarkEvent()
-class BookmarkDeletedEvent: BookmarkEvent()
+class BookmarksDeletedEvent(val bookmarks: List<Bookmark>): BookmarkEvent()
 class BookmarkLabelsSet: BookmarkEvent()
 
 /**
@@ -122,8 +122,8 @@ open class BookmarkControl @Inject constructor(
         if (bookmark != null) {
             deleteBookmark(bookmark, true)
             Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark)))
         }
-        ABEventBus.getDefault().post(BookmarkDeletedEvent())
     }
 
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
@@ -159,7 +159,14 @@ open class BookmarkControl @Inject constructor(
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
         dao.delete(bookmark)
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkDeletedEvent())
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark)))
+        }
+    }
+
+    fun deleteBookmarks(bookmarks: List<Bookmark>, doNotSync: Boolean = false) {
+        dao.deleteBookmarks(bookmarks)
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks))
         }
     }
 

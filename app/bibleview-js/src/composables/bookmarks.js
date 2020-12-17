@@ -39,9 +39,17 @@ export function useGlobalBookmarks() {
             bookmarks.set(v.id, v)
         }
     }
+    setupEventBusListener(Events.REMOVE_RANGES, () => {
+        window.getSelection().removeAllRanges();
+    })
+
+    setupEventBusListener(Events.DELETE_BOOKMARKS, (bookmarkIds) => {
+        for(const bId of bookmarkIds) {
+            bookmarks.delete(bId);
+        }
+    });
 
     setupEventBusListener(Events.ADD_BOOKMARKS, ({bookmarks, labels}) => {
-        window.getSelection().removeAllRanges();
         updateBookmarkLabels(...labels)
         updateBookmarks(...bookmarks)
     });
@@ -160,7 +168,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     }
 
     watch(styleRanges, (newValue) => {
-        console.error("styleRanges changed!", fragmentBookmarks.value, newValue);
+        console.log("styleRanges changed!", fragmentBookmarks.value, newValue);
         undoHighlights.forEach(v => {
             console.log("Running undo", v);
             v()

@@ -16,7 +16,7 @@
  */
 import {emit} from "@/eventbus";
 import {Deferred} from "@/code/utils";
-import {stubsFor} from "@/utils";
+import {setupDocumentEventListener, setupWindowEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 
@@ -86,19 +86,19 @@ export function useAndroid() {
         android.setClientReady();
     }
 
-    async function makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset) {
-        return await deferredCall(
-            (callId) => android.makeBookmark(callId, bookInitials, startOrdinal, startOffset, endOrdinal, endOffset)
-        )
-    }
-
-    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, makeBookmark, querySelection}
+    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, querySelection}
 
     let lblCount = 0;
     if(process.env.NODE_ENV === 'development') return {
         ...stubsFor(exposed),
         querySelection
     }
+
+    setupDocumentEventListener("selectionchange" , () => {
+        if(window.getSelection().getRangeAt(0).collapsed) {
+            android.selectionCleared();
+        }
+    });
 
     onMounted(() => {
         setClientReady();

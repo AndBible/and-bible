@@ -31,6 +31,8 @@ export const Events = {
     SETUP_CONTENT: "setup_content",
     SCROLL_TO_VERSE: "scroll_to_verse",
     ADD_BOOKMARKS: "add_bookmarks",
+    DELETE_BOOKMARKS: "delete_bookmarks",
+    REMOVE_RANGES: "remove_ranges",
     SET_TOOLBAR_OFFSET: "set_toolbar_offset",
 }
 

@@ -23,6 +23,11 @@ export function setupWindowEventListener(eventType, handler, options) {
     onUnmounted(() => window.removeEventListener(eventType, handler, options))
 }
 
+export function setupDocumentEventListener(eventType, handler, options) {
+    onMounted(() => document.addEventListener(eventType, handler, options))
+    onUnmounted(() => document.removeEventListener(eventType, handler, options))
+}
+
 export function stubsFor(object) {
     const stubs = {};
     for(const key in object) {
