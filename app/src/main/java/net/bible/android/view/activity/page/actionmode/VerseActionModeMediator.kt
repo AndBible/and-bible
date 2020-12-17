@@ -44,6 +44,8 @@ import org.crosswire.jsword.passage.VerseRange
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+// TODO: Deprecated, remove
 class VerseActionModeMediator(
         private val mainBibleActivity: ActionModeMenuDisplay,
         private val bibleView: VerseHighlightControl,

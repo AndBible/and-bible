@@ -16,10 +16,11 @@
  */
 
 import {onMounted, onUnmounted} from "@vue/runtime-core";
+import {isFunction} from "lodash"
 
-export function setupWindowEventListener(eventType, handler) {
-    onMounted(() => window.addEventListener(eventType, handler))
-    onUnmounted(() => window.removeEventListener(eventType, handler))
+export function setupWindowEventListener(eventType, handler, options) {
+    onMounted(() => window.addEventListener(eventType, handler, options))
+    onUnmounted(() => window.removeEventListener(eventType, handler, options))
 }
 
 export function stubsFor(object) {
@@ -36,22 +37,24 @@ export function patchAndroidConsole() {
     const origConsole = window.console;
 
     // Override normal console, so that argument values also propagate to Android logcat
-    const myConsole = {
+    window.console = {
         _msg(s, args) {
-            return `${s} ${args}`
+            const printableArgs = args.map(v => isFunction(v) ? v : JSON.stringify(v));
+            return `${s} ${printableArgs}`
         },
         log(s, ...args) {
             origConsole.log(this._msg(s, args))
+            //origConsole.log(s, ...args)
         },
         error(s, ...args) {
             origConsole.error(this._msg(s, args))
+            //origConsole.error(s, ...args)
         },
         warn(s, ...args) {
             origConsole.warn(this._msg(s, args))
+            //origConsole.warn(s, ...args)
         }
     }
-
-    window.console = myConsole;
 }
 
 export function getVerseInfo(props) {

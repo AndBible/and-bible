@@ -19,14 +19,17 @@ import {Deferred} from "@/code/utils";
 import {stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 
+let callId = 0;
+
 export function useAndroid() {
-    let callId = 0;
     const responsePromises = new Map();
 
     function response(callId, returnValue) {
-        const promise = responsePromises.get(callId);
-        if(promise) {
+        const val = responsePromises.get(callId);
+        if(val) {
+            const {promise, func} = val;
             responsePromises.delete(callId);
+            console.log("Returning response from async android function: ", func, callId, returnValue);
             promise.resolve(returnValue);
         } else {
             console.error("Promise not found for callId", callId)
@@ -36,14 +39,14 @@ export function useAndroid() {
     window.bibleView.response = response;
     window.bibleView.emit = emit;
 
-    async function deferredCall(func, ...args) {
+    async function deferredCall(func) {
         const promise = new Deferred();
         const thisCall = callId ++;
-        responsePromises.set(thisCall, promise);
-        console.log("Calling function", func, thisCall, args);
-        func(thisCall, ...args);
+        responsePromises.set(thisCall, {func, promise});
+        console.log("Calling async android function: ", func, thisCall);
+        func(thisCall);
         const returnValue = await promise.wait();
-        console.log("Response came to", thisCall, args);
+        console.log("Response from async android function: ", thisCall, returnValue);
         return returnValue
     }
 
@@ -62,7 +65,14 @@ export function useAndroid() {
     function setClientReady() {
         android.setClientReady();
     }
-    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady}
+
+    async function makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset) {
+        return await deferredCall(
+            (callId) => android.makeBookmark(callId, bookInitials, startOrdinal, startOffset, endOrdinal, endOffset)
+        )
+    }
+
+    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, makeBookmark}
 
     if(process.env.NODE_ENV === 'development') return stubsFor(exposed)
 

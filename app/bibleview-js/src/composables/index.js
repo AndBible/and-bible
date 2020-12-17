@@ -15,13 +15,12 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, onMounted, onUnmounted, reactive, ref, watch} from "@vue/runtime-core";
+import {getCurrentInstance, inject, onMounted, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {stubsFor} from "@/utils";
+import {setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
-import {Deferred} from "@/code/utils";
-import {Events, emit, setupEventBusListener} from "@/eventbus";
+import {Events, setupEventBusListener} from "@/eventbus";
 
 let developmentMode = false;
 
@@ -29,11 +28,13 @@ if(process.env.NODE_ENV === "development") {
     developmentMode = true;
 }
 
-export function useVerseNotifier(config, android, topElement) {
+export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
     const currentVerse = ref(null);
-    watch(() => currentVerse.value,  value => android.scrolledToVerse(value));
+    watch(() => currentVerse.value,  value => scrolledToVerse(value));
 
-    const lineHeight = computed(() => parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height')));
+    const lineHeight = computed(() =>
+        parseFloat(window.getComputedStyle(topElement.value).getPropertyValue('line-height'))
+    );
 
     const onScroll = throttle(() => {
         const y = config.toolbarOffset + lineHeight.value*0.8;
@@ -53,8 +54,7 @@ export function useVerseNotifier(config, android, topElement) {
         }
     }, 50);
 
-    onMounted(() => window.addEventListener('scroll', onScroll));
-    onUnmounted(() => window.removeEventListener('scroll', onScroll));
+    setupWindowEventListener('scroll', onScroll)
     return {currentVerse}
 }
 

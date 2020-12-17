@@ -36,7 +36,7 @@ export const Events = {
 
 export function setupEventBusListener(eventId, callback) {
     function eventCallback(args) {
-        console.log("Calling listener for", eventId, ...args);
+        console.log("Calling eventbus listener for", eventId, ...args);
         callback(...args);
     }
     onMounted(() => eventBus.on(eventId, eventCallback))
@@ -45,6 +45,6 @@ export function setupEventBusListener(eventId, callback) {
 
 eventBus.on("*", (type, args) => {
     if(!Object.values(Events).includes(type)) {
-        console.error("Event type not supported", type, args)
+        console.error("Eventbus event type not supported", type, args)
     }
 })

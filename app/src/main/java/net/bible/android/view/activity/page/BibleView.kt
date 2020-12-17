@@ -103,7 +103,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val pageControl: PageControl,
                 private val pageTiltScrollControl: PageTiltScrollControl,
                 private val linkControl: LinkControl,
-                private val bookmarkControl: BookmarkControl
+                internal val bookmarkControl: BookmarkControl
 ) :
         WebView(mainBibleActivity.applicationContext),
         DocumentView,
@@ -895,7 +895,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("clearVerseHighlight()")
     }
 
-    private fun executeJavascriptOnUiThread(javascript: String) {
+    internal fun executeJavascriptOnUiThread(javascript: String) {
         runOnUiThread { executeJavascript(javascript) }
     }
 

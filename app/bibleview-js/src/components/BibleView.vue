@@ -40,17 +40,17 @@
 <script>
   import OsisFragment from "@/components/OsisFragment";
   import {provide, reactive, watch} from "@vue/runtime-core";
-  import {useAndroid, useConfig, useStrings, useVerseNotifier} from "@/composables";
+  import {useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/code/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {calculateOffsetToVerse, findElemWithOsisID} from "@/dom";
+  import {findElemWithOsisID} from "@/dom";
   import {setupWindowEventListener} from "@/utils";
   import {Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/code/scroll";
+  import {useAndroid} from "@/composables/android";
 
-  let lblCount = 0;
   export default {
     name: "BibleView",
     components: {OsisFragment},
@@ -63,7 +63,7 @@
       useScroll(config);
       useInfiniteScroll(config, android, osisFragments);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
-      const globalBookmarks = useGlobalBookmarks();
+      const globalBookmarks = useGlobalBookmarks(android);
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {
@@ -87,8 +87,6 @@
       setupEventBusListener(Events.SET_TITLE,
           (title) => document.title = `${title} (${process.env.NODE_ENV})`
       );
-
-      setupEventBusListener(Events.MAKE_BOOKMARK, () => this.getSelection());
 
       setupWindowEventListener("mouseover", (ev) => {
         const {x, y} = ev;
@@ -128,31 +126,6 @@
           `;
         }
         return style;
-      }
-    },
-    methods: {
-      getSelection() {
-        const selection = window.getSelection();
-        if(selection.rangeCount < 1) return;
-        const range = selection.getRangeAt(0);
-
-        const {ordinal: startOrdinal, offset: startOffset} = calculateOffsetToVerse(range.startContainer, range.startOffset, true);
-        const {ordinal: endOrdinal, offset: endOffset} = calculateOffsetToVerse(range.endContainer, range.endOffset);
-        //const ordinalRange = [parseInt(startElem.dataset.ordinal), parseInt(endElem.dataset.ordinal)];
-        const ordinalRange = [startOrdinal, endOrdinal];
-        const offsetRange = [startOffset, endOffset];
-
-        console.log("adding bmark", {ordinalRange, offsetRange, range});
-        this.updateBookmarks({
-          id: -lblCount -1,
-          ordinalRange,
-          offsetRange,
-          book: "KJV",
-          labels: [-(lblCount++ % 5) - 1]
-        })
-
-        selection.removeAllRanges();
-        return range
       }
     },
   }

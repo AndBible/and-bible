@@ -20,9 +20,12 @@ package net.bible.android.view.activity.page
 
 import android.util.Log
 import android.webkit.JavascriptInterface
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
+import net.bible.android.database.bookmarks.BookmarkEntities
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 /**
  * Interface allowing javascript to call java methods in app
@@ -30,7 +33,6 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class BibleJavascriptInterface(
-	private val verseActionModeMediator: VerseActionModeMediator,
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
@@ -51,18 +53,6 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun verseLongPress(chapterVerse: String) {
-        Log.d(TAG, "Verse selected event:$chapterVerse")
-        verseActionModeMediator.verseLongPress(ChapterVerse.fromHtmlId(chapterVerse))
-    }
-
-    @JavascriptInterface
-    fun verseTouch(chapterVerse: String) {
-        Log.d(TAG, "Verse touched event:$chapterVerse")
-        verseActionModeMediator.verseTouch(ChapterVerse.fromHtmlId(chapterVerse))
-    }
-
-    @JavascriptInterface
     fun requestMoreTextAtTop(callId: Long) {
         Log.d(TAG, "Request more text at top")
         bibleView.requestMoreTextAtTop(callId)
@@ -72,6 +62,23 @@ class BibleJavascriptInterface(
     fun requestMoreTextAtEnd(callId: Long) {
         Log.d(TAG, "Request more text at end")
         bibleView.requestMoreTextAtEnd(callId)
+    }
+
+    @JavascriptInterface
+    fun makeBookmark(callId: Long, bookInitials: String, startOrdinal: Int, startOffset: Int, endOrdinal: Int, endOffset: Int) {
+        Log.d(TAG, "makeBookmark")
+        val book = Books.installed().getBook(bookInitials)
+        if(book !is SwordBook) {
+            // TODO: error response to JS
+            return
+        }
+
+        val v11n = book.versification
+        val verseRange = VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, endOrdinal))
+        val textRange = BookmarkEntities.TextRange(startOffset, endOffset)
+        val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
+        bibleView.bookmarkControl.addOrUpdateBookmark(bookmark)
+        bibleView.executeJavascriptOnUiThread("bibleView.response($callId, ${bookmark.toJson()});")
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

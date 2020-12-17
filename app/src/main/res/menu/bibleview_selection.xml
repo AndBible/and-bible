@@ -23,9 +23,4 @@
 		android:orderInCategory="1"
 		android:icon="@drawable/ic_zoom_out_map_white_24dp"
 		/>
-	<item android:id="@+id/highlight2"
-		android:title="@string/highlight2"
-		android:orderInCategory="0"
-		android:icon="@drawable/ic_zoom_out_map_white_24dp"
-		/>
 </menu>

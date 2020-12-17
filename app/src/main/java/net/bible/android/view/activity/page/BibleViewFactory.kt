@@ -63,9 +63,7 @@ class BibleViewFactory @Inject constructor(
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl)
-            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl,
-                VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
-            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, bibleView)
+            val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()

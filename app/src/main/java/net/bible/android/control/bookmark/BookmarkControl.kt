@@ -139,7 +139,7 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+            ABEventBus.getDefault().post(SynchronizeWindowsEvent()) // TODO: make sure this talks with bibleview.js properly
         }
         return bookmark
     }

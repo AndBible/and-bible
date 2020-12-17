@@ -20,9 +20,10 @@ import {sortBy, uniqWith} from "lodash";
 import {rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed} from "@vue/reactivity";
-import {findNodeAtOffset} from "@/dom";
+import {calculateOffsetToVerse, findNodeAtOffset} from "@/dom";
+import {Events, setupEventBusListener} from "@/eventbus";
 
-export function useGlobalBookmarks() {
+export function useGlobalBookmarks({makeBookmark}) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     let count = 1;
@@ -38,6 +39,25 @@ export function useGlobalBookmarks() {
             bookmarks.set(v.id, v)
         }
     }
+
+    async function makeBookmarkFromSelection() {
+        const selection = window.getSelection();
+        if(selection.rangeCount < 1) return;
+        const range = selection.getRangeAt(0);
+
+        const {ordinal: startOrdinal, offset: startOffset} =
+            calculateOffsetToVerse(range.startContainer, range.startOffset, true);
+        const {ordinal: endOrdinal, offset: endOffset} =
+            calculateOffsetToVerse(range.endContainer, range.endOffset);
+
+        selection.removeAllRanges();
+
+        const bookInitials = "NASB"; // TODO!!!
+
+        updateBookmarks(await makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset));
+    }
+
+    setupEventBusListener(Events.MAKE_BOOKMARK, makeBookmarkFromSelection)
 
     return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
 }

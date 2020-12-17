@@ -22,6 +22,7 @@
  */
 
 import {nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
+import {setupWindowEventListener} from "@/utils";
 
 export function useInfiniteScroll(config, android, osisFragments) {
     let
@@ -102,19 +103,13 @@ export function useInfiniteScroll(config, android, osisFragments) {
         currentPos = scrollPosition();
     }
 
+    setupWindowEventListener('scroll', scrollHandler)
+    setupWindowEventListener('touchstart', touchstartListener, false);
+    setupWindowEventListener('touchend', touchendListener, false);
+    setupWindowEventListener("touchcancel", touchendListener, false);
+
     onMounted(() => {
         currentPos = scrollPosition();
         bottomElem = document.getElementById("bottom");
-        window.addEventListener("scroll", scrollHandler)
-        window.addEventListener('touchstart', touchstartListener, false);
-        window.addEventListener('touchend', touchendListener, false);
-        window.addEventListener("touchcancel", touchendListener, false);
-    });
-
-    onUnmounted(() => {
-        window.removeEventListener("scroll", scrollHandler)
-        window.removeEventListener('touchstart', touchstartListener, false);
-        window.removeEventListener('touchend', touchendListener, false);
-        window.removeEventListener("touchcancel", touchendListener, false);
     });
 }
