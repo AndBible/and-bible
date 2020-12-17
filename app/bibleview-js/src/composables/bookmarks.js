@@ -129,7 +129,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     function styleForLabels(bookmarkLabels) {
         let colors = [];
         for(const s of bookmarkLabels) {
-            const c = `rgba(${s.color[0]}, ${s.color[1]}, ${s.color[2]}, 15%)`
+            const c = `rgba(${s.color[0]}, ${s.color[1]}, ${s.color[2]}, 40%)`
             colors.push(c);
         }
         if(colors.length === 1) {
