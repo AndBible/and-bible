@@ -99,6 +99,7 @@ class BookmarkEntities {
 
         var ordinalStart: Int,
         var ordinalEnd: Int,
+
         var v11n: Versification,
 
         var playbackSettings: PlaybackSettings?,
@@ -107,7 +108,10 @@ class BookmarkEntities {
         var createdAt: Date = Date(System.currentTimeMillis()),
 
         var book: Book? = null,
-        val textRange: TextRange? = null,
+
+        var startOffset: Int?,
+        var endOffset: Int?,
+
     ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange?,  book: Book?): this(
             converter.convert(verseRange.start, KJVA).ordinal,
@@ -117,7 +121,8 @@ class BookmarkEntities {
             verseRange.versification,
             null,
             book = book,
-            textRange = textRange
+            startOffset = textRange?.start,
+            endOffset = textRange?.end,
         )
 
         constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
@@ -130,8 +135,23 @@ class BookmarkEntities {
             id,
             createdAt,
             book,
-            textRange,
+            textRange?.start,
+            textRange?.end,
         )
+
+        var textRange: TextRange?
+            get() = if(startOffset != null) {
+                TextRange(startOffset!!, endOffset!!)
+            } else null
+            set(value) {
+                if(value == null) {
+                    startOffset = null
+                    endOffset = null
+                } else {
+                    startOffset = value.start
+                    endOffset = value.end
+                }
+            }
 
         override var verseRange: VerseRange
             get() {

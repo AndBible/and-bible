@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 35,
-    "identityHash": "c3b7e4fd36a2ac729794fbf4fd0ae29e",
+    "identityHash": "2af8a5e6143a995970b3e4c0229bbe6e",
     "entities": [
       {
         "tableName": "Bookmark",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `textRange` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER)",
         "fields": [
           {
             "fieldPath": "kjvOrdinalStart",
@@ -63,9 +63,15 @@
             "notNull": false
           },
           {
-            "fieldPath": "textRange",
-            "columnName": "textRange",
-            "affinity": "TEXT",
+            "fieldPath": "startOffset",
+            "columnName": "startOffset",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "endOffset",
+            "columnName": "endOffset",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -1099,7 +1105,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c3b7e4fd36a2ac729794fbf4fd0ae29e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2af8a5e6143a995970b3e4c0229bbe6e')"
     ]
   }
 }

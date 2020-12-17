@@ -631,7 +631,8 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
 private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `book` TEXT")
-        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `textRange` TEXT")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `startOffset` INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `endOffset` INTEGER DEFAULT NULL")
     }
 }
 

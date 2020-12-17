@@ -217,12 +217,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var currentSelection: Selection? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu) {
-        GlobalScope.launch(Dispatchers.Main) {
+        GlobalScope.launch {
             val result = evaluateJavascriptAsync("bibleView.querySelection()")
             currentSelection = json.decodeFromString(Selection.serializer(), result)
             // Check if there are bookmarks.
-            mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
-            mode.invalidate()
+            // Allow user to
+            //  - remove bookmark.
+            //    * overlapping: allow user to choose removed bookmark, js side, highlighting.
+            //    * let's start by removing them all!!!
+            //  - compare translations
+            //  - share
+            //  - copy
+            //  - make "my notes"?
+            //  - "footnotes and references" - deprecated?
+
+            withContext(Dispatchers.Main) {
+                mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
+                mode.invalidate()
+            }
         }
         //menu.add(Menu.FIRST, 0, 100, "Test")
     }
