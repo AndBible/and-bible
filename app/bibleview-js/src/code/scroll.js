@@ -67,11 +67,9 @@ export function useScroll(config) {
             if (time < duration) {
                 currentScrollAnimation = window.requestAnimationFrame(step);
             }
-            else {
-                //updateLocation();
-            }
         })
     }
+
     function attributesToString(elem) {
         try {
             let result = "";
@@ -122,8 +120,6 @@ export function useScroll(config) {
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
-        //$("#content").css('visibility', 'visible');
-
         if (jumpToOrdinal != null) {
             scrollToVerse(`v-${jumpToOrdinal}`, true);
             //enableVerseLongTouchSelectionMode();
@@ -138,14 +134,7 @@ export function useScroll(config) {
             scrollToVerse(null, true);
         }
 
-        //await nextTick(); // set contentReady only after scrolling has been done
-
-        //registerVersePositions(true);
-
-        //contentReady = true;
         console.log("Content is set ready!");
-        //jsInterface.setContentReady();
-        //startVue();
     }
 
     setupEventBusListener(Events.SET_TOOLBAR_OFFSET, setToolbarOffset)
