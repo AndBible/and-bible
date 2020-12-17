@@ -120,60 +120,6 @@ export function useConfig() {
     return {config};
 }
 
-export function useAndroid() {
-
-    let callId = 0;
-    const responsePromises = new Map();
-
-    function response(callId, returnValue) {
-        const promise = responsePromises.get(callId);
-        if(promise) {
-            responsePromises.delete(callId);
-            promise.resolve(returnValue);
-        } else {
-            console.error("Promise not found for callId", callId)
-        }
-    }
-
-    window.bibleView.response = response;
-    window.bibleView.emit = emit;
-
-    async function deferredCall(func, ...args) {
-        const promise = new Deferred();
-        const thisCall = callId ++;
-        responsePromises.set(thisCall, promise);
-        console.log("Calling function", func, thisCall, args);
-        func(thisCall, ...args);
-        const returnValue = await promise.wait();
-        console.log("Response came to", thisCall, args);
-        return returnValue
-    }
-
-    async function requestMoreTextAtTop() {
-        return await deferredCall((callId) => android.requestMoreTextAtTop(callId));
-    }
-
-    async function requestMoreTextAtEnd() {
-        return await deferredCall((callId) => android.requestMoreTextAtEnd(callId));
-    }
-
-    function scrolledToVerse(ordinal) {
-        android.scrolledToVerse(ordinal)
-    }
-
-    function setClientReady() {
-        android.setClientReady();
-    }
-    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady}
-
-    if(process.env.NODE_ENV === 'development') return stubsFor(exposed)
-
-    onMounted(() => {
-        setClientReady();
-    });
-
-    return exposed;
-}
 export function useStrings() {
     return {
         chapterNum: "Chapter %d. ",
