@@ -32,8 +32,6 @@ import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.serializer
-import net.bible.android.database.json
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
@@ -111,10 +109,6 @@ class BookmarkEntities {
         var book: Book? = null,
         val textRange: TextRange? = null,
     ): VerseRangeUser {
-        fun toJson(): String {
-            return json.encodeToString(serializer(), this)
-        }
-
         constructor(verseRange: VerseRange, textRange: TextRange?,  book: Book?): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,

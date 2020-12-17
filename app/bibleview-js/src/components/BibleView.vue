@@ -28,7 +28,7 @@
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents}, index) in osisFragments" :key="index">
       <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
-        <div :class="`frag frag-${key}`">
+        <div :id="`f-${key}`" class="fragment">
           <OsisFragment :xml="xml" :fragment-key="`${key}`" :ordinal-range="ordinalRange"/>
         </div>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />

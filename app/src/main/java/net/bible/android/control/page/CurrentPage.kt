@@ -31,7 +31,7 @@ class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
             "[${key.start.ordinal}, ${key.end.ordinal}]"
         } else "null"
     }
-    val keyStr: String get () = "$bookId--${key?.osisID?: "error"}"
+    val keyStr: String get () = "$bookId--${key?.osisID?.replace(".", "-") ?: "error"}"
 }
 
 /**

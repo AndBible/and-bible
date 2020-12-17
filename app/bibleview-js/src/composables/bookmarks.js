@@ -52,7 +52,8 @@ export function useGlobalBookmarks({makeBookmark}) {
 
         selection.removeAllRanges();
 
-        const bookInitials = "NASB"; // TODO!!!
+        const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
+        const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
 
         updateBookmarks(await makeBookmark(bookInitials, startOrdinal, startOffset, endOrdinal, endOffset));
     }
@@ -158,8 +159,8 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
 
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
-        const firstElem = document.querySelector(`.frag-${props.fragmentKey} #v-${startOrdinal}`);
-        const secondElem = document.querySelector(`.frag-${props.fragmentKey} #v-${endOrdinal}`);
+        const firstElem = document.querySelector(`#f-${props.fragmentKey} #v-${startOrdinal}`);
+        const secondElem = document.querySelector(`#f-${props.fragmentKey} #v-${endOrdinal}`);
         console.log("styleRange", {styleRange, fragKey: props.fragmentKey, startOrdinal, endOrdinal, startOff, endOff, firstElem, secondElem});
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
@@ -168,7 +169,7 @@ export function useBookmarks(props, {bookmarks, bookmarkLabels}, book) {
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);
         const style = styleForLabelIds(styleRange.labels)
-        const undo = highlightRange(range, 'span', { class: "osis", style });
+        const undo = highlightRange(range, 'span', { style });
         undoHighlights.push(undo);
     }
 

@@ -26,7 +26,6 @@ import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -51,6 +50,13 @@ import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
+
+abstract class BookmarkEvent
+
+// TODO: implement listeners and add arguments
+class BookmarkAddedEvent: BookmarkEvent()
+class BookmarkDeletedEvent: BookmarkEvent()
+class BookmarkLabelsSet: BookmarkEvent()
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -104,7 +110,7 @@ open class BookmarkControl @Inject constructor(
         Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
             .setActionTextColor(actionTextColor)
             .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        ABEventBus.getDefault().post(BookmarkAddedEvent())
     }
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
@@ -117,7 +123,7 @@ open class BookmarkControl @Inject constructor(
             deleteBookmark(bookmark, true)
             Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
         }
-        ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+        ABEventBus.getDefault().post(BookmarkDeletedEvent())
     }
 
     fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
@@ -139,7 +145,7 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent()) // TODO: make sure this talks with bibleview.js properly
+            ABEventBus.getDefault().post(BookmarkAddedEvent()) // TODO: make sure this talks with bibleview.js properly
         }
         return bookmark
     }
@@ -153,7 +159,7 @@ open class BookmarkControl @Inject constructor(
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
         dao.delete(bookmark)
         if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+            ABEventBus.getDefault().post(BookmarkDeletedEvent())
         }
     }
 
@@ -203,7 +209,7 @@ open class BookmarkControl @Inject constructor(
         dao.insert(added.map { BookmarkToLabel(bookmark.id, it.id) })
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(SynchronizeWindowsEvent())
+            ABEventBus.getDefault().post(BookmarkLabelsSet())
         }
     }
 

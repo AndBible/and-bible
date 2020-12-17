@@ -78,7 +78,16 @@ class BibleJavascriptInterface(
         val textRange = BookmarkEntities.TextRange(startOffset, endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         bibleView.bookmarkControl.addOrUpdateBookmark(bookmark)
-        bibleView.executeJavascriptOnUiThread("bibleView.response($callId, ${bookmark.toJson()});")
+        bibleView.executeJavascriptOnUiThread("""
+            bibleView.response($callId, 
+                {
+                    id: ${bookmark.id},
+                    ordinalRange: [$startOrdinal, $endOrdinal],
+                    offsetRange: [$startOffset, $endOffset],
+                    book: "$bookInitials",
+                    labels: [${bibleView.bookmarkControl.LABEL_UNLABELLED.id}],
+                });
+            """.trimIndent())
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

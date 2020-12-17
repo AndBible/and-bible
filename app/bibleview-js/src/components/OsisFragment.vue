@@ -39,7 +39,7 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
-import {h, inject, provide, ref} from "@vue/runtime-core";
+import {h, inject, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
 import {computed} from "@vue/reactivity";
 
