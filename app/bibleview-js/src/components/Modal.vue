@@ -16,10 +16,8 @@
   -->
 
 <template>
-  <!-- The Modal -->
   <teleport to="#notes">
     <div ref="myModal" class="modal">
-      <!-- Modal content -->
       <div class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
         <div class="modal-header">
           <span class="close" @click="$emit('close')">&times;</span>
@@ -53,22 +51,20 @@ export default {
 </script>
 
 <style scoped>
-/* The Modal (background) */
 .modal {
-  display: block; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 10px; /* Location of the box */
+  display: block;
+  position: fixed;
+  z-index: 1;
+  padding-top: 10px;
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.1); /* Black w/ opacity */
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.1);
 }
 
-/* Modal Content */
 .modal-content {
   position: relative;
   background-color: #fefefe;
@@ -86,7 +82,6 @@ export default {
   to {top:0; opacity:1}
 }
 
-/* The Close Button */
 .close {
   color: white;
   float: right;
