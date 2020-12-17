@@ -1009,7 +1009,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (currentPage is CurrentBiblePage) {
             val newChap = minChapter - 1
 
-            if(newChap < 0) return@launch
+            if(newChap < 1) return@launch
 
             val fragment = currentPage.getFragmentForChapter(newChap)
             addChapter(newChap)
