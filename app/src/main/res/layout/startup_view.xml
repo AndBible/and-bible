@@ -91,6 +91,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="center"
 			android:padding="5dip"
+			android:autoLink="web"
 			android:text="@string/homepage" />
 
 		<TextView
@@ -100,6 +101,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="center"
 			android:padding="5dip"
+			android:autoLink="web"
 			android:text="@string/github_page" />
 
 		<TextView
