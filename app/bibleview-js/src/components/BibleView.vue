@@ -28,10 +28,10 @@
     <span @mouseenter="testMakeBookmark">Get selection!</span>
   </div>
   <div id="top" ref="topElement" :style="styleConfig">
-    <div v-for="({contents}, index) in osisFragments" :key="index">
+    <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
       <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
         <div :id="`f-${key}`" class="fragment">
-          <OsisFragment :xml="xml" :fragment-key="`${key}`" :ordinal-range="ordinalRange"/>
+          <OsisFragment :show-transition="showTransition" :xml="xml" :fragment-key="`${key}`" :ordinal-range="ordinalRange"/>
         </div>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
       </template>

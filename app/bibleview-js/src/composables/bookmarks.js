@@ -57,7 +57,7 @@ export function useGlobalBookmarks() {
     return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
 }
 
-export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book) {
+export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book, fragmentReady) {
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
@@ -70,8 +70,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         b.ordinalRange !== null && ordinalRange.value !== null
         && rangesOverlap(b.ordinalRange, ordinalRange.value, true);
 
-    const fragmentBookmarks = computed(() =>
-        Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b)));
+    const fragmentBookmarks = computed(() => {
+        if(!fragmentReady.value) return [];
+        return Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b))
+    });
 
     function combinedRange(b) {
         let offsetRange = b.offsetRange;

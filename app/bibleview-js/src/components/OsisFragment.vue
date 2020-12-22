@@ -14,75 +14,80 @@
   - You should have received a copy of the GNU General Public License along with And Bible.
   - If not, see http://www.gnu.org/licenses/.
   -->
+<template>
+  <transition-group v-if="showTransition" name="fade">
+    <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
+      <OsisSegment :osis-template="template" />
+    </div>
+  </transition-group>
+  <OsisSegment v-else :osis-template="templates[0].template" />
+</template>
 
 <script>
-import Verse from "@/components/OSIS/Verse";
-import W from "@/components/OSIS/W";
-import Div from "@/components/OSIS/Div";
-import Chapter from "@/components/OSIS/Chapter";
-import Reference from "@/components/OSIS/Reference";
-import Note from "@/components/OSIS/Note";
-import TransChange from "@/components/OSIS/TransChange";
-import DivineName from "@/components/OSIS/DivineName";
-import Seg from "@/components/OSIS/Seg";
-import Milestone from "@/components/OSIS/Milestone";
-import Title from "@/components/OSIS/Title";
-import Q from "@/components/OSIS/Q";
-import Hi from "@/components/OSIS/Hi";
-import CatchWord from "@/components/OSIS/CatchWord";
-import Item from "@/components/OSIS/Item";
-import List from "@/components/OSIS/List";
-import P from "@/components/OSIS/P";
-import Cell from "@/components/OSIS/Cell";
-import L from "@/components/OSIS/L";
-import Lb from "@/components/OSIS/Lb";
-import Lg from "@/components/OSIS/Lg";
-import Row from "@/components/OSIS/Row";
-import Table from "@/components/OSIS/Table";
-import {h, inject, provide} from "@vue/runtime-core";
+import {inject, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
-import {computed} from "@vue/reactivity";
-
-const components = {
-  Verse, W, Div, Chapter, Reference, Note, TransChange,
-  DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
-  Cell, L, Lb, Lg, Row, Table
-}
-
-function prefixComponents() {
-  const result = {}
-  for(const name in components) {
-      result["Osis" + name] = components[name]
-  }
-  return result;
-}
+import {computed, reactive, ref} from "@vue/reactivity";
+import OsisSegment from "@/components/OsisSegment";
+import {AutoSleep} from "@/utils";
 
 export default {
   name: "OsisFragment",
+  components: {OsisSegment},
   props: {
     xml: {type: String, required: true},
     fragmentKey: {type: String, required: true},
     ordinalRange: {type: Array, default: null},
+    showTransition: {type: Boolean, default: true},
   },
   setup(props) {
     const fragmentKey = computed(() => props.fragmentKey);
     const ordinalRange = computed(() => props.ordinalRange);
+    const fragmentReady = ref(!props.showTransition);
     // TODO: check if these are used
     const [book, osisID] = props.fragmentKey.split("--");
 
     const globalBookmarks = inject("globalBookmarks");
-    useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book);
 
+    useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book, fragmentReady);
     provide("fragmentInfo", {fragmentKey, book, osisID});
-  },
-  render() {
-    return h({
-      template: this.xml
-          .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
-              (m, tagStart, tagFirst, tagRest, tagEnd) =>
-                  `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`),
-      components: prefixComponents(components),
-    });
-  },
+
+    const template = props.xml
+        .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
+            (m, tagStart, tagFirst, tagRest, tagEnd) =>
+                `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
+
+    const templates = reactive([]);
+
+    async function populate() {
+      const autoSleep = new AutoSleep();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(template, "text/xml");
+      let ordinalCount = 0;
+
+      for (const c of xmlDoc.firstElementChild.children) {
+        const key = `${fragmentKey.value}-${ordinalCount++}`;
+        templates.push({template: c.outerHTML, key})
+        await autoSleep.autoSleep();
+      }
+      fragmentReady.value = true;
+    }
+
+    if(props.showTransition) {
+      populate();
+    } else {
+      templates.push({template, key: `${fragmentKey}-0`})
+    }
+
+    return {templates}
+  }
 }
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0
+}
+</style>

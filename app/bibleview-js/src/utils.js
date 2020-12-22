@@ -17,6 +17,7 @@
 
 import {onMounted, onUnmounted} from "@vue/runtime-core";
 import {isFunction} from "lodash"
+import {sleep} from "@/code/utils";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -111,3 +112,22 @@ export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
     return (ex1 || ex2 || ex3 || ex4)
 }
 
+export class AutoSleep {
+    constructor(processTime = 20, sleepTime = 0) {
+        this._sleepTime = sleepTime;
+        this._processTime = processTime;
+        this.reset();
+    }
+
+    reset() {
+        this.lastSleep = performance.now();
+    }
+
+    async autoSleep() {
+        if(performance.now() - this.lastSleep > this._processTime) {
+            // Give time for UI updates.
+            await sleep(this._sleepTime);
+            this.reset();
+        }
+    }
+}

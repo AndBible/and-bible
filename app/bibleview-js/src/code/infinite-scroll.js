@@ -21,7 +21,7 @@
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-import {nextTick, onMounted, onUnmounted} from "@vue/runtime-core";
+import {nextTick, onMounted} from "@vue/runtime-core";
 import {setupWindowEventListener} from "@/utils";
 
 export function useInfiniteScroll(config, android, osisFragments) {
@@ -71,7 +71,7 @@ export function useInfiniteScroll(config, android, osisFragments) {
             const priorHeight = bodyHeight();
             const origPosition = scrollPosition();
 
-            osisFragments.unshift(osisFragment);
+            if(osisFragment) osisFragments.unshift({...osisFragment, showTransition: false});
             await nextTick();
 
             // do no try to get scrollPosition here because it has not settled
@@ -81,7 +81,7 @@ export function useInfiniteScroll(config, android, osisFragments) {
     }
 
     function insertThisTextAtEnd(osisFragment) {
-        osisFragments.push(osisFragment);
+        if(osisFragment) osisFragments.push({...osisFragment});
     }
 
     function scrollHandler() {
