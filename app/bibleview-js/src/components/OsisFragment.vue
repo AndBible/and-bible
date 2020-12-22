@@ -15,12 +15,11 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <transition-group v-if="showTransition" name="fade">
+  <transition-group name="fade">
     <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
       <OsisSegment :osis-template="template" />
     </div>
   </transition-group>
-  <OsisSegment v-else :osis-template="templates[0].template" />
 </template>
 
 <script>
@@ -71,8 +70,8 @@ export default {
       }
       fragmentReady.value = true;
     }
-
-    if(props.showTransition) {
+    // TODO: leaving this now for a later point. Need to re-design replace_osis + setup_content for this too.
+    if(false && props.showTransition) {
       populate();
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
@@ -85,7 +84,7 @@ export default {
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.1s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0
