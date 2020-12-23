@@ -28,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Callback
+import net.bible.service.common.displayName
 import javax.inject.Inject
 
 /**
@@ -49,7 +50,7 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.bookmark_label_edit, null)
         val labelName = view.findViewById<View>(R.id.labelName) as EditText
-        labelName.setText(label.name)
+        labelName.setText(label.displayName)
         val adp = BookmarkStyleAdapter(context, android.R.layout.simple_spinner_item)
         val labelStyle = view.findViewById<View>(R.id.labelStyle) as Spinner
         labelStyle.adapter = adp

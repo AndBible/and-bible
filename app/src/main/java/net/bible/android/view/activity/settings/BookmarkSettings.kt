@@ -36,6 +36,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.displayName
 import javax.inject.Inject
 
 class BookmarkSettingsDataStore(val activity: BookmarkSettingsActivity): PreferenceDataStore() {
@@ -150,18 +151,17 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
 
         preferenceManager.preferenceDataStore = BookmarkSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.bookmark_settings, rootKey)
-        val bookmarkLabels = bookmarkControl.allLabels
-        val names = bookmarkLabels.map { it.name }.toTypedArray()
-        val ids = bookmarkLabels.map { it.id.toString() }.toTypedArray()
+        val assignLabels = bookmarkControl.assignableLabels
+        val showLabels = bookmarkControl.allLabels.filter { it.id != bookmarkControl.LABEL_ALL.id }
 
         preferenceScreen.findPreference<MultiSelectListPreference>("assign_labels")?.apply {
-            entries = names
-            entryValues = ids
+            entries = assignLabels.map { it.displayName }.toTypedArray()
+            entryValues = assignLabels.map { it.id.toString() }.toTypedArray()
 
         }
         preferenceScreen.findPreference<MultiSelectListPreference>("show_labels")?.apply {
-            entries = names
-            entryValues = ids
+            entries = showLabels.map { it.displayName }.toTypedArray()
+            entryValues = showLabels.map { it.id.toString() }.toTypedArray()
         }
     }
 }

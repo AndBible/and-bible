@@ -63,7 +63,7 @@
       useScroll(config);
       useInfiniteScroll(config, android, osisFragments);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
-      const globalBookmarks = useGlobalBookmarks(android);
+      const globalBookmarks = useGlobalBookmarks(config);
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {

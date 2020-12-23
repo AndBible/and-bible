@@ -17,13 +17,13 @@
 
 import {onMounted, reactive, watch} from "@vue/runtime-core";
 import {sortBy, uniqWith} from "lodash";
-import {rangesOverlap} from "@/utils";
+import {intersection, rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, textLength} from "@/dom";
 import {Events, setupEventBusListener} from "@/eventbus";
 
-export function useGlobalBookmarks() {
+export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
     const bookmarks = reactive(new Map());
     let count = 1;
@@ -54,7 +54,14 @@ export function useGlobalBookmarks() {
         updateBookmarks(...bookmarks)
     });
 
-    return {bookmarkLabels, bookmarks, updateBookmarkLabels, updateBookmarks}
+    const filteredBookmarks = computed(() => {
+        const allBookmarks = Array.from(bookmarks.values());
+        if(config.bookmarks.showAll) return allBookmarks;
+        const configLabels = new Set(config.bookmarks.showLabels);
+        return allBookmarks.filter(v => intersection(new Set(v.labels), configLabels).size > 0)
+    })
+
+    return {bookmarkLabels, bookmarks: filteredBookmarks, updateBookmarkLabels, updateBookmarks}
 }
 
 export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book, fragmentReady) {
@@ -72,7 +79,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
 
     const fragmentBookmarks = computed(() => {
         if(!fragmentReady.value) return [];
-        return Array.from(bookmarks.values()).filter(b => noOrdinalNeeded(b) || checkOrdinal(b))
+        return bookmarks.value.filter(b => noOrdinalNeeded(b) || checkOrdinal(b))
     });
 
     function combinedRange(b) {

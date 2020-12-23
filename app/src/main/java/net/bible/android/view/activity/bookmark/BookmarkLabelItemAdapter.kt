@@ -26,6 +26,7 @@ import android.widget.CheckedTextView
 import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.service.common.displayName
 
 /**
  * Adapter which shows highlight colour of labels
@@ -46,7 +47,7 @@ class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
             convertView
         }
         val nameView = rowView as CheckedTextView
-        nameView.text = label.name
+        nameView.text = label.displayName
         if (label.bookmarkStyle == null) {
             nameView.setBackgroundColor(getThemeBackgroundColour(context))
         } else {

@@ -37,10 +37,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.BuildConfig.BuildDate
 import net.bible.android.activity.BuildConfig.GitHash
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityComponent
 import net.bible.android.view.activity.DaggerActivityComponent
@@ -56,6 +59,9 @@ import org.crosswire.jsword.passage.VerseRange
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
+
+val BookmarkEntities.Label.displayName get() =
+    if(bookmarkStyle == BookmarkStyle.SPEAK) application.getString(R.string.speak) else name
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

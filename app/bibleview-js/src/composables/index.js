@@ -72,7 +72,6 @@ export function useConfig() {
         showStrongsSeparately: false,
         showCrossReferences: true,
         showFootNotes: true,
-
         font: {
             fontFamily: "sans-serif",
             fontSize: 16,
@@ -88,7 +87,10 @@ export function useConfig() {
             nightNoise: 0,
             nightTextColor: null,
         },
-
+        bookmarks: {
+            showAll: true,
+            showLabels: []
+        },
         maxWidth: 170,
         textColor: "black",
         hyphenation: true,
