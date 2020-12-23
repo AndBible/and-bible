@@ -87,12 +87,6 @@ class Converters {
     fun strToBook(s: String?): Book? = s?.let { Books.installed().getBook(s) }
 
     @TypeConverter
-    fun textRangeToStr(v: BookmarkEntities.TextRange?): String? = v?.let { json.encodeToString(serializer(), v) }
-
-    @TypeConverter
-    fun strToTextRange(s: String?): BookmarkEntities.TextRange? = s?.let { json.decodeFromString(serializer(), it) }
-
-    @TypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {
         return p?.toJson()
     }

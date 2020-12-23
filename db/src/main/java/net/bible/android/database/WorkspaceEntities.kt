@@ -39,9 +39,15 @@ val json = Json {
 }
 
 class WorkspaceEntities {
-    data class Page(
+    data class DictionaryPage(
         val document: String?,
         val key: Key?,
+        val currentYOffsetRatio: Float?
+    )
+
+    data class Page(
+        val document: String?,
+        val key: String?,
         val currentYOffsetRatio: Float?
     )
 
@@ -87,7 +93,7 @@ class WorkspaceEntities {
         @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
-        @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
+        @Embedded(prefix="dictionary_") val dictionaryPage: DictionaryPage?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,

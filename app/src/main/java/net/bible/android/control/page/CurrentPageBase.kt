@@ -244,7 +244,7 @@ abstract class CurrentPageBase protected constructor(
     val pageEntity: WorkspaceEntities.Page get() {
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
-                key,
+                key?.osisID,
                 currentYOffsetRatio
             )
         }
@@ -258,10 +258,9 @@ abstract class CurrentPageBase protected constructor(
             Log.d(TAG, "Restored document:" + book.name)
             // bypass setter to avoid automatic notifications
             localSetCurrentDocument(book)
-            try {
-                doSetKey(entity.key)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
+            val keyName = entity.key
+            if(!keyName.isNullOrEmpty()) {
+                doSetKey(book.getKey(keyName))
             }
         }
         currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
