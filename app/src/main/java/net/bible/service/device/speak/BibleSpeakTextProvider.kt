@@ -389,7 +389,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
@@ -412,13 +412,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 playbackSettings.bookmarkWasCreated = true
                 bookmark = Bookmark(VerseRange(startVerse.versification, startVerse), null, null)
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
             }
 
             labelList.add(bookmarkControl.speakLabel)

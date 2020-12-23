@@ -227,7 +227,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        bookmarkControl.addOrUpdateBookmark(bookmark)
+        bookmarkControl.addOrUpdateBookmark(bookmark, displaySettings.bookmarks!!.assignLabels)
     }
 
     @Serializable
@@ -865,7 +865,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val b = event.bookmark
         val initials = b.book?.initials
         val bookStr = if(initials === null) null else "\"$initials\""
-        // TODO: labels!
+        var labelsStr = "[${bookmarkControl.LABEL_UNLABELLED.id}]"
+        if(!event.labels.isNullOrEmpty()) {
+            labelsStr = json.encodeToString(serializer(), event.labels)
+        }
+
         executeJavascriptOnUiThread("""
             bibleView.emit("add_bookmarks", 
                 {bookmarks: [{
@@ -873,7 +877,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     ordinalRange: [${b.verseRange.start.ordinal}, ${b.verseRange.end.ordinal}],
                     offsetRange: [${b.startOffset}, ${b.endOffset}],
                     book: $bookStr,
-                    labels: [${bookmarkControl.LABEL_UNLABELLED.id}],
+                    labels: $labelsStr,
                 }], 
                 labels: []});
             """.trimIndent())

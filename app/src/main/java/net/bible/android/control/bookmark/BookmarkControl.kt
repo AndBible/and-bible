@@ -54,7 +54,7 @@ import javax.inject.Inject
 abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
-class BookmarkAddedEvent(val bookmark: Bookmark): BookmarkEvent()
+class BookmarkAddedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarks: List<Bookmark>): BookmarkEvent()
 class BookmarkLabelsSet: BookmarkEvent()
 
@@ -100,7 +100,7 @@ open class BookmarkControl @Inject constructor(
         var message: Int? = null
         if (bookmark == null) { // prepare new bookmark and add to db
             bookmark = Bookmark(verseRange, null, book)
-            bookmark = addOrUpdateBookmark(bookmark, true)
+            bookmark = addOrUpdateBookmark(bookmark, doNotSync = true)
             message = R.string.bookmark_added
         } else {
             bookmark = dao.updateBookmarkDate(bookmark)
@@ -137,15 +137,21 @@ open class BookmarkControl @Inject constructor(
     val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
 
     /** create a new bookmark  */
-    fun addOrUpdateBookmark(bookmark: Bookmark, doNotSync: Boolean=false): Bookmark {
+    fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null, doNotSync: Boolean=false): Bookmark {
         if(bookmark.id != 0L) {
             dao.update(bookmark)
         } else {
             bookmark.id = dao.insert(bookmark)
         }
 
+        if(labels != null) {
+            for(l in labels.filter { it > 0 }) {
+                dao.insert(BookmarkToLabel(bookmark.id, l))
+            }
+        }
+
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark)) // TODO: make sure this talks with bibleview.js properly
+            ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark, labels)) // TODO: make sure this talks with bibleview.js properly
         }
         return bookmark
     }
