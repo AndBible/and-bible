@@ -105,7 +105,7 @@
           book: selection.bookInitials,
           labels: [-(lblCount++ % 5) - 1]
         }
-        emit(Events.ADD_BOOKMARKS, {bookmarks: [bookmark], labels: []})
+        emit(Events.ADD_OR_UPDATE_BOOKMARKS, {bookmarks: [bookmark], labels: []})
         emit(Events.REMOVE_RANGES)
       }
 

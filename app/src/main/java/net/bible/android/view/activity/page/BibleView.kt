@@ -44,6 +44,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.iterator
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -53,7 +54,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkAddedEvent
+import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.event.ABEventBus
@@ -228,6 +229,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
         bookmarkControl.addOrUpdateBookmark(bookmark, displaySettings.bookmarks!!.assignLabels)
+
+        val actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text)
+        runOnUiThread {
+            val currentView = mainBibleActivity.findViewById<View>(R.id.coordinatorLayout)
+            Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG)
+                .setActionTextColor(actionTextColor)
+                .setAction(R.string.assign_labels) { bookmarkControl.showBookmarkLabelsActivity(mainBibleActivity, bookmark) }.show()
+        }
     }
 
     @Serializable
@@ -861,7 +870,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return this
     }
 
-    fun onEvent(event: BookmarkAddedEvent) {
+    fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val b = event.bookmark
         val initials = b.book?.initials
         val bookStr = if(initials === null) null else "\"$initials\""
@@ -871,7 +880,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_bookmarks", 
+            bibleView.emit("add_or_update_bookmarks", 
                 {bookmarks: [{
                     id: ${b.id},
                     ordinalRange: [${b.verseRange.start.ordinal}, ${b.verseRange.end.ordinal}],

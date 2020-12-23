@@ -54,9 +54,8 @@ import javax.inject.Inject
 abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
-class BookmarkAddedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarks: List<Bookmark>): BookmarkEvent()
-class BookmarkLabelsSet: BookmarkEvent()
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -110,7 +109,7 @@ open class BookmarkControl @Inject constructor(
         Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
             .setActionTextColor(actionTextColor)
             .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
-        ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark))
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
     }
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
@@ -151,7 +150,7 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkAddedEvent(bookmark, labels)) // TODO: make sure this talks with bibleview.js properly
+            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labels)) // TODO: make sure this talks with bibleview.js properly
         }
         return bookmark
     }
@@ -222,7 +221,7 @@ open class BookmarkControl @Inject constructor(
         dao.insert(added.map { BookmarkToLabel(bookmark.id, it.id) })
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkLabelsSet())
+            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, lbls.map { it.id }))
         }
     }
 
@@ -281,7 +280,7 @@ open class BookmarkControl @Inject constructor(
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
 
-    private fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
+    internal fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
         val intent = Intent(currentActivity, BookmarkLabels::class.java)
         intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark.id))
         currentActivity.startActivity(intent)
