@@ -73,9 +73,9 @@ if(process.env.NODE_ENV === "development") {
         {
             id: 0,
             ordinalRange: [30839, 30842],
+            offsetRange: null,
             labels: [1, 2],
-            elementRange: null,
-            book: null,
+            book: "KJV",
         },
         {
             id: 1,
@@ -90,7 +90,14 @@ if(process.env.NODE_ENV === "development") {
             labels: [3],
             elementRange: null,
             book: null,
-        }
+        },
+        {
+            id: 3,
+            ordinalRange: [30838, 30838],
+            offsetRange: [10, 50],
+            labels: [1, 2],
+            book: "KJV",
+        },
     ];
     testBookmarkLabels = [
         {
