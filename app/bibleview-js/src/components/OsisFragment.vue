@@ -20,37 +20,47 @@
       <OsisSegment :osis-template="template" />
     </div>
   </transition-group>
+  <div class="features-link" v-if="featuresLink">
+    <a :href="featuresLink">{{strings.findAllOccurrences}}</a>
+  </div>
 </template>
 
 <script>
 import {inject, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
-import {computed, reactive, ref} from "@vue/reactivity";
+import {reactive, ref} from "@vue/reactivity";
 import OsisSegment from "@/components/OsisSegment";
 import {AutoSleep} from "@/utils";
+import {useStrings} from "@/composables";
 
 export default {
   name: "OsisFragment",
   components: {OsisSegment},
   props: {
-    xml: {type: String, required: true},
-    fragmentKey: {type: String, required: true},
-    ordinalRange: {type: Array, default: null},
-    showTransition: {type: Boolean, default: true},
+    data: {type: Object, required: true},
+    showTransition: {type: Boolean, default: false},
   },
   setup(props) {
-    const fragmentKey = computed(() => props.fragmentKey);
-    const ordinalRange = computed(() => props.ordinalRange);
+    // Data for this component is considered to be read-only.
+    // eslint-disable-next-line vue/no-setup-props-destructure
+    console.log("PROPS", props.data);
+    const {
+      xml,
+      key: fragmentKey,
+      ordinalRange = null,
+      features: {type: featureType = null, keyName: featureKeyName = null} = {}} = props.data;
     const fragmentReady = ref(!props.showTransition);
+    const strings = useStrings();
+
     // TODO: check if these are used
-    const [book, osisID] = props.fragmentKey.split("--");
+    const [book, osisID] = fragmentKey.split("--");
 
     const globalBookmarks = inject("globalBookmarks");
 
     useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book, fragmentReady);
     provide("fragmentInfo", {fragmentKey, book, osisID});
 
-    const template = props.xml
+    const template = xml
         .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
             (m, tagStart, tagFirst, tagRest, tagEnd) =>
                 `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
@@ -76,8 +86,12 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
+    let featuresLink = null;
+    if(featureType) {
+      featuresLink = `ab-find-all://?type=${featureType}&name=${featureKeyName}`
+    }
 
-    return {templates}
+    return {templates, featuresLink, strings}
   }
 }
 </script>
@@ -88,5 +102,9 @@ export default {
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0
+}
+.features-link {
+  padding-top: 1em;
+  text-align: right;
 }
 </style>

@@ -65,10 +65,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         return bookmark.offsetRange === null || bookmark.book !== book
     }
 
-    const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange.value === null
+    const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange === null
     const checkOrdinal = (b) =>
-        b.ordinalRange !== null && ordinalRange.value !== null
-        && rangesOverlap(b.ordinalRange, ordinalRange.value, true);
+        b.ordinalRange !== null && ordinalRange !== null
+        && rangesOverlap(b.ordinalRange, ordinalRange, true);
 
     const fragmentBookmarks = computed(() => {
         if(!fragmentReady.value) return [];
@@ -79,7 +79,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         let offsetRange = b.offsetRange;
         if(showBookmarkForWholeVerse(b)) {
             const startOffset = 0;
-            const verseElement = document.querySelector(`#f-${fragmentKey.value} #v-${b.ordinalRange[1]}`);
+            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
             const endOffset = textLength(verseElement);
             offsetRange = [startOffset, endOffset];
         }
@@ -157,8 +157,8 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
 
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
-        const firstElem = document.querySelector(`#f-${fragmentKey.value} #v-${startOrdinal}`);
-        const secondElem = document.querySelector(`#f-${fragmentKey.value} #v-${endOrdinal}`);
+        const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
+        const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
         const range = new Range();

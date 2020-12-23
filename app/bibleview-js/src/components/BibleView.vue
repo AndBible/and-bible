@@ -29,9 +29,9 @@
   </div>
   <div id="top" ref="topElement" :style="styleConfig">
     <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
-      <template v-for="({xml, key, ordinalRange}, idx) in contents" :key="key">
-        <div :id="`f-${key}`" class="fragment">
-          <OsisFragment :show-transition="showTransition" :xml="xml" :fragment-key="`${key}`" :ordinal-range="ordinalRange"/>
+      <template v-for="(data, idx) in contents" :key="data.key">
+        <div :id="`f-${data.key}`" class="fragment">
+          <OsisFragment :show-transition="showTransition" :data="data"/>
         </div>
         <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
       </template>

@@ -126,6 +126,7 @@ export function useStrings() {
         verseNum: "%d ",
         noteText: "Notes",
         crossReferenceText: "Crossreferences",
+        findAllOccurrences: "Find all occurrences",
     }
 }
 

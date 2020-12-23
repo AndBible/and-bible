@@ -209,7 +209,7 @@ class LinkControl @Inject constructor(
         return BookAndKey(robinson, robinsonNumberKey)
     }
 
-    private fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
+    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
         var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has

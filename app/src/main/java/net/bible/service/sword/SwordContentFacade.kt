@@ -70,7 +70,7 @@ open class SwordContentFacade @Inject constructor(
     /** top level method to fetch html from the raw document data
      */
     @Throws(ParseException::class)
-    fun readOsisFragment(book: Book?, key: Key?,): List<String> {
+    fun readOsisFragment(book: Book?, key: Key?,): String {
         var book = book
         var key = key
         if(key is BookAndKey) {
@@ -84,13 +84,6 @@ open class SwordContentFacade @Inject constructor(
                 val errorMsg = application.getString(R.string.document_not_installed, book.initials)
                 format(errorMsg)
             }
-            key is BookAndKeyList -> {
-                return key.map {
-                    if(it is BookAndKey) {
-                        readXmlTextStandardJSwordMethod(it.document, it.key)
-                    } else throw RuntimeException("Not supported")
-                }
-            }
             !bookContainsAnyOf(book, key) -> {
                 Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
                 format(R.string.error_key_not_in_document)
@@ -99,7 +92,7 @@ open class SwordContentFacade @Inject constructor(
                 readXmlTextStandardJSwordMethod(book, key)
             }
         }
-        return listOf(retVal)
+        return retVal
     }
 
     /** Get Footnotes and references from specified document page

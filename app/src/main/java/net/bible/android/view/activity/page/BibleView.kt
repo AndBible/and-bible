@@ -64,13 +64,13 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
-import net.bible.android.control.page.OsisFragment
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
 import net.bible.android.control.page.window.IncrementBusyCount
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.json
@@ -83,25 +83,48 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import java.lang.ref.WeakReference
 import kotlin.math.min
 
-/** The WebView component that shows the main bible and commentary text
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
+class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
+    val ordinalRangeJson: String get () {
+        val key = key;
+        return if(key is VerseRange) {
+            "[${key.start.ordinal}, ${key.end.ordinal}]"
+        } else "null"
+    }
+    val keyStr: String get () {
+        val osisId = if (key is VerseRange) {
+            "${key.start.ordinal}_${key.end.ordinal}"
+        } else {
+            key?.osisID?.replace(".", "-")
+        }
+        return "$bookId--${osisId ?: "error"}"
+    }
+    val features: String get () {
+        return if(key is BookAndKey) {
+            val type = when {
+                key.document.hasFeature(FeatureType.HEBREW_DEFINITIONS) -> "hebrew"
+                key.document.hasFeature(FeatureType.GREEK_DEFINITIONS) -> "greek"
+                else -> null
+            }
+            if (type != null) {
+                "{type: '${type}', keyName: '${key.key.name}'}"
+            } else "undefined"
+        } else "undefined"
+    }
+}
 
-/**
- * Constructor.  This version is only needed if you will be instantiating
- * the object manually (not from a layout XML file).
- */
-
+/** The WebView component that shows the main bible and commentary text */
 @SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
@@ -441,6 +464,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     object UriConstants {
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "ab-reference"
+        const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
     private inner class BibleViewClient: WebViewClient() {
@@ -470,6 +494,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         val contentRef = uri.getQueryParameter("content")!!
                         linkControl.loadApplicationUrl(BibleLink("content", contentRef))
                     }
+                    true
+                }
+                UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
+                    val type = uri.getQueryParameter("type")
+                    val name = uri.getQueryParameter("name")
+                    linkControl.showAllOccurrences(name!!, SearchControl.SearchBibleSection.ALL, type!![0].toString())
                     true
                 }
                 else -> true // TODO: throw some error document instead
@@ -1044,7 +1074,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 labels.add(bookmarkControl.LABEL_UNLABELLED)
             ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.clientList, labels.map { it.id }, it.book?.initials )
         })
-        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', ordinalRange: ${it.ordinalRangeJson}}"""}.joinToString(",")
+        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', features:${it.features}, ordinalRange: ${it.ordinalRangeJson}}"""}.joinToString(",")
         return """{
             contents: [$xmlList],
             bookmarks: $bookmarks,

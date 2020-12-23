@@ -29,10 +29,10 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.OsisFragment
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.format.OsisMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key

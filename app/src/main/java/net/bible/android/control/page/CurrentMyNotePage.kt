@@ -21,6 +21,7 @@ import android.util.Log
 import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.toV11n
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.download.FakeSwordBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade

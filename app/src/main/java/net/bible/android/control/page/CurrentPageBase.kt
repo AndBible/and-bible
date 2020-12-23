@@ -23,13 +23,13 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.CommonUtils
 import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -143,11 +143,19 @@ abstract class CurrentPageBase protected constructor(
         return try {
             val currentDocument = currentDocument!!
             synchronized(currentDocument) {
-                swordContentFacade.readOsisFragment(currentDocument, key).map {
-                    if (StringUtils.isEmpty(it)) {
+                if(key is BookAndKeyList) {
+                    key.map {
+                        if (it is BookAndKey) {
+                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it), it, it.document.initials)
+                        } else throw RuntimeException("Not supported")
+                    }
+                } else {
+                    val frag = swordContentFacade.readOsisFragment(currentDocument, key)
+                    listOf (if (frag.isEmpty()) {
                         OsisFragment(format(R.string.error_no_content), key, currentDocument.initials)
                     } else
-                        OsisFragment(it, key, currentDocument.initials)
+                        OsisFragment(frag, key, currentDocument.initials)
+                    )
                 }
             }
         } catch (e: Exception) {
