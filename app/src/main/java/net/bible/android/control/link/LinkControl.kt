@@ -37,136 +37,24 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.service.common.CommonUtils.sharedPreferences
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
-import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.versification.Versification
-import java.lang.UnsupportedOperationException
 import java.net.URLDecoder
 import java.util.regex.Pattern
 import javax.inject.Inject
-
-// TODO: move away from here.
-class BookAndKey(document: Book, val key: Key): Key {
-    private val documentInitials = document.initials
-
-    @Transient var _document: Book? = document
-
-    val document: Book get() {
-        if (_document == null)
-            _document = Books.installed().getBook(documentInitials)
-        return _document!!
-    }
-
-    override fun compareTo(other: Key?): Int {
-        return key.compareTo(other)
-    }
-
-    override fun iterator(): MutableIterator<Key> {
-        return ItemIterator(this)
-    }
-
-    override fun clone(): Key {
-        return BookAndKey(document, key.clone())
-    }
-
-    override fun getName(): String {
-        return "${document.name}:${key.name}"
-    }
-
-    override fun getName(base: Key?): String {
-        return name
-    }
-
-    override fun getRootName(): String {
-        return name
-    }
-
-    override fun getOsisRef(): String {
-        return key.osisRef
-    }
-
-    override fun getOsisID(): String {
-        return key.osisID
-    }
-
-    override fun getParent(): Key? {
-        return null
-    }
-
-    override fun canHaveChildren(): Boolean {
-        return false
-    }
-
-    override fun getChildCount(): Int {
-        return 0
-    }
-
-    override fun getCardinality(): Int {
-        return 1
-    }
-
-    override fun isEmpty(): Boolean {
-        return false
-    }
-
-    override fun contains(key: Key?): Boolean {
-        return this == key
-    }
-
-    override fun addAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun removeAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun retainAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun clear() {
-        throw UnsupportedOperationException()
-    }
-
-    override fun get(index: Int): Key? {
-        if(index == 0) return this
-        return null
-    }
-
-    override fun indexOf(that: Key?): Int {
-        if(this == that) return 0
-        return -1
-    }
-
-    override fun blur(by: Int, restrict: RestrictionType?) {
-        throw UnsupportedOperationException()
-    }
-
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
-}
-
-class BookAndKeyList: DefaultKeyList() {
-    companion object {
-        private const val serialVersionUID: Long = 1
-    }
-}
 
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs

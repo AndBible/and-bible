@@ -22,11 +22,11 @@ import android.view.Menu
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.link.BookAndKey
-import net.bible.android.control.link.BookAndKeyList
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
 import net.bible.service.format.OsisMessageFormatter.Companion.format
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils

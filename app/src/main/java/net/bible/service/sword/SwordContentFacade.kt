@@ -21,8 +21,6 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
-import net.bible.android.control.link.BookAndKey
-import net.bible.android.control.link.BookAndKeyList
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.SpeakSettings
