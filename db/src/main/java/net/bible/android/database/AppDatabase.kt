@@ -108,12 +108,12 @@ class Converters {
     @TypeConverter
     fun strToKey(s: String?): Key? {
         if(s == null) return null
-        try {
+        return try {
             val inp = ByteArrayInputStream(Base64.decode(s, Base64.DEFAULT))
             val obj = ObjectInputStream(inp)
-            return obj.readObject() as Key
-        } catch (e: StreamCorruptedException) {
-            return null
+            obj.readObject() as Key
+        } catch (e: Exception) {
+            null
         }
     }
 }
