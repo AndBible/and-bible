@@ -64,7 +64,7 @@ export function useGlobalBookmarks(config) {
     return {bookmarkLabels, bookmarks: filteredBookmarks, updateBookmarkLabels, updateBookmarks}
 }
 
-export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book, fragmentReady) {
+export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book, fragmentReady, config) {
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
@@ -93,6 +93,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]] ]
     }
 
+
     const styleRanges = computed(() => {
         if(!isMounted.value) return [];
 
@@ -110,6 +111,13 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
 
         const styleRanges = [];
 
+        const labelsSet = new Set(config.bookmarks.showLabels);
+
+        function filterLabels(labels) {
+            if(config.bookmarks.showAll) return labels;
+            return intersection(labelsSet, new Set(labels));
+        }
+
         for(let i = 0; i < splitPoints.length-1; i++) {
             const elementRange = [splitPoints[i], splitPoints[i+1]];
             const labels = new Set();
@@ -119,7 +127,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
                 .filter( b => rangesOverlap(combinedRange(b), elementRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    b.labels.forEach(l => labels.add(l))
+                    filterLabels(b.labels).forEach(l => labels.add(l))
                 });
 
             styleRanges.push({

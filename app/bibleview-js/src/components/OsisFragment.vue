@@ -43,7 +43,6 @@ export default {
   setup(props) {
     // Data for this component is considered to be read-only.
     // eslint-disable-next-line vue/no-setup-props-destructure
-    console.log("PROPS", props.data);
     const {
       xml,
       key: fragmentKey,
@@ -56,8 +55,9 @@ export default {
     const [book, osisID] = fragmentKey.split("--");
 
     const globalBookmarks = inject("globalBookmarks");
+    const config = inject("config");
 
-    useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book, fragmentReady);
+    useBookmarks(fragmentKey, ordinalRange, globalBookmarks, book, fragmentReady, config);
     provide("fragmentInfo", {fragmentKey, book, osisID});
 
     const template = xml
