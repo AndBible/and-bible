@@ -23,8 +23,10 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.preference.MultiSelectListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
@@ -146,6 +148,17 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
             .applicationComponent(BibleApplication.application.applicationComponent)
             .build().inject(this)
     }
+
+    fun updateShowLabelsEnabled() {
+        val enableShowLabels = !preferenceScreen.findPreference<SwitchPreference>("show_all")!!.isChecked
+        preferenceScreen.findPreference<MultiSelectListPreference>("show_labels")!!.isEnabled = enableShowLabels
+    }
+
+    override fun onPreferenceTreeClick(preference: Preference): Boolean {
+        updateShowLabelsEnabled()
+        return super.onPreferenceTreeClick(preference)
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         val activity = activity as BookmarkSettingsActivity
 
@@ -163,5 +176,6 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
             entries = showLabels.map { it.displayName }.toTypedArray()
             entryValues = showLabels.map { it.id.toString() }.toTypedArray()
         }
+        updateShowLabelsEnabled()
     }
 }
