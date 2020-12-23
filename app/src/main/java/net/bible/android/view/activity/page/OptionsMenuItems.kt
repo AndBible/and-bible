@@ -22,13 +22,14 @@ import android.app.Activity
 import android.content.Intent
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BOOKMARK_SETTINGS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
+import net.bible.android.view.activity.settings.BookmarkSettingsActivity
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.FontWidget
@@ -187,6 +188,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.FONT -> R.string.prefs_text_size_title
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
+                TextDisplaySettings.Types.BOOKMARK_SETTINGS -> R.string.bookmark_settings_title
             }
             return mainBibleActivity.getString(id)
         }
@@ -316,6 +318,15 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
             value = it
             onChanged?.invoke(it)
         }
+        return true
+    }
+}
+
+class BookmarkSettingsPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.BOOKMARK_SETTINGS, requiresReload = false) {
+    override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val intent = Intent(activity, BookmarkSettingsActivity::class.java)
+        intent.putExtra("settingsBundle", settings.toJson())
+        activity.startActivityForResult(intent, BOOKMARK_SETTINGS_CHANGED)
         return true
     }
 }

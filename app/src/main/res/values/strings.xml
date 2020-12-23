@@ -674,4 +674,13 @@
     <string name="first_time_help_show_next_time">Show again next time</string>
     <string name="add_bookmark1">+</string>
     <string name="remove_bookmark">-</string>
+    <string name="bookmark_settings_title">Bookmarking Settings</string>
+    <string name="window_bookmark_settings_title">Window Bookmark Settings</string>
+    <string name="workspace_bookmark_settings_title">Workspace Bookmark Settings</string>
+    <string name="bookmark_settings_show_labels_title">Show bookmark groups</string>
+    <string name="bookmark_settings_show_all_title">Show all</string>
+    <string name="bookmark_settings_assign_labels_title">Assign groups to bookmarks</string>
+    <string name="prefs_bookmark_settings_summary">Bookmark settings summary</string>
+    <string name="bookmark_settings_show_labels_summary">Something</string>
+    <string name="bookmark_settings_assign_labels_summary">Something</string>
 </resources>

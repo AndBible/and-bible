@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~
+  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~
+  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  ~
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="show_all"
+        android:title="@string/bookmark_settings_show_all_title" />
+    <MultiSelectListPreference
+        android:key="show_labels"
+        android:entries="@array/emptyArray"
+        android:entryValues="@array/emptyArray"
+        android:defaultValue="@array/emptyArray"
+        android:title="@string/bookmark_settings_show_labels_title"
+        android:summary="@string/bookmark_settings_show_labels_summary"
+        />
+    <MultiSelectListPreference
+        android:key="assign_labels"
+        android:entries="@array/emptyArray"
+        android:entryValues="@array/emptyArray"
+        android:defaultValue="@array/emptyArray"
+        android:title="@string/bookmark_settings_assign_labels_title"
+        android:summary="@string/bookmark_settings_assign_labels_summary"
+        />
+</PreferenceScreen>

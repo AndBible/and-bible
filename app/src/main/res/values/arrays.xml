@@ -6,6 +6,8 @@
 <resources
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
+	<string-array name="emptyArray">
+	</string-array>
 	<string-array name="documentTypes">
 		<item>@string/doc_type_all</item>
 		<item>@string/doc_type_bible</item>

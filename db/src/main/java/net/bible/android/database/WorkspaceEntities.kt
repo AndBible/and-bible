@@ -119,6 +119,13 @@ class WorkspaceEntities {
     )
 
     @Serializable
+    data class BookmarkDisplaySettings(
+        @ColumnInfo(defaultValue = "NULL") var showAll: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL") var assignLabels: List<Long>? = null,
+    )
+
+    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -153,7 +160,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @Embedded(prefix="font_") var font: Font? = null,
-        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null
+        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
+        @Embedded(prefix="bookmarks_") var bookmarks: BookmarkDisplaySettings? = null,
     ) {
         enum class Types {
             FONT,
@@ -171,6 +179,7 @@ class WorkspaceEntities {
             VERSEPERLINE,
             BOOKMARKS,
             MYNOTES,
+            BOOKMARK_SETTINGS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -189,6 +198,7 @@ class WorkspaceEntities {
             Types.HYPHENATION -> hyphenation
             Types.LINE_SPACING -> lineSpacing
             Types.FONT -> font?.copy()
+            Types.BOOKMARK_SETTINGS -> bookmarks
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -208,6 +218,7 @@ class WorkspaceEntities {
                 Types.HYPHENATION -> hyphenation = value as Boolean?
                 Types.FONT -> font = value as Font?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
+                Types.BOOKMARK_SETTINGS -> bookmarks = value as BookmarkDisplaySettings?
             }
         }
 
@@ -259,7 +270,12 @@ class WorkspaceEntities {
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
-                lineSpacing = 16
+                lineSpacing = 16,
+                bookmarks = BookmarkDisplaySettings(
+                    showAll = true,
+                    showLabels = emptyList(),
+                    assignLabels = emptyList(),
+                ),
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {

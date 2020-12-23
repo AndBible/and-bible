@@ -39,6 +39,7 @@ import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.settings.BookmarkSettingsFragment
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -99,6 +100,8 @@ interface ActivityComponent {
     // Services
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
+
+    fun inject(w: BookmarkSettingsFragment)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)

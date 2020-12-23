@@ -22,7 +22,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -41,11 +40,10 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.StreamCorruptedException
 
 import java.util.*
 
-const val DATABASE_VERSION = 35
+const val DATABASE_VERSION = 36
 
 class Converters {
     @TypeConverter
@@ -115,6 +113,18 @@ class Converters {
         } catch (e: Exception) {
             null
         }
+    }
+
+    @TypeConverter
+    fun strToLongList(s: String?): List<Long>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun longListToStr(obj: List<Long>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
     }
 }
 

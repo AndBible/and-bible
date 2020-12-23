@@ -30,6 +30,7 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -39,10 +40,12 @@ import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.BookmarkSettingsPreference
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BOOKMARK_SETTINGS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
@@ -106,6 +109,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
         Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION, requiresReload = false)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
+        Types.BOOKMARK_SETTINGS -> BookmarkSettingsPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -291,6 +295,24 @@ class TextDisplaySettingsActivity: ActivityBase() {
                     val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
                     prefItem.value = colors
                     setDirty(Types.COLORS)
+                    fragment.updateItems()
+                }
+            }
+            BOOKMARK_SETTINGS_CHANGED -> {
+                val extras = data?.extras!!
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val prefItem = getPrefItem(settingsBundle, Types.BOOKMARK_SETTINGS)
+                if(reset) {
+                    prefItem.setNonSpecific()
+                    setDirty(Types.BOOKMARK_SETTINGS)
+                    fragment.updateItems()
+                }
+                else if(edited) {
+                    val bookmarkString = data.extras?.getString("bookmarks")!!
+                    val bookmarks = json.decodeFromString(serializer<WorkspaceEntities.BookmarkDisplaySettings>(), bookmarkString)
+                    prefItem.value = bookmarks
+                    setDirty(Types.BOOKMARK_SETTINGS)
                     fragment.updateItems()
                 }
             }
