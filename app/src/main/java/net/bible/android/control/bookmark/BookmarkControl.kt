@@ -56,6 +56,7 @@ abstract class BookmarkEvent
 // TODO: implement listeners and add arguments
 class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarks: List<Bookmark>): BookmarkEvent()
+class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -232,6 +233,7 @@ open class BookmarkControl @Inject constructor(
         } else {
             label.id = dao.insert(label)
         }
+        ABEventBus.getDefault().post(LabelAddedOrUpdatedEvent(label))
         return label
     }
 

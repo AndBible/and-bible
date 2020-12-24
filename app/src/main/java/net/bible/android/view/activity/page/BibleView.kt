@@ -57,6 +57,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -890,6 +891,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }], 
                 labels: []});
             """.trimIndent())
+    }
+
+    fun onEvent(event: LabelAddedOrUpdatedEvent) {
+        val labelStr = json.encodeToString(serializer(),
+            ClientBookmarkLabel(event.label.id, event.label.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) }))
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_bookmarks", 
+            { bookmarks:[],
+              labels: [$labelStr]
+            })
+            
+        """.trimIndent())
     }
 
     fun onEvent(event: BookmarksDeletedEvent) {
