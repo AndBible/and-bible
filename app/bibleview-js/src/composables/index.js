@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, onMounted, reactive, ref, watch} from "@vue/runtime-core";
+import {getCurrentInstance, inject, nextTick, onMounted, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
@@ -111,7 +111,9 @@ export function useConfig() {
 
     window.bibleViewDebug.config = config;
 
-    setupEventBusListener(Events.SET_CONFIG, (c) => {
+    setupEventBusListener(Events.SET_CONFIG, async (c) => {
+        config.showBookmarks = false
+        await nextTick();
         for (const i in c) {
             if (config[i] !== undefined) {
                 config[i] = c[i];

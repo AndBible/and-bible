@@ -121,7 +121,7 @@ export function useAndroid() {
     }
 
     setupDocumentEventListener("selectionchange" , () => {
-        if(window.getSelection().getRangeAt(0).collapsed) {
+        if(window.getSelection().rangeCount > 0 && window.getSelection().getRangeAt(0).collapsed) {
             android.selectionCleared();
         }
     });
