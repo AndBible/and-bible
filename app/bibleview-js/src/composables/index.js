@@ -62,7 +62,7 @@ export function useConfig() {
     const config = reactive({
         chapterNumbers: true,
         showVerseNumbers: true,
-        showStrongs: false,
+        strongsMode: 0,
         showMorphology: false,
         showRedLetters: false,
         showVersePerLine: false,
@@ -108,6 +108,8 @@ export function useConfig() {
 
         developmentMode: developmentMode,
     })
+
+    window.bibleViewDebug.config = config;
 
     setupEventBusListener(Events.SET_CONFIG, (c) => {
         for (const i in c) {

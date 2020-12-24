@@ -21,7 +21,7 @@
     <PreferenceCategory
         android:title="@string/prefs_text_display_settings_title"
         >
-        <SwitchPreferenceCompat
+        <Preference
             android:key="STRONGS"
             android:title="@string/prefs_show_strongs_title"
             android:summary="@string/prefs_show_strongs_summary"

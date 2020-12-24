@@ -528,7 +528,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
         strongsButton.setOnClickListener {
             val prefOptions = dummyStrongsPrefOption
-            prefOptions.value = !(prefOptions.value == true)
+            prefOptions.value = (prefOptions.value as Int + 1) % 3
             prefOptions.handle()
             invalidateOptionsMenu()
             updateStrongsButton()
@@ -674,11 +674,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 if(itemOptions is Preference) {
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
                 }
-                if(itemOptions.requiresReload) {
-                    ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
-                } else {
-                    windowRepository.updateVisibleWindowsTextDisplaySettings()
-                }
+                windowRepository.updateVisibleWindowsTextDisplaySettings()
                 invalidateOptionsMenu()
             }
             val onReset = {
@@ -751,7 +747,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         } else {
             strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
         }
-        if(dummyStrongsPrefOption.value == false) {
+        if(dummyStrongsPrefOption.value == 0) {
             strongsButton.alpha = 0.7F
         } else
             strongsButton.alpha = 1.0F

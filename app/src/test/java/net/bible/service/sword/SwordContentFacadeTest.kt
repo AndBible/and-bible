@@ -142,7 +142,7 @@ class SwordContentFacadeTest {
     @Throws(Exception::class)
     private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
         val settings = WorkspaceEntities.TextDisplaySettings.default
-        settings.showStrongs = true
+        settings.strongsMode = true
         return swordContentFacade.readOsisFragment(book, key, asFragment, settings)
     }
 

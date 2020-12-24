@@ -683,4 +683,5 @@
     <string name="prefs_bookmark_settings_summary">Bookmark settings summary</string>
     <string name="bookmark_settings_show_labels_summary">Something</string>
     <string name="bookmark_settings_assign_labels_summary">Something</string>
+    <string name="strongs_mode_title">Choose strongs mode</string>
 </resources>

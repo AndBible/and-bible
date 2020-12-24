@@ -16,20 +16,20 @@
   -->
 
 <template>
-  <template v-if="config.showStrongsSeparately">
-    <template v-if="(config.showStrongs && lemma) && (config.showMorphology && morph)">
+  <template v-if="showStrongsSeparately">
+    <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
       <span ref="contentTag"><slot/></span> <a class="skip-offset strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
     </template>
-    <template v-else-if="(config.showStrongs && lemma) && (!config.showMorphology || !morph)">
+    <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
       <span ref="contentTag"><slot/></span> <a class="skip-offset strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
     </template>
-    <template v-else-if="(!config.showStrongs || !lemma) && (config.showMorphology && morph)">
+    <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
       <span ref="contentTag"><slot/></span> <a class="skip-offset morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
     </template>
     <template v-else ref="contentTag"><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(config.showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
+    <span v-if="(showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
     <span v-else ref="contentTag"><slot/></span>
   </template>
 </template>
@@ -74,6 +74,14 @@ export default {
     const common = useCommon();
     return {formatLink, formatName, ...common};
   },
+  computed: {
+    showStrongs() {
+      return this.config.strongsMode > 0
+    },
+    showStrongsSeparately() {
+      return this.config.strongsMode === 2
+    },
+  }
 }
 </script>
 

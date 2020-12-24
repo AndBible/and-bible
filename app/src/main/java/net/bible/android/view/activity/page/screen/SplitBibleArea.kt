@@ -614,11 +614,7 @@ class SplitBibleArea(
             mainBibleActivity.invalidateOptionsMenu()
         } else {
             val onReady = {
-                if(itemOptions.requiresReload) {
-                    window.updateText()
-                } else {
-                    window.bibleView?.updateTextDisplaySettings()
-                }
+                window.bibleView?.updateTextDisplaySettings()
                 mainBibleActivity.invalidateOptionsMenu()
             }
             itemOptions.openDialog(mainBibleActivity, {onReady()}, onReady)

@@ -148,7 +148,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
@@ -183,7 +183,7 @@ class WorkspaceEntities {
         }
 
         fun getValue(type: Types): Any? = when(type) {
-            Types.STRONGS -> showStrongs
+            Types.STRONGS -> strongsMode
             Types.MORPH -> showMorphology
             Types.FOOTNOTES -> showFootNotes
             Types.REDLETTERS -> showRedLetters
@@ -203,7 +203,7 @@ class WorkspaceEntities {
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> showStrongs = value as Boolean?
+                Types.STRONGS -> strongsMode = value as Int?
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.REDLETTERS -> showRedLetters = value as Boolean?
@@ -259,7 +259,7 @@ class WorkspaceEntities {
                     fontSize = 16,
                     fontFamily = "sans-serif"
                 ),
-                showStrongs = false,
+                strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = false,
                 showRedLetters = false,

@@ -55,6 +55,7 @@ export function useGlobalBookmarks(config) {
     });
 
     const filteredBookmarks = computed(() => {
+        if(!config.showBookmarks) return [];
         const allBookmarks = Array.from(bookmarks.values());
         if(config.bookmarks.showAll) return allBookmarks;
         const configLabels = new Set(config.bookmarks.showLabels);
