@@ -256,6 +256,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var bookmarksForSelection: List<BookmarkEntities.Bookmark>? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
+        if(bookCategory != BookCategory.BIBLE) return false
         mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
 
         if(menuPrepared) {
@@ -634,6 +635,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var lastUpdated = 0L
     var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
+    var bookCategory: BookCategory? = null
 
     suspend fun show(osisFrags: List<OsisFragment>,
                      bookmarks: List<BookmarkEntities.Bookmark>,
@@ -666,6 +668,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         latestBookmarks = bookmarks
         latestOsisObjStr = getOsisObjStr(osisFrags)
+        bookCategory = Books.installed().getBook(osisFrags.first().bookId).bookCategory
 
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
