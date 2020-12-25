@@ -61,7 +61,7 @@ class BookmarkSettingsDataStore(val activity: BookmarkSettingsActivity): Prefere
     override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
         return when(key) {
             "show_labels" -> bookmarks.showLabels?.map { it.toString() }?.toMutableSet() ?: defValues
-            "assing_labels" -> bookmarks.assignLabels?.map { it.toString() }?.toMutableSet() ?: defValues
+            "assign_labels" -> bookmarks.assignLabels?.map { it.toString() }?.toMutableSet() ?: defValues
             else -> defValues
         }
     }
