@@ -120,19 +120,19 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         }
 
         for(let i = 0; i < splitPoints.length-1; i++) {
-            const elementRange = [splitPoints[i], splitPoints[i+1]];
+            const ordinalAndOffsetRange = [splitPoints[i], splitPoints[i+1]];
             const labels = new Set();
             const bookmarksSet = new Set();
 
             bookmarks
-                .filter( b => rangesOverlap(combinedRange(b), elementRange))
+                .filter( b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
                     filterLabels(b.labels).forEach(l => labels.add(l))
                 });
 
             styleRanges.push({
-                elementRange,
+                ordinalAndOffsetRange,
                 labels: Array.from(labels),
                 bookmarks: Array.from(bookmarksSet),
             });
@@ -172,7 +172,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     const undoHighlights = [];
 
     function highlightStyleRange(styleRange) {
-        const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.elementRange;
+        const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
         const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);

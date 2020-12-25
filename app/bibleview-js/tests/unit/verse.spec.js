@@ -46,19 +46,19 @@ xdescribe("Verse.vue", () => {
                 {
                     id: 1,
                     ordinalRange: [99, 101],
-                    elementRange: [[10, 10], [15, 3]],
+                    ordinalAndOffsetRange: [[10, 10], [15, 3]],
                     labels: [0],
                 },
                 {
                     id: 2,
                     ordinalRange: [99, 101],
-                    elementRange: [[10, 10], [15, 5]],
+                    ordinalAndOffsetRange: [[10, 10], [15, 5]],
                     labels: [1],
                 },
                 {
                     id: 3,
                     ordinalRange: [99, 101],
-                    elementRange: [[10, 15], [15, 3]],
+                    ordinalAndOffsetRange: [[10, 15], [15, 3]],
                     labels: [0, 1, 2],
                 },
             ], bookmarkLabels};
@@ -98,12 +98,12 @@ xdescribe("Verse.vue", () => {
         const result = [
             {
                 "bookmarks": setFrom(1, 2, 3),
-                "elementRange": [[10, 10], [10, 15]],
+                "ordinalAndOffsetRange": [[10, 10], [10, 15]],
                 "labels": setFrom(0, 1, 2),
             },
-            {"bookmarks": setFrom(1, 2, 3), "elementRange": [[10, 15], [15, 3]], "labels": setFrom(0, 1, 2)},
-            {"bookmarks": setFrom(1, 2, 3), "elementRange": [[15, 3], [15, 5]], "labels": setFrom(0, 1, 2)}]
-        expect(wrapper.vm.styleRanges.map(({bookmarks, elementRange, labels}) => ({bookmarks, elementRange, labels}))).toStrictEqual(result);
+            {"bookmarks": setFrom(1, 2, 3), "ordinalAndOffsetRange": [[10, 15], [15, 3]], "labels": setFrom(0, 1, 2)},
+            {"bookmarks": setFrom(1, 2, 3), "ordinalAndOffsetRange": [[15, 3], [15, 5]], "labels": setFrom(0, 1, 2)}]
+        expect(wrapper.vm.styleRanges.map(({bookmarks, ordinalAndOffsetRange, labels}) => ({bookmarks, ordinalAndOffsetRange, labels}))).toStrictEqual(result);
     });
 })
 
@@ -133,20 +133,20 @@ describe ("bookmark test", () => {
         updateBookmarks({
             id: 1,
             ordinalRange,
-            elementRange: [[1, 0], [2, 0]],
+            ordinalAndOffsetRange: [[1, 0], [2, 0]],
             labels: [0]
         })
-        expect(styleRanges.value).toEqual([{bookmarks: [1], labels: [0], elementRange: [[1,0], [2,0]]}]);
+        expect(styleRanges.value).toEqual([{bookmarks: [1], labels: [0], ordinalAndOffsetRange: [[1,0], [2,0]]}]);
 
         updateBookmarks({
             id: 2,
             ordinalRange,
-            elementRange: [[3, 0], [4, 0]],
+            ordinalAndOffsetRange: [[3, 0], [4, 0]],
             labels: [0]
         })
         expect(styleRanges.value).toEqual([
-            {bookmarks: [1], labels: [0], elementRange: [[1,0], [2,0]]},
-            {bookmarks: [2], labels: [0], elementRange: [[3,0], [4,0]]},
+            {bookmarks: [1], labels: [0], ordinalAndOffsetRange: [[1,0], [2,0]]},
+            {bookmarks: [2], labels: [0], ordinalAndOffsetRange: [[3,0], [4,0]]},
         ]);
     });
     it("Ranges overlap", () => {
