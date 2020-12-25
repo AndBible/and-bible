@@ -333,9 +333,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            val handled = onActionMenuItemClicked(mode, item) || callback.onActionItemClicked(mode, item)
-            if(handled) stopSelection(true)
-            return handled
+            val handled1 = onActionMenuItemClicked(mode, item)
+            val handled2 = callback.onActionItemClicked(mode, item)
+            if(handled1) stopSelection(true)
+            return handled1 || handled2
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
