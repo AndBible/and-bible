@@ -43,14 +43,14 @@ val converter = VersificationConverter()
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 enum class BookmarkStyle(val backgroundColor: Int) {
-    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
+    YELLOW_STAR(Color.argb((255*0.33).toInt(), 255, 255, 0)),
     RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
     YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
     GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
     BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
     ORANGE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 165, 0)),
     PURPLE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 128, 0, 128)),
-    UNDERLINE(0),
+    UNDERLINE(Color.argb((255 * 0.33).toInt(), 128, 99, 128)),
 
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
