@@ -76,7 +76,7 @@ export function useConfig() {
             fontFamily: "sans-serif",
             fontSize: 16,
         },
-        showBookmarks: false,
+        showBookmarks: true,
         showMyNotes: false,
 
         colors: {

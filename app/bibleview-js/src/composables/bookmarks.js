@@ -28,10 +28,14 @@ export function useGlobalBookmarks(config) {
     const bookmarks = reactive(new Map());
     let count = 1;
 
+    const labelsUpdated = ref(0);
+
     function updateBookmarkLabels(...inputData) {
+        if(!inputData.length) return
         for(const v of inputData) {
             bookmarkLabels.set(v.id || -(count++), v.style)
         }
+        labelsUpdated.value ++;
     }
 
     function updateBookmarks(...inputData) {
@@ -49,7 +53,7 @@ export function useGlobalBookmarks(config) {
         }
     });
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, ({bookmarks, labels}) => {
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, ({bookmarks = [], labels = []} = {}) => {
         updateBookmarkLabels(...labels)
         updateBookmarks(...bookmarks)
     });
@@ -62,10 +66,10 @@ export function useGlobalBookmarks(config) {
         return allBookmarks.filter(v => intersection(new Set(v.labels), configLabels).size > 0)
     })
 
-    return {bookmarkLabels, bookmarks: filteredBookmarks, updateBookmarkLabels, updateBookmarks}
+    return {bookmarkLabels, bookmarks: filteredBookmarks, labelsUpdated, updateBookmarkLabels, updateBookmarks}
 }
 
-export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels}, book, fragmentReady, config) {
+export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
@@ -97,6 +101,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
 
     const styleRanges = computed(() => {
         if(!isMounted.value) return [];
+        labelsUpdated.value;
 
         let splitPoints = [];
         const bookmarks = fragmentBookmarks.value;

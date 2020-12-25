@@ -170,7 +170,6 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
         preferenceScreen.findPreference<MultiSelectListPreference>("assign_labels")?.apply {
             entries = assignLabels.map { it.displayName }.toTypedArray()
             entryValues = assignLabels.map { it.id.toString() }.toTypedArray()
-
         }
         preferenceScreen.findPreference<MultiSelectListPreference>("show_labels")?.apply {
             entries = showLabels.map { it.displayName }.toTypedArray()
