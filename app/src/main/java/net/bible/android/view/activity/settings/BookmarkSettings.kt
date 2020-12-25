@@ -149,8 +149,11 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
                 intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
                 intent.putExtra("title", getString(R.string.bookmark_settings_assign_labels_title))
                 val result = activity.awaitIntent(intent)
-                activity.bookmarks.assignLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                activity.setDirty()
+                val assignLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                if(assignLabels != null) {
+                    activity.bookmarks.assignLabels = assignLabels
+                    activity.setDirty()
+                }
             }
             "show_labels" -> GlobalScope.launch(Dispatchers.IO) {
                 val activity = activity as BookmarkSettingsActivity
@@ -158,9 +161,13 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
                 val intent = Intent(activity, BookmarkLabelSelector::class.java)
                 intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
                 intent.putExtra("title", getString(R.string.bookmark_settings_show_labels_title))
+                intent.putExtra("showUnassigned", true)
                 val result = activity.awaitIntent(intent)
-                activity.bookmarks.showLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                activity.setDirty()
+                val showLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                if(showLabels != null) {
+                    activity.bookmarks.showLabels = showLabels
+                    activity.setDirty()
+                }
             }
         }
         updateShowLabelsEnabled()

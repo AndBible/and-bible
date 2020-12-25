@@ -45,6 +45,7 @@ class BookmarkLabelSelector : ListActivityBase() {
 
     private val labels: MutableList<Label> = ArrayList()
     @Inject lateinit var labelDialogs: LabelDialogs
+    var showUnassigned = false
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -53,6 +54,7 @@ class BookmarkLabelSelector : ListActivityBase() {
         setContentView(R.layout.bookmark_labels)
         buildActivityComponent().inject(this)
         val selectedLabelIds = intent.getLongArrayExtra(BookmarkControl.LABEL_IDS_EXTRA)!!
+        showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
         if(title!=null) {
             setTitle(title)
@@ -99,6 +101,9 @@ class BookmarkLabelSelector : ListActivityBase() {
         // must clear rather than create because the adapter is linked to this specific list
         labels.clear()
         labels.addAll(bookmarkControl.assignableLabels)
+        if(showUnassigned) {
+            labels.add(bookmarkControl.LABEL_UNLABELLED)
+        }
 
         // ensure ui is updated
         notifyDataSetChanged()
