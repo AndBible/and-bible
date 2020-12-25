@@ -35,7 +35,7 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.bookmark.BookmarkLabels
+import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
@@ -283,8 +283,8 @@ open class BookmarkControl @Inject constructor(
         }
 
     internal fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
-        val intent = Intent(currentActivity, BookmarkLabels::class.java)
-        intent.putExtra(BOOKMARK_IDS_EXTRA, longArrayOf(bookmark.id))
+        val intent = Intent(currentActivity, BookmarkLabelSelector::class.java)
+        intent.putExtra(LABEL_IDS_EXTRA, longArrayOf(bookmark.id))
         currentActivity.startActivity(intent)
     }
 
@@ -301,8 +301,13 @@ open class BookmarkControl @Inject constructor(
     fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> = dao.bookmarksForVerseRange(verseRange)
 
+    fun changeLabelsForBookmark(bookmark: Bookmark, labelIds: List<Long>) {
+        dao.clearLabels(bookmark)
+        dao.insert(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+    }
+
     companion object {
-        const val BOOKMARK_IDS_EXTRA = "bookmarkIds"
+        const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
         const val LABEL_NO_EXTRA = "labelNo"
         private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "BookmarkControl"

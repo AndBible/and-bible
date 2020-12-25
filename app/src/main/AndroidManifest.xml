@@ -110,7 +110,7 @@
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
         <activity
-            android:name="net.bible.android.view.activity.bookmark.BookmarkLabels"
+            android:name="net.bible.android.view.activity.bookmark.BookmarkLabelSelector"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/bookmark_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />

@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.bookmark
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -39,8 +40,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BookmarkLabels : ListActivityBase() {
-    private lateinit var bookmarks: List<Bookmark>
+class BookmarkLabelSelector : ListActivityBase() {
     @Inject lateinit var bookmarkControl: BookmarkControl
 
     private val labels: MutableList<Label> = ArrayList()
@@ -52,30 +52,26 @@ class BookmarkLabels : ListActivityBase() {
         super.onCreate(savedInstanceState, false)
         setContentView(R.layout.bookmark_labels)
         buildActivityComponent().inject(this)
-        val bookmarkIds = intent.getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA)!!
-        bookmarks = bookmarkControl.bookmarksByIds(bookmarkIds.toList())
-        initialiseView()
-    }
-
-    private fun initialiseView() {
+        val selectedLabelIds = intent.getLongArrayExtra(BookmarkControl.LABEL_IDS_EXTRA)!!
+        val title = intent.getStringExtra("title")
+        if(title!=null) {
+            setTitle(title)
+        }
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         loadLabelList()
         val listArrayAdapter = BookmarkLabelItemAdapter(this, labels)
         listAdapter = listArrayAdapter
-        initialiseCheckedLabels(bookmarks)
+        checkedLabels = labels.filter { it.id in selectedLabelIds }
     }
 
     /** Finished selecting labels
      */
     fun onOkay(v: View?) {
         Log.i(TAG, "Okay clicked")
-        // get the labels that are currently checked
-        val selectedLabels = checkedLabels
-
-        //associate labels with bookmarks that were passed in
-        for (bookmark in bookmarks) {
-            bookmarkControl.setLabelsForBookmark(bookmark, selectedLabels)
-        }
+        val result = Intent()
+        val labelIds = checkedLabels.map { it.id }.toLongArray()
+        result.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labelIds)
+        setResult(Activity.RESULT_OK, result)
         finish()
     }
 
@@ -108,23 +104,6 @@ class BookmarkLabels : ListActivityBase() {
         notifyDataSetChanged()
     }
 
-    /** check labels associated with the bookmark
-     */
-    private fun initialiseCheckedLabels(bookmarks: List<Bookmark>?) {
-        val allCheckedLabels: MutableSet<Label> = HashSet()
-        for (bookmark in bookmarks!!) {
-            // pre-tick any labels currently associated with the bookmark
-            allCheckedLabels.addAll(bookmarkControl.labelsForBookmark(bookmark))
-        }
-        checkedLabels = allCheckedLabels.toList()
-    }// get selected labels// ensure ui is updated
-
-    /**
-     * set checked status of all labels
-     */
-    /**
-     * get checked status of all labels
-     */
     private var checkedLabels: List<Label>
         get() {
             // get selected labels

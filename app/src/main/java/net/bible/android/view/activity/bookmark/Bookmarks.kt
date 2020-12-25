@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -32,6 +33,9 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.bookmarks.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -132,28 +136,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    @SuppressLint("MissingSuperCall")
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Restoring state after return from label editing")
-        // the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
-        val prevLabel = labelList[selectedLabelNo]
-
-        // reload labels
-        loadLabelList()
-        val prevLabelPos = labelList.indexOf(prevLabel)
-        selectedLabelNo = if (prevLabelPos >= 0) {
-            prevLabelPos
-        } else {
-            // this should be 'All'
-            0
-        }
-        labelSpinner.setSelection(selectedLabelNo)
-
-        // the label may have been renamed so cause the list to update it's text
-        labelArrayAdapter!!.notifyDataSetChanged()
-        loadBookmarkList()
-    }
-
     /** allow activity to enhance intent to correctly restore state  */
     override fun getIntentForHistoryList(): Intent {
         Log.d(TAG, "Saving label no in History Intent")
@@ -162,14 +144,21 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<Bookmark>) {
-        val bookmarkIds = LongArray(bookmarks.size)
-        for (i in bookmarks.indices) {
-            bookmarkIds[i] = bookmarks[i].id
+    private fun assignLabels(bookmarks: List<Bookmark>) = GlobalScope.launch(Dispatchers.IO) {
+        val labels = mutableSetOf<Long>()
+        for (b in bookmarks) {
+            labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
-        val intent = Intent(this, BookmarkLabels::class.java)
-        intent.putExtra(BookmarkControl.BOOKMARK_IDS_EXTRA, bookmarkIds)
-        startActivityForResult(intent, 1)
+
+        val intent = Intent(this@Bookmarks, BookmarkLabelSelector::class.java)
+        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels.toLongArray())
+        val result = awaitIntent(intent)
+        val labelIds = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)
+        if(labelIds != null) {
+            for (b in bookmarks) {
+                bookmarkControl.changeLabelsForBookmark(b, labelIds.toList())
+            }
+        }
     }
 
     private fun delete(bookmarks: List<Bookmark>) {

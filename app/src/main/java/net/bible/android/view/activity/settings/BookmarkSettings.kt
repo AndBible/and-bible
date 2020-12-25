@@ -22,12 +22,14 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import kotlinx.android.synthetic.main.settings_dialog.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -37,8 +39,8 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.displayName
 import javax.inject.Inject
 
 class BookmarkSettingsDataStore(val activity: BookmarkSettingsActivity): PreferenceDataStore() {
@@ -56,22 +58,6 @@ class BookmarkSettingsDataStore(val activity: BookmarkSettingsActivity): Prefere
             "show_all" -> bookmarks.showAll ?: defValue
             else -> defValue
         }
-    }
-
-    override fun getStringSet(key: String?, defValues: MutableSet<String>?): MutableSet<String>? {
-        return when(key) {
-            "show_labels" -> bookmarks.showLabels?.map { it.toString() }?.toMutableSet() ?: defValues
-            "assign_labels" -> bookmarks.assignLabels?.map { it.toString() }?.toMutableSet() ?: defValues
-            else -> defValues
-        }
-    }
-
-    override fun putStringSet(key: String?, values: MutableSet<String>?) {
-        when(key) {
-            "show_labels" -> bookmarks.showLabels = values?.map { it.toLong() } ?: emptyList()
-            "assign_labels" -> bookmarks.assignLabels = values?.map { it.toLong() } ?: emptyList()
-        }
-        activity.setDirty()
     }
 }
 
@@ -149,12 +135,34 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
             .build().inject(this)
     }
 
-    fun updateShowLabelsEnabled() {
+    private fun updateShowLabelsEnabled() {
         val enableShowLabels = !preferenceScreen.findPreference<SwitchPreference>("show_all")!!.isChecked
-        preferenceScreen.findPreference<MultiSelectListPreference>("show_labels")!!.isEnabled = enableShowLabels
+        preferenceScreen.findPreference<Preference>("show_labels")!!.isEnabled = enableShowLabels
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
+        when(preference.key) {
+            "assign_labels" -> GlobalScope.launch(Dispatchers.IO) {
+                val activity = activity as BookmarkSettingsActivity
+                val labels = activity.bookmarks.assignLabels?.toLongArray() ?: emptyArray<Long>()
+                val intent = Intent(activity, BookmarkLabelSelector::class.java)
+                intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
+                intent.putExtra("title", getString(R.string.bookmark_settings_assign_labels_title))
+                val result = activity.awaitIntent(intent)
+                activity.bookmarks.assignLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                activity.setDirty()
+            }
+            "show_labels" -> GlobalScope.launch(Dispatchers.IO) {
+                val activity = activity as BookmarkSettingsActivity
+                val labels = activity.bookmarks.showLabels?.toLongArray() ?: emptyArray<Long>()
+                val intent = Intent(activity, BookmarkLabelSelector::class.java)
+                intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
+                intent.putExtra("title", getString(R.string.bookmark_settings_show_labels_title))
+                val result = activity.awaitIntent(intent)
+                activity.bookmarks.showLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                activity.setDirty()
+            }
+        }
         updateShowLabelsEnabled()
         return super.onPreferenceTreeClick(preference)
     }
@@ -164,17 +172,6 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
 
         preferenceManager.preferenceDataStore = BookmarkSettingsDataStore(activity)
         setPreferencesFromResource(R.xml.bookmark_settings, rootKey)
-        val assignLabels = bookmarkControl.assignableLabels
-        val showLabels = bookmarkControl.allLabels.filter { it.id != bookmarkControl.LABEL_ALL.id }
-
-        preferenceScreen.findPreference<MultiSelectListPreference>("assign_labels")?.apply {
-            entries = assignLabels.map { it.displayName }.toTypedArray()
-            entryValues = assignLabels.map { it.id.toString() }.toTypedArray()
-        }
-        preferenceScreen.findPreference<MultiSelectListPreference>("show_labels")?.apply {
-            entries = showLabels.map { it.displayName }.toTypedArray()
-            entryValues = showLabels.map { it.id.toString() }.toTypedArray()
-        }
         updateShowLabelsEnabled()
     }
 }

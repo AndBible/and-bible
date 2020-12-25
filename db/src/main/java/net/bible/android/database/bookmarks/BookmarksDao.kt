@@ -138,6 +138,10 @@ interface BookmarkDao {
 
     @Delete fun delete(entity: BookmarkToLabel): Int
 
+    @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
+    fun clearLabels(bookmarkId: Long)
+    fun clearLabels(bookmark: Bookmark) = clearLabels(bookmark.id)
+
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
 
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>

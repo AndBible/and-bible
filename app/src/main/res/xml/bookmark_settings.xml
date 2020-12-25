@@ -22,19 +22,13 @@
         android:defaultValue="true"
         android:key="show_all"
         android:title="@string/bookmark_settings_show_all_title" />
-    <MultiSelectListPreference
+    <Preference
         android:key="show_labels"
-        android:entries="@array/emptyArray"
-        android:entryValues="@array/emptyArray"
-        android:defaultValue="@array/emptyArray"
         android:title="@string/bookmark_settings_show_labels_title"
         android:summary="@string/bookmark_settings_show_labels_summary"
         />
-    <MultiSelectListPreference
+    <Preference
         android:key="assign_labels"
-        android:entries="@array/emptyArray"
-        android:entryValues="@array/emptyArray"
-        android:defaultValue="@array/emptyArray"
         android:title="@string/bookmark_settings_assign_labels_title"
         android:summary="@string/bookmark_settings_assign_labels_summary"
         />

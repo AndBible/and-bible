@@ -22,7 +22,7 @@ import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.bookmark.BookmarkLabels
+import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.comparetranslations.CompareTranslations
@@ -69,7 +69,7 @@ interface ActivityComponent {
     fun inject(startupActivity: StartupActivity)
 
     fun inject(bookmarks: Bookmarks)
-    fun inject(bookmarkLabels: BookmarkLabels)
+    fun inject(bookmarkLabels: BookmarkLabelSelector)
     fun inject(manageLabels: ManageLabels)
 
     fun inject(gridChoosePassageBook: GridChoosePassageBook)
