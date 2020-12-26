@@ -63,18 +63,6 @@ class SwordContentFacadeTest {
     //@Ignore("Until ESV comes back")
     @Test
     @Throws(Exception::class)
-    fun testReadWordsOfChrist() {
-        val esv = getBook("ESV2011")
-        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
-        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Luke 15:4")
-
-        val html = getHtml(esv, key)
-        assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
-    }
-
-    //@Ignore("Until ESV comes back")
-    @Test
-    @Throws(Exception::class)
     fun testReadCanonicalText() {
         val esv = getBook("ESV2011")
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Gen 1:1")
