@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div ref="contentTag" class="inlineDiv catchWord"><slot/></div>
+  <div class="inlineDiv catchWord"><slot/></div>
 </template>
 
 <script>

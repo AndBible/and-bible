@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="inlineDiv" ref="contentTag"><slot/></div>
+  <div class="inlineDiv"><slot/></div>
 </template>
 
 <script>

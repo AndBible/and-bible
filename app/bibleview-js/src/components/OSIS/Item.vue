@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <li ref="contentTag"><slot/></li>
+  <li><slot/></li>
 </template>
 
 <script>

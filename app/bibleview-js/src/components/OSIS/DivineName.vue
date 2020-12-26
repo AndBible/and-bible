@@ -16,7 +16,7 @@
   -->
 
 <template>
-<span class="divineName" ref="contentTag"><slot/></span>
+<span class="divineName"><slot/></span>
 </template>
 
 <script>

@@ -22,7 +22,7 @@
       :class="{noLineBreak: !config.showVersePerLine}"
   >
     <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/>
-    <div class="inlineDiv" ref="contentTag"><slot/></div>
+    <div class="inlineDiv"><slot/></div>
   </div>
 </template>
 

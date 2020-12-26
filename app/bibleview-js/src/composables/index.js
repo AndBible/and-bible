@@ -147,22 +147,15 @@ export function useCommon() {
 
     const config = inject("config");
     const strings = inject("strings");
-    const contentTag = ref(null);
 
     const unusedAttrs = Object.keys(currentInstance.attrs).filter(v => !v.startsWith("__") && v !== "onClose");
     if(unusedAttrs.length > 0) {
         console.error("Unhandled attributes", currentInstance.type.name, currentInstance.attrs);
     }
 
-    onMounted(() => {
-        if(!currentInstance.type.noContentTag && contentTag.value === null) {
-            console.error(`${currentInstance.type.name}: contentTag does not exist`);
-        }
-    });
-
     function split(string, separator, n) {
         return string.split(separator)[n]
     }
 
-    return {config, strings, contentTag, sprintf, split}
+    return {config, strings, sprintf, split}
 }

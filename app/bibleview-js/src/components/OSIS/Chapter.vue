@@ -17,7 +17,7 @@
 
 <template>
   <h2 v-if="config.chapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</h2>
-  <div class="inlineDiv" ref="contentTag"><slot/></div>
+  <div class="inlineDiv"><slot/></div>
 </template>
 
 <script>

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span>{{marker}}<span ref="contentTag"><slot/></span></span>
+  <span>{{marker}}<span><slot/></span></span>
 </template>
 
 <script>

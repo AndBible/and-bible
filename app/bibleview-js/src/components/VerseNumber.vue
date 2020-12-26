@@ -15,7 +15,7 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
-<template><span class="skip-offset verseNumber" ref="contentTag">{{sprintf(strings.verseNum, verseNum)}}</span></template>
+<template><span class="skip-offset verseNumber">{{sprintf(strings.verseNum, verseNum)}}</span></template>
 
 <script>
 import {useCommon} from "@/composables";

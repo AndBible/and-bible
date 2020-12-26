@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" :href="`ab-reference://?${queryParams}`" ref="contentTag"><slot/></a>
+  <a class="reference" :href="`ab-reference://?${queryParams}`" ref="content"><slot/></a>
 </template>
 
 <script>
@@ -31,8 +31,8 @@ export default {
   },
   computed: {
     queryParams() {
-      if(!this.osisRef && this.contentTag) {
-        return "content=" + encodeURI(this.contentTag.innerText);
+      if(!this.osisRef && this.$refs.content) {
+        return "content=" + encodeURI(this.$refs.content.innerText);
       }
       return "osis=" + encodeURI(this.osisRef)
     }
