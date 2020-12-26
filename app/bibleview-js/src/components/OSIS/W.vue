@@ -29,7 +29,7 @@
     <template v-else ref="contentTag"><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
     <span v-else ref="contentTag"><slot/></span>
   </template>
 </template>
