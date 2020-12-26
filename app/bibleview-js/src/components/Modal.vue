@@ -20,7 +20,6 @@
     <div ref="myModal" class="modal">
       <div class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
         <div class="modal-header">
-          <span class="close" @click="$emit('close')">&times;</span>
           <span class="title">
             <slot name="title"/>
           </span>
@@ -40,12 +39,18 @@
 <script>
 
 import {inject} from "@vue/runtime-core";
+import {ref} from "@vue/reactivity";
+import {setupElementEventListener} from "@/utils";
 
 export default {
   name: "Modal",
-  setup() {
+  setup(props, {emit}) {
     const config = inject("config")
-    return {config}
+    const myModal = ref(null);
+    setupElementEventListener(myModal, "click", () => {
+        emit("close");
+    });
+    return {config, myModal}
   }
 }
 </script>
@@ -98,7 +103,7 @@ export default {
 
 .modal-header {
   padding: 0.5em;
-  background-color: #5cb85c;
+  background-color: #acacac;
   color: white;
   font-weight: bold;
 }
@@ -107,7 +112,7 @@ export default {
 
 .modal-footer {
   padding: 2px 16px;
-  background-color: #5cb85c;
+  background-color: #acacac;
   color: white;
 }
 

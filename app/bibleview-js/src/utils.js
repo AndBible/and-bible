@@ -15,8 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onMounted, onUnmounted} from "@vue/runtime-core";
-import {isFunction} from "lodash"
+import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import {sleep} from "@/code/utils";
 
 export function setupWindowEventListener(eventType, handler, options) {
@@ -27,6 +26,11 @@ export function setupWindowEventListener(eventType, handler, options) {
 export function setupDocumentEventListener(eventType, handler, options) {
     onMounted(() => document.addEventListener(eventType, handler, options))
     onUnmounted(() => document.removeEventListener(eventType, handler, options))
+}
+
+export function setupElementEventListener(elementRef, eventType, handler, options) {
+    onMounted(() => elementRef.value.addEventListener(eventType, handler, options))
+    onBeforeUnmount(() => elementRef.value.removeEventListener(eventType, handler, options))
 }
 
 export function stubsFor(object) {
