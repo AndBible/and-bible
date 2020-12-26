@@ -16,7 +16,7 @@
  */
 
 import {onMounted, reactive, watch} from "@vue/runtime-core";
-import {sortBy, uniqWith} from "lodash";
+import {cloneDeep, sortBy, uniqWith} from "lodash";
 import {intersection, rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed, ref} from "@vue/reactivity";
@@ -78,16 +78,37 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     }
 
     const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange === null
-    const checkOrdinal = (b) =>
-        b.ordinalRange !== null && ordinalRange !== null
-        && rangesOverlap(b.ordinalRange, ordinalRange, true);
+    const checkOrdinal = (b) => {
+        return b.ordinalRange !== null && ordinalRange !== null
+        && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
+    };
 
     const fragmentBookmarks = computed(() => {
         if(!fragmentReady.value) return [];
         return bookmarks.value.filter(b => noOrdinalNeeded(b) || checkOrdinal(b))
     });
 
+    function truncateToOrdinalRange(bookmark) {
+        const b = cloneDeep(bookmark);
+        b.offsetRange = b.offsetRange || [0, null]
+        if(b.ordinalRange[0] < ordinalRange[0]) {
+            b.ordinalRange[0] = ordinalRange[0];
+            b.offsetRange[0] = 0;
+        }
+        if(b.ordinalRange[1] > ordinalRange[1]) {
+            b.ordinalRange[1] = ordinalRange[1];
+            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
+            b.offsetRange[1] = textLength(verseElement);
+        }
+        if(b.offsetRange[1] == null) {
+            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
+            b.offsetRange[1] = textLength(verseElement);
+        }
+        return b;
+    }
+
     function combinedRange(b) {
+        b = truncateToOrdinalRange(b);
         let offsetRange = b.offsetRange;
         if(showBookmarkForWholeVerse(b)) {
             const startOffset = 0;
@@ -107,8 +128,9 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         const bookmarks = fragmentBookmarks.value;
 
         for(const b of bookmarks) {
-            splitPoints.push(combinedRange(b)[0])
-            splitPoints.push(combinedRange(b)[1])
+            const r = combinedRange(b);
+            splitPoints.push(r[0])
+            splitPoints.push(r[1])
         }
         splitPoints = uniqWith(
             sortBy(splitPoints, [v => v[0], v => v[1]]),
@@ -191,7 +213,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     }
 
     watch(styleRanges, (newValue) => {
-        console.log("styleRanges changed!", fragmentBookmarks.value, newValue);
+        console.log("styleRanges changed!", fragmentKey, fragmentBookmarks.value, newValue);
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
         for (const s of newValue) {

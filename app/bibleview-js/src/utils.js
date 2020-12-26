@@ -95,7 +95,7 @@ export function arrayEq([v11, v12], [v21, v22]) {
     return (v11 === v21) && (v12 === v22)
 }
 
-export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
+export function rangesOverlap(bookmarkRange, testRange, {addRange = false, inclusive = false} = {}) {
     let rs, re, bs, be;
     if(addRange) {
         rs = [testRange[0], 0];
@@ -107,13 +107,20 @@ export function rangesOverlap(bookmarkRange, testRange, addRange = false) {
         [bs, be] = bookmarkRange;
     }
 
-    // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
-    const ex1 = arrayLeq(rs, bs) && arrayLe(bs, re);
-    const ex2 = arrayLe(rs, be) && arrayLeq(be, re);
-    const ex3 = false; //arrayLe(bs, re) && arrayGe(rs, be);
-    const ex4 = arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be);
+    if(inclusive) {
+        const ex1 = arrayLeq(rs, bs) && arrayLeq(bs, re);
+        const ex2 = arrayLeq(rs, be) && arrayLeq(be, re);
+        const ex4 = arrayLeq(bs, rs) && arrayLeq(rs, be) && arrayLeq(bs, re) && arrayLeq(re, be);
 
-    return (ex1 || ex2 || ex3 || ex4)
+        return (ex1 || ex2 || ex4)
+    } else {
+        // Same condition as in kotlin side BookmarksDao.bookmarksForVerseRange
+        const ex1 = arrayLeq(rs, bs) && arrayLe(bs, re);
+        const ex2 = arrayLe(rs, be) && arrayLeq(be, re);
+        const ex4 = arrayLeq(bs, rs) && arrayLe(rs, be) && arrayLe(bs, re) && arrayLeq(re, be);
+
+        return (ex1 || ex2 || ex4)
+    }
 }
 
 export class AutoSleep {

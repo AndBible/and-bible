@@ -71,6 +71,20 @@ if(process.env.NODE_ENV === "development") {
 
     testBookmarks = [
         {
+            id: 5,
+            ordinalRange: [30852, 30853],
+            offsetRange: [10, 50],
+            labels: [1],
+            book: "KJV",
+        },
+        {
+            id: 4,
+            ordinalRange: [30835, 30836],
+            offsetRange: [10, 50],
+            labels: [1],
+            book: "KJV",
+        },
+        {
             id: 0,
             ordinalRange: [30839, 30842],
             offsetRange: null,
@@ -140,7 +154,7 @@ if(process.env.NODE_ENV === "development") {
         }
     ];
 
-    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`, ordinalRange: [0, 1000000]}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
+    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`, ordinalRange: [30835, 30852]}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
     window.testData = testData;
 
 }

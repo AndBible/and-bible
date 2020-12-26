@@ -155,5 +155,8 @@ describe ("bookmark test", () => {
         expect(rangesOverlap([[1, 0], [4,0]], [[1,0], [2,0]])).toBe(true);
 
         expect(rangesOverlap([[1, 0], [2,0]], [[3,0], [4,0]])).toBe(false);
+
+        expect(rangesOverlap([[1, 0], [2,0]], [[2,0], [4,0]], {inclusive: false})).toBe(false);
+        expect(rangesOverlap([[1, 0], [2,0]], [[2,0], [4,0]], {inclusive: true})).toBe(true);
     });
 });
