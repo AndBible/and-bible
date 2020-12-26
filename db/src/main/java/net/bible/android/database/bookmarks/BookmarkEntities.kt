@@ -113,7 +113,7 @@ class BookmarkEntities {
         var endOffset: Int?,
 
     ): VerseRangeUser {
-        constructor(verseRange: VerseRange, textRange: TextRange?,  book: Book?): this(
+        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
             verseRange.start.ordinal,

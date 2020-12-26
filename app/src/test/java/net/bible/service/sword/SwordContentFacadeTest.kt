@@ -6,9 +6,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.ParseException
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
@@ -42,7 +41,7 @@ class SwordContentFacadeTest {
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val windowControl = Mockito.mock(WindowControl::class.java)
         val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
-        swordContentFacade = SwordContentFacade(BookmarkFormatSupport(bookmarkControl), MyNoteFormatSupport(), activeWindowPageManagerProvider)
+        swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 
     @After
@@ -57,7 +56,7 @@ class SwordContentFacadeTest {
         val esv = getBook("ESV2011")
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "John 11:35")
-        val html = getHtml(esv, key, true)
+        val html = getHtml(esv, key)
         assertThat(html, not(containsString("<html")))
     }
 
@@ -69,7 +68,7 @@ class SwordContentFacadeTest {
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Luke 15:4")
 
-        val html = getHtml(esv, key, false)
+        val html = getHtml(esv, key)
         assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
     }
 
@@ -99,7 +98,7 @@ class SwordContentFacadeTest {
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readXmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readOsisFragment(esv, key)
         } catch (e: ParseException) {
             "broken"
         }
@@ -114,7 +113,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readXmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readOsisFragment(esv, verse)
         } catch (e: ParseException) {
             "broken"
         }
@@ -130,7 +129,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readXmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+                swordContentFacade.readOsisFragment(esv, verse)
             } catch (e: ParseException) {
                 "broken"
             }
@@ -140,10 +139,8 @@ class SwordContentFacadeTest {
 
 
     @Throws(Exception::class)
-    private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
-        val settings = WorkspaceEntities.TextDisplaySettings.default
-        settings.strongsMode = true
-        return swordContentFacade.readOsisFragment(book, key, asFragment, settings)
+    private fun getHtml(book: Book, key: Key): String {
+        return swordContentFacade.readOsisFragment(book, key)
     }
 
     private fun getBook(initials: String): Book {

@@ -22,8 +22,6 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -256,7 +254,7 @@ open class AbstractSpeakTests {
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
-        val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(bookmarkControl), MyNoteFormatSupport(), activeWindowPageManagerProvider)
+        val swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 }
 

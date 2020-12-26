@@ -130,7 +130,7 @@ class VerseActionModeMediatorTest {
         }
 
         // call destroy actionmode and check verse is unhighlighted
-        verify(verseMenuCommandHandler).handleMenuRequest(R.id.compareTranslations, VerseRange(TestData.SELECTED_VERSE.versification, TestData.SELECTED_VERSE))
+        verify(verseMenuCommandHandler).handleMenuRequest(R.id.compareTranslations, null, VerseRange(TestData.SELECTED_VERSE.versification, TestData.SELECTED_VERSE))
     }
 
     @Test

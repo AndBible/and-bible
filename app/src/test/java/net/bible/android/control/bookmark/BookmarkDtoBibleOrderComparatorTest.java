@@ -55,6 +55,6 @@ public class BookmarkDtoBibleOrderComparatorTest {
 
 	private Bookmark getBookmark(Versification v11n, BibleBook book, int chapter, int verse) {
 		final VerseRange verseRange = new VerseRange(v11n, new Verse(v11n, book, chapter, verse), new Verse(v11n, book, chapter, verse));
-		return new Bookmark(verseRange);
+		return new Bookmark(verseRange, null, null);
 	}
 }
