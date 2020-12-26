@@ -60,7 +60,7 @@
       const android = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
-      useScroll(config);
+      const {scrollToVerse} = useScroll(config);
       useInfiniteScroll(config, android, osisFragments);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
       const globalBookmarks = useGlobalBookmarks(config);
@@ -76,6 +76,12 @@
         osisFragments.splice(0)
         osisFragments.push(...s)
       }
+
+      setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
+        const verseBeforeConfigChange = currentVerse.value;
+        await deferred.wait();
+        scrollToVerse(`v-${verseBeforeConfigChange}`, true)
+      })
 
       setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
 

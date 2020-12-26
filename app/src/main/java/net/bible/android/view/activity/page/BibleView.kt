@@ -75,6 +75,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
@@ -898,8 +899,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
+        val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) }))
+            ClientBookmarkLabel(event.label.id, event.label.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) }?: defaultStyle))
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks", 
             { bookmarks:[],
@@ -1092,11 +1094,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     data class ClientBookmarkStyle(val color: List<Int>)
 
     @Serializable
-    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle?)
+    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
 
     private fun getOsisObjStr(frags: List<OsisFragment>): String {
+        val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) })
+            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) } ?: defaultStyle)
         })
         val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
             val labels = bookmarkControl.labelsForBookmark(it).toMutableList()

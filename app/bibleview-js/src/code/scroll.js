@@ -140,5 +140,6 @@ export function useScroll(config) {
     setupEventBusListener(Events.SET_TOOLBAR_OFFSET, setToolbarOffset)
     setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToVerse)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
+    return {scrollToVerse}
 }
 

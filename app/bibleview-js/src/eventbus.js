@@ -34,6 +34,8 @@ export const Events = {
     DELETE_BOOKMARKS: "delete_bookmarks",
     REMOVE_RANGES: "remove_ranges",
     SET_TOOLBAR_OFFSET: "set_toolbar_offset",
+
+    CONFIG_CHANGED: "config_changed",
 }
 
 export function setupEventBusListener(eventId, callback) {

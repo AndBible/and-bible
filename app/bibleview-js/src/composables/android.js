@@ -30,7 +30,7 @@ export function patchAndroidConsole() {
     const enableAndroidLogging = true;
     window.console = {
         _msg(s, args) {
-            const printableArgs = args.map(v => isFunction(v) ? v : JSON.stringify(v).slice(0, 500));
+            const printableArgs = args.map(v => isFunction(v) ? v : v ? JSON.stringify(v).slice(0, 500): v);
             return `${s} ${printableArgs}`
         },
         log(s, ...args) {

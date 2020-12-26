@@ -20,7 +20,8 @@ import {sprintf} from "sprintf-js";
 import {setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {Deferred} from "@/code/utils";
 
 let developmentMode = false;
 
@@ -112,6 +113,8 @@ export function useConfig() {
     window.bibleViewDebug.config = config;
 
     setupEventBusListener(Events.SET_CONFIG, async (c) => {
+        const defer = new Deferred();
+        emit(Events.CONFIG_CHANGED, defer)
         config.showBookmarks = false
         await nextTick();
         for (const i in c) {
@@ -121,6 +124,8 @@ export function useConfig() {
                 console.error("Unknown setting", i, c[i]);
             }
         }
+        await nextTick();
+        defer.resolve()
     })
 
     return {config};
