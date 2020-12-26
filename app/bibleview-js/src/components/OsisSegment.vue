@@ -40,7 +40,7 @@ import Lb from "@/components/OSIS/Lb";
 import Lg from "@/components/OSIS/Lg";
 import Row from "@/components/OSIS/Row";
 import Table from "@/components/OSIS/Table";
-import {h, onMounted} from "@vue/runtime-core";
+import {h} from "@vue/runtime-core";
 
 const components = {
   Verse, W, Div, Chapter, Reference, Note, TransChange,

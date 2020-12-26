@@ -41,7 +41,7 @@ export default {
     showTransition: {type: Boolean, default: false},
   },
   setup(props) {
-    // Data for this component is considered to be read-only.
+    // Props for this component is considered to be read-only.
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
@@ -86,11 +86,7 @@ export default {
     } else {
       templates.push({template, key: `${fragmentKey}-0`})
     }
-    let featuresLink = null;
-    if(featureType) {
-      featuresLink = `ab-find-all://?type=${featureType}&name=${featureKeyName}`
-    }
-
+    const featuresLink = featureType ?`ab-find-all://?type=${featureType}&name=${featureKeyName}`: null;
     return {templates, featuresLink, strings}
   }
 }
