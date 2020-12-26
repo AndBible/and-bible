@@ -110,7 +110,9 @@ export function useConfig() {
         developmentMode: developmentMode,
     })
 
-    window.bibleViewDebug.config = config;
+    if(developmentMode) {
+        window.bibleViewDebug.config = config;
+    }
 
     setupEventBusListener(Events.SET_CONFIG, async (c) => {
         const defer = new Deferred();

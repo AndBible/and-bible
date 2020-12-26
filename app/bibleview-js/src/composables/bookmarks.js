@@ -224,4 +224,5 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
             }
         }
     }, {flush: 'post'});
+    return {styleRanges};
 }

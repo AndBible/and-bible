@@ -80,8 +80,13 @@ task buildLoaderJs(type: Sync, dependsOn: webpack) {
     into("src/main/assets/bibleview-js")
 }
 
-preBuild.dependsOn buildLoaderJs
+task jsTests(type: Exec, dependsOn: npmInstall) {
+    workingDir jsDir
+    commandLine "node_modules/.bin/npm", "run", "test:unit"
+}
 
+preBuild.dependsOn buildLoaderJs
+check.dependsOn jsTests
 
 android {
     compileSdkVersion 29
