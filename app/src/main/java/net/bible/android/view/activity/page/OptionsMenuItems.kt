@@ -240,14 +240,15 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
 
     override fun openDialog(activity: Activity, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val items = activity.resources.getStringArray(R.array.strongsModeEntries)
-
+        var newChoice = value
         val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.strongs_mode_title)
             .setSingleChoiceItems(items, value as Int) { d, value ->
-                this.value = value
+                newChoice = value
             }
-            .setPositiveButton(R.string.okay) { _,_ -> onChanged?.invoke(value) }
+            .setPositiveButton(R.string.okay) { _,_ -> this.value = newChoice; onChanged?.invoke(newChoice) }
             .setNeutralButton(R.string.reset) { _, _ -> setNonSpecific(); onReset?.invoke() }
+            .setNegativeButton(R.string.cancel, null)
         dialog.show()
         return true
     }
