@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span><br/><span><slot/></span></span>
+  <span><br/><slot/></span>
 </template>
 
 <script>
