@@ -324,7 +324,7 @@
     <string name="bookmark_date_updated">Bookmark date updated</string>
     <string name="bookmark_deleted">Bookmark deleted</string>
     <string name="bookmark_labels">Bookmark Labels</string>
-    <string name="manage_labels">Manage Bookmark Labels</string>
+    <string name="manage_labels">Manage Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>

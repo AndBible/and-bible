@@ -77,6 +77,11 @@ class BookmarkLabelSelector : ListActivityBase() {
         finish()
     }
 
+    fun onCancel(v: View?) {
+        setResult(Activity.RESULT_CANCELED)
+        finish();
+    }
+
     /**
      * New Label requested
      */
@@ -141,6 +146,11 @@ class BookmarkLabelSelector : ListActivityBase() {
         val inflater = menuInflater
         inflater.inflate(R.menu.bookmark_labels_actionbar_menu, menu)
         return true
+    }
+
+    fun onManageLabels(v: View?) {
+        val intent = Intent(this, ManageLabels::class.java)
+        startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH)
     }
 
     /**

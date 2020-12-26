@@ -22,19 +22,23 @@
         android:orientation="horizontal"
 	    android:layout_alignParentBottom="true">
 
-	  	<Button android:id="@+id/okButton"
-	 		android:text="@string/okay"
+		<Button android:id="@+id/okButton"
+			android:text="@string/close"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:onClick="onOkay"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"/>
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"/>
 
 	  	<Button android:id="@+id/newLabel"
 	 		android:text="@string/new_label"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
 			android:onClick="onNewLabel"/>
+
+
 
 	</LinearLayout>
 </RelativeLayout>	
