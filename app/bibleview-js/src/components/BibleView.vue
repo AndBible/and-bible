@@ -45,10 +45,10 @@
   import {useConfig, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
-  import {useInfiniteScroll} from "@/code/infinite-scroll";
+  import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
   import {emit, Events, setupEventBusListener} from "@/eventbus";
-  import {useScroll} from "@/code/scroll";
+  import {useScroll} from "@/composables/scroll";
   import {useAndroid} from "@/composables/android";
 
   export default {

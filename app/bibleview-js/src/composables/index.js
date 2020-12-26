@@ -17,11 +17,10 @@
 
 import {getCurrentInstance, inject, nextTick, onMounted, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
-import {setupWindowEventListener} from "@/utils";
+import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
-import {Deferred} from "@/code/utils";
 
 let developmentMode = false;
 

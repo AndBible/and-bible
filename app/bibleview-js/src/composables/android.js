@@ -15,8 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 import {emit} from "@/eventbus";
-import {Deferred} from "@/code/utils";
-import {setupDocumentEventListener, stubsFor} from "@/utils";
+import {Deferred, setupDocumentEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction} from "lodash";
