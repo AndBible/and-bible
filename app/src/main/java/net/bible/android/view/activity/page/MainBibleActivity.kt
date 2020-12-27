@@ -668,6 +668,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
             itemOptions.value = !(itemOptions.value == true)
             itemOptions.handle()
             item.isChecked = itemOptions.value == true
+            if(itemOptions is Preference) {
+                windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
+            }
             invalidateOptionsMenu()
         } else {
             val onReady = {
