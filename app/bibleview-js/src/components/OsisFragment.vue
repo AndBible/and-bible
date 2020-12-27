@@ -57,10 +57,12 @@ export default {
     const globalBookmarks = inject("globalBookmarks");
     const config = inject("config");
 
-    // To remove verse 0 from ordinalRange (is always included)
-    const realOrdinalRange = [ordinalRange[0]+1, ordinalRange[1]]
-
-    useBookmarks(fragmentKey, realOrdinalRange, globalBookmarks, book, fragmentReady, config);
+    // Disable bookmarks for non-bible documents
+    if(ordinalRange) {
+      // To remove verse 0 from ordinalRange (is always included)
+      const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
+      useBookmarks(fragmentKey, realOrdinalRange, globalBookmarks, book, fragmentReady, config);
+    }
     provide("fragmentInfo", {fragmentKey, book, osisID});
 
     const template = xml
