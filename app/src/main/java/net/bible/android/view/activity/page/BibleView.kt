@@ -705,7 +705,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         Log.d(TAG, "updateTextDisplaySettings")
         updateBackgroundColor()
         applyFontSize()
-        executeJavascriptOnUiThread("bibleView.emit('set_config', ${displaySettings.toJson()});")
+        executeJavascriptOnUiThread("bibleView.emit('set_config', {config: ${displaySettings.toJson()}});")
     }
 
     private fun replaceOsis() {
@@ -720,7 +720,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         executeJavascriptOnUiThread("""
             bibleView.emit("set_title", "BibleView-${window.id}");
-            bibleView.emit("set_config", ${displaySettings.toJson()});
+            bibleView.emit("set_config", {config: ${displaySettings.toJson()}, initial:true});
             bibleView.emit("replace_osis", $osisObjStr);
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 

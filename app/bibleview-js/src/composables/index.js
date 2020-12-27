@@ -113,9 +113,9 @@ export function useConfig() {
         window.bibleViewDebug.config = config;
     }
 
-    setupEventBusListener(Events.SET_CONFIG, async (c) => {
+    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial}) => {
         const defer = new Deferred();
-        emit(Events.CONFIG_CHANGED, defer)
+        if(!initial) emit(Events.CONFIG_CHANGED, defer)
         config.showBookmarks = false
         await nextTick();
         for (const i in c) {
@@ -125,7 +125,9 @@ export function useConfig() {
                 console.error("Unknown setting", i, c[i]);
             }
         }
-        await nextTick();
+        if(!initial) {
+            await nextTick();
+        }
         defer.resolve()
     })
 
