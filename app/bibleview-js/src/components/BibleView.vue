@@ -20,7 +20,7 @@
     <div :style="`height:${config.toolbarOffset}px`"/>
     <div id="notes"/>
     <div @click="showLog=true" class="logbox-button">
-      <b>{{logEntries.length}}</b>
+      {{logEntries.length}}
     </div>
     <div v-if="showLog" @click="showLog=false" class="logbox">
       <div style="overflow: scroll; width: 100%; height: 100%;">
@@ -62,6 +62,7 @@
   import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {useAndroid} from "@/composables/android";
+  import {setupWindowEventListener} from "@/utils";
 
   export default {
     name: "BibleView",
@@ -96,6 +97,9 @@
       })
 
       setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
+      setupWindowEventListener("error", (e) => {
+        console.error("Error caught", e.message);
+      });
 
       if(process.env.NODE_ENV === "development") {
         console.log("populating test data");
