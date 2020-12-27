@@ -19,14 +19,17 @@ import {Deferred, setupDocumentEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction} from "lodash";
+import {reactive} from "@vue/reactivity";
 
 let callId = 0;
 
+const logEntries = reactive([])
+
 export function patchAndroidConsole() {
     const origConsole = window.console;
-
+    window.bibleViewDebug.logEntries = logEntries;
     // Override normal console, so that argument values also propagate to Android logcat
-    const enableAndroidLogging = true;
+    const enableAndroidLogging = process.env.NODE_ENV !== "development";
     window.console = {
         _msg(s, args) {
             const printableArgs = args.map(v => isFunction(v) ? v : v ? JSON.stringify(v).slice(0, 500): v);
@@ -37,6 +40,7 @@ export function patchAndroidConsole() {
             origConsole.log(s, ...args)
         },
         error(s, ...args) {
+            logEntries.push({time: new Date(Date.now()).toLocaleTimeString(), msg: this._msg(s, args)});
             if(enableAndroidLogging) android.console('error', this._msg(s, args))
             origConsole.error(s, ...args)
         },
@@ -111,11 +115,12 @@ export function useAndroid() {
         android.setClientReady();
     }
 
-    const exposed = {requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, querySelection}
+    const exposed = {logEntries, requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, querySelection}
 
     let lblCount = 0;
     if(process.env.NODE_ENV === 'development') return {
         ...stubsFor(exposed),
+        logEntries,
         querySelection
     }
 

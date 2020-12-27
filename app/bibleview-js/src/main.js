@@ -21,9 +21,7 @@ import {patchAndroidConsole} from "@/composables/android";
 window.bibleView = {};
 window.bibleViewDebug = {};
 
-if (process.env.NODE_ENV !== "development") {
-    patchAndroidConsole();
-}
+patchAndroidConsole();
 
 import { createApp } from 'vue'
 
