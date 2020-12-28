@@ -56,7 +56,7 @@ export default {
     }
     function formatName(string) {
         return prep(string).map(s => {
-          return s.match(/([^ :]+:)[HG ]*([^:]+) *$/)[2].trim()
+          return s.match(/([^ :]+:)[HG0 ]*([^:]+) *$/)[2].trim()
         }).join(",")
     }
     function formatLink(first, second) {
