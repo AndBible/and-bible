@@ -116,6 +116,7 @@ export function useConfig() {
     setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial}) => {
         const defer = new Deferred();
         if(!initial) emit(Events.CONFIG_CHANGED, defer)
+        const oldValue = config.showBookmarks;
         config.showBookmarks = false
         await nextTick();
         for (const i in c) {
@@ -124,6 +125,10 @@ export function useConfig() {
             } else {
                 console.error("Unknown setting", i, c[i]);
             }
+        }
+        if(c.showBookmarks === undefined) {
+            // eslint-disable-next-line require-atomic-updates
+            config.showBookmarks = oldValue;
         }
         if(!initial) {
             await nextTick();

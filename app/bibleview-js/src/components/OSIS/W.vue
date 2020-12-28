@@ -21,10 +21,10 @@
       <slot/><span class="skip-offset"> <a class="strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/> <a class="skip-offset strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
+      <slot/><span class="skip-offset"> <a class="skip-offset strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/> <a class="skip-offset morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+      <slot/><span class="skip-offset"> <a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
