@@ -17,9 +17,9 @@
 
 <template>
   <teleport to="#notes">
-    <div ref="myModal" class="modal">
-      <div class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
-        <div class="modal-header">
+    <div @click="$emit('close')" class="modal-backdrop">
+      <div @click="$event.stopPropagation()" class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
+        <div @click="$emit('close')" class="modal-header">
           <span class="title">
             <slot name="title"/>
           </span>
@@ -30,8 +30,8 @@
         <div class="modal-footer">
         </div>
       </div>
-
     </div>
+
   </teleport>
 
 </template>
@@ -40,23 +40,19 @@
 
 import {inject} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
-import {setupElementEventListener} from "@/utils";
 
 export default {
   name: "Modal",
-  setup(props, {emit}) {
+  setup() {
     const config = inject("config")
     const myModal = ref(null);
-    setupElementEventListener(myModal, "click", () => {
-        emit("close");
-    });
     return {config, myModal}
   }
 }
 </script>
 
 <style scoped>
-.modal {
+.modal-backdrop {
   display: block;
   position: fixed;
   z-index: 1;
@@ -66,11 +62,11 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.1);
+  background-color: rgba(0,0,0,0.2);
 }
 
 .modal-content {
+  z-index: 3;
   position: relative;
   background-color: #fefefe;
   margin: auto;

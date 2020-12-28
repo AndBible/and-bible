@@ -86,6 +86,7 @@
       }, {deep: true});
 
       function replaceOsis(...s) {
+        logEntries.splice(0);
         osisFragments.splice(0)
         osisFragments.push(...s)
       }

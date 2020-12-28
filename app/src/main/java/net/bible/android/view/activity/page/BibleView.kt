@@ -37,11 +37,13 @@ import android.webkit.ConsoleMessage
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.iterator
+import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.google.android.material.snackbar.Snackbar
@@ -197,6 +199,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 true
             } else v.performClick()
         }
+        settings.allowFileAccess = false
+        settings.allowContentAccess = false
     }
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
@@ -440,7 +444,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         listenEvents = true
 
         htmlLoadingOngoing = true;
-        loadUrl("file:///android_asset/bibleview-js/index.html")
+        loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html")
     }
 
     override fun destroy() {
@@ -479,6 +483,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_REFERENCE = "ab-reference"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
+
+    val assetLoader = WebViewAssetLoader.Builder()
+        .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
+        .build()
 
     private inner class BibleViewClient: WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
@@ -536,6 +544,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
             super.onReceivedError(view, errorCode, description, failingUrl)
             Log.e(TAG, description)
+        }
+
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+            return assetLoader.shouldInterceptRequest(request.getUrl())
         }
     }
 

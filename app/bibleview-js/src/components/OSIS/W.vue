@@ -18,18 +18,18 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;</span><a class="skip-offset strongs" :href="formatLink(lemma)">{{ formatName(lemma) }}</a>-<a class="skip-offset morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="skip-offset">&nbsp;</span><a class="skip-offset strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;</span><a class="skip-offset morph" :href="formatLink(morph)">{{formatName(morph)}}</a>
+      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><a class="linkstyle" :href="formatLink(lemma, morph)"><slot/></a></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink(formatLink(lemma, morph))"><slot/></span></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -56,8 +56,8 @@ export default {
     }
     function formatName(string) {
         return prep(string).map(s => {
-          return s.match(/([^ :]+:)([^:]+)$/)[2]
-        }).join(", ")
+          return s.match(/([^ :]+:)[HG ]*([^:]+) *$/)[2].trim()
+        }).join(",")
     }
     function formatLink(first, second) {
       const linkBodies = [];
@@ -72,7 +72,10 @@ export default {
       return "ab-w://?" + linkBodies.join("&")
     }
     const common = useCommon();
-    return {formatLink, formatName, ...common};
+    function goToLink(url) {
+        window.location.assign(url);
+    }
+    return {formatLink, formatName, goToLink, ...common};
   },
   computed: {
     showStrongs() {
@@ -90,10 +93,15 @@ export default {
     color: black;
     text-decoration: underline dotted;
   }
+
   .strongs {
     color: #4b9700;
   }
   .morph {
     color: #8d0097;
+    /*
+    font-size: 50%;
+    vertical-align: super;
+    */
   }
 </style>
