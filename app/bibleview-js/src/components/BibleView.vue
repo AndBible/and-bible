@@ -19,7 +19,7 @@
   <div :style="`--toolbar-offset: ${config.toolbarOffset}px`">
     <div :style="`height:${config.toolbarOffset}px`"/>
     <div id="notes"/>
-    <div @click="showLog=true" class="logbox-button">
+    <div v-if="logEntries.length > 0" @click="showLog=true" class="logbox-button">
       {{logEntries.length}}
     </div>
     <div v-if="showLog" @click="showLog=false" class="logbox">
@@ -190,10 +190,11 @@
   top: var(--toolbar-offset);
   height: calc(100vh - var(--toolbar-offset));
   bottom: 0;
-  background-color: rgba(100, 0, 0, 0.9);
+  background-color: rgba(200, 0, 0, 0.9);
 }
 
 .logbox-button {
+  border-radius: 5pt;
   top: var(--toolbar-offset);
   position: fixed;
   padding: 0.5em;
@@ -201,7 +202,14 @@
   right:50%;
   width:1em;
   height: 1em;
-  background-color: rgba(100, 0, 0, 0.5);
+  background-color: rgba(200, 0, 0, 0.5);
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:var(--toolbar-offset); opacity:1}
 }
 
 </style>
