@@ -684,4 +684,5 @@
     <string name="bookmark_settings_show_labels_summary">Show only specified labels</string>
     <string name="bookmark_settings_assign_labels_summary">Automatically assign labels to new bookmarks</string>
     <string name="strongs_mode_title">Choose strongs mode</string>
+    <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
 </resources>

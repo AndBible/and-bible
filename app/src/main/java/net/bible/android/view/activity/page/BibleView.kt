@@ -19,6 +19,7 @@
 package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
 import android.os.Build
@@ -81,6 +82,7 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
@@ -234,14 +236,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val verseRange = VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
         val textRange = BookmarkEntities.TextRange(selection.startOffset, selection.endOffset)
         val bookmark = BookmarkEntities.Bookmark(verseRange, textRange, book)
-        bookmarkControl.addOrUpdateBookmark(bookmark, displaySettings.bookmarks!!.assignLabels)
+        val initialLabels = displaySettings.bookmarks!!.assignLabels!!.toList()
+        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
 
         val actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text)
         runOnUiThread {
             val currentView = mainBibleActivity.findViewById<View>(R.id.coordinatorLayout)
             Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG)
                 .setActionTextColor(actionTextColor)
-                .setAction(R.string.assign_labels) { bookmarkControl.showBookmarkLabelsActivity(mainBibleActivity, bookmark) }.show()
+                .setAction(R.string.assign_labels) {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val labels = initialLabels.toLongArray()
+                        val intent = Intent(mainBibleActivity, BookmarkLabelSelector::class.java)
+                        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
+                        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels_new_bookmark))
+                        val result = mainBibleActivity.awaitIntent(intent)
+                        val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+                        if(resultLabels != null) {
+                            bookmarkControl.setLabelsByIdForBookmark(bookmark, resultLabels.toList())
+                        }
+                    }
+                }.show()
         }
     }
 

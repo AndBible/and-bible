@@ -154,4 +154,7 @@ interface BookmarkDao {
         }
     }
 
+    @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
+    fun deleteLabels(bookmarkId: Long)
+    fun deleteLabels(bookmark: BookmarkEntities.Bookmark) = deleteLabels(bookmark.id)
 }

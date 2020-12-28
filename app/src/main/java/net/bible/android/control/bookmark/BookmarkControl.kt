@@ -202,7 +202,14 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmark.id)
     }
 
+    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
+        dao.deleteLabels(bookmark)
+        dao.insert(labelIdList.map { BookmarkToLabel(bookmark.id, it) })
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
+    }
+
     fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>, doNotSync: Boolean = false) {
+        // TODO: check if we can do things simply like the above function!
 		val lbls = labels.toMutableList()
         lbls.remove(LABEL_ALL)
         lbls.remove(LABEL_UNLABELLED)
@@ -282,6 +289,7 @@ open class BookmarkControl @Inject constructor(
             return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
         }
 
+    // TODO: remove!
     internal fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
         val intent = Intent(currentActivity, BookmarkLabelSelector::class.java)
         intent.putExtra(LABEL_IDS_EXTRA, longArrayOf(bookmark.id))
