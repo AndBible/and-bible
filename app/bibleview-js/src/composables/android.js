@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 import {emit} from "@/eventbus";
-import {Deferred, rangesOverlap, setupDocumentEventListener, stubsFor} from "@/utils";
+import {Deferred, rangeInside, setupDocumentEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction, union} from "lodash";
@@ -81,8 +81,8 @@ export function useAndroid({allStyleRanges}) {
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
         const bookmarks = union(
             ...allStyleRanges.value.filter(
-                s => rangesOverlap(s.ordinalAndOffsetRange,
-                    [[startOrdinal, startOffset], [endOrdinal, endOffset]]))
+                s => rangeInside(s.ordinalAndOffsetRange,
+                    [[startOrdinal, startOffset], [endOrdinal, endOffset]], {inclusive: true}))
                 .map(s => s.bookmarks)
         );
         return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks}

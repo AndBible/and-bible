@@ -94,6 +94,17 @@ export function arrayEq([v11, v12], [v21, v22]) {
     return (v11 === v21) && (v12 === v22)
 }
 
+export function rangeInside(range, testRange) {
+    const [rs, re] = testRange;
+    const [bs, be] = range;
+
+    const ex1 = arrayLeq(rs, bs) && arrayLeq(bs, re);
+    const ex2 = arrayLeq(rs, be) && arrayLeq(be, re);
+
+    return ex1 && ex2
+}
+
+
 export function rangesOverlap(bookmarkRange, testRange, {addRange = false, inclusive = false} = {}) {
     let rs, re, bs, be;
     if(addRange) {
