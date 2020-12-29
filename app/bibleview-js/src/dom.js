@@ -31,14 +31,14 @@ export function findNodeAtOffset(elem, startOffset) {
     let offset = startOffset;
     do {
         for (const c of elem.childNodes) {
-            if (c.nodeType === 1 && hasOsisContent(c)) { // element
+            if (c.nodeType === Node.ELEMENT_NODE && hasOsisContent(c)) { // element
                 const textLength = contentLength(c);
                 if (textLength >= offset) {
                     return findNodeAtOffset(c, offset);
                 } else {
                     offset -= textLength;
                 }
-            } else if (c.nodeType === 3 && hasOsisContent(c.parentElement)) { // text
+            } else if (c.nodeType === Node.TEXT_NODE && hasOsisContent(c.parentElement)) { // text
                 if (c.length >= offset) {
                     return [c, offset];
                 } else {
@@ -53,9 +53,9 @@ export function findNodeAtOffset(elem, startOffset) {
 export function contentLength(elem) {
     let length = 0;
     for(const c of elem.childNodes) {
-        if(c.nodeType === 3 && hasOsisContent(c.parentNode)) {
+        if(c.nodeType === Node.TEXT_NODE && hasOsisContent(c.parentNode)) {
             length += c.length;
-        } else if(c.nodeType === 1) {
+        } else if(c.nodeType === Node.ELEMENT_NODE) {
             length += contentLength(c)
         }
     }
@@ -77,11 +77,12 @@ function hasParent(e, p) {
     return false;
 }
 
+// TODO: This can be implemented nicely with Document.createTreeWalker()
 export function* walkBackText(e, onlyOsis = false) {
     let next = e
     do {
         if([3,8].includes(next.nodeType)) {
-            if(next.nodeType === 3 && (!onlyOsis || (onlyOsis && hasOsisContent(next.parentNode))) ) {
+            if(next.nodeType === Node.TEXT_NODE && (!onlyOsis || (onlyOsis && hasOsisContent(next.parentNode))) ) {
                 yield next;
             }
             let next2 = next.previousSibling;
@@ -99,7 +100,7 @@ export function* walkBackText(e, onlyOsis = false) {
                 }
                 next = next2
             }
-        } else if(next.nodeType === 1) {
+        } else if(next.nodeType === Node.ELEMENT_NODE) {
             const next2 = next.lastChild;
             if(next2) {
                 next = next2
@@ -114,7 +115,7 @@ export function* walkBackText(e, onlyOsis = false) {
 
 export function findNext(e, last, onlyOsis=false) {
     const iterator = walkBackText(e, onlyOsis);
-    if(e.nodeType === 3) {
+    if(e.nodeType === Node.TEXT_NODE) {
         iterator.next();
     }
 
@@ -136,7 +137,7 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
     let e = node;
 
     let offsetNow = offset;
-    if(e.nodeType === 1) {
+    if(e.nodeType === Node.ELEMENT_NODE) {
         if(!forceFromEnd) {
             if(parent === e) {
                 return offset
@@ -145,17 +146,17 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
             }
         } else {
             const next = e.lastChild
-            if(next.nodeType === 3) {
+            if(next.nodeType === Node.TEXT_NODE) {
                 return calculateOffsetToParent(next, offsetNow + next.length, start)
             } else {
                 return calculateOffsetToParent(next, offsetNow, start)
             }
         }
-    } else if (e.nodeType === 3) {
+    } else if (e.nodeType === Node.TEXT_NODE) {
         if(!hasOsisContent(e.parentNode)) {
             offsetNow = 0;
         }
-    }  else if(e.nodeType === 8) {
+    }  else if(e.nodeType === Node.COMMENT_NODE) {
         offsetNow = 0;
     } else throw new Error(`Unknown node type ${e.nodeType}`);
 
@@ -165,9 +166,9 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
         e && e !== parent;
         e = findNext(e, parent, true)
     ) {
-        if (e.nodeType === 1) {
+        if (e.nodeType === Node.ELEMENT_NODE) {
             throw new Error(`Error! ${e} ${e.nodeType}`);
-        } else if(e.nodeType === 3) {
+        } else if(e.nodeType === Node.TEXT_NODE) {
             if (hasOsisContent(e.parentNode)) {
                 offsetNow += e.length;
             }
@@ -180,7 +181,7 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
 
 export function findPreviousSiblingWithClass(node, cls) {
     let candidate = node;
-    if(candidate.nodeType === 3) {
+    if(candidate.nodeType === Node.TEXT_NODE) {
         node = node.parentNode;
         candidate = node;
     }
@@ -216,7 +217,7 @@ export function calculateOffsetToVerse(node, offset, start = true) {
     let parent;
     if([3,8].includes(node.nodeType)) {
         parent = node.parentNode.closest(".verse");
-    } else if(node.nodeType === 1){
+    } else if(node.nodeType === Node.ELEMENT_NODE){
         parent = node.closest(".verse");
         node = node.firstChild || node.previousSibling
     }
