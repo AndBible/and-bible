@@ -40,11 +40,12 @@ export function patchAndroidConsole() {
             origConsole.log(s, ...args)
         },
         error(s, ...args) {
-            logEntries.push({time: new Date(Date.now()).toLocaleTimeString(), msg: this._msg(s, args)});
+            logEntries.push({type: "ERROR", time: new Date(Date.now()).toLocaleTimeString(), msg: this._msg(s, args)});
             if(enableAndroidLogging) android.console('error', this._msg(s, args))
             origConsole.error(s, ...args)
         },
         warn(s, ...args) {
+            logEntries.push({type: "WARN", time: new Date(Date.now()).toLocaleTimeString(), msg: this._msg(s, args)});
             if(enableAndroidLogging) android.console('warn', this._msg(s, args))
             origConsole.warn(s, ...args)
         }

@@ -43,6 +43,7 @@ import {ref} from "@vue/reactivity";
 
 export default {
   name: "Modal",
+  emits: ["close"],
   setup() {
     const config = inject("config")
     const myModal = ref(null);

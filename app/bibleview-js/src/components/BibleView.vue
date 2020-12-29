@@ -25,7 +25,7 @@
     <div v-if="showLog" @click="showLog=false" class="logbox">
       <div style="overflow: scroll; width: 100%; height: 100%;">
         <ul>
-          <li v-for="({msg, time}, index) in logEntries" :key="index">{{time}} {{msg}}</li>
+          <li v-for="({type, msg}, index) in logEntries" :class="`error-${type}`" :key="index">{{type}} {{msg}}</li>
         </ul>
       </div>
     </div>
@@ -211,6 +211,15 @@
 @keyframes animatetop {
   from {top:-300px; opacity:0}
   to {top:var(--toolbar-offset); opacity:1}
+}
+
+.error-ERROR {
+  color: black;
+
+}
+
+.error-WARN {
+  color: darkgrey;
 }
 
 </style>
