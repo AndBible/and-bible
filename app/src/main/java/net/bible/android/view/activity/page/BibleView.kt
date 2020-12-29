@@ -1134,7 +1134,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 labels.add(bookmarkControl.LABEL_UNLABELLED)
             ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.clientList, labels.map { it.id }, it.book?.initials )
         })
-        val xmlList = frags.map {"""{xml: `${it.xml}`, key:'${it.keyStr}', features:${it.features}, ordinalRange: ${it.ordinalRangeJson}}"""}.joinToString(",")
+        val xmlList = frags.joinToString(",") { """{xml: `${it.xml.replace("`", "\\`")}`, key:'${it.keyStr}', features:${it.features}, ordinalRange: ${it.ordinalRangeJson}}""" }
         return """{
             contents: [$xmlList],
             bookmarks: $bookmarks,
