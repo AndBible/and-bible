@@ -24,7 +24,7 @@
 import {nextTick, onMounted} from "@vue/runtime-core";
 import {setupWindowEventListener} from "@/utils";
 
-export function useInfiniteScroll(config, android, osisFragments) {
+export function useInfiniteScroll(config, {requestMoreTextAtTop, requestMoreTextAtEnd}, osisFragments) {
     let
         currentPos,
         lastAddMoreTime = 0,
@@ -39,8 +39,8 @@ export function useInfiniteScroll(config, android, osisFragments) {
         bodyHeight = () => document.body.scrollHeight,
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = offset => window.scrollTo(0, offset),
-        loadTextAtTop = async () => insertThisTextAtTop(await android.requestMoreTextAtTop()),
-        loadTextAtEnd = async () => insertThisTextAtEnd(await android.requestMoreTextAtEnd()),
+        loadTextAtTop = async () => insertThisTextAtTop(await requestMoreTextAtTop()),
+        loadTextAtEnd = async () => insertThisTextAtEnd(await requestMoreTextAtEnd()),
         addMoreAtEnd = () => loadTextAtEnd(),
         addMoreAtTop = () => {
             if (touchDown) {

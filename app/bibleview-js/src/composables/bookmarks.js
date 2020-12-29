@@ -15,13 +15,22 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onMounted, reactive, watch} from "@vue/runtime-core";
+import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
 import {intersection, rangesOverlap} from "@/utils";
 import highlightRange from "dom-highlight-range";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, textLength} from "@/dom";
 import {Events, setupEventBusListener} from "@/eventbus";
+
+const allStyleRangeArrays = reactive(new Set());
+const allStyleRanges = computed(() => {
+    const allStyles = [];
+    for(const a of allStyleRangeArrays) {
+        allStyles.push(...a.value);
+    }
+    return allStyles;
+});
 
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
@@ -66,7 +75,7 @@ export function useGlobalBookmarks(config) {
         return allBookmarks.filter(v => intersection(new Set(v.labels), configLabels).size > 0)
     })
 
-    return {bookmarkLabels, bookmarks: filteredBookmarks, labelsUpdated, updateBookmarkLabels, updateBookmarks}
+    return {bookmarkLabels, bookmarks: filteredBookmarks, labelsUpdated, updateBookmarkLabels, updateBookmarks, allStyleRanges}
 }
 
 export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
@@ -118,7 +127,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         }
         return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]] ]
     }
-
 
     const styleRanges = computed(() => {
         if(!isMounted.value) return [];
@@ -213,7 +221,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     }
 
     watch(styleRanges, (newValue) => {
-        console.log("styleRanges changed!", fragmentKey, fragmentBookmarks.value, newValue);
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
         for (const s of newValue) {
@@ -224,5 +231,13 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
             }
         }
     }, {flush: 'post'});
+
+    onMounted(() => {
+        allStyleRangeArrays.add(styleRanges);
+    })
+    onUnmounted(() => {
+        allStyleRangeArrays.delete(styleRanges);
+    });
+
     return {styleRanges};
 }

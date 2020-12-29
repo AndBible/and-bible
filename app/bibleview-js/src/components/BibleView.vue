@@ -70,13 +70,13 @@
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
-      const {logEntries, ...android} = useAndroid();
       const osisFragments = reactive([]);
       const topElement = ref(null);
       const {scrollToVerse} = useScroll(config);
-      useInfiniteScroll(config, android, osisFragments);
-      const {currentVerse} = useVerseNotifier(config, android, topElement);
       const globalBookmarks = useGlobalBookmarks(config);
+      const {logEntries, ...android} = useAndroid(globalBookmarks);
+      const {currentVerse} = useVerseNotifier(config, android, topElement);
+      useInfiniteScroll(config, android, osisFragments);
 
       watch(() => osisFragments, () => {
         for(const frag of osisFragments) {

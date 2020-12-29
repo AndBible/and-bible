@@ -15,10 +15,10 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 import {emit} from "@/eventbus";
-import {Deferred, setupDocumentEventListener, stubsFor} from "@/utils";
+import {Deferred, rangesOverlap, setupDocumentEventListener, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
-import {isFunction} from "lodash";
+import {isFunction, union} from "lodash";
 import {reactive} from "@vue/reactivity";
 
 let callId = 0;
@@ -52,7 +52,7 @@ export function patchAndroidConsole() {
     }
 }
 
-export function useAndroid() {
+export function useAndroid({allStyleRanges}) {
     const responsePromises = new Map();
 
     function response(callId, returnValue) {
@@ -80,14 +80,23 @@ export function useAndroid() {
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
 
-        const returnValue = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset};
-        console.log("Querying selection: ", returnValue);
-        return returnValue
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset}
+    }
+
+    function queryBookmarks() {
+        const {startOrdinal, endOrdinal, startOffset, endOffset} = querySelection();
+        return union(
+            ...allStyleRanges.value.filter(
+                s => rangesOverlap(s.ordinalAndOffsetRange,
+                    [[startOrdinal, startOffset], [endOrdinal, endOffset]]))
+            .map(s => s.bookmarks)
+        );
     }
 
     window.bibleView.response = response;
     window.bibleView.emit = emit;
     window.bibleView.querySelection = querySelection
+    window.bibleView.queryBookmarks = queryBookmarks
 
     async function deferredCall(func) {
         const promise = new Deferred();
