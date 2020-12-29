@@ -29,6 +29,11 @@ import {useCommon} from "@/composables";
 
 export default {
   name: "Lg",
+  props: {
+    sID: {type: String, default: null},
+    eID: {type: String, default: null},
+    level: {type: String, default: null},
+  },
   setup() {
     return useCommon();
   },
