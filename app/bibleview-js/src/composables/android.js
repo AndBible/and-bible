@@ -79,24 +79,18 @@ export function useAndroid({allStyleRanges}) {
 
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
-
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset}
-    }
-
-    function queryBookmarks() {
-        const {startOrdinal, endOrdinal, startOffset, endOffset} = querySelection();
-        return union(
+        const bookmarks = union(
             ...allStyleRanges.value.filter(
                 s => rangesOverlap(s.ordinalAndOffsetRange,
                     [[startOrdinal, startOffset], [endOrdinal, endOffset]]))
-            .map(s => s.bookmarks)
+                .map(s => s.bookmarks)
         );
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks}
     }
 
     window.bibleView.response = response;
     window.bibleView.emit = emit;
     window.bibleView.querySelection = querySelection
-    window.bibleView.queryBookmarks = queryBookmarks
 
     async function deferredCall(func) {
         const promise = new Deferred();

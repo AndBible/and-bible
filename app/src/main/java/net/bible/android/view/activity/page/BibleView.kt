@@ -213,9 +213,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.remove_bookmark -> {
-                val bookmarks = bookmarksForSelection
-                if(bookmarks?.isNotEmpty() == true) {
-                    bookmarkControl.deleteBookmarks(bookmarks)
+                val sel = currentSelection
+                if(sel?.bookmarks?.isNotEmpty() == true) {
+                    bookmarkControl.deleteBookmarksById(sel.bookmarks)
                 }
                 return true;
             }
@@ -262,7 +262,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     @Serializable
     class Selection(val bookInitials: String, val startOrdinal: Int,
-                    val startOffset: Int, val endOrdinal: Int, val endOffset: Int)
+                    val startOffset: Int, val endOrdinal: Int, val endOffset: Int, val bookmarks: List<Long>)
     {
         val verseRange: VerseRange get() {
             val v11n = (Books.installed().getBook(bookInitials) as SwordBook).versification
@@ -273,14 +273,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var menuPrepared = false
     var currentSelection: Selection? = null
-    var bookmarksForSelection: List<BookmarkEntities.Bookmark>? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         if(bookCategory != BookCategory.BIBLE) return false
         mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
 
         if(menuPrepared) {
-            if (bookmarksForSelection?.isEmpty() == true) {
+            if (currentSelection?.bookmarks?.isEmpty() == true) {
                 val item = menu.findItem(R.id.remove_bookmark)
                 item.isVisible = false
             }
@@ -292,7 +291,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val result = evaluateJavascriptAsync("bibleView.querySelection()")
                 val sel = json.decodeFromString(serializer<Selection?>(), result)
                 if(sel !== null) {
-                    bookmarksForSelection = bookmarkControl.bookmarksForVerseRange(sel.verseRange)
                     currentSelection = sel
                 }
 
@@ -319,7 +317,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
-        bookmarksForSelection = null
         menuPrepared = false
         if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
     }
@@ -939,7 +936,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: BookmarksDeletedEvent) {
-        val bookmarkIds = json.encodeToString(serializer(), event.bookmarks.map { it.id })
+        val bookmarkIds = json.encodeToString(serializer(), event.bookmarks)
         executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
     }
 

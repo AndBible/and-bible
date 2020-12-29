@@ -55,7 +55,7 @@ abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
 class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
-class BookmarksDeletedEvent(val bookmarks: List<Bookmark>): BookmarkEvent()
+class BookmarksDeletedEvent(val bookmarks: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
 /**
@@ -122,7 +122,7 @@ open class BookmarkControl @Inject constructor(
         if (bookmark != null) {
             deleteBookmark(bookmark, true)
             Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark)))
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
         }
     }
 
@@ -165,14 +165,21 @@ open class BookmarkControl @Inject constructor(
     fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
         dao.delete(bookmark)
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark)))
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
         }
     }
 
     fun deleteBookmarks(bookmarks: List<Bookmark>, doNotSync: Boolean = false) {
         dao.deleteBookmarks(bookmarks)
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks))
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
+        }
+    }
+
+    fun deleteBookmarksById(bookmarkIds: List<Long>, doNotSync: Boolean = false) {
+        dao.deleteBookmarksById(bookmarkIds)
+        if(!doNotSync) {
+            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarkIds))
         }
     }
 

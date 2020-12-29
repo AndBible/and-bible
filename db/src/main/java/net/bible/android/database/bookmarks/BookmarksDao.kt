@@ -95,6 +95,10 @@ interface BookmarkDao {
     @Delete fun deleteBookmarks(bs: List<Bookmark>)
     @Delete fun delete(b: Bookmark)
 
+
+    @Query("DELETE FROM Bookmark WHERE id IN (:bs)")
+    fun deleteBookmarksById(bs: List<Long>)
+
     @Query("""
         SELECT * FROM Bookmark WHERE NOT EXISTS 
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
