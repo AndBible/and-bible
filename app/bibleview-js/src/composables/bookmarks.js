@@ -238,7 +238,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
 
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
-        for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+        for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
             const icon = document.createElement("i")
             const faIcon = b.notes? editIcon : bookmarkIcon;
             icon.appendChild(faIcon.node[0])
@@ -250,8 +250,8 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             icon.addEventListener("click", () => {
                 emit(Events.NOTE_CLICKED, b);
             })
-            const element = highlightElements[highlightElements.length - 1];
-            element.parentElement.insertBefore(icon, element.nextSibling);
+            const element = highlightElements[0];
+            element.parentElement.insertBefore(icon, element);
             undoHighlights.push(() => icon.remove());
         }
     }

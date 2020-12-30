@@ -23,7 +23,7 @@
         <textarea :rows="bookmarkNoteRows" :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
     </template>
     <template v-else>
-      <p v-html="formatNote(bookmarkNote)"/>
+      <p>{{bookmarkNote}}</p>
     </template>
     <div class="info" v-if="bookmark.book">
       {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
@@ -94,17 +94,14 @@ export default {
     }
 
     const bookmarkNoteRows = computed(() => {
+      if(bookmarkNote.value === null) return 2;
       return Array.from(bookmarkNote.value.matchAll(/\n/g)).length + 2
     });
-
-    function formatNote(note) {
-      return note.replaceAll("\n", "<br>")
-    }
 
     return {
       showNote, bookmarkNote, editMode, closeNote, areYouSure,
       toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
-      formatNote, ...useCommon()
+      ...useCommon()
       };
   },
 }
