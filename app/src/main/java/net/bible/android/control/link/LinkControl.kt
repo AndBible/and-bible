@@ -91,6 +91,10 @@ class LinkControl @Inject constructor(
         return loadApplicationUrl(link.url)
     }
 
+    fun errorLink() {
+        errorReportControl.sendErrorReportEmail(Exception("Error in webview-js"))
+    }
+
     private fun getBookAndKey(uriStr: String): BookAndKey? {
         Log.d(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()

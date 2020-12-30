@@ -21,6 +21,7 @@
   </div>
   <div v-if="showLog" @click="showLog=false" class="logbox">
     <div style="overflow: scroll; width: 100%; height: 100%;">
+      <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
       <ul>
         <li v-for="({type, msg}, index) in logEntries" :class="`error-${type}`" :key="index">{{type}} {{msg}}</li>
       </ul>
@@ -29,10 +30,15 @@
 </template>
 
 <script>
+import {useCommon} from "@/composables";
+
 export default {
   name: "ErrorBox",
   props: {
     logEntries: {type: Object, required: true}
+  },
+  setup() {
+    return useCommon();
   },
   data() {
     return {
@@ -79,6 +85,12 @@ export default {
 
 .error-WARN {
   color: #ffdf38;
+}
+
+.error-link {
+  font-size: 200%;
+  color: red;
+  padding-left: 1.5em;
 }
 
 </style>

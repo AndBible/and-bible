@@ -491,6 +491,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     object UriConstants {
+        const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "ab-reference"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
@@ -533,6 +534,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     val type = uri.getQueryParameter("type")
                     val name = uri.getQueryParameter("name")
                     linkControl.showAllOccurrences(name!!, SearchControl.SearchBibleSection.ALL, type!![0].toString())
+                    true
+                }
+                UriConstants.SCHEME_ERROR -> {
+                    linkControl.errorLink()
                     true
                 }
                 else -> true // TODO: throw some error document instead

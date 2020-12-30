@@ -146,6 +146,7 @@ export function useStrings() {
         noteText: "Notes",
         crossReferenceText: "Crossreferences",
         findAllOccurrences: "Find all occurrences",
+        reportError: "Report an error",
     }
 }
 
