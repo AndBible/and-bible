@@ -1007,7 +1007,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(checkWindows || force) {
             executeJavascript("bibleView.emit('set_toolbar_offset', $toolbarOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
-                executeJavascript("registerVersePositions()")
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
             checkWindows = false
@@ -1055,7 +1054,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      */
     private fun scrollOrJumpToVerse(verse: Verse, restoreOngoing: Boolean = false) {
         Log.d(TAG, "Scroll or jump to:$verse")
-        val jumpToId = "v-${verse.toV11n(initialVerse!!.versification).ordinal}"
+        var toVerse = verse;
+        val v = initialVerse
+        if(v != null) {
+            toVerse = verse.toV11n(v.versification)
+        }
+        val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
         executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $toolbarOffset);")
     }
