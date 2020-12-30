@@ -28,6 +28,7 @@
           <p><slot/></p>
         </div>
         <div class="modal-footer">
+          <slot name="footer"/>
         </div>
       </div>
     </div>

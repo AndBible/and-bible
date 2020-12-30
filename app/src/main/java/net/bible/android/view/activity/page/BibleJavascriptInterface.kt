@@ -65,6 +65,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun removeBookmark(bookmarkId: Long) {
+        bibleView.bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
+    }
+
+    @JavascriptInterface
+    fun assignLabels(bookmarkId: Long) {
+        bibleView.assignLabels(bookmarkId)
+    }
+
+    @JavascriptInterface
     fun console(loggerName: String, message: String) {
         Log.d(TAG, "Console[$loggerName] $message")
     }

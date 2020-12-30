@@ -240,7 +240,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
             const icon = document.createElement("i")
-            const faIcon = b.note? editIcon : bookmarkIcon;
+            const faIcon = b.notes? editIcon : bookmarkIcon;
             icon.appendChild(faIcon.node[0])
             const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
             const rgba = toRgba(bookmarkLabel.color);
@@ -254,7 +254,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             element.parentElement.insertBefore(icon, element.nextSibling);
             undoHighlights.push(() => icon.remove());
         }
-
     }
 
     watch(styleRanges, (newValue) => {

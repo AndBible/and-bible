@@ -121,6 +121,14 @@ export function useAndroid({allStyleRanges}) {
         android.saveBookmarkNote(bookmarkId, noteText);
     }
 
+    function removeBookmark(bookmarkId) {
+        android.removeBookmark(bookmarkId);
+    }
+
+    function assignLabels(bookmarkId) {
+        android.assignLabels(bookmarkId);
+    }
+
     function setClientReady() {
         android.setClientReady();
     }
@@ -132,7 +140,9 @@ export function useAndroid({allStyleRanges}) {
         requestMoreTextAtEnd,
         scrolledToVerse,
         setClientReady,
-        querySelection
+        querySelection,
+        removeBookmark,
+        assignLabels
     }
 
     let lblCount = 0;

@@ -123,7 +123,6 @@ export function* walkBackText(e, onlyOsis = false) {
         } else {
             throw Error(`Unsupported ${next.nodeType}`);
         }
-        console.log("now", next);
     } while(next);
 }
 

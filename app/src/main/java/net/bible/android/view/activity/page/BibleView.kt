@@ -263,19 +263,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val currentView = mainBibleActivity.findViewById<View>(R.id.coordinatorLayout)
             Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG)
                 .setActionTextColor(actionTextColor)
-                .setAction(R.string.assign_labels) {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        val labels = initialLabels.toLongArray()
-                        val intent = Intent(mainBibleActivity, BookmarkLabelSelector::class.java)
-                        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
-                        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels_new_bookmark))
-                        val result = mainBibleActivity.awaitIntent(intent)
-                        val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
-                        if(resultLabels != null) {
-                            bookmarkControl.setLabelsByIdForBookmark(bookmark, resultLabels.toList())
-                        }
-                    }
+                .setAction(R.string.assign_labels) { assignLabels(bookmark.id)
                 }.show()
+        }
+    }
+
+    internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
+        val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
+        val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toLongArray()
+        val intent = Intent(mainBibleActivity, BookmarkLabelSelector::class.java)
+        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
+        intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels_new_bookmark))
+        val result = mainBibleActivity.awaitIntent(intent)
+        val resultLabels = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)?.toList()
+        if(resultLabels != null) {
+            bookmarkControl.setLabelsByIdForBookmark(bookmark, resultLabels.toList())
         }
     }
 

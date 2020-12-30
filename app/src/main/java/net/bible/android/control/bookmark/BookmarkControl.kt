@@ -214,6 +214,10 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmark.id)
     }
 
+    fun labelsForBookmarkId(bookmarkId: Long): List<Label> {
+        return dao.labelsForBookmark(bookmarkId)
+    }
+
     fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
         dao.deleteLabels(bookmark)
         dao.insert(labelIdList.map { BookmarkToLabel(bookmark.id, it) })
