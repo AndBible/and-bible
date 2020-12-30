@@ -96,7 +96,7 @@ open class MyNoteDAO @Inject constructor() {
     }
 
     /**
-     * create a new myNote
+     *update a myNote
      */
     fun updateMyNote(myNote: MyNoteDto?): MyNoteDto? {
         val db = MyNoteDBAdapter()

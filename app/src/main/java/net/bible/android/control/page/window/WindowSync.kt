@@ -124,7 +124,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
      * shown so if it is shown then it is correct
      */
     private fun updateInactiveBibleKey(inactiveWindow: Window, activeWindowKey: Key?) {
-        inactiveWindow.pageManager.currentBible.doSetKey(activeWindowKey)
+        val displayedBook = inactiveWindow.displayedBook
+        val page = if (displayedBook != null) {
+            inactiveWindow.pageManager.getBookPage(displayedBook)
+        } else {
+            inactiveWindow.pageManager.currentBible
+        }
+        page.doSetKey(activeWindowKey)
     }
 
     /** refresh/synch inactive screen if required
@@ -157,7 +163,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                     //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                     // Do not update! Updating would reset page position.
-                } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
+                } else if ( isSynchronizedCommentary && targetKey != inactiveWindowKey ) {
                     // synchronized commentary
                     inactiveWindow.updateText()
                 }

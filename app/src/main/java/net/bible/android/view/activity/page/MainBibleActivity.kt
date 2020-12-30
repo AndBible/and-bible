@@ -357,7 +357,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                 var pinningText = getString(R.string.help_window_pinning_text)
 
                 pinningText += "<br><i><a href=\"https://youtu.be/27b1g-D3ibA\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
-                
+
                 val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(pinningText, Html.FROM_HTML_MODE_LEGACY)
                 } else {
@@ -799,7 +799,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
             View.VISIBLE
         } else View.GONE
-
 
         fun addSearch() {
             searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch && !isMyNotes)
@@ -1468,4 +1467,3 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         private const val TAG = "MainBibleActivity"
     }
 }
-

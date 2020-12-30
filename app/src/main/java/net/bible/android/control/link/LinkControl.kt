@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
@@ -298,13 +299,9 @@ class LinkControl @Inject constructor(
     }
 
     private fun showMyNote(osisRef: String) {
-        val activity: MainBibleActivity = CurrentActivityHolder.getInstance().currentActivity as MainBibleActivity
         val osisParser = OsisParser()
         val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
-        activity.fullScreen = false
-        currentPageManager.showMyNote(verseRange)
-        activity.invalidateOptionsMenu()
-        activity.documentViewManager.buildView()
+        showLink(currentPageManager.currentMyNotePage.currentDocument, verseRange)
     }
 
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {

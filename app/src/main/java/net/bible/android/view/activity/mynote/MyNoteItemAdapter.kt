@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.list_item_2_highlighted.view.*
 import net.bible.android.control.mynote.MyNoteControl
-import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.util.widget.TwoLineListItem
 import net.bible.service.db.mynote.MyNoteDto
 
@@ -35,7 +34,13 @@ import net.bible.service.db.mynote.MyNoteDto
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteItemAdapter(_context: Context?, private val resource: Int, _items: List<MyNoteDto?>?, private val actionModeActivity: ActionModeActivity, private val myNoteControl: MyNoteControl) : ArrayAdapter<MyNoteDto?>(_context!!, resource, _items!!) {
+class MyNoteItemAdapter(
+    _context: Context,
+    private val resource: Int,
+    _items: List<MyNoteDto?>?,
+    private val myNoteControl: MyNoteControl
+) : ArrayAdapter<MyNoteDto?>(_context, resource, _items!!)
+{
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)
 
