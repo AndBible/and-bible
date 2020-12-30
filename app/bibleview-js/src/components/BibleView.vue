@@ -19,16 +19,7 @@
   <div :style="`--toolbar-offset: ${config.toolbarOffset}px`">
     <div :style="`height:${config.toolbarOffset}px`"/>
     <div id="notes"/>
-    <div v-if="logEntries.length > 0" @click="showLog=true" class="logbox-button">
-      {{logEntries.length}}
-    </div>
-    <div v-if="showLog" @click="showLog=false" class="logbox">
-      <div style="overflow: scroll; width: 100%; height: 100%;">
-        <ul>
-          <li v-for="({type, msg}, index) in logEntries" :class="`error-${type}`" :key="index">{{type}} {{msg}}</li>
-        </ul>
-      </div>
-    </div>
+    <ErrorBox :log-entries="logEntries"/>
     <div v-if="config.developmentMode"
          :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
                height:${config.toolbarOffset}px`"
@@ -63,10 +54,11 @@
   import {useScroll} from "@/composables/scroll";
   import {useAndroid} from "@/composables/android";
   import {setupWindowEventListener} from "@/utils";
+  import ErrorBox from "@/components/ErrorBox";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment},
+    components: {OsisFragment, ErrorBox},
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
@@ -99,7 +91,7 @@
 
       setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
       setupWindowEventListener("error", (e) => {
-        console.error("Error caught", e.message);
+        console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
 
       if(process.env.NODE_ENV === "development") {
@@ -131,12 +123,11 @@
         emit(Events.ADD_OR_UPDATE_BOOKMARKS, {bookmarks: [bookmark], labels: []})
         emit(Events.REMOVE_RANGES)
       }
-      const showLog = ref(false);
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks,
         config, strings, osisFragments, topElement, currentVerse, testMakeBookmark,
-        logEntries, showLog
+        logEntries
       };
     },
     computed: {
@@ -181,45 +172,6 @@
 
 #bottom {
   padding-bottom: 100vh;
-}
-
-.logbox {
-  font-size: 8pt;
-  color: white;
-  position: fixed;
-  width: 100%;
-  top: var(--toolbar-offset);
-  height: calc(100vh - var(--toolbar-offset));
-  bottom: 0;
-  background-color: rgba(200, 0, 0, 0.9);
-}
-
-.logbox-button {
-  border-radius: 5pt;
-  top: var(--toolbar-offset);
-  position: fixed;
-  padding: 0.5em;
-  color: white;
-  right:50%;
-  width:1em;
-  height: 1em;
-  background-color: rgba(200, 0, 0, 0.5);
-  animation-name: animatetop;
-  animation-duration: 0.4s
-}
-
-@keyframes animatetop {
-  from {top:-300px; opacity:0}
-  to {top:var(--toolbar-offset); opacity:1}
-}
-
-.error-ERROR {
-  color: black;
-
-}
-
-.error-WARN {
-  color: darkgrey;
 }
 
 </style>
