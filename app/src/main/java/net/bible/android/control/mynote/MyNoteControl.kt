@@ -45,7 +45,10 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 @ApplicationScope
-class MyNoteControl @Inject constructor(val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider, private val myNoteDAO: MyNoteDAO) {
+class MyNoteControl @Inject constructor(
+    val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+    private val myNoteDAO: MyNoteDAO)
+{
     /**
      * Start chain of actions to switch to MyNote view
      * @param verseRange

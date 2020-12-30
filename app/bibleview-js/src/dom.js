@@ -27,14 +27,14 @@ export function findElemWithOsisID(elem) {
     }
 }
 
-export function findNodeAtOffset(elem, startOffset) {
+function findNodeAtOffsetRecursive(elem, startOffset) {
     let offset = startOffset;
     do {
         for (const c of elem.childNodes) {
             if (c.nodeType === Node.ELEMENT_NODE && hasOsisContent(c)) { // element
                 const textLength = contentLength(c);
                 if (textLength >= offset) {
-                    return findNodeAtOffset(c, offset);
+                    return findNodeAtOffsetRecursive(c, offset);
                 } else {
                     offset -= textLength;
                 }
@@ -48,6 +48,10 @@ export function findNodeAtOffset(elem, startOffset) {
         }
         elem = elem.nextSibling
     } while(elem)
+}
+
+export function findNodeAtOffset(elem, startOffset) {
+    return findNodeAtOffsetRecursive(elem, startOffset)
 }
 
 export function contentLength(elem) {
@@ -65,6 +69,7 @@ export function contentLength(elem) {
 function hasOsisContent(element) {
     // something with content that should be counted in offset
     if(element === null) return false;
+    if(element.nodeType !== Node.ELEMENT_NODE) element = element.parentElement;
     return !element.closest(".skip-offset")
 }
 
@@ -77,12 +82,12 @@ function hasParent(e, p) {
     return false;
 }
 
-// TODO: This can be implemented nicely with Document.createTreeWalker()
 export function* walkBackText(e, onlyOsis = false) {
     let next = e
+    const osisCheck = e => !onlyOsis || (onlyOsis && hasOsisContent(e))
     do {
-        if([3,8].includes(next.nodeType)) {
-            if(next.nodeType === Node.TEXT_NODE && (!onlyOsis || (onlyOsis && hasOsisContent(next.parentNode))) ) {
+        if([Node.TEXT_NODE, Node.COMMENT_NODE].includes(next.nodeType)) {
+            if(next.nodeType === Node.TEXT_NODE && osisCheck(next)) {
                 yield next;
             }
             let next2 = next.previousSibling;
@@ -101,15 +106,24 @@ export function* walkBackText(e, onlyOsis = false) {
                 next = next2
             }
         } else if(next.nodeType === Node.ELEMENT_NODE) {
-            const next2 = next.lastChild;
-            if(next2) {
+            let next2 = next.lastChild;
+            if(next2 && osisCheck(next2)) {
                 next = next2
             } else {
-                next = next.previousSibling
+                let next3;
+                next2 = next;
+                do {
+                    next3 = next2.previousSibling;
+                    next2 = next2.parentElement;
+                } while(!next3);
+                next = next3;
             }
+        } else if(next.nodeType === Node.DOCUMENT_TYPE_NODE) {
+            next = null;
         } else {
             throw Error(`Unsupported ${next.nodeType}`);
         }
+        console.log("now", next);
     } while(next);
 }
 
@@ -215,7 +229,7 @@ export function findParentsBeforeVerseSibling(node) {
 // TODO: remove start parameter if not used...
 export function calculateOffsetToVerse(node, offset, start = true) {
     let parent;
-    if([3,8].includes(node.nodeType)) {
+    if([Node.TEXT_NODE, Node.COMMENT_NODE].includes(node.nodeType)) {
         parent = node.parentNode.closest(".verse");
     } else if(node.nodeType === Node.ELEMENT_NODE){
         parent = node.closest(".verse");

@@ -60,6 +60,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -130,6 +131,24 @@ class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
         } else "undefined"
     }
 }
+
+@Serializable
+data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?,
+                          val labels: List<Long>, val book: String?, val notes: String?) {
+    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>) :
+        this(bookmark.id,
+            listOf(bookmark.ordinalStart, bookmark.ordinalEnd),
+            bookmark.textRange?.clientList,
+            labels.toMutableList().also { if(it.isEmpty()) it.add(LABEL_UNLABELED_ID) }, bookmark.book?.initials, bookmark.notes
+        )
+}
+
+@Serializable
+data class ClientBookmarkStyle(val color: List<Int>)
+
+@Serializable
+data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
+
 
 /** The WebView component that shows the main bible and commentary text */
 @SuppressLint("ViewConstructor")
@@ -279,7 +298,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
 
         if(menuPrepared) {
-            if (currentSelection?.bookmarks?.isEmpty() == true) {
+            if(currentSelection == null) {
+                val item = menu.findItem(R.id.add_bookmark)
+                item.isVisible = false
+            }
+            if ((currentSelection?.bookmarks ?: emptyList()).isEmpty()) {
                 val item = menu.findItem(R.id.remove_bookmark)
                 item.isVisible = false
             }
@@ -906,25 +929,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
-        val b = event.bookmark
-        val initials = b.book?.initials
-        val bookStr = if(initials === null) null else "\"$initials\""
-        var labelsStr = "[${bookmarkControl.LABEL_UNLABELLED.id}]"
-        if(!event.labels.isNullOrEmpty()) {
-            labelsStr = json.encodeToString(serializer(), event.labels)
-        }
-
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmarks", 
-                {bookmarks: [{
-                    id: ${b.id},
-                    ordinalRange: [${b.verseRange.start.ordinal}, ${b.verseRange.end.ordinal}],
-                    offsetRange: [${b.startOffset}, ${b.endOffset}],
-                    book: $bookStr,
-                    labels: $labelsStr,
-                }], 
-                labels: []});
-            """.trimIndent())
+        val clientBookmark = ClientBookmark(event.bookmark, event.labels)
+        val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
+        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  {bookmarks: [$bookmarkStr], labels: []});""")
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
@@ -1120,27 +1127,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return result.await()
     }
 
-    @Serializable
-    data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?, val labels: List<Long>, val book: String?)
-
-    @Serializable
-    data class ClientBookmarkStyle(val color: List<Int>)
-
-    @Serializable
-    data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
-
     private fun getOsisObjStr(frags: List<OsisFragment>): String {
         val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
             ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) } ?: defaultStyle)
         })
-        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map {
+        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map { it ->
             val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
-            if(labels.isEmpty())
-                labels.add(bookmarkControl.LABEL_UNLABELLED)
-            ClientBookmark(it.id, arrayListOf(it.ordinalStart, it.ordinalEnd), it.textRange?.clientList, labels.map { it.id }, it.book?.initials )
+            ClientBookmark(it, labels.map { it2 -> it2.id })
         })
-        val xmlList = frags.joinToString(",") { """{xml: `${it.xml.replace("`", "\\`")}`, key:'${it.keyStr}', features:${it.features}, ordinalRange: ${it.ordinalRangeJson}}""" }
+        val xmlList = frags.joinToString(",")  { """
+            |{
+            |   xml: `${it.xml.replace("`", "\\`")}`, 
+            |   key:'${it.keyStr}', 
+            |   features:${it.features}, 
+            |   ordinalRange: ${it.ordinalRangeJson}
+            |}""".trimMargin()
+        }
         return """{
             contents: [$xmlList],
             bookmarks: $bookmarks,

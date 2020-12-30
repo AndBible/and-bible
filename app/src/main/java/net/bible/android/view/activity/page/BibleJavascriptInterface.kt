@@ -21,11 +21,6 @@ package net.bible.android.view.activity.page
 import android.util.Log
 import android.webkit.JavascriptInterface
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.database.bookmarks.BookmarkEntities
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
 
 /**
  * Interface allowing javascript to call java methods in app
@@ -62,6 +57,11 @@ class BibleJavascriptInterface(
     fun requestMoreTextAtEnd(callId: Long) {
         Log.d(TAG, "Request more text at end")
         bibleView.requestMoreTextAtEnd(callId)
+    }
+
+    @JavascriptInterface
+    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
+        bibleView.bookmarkControl.saveBookmarkNote(bookmarkId, note)
     }
 
     @JavascriptInterface

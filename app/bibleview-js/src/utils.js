@@ -223,3 +223,6 @@ export async function sleep(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function toRgba(s, alpha="100%") {
+    return `rgba(${s[0]}, ${s[1]}, ${s[2]}, ${alpha})`
+}

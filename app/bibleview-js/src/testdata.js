@@ -47,6 +47,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [10, 50],
             labels: [1],
             book: "KJV",
+            notes: null,
         },
         {
             id: 4,
@@ -54,6 +55,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [10, 50],
             labels: [1],
             book: "KJV",
+            notes: null,
         },
         {
             id: 0,
@@ -61,6 +63,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: null,
             labels: [1, 2],
             book: "KJV",
+            notes: null,
         },
         {
             id: 1,
@@ -68,6 +71,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [3],
             ordinalAndOffsetRange: null,
             book: null,
+            notes: null,
         },
         {
             id: 2,
@@ -75,6 +79,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [3],
             ordinalAndOffsetRange: null,
             book: null,
+            notes: null,
         },
         {
             id: 3,
@@ -82,6 +87,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [10, 50],
             labels: [1, 2],
             book: "KJV",
+            notes: "Testinote",
         },
     ];
     testBookmarkLabels = [

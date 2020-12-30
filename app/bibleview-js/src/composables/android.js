@@ -35,6 +35,10 @@ export function patchAndroidConsole() {
             const printableArgs = args.map(v => isFunction(v) ? v : v ? JSON.stringify(v).slice(0, 500): v);
             return `${s} ${printableArgs}`
         },
+        flog(s, ...args) {
+            if(enableAndroidLogging) android.console('flog', this._msg(s, args))
+            origConsole.log(this._msg(s, args))
+        },
         log(s, ...args) {
             if(enableAndroidLogging) android.console('log', this._msg(s, args))
             origConsole.log(s, ...args)
@@ -69,14 +73,12 @@ export function useAndroid({allStyleRanges}) {
 
     function querySelection() {
         const selection = window.getSelection();
-        if(selection.rangeCount < 1 || selection.collapsed) return null;
+        if (selection.rangeCount < 1 || selection.collapsed) return null;
         const range = selection.getRangeAt(0);
-
         const {ordinal: startOrdinal, offset: startOffset} =
             calculateOffsetToVerse(range.startContainer, range.startOffset, true);
         const {ordinal: endOrdinal, offset: endOffset} =
             calculateOffsetToVerse(range.endContainer, range.endOffset);
-
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
         const bookmarks = union(
@@ -85,7 +87,7 @@ export function useAndroid({allStyleRanges}) {
                     [[startOrdinal, startOffset], [endOrdinal, endOffset]], {inclusive: true}))
                 .map(s => s.bookmarks)
         );
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks}
+        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks};
     }
 
     window.bibleView.response = response;
@@ -115,11 +117,23 @@ export function useAndroid({allStyleRanges}) {
         android.scrolledToVerse(ordinal)
     }
 
+    function saveBookmarkNote(bookmarkId, noteText) {
+        android.saveBookmarkNote(bookmarkId, noteText);
+    }
+
     function setClientReady() {
         android.setClientReady();
     }
 
-    const exposed = {logEntries, requestMoreTextAtTop, requestMoreTextAtEnd, scrolledToVerse, setClientReady, querySelection}
+    const exposed = {
+        saveBookmarkNote,
+        logEntries,
+        requestMoreTextAtTop,
+        requestMoreTextAtEnd,
+        scrolledToVerse,
+        setClientReady,
+        querySelection
+    }
 
     let lblCount = 0;
     if(process.env.NODE_ENV === 'development') return {
