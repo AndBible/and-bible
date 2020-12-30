@@ -54,21 +54,25 @@ import javax.inject.Inject
 abstract class BookmarkEvent
 
 // TODO: implement listeners and add arguments
-class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>? = null): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarks: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+const val LABEL_ALL_ID = -999L
+const val LABEL_UNLABELED_ID = -998L
+
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
     resourceProvider: ResourceProvider
 ) {
     // TODO: proper styles!!!
-    val LABEL_ALL = Label(-999L, resourceProvider.getString(R.string.all)?: "all", BookmarkStyle.GREEN_HIGHLIGHT)
-    val LABEL_UNLABELLED = Label(-998L, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", BookmarkStyle.BLUE_HIGHLIGHT)
+    val LABEL_ALL = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", BookmarkStyle.GREEN_HIGHLIGHT)
+    val LABEL_UNLABELLED = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", BookmarkStyle.BLUE_HIGHLIGHT)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -110,7 +114,7 @@ open class BookmarkControl @Inject constructor(
         Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
             .setActionTextColor(actionTextColor)
             .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, emptyList()))
     }
 
     fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
@@ -145,13 +149,14 @@ open class BookmarkControl @Inject constructor(
         }
 
         if(labels != null) {
-            for(l in labels.filter { it > 0 }) {
-                dao.insert(BookmarkToLabel(bookmark.id, l))
-            }
+            dao.deleteLabels(bookmark.id)
+            dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
         }
 
         if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labels)) // TODO: make sure this talks with bibleview.js properly
+            ABEventBus.getDefault().post(
+                BookmarkAddedOrUpdatedEvent(bookmark, labels ?: dao.labelsForBookmark(bookmark.id).map { it.id })
+            )
         }
         return bookmark
     }
@@ -319,6 +324,14 @@ open class BookmarkControl @Inject constructor(
     fun changeLabelsForBookmark(bookmark: Bookmark, labelIds: List<Long>) {
         dao.clearLabels(bookmark)
         dao.insert(labelIds.map { BookmarkToLabel(bookmark.id, it)})
+    }
+
+    fun saveBookmarkNote(bookmarkId: Long, note: String?) {
+        dao.saveBookmarkNote(bookmarkId, note)
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(
+            dao.bookmarkById(bookmarkId),
+            dao.labelsForBookmark(bookmarkId).map { it.id })
+        )
     }
 
     companion object {

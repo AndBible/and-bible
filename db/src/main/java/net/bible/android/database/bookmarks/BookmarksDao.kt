@@ -119,6 +119,9 @@ interface BookmarkDao {
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
         = bookmarksWithLabel(label.id, orderBy.sqlString)
 
+    @Query("UPDATE Bookmark SET notes=:notes WHERE id=:bookmarkId")
+    fun saveBookmarkNote(bookmarkId: Long, notes: String?)
+
     // Labels
 
     @Query("SELECT * from Label ORDER BY name")

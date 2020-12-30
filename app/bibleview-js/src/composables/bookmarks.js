@@ -17,11 +17,16 @@
 
 import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
-import {intersection, rangesOverlap} from "@/utils";
-import highlightRange from "dom-highlight-range";
+import {arrayEq, intersection, rangesOverlap, toRgba} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, textLength} from "@/dom";
-import {Events, setupEventBusListener} from "@/eventbus";
+import {Events, setupEventBusListener, emit} from "@/eventbus";
+import {highlightRange} from "@/highlight-range";
+import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
+import {icon} from "@fortawesome/fontawesome-svg-core";
+
+const editIcon = icon(faEdit);
+const bookmarkIcon = icon(faBookmark);
 
 const allStyleRangeArrays = reactive(new Set());
 const allStyleRanges = computed(() => {
@@ -31,6 +36,7 @@ const allStyleRanges = computed(() => {
     }
     return allStyles;
 });
+const combinedRangeCache = new Map();
 
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
@@ -75,10 +81,16 @@ export function useGlobalBookmarks(config) {
         return allBookmarks.filter(v => intersection(new Set(v.labels), configLabels).size > 0)
     })
 
-    return {bookmarkLabels, bookmarks: filteredBookmarks, labelsUpdated, updateBookmarkLabels, updateBookmarks, allStyleRanges}
+    window.bibleViewDebug.bookmarks = bookmarks;
+    window.bibleViewDebug.allStyleRanges = allStyleRanges;
+
+    return {
+        bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
+        updateBookmarkLabels, updateBookmarks, allStyleRanges
+    }
 }
 
-export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
+export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
@@ -115,17 +127,22 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         }
         return b;
     }
-
     function combinedRange(b) {
-        b = truncateToOrdinalRange(b);
-        let offsetRange = b.offsetRange;
-        if(showBookmarkForWholeVerse(b)) {
-            const startOffset = 0;
-            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
-            const endOffset = textLength(verseElement);
-            offsetRange = [startOffset, endOffset];
+        let cached = combinedRangeCache.get(b.id);
+        if(!cached) {
+            b = truncateToOrdinalRange(b);
+            let offsetRange = b.offsetRange;
+            if (showBookmarkForWholeVerse(b)) {
+                const startOffset = 0;
+                const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
+                const endOffset = textLength(verseElement);
+                offsetRange = [startOffset, endOffset];
+            }
+
+            cached = [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
+            combinedRangeCache.set(b.id, cached);
         }
-        return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]] ]
+        return cached;
     }
 
     const styleRanges = computed(() => {
@@ -182,7 +199,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
     function styleForLabels(bookmarkLabels) {
         let colors = [];
         for(const s of bookmarkLabels) {
-            const c = `rgba(${s.color[0]}, ${s.color[1]}, ${s.color[2]}, 40%)`
+            const c = toRgba(s.color, "40%");
             colors.push(c);
         }
         if(colors.length === 1) {
@@ -216,11 +233,32 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkLabe
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);
         const style = styleForLabelIds(styleRange.labels)
-        const undo = highlightRange(range, 'span', { style });
+        const {undo, highlightElements} = highlightRange(range, 'span', { style });
         undoHighlights.push(undo);
+
+        const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
+
+        for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
+            const icon = document.createElement("i")
+            const faIcon = b.note? editIcon : bookmarkIcon;
+            icon.appendChild(faIcon.node[0])
+            const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
+            const rgba = toRgba(bookmarkLabel.color);
+            icon.style = `color: ${rgba};`;
+            icon.classList.add("icon");
+            icon.classList.add("skip-offset");
+            icon.addEventListener("click", () => {
+                emit(Events.NOTE_CLICKED, b);
+            })
+            const element = highlightElements[highlightElements.length - 1];
+            element.parentElement.insertBefore(icon, element.nextSibling);
+            undoHighlights.push(() => icon.remove());
+        }
+
     }
 
     watch(styleRanges, (newValue) => {
+        undoHighlights.reverse();
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
         for (const s of newValue) {

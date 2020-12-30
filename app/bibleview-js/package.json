@@ -13,8 +13,9 @@
     "build-development": "cross-env NODE_ENV=development vue-cli-service build --target app --inline-vue"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "core-js": "~3.6.5",
-    "dom-highlight-range": "~3.0.1",
     "lodash": "~4.17.20",
     "mitt": "^2.1.0",
     "sprintf-js": "~1.1.2",

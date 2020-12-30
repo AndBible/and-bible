@@ -31,6 +31,7 @@ import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
+import androidx.room.ColumnInfo
 import kotlinx.serialization.Serializable
 import java.util.*
 
@@ -111,6 +112,8 @@ class BookmarkEntities {
 
         var startOffset: Int?,
         var endOffset: Int?,
+
+        var notes: String? = null
 
     ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(

@@ -19,6 +19,7 @@
   <div :style="`--toolbar-offset: ${config.toolbarOffset}px`">
     <div :style="`height:${config.toolbarOffset}px`"/>
     <div id="notes"/>
+    <NotesModal/>
     <ErrorBox :log-entries="logEntries"/>
     <div v-if="config.developmentMode"
          :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
@@ -55,10 +56,11 @@
   import {useAndroid} from "@/composables/android";
   import {setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
+  import NotesModal from "@/components/NotesModal";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox},
+    components: {OsisFragment, ErrorBox, NotesModal},
     setup() {
       const {config} = useConfig();
       const strings = useStrings();
@@ -118,6 +120,7 @@
           ordinalRange: [selection.startOrdinal, selection.endOrdinal],
           offsetRange: [selection.startOffset, selection.endOffset],
           book: selection.bookInitials,
+          note: "Test!",
           labels: [-(lblCount++ % 5) - 1]
         }
         emit(Events.ADD_OR_UPDATE_BOOKMARKS, {bookmarks: [bookmark], labels: []})
@@ -152,7 +155,24 @@
     },
   }
 </script>
-<style>
+<style lang="scss">
+
+.icon {
+  width: 0.7em;
+  height: 0.7em;
+  font-size: 80%;
+  padding: 1pt;
+  vertical-align: super;
+}
+
+.my-note-icon {
+  @extend .icon;
+  background-image: url("../assets/logo.png");
+}
+.bookmark-icon {
+  @extend .icon;
+  background-image: url("../assets/logo.png");
+}
 
 .highlightButton {
   position: fixed;

@@ -636,7 +636,7 @@ private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
     }
 }
 
-private val WORKSPACE_BOOKMARK_35_56 = object : Migration(35, 36) {
+private val WORKSPACE_BOOKMARK_35_36 = object : Migration(35, 36) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL")
@@ -644,6 +644,12 @@ private val WORKSPACE_BOOKMARK_35_56 = object : Migration(35, 36) {
         db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL")
         db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL")
+    }
+}
+
+private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `notes` TEXT")
     }
 }
 
@@ -695,7 +701,8 @@ object DatabaseContainer {
                         MIGRATION_32_33,
                         MIGRATION_33_34_Bookmarks,
                         BOOKMARKS_BOOK_34_35,
-                        WORKSPACE_BOOKMARK_35_56,
+                        WORKSPACE_BOOKMARK_35_36,
+                        BOOKMARKS_BOOK_36_37,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()
