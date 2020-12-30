@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <slot/>
+  <span class="poetic" :data-poetic-level="level" :data-sID="sID" :data-eID="eID"/><slot/>
 </template>
 
 <script>
@@ -27,7 +27,8 @@ export default {
   props: {
     sID: {type: String, default: null},
     eID: {type: String, default: null},
-    level: {type: String, default: null},
+    level: {type: String, default: "1"},
+    type: {type: String, default: null},
   },
   setup() {
     return useCommon();
@@ -36,5 +37,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

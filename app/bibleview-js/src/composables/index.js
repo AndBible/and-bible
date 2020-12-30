@@ -167,3 +167,11 @@ export function useCommon() {
 
     return {config, strings, sprintf, split}
 }
+
+export function usePoetic(fragmentReady, fragElement) {
+    /* TODO: implement.
+        Need to find elements within fragElement with poetic class in them.
+        Then make ranges of matching sID & eID.
+        Then use dom-highlight-range to alter text-indent.
+     */
+}

@@ -15,13 +15,15 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <transition-group name="fade">
-    <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
-      <OsisSegment :osis-template="template" />
+  <div ref="fragElement">
+    <transition-group name="fade">
+      <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
+        <OsisSegment :osis-template="template" />
+      </div>
+    </transition-group>
+    <div class="features-link" v-if="featuresLink">
+      <a :href="featuresLink">{{strings.findAllOccurrences}}</a>
     </div>
-  </transition-group>
-  <div class="features-link" v-if="featuresLink">
-    <a :href="featuresLink">{{strings.findAllOccurrences}}</a>
   </div>
 </template>
 
@@ -31,7 +33,7 @@ import {useBookmarks} from "@/composables/bookmarks";
 import {reactive, ref} from "@vue/reactivity";
 import OsisSegment from "@/components/OsisSegment";
 import {AutoSleep} from "@/utils";
-import {useStrings} from "@/composables";
+import {usePoetic, useStrings} from "@/composables";
 
 export default {
   name: "OsisFragment",
@@ -50,6 +52,7 @@ export default {
       features: {type: featureType = null, keyName: featureKeyName = null} = {}} = props.data;
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
+    const fragElement = ref(null);
 
     // TODO: check if these are used
     const [book, osisID] = fragmentKey.split("--");
@@ -63,6 +66,7 @@ export default {
       const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
       useBookmarks(fragmentKey, realOrdinalRange, globalBookmarks, book, fragmentReady, config);
     }
+    usePoetic(fragElement, fragmentReady);
     provide("fragmentInfo", {fragmentKey, book, osisID});
 
     const template = xml
@@ -92,7 +96,7 @@ export default {
       templates.push({template, key: `${fragmentKey}-0`})
     }
     const featuresLink = featureType ?`ab-find-all://?type=${featureType}&name=${featureKeyName}`: null;
-    return {templates, featuresLink, strings}
+    return {templates, featuresLink, strings, fragElement}
   }
 }
 </script>

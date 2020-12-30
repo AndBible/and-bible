@@ -25,9 +25,7 @@ import {useCommon} from "@/composables";
 export default {
   name: "Lb",
   props: {
-    sID: {type: String, default: null},
-    eID: {type: String, default: null},
-    level: {type: String, default: null},
+    type: {type: String, default: null},
   },
   setup() {
     return useCommon();
