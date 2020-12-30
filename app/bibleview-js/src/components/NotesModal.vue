@@ -20,12 +20,10 @@
     <template v-if="editMode">
       <i class="fa fa-edit"/>
       <i class="fa fa-edit"/>
-        <textarea :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
+        <textarea :rows="bookmarkNoteRows" :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
     </template>
     <template v-else>
-      <p>
-        {{ bookmarkNote }}
-      </p>
+      <p v-html="formatNote(bookmarkNote)"/>
     </template>
     <div class="info" v-if="bookmark.book">
       {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
@@ -48,7 +46,7 @@
 <script>
 import Modal from "@/components/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -67,7 +65,7 @@ export default {
     setupEventBusListener(Events.NOTE_CLICKED, (b) => {
       showNote.value = true;
       bookmark.value = b;
-      bookmarkNote.value = b.notes;
+      bookmarkNote.value = b.notes || "";
       editMode.value = !b.notes;
     })
 
@@ -94,10 +92,19 @@ export default {
       editMode.value = !editMode.value;
       e.stopPropagation();
     }
+
+    const bookmarkNoteRows = computed(() => {
+      return Array.from(bookmarkNote.value.matchAll(/\n/g)).length + 2
+    });
+
+    function formatNote(note) {
+      return note.replaceAll("\n", "<br>")
+    }
+
     return {
       showNote, bookmarkNote, editMode, closeNote, areYouSure,
-      toggleEditMode, removeBookmark,  assignLabels,  bookmark,
-      ...useCommon()
+      toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
+      formatNote, ...useCommon()
       };
   },
 }
