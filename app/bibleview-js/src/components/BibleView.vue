@@ -46,7 +46,7 @@
 <script>
   import OsisFragment from "@/components/OsisFragment";
   import {provide, reactive, watch} from "@vue/runtime-core";
-  import {useConfig, useStrings, useVerseNotifier} from "@/composables";
+  import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
   import {testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -62,6 +62,8 @@
     name: "BibleView",
     components: {OsisFragment, ErrorBox, NotesModal},
     setup() {
+      useFontAwesome();
+
       const {config} = useConfig();
       const strings = useStrings();
       const osisFragments = reactive([]);
@@ -194,4 +196,14 @@
   padding-bottom: 100vh;
 }
 
+.button {
+  background-color: #717171;
+  border: none;
+  color: white;
+  padding: 2pt 2pt;
+  margin: 2pt 2pt;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
 </style>

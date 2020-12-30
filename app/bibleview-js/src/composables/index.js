@@ -21,6 +21,8 @@ import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
 
 let developmentMode = false;
 
@@ -150,6 +152,12 @@ export function useStrings() {
         bookmarkNote: "Note on bookmark",
         editNote: "Edit",
         editNotePlaceholder: "Edit a note for bookmark",
+        removeBookmark: "Remove bookmark",
+        assignLabels: "Assign labels",
+        bookmarkAccurate: "Bookmark was create in %s",
+        ok: "Ok",
+        cancel: "Cancel",
+        removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
     }
 }
 
@@ -177,4 +185,8 @@ export function usePoetic(fragmentReady, fragElement) {
         Then make ranges of matching sID & eID.
         Then use dom-highlight-range to alter text-indent.
      */
+}
+
+export function useFontAwesome() {
+    library.add(faEdit)
 }
