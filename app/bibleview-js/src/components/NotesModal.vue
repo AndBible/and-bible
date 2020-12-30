@@ -27,7 +27,7 @@
         {{ bookmarkNote }}
       </p>
     </template>
-    <div class="info">
+    <div class="info" v-if="bookmark.book">
       {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
     </div>
     <template #title>
@@ -37,6 +37,7 @@
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
       <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
+      <button class="button" @click="closeNote">{{strings.closeNote}}</button>
     </template>
   </Modal>
   <AreYouSure ref="areYouSure">
@@ -60,7 +61,7 @@ export default {
     const editMode = ref(false);
     const bookmarkNote = ref("");
     const android = inject("android");
-    const bookmark = ref({});
+    const bookmark = ref(null);
     const areYouSure = ref(null);
 
     setupEventBusListener(Events.NOTE_CLICKED, (b) => {
@@ -75,17 +76,17 @@ export default {
       if(bookmarkNote.value === "") {
         bookmarkNote.value = null;
       }
-      android.saveBookmarkNote(bookmark.id, bookmarkNote.value);
+      android.saveBookmarkNote(bookmark.value.id, bookmarkNote.value);
     }
 
     function assignLabels() {
-      android.assignLabels(bookmark.id);
+      android.assignLabels(bookmark.value.id);
     }
 
     async function removeBookmark() {
       if(await areYouSure.value.areYouSure()) {
         showNote.value = false;
-        android.removeBookmark(bookmark.id);
+        android.removeBookmark(bookmark.value.id);
       }
     }
 
@@ -93,9 +94,11 @@ export default {
       editMode.value = !editMode.value;
       e.stopPropagation();
     }
-    return {showNote, bookmarkNote, editMode, closeNote, areYouSure,
-      toggleEditMode, removeBookmark, assignLabels, bookmark, ...useCommon()
-    };
+    return {
+      showNote, bookmarkNote, editMode, closeNote, areYouSure,
+      toggleEditMode, removeBookmark,  assignLabels,  bookmark,
+      ...useCommon()
+      };
   },
 }
 </script>
