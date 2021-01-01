@@ -61,6 +61,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
+import net.bible.android.view.activity.page.BibleViewInputFocusChanged
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -440,6 +441,31 @@ class SplitBibleArea(
                     restoreButtonsContainer.smoothScrollTo(restoreButton.x.roundToInt(), 0)
                 }
             }
+        }
+    }
+
+    private fun ensureBibleViewVisible(view: BibleView) {
+        // TOOD: Placeholder to do something to make bibleview that has gone under soft keyboard visible when
+        // editing notes
+        /*
+        GlobalScope.launch(Dispatchers.Main) {
+            delay(200)
+            val rect = Rect().apply { view.getGlobalVisibleRect(this) }
+            val grect = Rect().apply{ mainBibleActivity.window.decorView.getGlobalVisibleRect(this)}
+            val rect2 = Rect().apply {mainBibleActivity.window.decorView.getDrawingRect(this)}
+            val rect3 = Rect().apply {mainBibleActivity.window.decorView.getHitRect(this)}
+            val rect4 = Rect().apply {mainBibleActivity.window.decorView.getGlobalVisibleRect(this)}
+            val rect5 = Rect().apply {mainBibleActivity.window.decorView.getLocalVisibleRect(this)}
+            Log.d(TAG, "Rect \n$rect \n$grect")
+        }
+         */
+    }
+
+    fun onEvent(event: BibleViewInputFocusChanged) {
+        if(event.newFocus) {
+            ensureBibleViewVisible(event.view)
+        } else {
+            // reset position
         }
     }
 

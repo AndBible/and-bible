@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 
 import android.util.Log
 import android.webkit.JavascriptInterface
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 
 /**
@@ -83,6 +84,12 @@ class BibleJavascriptInterface(
     fun selectionCleared() {
         Log.d(TAG, "Selection cleared!")
         bibleView.stopSelection()
+    }
+
+    @JavascriptInterface
+    fun reportInputFocus(newValue: Boolean) {
+        Log.d(TAG, "Focus mode now $newValue")
+        ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

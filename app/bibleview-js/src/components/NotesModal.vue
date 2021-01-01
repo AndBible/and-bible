@@ -20,7 +20,7 @@
     <template v-if="editMode">
       <i class="fa fa-edit"/>
       <i class="fa fa-edit"/>
-        <textarea :rows="bookmarkNoteRows" :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
+        <textarea @focusin="setFocus(true)" @focusout="setFocus(false)" :rows="bookmarkNoteRows" :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
     </template>
     <template v-else>
       <p>{{bookmarkNote}}</p>
@@ -98,8 +98,12 @@ export default {
       return Array.from(bookmarkNote.value.matchAll(/\n/g)).length + 2
     });
 
+    function setFocus(value) {
+      android.reportInputFocus(value);
+    }
+
     return {
-      showNote, bookmarkNote, editMode, closeNote, areYouSure,
+      setFocus, showNote, bookmarkNote, editMode, closeNote, areYouSure,
       toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
       ...useCommon()
       };

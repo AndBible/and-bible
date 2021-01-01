@@ -133,7 +133,13 @@ export function useAndroid({allStyleRanges}) {
         android.setClientReady();
     }
 
+    function reportInputFocus(value) {
+        android.reportInputFocus(value);
+    }
+
+
     const exposed = {
+        reportInputFocus,
         saveBookmarkNote,
         logEntries,
         requestMoreTextAtTop,
@@ -145,7 +151,6 @@ export function useAndroid({allStyleRanges}) {
         assignLabels
     }
 
-    let lblCount = 0;
     if(process.env.NODE_ENV === 'development') return {
         ...stubsFor(exposed),
         logEntries,

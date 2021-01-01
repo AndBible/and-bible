@@ -103,6 +103,8 @@ import org.crosswire.jsword.passage.VerseRange
 import java.lang.ref.WeakReference
 import kotlin.math.min
 
+class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
+
 class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
     val ordinalRangeJson: String get () {
         val key = key;
