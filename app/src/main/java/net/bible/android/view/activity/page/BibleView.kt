@@ -43,7 +43,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.iterator
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
@@ -302,6 +301,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
 
         if(menuPrepared) {
+            // For some reason, these do not seem to be correct from XML, even though specified there
+            menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             if(currentSelection == null) {
                 val item = menu.findItem(R.id.add_bookmark)
                 item.isVisible = false
@@ -357,23 +359,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val wasUpdated1 = onPrepareActionMenu(mode, menu)
             val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
-
-            // Hack: by changing groupId to 0, we can get our items in front.
-            val menuItems = ArrayList<MenuItem>()
-            for (m in menu) {
-                menuItems.add(m)
-            }
-            menu.clear()
-            for (m in menuItems) {
-                val newItem = menu.add(0, m.itemId, m.order, m.title)
-                newItem.isVisible = m.isVisible
-                newItem.isCheckable = m.isCheckable
-                newItem.isChecked= m.isChecked
-                newItem.isEnabled= m.isEnabled
-            }
-
+            val wasUpdated1 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
         }
 
