@@ -106,7 +106,11 @@ export default {
   font-weight: bold;
 }
 
-.modal-body {padding: 2px 16px;}
+.modal-body {
+  max-height: calc(100vh - var(--toolbar-offset) - 70pt);
+  overflow: auto;
+  padding: 2px 16px;
+}
 
 .modal-footer {
   padding: 2px 16px;

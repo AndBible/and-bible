@@ -18,19 +18,24 @@
 <template>
   <Modal v-if="showNote" @close="closeNote">
     <template v-if="editMode">
-      <i class="fa fa-edit"/>
-      <i class="fa fa-edit"/>
-        <textarea @focusin="setFocus(true)" @focusout="setFocus(false)" :rows="bookmarkNoteRows" :placeholder="strings.editNotePlaceholder" class="edit-area" v-model="bookmarkNote"/>
+      <textarea
+          @focusin="setFocus(true)"
+          @focusout="setFocus(false)"
+          :rows="bookmarkNoteRows"
+          :placeholder="strings.editNotePlaceholder"
+          class="edit-area"
+          v-model="bookmark.notes"
+      />
     </template>
     <template v-else>
-      <p>{{bookmarkNote}}</p>
+      <p>{{bookmark.notes}}</p>
     </template>
     <div class="info" v-if="bookmark.book">
       {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
     </div>
     <template #title>
       {{ strings.bookmarkNote }}
-      <FontAwesomeIcon v-if="bookmarkNote" @click="toggleEditMode" icon="edit"/>
+      <FontAwesomeIcon v-if="bookmark.notes" @click="toggleEditMode" icon="edit"/>
     </template>
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
@@ -57,7 +62,6 @@ export default {
   setup() {
     const showNote = ref(false);
     const editMode = ref(false);
-    const bookmarkNote = ref("");
     const android = inject("android");
     const bookmark = ref(null);
     const areYouSure = ref(null);
@@ -65,16 +69,12 @@ export default {
     setupEventBusListener(Events.NOTE_CLICKED, (b) => {
       showNote.value = true;
       bookmark.value = b;
-      bookmarkNote.value = b.notes || "";
       editMode.value = !b.notes;
     })
 
     function closeNote() {
       showNote.value = false;
-      if(bookmarkNote.value === "") {
-        bookmarkNote.value = null;
-      }
-      android.saveBookmarkNote(bookmark.value.id, bookmarkNote.value);
+      android.saveBookmarkNote(bookmark.value.id, bookmark.value.notes);
     }
 
     function assignLabels() {
@@ -94,8 +94,8 @@ export default {
     }
 
     const bookmarkNoteRows = computed(() => {
-      if(bookmarkNote.value === null) return 2;
-      return Array.from(bookmarkNote.value.matchAll(/\n/g)).length + 2
+      if(bookmark.value.notes === null) return 2;
+      return Array.from(bookmark.value.notes.matchAll(/\n/g)).length + 2
     });
 
     function setFocus(value) {
@@ -103,7 +103,7 @@ export default {
     }
 
     return {
-      setFocus, showNote, bookmarkNote, editMode, closeNote, areYouSure,
+      setFocus, showNote, editMode, closeNote, areYouSure,
       toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
       ...useCommon()
       };
