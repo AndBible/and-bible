@@ -21,7 +21,6 @@
 
 <script>
 import {useCommon} from "@/composables";
-import {ref} from "@vue/reactivity";
 
 /** The lg or "line group" element is used to contain any group of poetic lines.
  * Poetic lines are handled at the line level by And Bible, not line group
@@ -36,8 +35,7 @@ export default {
     level: {type: String, default: null},
   },
   setup() {
-    const poetic = ref(null);
-    return {poetic, ...useCommon()};
+    return {...useCommon()};
   },
 }
 </script>
