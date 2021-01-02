@@ -21,15 +21,7 @@
     <div id="notes"/>
     <NotesModal/>
     <ErrorBox :log-entries="logEntries"/>
-    <div v-if="config.developmentMode"
-         :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
-               height:${config.toolbarOffset}px`"
-    >
-      Current verse: {{currentVerse}}
-    </div>
-    <div v-if="config.developmentMode" class="highlightButton">
-      <span @mouseenter="testMakeBookmark">Get selection!</span>
-    </div>
+    <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
       <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
         <template v-for="(data, idx) in contents" :key="data.key">
@@ -51,16 +43,17 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {emit, Events, setupEventBusListener} from "@/eventbus";
+  import {Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {useAndroid} from "@/composables/android";
   import {setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
   import NotesModal from "@/components/NotesModal";
+  import DevelopmentMode from "@/components/DevelopmentMode";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox, NotesModal},
+    components: {OsisFragment, ErrorBox, NotesModal, DevelopmentMode},
     setup() {
       useFontAwesome();
 
@@ -112,27 +105,10 @@
       provide("strings", strings);
       provide("android", android);
 
-      let lblCount = 0;
-
-      function testMakeBookmark() {
-        const selection = android.querySelection()
-        if(!selection) return
-        const bookmark = {
-          id: -lblCount -1,
-          ordinalRange: [selection.startOrdinal, selection.endOrdinal],
-          offsetRange: [selection.startOffset, selection.endOffset],
-          book: selection.bookInitials,
-          note: "Test!",
-          labels: [-(lblCount++ % 5) - 1]
-        }
-        emit(Events.ADD_OR_UPDATE_BOOKMARKS, {bookmarks: [bookmark], labels: []})
-        emit(Events.REMOVE_RANGES)
-      }
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks,
-        config, strings, osisFragments, topElement, currentVerse, testMakeBookmark,
-        logEntries
+        config, strings, osisFragments, topElement, logEntries, currentVerse
       };
     },
     computed: {
@@ -171,17 +147,10 @@
   @extend .icon;
   background-image: url("../assets/logo.png");
 }
+
 .bookmark-icon {
   @extend .icon;
   background-image: url("../assets/logo.png");
-}
-
-.highlightButton {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  padding: 2em;
-  background: yellow;
 }
 
 .inlineDiv {

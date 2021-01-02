@@ -28,6 +28,7 @@ export default {
     type: {type: String, default: null},
     subType: {type: String, default: null},
     canonical: {type: String, default: "false"},
+    short: {type: String, default: null},
   },
   computed: {
     show:  ({type, subType, config, isCanonical}) =>
