@@ -143,16 +143,6 @@
   vertical-align: super;
 }
 
-.my-note-icon {
-  @extend .icon;
-  background-image: url("../assets/logo.png");
-}
-
-.bookmark-icon {
-  @extend .icon;
-  background-image: url("../assets/logo.png");
-}
-
 .inlineDiv {
   display: inline;
 }
