@@ -143,7 +143,7 @@ export function useConfig() {
 
 export function useStrings() {
     return {
-        chapterNum: "Chapter %d. ",
+        chapterNum: "— %d —",
         verseNum: "%d ",
         noteText: "Notes",
         crossReferenceText: "Crossreferences",
