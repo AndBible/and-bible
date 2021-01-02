@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div v-if="logEntries.length > 0" @click="showLog=true" class="logbox-button">
+  <div v-if="logEntries.length > 0" @click="showLog=true" :class="`logbox-button ${buttonStyle}`">
     {{logEntries.length}}
   </div>
   <div v-if="showLog" @click="showLog=false" class="logbox">
@@ -42,6 +42,13 @@ export default {
   props: {
     logEntries: {type: Object, required: true}
   },
+  computed: {
+    buttonStyle({logEntries}) {
+      if (logEntries.find(v => v.type === "ERROR")) return "error";
+      return "warn";
+    }
+
+  },
   setup() {
     return useCommon();
   },
@@ -53,7 +60,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .logbox {
   font-size: 8pt;
   color: white;
@@ -74,9 +81,14 @@ export default {
   right:50%;
   width:1em;
   height: 1em;
-  background-color: rgba(200, 0, 0, 0.5);
   animation-name: animatetop;
-  animation-duration: 0.4s
+  animation-duration: 0.4s;
+  &.error {
+    background-color: rgba(200, 0, 0, 0.5);
+  }
+  &.warn {
+    background-color: rgba(200, 133, 0, 0.5);
+  }
 }
 
 @keyframes animatetop {
