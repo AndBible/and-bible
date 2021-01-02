@@ -261,11 +261,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);
         for (const s of newValue) {
-            try {
-                highlightStyleRange(s);
-            } catch (e) {
-                console.error("Error occurred", e);
-            }
+            highlightStyleRange(s);
         }
     }, {flush: 'post'});
 
