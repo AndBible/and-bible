@@ -18,7 +18,8 @@
 <template>
   <teleport to="#notes">
     <div @click="$emit('close')" class="modal-backdrop">
-      <div @click="$event.stopPropagation()" class="modal-content" :style="`margin-top: ${config.toolbarOffset}px;`">
+      <div @click="$event.stopPropagation()" class="modal-content"
+      >
         <div @click="$emit('close')" class="modal-header">
           <span class="title">
             <slot name="title"/>
@@ -28,19 +29,19 @@
           <p><slot/></p>
         </div>
         <div class="modal-footer">
-          <slot name="footer"/>
+          <slot name="footer">
+            <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
+          </slot>
         </div>
       </div>
     </div>
-
   </teleport>
-
 </template>
-
 <script>
 
 import {inject} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
+import {useCommon} from "@/composables";
 
 export default {
   name: "Modal",
@@ -48,7 +49,7 @@ export default {
   setup() {
     const config = inject("config")
     const myModal = ref(null);
-    return {config, myModal}
+    return {config, myModal, ...useCommon()}
   }
 }
 </script>
@@ -71,7 +72,7 @@ export default {
   z-index: 3;
   position: relative;
   background-color: #fefefe;
-  margin: auto;
+  margin: var(--toolbar-offset) auto auto;
   padding: 0;
   border: 1px solid #888;
   width: 80%;
@@ -83,20 +84,6 @@ export default {
 @keyframes animatetop {
   from {top:-300px; opacity:0}
   to {top:0; opacity:1}
-}
-
-.close {
-  color: white;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
 }
 
 .modal-header {

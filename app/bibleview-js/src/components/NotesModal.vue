@@ -40,7 +40,7 @@
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
       <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
-      <button class="button" @click="closeNote">{{strings.closeNote}}</button>
+      <button class="button" @click="closeNote">{{strings.closeModal}}</button>
     </template>
   </Modal>
   <AreYouSure ref="areYouSure">

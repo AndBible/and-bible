@@ -158,8 +158,7 @@ export function useStrings() {
         ok: "Ok",
         cancel: "Cancel",
         removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
-        closeNote: "Close",
-
+        closeModal: "Close",
     }
 }
 
