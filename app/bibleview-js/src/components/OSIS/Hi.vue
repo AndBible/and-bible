@@ -32,18 +32,21 @@ export default {
   },
   computed: {
     hiStyle: ({type}) => {
-      if(type === "italic") return "italicStyle"
-      if(type === "bold") return "boldStyle"
+      if(type === "italic") return "italic-style"
+      else if(type === "bold") return "bold-style"
+      else {
+        console.error("Unhandled hi style type", type);
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-.italicStyle {
+.italic-style {
   font-style: italic;
 }
-.boldStyle {
+.bold-style {
   font-weight: bold;
 }
 </style>
