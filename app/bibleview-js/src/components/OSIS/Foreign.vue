@@ -20,14 +20,15 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Foreign",
   props: {
     type: {type: String, default: null},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type");
     return useCommon();
   },
 }

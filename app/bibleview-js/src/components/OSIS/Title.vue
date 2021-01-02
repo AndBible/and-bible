@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Title",
@@ -39,7 +39,10 @@ export default {
     isCanonical: ({canonical}) => canonical === "true",
     isSubTitle: ({type}) => type === "sub",
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book"]);
+    checkUnsupportedProps(props, "subType", ["x-Chapter"]);
+    checkUnsupportedProps(props, "canonical", ["true", "false"]);
     return useCommon();
   },
 }

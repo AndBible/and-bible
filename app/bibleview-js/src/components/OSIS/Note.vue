@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 import Modal from "@/components/Modal";
 
 let count = 0;
@@ -69,7 +69,11 @@ export default {
     isFootNote: ({type}) => ["explanation", "translation"].includes(type),
     isCrossReference: ({type}) => type === "crossReference"
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "placement");
+    checkUnsupportedProps(props, "type",
+        ["explanation", "translation", "crossReference", "variant", "alternative"]);
+    checkUnsupportedProps(props, "subType", ["x-gender-neutral"]);
     return useCommon();
   },
 }

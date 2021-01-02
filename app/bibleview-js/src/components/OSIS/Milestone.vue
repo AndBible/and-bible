@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Milestone",
@@ -29,7 +29,9 @@ export default {
     type: {type: String, default: null},
     marker: {type: String, default: ""},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type");
+    checkUnsupportedProps(props, "subType");
     return useCommon();
   },
 }

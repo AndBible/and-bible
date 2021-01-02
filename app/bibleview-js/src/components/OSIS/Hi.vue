@@ -32,10 +32,15 @@ export default {
   },
   computed: {
     hiStyle: ({type}) => {
-      if(type === "italic") return "italic-style"
-      else if(type === "bold") return "bold-style"
-      else {
-        console.error("Unhandled hi style type", type);
+      switch (type) {
+        case "italic":
+          return "italic-style"
+        case "bold":
+          return "bold-style"
+        case "super":
+          return "super-style"
+        default:
+          console.error("Unhandled hi style type", type);
       }
     }
   }
@@ -49,4 +54,8 @@ export default {
 .bold-style {
   font-weight: bold;
 }
+.super-style {
+  vertical-align: super;
+}
+
 </style>

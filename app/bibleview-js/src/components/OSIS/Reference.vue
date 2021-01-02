@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Reference",
@@ -37,7 +37,8 @@ export default {
       return "osis=" + encodeURI(this.osisRef)
     }
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type");
     return useCommon();
   },
 }

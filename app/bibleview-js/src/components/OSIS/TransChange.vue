@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "TransChange",
@@ -31,7 +31,8 @@ export default {
     isNonCanonical: ({type}) => type.toLowerCase() === "added",
     show: ({isNonCanonical, config}) => (!isNonCanonical) || (isNonCanonical && config.showNonCanonical),
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type", ["added"]);
     return useCommon();
   },
 }

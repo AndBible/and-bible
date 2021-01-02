@@ -18,7 +18,7 @@
 <template><span :class="{redLetters: config.showRedLetters && isJesus}"><slot/></span></template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Q",
@@ -32,7 +32,8 @@ export default {
   computed: {
     isJesus: ({who}) => who && who.toLowerCase() === "jesus"
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "who", ["jesus", "Jesus"]);
     return useCommon();
   },
 }

@@ -24,7 +24,7 @@
 <script>
 import {inject, ref} from "@vue/runtime-core";
 import VerseNumber from "@/components/VerseNumber";
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 const isPreVerse = ({type, subType}) => type === "x-milestone" && subType === "x-preverse";
 
@@ -32,6 +32,14 @@ export default {
   name: "Div",
   components: {VerseNumber},
   setup(props) {
+    checkUnsupportedProps(props, "type",
+        ["x-p", "x-gen", "x-milestone", "section", "majorSection",
+          "paragraph", "book", "variant", "introduction"]);
+    checkUnsupportedProps(props, "canonical", ["true", "false"]);
+    checkUnsupportedProps(props, "subType", ["x-preverse"]);
+    checkUnsupportedProps(props, "annotateRef");
+    checkUnsupportedProps(props, "annotateType");
+
     const verseInfo = inject("verseInfo", null);
     let shown = false;
     if(isPreVerse(props) && verseInfo) {

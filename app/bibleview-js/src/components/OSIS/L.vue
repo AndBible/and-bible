@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "L",
@@ -30,7 +30,8 @@ export default {
     level: {type: String, default: "1"},
     type: {type: String, default: null},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type");
     return useCommon();
   },
 }

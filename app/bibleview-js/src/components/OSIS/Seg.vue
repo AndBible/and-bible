@@ -20,14 +20,15 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Seg",
   props: {
-    type: {type: String, default: null}, // for example: 'font-size: -1;'
+    type: {type: String, default: null},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "type", ["x-chronology", "font-size: -1;"]);
     return useCommon();
   },
 }

@@ -192,3 +192,11 @@ export function usePoetic(fragmentReady, fragElement) {
 export function useFontAwesome() {
     library.add(faEdit)
 }
+
+export function checkUnsupportedProps(props, attributeName, values = []) {
+    const value = props[attributeName];
+    if(value && !values.includes(value)) {
+        const tagName = getCurrentInstance().type.name
+        console.warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}"`)
+    }
+}
