@@ -23,7 +23,12 @@
     <div style="overflow: scroll; width: 100%; height: 100%;">
       <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
       <ul>
-        <li v-for="({type, msg}, index) in logEntries" :class="`error-${type}`" :key="index">{{type}} {{msg}}</li>
+        <li
+            v-for="({type, msg}, index) in logEntries"
+            :class="`error-${type}`"
+            :key="index">
+          {{type}} {{msg}}
+        </li>
       </ul>
     </div>
   </div>
