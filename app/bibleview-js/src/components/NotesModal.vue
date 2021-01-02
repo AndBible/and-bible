@@ -106,16 +106,12 @@ export default {
       setFocus, showNote, editMode, closeNote, areYouSure,
       toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
       ...useCommon()
-      };
+    };
   },
 }
 </script>
 
 <style scoped>
-.edit-button {
-  width: 1em;
-  height: 1em;
-}
 .edit-area {
   width: 100%;
 }
