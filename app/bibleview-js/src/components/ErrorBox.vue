@@ -24,10 +24,10 @@
       <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
       <ul>
         <li
-            v-for="({type, msg}, index) in logEntries"
+            v-for="({type, msg, count}, index) in logEntries"
             :class="`error-${type}`"
             :key="index">
-          {{type}} {{msg}}
+          {{type}} {{msg}} ({{count}})
         </li>
       </ul>
     </div>

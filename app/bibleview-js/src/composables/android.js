@@ -26,7 +26,12 @@ let callId = 0;
 const logEntries = reactive([])
 
 function addLog(logEntry) {
-    logEntries.push(logEntry);
+    const previous = logEntries.find(v => v.msg === logEntry.msg && v.type === logEntry.type);
+    if(previous) {
+        previous.count ++;
+        return;
+    }
+    logEntries.push({...logEntry, count: 1});
 }
 
 export function patchAndroidConsole() {
