@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <slot/>
+  <span class="foreign-style>"><slot/></span>
 </template>
 
 <script>
@@ -34,4 +34,7 @@ export default {
 </script>
 
 <style scoped>
+.foreign-style {
+  font-style: italic;
+}
 </style>
