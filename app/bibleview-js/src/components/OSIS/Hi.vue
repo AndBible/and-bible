@@ -40,7 +40,7 @@ export default {
         case "super":
           return "super-style"
         default:
-          console.error("Unhandled hi style type", type);
+          console.warn("Unhandled hi style type", type);
       }
     }
   }
