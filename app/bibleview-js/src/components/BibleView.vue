@@ -63,7 +63,7 @@
       const topElement = ref(null);
       const {scrollToVerse} = useScroll(config);
       const globalBookmarks = useGlobalBookmarks(config);
-      const {logEntries, ...android} = useAndroid(globalBookmarks);
+      const {logEntries, ...android} = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
       useInfiniteScroll(config, android, osisFragments);
 
@@ -91,7 +91,7 @@
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
 
-      if(process.env.NODE_ENV === "development") {
+      if(config.developmentMode) {
         console.log("populating test data");
         replaceOsis(...testData)
       }

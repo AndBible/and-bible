@@ -56,7 +56,7 @@ export function patchAndroidConsole() {
     }
 }
 
-export function useAndroid({allStyleRanges}) {
+export function useAndroid({allStyleRanges}, config) {
     const responsePromises = new Map();
 
     function response(callId, returnValue) {
@@ -151,7 +151,7 @@ export function useAndroid({allStyleRanges}) {
         assignLabels
     }
 
-    if(process.env.NODE_ENV === 'development') return {
+    if(config.developmentMode) return {
         ...stubsFor(exposed),
         logEntries,
         querySelection

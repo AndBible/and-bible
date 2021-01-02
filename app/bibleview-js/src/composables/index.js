@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, nextTick, onMounted, reactive, ref, watch} from "@vue/runtime-core";
+import {getCurrentInstance, inject, nextTick, reactive, ref, watch} from "@vue/runtime-core";
 import {sprintf} from "sprintf-js";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {computed} from "@vue/reactivity";
