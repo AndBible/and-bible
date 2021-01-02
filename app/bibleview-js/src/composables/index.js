@@ -62,7 +62,7 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
 
 export function useConfig() {
     const config = reactive({
-        chapterNumbers: true,
+        showChapterNumbers: true,
         showVerseNumbers: true,
         strongsMode: 0,
         showMorphology: false,
@@ -132,6 +132,7 @@ export function useConfig() {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;
         }
+        config.showChapterNumbers = config.showVerseNumbers;
         if(!initial) {
             await nextTick();
         }

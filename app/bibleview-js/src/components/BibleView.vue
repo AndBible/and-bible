@@ -28,7 +28,7 @@
           <div :id="`f-${data.key}`" class="fragment">
             <OsisFragment :show-transition="showTransition" :data="data"/>
           </div>
-          <div v-if="contents.length > 0 && idx < contents.length" class="divider" />
+          <div v-if="contents.length > 1 && idx < contents.length" class="divider" />
         </template>
       </div>
     </div>
