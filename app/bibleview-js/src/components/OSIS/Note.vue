@@ -25,12 +25,7 @@
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
       <template #title>
-        <template v-if="isFootNote">
-          {{strings.noteText}}
-        </template>
-        <template v-else>
-          {{strings.crossReferenceText}}
-        </template>
+        {{isFootNote ? strings.noteText : strings.crossReferenceText }}
       </template>
     </Modal>
   </span>

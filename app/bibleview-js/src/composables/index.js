@@ -62,6 +62,7 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
 
 export function useConfig() {
     const config = reactive({
+        showAnnotations: true,
         showChapterNumbers: true,
         showVerseNumbers: true,
         strongsMode: 0,
