@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <ul class="listStyle"><slot/></ul>
+  <ul class="list-style"><slot/></ul>
 </template>
 
 <script>
@@ -30,8 +30,8 @@ export default {
 }
 </script>
 
-<style>
-.listStyle {
+<style scoped>
+.list-style {
 
 }
 </style>

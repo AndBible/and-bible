@@ -15,8 +15,13 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <span class="skip-offset" v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)">
-    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">{{handle}}</span>
+  <span
+      v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)"
+      class="skip-offset"
+  >
+    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">
+      {{handle}}
+    </span>
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
       <template #title>
@@ -71,19 +76,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.noteHandleBase {
+.note-handle-base {
   vertical-align: top;
   font-size: 0.7em;
   padding: 0.5em;
 }
 
 .isCrossReference {
-  @extend .noteHandleBase;
+  @extend .note-handle-base;
   color: orange;
 }
 
 .isFootNote {
-  @extend .noteHandleBase;
+  @extend .note-handle-base;
   color: #b63afd;
 }
 </style>
