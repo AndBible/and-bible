@@ -42,6 +42,14 @@ if(process.env.NODE_ENV === "development") {
 
     testBookmarks = [
         {
+            id: 6,
+            ordinalRange: [30852, 30852],
+            offsetRange: [20, 25],
+            labels: [1],
+            book: "KJV",
+            notes: null,
+        },
+        {
             id: 5,
             ordinalRange: [30852, 30853],
             offsetRange: [10, 50],

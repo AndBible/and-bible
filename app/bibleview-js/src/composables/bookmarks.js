@@ -24,6 +24,7 @@ import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/highlight-range";
 import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
+import Color from "color";
 
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
@@ -174,17 +175,22 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         for(let i = 0; i < splitPoints.length-1; i++) {
             const ordinalAndOffsetRange = [splitPoints[i], splitPoints[i+1]];
             const labels = new Set();
+            const labelCount = new Map();
             const bookmarksSet = new Set();
 
             bookmarks
                 .filter( b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    filterLabels(b.labels).forEach(l => labels.add(l))
+                    filterLabels(b.labels).forEach(l => {
+                        labels.add(l);
+                        labelCount.set(l, (labelCount.get(l) || 0) + 1);
+                    })
                 });
 
             styleRanges.push({
                 ordinalAndOffsetRange,
+                labelCount,
                 labels: Array.from(labels),
                 bookmarks: Array.from(bookmarksSet),
             });
@@ -192,15 +198,19 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         return styleRanges.filter(v => v.labels.length > 0);
     })
 
-    function styleForLabelIds(bookmarkLabelIds) {
-        return styleForLabels(Array.from(bookmarkLabelIds).map(v => bookmarkLabels.get(v)));
+    function styleForStyleRange({labels, labelCount}) {
+        return styleForLabels(Array.from(labels).map(v => ({id: v, label: bookmarkLabels.get(v)})), labelCount);
     }
 
-    function styleForLabels(bookmarkLabels) {
+    function styleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
-        for(const s of bookmarkLabels) {
-            const c = toRgba(s.color, "40%");
-            colors.push(c);
+        for(const {label: s, id} of bookmarkLabels) {
+            let c = new Color(s.color)
+            c = c.alpha(0.3)
+            for(let i = 0; i<labelCount.get(id)-1; i++) {
+                c = c.opaquer(0.3).darken(0.1);
+            }
+            colors.push(c.hsl().string())
         }
         if(colors.length === 1) {
             colors.push(colors[0]);
@@ -232,7 +242,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         const range = new Range();
         range.setStart(first, startOff1);
         range.setEnd(second, endOff1);
-        const style = styleForLabelIds(styleRange.labels)
+        const style = styleForStyleRange(styleRange)
         const {undo, highlightElements} = highlightRange(range, 'span', { style });
         undoHighlights.push(undo);
 
@@ -243,8 +253,8 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             const faIcon = b.notes? editIcon : bookmarkIcon;
             icon.appendChild(faIcon.node[0])
             const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-            const rgba = toRgba(bookmarkLabel.color);
-            icon.style = `color: ${rgba};`;
+            const iconColor = new Color(bookmarkLabel.color).darken(0.2).hsl().string();
+            icon.style = `color: ${iconColor};`;
             icon.classList.add("icon");
             icon.classList.add("skip-offset");
             icon.addEventListener("click", () => {
