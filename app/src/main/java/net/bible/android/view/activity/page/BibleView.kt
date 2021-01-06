@@ -138,12 +138,14 @@ class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
 
 @Serializable
 data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?,
-                          val labels: List<Long>, val book: String?, val notes: String?) {
+                          val labels: List<Long>, val book: String?, val createdAt: Long, val lastUpdatedOn: Long,
+                          val notes: String?) {
     constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>) :
         this(bookmark.id,
             listOf(bookmark.ordinalStart, bookmark.ordinalEnd),
             bookmark.textRange?.clientList,
-            labels.toMutableList().also { if(it.isEmpty()) it.add(LABEL_UNLABELED_ID) }, bookmark.book?.initials, bookmark.notes
+            labels.toMutableList().also { if(it.isEmpty()) it.add(LABEL_UNLABELED_ID) }, bookmark.book?.initials,
+            bookmark.createdAt.time, bookmark.lastUpdatedOn.time, bookmark.notes
         )
 }
 
@@ -1170,7 +1172,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         })
         val bookmarks = json.encodeToString(serializer(), latestBookmarks.map { it ->
             val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
-            ClientBookmark(it, labels.map { it2 -> it2.id })
+            ClientBookmark(it, labels.map { lbl -> lbl.id })
         })
         val xmlList = frags.joinToString(",")  { """
             |{

@@ -30,8 +30,12 @@
     <template v-else>
       <p>{{bookmark.notes}}</p>
     </template>
-    <div class="info" v-if="bookmark.book">
-      {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
+    <div class="info">
+      <div v-if="bookmark.book">
+        {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
+      </div>
+      {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
+      {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}
     </div>
     <template #title>
       {{ strings.bookmarkNote }}

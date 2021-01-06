@@ -162,6 +162,8 @@ export function useStrings() {
         cancel: "Cancel",
         removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
         closeModal: "Close",
+        createdAt: "Created: %s",
+        lastUpdatedOn: "Last updated: %s",
     }
 }
 
@@ -180,7 +182,11 @@ export function useCommon() {
         return string.split(separator)[n]
     }
 
-    return {config, strings, sprintf, split}
+    function formatTimestamp(timestamp) {
+        return new Date(timestamp).toLocaleString()
+    }
+
+    return {config, strings, sprintf, split, formatTimestamp}
 }
 
 export function usePoetic(fragmentReady, fragElement) {
