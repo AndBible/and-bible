@@ -237,6 +237,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
         const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
+        if(firstElem === null || secondElem === null) {
+            console.error("Element is not found!", fragmentKey, startOrdinal, endOrdinal);
+            return;
+        }
         const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
         const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
         const range = new Range();
