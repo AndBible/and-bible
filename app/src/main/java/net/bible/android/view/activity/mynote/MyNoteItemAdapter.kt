@@ -24,10 +24,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.list_item_2_highlighted.view.*
-import net.bible.android.control.mynote.MyNoteControl
-import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.util.widget.TwoLineListItem
-import net.bible.service.db.mynote.MyNoteDto
 
 /**
  * Display a single Note in a list row
@@ -35,7 +33,11 @@ import net.bible.service.db.mynote.MyNoteDto
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MyNoteItemAdapter(_context: Context?, private val resource: Int, _items: List<MyNoteDto?>?, private val actionModeActivity: ActionModeActivity, private val myNoteControl: MyNoteControl) : ArrayAdapter<MyNoteDto?>(_context!!, resource, _items!!) {
+class MyNoteItemAdapter(
+    _context: Context?,
+    private val resource: Int,
+    _items: List<BookmarkEntities.Bookmark?>?,
+    ) : ArrayAdapter<BookmarkEntities.Bookmark?>(_context!!, resource, _items!!) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)
 
@@ -50,15 +52,13 @@ class MyNoteItemAdapter(_context: Context?, private val resource: Int, _items: L
 
         // Set value for the first text field
         if (view.text1 != null) {
-            val key = myNoteControl.getMyNoteVerseKey(item!!)
-            view.text1.text = key
+            view.text1.text = item?.verseRange.toString()
         }
 
         // set value for the second text field
         if (view.text2 != null) {
             try {
-                val noteText = myNoteControl.getMyNoteText(item!!, true)
-                view.text2.text = noteText
+                view.text2.text = item?.notes
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
                 view.text2.text = ""

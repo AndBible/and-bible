@@ -47,7 +47,11 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.view.activity.mynote.description
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
+import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
 
@@ -181,7 +185,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 bookmarkList.clear()
-                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel))
+                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
                 notifyDataSetChanged()
 
                 // if in action mode then must exit because the data has changed, invalidating selections
@@ -216,6 +220,25 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return true
     }
 
+    private fun changeBookmarkSortOrder() {
+        bookmarkSortOrder = when (bookmarkSortOrder) {
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT
+            BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
+            else -> BookmarkSortOrder.CREATED_AT
+        }
+    }
+
+    private var bookmarkSortOrder: BookmarkSortOrder
+        get() {
+            val bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_ORDER.toString())
+            return try {
+                BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
+            } catch (e: IllegalArgumentException) { BookmarkSortOrder.BIBLE_ORDER }
+        }
+        private set(bookmarkSortOrder) {
+            CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
+        }
+
     /**
      * on Click handlers
      */
@@ -225,8 +248,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.sortByToggle -> {
                 isHandled = true
                 try {
-                    bookmarkControl.changeBookmarkSortOrder()
-                    val sortDesc = bookmarkControl.bookmarkSortOrderDescription
+                    changeBookmarkSortOrder()
+                    val sortDesc = bookmarkSortOrder.description
                     Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show()
                     loadBookmarkList()
                 } catch (e: Exception) {
@@ -268,6 +291,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     companion object {
+        private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "Bookmarks"
     }
 }

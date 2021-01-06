@@ -45,6 +45,7 @@ import java.util.*
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+// TODO REMOVE
 class MyNoteDBAdapter {
     // Variable to hold the database instance
 	private val db: SupportSQLiteDatabase = DatabaseContainer.db.openHelper.readableDatabase

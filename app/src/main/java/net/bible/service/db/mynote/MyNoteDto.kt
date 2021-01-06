@@ -30,6 +30,8 @@ import java.util.*
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+// TODO REMOVE
 class MyNoteDto : VerseRangeUser {
     var id: Long? = null
     private var _verseRange: VerseRange? = null

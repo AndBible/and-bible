@@ -68,10 +68,12 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 }
 
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT;
+    BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
+
     val sqlString get() = when(this) {
-        BIBLE_ORDER -> "Bookmark.kjvStartOrdinal"
+        BIBLE_ORDER -> "Bookmark.kjvOrdinalStart"
         CREATED_AT -> "Bookmark.createdAt"
+        LAST_UPDATED -> "Bookmark.lastUpdatedOn"
     }
 }
 
@@ -114,7 +116,7 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        var notes: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
 
         ): VerseRangeUser {

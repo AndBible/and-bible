@@ -157,7 +157,8 @@ open class CurrentPageManager @Inject constructor(
      * @param verseRange VerseRange to add note to, start verse is the significant key searched for but range is stored
      */
     fun showMyNote(verseRange: Key) {
-        setCurrentDocumentAndKey(currentMyNotePage.currentDocument, verseRange)
+        // TODO: my notes view?
+        setCurrentDocumentAndKey(currentBible.currentDocument, verseRange)
     }
 
     @JvmOverloads

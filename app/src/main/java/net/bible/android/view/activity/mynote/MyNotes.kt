@@ -32,14 +32,25 @@ import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.ListView
 import android.widget.Toast
 import net.bible.android.activity.R
-import net.bible.android.control.mynote.MyNoteControl
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
-import net.bible.service.db.mynote.MyNoteDto
+import net.bible.service.common.CommonUtils
 import java.util.*
 import javax.inject.Inject
+
+val BookmarkSortOrder.description get() =
+    when(this) {
+        BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
+        BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
+        BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
+    }
 
 /**
  * Show a list of existing User Notes and allow view/edit/delete
@@ -48,10 +59,11 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class MyNotes : ListActivityBase(), ActionModeActivity {
-    @Inject lateinit var myNoteControl: MyNoteControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
+    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     // the document list
-    private val myNoteList: MutableList<MyNoteDto?> = ArrayList()
+    private val myNoteList: MutableList<BookmarkEntities.Bookmark> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
 
     /** Called when the activity is first created.  */
@@ -74,7 +86,7 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
         loadUserNoteList()
 
         // prepare the document list view
-        val myNoteArrayAdapter = MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList, this, myNoteControl)
+        val myNoteArrayAdapter = MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList)
         listAdapter = myNoteArrayAdapter
         registerForContextMenu(listView)
     }
@@ -113,8 +125,8 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedMyNotes(selectedItemPositions: List<Int>): List<MyNoteDto?> {
-        val selectedNotes: MutableList<MyNoteDto?> = ArrayList()
+    private fun getSelectedMyNotes(selectedItemPositions: List<Int>): List<BookmarkEntities.Bookmark> {
+        val selectedNotes: MutableList<BookmarkEntities.Bookmark> = ArrayList()
         for (position in selectedItemPositions) {
             selectedNotes.add(myNoteList[position])
         }
@@ -131,15 +143,22 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
     /**
      * on Click handlers
      */
+
+    var sortOrder = BookmarkSortOrder.BIBLE_ORDER
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when (item.itemId) {
             R.id.sortByToggle -> {
                 isHandled = true
+                sortOrder = when(sortOrder) {
+                    BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.LAST_UPDATED
+                    BookmarkSortOrder.LAST_UPDATED -> BookmarkSortOrder.BIBLE_ORDER
+                    BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
+                }
+
                 try {
-                    myNoteControl.changeSortOrder()
-                    val sortDesc = myNoteControl.sortOrderDescription
-                    Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, sortOrder.description, Toast.LENGTH_SHORT).show()
                     loadUserNoteList()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting notes", e)
@@ -153,10 +172,8 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
         return isHandled
     }
 
-    private fun delete(myNotes: List<MyNoteDto?>) {
-        for (myNote in myNotes) {
-            myNoteControl.deleteMyNote(myNote)
-        }
+    private fun delete(myNotes: List<BookmarkEntities.Bookmark>) {
+        bookmarkControl.deleteBookmarks(myNotes)
         loadUserNoteList()
     }
 
@@ -164,7 +181,7 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
         // item positions will all change so exit any action mode
         listActionModeHelper!!.exitActionMode()
         myNoteList.clear()
-        myNoteList.addAll(myNoteControl.allMyNotes)
+        myNoteList.addAll(bookmarkControl.allBookmarksWithNotes(sortOrder))
         notifyDataSetChanged()
     }
 
@@ -173,10 +190,10 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
      *
      * @param myNote
      */
-    private fun myNoteSelected(myNote: MyNoteDto?) {
-        Log.d(TAG, "User Note selected:" + myNote!!.verseRange)
+    private fun myNoteSelected(myNote: BookmarkEntities.Bookmark) {
+        Log.d(TAG, "User Note selected:" + myNote.verseRange)
         try {
-            myNoteControl.showNoteView(myNote)
+            activeWindowPageManagerProvider.activeWindowPageManager.showMyNote(myNote.verseRange)
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show note", e)
             instance.showErrorMsg(R.string.error_occurred, e)

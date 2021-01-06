@@ -650,7 +650,7 @@ private val WORKSPACE_BOOKMARK_35_36 = object : Migration(35, 36) {
 
 private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `notes` TEXT")
+        db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `notes` TEXT DEFAULT NULL")
     }
 }
 

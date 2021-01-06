@@ -38,6 +38,12 @@ interface BookmarkDao {
     fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
         allBookmarks(orderBy.sqlString)
 
+    // TODO: WHY this DOES NOT WORK (ordering fails!)? It does not fail if :orderBy is hardcoded
+    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY :orderBy")
+    fun allBookmarksWithNotes(orderBy: String): List<Bookmark>
+    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> =
+        allBookmarksWithNotes(orderBy.sqlString)
+
     @Query("SELECT * from Bookmark where id = :bookmarkId")
     fun bookmarkById(bookmarkId: Long): Bookmark
 

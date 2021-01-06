@@ -36,6 +36,7 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
+import net.bible.android.view.activity.mynote.description
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
@@ -140,6 +141,8 @@ open class BookmarkControl @Inject constructor(
 
     val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
 
+    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
+
     /** create a new bookmark  */
     fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null, doNotSync: Boolean=false): Bookmark {
         if(bookmark.id != 0L) {
@@ -188,16 +191,18 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun getBookmarksWithLabel(label: Label): List<Bookmark> = getSortedBookmarks(
-        when {
-            LABEL_ALL == label -> dao.allBookmarks(bookmarkSortOrder)
-            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(bookmarkSortOrder)
-            else -> dao.bookmarksWithLabel(label, bookmarkSortOrder)
-        })
+    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
+        getSortedBookmarks(
+            when {
+                LABEL_ALL == label -> dao.allBookmarks(orderBy)
+                LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(orderBy)
+                else -> dao.bookmarksWithLabel(label, orderBy)
+            }, orderBy
+        )
 
     // Not sure if this is really needed (or if per-ordinal sorting by DB is enough). Leaving this for now.
-    private fun getSortedBookmarks(bookmarkList: List<Bookmark>): List<Bookmark> {
-        if(bookmarkSortOrder == BookmarkSortOrder.CREATED_AT) return bookmarkList
+    private fun getSortedBookmarks(bookmarkList: List<Bookmark>, orderBy: BookmarkSortOrder): List<Bookmark> {
+        if(orderBy == BookmarkSortOrder.CREATED_AT) return bookmarkList
 
         val comparator = BookmarkBibleOrderComparator(bookmarkList)
 
@@ -274,31 +279,6 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    fun changeBookmarkSortOrder() {
-        bookmarkSortOrder = when (bookmarkSortOrder) {
-            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT
-            BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
-        }
-    }
-
-    private var bookmarkSortOrder: BookmarkSortOrder
-        get() {
-            val bookmarkSortOrderStr = getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_ORDER.toString())
-            return try {
-                BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
-            } catch (e: IllegalArgumentException) { BookmarkSortOrder.BIBLE_ORDER }
-        }
-        private set(bookmarkSortOrder) {
-            saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
-        }
-
-    val bookmarkSortOrderDescription: String
-        get() = if (BookmarkSortOrder.BIBLE_ORDER == bookmarkSortOrder) {
-            getResourceString(R.string.sort_by_bible_book)
-        } else {
-            getResourceString(R.string.sort_by_date)
-        }
-
     private val isCurrentDocumentBookmarkable: Boolean
         get() {
             val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
@@ -341,7 +321,6 @@ open class BookmarkControl @Inject constructor(
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
         const val LABEL_NO_EXTRA = "labelNo"
-        private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "BookmarkControl"
     }
 

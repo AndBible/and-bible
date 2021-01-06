@@ -43,6 +43,7 @@ import javax.inject.Inject
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+// TODO REMOVE
 @ApplicationScope
 class MyNoteControl @Inject constructor(
     val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
