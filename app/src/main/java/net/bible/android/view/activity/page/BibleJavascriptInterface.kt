@@ -18,10 +18,13 @@
 
 package net.bible.android.view.activity.page
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 
 /**
  * Interface allowing javascript to call java methods in app
@@ -90,6 +93,11 @@ class BibleJavascriptInterface(
     fun reportInputFocus(newValue: Boolean) {
         Log.d(TAG, "Focus mode now $newValue")
         ABEventBus.getDefault().post(BibleViewInputFocusChanged(bibleView, newValue))
+    }
+
+    @JavascriptInterface
+    fun openExternalLink(link: String) {
+        mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

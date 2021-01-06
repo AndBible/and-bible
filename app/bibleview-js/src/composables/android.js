@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 import {emit} from "@/eventbus";
-import {Deferred, rangeInside, setupDocumentEventListener, stubsFor} from "@/utils";
+import {Deferred, rangeInside, setupDocumentEventListener, sleep, stubsFor} from "@/utils";
 import {onMounted} from "@vue/runtime-core";
 import {calculateOffsetToVerse} from "@/dom";
 import {isFunction, union} from "lodash";
@@ -24,14 +24,27 @@ import {reactive} from "@vue/reactivity";
 let callId = 0;
 
 const logEntries = reactive([])
+const logEntriesTemp = [];
 
 function addLog(logEntry) {
-    const previous = logEntries.find(v => v.msg === logEntry.msg && v.type === logEntry.type);
+    const previous = logEntriesTemp.find(v => v.msg === logEntry.msg && v.type === logEntry.type);
     if(previous) {
         previous.count ++;
         return;
     }
-    logEntries.push({...logEntry, count: 1});
+    logEntriesTemp.push({...logEntry, count: 1});
+}
+
+let logSyncEnabled = false;
+
+export async function enableLogSync(value) {
+    logSyncEnabled = value;
+    while(logSyncEnabled) {
+        await sleep(1000)
+        if(logEntriesTemp.length > logEntries.length) {
+            logEntries.push(...logEntriesTemp.slice(logEntries.length, logEntriesTemp.length));
+        }
+    }
 }
 
 export function patchAndroidConsole() {
@@ -146,6 +159,9 @@ export function useAndroid({allStyleRanges}, config) {
         android.reportInputFocus(value);
     }
 
+    function openExternalLink(link) {
+        android.openExternalLink(link);
+    }
 
     const exposed = {
         reportInputFocus,
@@ -157,7 +173,8 @@ export function useAndroid({allStyleRanges}, config) {
         setClientReady,
         querySelection,
         removeBookmark,
-        assignLabels
+        assignLabels,
+        openExternalLink,
     }
 
     if(config.developmentMode) return {

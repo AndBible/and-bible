@@ -36,6 +36,8 @@
 
 <script>
 import {useCommon} from "@/composables";
+import {enableLogSync} from "@/composables/android";
+import {onMounted, onUnmounted} from "@vue/runtime-core";
 
 export default {
   name: "ErrorBox",
@@ -50,6 +52,8 @@ export default {
 
   },
   setup() {
+    onMounted(() => enableLogSync(true))
+    onUnmounted(() => enableLogSync(false))
     return useCommon();
   },
   data() {

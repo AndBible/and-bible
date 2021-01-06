@@ -16,18 +16,19 @@
   -->
 
 <template>
-  <td><slot/></td>
+  <a href="#link" @click="openExternalLink(href)"><slot/></a>
 </template>
 
 <script>
-import {checkUnsupportedProps, useCommon} from "@/composables";
+import {useCommon} from "@/composables";
+import {inject} from "@vue/runtime-core";
 
 export default {
-  name: "Cell",
-  props: {role: {type: String, default: null}},
-  setup(props) {
-    checkUnsupportedProps(props, "role")
-    return useCommon();
+  name: "A",
+  props: {href: {type: String, required: true}},
+  setup() {
+    const {openExternalLink} = inject("android");
+    return {openExternalLink, ...useCommon()};
   },
 }
 </script>

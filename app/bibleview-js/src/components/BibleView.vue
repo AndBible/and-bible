@@ -96,9 +96,10 @@
         replaceOsis(...testData)
       }
 
-      setupEventBusListener(Events.SET_TITLE,
-          (title) => document.title = `${title} (${process.env.NODE_ENV})`
-      );
+      setupEventBusListener(Events.SET_TITLE, (title) => {
+        const key = osisFragments[0].contents[0].key
+        document.title = `${title}/${key} (${process.env.NODE_ENV})`
+      });
 
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);

@@ -796,7 +796,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         executeJavascriptOnUiThread("""
-            bibleView.emit("set_title", "BibleView-${window.id}");
             bibleView.emit("set_config", {config: ${displaySettings.toJson()}, initial:true});
             bibleView.emit("replace_osis", $osisObjStr);
             bibleView.emit("setup_content", {
@@ -805,6 +804,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            
+            bibleView.emit("set_title", "BibleView-${window.id}");
             """.trimIndent()
         )
     }
