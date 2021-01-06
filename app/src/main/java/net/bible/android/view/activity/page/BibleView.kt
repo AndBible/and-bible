@@ -427,7 +427,26 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     class BibleLink(val type: String, val target: String) {
-        val url get() = "$type:$target"
+        val url: String get() {
+            return when(type) {
+                "content" -> "$type:$target"
+                "strong" -> "$type:$target"
+                "robinson" -> "$type:$target"
+                else -> {
+                    if(target.startsWith("sword://"))
+                        target
+                    else {
+                        var protocol = "osis:"
+                        var ref = target
+                        if (target.split(":").size > 1) {
+                            protocol = "sword://"
+                            ref = target.replace(":", "/")
+                        }
+                        "$protocol$ref"
+                    }
+                }
+            }
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")

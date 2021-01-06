@@ -65,7 +65,7 @@ class UriAnalyzer {
             protocol = BIBLE_PROTOCOL
             urlStr
         } else {
-            val uriTokens = urlStr.split(":").toTypedArray()
+            val uriTokens = urlStr.split(":", limit=2)
             protocol = uriTokens[0]
             uriTokens[1]
         }
