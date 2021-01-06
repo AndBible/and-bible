@@ -35,6 +35,7 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.lang.Exception
 import java.sql.SQLException
+import java.util.*
 import androidx.room.migration.Migration as RoomMigration
 
 
@@ -653,6 +654,62 @@ private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
     }
 }
 
+private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.apply {
+            execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
+            execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
+
+            val c = db.query("SELECT * from mynote")
+            val idIdx = c.getColumnIndex("_id")
+            val keyIdx = c.getColumnIndex("key")
+            val v11nIdx = c.getColumnIndex("versification")
+            val myNoteIdx = c.getColumnIndex("mynote")
+            val lastUpdatedOnIdx = c.getColumnIndex("last_updated_on")
+            val createdOnIdx = c.getColumnIndex("created_on")
+
+            c.moveToFirst()
+            while(!c.isAfterLast) {
+                val id = c.getLong(idIdx)
+                val key = c.getString(keyIdx)
+                var v11n: Versification? = null
+                var verseRange: VerseRange? = null
+                var verseRangeInKjv: VerseRange? = null
+
+                try {
+                    v11n = Versifications.instance().getVersification(
+                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                    )
+                    verseRange = VerseRangeFactory.fromString(v11n, key)
+                    verseRangeInKjv = converter.convert(verseRange, KJVA)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
+                    c.moveToNext()
+                    continue
+                }
+
+                val createdAt = c.getLong(createdOnIdx)
+                val lastUpdatedOn = c.getLong(lastUpdatedOnIdx)
+                val myNote = c.getString(myNoteIdx)
+                val newValues = ContentValues()
+                newValues.apply {
+                    put("v11n", v11n.name)
+                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
+                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
+                    put("ordinalStart", verseRange.start.ordinal)
+                    put("ordinalEnd", verseRange.end.ordinal)
+                    put("createdAt", createdAt)
+                    put("lastUpdatedOn", lastUpdatedOn)
+                    put("notes", myNote)
+                }
+                db.insert("Bookmark", CONFLICT_FAIL, newValues)
+                c.moveToNext()
+            }
+            execSQL("DROP TABLE mynote;")
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -703,6 +760,7 @@ object DatabaseContainer {
                         BOOKMARKS_BOOK_34_35,
                         WORKSPACE_BOOKMARK_35_36,
                         BOOKMARKS_BOOK_36_37,
+                        MIGRATION_37_38_MyNotes_To_Bookmarks,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

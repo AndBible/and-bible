@@ -106,6 +106,7 @@ class BookmarkEntities {
         var playbackSettings: PlaybackSettings?,
 
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
+
         var createdAt: Date = Date(System.currentTimeMillis()),
 
         var book: Book? = null,
@@ -113,9 +114,10 @@ class BookmarkEntities {
         var startOffset: Int?,
         var endOffset: Int?,
 
-        var notes: String? = null
+        var notes: String? = null,
+        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
 
-    ): VerseRangeUser {
+        ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
