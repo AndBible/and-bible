@@ -46,6 +46,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import androidx.webkit.internal.AssetHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -99,7 +100,9 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import java.io.File
 import java.lang.ref.WeakReference
+import java.net.URLConnection
 import kotlin.math.min
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
@@ -530,8 +533,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
+    class ModuleAssetHandler: WebViewAssetLoader.PathHandler {
+        override fun handle(path: String): WebResourceResponse? {
+            val (bookName, resourcePath) = path.split("/", limit=2)
+            val location = File(Books.installed().getBook(bookName).bookMetaData.location)
+            val f = File(location, resourcePath)
+            return if(f.isFile && f.exists()) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())
+            } else null
+        }
+
+    }
     val assetLoader = WebViewAssetLoader.Builder()
         .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
+        .addPathHandler("/module/", ModuleAssetHandler())
         .build()
 
     private inner class BibleViewClient: WebViewClient() {
