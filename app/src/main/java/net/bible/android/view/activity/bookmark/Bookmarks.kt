@@ -69,7 +69,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var swordContentFacade: SwordContentFacade
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    // language spinner
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
     private var labelArrayAdapter: ArrayAdapter<Label>? = null
@@ -101,7 +100,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun initialiseView() {
         listActionModeHelper = ListActionModeHelper(listView, R.menu.bookmark_context_menu)
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper!!.startActionMode(this@Bookmarks, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener{
+            _, _, position, _ -> listActionModeHelper!!.startActionMode(this@Bookmarks, position)
+        }
 
         //prepare the Label spinner
         loadLabelList()
@@ -124,7 +125,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
+            this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider
+        )
         listAdapter = bookmarkArrayAdapter
     }
 
