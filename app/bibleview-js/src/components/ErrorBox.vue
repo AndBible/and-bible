@@ -20,7 +20,7 @@
     {{logEntries.length}}
   </div>
   <div v-if="showLog" @click="showLog=false" class="logbox">
-    <div style="overflow: scroll; width: 100%; height: 100%;">
+    <div class="errorbox">
       <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
       <ul>
         <li
@@ -66,15 +66,20 @@ export default {
   color: white;
   position: fixed;
   width: 100%;
-  top: var(--toolbar-offset);
-  height: calc(100vh - var(--toolbar-offset));
-  bottom: 0;
+  top: var(--top-offset);
+  bottom: var(--bottom-offset);
   background-color: rgba(88, 57, 57, 0.9);
+}
+
+.errorbox {
+  overflow: scroll;
+  width: 100%;
+  height: calc(100vh - var(--bottom-offset) - var(--top-offset));
 }
 
 .logbox-button {
   border-radius: 5pt;
-  top: var(--toolbar-offset);
+  top: var(--top-offset);
   position: fixed;
   padding: 0.5em;
   color: white;
@@ -93,7 +98,7 @@ export default {
 
 @keyframes animatetop {
   from {top:-300px; opacity:0}
-  to {top:var(--toolbar-offset); opacity:1}
+  to {top:var(--top-offset); opacity:1}
 }
 
 .error-ERROR {

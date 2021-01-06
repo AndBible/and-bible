@@ -107,6 +107,7 @@ export function useConfig() {
         },
 
         toolbarOffset: 100,
+        bottomOffset: 100,
         infiniteScroll: true,
 
         developmentMode: developmentMode,

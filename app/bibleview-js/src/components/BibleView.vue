@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :style="`--toolbar-offset: ${config.toolbarOffset}px`">
+  <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.toolbarOffset}px;`">
     <div :style="`height:${config.toolbarOffset}px`"/>
     <div id="notes"/>
     <NotesModal/>

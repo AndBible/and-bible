@@ -33,7 +33,7 @@ export const Events = {
     ADD_OR_UPDATE_BOOKMARKS: "add_or_update_bookmarks",
     DELETE_BOOKMARKS: "delete_bookmarks",
     REMOVE_RANGES: "remove_ranges",
-    SET_TOOLBAR_OFFSET: "set_toolbar_offset",
+    SET_OFFSETS: "set_offsets",
     NOTE_CLICKED: "note_clicked",
 
     CONFIG_CHANGED: "config_changed",

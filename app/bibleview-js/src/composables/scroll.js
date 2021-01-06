@@ -21,10 +21,11 @@ import {Events, setupEventBusListener} from "@/eventbus";
 export function useScroll(config) {
     let currentScrollAnimation = null;
 
-    function setToolbarOffset(value, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", value, doNotScroll, immediate);
-        const diff = config.toolbarOffset - value;
-        config.toolbarOffset = value;
+    function setToolbarOffset(toolbarOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
+        console.log("setToolbarOffset", toolbarOffset, bottomOffset, doNotScroll, immediate);
+        const diff = config.toolbarOffset - toolbarOffset;
+        config.toolbarOffset = toolbarOffset;
+        config.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
         if(diff !== 0 && !doNotScroll) {
@@ -112,11 +113,11 @@ export function useScroll(config) {
         }
     }
 
-    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, toolBarOffset}  = {}) {
+    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, toolBarOffset, bottomOffset}  = {}) {
         console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, toolBarOffset);
 
         const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
-        setToolbarOffset(toolBarOffset, {immediate: true, doNotScroll: !doScroll});
+        setToolbarOffset(toolBarOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 
@@ -137,7 +138,7 @@ export function useScroll(config) {
         console.log("Content is set ready!");
     }
 
-    setupEventBusListener(Events.SET_TOOLBAR_OFFSET, setToolbarOffset)
+    setupEventBusListener(Events.SET_OFFSETS, setToolbarOffset)
     setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToVerse)
     setupEventBusListener(Events.SETUP_CONTENT, setupContent)
     return {scrollToVerse}

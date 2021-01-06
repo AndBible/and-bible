@@ -72,7 +72,7 @@ export default {
   z-index: 3;
   position: relative;
   background-color: #fefefe;
-  margin: var(--toolbar-offset) auto auto;
+  margin: var(--top-offset) auto auto;
   padding: 0;
   border: 1px solid #888;
   width: 80%;
@@ -94,7 +94,7 @@ export default {
 }
 
 .modal-body {
-  max-height: calc(100vh - var(--toolbar-offset) - 70pt);
+  max-height: calc(100vh - var(--top-offset) - 70pt);
   overflow: auto;
   padding: 2px 16px;
 }

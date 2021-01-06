@@ -769,6 +769,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
                 toolBarOffset: $toolbarOffset,
+                bottomOffset: $bottomOffset,
             });            
             """.trimIndent()
         )
@@ -967,25 +968,35 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_toolbar_offset', $toolbarOffset, {immediate: true});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset, {immediate: true});")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_toolbar_offset', $toolbarOffset);")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset);")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
         checkWindows = true
     }
 
-    val isTopWindow
+    private val isTopWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+
+    private val isBottomWindow
+        get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     val toolbarOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
                 (mainBibleActivity.topOffset2
+                    / mainBibleActivity.resources.displayMetrics.density)
+            else 0F
+    
+    val bottomOffset
+        get() =
+            if(isBottomWindow && !SharedActivityState.instance.isFullScreen)
+                (mainBibleActivity.bottomOffset2
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 
@@ -1008,7 +1019,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("bibleView.emit('set_toolbar_offset', $toolbarOffset, {doNotScroll: true});")
+            executeJavascript("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
