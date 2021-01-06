@@ -16,8 +16,8 @@
   -->
 
 <template>
-  <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.toolbarOffset}px;`">
-    <div :style="`height:${config.toolbarOffset}px`"/>
+  <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+    <div :style="`height:${config.topOffset}px`"/>
     <div id="notes"/>
     <NotesModal/>
     <ErrorBox :log-entries="logEntries"/>

@@ -708,7 +708,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             addChapter(chapter)
         }
 
-        Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: toolbarOFfset:${toolbarOffset}, \n actualSettings: ${displaySettings.toJson()}")
+        Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
         latestBookmarks = bookmarks
         latestOsisObjStr = getOsisObjStr(osisFrags)
@@ -768,7 +768,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             bibleView.emit("setup_content", {
                 jumpToOrdinal: ${initialVerse?.ordinal}, 
                 jumpToYOffsetRatio: null,
-                toolBarOffset: $toolbarOffset,
+                topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
             });            
             """.trimIndent()
@@ -968,12 +968,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: NumberOfWindowsChangedEvent) {
         if(window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset, {immediate: true});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: true});")
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
         if(isTopWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset);")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
@@ -986,7 +986,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val isBottomWindow
         get() = !CommonUtils.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
-    val toolbarOffset
+    val topOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
                 (mainBibleActivity.topOffset2
@@ -1019,7 +1019,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
-            executeJavascript("bibleView.emit('set_offsets', $toolbarOffset, $bottomOffset, {doNotScroll: true});")
+            executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
             if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
@@ -1075,7 +1075,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $toolbarOffset);")
+        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $topOffset);")
     }
 
     override fun enableVerseTouchSelection() {

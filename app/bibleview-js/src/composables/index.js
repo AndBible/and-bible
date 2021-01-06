@@ -39,7 +39,7 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
     );
 
     const onScroll = throttle(() => {
-        const y = config.toolbarOffset + lineHeight.value*0.8;
+        const y = config.topOffset + lineHeight.value*0.8;
 
         // Find element, starting from right
         const step = 10;
@@ -106,7 +106,7 @@ export function useConfig() {
             marginWidth: 170,
         },
 
-        toolbarOffset: 100,
+        topOffset: 100,
         bottomOffset: 100,
         infiniteScroll: true,
 

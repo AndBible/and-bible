@@ -21,10 +21,10 @@ import {Events, setupEventBusListener} from "@/eventbus";
 export function useScroll(config) {
     let currentScrollAnimation = null;
 
-    function setToolbarOffset(toolbarOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
-        console.log("setToolbarOffset", toolbarOffset, bottomOffset, doNotScroll, immediate);
-        const diff = config.toolbarOffset - toolbarOffset;
-        config.toolbarOffset = toolbarOffset;
+    function setToolbarOffset(topOffset, bottomOffset, {doNotScroll = false, immediate = false} = {}) {
+        console.log("setToolbarOffset", topOffset, bottomOffset, doNotScroll, immediate);
+        const diff = config.topOffset - topOffset;
+        config.topOffset = topOffset;
         config.bottomOffset = bottomOffset;
         const delay = immediate ? 0 : 500;
 
@@ -84,11 +84,11 @@ export function useScroll(config) {
         }
     }
 
-    function scrollToVerse(toId, now, delta = config.toolbarOffset) {
+    function scrollToVerse(toId, now, delta = config.topOffset) {
         console.log("scrollToVerse", toId, now, delta);
         stopScrolling();
-        if(delta !== config.toolbarOffset) {
-            config.toolbarOffset = delta;
+        if(delta !== config.topOffset) {
+            config.topOffset = delta;
         }
         const toElement = document.getElementById(toId) || document.getElementById("top");
 
@@ -113,11 +113,11 @@ export function useScroll(config) {
         }
     }
 
-    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, toolBarOffset, bottomOffset}  = {}) {
-        console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, toolBarOffset);
+    async function setupContent({jumpToOrdinal = null, jumpToYOffsetRatio = null, topOffset, bottomOffset}  = {}) {
+        console.log(`setupContent`, jumpToOrdinal, jumpToYOffsetRatio, topOffset);
 
         const doScroll = jumpToYOffsetRatio != null && jumpToYOffsetRatio > 0;
-        setToolbarOffset(toolBarOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
+        setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
 

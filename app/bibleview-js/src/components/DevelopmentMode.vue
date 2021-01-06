@@ -17,7 +17,7 @@
 
 <template>
   <div :style="`position: fixed; top:0; width:100%;  background-color: rgba(100, 255, 100, 0.7);
-               height:${config.toolbarOffset}px`"
+               height:${config.topOffset}px`"
   >
     Current verse: {{currentVerse}}
   </div>
