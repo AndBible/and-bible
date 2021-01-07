@@ -16,7 +16,7 @@
  */
 
 
-import {mixColors} from "@/utils";
+import {colorLightness, mixColors} from "@/utils";
 import Color from "color";
 
 const c = Color("#00EDFF");
@@ -32,5 +32,7 @@ describe("myMixColors test", () => {
     it("test3a", () => expect(mixColors(y, r).hex()).toEqual("#FF7600"));
     it("test3b", () => expect(mixColors(y, y, r, r).hex()).toEqual("#FF7600"));
     it("test4", () => expect(mixColors(y, y, r).hex()).toEqual("#FF9E00"));
-    it("test4", () => expect(mixColors(y, y, y, r).hex()).toEqual("#FFB100"));
+    it("test5", () => expect(mixColors(y, y, y, r).hex()).toEqual("#FFB100"));
+    it("colorDarkness 1", () => expect(colorLightness(Color("white"))).toEqual(1));
+    it("colorDarkness 2", () => expect(colorLightness(Color("black"))).toEqual(0));
 });

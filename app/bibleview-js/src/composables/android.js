@@ -105,8 +105,7 @@ export function useAndroid({allStyleRanges}, config) {
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
         const bookmarks = union(
             ...allStyleRanges.value.filter(
-                s => rangeInside(s.ordinalAndOffsetRange,
-                    [[startOrdinal, startOffset], [endOrdinal, endOffset]], {inclusive: true}))
+                s => rangeInside(s.ordinalAndOffsetRange,[[startOrdinal, startOffset], [endOrdinal, endOffset]]))
                 .map(s => s.bookmarks)
         );
         return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks};

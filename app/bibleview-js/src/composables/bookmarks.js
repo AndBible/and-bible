@@ -17,9 +17,9 @@
 
 import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
-import {arrayEq, intersection, mixColors, rangesOverlap, toRgba} from "@/utils";
+import {arrayEq, colorLightness, intersection, mixColors, rangesOverlap, toRgba} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {findNodeAtOffset, textLength} from "@/dom";
+import {findNodeAtOffset, textLength, walkBackText} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
@@ -196,14 +196,16 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
                     })
                 });
 
-            styleRanges.push({
-                ordinalAndOffsetRange,
-                labelCount,
-                labels: Array.from(labels),
-                bookmarks: Array.from(bookmarksSet),
-            });
+            if(labels.size > 0) {
+                styleRanges.push({
+                    ordinalAndOffsetRange,
+                    labelCount,
+                    labels: Array.from(labels),
+                    bookmarks: Array.from(bookmarksSet),
+                });
+            }
         }
-        return styleRanges.filter(v => v.labels.length > 0);
+        return styleRanges;
     })
 
     function styleForStyleRange({labels, labelCount}) {
@@ -222,7 +224,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
 
     function blendingStyleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
-        let darkenCoef = 0;
+        let darkenCoef = 0.0;
 
         for(const {label: s, id} of bookmarkLabels) {
             let c = new Color(s.color)
@@ -232,7 +234,12 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             }
         }
 
-        const color = mixColors(...colors).alpha(0.4).darken(Math.min(1.0, darkenCoef));
+        let color = mixColors(...colors).alpha(0.4).darken(Math.min(1.0, darkenCoef));
+
+        if(colorLightness(color) > 0.9) {
+            color = color.darken(0.2);
+        }
+
         return `background-color: ${color.hsl().string()}`
     }
 
@@ -267,6 +274,17 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
 
     const undoHighlights = [];
 
+    function findNodeAtOffsetWithNullOffset(elem, offset) {
+        let node, off;
+        if (offset === null) {
+            node = walkBackText(elem, true).next().value;
+            off = node.length;
+        } else {
+            [node, off] = findNodeAtOffset(elem, offset);
+        }
+        return [node, off];
+    }
+
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
         let element;
@@ -292,14 +310,20 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
                 console.error("Element is not found!", fragmentKey, startOrdinal, endOrdinal);
                 return;
             }
-            const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
-            const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
+            const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);
+            const [second, endOff1] = findNodeAtOffsetWithNullOffset(secondElem, endOff);
+
             const range = new Range();
             range.setStart(first, startOff1);
             range.setEnd(second, endOff1);
-            const {undo, highlightElements} = highlightRange(range, 'span', {style});
-            element = highlightElements[0];
-            undoHighlights.push(undo);
+            const highlightResult = highlightRange(range, 'span', {style});
+            if(highlightResult) {
+                const {undo, highlightElements} = highlightResult;
+                element = highlightElements[0];
+                undoHighlights.push(undo);
+            } else {
+                console.error("Highlightrange failed!", {first, startOff, endOff})
+            }
         }
 
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));

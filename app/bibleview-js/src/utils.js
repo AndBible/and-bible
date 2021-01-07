@@ -240,3 +240,10 @@ export function mixColors(...colors) {
     const mixed = rybColorMixer.mix(...hexColors, {result: "ryb", hex: true});
     return Color.rgb("#"+mixed);
 }
+
+export function colorLightness(color) {
+    // YIQ equation from Color.isDark()
+    var rgb = color.rgb().color;
+    var yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+    return yiq / 255;
+}

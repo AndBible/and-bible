@@ -20,7 +20,7 @@ import {shallowMount} from "@vue/test-utils";
 import Verse from "@/components/OSIS/Verse";
 import {useConfig, useStrings} from "@/composables";
 import {ref} from "@vue/reactivity";
-import {arrayLeq, mapFrom, rangesOverlap, setFrom} from "@/utils";
+import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 
 xdescribe("Verse.vue", () => {
@@ -167,5 +167,8 @@ describe ("bookmark test", () => {
     it("Ranges overlap 4", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,9], [3,null]])).toBe(true));
     it("Ranges overlap 5", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,10], [3,null]])).toBe(false));
     it("Ranges overlap 6", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,11], [3,null]])).toBe(false));
+
+    it("Range inside 1", () => expect(rangeInside([[3, 11], [3,null]], [[3,10], [4, 0]])).toBe(true));
+    it("Range inside 2", () => expect(rangeInside([[3, 0], [3,null]], [[3, 0], [4, 0]])).toBe(true));
 
 });
