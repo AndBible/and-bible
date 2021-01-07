@@ -187,8 +187,9 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    //TODO: simplify...
 
+                    // Show only first label color of each bookmark. Otherwise will be
+                    // confusing.
                     filterLabels(b.labels).slice(0, 1).forEach(l => {
                         labels.add(l);
                         labelCount.set(l, (labelCount.get(l) || 0) + 1);
