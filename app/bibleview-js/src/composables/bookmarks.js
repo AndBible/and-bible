@@ -278,7 +278,12 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
                 const elem = document.querySelector(`#f-${fragmentKey} #v-${ord}`);
+                const oldStyle = elem.style;
                 elem.style = style;
+                undoHighlights.push(() => {
+                    elem.style = oldStyle;
+                });
+
             }
         } else {
             const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
