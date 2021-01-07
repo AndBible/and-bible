@@ -73,7 +73,7 @@ export const strongsModes = {
 
 export function useConfig() {
     const config = reactive({
-        bookmarkingMode: bookmarkingModes.blend,
+        bookmarkingMode: bookmarkingModes.verticalColorBars,
         showAnnotations: true,
         showChapterNumbers: true,
         showVerseNumbers: true,
