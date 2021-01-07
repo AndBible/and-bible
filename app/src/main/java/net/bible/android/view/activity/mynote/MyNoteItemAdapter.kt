@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.list_item_2_highlighted.view.*
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.util.widget.TwoLineListItem
 
@@ -37,9 +38,10 @@ class MyNoteItemAdapter(
     _context: Context?,
     private val resource: Int,
     _items: List<BookmarkEntities.Bookmark?>?,
+    val bookmarkControl: BookmarkControl
     ) : ArrayAdapter<BookmarkEntities.Bookmark?>(_context!!, resource, _items!!) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val item = getItem(position)
+        val item = getItem(position)!!
 
         // Pick up the TwoLineListItem defined in the xml file
         val view: TwoLineListItem
@@ -52,18 +54,23 @@ class MyNoteItemAdapter(
 
         // Set value for the first text field
         if (view.text1 != null) {
-            view.text1.text = item?.verseRange.toString()
+            view.text1.text = item.verseRange.toString()
         }
 
         // set value for the second text field
         if (view.text2 != null) {
             try {
-                view.text2.text = item?.notes
+                view.text2.text = item.notes
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
                 view.text2.text = ""
             }
         }
+        val labels = bookmarkControl.labelsForBookmark(item)
+        labels.firstOrNull()?.bookmarkStyle?.backgroundColor?.also {
+            view.setBackgroundColor(it)
+        }
+
         return view
     }
 

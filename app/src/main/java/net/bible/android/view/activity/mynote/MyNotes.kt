@@ -85,7 +85,7 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
             }
 
         // prepare the document list view
-        val myNoteArrayAdapter = MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList)
+        val myNoteArrayAdapter = MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList, bookmarkControl)
         listAdapter = myNoteArrayAdapter
         loadUserNoteList()
         registerForContextMenu(listView)
