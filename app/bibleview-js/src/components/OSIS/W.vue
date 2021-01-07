@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {strongsModes, useCommon} from "@/composables";
 
 export default {
   name: "W",
@@ -79,10 +79,10 @@ export default {
   },
   computed: {
     showStrongs() {
-      return this.config.strongsMode > 0
+      return this.config.strongsMode !== strongsModes.off
     },
     showStrongsSeparately() {
-      return this.config.strongsMode === 2
+      return this.config.strongsMode === strongsModes.links
     },
   }
 }

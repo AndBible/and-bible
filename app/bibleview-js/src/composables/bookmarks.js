@@ -17,14 +17,15 @@
 
 import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
-import {arrayEq, intersection, rangesOverlap, toRgba} from "@/utils";
+import {arrayEq, intersection, mixColors, rangesOverlap, toRgba} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, textLength} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
-import {highlightRange} from "@/highlight-range";
+import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
+import {bookmarkingModes} from "@/composables/index";
 
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
@@ -182,7 +183,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
                 .filter( b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
-                    filterLabels(b.labels).forEach(l => {
+                    filterLabels(b.labels).slice(0, 1).forEach(l => {
                         labels.add(l);
                         labelCount.set(l, (labelCount.get(l) || 0) + 1);
                     })
@@ -199,10 +200,36 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
     })
 
     function styleForStyleRange({labels, labelCount}) {
-        return styleForLabels(Array.from(labels).map(v => ({id: v, label: bookmarkLabels.get(v)})), labelCount);
+        const _bookmarkLabels = Array.from(labels).map(v => ({
+            id: v,
+            label: bookmarkLabels.get(v)
+        }));
+
+        switch(config.bookmarkingMode) {
+            case bookmarkingModes.verticalColorBars:
+                return verticalColorbarStyleForLabels(_bookmarkLabels, labelCount);
+            case bookmarkingModes.blend:
+                return blendingStyleForLabels(_bookmarkLabels, labelCount);
+        }
     }
 
-    function styleForLabels(bookmarkLabels, labelCount) {
+    function blendingStyleForLabels(bookmarkLabels, labelCount) {
+        let colors = [];
+        let darkenCoef = 0;
+
+        for(const {label: s, id} of bookmarkLabels) {
+            let c = new Color(s.color)
+            darkenCoef += 0.3*(labelCount.get(id)-1);
+            for(let i = 0; i<labelCount.get(id); i++) {
+                colors.push(c);
+            }
+        }
+
+        const color = mixColors(...colors).alpha(0.4).darken(Math.min(1.0, darkenCoef));
+        return `background-color: ${color.hsl().string()}`
+    }
+
+    function verticalColorbarStyleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
             let c = new Color(s.color)

@@ -16,6 +16,8 @@
  */
 
 import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
+import Color from "color";
+import {rybColorMixer} from "@/lib/ryb-color-mixer";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -225,4 +227,10 @@ export async function sleep(ms) {
 
 export function toRgba(s, alpha="100%") {
     return `rgba(${s[0]}, ${s[1]}, ${s[2]}, ${alpha})`
+}
+
+export function mixColors(...colors) {
+    const hexColors = colors.map(v=>v.rgb().hex());
+    const mixed = rybColorMixer.mix(...hexColors, {result: "ryb", hex: true});
+    return Color.rgb("#"+mixed);
 }

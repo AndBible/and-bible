@@ -60,12 +60,24 @@ export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
     return {currentVerse}
 }
 
+export const bookmarkingModes = {
+    verticalColorBars: 0,
+    blend: 1,
+}
+
+export const strongsModes = {
+    off: 0,
+    inline: 1,
+    links: 2,
+}
+
 export function useConfig() {
     const config = reactive({
+        bookmarkingMode: bookmarkingModes.verticalColorBars,
         showAnnotations: true,
         showChapterNumbers: true,
         showVerseNumbers: true,
-        strongsMode: 0,
+        strongsMode: strongsModes.off,
         showMorphology: false,
         showRedLetters: false,
         showVersePerLine: false,

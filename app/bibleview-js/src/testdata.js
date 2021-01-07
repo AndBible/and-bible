@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License along with And Bible.
  * If not, see http://www.gnu.org/licenses/.
  */
+import Color from "color";
 
 export let testData, testBookmarks, testBookmarkLabels;
 
@@ -42,9 +43,33 @@ if(process.env.NODE_ENV === "development") {
 
     testBookmarks = [
         {
+            id: 9,
+            ordinalRange: [30852, 30852],
+            offsetRange: [50, 60],
+            labels: [1],
+            book: "KJV",
+            notes: null,
+        },
+        {
+            id: 8,
+            ordinalRange: [30852, 30852],
+            offsetRange: [40, 60],
+            labels: [1],
+            book: "KJV",
+            notes: null,
+        },
+        {
+            id: 7,
+            ordinalRange: [30852, 30852],
+            offsetRange: [30, 60],
+            labels: [1],
+            book: "KJV",
+            notes: null,
+        },
+        {
             id: 6,
             ordinalRange: [30852, 30852],
-            offsetRange: [20, 25],
+            offsetRange: [20, 60],
             labels: [1],
             book: "KJV",
             notes: null,
@@ -102,19 +127,19 @@ if(process.env.NODE_ENV === "development") {
         {
             id: 1,
             style: {
-                color: [255, 0, 0]
+                color: new Color("cyan").rgb().array() //[255, 0, 0]
             }
         },
         {
             id: 2,
             style: {
-                color: [0, 255, 0],
+                color: new Color("yellow").rgb().array(), //[0, 255, 0],
             }
         },
         {
             id: 3,
             style: {
-                color: [0, 0, 255],
+                color: new Color("magenta").rgb().array(), //[0, 0, 255],
             }
         },
         {
