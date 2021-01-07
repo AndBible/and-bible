@@ -31,18 +31,24 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import java.util.*
 
+const val orderByString = """
+CASE
+    WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
+    WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
+    WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
+END"""
+
 @Dao
 interface BookmarkDao {
-    @Query("SELECT * from Bookmark ORDER BY :orderBy")
+    @Query("SELECT * from Bookmark ORDER BY $orderByString")
     fun allBookmarks(orderBy: String): List<Bookmark>
     fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        allBookmarks(orderBy.sqlString)
+        allBookmarks(orderBy.name)
 
-    // TODO: WHY this DOES NOT WORK (ordering fails!)? It does not fail if :orderBy is hardcoded
-    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY :orderBy")
+    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY $orderByString")
     fun allBookmarksWithNotes(orderBy: String): List<Bookmark>
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> =
-        allBookmarksWithNotes(orderBy.sqlString)
+        allBookmarksWithNotes(orderBy.name)
 
     @Query("SELECT * from Bookmark where id = :bookmarkId")
     fun bookmarkById(bookmarkId: Long): Bookmark
@@ -108,22 +114,22 @@ interface BookmarkDao {
     @Query("""
         SELECT * FROM Bookmark WHERE NOT EXISTS 
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
-            ORDER BY :orderBy
+            ORDER BY $orderByString
         """)
     fun unlabelledBookmarks(orderBy: String): List<Bookmark>
     fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        unlabelledBookmarks(orderBy.sqlString)
+        unlabelledBookmarks(orderBy.name)
 
 
     @Query("""
         SELECT Bookmark.* FROM Bookmark 
             JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
             JOIN Label ON BookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY :orderBy
+            WHERE Label.id = :labelId ORDER BY $orderByString
         """)
     fun bookmarksWithLabel(labelId: Long, orderBy: String): List<Bookmark>
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
-        = bookmarksWithLabel(label.id, orderBy.sqlString)
+        = bookmarksWithLabel(label.id, orderBy.name)
 
     @Query("UPDATE Bookmark SET notes=:notes WHERE id=:bookmarkId")
     fun saveBookmarkNote(bookmarkId: Long, notes: String?)

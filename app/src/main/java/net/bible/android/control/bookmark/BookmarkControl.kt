@@ -192,28 +192,26 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        getSortedBookmarks(
-            when {
-                LABEL_ALL == label -> dao.allBookmarks(orderBy)
-                LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(orderBy)
-                else -> dao.bookmarksWithLabel(label, orderBy)
-            }, orderBy
-        )
+        when {
+            LABEL_ALL == label -> dao.allBookmarks(orderBy)
+            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(orderBy)
+            else -> dao.bookmarksWithLabel(label, orderBy)
+        }
 
     // Not sure if this is really needed (or if per-ordinal sorting by DB is enough). Leaving this for now.
-    private fun getSortedBookmarks(bookmarkList: List<Bookmark>, orderBy: BookmarkSortOrder): List<Bookmark> {
-        if(orderBy == BookmarkSortOrder.CREATED_AT) return bookmarkList
+    //private fun getSortedBookmarks(bookmarkList: List<Bookmark>, orderBy: BookmarkSortOrder): List<Bookmark> {
+    //    if(orderBy == BookmarkSortOrder.CREATED_AT) return bookmarkList
 
-        val comparator = BookmarkBibleOrderComparator(bookmarkList)
+    //    val comparator = BookmarkBibleOrderComparator(bookmarkList)
 
-        // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
-        try {
-            Collections.sort(bookmarkList, comparator)
-        } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
-        }
-        return bookmarkList
-    }
+    //    // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
+    //    try {
+    //        Collections.sort(bookmarkList, comparator)
+    //    } catch (e: Exception) {
+    //        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+    //    }
+    //    return bookmarkList
+    //}
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
