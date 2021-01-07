@@ -163,6 +163,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
                 arr2.push(arr[i]);
             }
         }
+        arr2.push(arr[arr.length-1]);
         return arr2;
     }
 
@@ -178,7 +179,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             splitPoints.push(r[0])
             splitPoints.push(r[1])
         }
-
         splitPoints = sortedUniqueSplitPoints(splitPoints)
 
         const styleRanges = [];
@@ -208,7 +208,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             const labels = new Set();
             const labelCount = new Map();
             const bookmarksSet = new Set();
-
             bookmarks
                 .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {

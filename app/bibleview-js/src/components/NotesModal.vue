@@ -35,7 +35,8 @@
         {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
-      {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}
+      {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+      ID: {{bookmark.id}}
     </div>
     <template #title>
       {{ strings.bookmarkNote }}
