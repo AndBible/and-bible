@@ -22,7 +22,6 @@ import {useConfig, useStrings} from "@/composables";
 import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
-import {nextTick} from "@vue/runtime-core";
 
 xdescribe("Verse.vue", () => {
     let wrapper;
@@ -161,4 +160,12 @@ describe ("bookmark test", () => {
         expect(rangesOverlap([[1, 0], [2,0]], [[2,0], [4,0]], {inclusive: false})).toBe(false);
         expect(rangesOverlap([[1, 0], [2,0]], [[2,0], [4,0]], {inclusive: true})).toBe(true);
     });
+
+    it("Ranges overlap 1", () => expect(rangesOverlap([[1, 0], [2,null]], [[1,0], [2,null]])).toBe(true));
+    it("Ranges overlap 2", () => expect(rangesOverlap([[1, 0], [2,null]], [[2,0], [2,null]])).toBe(true));
+    it("Ranges overlap 3", () => expect(rangesOverlap([[3, 0], [3,null]], [[2,0], [2,null]])).toBe(false));
+    it("Ranges overlap 4", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,9], [3,null]])).toBe(true));
+    it("Ranges overlap 5", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,10], [3,null]])).toBe(false));
+    it("Ranges overlap 6", () => expect(rangesOverlap([[3, 0], [3,10]], [[3,11], [3,null]])).toBe(false));
+
 });

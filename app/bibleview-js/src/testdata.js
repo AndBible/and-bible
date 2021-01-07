@@ -43,6 +43,14 @@ if(process.env.NODE_ENV === "development") {
 
     testBookmarks = [
         {
+            id: 10,
+            ordinalRange: [30850, 30850],
+            offsetRange: null,
+            labels: [1],
+            book: "KJV",
+            notes: null,
+        },
+        {
             id: 9,
             ordinalRange: [30852, 30852],
             offsetRange: [50, 60],
@@ -94,7 +102,7 @@ if(process.env.NODE_ENV === "development") {
             id: 0,
             ordinalRange: [30839, 30842],
             offsetRange: null,
-            labels: [1, 2],
+            labels: [2],
             book: "KJV",
             notes: null,
         },
@@ -102,7 +110,7 @@ if(process.env.NODE_ENV === "development") {
             id: 1,
             ordinalRange: [30842, 30842],
             labels: [3],
-            ordinalAndOffsetRange: null,
+            offsetRange: null,
             book: null,
             notes: null,
         },
@@ -110,7 +118,7 @@ if(process.env.NODE_ENV === "development") {
             id: 2,
             ordinalRange: [30842, 30846],
             labels: [3],
-            ordinalAndOffsetRange: null,
+            offsetRange: null,
             book: null,
             notes: null,
         },

@@ -96,10 +96,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
     const isMounted = ref(0);
     onMounted(() => isMounted.value ++)
 
-    function showBookmarkForWholeVerse(bookmark) {
-        return bookmark.offsetRange === null || bookmark.book !== book
-    }
-
     const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange === null
     const checkOrdinal = (b) => {
         return b.ordinalRange !== null && ordinalRange !== null
@@ -120,31 +116,42 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         }
         if(b.ordinalRange[1] > ordinalRange[1]) {
             b.ordinalRange[1] = ordinalRange[1];
-            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
-            b.offsetRange[1] = textLength(verseElement);
-        }
-        if(b.offsetRange[1] == null) {
-            const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
-            b.offsetRange[1] = textLength(verseElement);
+            if(b.ordinalRange[0] === b.ordinalRange[1] && b.offsetRange[0] !== 0) {
+                const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
+                b.offsetRange[1] = textLength(verseElement);
+            } else {
+                b.offsetRange[1] = null;
+            }
         }
         return b;
     }
+
     function combinedRange(b) {
         let cached = combinedRangeCache.get(b.id);
         if(!cached) {
             b = truncateToOrdinalRange(b);
-            let offsetRange = b.offsetRange;
-            if (showBookmarkForWholeVerse(b)) {
-                const startOffset = 0;
-                const verseElement = document.querySelector(`#f-${fragmentKey} #v-${b.ordinalRange[1]}`);
-                const endOffset = textLength(verseElement);
-                offsetRange = [startOffset, endOffset];
+
+            if(b.book !== book) {
+                b.offsetRange[0] = 0;
+                b.offsetRange[1] = null;
             }
 
-            cached = [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
+            cached = [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]]]
             combinedRangeCache.set(b.id, cached);
         }
         return cached;
+    }
+
+    function sortedUniqueSplitPoints(splitPoints) {
+        return uniqWith(
+            sortBy(splitPoints, [v => v[0], v => {
+                const val = v[1];
+                if(val === null) return Number.MAX_VALUE;
+                else return val;
+            }
+            ]),
+            (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]
+        );
     }
 
     const styleRanges = computed(() => {
@@ -159,13 +166,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             splitPoints.push(r[0])
             splitPoints.push(r[1])
         }
-        splitPoints = uniqWith(
-            sortBy(splitPoints, [v => v[0], v => v[1]]),
-            (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]
-        );
+
+        splitPoints = sortedUniqueSplitPoints(splitPoints)
 
         const styleRanges = [];
-
         const labelsSet = new Set(config.bookmarks.showLabels);
 
         function filterLabels(labels) {
@@ -180,9 +184,11 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             const bookmarksSet = new Set();
 
             bookmarks
-                .filter( b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
+                .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
                 .forEach(b => {
                     bookmarksSet.add(b.id);
+                    //TODO: simplify...
+
                     filterLabels(b.labels).slice(0, 1).forEach(l => {
                         labels.add(l);
                         labelCount.set(l, (labelCount.get(l) || 0) + 1);
@@ -262,20 +268,33 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
 
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
-        const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
-        const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
-        if(firstElem === null || secondElem === null) {
-            console.error("Element is not found!", fragmentKey, startOrdinal, endOrdinal);
-            return;
-        }
-        const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
-        const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
-        const range = new Range();
-        range.setStart(first, startOff1);
-        range.setEnd(second, endOff1);
+        let element;
         const style = styleForStyleRange(styleRange)
-        const {undo, highlightElements} = highlightRange(range, 'span', { style });
-        undoHighlights.push(undo);
+
+
+        if(!startOff && !endOff) {
+            element = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
+            const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
+            for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
+                const elem = document.querySelector(`#f-${fragmentKey} #v-${ord}`);
+                elem.style = style;
+            }
+        } else {
+            const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
+            const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
+            if (firstElem === null || secondElem === null) {
+                console.error("Element is not found!", fragmentKey, startOrdinal, endOrdinal);
+                return;
+            }
+            const [first, startOff1] = findNodeAtOffset(firstElem, startOff);
+            const [second, endOff1] = findNodeAtOffset(secondElem, endOff);
+            const range = new Range();
+            range.setStart(first, startOff1);
+            range.setEnd(second, endOff1);
+            const {undo, highlightElements} = highlightRange(range, 'span', {style});
+            element = highlightElements[0];
+            undoHighlights.push(undo);
+        }
 
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
 
@@ -291,7 +310,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             icon.addEventListener("click", () => {
                 emit(Events.NOTE_CLICKED, b);
             })
-            const element = highlightElements[0];
             element.parentElement.insertBefore(icon, element);
             undoHighlights.push(() => icon.remove());
         }

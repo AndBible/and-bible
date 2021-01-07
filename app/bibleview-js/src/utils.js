@@ -68,27 +68,33 @@ export function mapFrom(arr, keyFn, valueFn) {
     return map;
 }
 
+function nm(v) {
+    if(v === null) {
+        return Number.MAX_VALUE
+    } else return v;
+}
+
 export function arrayLeq([v11, v12], [v21, v22]) {
     if(v11 < v21) return true
-    if(v11 === v21) return v12 <= v22;
+    if(v11 === v21) return nm(v12) <= nm(v22);
     return false;
 }
 
 export function arrayGeq([v11, v12], [v21, v22]) {
     if(v11 > v21) return true
-    if(v11 === v21) return v12 >= v22;
+    if(v11 === v21) return nm(v12) >= nm(v22);
     return false;
 }
 
 export function arrayLe([v11, v12], [v21, v22]) {
     if(v11 < v21) return true
-    if(v11 === v21) return v12 < v22;
+    if(v11 === v21) return nm(v12) < nm(v22);
     return false;
 }
 
 export function arrayGe([v11, v12], [v21, v22]) {
     if(v11 > v21) return true
-    if(v11 === v21) return v12 > v22;
+    if(v11 === v21) return nm(v12) > nm(v22);
     return false;
 }
 
