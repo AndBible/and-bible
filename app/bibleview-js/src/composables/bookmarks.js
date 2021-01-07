@@ -208,7 +208,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             let c = new Color(s.color)
             c = c.alpha(0.3)
             for(let i = 0; i<labelCount.get(id)-1; i++) {
-                c = c.opaquer(0.3).darken(0.1);
+                c = c.opaquer(0.3).darken(0.2);
             }
             colors.push(c.hsl().string())
         }
