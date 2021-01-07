@@ -108,7 +108,9 @@ export function useAndroid({allStyleRanges}, config) {
                 s => rangeInside(s.ordinalAndOffsetRange,[[startOrdinal, startOffset], [endOrdinal, endOffset]]))
                 .map(s => s.bookmarks)
         );
-        return {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks};
+        const result = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks};
+        console.log("querySelection", result);
+        return result;
     }
 
     window.bibleView.response = response;

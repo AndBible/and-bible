@@ -108,7 +108,7 @@ if(process.env.NODE_ENV === "development") {
         },
         {
             id: 1,
-            ordinalRange: [30842, 30842],
+            ordinalRange: [30843, 30843],
             labels: [3],
             offsetRange: null,
             book: null,

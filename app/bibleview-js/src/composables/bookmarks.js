@@ -17,7 +17,7 @@
 
 import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
-import {arrayEq, colorLightness, intersection, mixColors, rangesOverlap, toRgba} from "@/utils";
+import {arrayEq, colorLightness, intersection, mixColors, rangesOverlap} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, textLength, walkBackText} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
@@ -143,15 +143,27 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
     }
 
     function sortedUniqueSplitPoints(splitPoints) {
-        return uniqWith(
+        const arr = uniqWith(
             sortBy(splitPoints, [v => v[0], v => {
                 const val = v[1];
                 if(val === null) return Number.MAX_VALUE;
                 else return val;
             }
             ]),
-            (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]
+            (v1, v2) => {
+                return v1[0] === v2[0] && v1[1] === v2[1]
+            }
         );
+        // Remove 0-lenght ranges
+        const arr2 = [];
+        for(let i = 0; i<arr.length-1;i++) {
+            const v1 = arr[i];
+            const v2 = arr[i+1];
+            if (!(v2[0] === v1[0] + 1 && v2[1] === 0 && v1[1] === null)) {
+                arr2.push(arr[i]);
+            }
+        }
+        return arr2;
     }
 
     const styleRanges = computed(() => {
@@ -177,8 +189,22 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             return intersection(labelsSet, new Set(labels));
         }
 
+        function startPoint(point) {
+            if(point[1] === null) {
+                return [point[0] +1, 0];
+            } else
+                return point;
+        }
+
+        function endPoint(point) {
+            if(point[1] === 0) {
+                return [point[0] -1, null];
+            } else
+                return point;
+        }
+
         for(let i = 0; i < splitPoints.length-1; i++) {
-            const ordinalAndOffsetRange = [splitPoints[i], splitPoints[i+1]];
+            const ordinalAndOffsetRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
             const labels = new Set();
             const labelCount = new Map();
             const bookmarksSet = new Set();
@@ -234,7 +260,9 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
             }
         }
 
-        let color = mixColors(...colors).alpha(0.4).darken(Math.min(1.0, darkenCoef));
+        let color = mixColors(...colors)
+            .alpha(0.4)
+            .darken(Math.min(1.0, darkenCoef));
 
         if(colorLightness(color) > 0.9) {
             color = color.darken(0.2);
