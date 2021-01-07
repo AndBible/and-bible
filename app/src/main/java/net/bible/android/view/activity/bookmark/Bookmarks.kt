@@ -122,13 +122,13 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
             override fun onNothingSelected(arg0: AdapterView<*>?) {}
         }
-        loadBookmarkList()
 
         // prepare the document list view
         val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
             this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider
         )
         listAdapter = bookmarkArrayAdapter
+        loadBookmarkList()
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {

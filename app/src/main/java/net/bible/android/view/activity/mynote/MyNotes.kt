@@ -83,11 +83,11 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
                 parent, view, position, id ->
                 listActionModeHelper!!.startActionMode(this@MyNotes, position)
             }
-        loadUserNoteList()
 
         // prepare the document list view
         val myNoteArrayAdapter = MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList)
         listAdapter = myNoteArrayAdapter
+        loadUserNoteList()
         registerForContextMenu(listView)
     }
 
