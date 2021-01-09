@@ -152,29 +152,54 @@ export function useBookmarks(fragmentKey,
         return cached;
     }
 
-    function sortedUniqueSplitPoints(splitPoints) {
-        const arr = uniqWith(
-            sortBy(splitPoints, [v => v[0], v => {
-                const val = v[1];
-                if(val === null) return Number.MAX_VALUE;
-                else return val;
-            }
-            ]),
-            (v1, v2) => {
-                return v1[0] === v2[0] && v1[1] === v2[1]
-            }
-        );
-        // Remove 0-lenght ranges
+    function removeZeroLenghtRanges(splitPoints) {
         const arr2 = [];
-        for(let i = 0; i<arr.length-1;i++) {
-            const v1 = arr[i];
-            const v2 = arr[i+1];
-            if (!(v2[0] === v1[0] + 1 && v2[1] === 0 && v1[1] === null)) {
-                arr2.push(arr[i]);
+        for (let i = 0; i < splitPoints.length - 1; i++) {
+            const [[ord1, off1], [ord2, off2]] = [splitPoints[i], splitPoints[i+1]];
+
+            if (!(ord2 === ord1 + 1 && off2 === 0 && off1 === null)) {
+                arr2.push(splitPoints[i]);
             }
         }
-        arr2.push(arr[arr.length-1]);
+        if (splitPoints.length > 0) {
+            arr2.push(splitPoints[splitPoints.length - 1]);
+        }
         return arr2;
+    }
+
+    // Arbitrary (not verse-boundary-starting/ending) ranges that span multiple verses need to be split
+    // For example [1,1 - 2,end] => [1,1 - 1,end],[2,0 - 2,end], such that second range can be optimized
+    // when rendering highlight.
+    function splitMore(splitPoints) {
+        const arr2 = [];
+        for(let i = 0; i<splitPoints.length - 1; i++) {
+            const [[startOrd, startOff], [endOrd, endOff]] = [splitPoints[i], splitPoints[i+1]];
+            arr2.push([startOrd, startOff])
+
+            if(startOrd !== endOrd) {
+                if(startOff) arr2.push([startOrd  + 1, 0]);
+                if(endOff && (!startOff || endOrd > startOrd + 1)) arr2.push([endOrd - 1, null]);
+            }
+        }
+
+        if(splitPoints.length > 0) {
+            arr2.push(splitPoints[splitPoints.length - 1]);
+        }
+        return arr2;
+
+    }
+
+    function sortedUniqueSplitPoints(splitPoints) {
+        let sps = sortBy(splitPoints, [v => v[0], v => {
+            const val = v[1];
+            if(val === null) return Number.MAX_VALUE;
+            else return val;
+        }
+        ])
+        sps = uniqWith(sps, (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]);
+        sps = removeZeroLenghtRanges(sps);
+        sps = splitMore(sps);
+        return sps;
     }
 
     function startPoint(point) {
@@ -191,16 +216,6 @@ export function useBookmarks(fragmentKey,
             return point;
     }
 
-    function* generateSplitPoints(b) {
-        const [[startOrd, startOff], [endOrd, endOff]] = combinedRange(b);
-        yield [startOrd, startOff];
-        if(startOrd !== endOrd) {
-            if(!startOff) yield [startOrd  + 1, 0];
-            if(!endOff && endOrd > startOrd + 1) yield [endOrd - 1, null];
-        }
-        yield [endOrd, endOff];
-    }
-
     const styleRanges = computed(() => {
         isMounted.value;
         labelsUpdated.value;
@@ -208,9 +223,10 @@ export function useBookmarks(fragmentKey,
         let splitPoints = [];
         const bookmarks = fragmentBookmarks.value;
 
-        for(const b of bookmarks)
-            for (const s of generateSplitPoints(b))
-                splitPoints.push(s);
+        for(const b of bookmarks.map(v => combinedRange(v))) {
+            splitPoints.push(b[0])
+            splitPoints.push(b[1])
+        }
 
         splitPoints = sortedUniqueSplitPoints(splitPoints)
 
