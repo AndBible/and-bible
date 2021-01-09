@@ -25,9 +25,13 @@ import {library} from "@fortawesome/fontawesome-svg-core";
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
 
 let developmentMode = false;
+let testMode = false;
 
 if(process.env.NODE_ENV === "development") {
     developmentMode = true;
+}
+if(process.env.NODE_ENV === "test") {
+    testMode = true;
 }
 
 export function useVerseNotifier(config, {scrolledToVerse}, topElement) {
@@ -122,7 +126,8 @@ export function useConfig() {
         bottomOffset: 100,
         infiniteScroll: true,
 
-        developmentMode: developmentMode,
+        developmentMode,
+        testMode,
     })
 
     if(developmentMode) {

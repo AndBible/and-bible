@@ -38,7 +38,6 @@ const allStyleRanges = computed(() => {
     }
     return allStyles;
 });
-const combinedRangeCache = new Map();
 
 export function useGlobalBookmarks(config) {
     const bookmarkLabels = reactive(new Map());
@@ -92,7 +91,14 @@ export function useGlobalBookmarks(config) {
     }
 }
 
-export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
+export function useBookmarks(fragmentKey,
+                             ordinalRange,
+                             {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
+                             book,
+                             fragmentReady,
+                             config) {
+
+    const combinedRangeCache = new Map();
     const isMounted = ref(0);
 
     onMounted(() => isMounted.value ++);
@@ -119,8 +125,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         if(b.ordinalRange[1] > ordinalRange[1]) {
             b.ordinalRange[1] = ordinalRange[1];
             if(b.ordinalRange[0] === b.ordinalRange[1] && b.offsetRange[0] !== 0) {
-                const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
-                b.offsetRange[1] = textLength(verseElement);
+                //const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
+                //b.offsetRange[1] = textLength(verseElement);
+                // TODO: this does not work (yet)
+                b.offsetRange[1] = null;
             } else {
                 b.offsetRange[1] = null;
             }
@@ -194,7 +202,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
     }
 
     const styleRanges = computed(() => {
-        if(!isMounted.value) return [];
+        isMounted.value;
         labelsUpdated.value;
 
         let splitPoints = [];
@@ -328,7 +336,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         let element;
         const style = styleForStyleRange(styleRange)
 
-
         if(!startOff && !endOff) {
             element = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
@@ -384,6 +391,7 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
     }
 
     watch(styleRanges, (newValue) => {
+        if(!isMounted.value) return;
         undoHighlights.reverse();
         undoHighlights.forEach(v => v())
         undoHighlights.splice(0);

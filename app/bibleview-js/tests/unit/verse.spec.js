@@ -23,7 +23,7 @@ import {ref} from "@vue/reactivity";
 import {arrayLeq, mapFrom, rangeInside, rangesOverlap, setFrom} from "@/utils";
 import {useBookmarks, useGlobalBookmarks} from "@/composables/bookmarks";
 
-xdescribe("Verse.vue", () => {
+describe("Verse.vue", () => {
     let wrapper;
     beforeAll(() => {
         const bookmarkLabels = mapFrom([
@@ -94,7 +94,7 @@ xdescribe("Verse.vue", () => {
         expect(arrayLeq([1, 0], [0, 0])).toBe(false);
         expect(arrayLeq([1, 0], [0, 0])).toBe(false);
     });
-    it("Test styleranges", () => {
+    xit("Test styleranges", () => {
         const result = [
             {
                 "bookmarks": setFrom(1, 2, 3),
