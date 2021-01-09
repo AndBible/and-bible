@@ -98,7 +98,6 @@ export function useBookmarks(fragmentKey,
                              fragmentReady,
                              config) {
 
-    const combinedRangeCache = new Map();
     const isMounted = ref(0);
 
     onMounted(() => isMounted.value ++);
@@ -124,35 +123,21 @@ export function useBookmarks(fragmentKey,
         }
         if(b.ordinalRange[1] > ordinalRange[1]) {
             b.ordinalRange[1] = ordinalRange[1];
-            if(b.ordinalRange[0] === b.ordinalRange[1] && b.offsetRange[0] !== 0) {
-                //const verseElement = document.querySelector(`#f-${fragmentKey} #v-${ordinalRange[1]}`);
-                //b.offsetRange[1] = textLength(verseElement);
-                // TODO: this does not work (yet)
-                b.offsetRange[1] = null;
-            } else {
-                b.offsetRange[1] = null;
-            }
+            b.offsetRange[1] = null;
         }
         return b;
     }
 
     function combinedRange(b) {
-        let cached = combinedRangeCache.get(b.id);
-        if(!cached) {
-            b = truncateToOrdinalRange(b);
-
-            if(b.book !== book) {
-                b.offsetRange[0] = 0;
-                b.offsetRange[1] = null;
-            }
-
-            cached = [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]]]
-            combinedRangeCache.set(b.id, cached);
+        b = truncateToOrdinalRange(b);
+        if(b.book !== book) {
+            b.offsetRange[0] = 0;
+            b.offsetRange[1] = null;
         }
-        return cached;
+        return [[b.ordinalRange[0], b.offsetRange[0]], [b.ordinalRange[1], b.offsetRange[1]]]
     }
 
-    function removeZeroLenghtRanges(splitPoints) {
+    function removeZeroLengthRanges(splitPoints) {
         const arr2 = [];
         for (let i = 0; i < splitPoints.length - 1; i++) {
             const [[ord1, off1], [ord2, off2]] = [splitPoints[i], splitPoints[i+1]];
@@ -167,9 +152,11 @@ export function useBookmarks(fragmentKey,
         return arr2;
     }
 
-    // Arbitrary (not verse-boundary-starting/ending) ranges that span multiple verses need to be split
-    // For example [1,1 - 2,end] => [1,1 - 1,end],[2,0 - 2,end], such that second range can be optimized
-    // when rendering highlight.
+    /*
+     Arbitrary (not verse-boundary-starting/ending) ranges that span multiple verses need to be split
+     For example [1,1 - 2,end] => [1,1 - 1,end],[2,0 - 2,end], such that second range can be optimized
+     when rendering highlight.
+    */
     function splitMore(splitPoints) {
         const arr2 = [];
         for(let i = 0; i<splitPoints.length - 1; i++) {
@@ -197,7 +184,7 @@ export function useBookmarks(fragmentKey,
         }
         ])
         sps = uniqWith(sps, (v1, v2) => v1[0] === v2[0] && v1[1] === v2[1]);
-        sps = removeZeroLenghtRanges(sps);
+        sps = removeZeroLengthRanges(sps);
         sps = splitMore(sps);
         return sps;
     }
