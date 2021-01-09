@@ -94,7 +94,9 @@ export function useGlobalBookmarks(config) {
 
 export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated}, book, fragmentReady, config) {
     const isMounted = ref(0);
-    onMounted(() => isMounted.value ++)
+
+    onMounted(() => isMounted.value ++);
+    onUnmounted( () => isMounted.value --);
 
     const noOrdinalNeeded = (b) => b.ordinalRange === null && ordinalRange === null
     const checkOrdinal = (b) => {
@@ -167,6 +169,30 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         return arr2;
     }
 
+    function startPoint(point) {
+        if(point[1] === null) {
+            return [point[0] +1, 0];
+        } else
+            return point;
+    }
+
+    function endPoint(point) {
+        if(point[1] === 0) {
+            return [point[0] -1, null];
+        } else
+            return point;
+    }
+
+    function* generateSplitPoints(b) {
+        const [[startOrd, startOff], [endOrd, endOff]] = combinedRange(b);
+        yield [startOrd, startOff];
+        if(startOrd !== endOrd) {
+            if(!startOff) yield [startOrd  + 1, 0];
+            if(!endOff && endOrd > startOrd + 1) yield [endOrd - 1, null];
+        }
+        yield [endOrd, endOff];
+    }
+
     const styleRanges = computed(() => {
         if(!isMounted.value) return [];
         labelsUpdated.value;
@@ -174,11 +200,10 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         let splitPoints = [];
         const bookmarks = fragmentBookmarks.value;
 
-        for(const b of bookmarks) {
-            const r = combinedRange(b);
-            splitPoints.push(r[0])
-            splitPoints.push(r[1])
-        }
+        for(const b of bookmarks)
+            for (const s of generateSplitPoints(b))
+                splitPoints.push(s);
+
         splitPoints = sortedUniqueSplitPoints(splitPoints)
 
         const styleRanges = [];
@@ -187,20 +212,6 @@ export function useBookmarks(fragmentKey, ordinalRange, {bookmarks, bookmarkMap,
         function filterLabels(labels) {
             if(config.bookmarks.showAll) return labels;
             return intersection(labelsSet, new Set(labels));
-        }
-
-        function startPoint(point) {
-            if(point[1] === null) {
-                return [point[0] +1, 0];
-            } else
-                return point;
-        }
-
-        function endPoint(point) {
-            if(point[1] === 0) {
-                return [point[0] -1, null];
-            } else
-                return point;
         }
 
         for(let i = 0; i < splitPoints.length-1; i++) {
