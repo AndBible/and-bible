@@ -62,7 +62,7 @@ import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/AreYouSure";
 export default {
-  name: "NotesModal",
+  name: "BookmarkModal",
   components: {Modal, FontAwesomeIcon, AreYouSure},
   setup() {
     const showNote = ref(false);

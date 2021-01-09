@@ -19,7 +19,7 @@
   <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
     <div id="notes"/>
-    <NotesModal/>
+    <BookmarkModal/>
     <ErrorBox :log-entries="logEntries"/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
@@ -48,12 +48,12 @@
   import {useAndroid} from "@/composables/android";
   import {setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
-  import NotesModal from "@/components/NotesModal";
+  import BookmarkModal from "@/components/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox, NotesModal, DevelopmentMode},
+    components: {OsisFragment, ErrorBox, BookmarkModal, DevelopmentMode},
     setup() {
       useFontAwesome();
 
