@@ -43,10 +43,6 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>
 class BookmarksDeletedEvent(val bookmarks: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
-/**
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-
 const val LABEL_ALL_ID = -999L
 const val LABEL_UNLABELED_ID = -998L
 

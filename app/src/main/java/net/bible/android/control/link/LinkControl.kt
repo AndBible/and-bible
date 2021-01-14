@@ -69,12 +69,6 @@ class LinkControl @Inject constructor(
 	private val errorReportControl: ErrorReportControl)
 {
     private var windowMode = WINDOW_MODE_UNDEFINED
-    /** Currently the only uris handled are for Strongs refs
-     * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
-     *
-     * @param uriStr
-     * @return true if successfully changed to Strongs ref
-     */
 
     fun loadApplicationUrl(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
@@ -104,11 +98,7 @@ class LinkControl @Inject constructor(
                 UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
-                //UriAnalyzer.DocType.ALL_GREEK -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "g")
-                //UriAnalyzer.DocType.ALL_HEBREW -> showAllOccurrences(uriAnalyzer.key, SearchBibleSection.ALL, "h")
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key)
-                //UriAnalyzer.DocType.NOTE -> showNote(uriAnalyzer.book, uriAnalyzer.key)
-                //UriAnalyzer.DocType.MYNOTE -> showMyNote(uriAnalyzer.key)
                 else -> null
             }
         }
@@ -285,28 +275,6 @@ class LinkControl @Inject constructor(
         }
     }
 
-    // TODO: Currently there's a bit of code duplication between these functions and 
-    // VerseMenuCommandHandler.java:handleMenuRequest
-    private fun showNote(osisRef: String?, note: String) {
-        val activity = CurrentActivityHolder.getInstance().currentActivity
-        val handlerIntent = Intent(activity, FootnoteAndRefActivity::class.java)
-        val intentHelper = IntentHelper()
-        val osisParser = OsisParser()
-        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
-        intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange)
-        activity.startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE)
-    }
-
-    private fun showMyNote(osisRef: String) {
-        val activity: MainBibleActivity = CurrentActivityHolder.getInstance().currentActivity as MainBibleActivity
-        val osisParser = OsisParser()
-        val verseRange = osisParser.parseOsisRef(this.currentPageManager.currentBible.versification, osisRef)
-        activity.fullScreen = false
-        currentPageManager.showMyNote(verseRange)
-        activity.invalidateOptionsMenu()
-        activity.documentViewManager.buildView()
-    }
-
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
         if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
@@ -318,7 +286,7 @@ class LinkControl @Inject constructor(
     }
 
     private val currentPageManager: CurrentPageManager
-        private get() = windowControl.activeWindowPageManager
+        get() = windowControl.activeWindowPageManager
 
     fun setWindowMode(windowMode: String) {
         this.windowMode = windowMode
