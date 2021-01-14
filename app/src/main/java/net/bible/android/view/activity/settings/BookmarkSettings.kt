@@ -40,6 +40,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils.json
 import javax.inject.Inject
 
@@ -145,7 +146,7 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
             "assign_labels" -> GlobalScope.launch(Dispatchers.IO) {
                 val activity = activity as BookmarkSettingsActivity
                 val labels = activity.bookmarks.assignLabels?.toLongArray() ?: emptyArray<Long>()
-                val intent = Intent(activity, BookmarkLabelSelector::class.java)
+                val intent = Intent(activity, ManageLabels::class.java)
                 intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
                 intent.putExtra("title", getString(R.string.bookmark_settings_assign_labels_title))
                 val result = activity.awaitIntent(intent)
@@ -158,7 +159,7 @@ class BookmarkSettingsFragment: PreferenceFragmentCompat() {
             "show_labels" -> GlobalScope.launch(Dispatchers.IO) {
                 val activity = activity as BookmarkSettingsActivity
                 val labels = activity.bookmarks.showLabels?.toLongArray() ?: emptyArray<Long>()
-                val intent = Intent(activity, BookmarkLabelSelector::class.java)
+                val intent = Intent(activity, ManageLabels::class.java)
                 intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
                 intent.putExtra("title", getString(R.string.bookmark_settings_show_labels_title))
                 intent.putExtra("showUnassigned", true)

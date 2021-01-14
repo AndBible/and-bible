@@ -64,7 +64,7 @@ class BookmarkItemAdapter(
             view.speakIcon.visibility = View.GONE
         }
         labels.firstOrNull()?.color?.also {
-            view.setBackgroundColor(it)
+            view.verseContentText.setBackgroundColor(it)
         }
 
         // Set value for the first text field

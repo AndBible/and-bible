@@ -85,6 +85,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
@@ -278,7 +279,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal fun assignLabels(bookmarkId: Long) = GlobalScope.launch(Dispatchers.IO) {
         val bookmark = bookmarkControl.bookmarksByIds(listOf(bookmarkId)).first()
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toLongArray()
-        val intent = Intent(mainBibleActivity, BookmarkLabelSelector::class.java)
+        val intent = Intent(mainBibleActivity, ManageLabels::class.java)
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels)
         intent.putExtra("title", mainBibleActivity.getString(R.string.assign_labels_new_bookmark))
         val result = mainBibleActivity.awaitIntent(intent)

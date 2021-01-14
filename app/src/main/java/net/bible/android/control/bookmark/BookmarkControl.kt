@@ -329,6 +329,10 @@ open class BookmarkControl @Inject constructor(
         )
     }
 
+    fun deleteLabels(toList: List<Long>) {
+        dao.deleteLabelsByIds(toList)
+    }
+
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
         const val LABEL_NO_EXTRA = "labelNo"

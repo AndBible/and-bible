@@ -18,10 +18,14 @@
 package net.bible.android.view.activity.bookmark
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ListView
+import kotlinx.android.synthetic.main.document_selection_with_ok.*
+import kotlinx.android.synthetic.main.manage_labels.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -35,9 +39,12 @@ import javax.inject.Inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class ManageLabels : ListActivityBase() {
-    private val labels: MutableList<BookmarkEntities.Label?> = ArrayList()
-    private var bookmarkControl: BookmarkControl? = null
+    private val labels: MutableList<BookmarkEntities.Label> = ArrayList()
+    @Inject lateinit var bookmarkControl: BookmarkControl
     private var labelDialogs: LabelDialogs? = null
+    var showUnassigned = false
+    var showCheckboxes = false
+    val deletedLabels = mutableSetOf<Long>()
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
@@ -45,65 +52,65 @@ class ManageLabels : ListActivityBase() {
         super.onCreate(savedInstanceState, false)
         setContentView(R.layout.manage_labels)
         super.buildActivityComponent().inject(this)
-        initialiseView()
-    }
+        val selectedLabelIds = intent.getLongArrayExtra(BookmarkControl.LABEL_IDS_EXTRA)
+        if(selectedLabelIds != null) {
+            showCheckboxes = true
+            checkedLabels.addAll(selectedLabelIds.toList())
+        }
 
-    private fun initialiseView() {
+        showUnassigned = intent.getBooleanExtra("showUnassigned", false)
+        val title = intent.getStringExtra("title")
+        if(title!=null) setTitle(title)
         listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
         loadLabelList()
-
-        // prepare the document list view
-        listAdapter = ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this)
+        listAdapter = ManageLabelItemAdapter(this, LIST_ITEM_TYPE, labels, this, checkedLabels, showCheckboxes)
     }
 
-    fun delete(label: BookmarkEntities.Label?) {
-        // delete label from db
-        bookmarkControl!!.deleteLabel(label!!)
+    private val checkedLabels = mutableSetOf<Long>()
 
-        // now refetch the list of labels
+    fun delete(label: BookmarkEntities.Label?) {
+        deletedLabels.add(label!!.id)
+        checkedLabels.remove(label.id)
         loadLabelList()
     }
 
-    /**
-     * New Label requested
-     */
     fun onNewLabel(v: View?) {
         Log.i(TAG, "New label clicked")
         val newLabel = BookmarkEntities.Label()
-        labelDialogs!!.createLabel(this, newLabel) { loadLabelList() }
+        labelDialogs!!.createLabel(this, newLabel) {
+            loadLabelList()
+            checkedLabels.add(newLabel.id)
+            notifyDataSetChanged()
+        }
     }
 
-    /**
-     * New Label requested
-     */
     fun editLabel(label: BookmarkEntities.Label?) {
         Log.i(TAG, "Edit label clicked")
         labelDialogs!!.editLabel(this, label!!) { loadLabelList() }
     }
 
-    /** Finished editing labels
-     */
     fun onOkay(v: View?) {
+        Log.i(TAG, "Okay clicked")
+        val result = Intent()
+        bookmarkControl.deleteLabels(deletedLabels.toList())
+        val labelIds = checkedLabels.toLongArray()
+        result.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labelIds)
+        setResult(Activity.RESULT_OK, result)
         finish()
     }
 
-    /** load list of docs to display
-     *
-     */
-    private fun loadLabelList() {
-
-        // get long book names to show in the select list
-        // must clear rather than create because the adapter is linked to this specific list
-        labels.clear()
-        labels.addAll(bookmarkControl!!.assignableLabels)
-
-        // ensure ui is updated
-        notifyDataSetChanged()
+    fun onCancel(v: View?) {
+        setResult(Activity.RESULT_CANCELED)
+        finish();
     }
 
-    @Inject
-    fun setBookmarkControl(bookmarkControl: BookmarkControl?) {
-        this.bookmarkControl = bookmarkControl
+    private fun loadLabelList() {
+        labels.clear()
+        labels.addAll(bookmarkControl.assignableLabels.filter { !deletedLabels.contains(it.id) })
+        if(showUnassigned) {
+            labels.add(bookmarkControl.LABEL_UNLABELLED)
+        }
+        notifyDataSetChanged()
     }
 
     @Inject
@@ -113,8 +120,6 @@ class ManageLabels : ListActivityBase() {
 
     companion object {
         private const val TAG = "BookmarkLabels"
-
-        // this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
         private const val LIST_ITEM_TYPE = R.layout.manage_labels_list_item
     }
 }

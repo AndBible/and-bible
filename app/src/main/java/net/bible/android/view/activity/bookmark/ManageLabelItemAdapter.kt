@@ -18,18 +18,17 @@
 package net.bible.android.view.activity.bookmark
 
 import android.content.Context
-import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
 import net.bible.service.device.ScreenSettings.nightMode
 import android.widget.ArrayAdapter
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.service.common.displayName
 
 /**
@@ -39,7 +38,9 @@ import net.bible.service.common.displayName
  */
 class ManageLabelItemAdapter(context: Context?,
                              private val resource: Int, items: List<BookmarkEntities.Label?>?,
-                             private val manageLabels: ManageLabels
+                             private val manageLabels: ManageLabels,
+                             private val checkedLabels: MutableSet<Long>,
+                             private val showCheckboxes: Boolean
                              ) : ArrayAdapter<BookmarkEntities.Label?>(context!!, resource, items!!)
 {
     private val bookmarkStyleAdapterHelper = BookmarkStyleAdapterHelper()
@@ -52,10 +53,18 @@ class ManageLabelItemAdapter(context: Context?,
         } else {
             convertView
         }
-        val nameView = rowView.findViewById<View>(R.id.labelName) as TextView
-        nameView.text = label!!.displayName
-
-        bookmarkStyleAdapterHelper.styleView(nameView, label, context, false, false)
+        val name = rowView.findViewById<View>(R.id.labelName) as TextView
+        name.text = label!!.displayName
+        val checkbox = rowView.findViewById<View>(R.id.checkbox) as CheckBox
+        if(showCheckboxes) {
+            checkbox.isChecked = checkedLabels.contains(label.id)
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) checkedLabels.add(label.id) else checkedLabels.remove(label.id)
+            }
+        } else {
+            checkbox.visibility = View.GONE
+        }
+        bookmarkStyleAdapterHelper.styleView(name, label, context, false, false)
         val editButton = rowView.findViewById<View>(R.id.editLabel) as ImageView
         editButton.setOnClickListener { manageLabels.editLabel(label) }
         val deleteButton = rowView.findViewById<View>(R.id.deleteLabel) as ImageView

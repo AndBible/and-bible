@@ -36,6 +36,7 @@ import kotlinx.android.synthetic.main.bookmarks.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -157,7 +158,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
 
-        val intent = Intent(this@Bookmarks, BookmarkLabelSelector::class.java)
+        val intent = Intent(this@Bookmarks, ManageLabels::class.java)
         intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels.toLongArray())
         val result = awaitIntent(intent)
         val labelIds = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)
@@ -165,6 +166,10 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, labelIds.toList())
             }
+        }
+        withContext(Dispatchers.Main) {
+            loadLabelList()
+            loadBookmarkList()
         }
     }
 
@@ -263,7 +268,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.manageLabels -> {
                 isHandled = true
                 val intent = Intent(this, ManageLabels::class.java)
-                startActivityForResult(intent, 1)
+                startActivityForResult(intent, REQUEST_MANAGE_LABELS)
             }
         }
         if (!isHandled) {
@@ -281,6 +286,14 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return true
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == REQUEST_MANAGE_LABELS) {
+            loadLabelList()
+            loadBookmarkList()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun isItemChecked(position: Int): Boolean {
         return listView.isItemChecked(position)
     }
@@ -296,5 +309,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     companion object {
         private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "Bookmarks"
+        private const val REQUEST_MANAGE_LABELS = 10
     }
 }

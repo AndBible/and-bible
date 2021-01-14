@@ -1455,13 +1455,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 2
-        const val TEXT_DISPLAY_SETTINGS_CHANGED = 4
-        const val COLORS_CHANGED = 5
-        const val WORKSPACE_CHANGED = 6
-        const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 7
-        const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 8
-        const val BOOKMARK_SETTINGS_CHANGED = 9
+        const val REQUEST_PICK_FILE_FOR_BACKUP_RESTORE = 91
+        const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
+        const val COLORS_CHANGED = 93
+        const val WORKSPACE_CHANGED = 94
+        const val REQUEST_PICK_FILE_FOR_BACKUP_DB = 95
+        const val REQUEST_PICK_FILE_FOR_BACKUP_MODULES = 96
+        const val BOOKMARK_SETTINGS_CHANGED = 97
 
 
         private const val SCREEN_KEEP_ON_PREF = "screen_keep_on_pref"

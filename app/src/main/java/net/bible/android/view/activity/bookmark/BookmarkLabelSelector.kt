@@ -31,7 +31,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.android.database.bookmarks.defaultLabelColor
 import java.util.*
 import javax.inject.Inject
 
