@@ -19,58 +19,25 @@
 package net.bible.service.format
 
 import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
 import net.bible.service.device.ScreenSettings
 
-/** prepare an error message for display in a WebView
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
 class OsisMessageFormatter {
-    // TODO: change code from HTML to OSIS
 
     companion object {
-
-		private var jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/loader.js'></script>\n"
-        private var JS_BOTTOM = "<div id='bottomOfBibleText'></div></div>$jsTag<script type='text/javascript'>andbible.initialize(INITIALIZE_SETTINGS);</script>"
-        private val DAY_STYLESHEET = ("<link href='file:///android_asset/web/"
-            + SharedConstants.DEFAULT_STYLESHEET
-            + "' rel='stylesheet' type='text/css'/>")
-
-		private val NIGHT_STYLESHEET = ("<link href='file:///android_asset/web/"
-                + SharedConstants.NIGHT_MODE_STYLESHEET
-                + "' rel='stylesheet' type='text/css'/>")
-        private val NIGHT_HEADER = """<html><head>$DAY_STYLESHEET$NIGHT_STYLESHEET</head><body><div id='start'></div>
-            <div id='content' style='visibility: hidden;'><div id='topOfBibleText'></div>"""
-        private val NIGHT_FOOTER = "<div id='bottomOfBibleText'></div></div>$JS_BOTTOM</body></html>"
-
-
-        private val DAY_HEADER = """<html><head>$DAY_STYLESHEET</head><body><div id='start'></div>
-            <div id='content' style='visibility: hidden;'><div id='topOfBibleText'></div>""".trimMargin()
-        private val DAY_FOOTER = "<div id='bottomOfBibleText'></div></div>$JS_BOTTOM</body></html>"
-
-        private val TAG = "HtmlmessageFormatter"
-
-        /** wrap text with nightmode css if required
-         */
-
         fun format(msgId: Int): String {
             val errorMsg = BibleApplication.application.resources.getString(msgId)
             return format(errorMsg)
         }
 
-        /** wrap text with nightmode css if required
-         */
         fun format(text: String): String {
             val isNightMode = ScreenSettings.nightMode
 
             val formattedText: String
 
-            // only require special formatting for nightmode
             if (!isNightMode) {
-                formattedText = """<div>$text</div>""" //DAY_HEADER + text + DAY_FOOTER
+                formattedText = """<div>$text</div>"""
             } else {
-                formattedText = """<div>$text</div>""" //NIGHT_HEADER + text + NIGHT_FOOTER
+                formattedText = """<div>$text</div>"""
             }
             return formattedText
         }
