@@ -84,7 +84,6 @@ import net.bible.android.database.bookmarks.intToColorArray
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent

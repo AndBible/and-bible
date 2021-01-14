@@ -39,7 +39,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils.json
 import javax.inject.Inject

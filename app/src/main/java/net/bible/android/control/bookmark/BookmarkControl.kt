@@ -35,21 +35,15 @@ import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
-import net.bible.android.view.activity.mynote.description
+import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
-import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.service.common.CommonUtils.getSharedPreference
-import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
-import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.util.*
 import javax.inject.Inject
@@ -287,7 +281,7 @@ open class BookmarkControl @Inject constructor(
 
     // TODO: remove!
     internal fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
-        val intent = Intent(currentActivity, BookmarkLabelSelector::class.java)
+        val intent = Intent(currentActivity, ManageLabels::class.java)
         intent.putExtra(LABEL_IDS_EXTRA, longArrayOf(bookmark.id))
         currentActivity.startActivity(intent)
     }
