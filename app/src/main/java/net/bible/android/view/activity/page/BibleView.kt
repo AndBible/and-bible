@@ -723,12 +723,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun addChapter(chapter: Int) {
-        if(chapter < minChapter) {
-            minChapter = chapter
-        } else if(chapter > maxChapter) {
-            maxChapter = chapter
-        } else {
-            Log.e(TAG, "Chapter already included")
+        when {
+            chapter < minChapter -> minChapter = chapter
+            chapter > maxChapter -> maxChapter = chapter
+            else -> Log.e(TAG, "Chapter already included")
         }
     }
 
@@ -844,7 +842,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        //Log.d(TAG, "BibleView onTouchEvent");
         windowControl.activeWindow = window
 
         val handled = super.onTouchEvent(event)
@@ -913,13 +910,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val clientBookmark = ClientBookmark(event.bookmark, event.labels)
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
-        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  {bookmarks: [$bookmarkStr], labels: []});""")
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_bookmarks",  {bookmarks: [$bookmarkStr], labels: []});
+        """.trimIndent())
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }?: defaultStyle))
+            ClientBookmarkLabel(event.label.id, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }))
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks", 
             { bookmarks:[],
@@ -1036,7 +1034,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if (windowControl.isActiveWindow(window)) {
             bibleJavascriptInterface.notificationsEnabled = true
 
-            // may have returned from MyNote view
             resumeTiltScroll()
         }
         if(contentVisible) {
