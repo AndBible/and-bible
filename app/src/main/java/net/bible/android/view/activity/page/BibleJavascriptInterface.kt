@@ -26,11 +26,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 
-/**
- * Interface allowing javascript to call java methods in app
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
+
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
