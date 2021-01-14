@@ -66,7 +66,7 @@ open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
     resourceProvider: ResourceProvider
 ) {
-    // TODO: proper styles!!!
+    // Dummy labels, used in
     val LABEL_ALL = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
     val LABEL_UNLABELLED = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
 
@@ -192,21 +192,6 @@ open class BookmarkControl @Inject constructor(
             LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(orderBy)
             else -> dao.bookmarksWithLabel(label, orderBy)
         }
-
-    // Not sure if this is really needed (or if per-ordinal sorting by DB is enough). Leaving this for now.
-    //private fun getSortedBookmarks(bookmarkList: List<Bookmark>, orderBy: BookmarkSortOrder): List<Bookmark> {
-    //    if(orderBy == BookmarkSortOrder.CREATED_AT) return bookmarkList
-
-    //    val comparator = BookmarkBibleOrderComparator(bookmarkList)
-
-    //    // the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
-    //    try {
-    //        Collections.sort(bookmarkList, comparator)
-    //    } catch (e: Exception) {
-    //        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
-    //    }
-    //    return bookmarkList
-    //}
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
