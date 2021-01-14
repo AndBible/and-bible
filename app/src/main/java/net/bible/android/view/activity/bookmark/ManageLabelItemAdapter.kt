@@ -31,11 +31,6 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 
-/**
- * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
 class ManageLabelItemAdapter(context: Context?,
                              private val resource: Int, items: List<BookmarkEntities.Label?>?,
                              private val manageLabels: ManageLabels,
@@ -85,17 +80,6 @@ class ManageLabelItemAdapter(context: Context?,
             deleteButton.setImageResource(R.drawable.ic_delete_24dp_black)
         }
         return rowView
-    }
-
-    /**
-     * Prevent list item rows being highlighted when pressing the delete or edit button
-     */
-    override fun areAllItemsEnabled(): Boolean {
-        return false
-    }
-
-    override fun isEnabled(position: Int): Boolean {
-        return false
     }
 
     companion object {

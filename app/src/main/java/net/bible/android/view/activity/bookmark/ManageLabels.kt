@@ -44,7 +44,6 @@ class ManageLabels : ListActivityBase() {
     var showCheckboxes = false
     val deletedLabels = mutableSetOf<Long>()
 
-    /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, false)
