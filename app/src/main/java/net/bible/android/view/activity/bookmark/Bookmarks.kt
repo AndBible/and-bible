@@ -50,6 +50,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.mynote.description
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import java.lang.IllegalArgumentException
 import java.util.*
@@ -71,7 +72,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
-    private var labelArrayAdapter: ArrayAdapter<Label>? = null
 
     // the document list
     private val bookmarkList: MutableList<Bookmark> = ArrayList()
@@ -106,9 +106,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
         //prepare the Label spinner
         loadLabelList()
-        labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList)
-        labelArrayAdapter!!.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        labelSpinner.adapter = labelArrayAdapter
 
         // check for pre-selected label e.g. when returning via History using Back button
         if (selectedLabelNo >= 0 && selectedLabelNo < labelList.size) {
@@ -182,6 +179,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun loadLabelList() {
         labelList.clear()
         labelList.addAll(bookmarkControl.allLabels)
+        val labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList.map { it.displayName })
+        labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        labelSpinner.adapter = labelArrayAdapter
     }
 
     /** a spinner has changed so refilter the doc list
