@@ -33,7 +33,6 @@ import android.widget.ListView
 import android.widget.Toast
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -53,10 +52,7 @@ val BookmarkSortOrder.description get() =
     }
 
 /**
- * Show a list of existing User Notes and allow view/edit/delete
- *
- * @author John D. Lewis [balinjdl at gmail dot com]
- * @author Martin Denham [mjdenham at gmail dot com]
+ * Show a list of existing Bookmarks that have notes written to them
  */
 class MyNotes : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var bookmarkControl: BookmarkControl
