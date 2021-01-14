@@ -17,8 +17,6 @@
  */
 package net.bible.android.control.bookmark
 
-import android.app.Activity
-import android.content.Intent
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
@@ -32,13 +30,10 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
-import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.passage.VerseRange
-import org.crosswire.jsword.versification.BibleBook
 import java.lang.RuntimeException
 import javax.inject.Inject
 
@@ -66,17 +61,16 @@ open class BookmarkControl @Inject constructor(
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
-	fun updateBookmarkSettings(settings: PlaybackSettings) {
+	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
         val pageManager = activeWindowPageManagerProvider.activeWindowPageManager
         if (pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
-            updateBookmarkSettings(pageManager.currentBible.singleKey, settings)
+            updateBookmarkPlaybackSettings(pageManager.currentBible.singleKey, settings)
         }
     }
 
-    private fun updateBookmarkSettings(v: Verse, settings: PlaybackSettings) {
+    private fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) {
         val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
 
-        // TODO: what if there are more?
         val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
@@ -89,7 +83,6 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
-    /** create a new bookmark  */
     fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null, doNotSync: Boolean=false): Bookmark {
         if(bookmark.id != 0L) {
             dao.update(bookmark)
@@ -148,10 +141,6 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmark.id)
     }
 
-    fun labelsForBookmarkId(bookmarkId: Long): List<Label> {
-        return dao.labelsForBookmark(bookmarkId)
-    }
-
     fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>, doNotSync: Boolean = false) {
         dao.deleteLabels(bookmark)
         dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
@@ -187,19 +176,6 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    private val isCurrentDocumentBookmarkable: Boolean
-        get() {
-            val currentPageControl = activeWindowPageManagerProvider.activeWindowPageManager
-            return currentPageControl.isBibleShown || currentPageControl.isCommentaryShown
-        }
-
-    // TODO: remove!
-    internal fun showBookmarkLabelsActivity(currentActivity: Activity, bookmark: Bookmark) {
-        val intent = Intent(currentActivity, ManageLabels::class.java)
-        intent.putExtra(LABEL_IDS_EXTRA, longArrayOf(bookmark.id))
-        currentActivity.startActivity(intent)
-    }
-
     private var _speakLabel: Label? = null
     val speakLabel: Label get() {
         return _speakLabel
@@ -220,9 +196,6 @@ open class BookmarkControl @Inject constructor(
 
     fun isSpeakBookmark(bookmark: Bookmark): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
-
-    fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
-    fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> = dao.bookmarksForVerseRange(verseRange)
 
     fun changeLabelsForBookmark(bookmark: Bookmark, labelIds: List<Long>) {
         dao.clearLabels(bookmark)
