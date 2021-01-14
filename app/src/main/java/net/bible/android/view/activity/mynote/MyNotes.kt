@@ -62,10 +62,8 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
     private val myNoteList: MutableList<BookmarkEntities.Bookmark> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
 
-    /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        // integrateWithHistoryManager to ensure the previous document is loaded again when the user presses Back
         super.onCreate(savedInstanceState, true)
         setContentView(R.layout.list)
         buildActivityComponent().inject(this)
@@ -89,7 +87,6 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
         try {
-            // check to see if Action Mode is in operation
             if (!listActionModeHelper!!.isInActionMode) {
                 myNoteSelected(myNoteList[position])
 
@@ -136,11 +133,7 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
         return true
     }
 
-    /**
-     * on Click handlers
-     */
-
-    var sortOrder = BookmarkSortOrder.BIBLE_ORDER
+    private var sortOrder = BookmarkSortOrder.BIBLE_ORDER
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
@@ -174,18 +167,12 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
     }
 
     private fun loadUserNoteList() {
-        // item positions will all change so exit any action mode
         listActionModeHelper!!.exitActionMode()
         myNoteList.clear()
         myNoteList.addAll(bookmarkControl.allBookmarksWithNotes(sortOrder))
         notifyDataSetChanged()
     }
 
-    /**
-     * User selected a MyNote so download it
-     *
-     * @param myNote
-     */
     private fun myNoteSelected(myNote: BookmarkEntities.Bookmark) {
         Log.d(TAG, "User Note selected:" + myNote.verseRange)
         try {
