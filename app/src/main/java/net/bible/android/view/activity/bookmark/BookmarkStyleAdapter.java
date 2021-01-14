@@ -76,7 +76,8 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 			view.setText(DEFAULT_TEXT);
 		} else {
 			final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position - 1];
-			bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, false);
+			// TODO
+			//bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, false);
 		}
 
 		return view;

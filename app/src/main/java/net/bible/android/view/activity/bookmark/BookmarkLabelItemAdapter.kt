@@ -48,11 +48,7 @@ class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
         }
         val nameView = rowView as CheckedTextView
         nameView.text = label.displayName
-        if (label.bookmarkStyle == null) {
-            nameView.setBackgroundColor(getThemeBackgroundColour(context))
-        } else {
-            bookmarkStyleAdapterHelper.styleView(nameView, label.bookmarkStyle, context, false, false)
-        }
+        bookmarkStyleAdapterHelper.styleView(nameView, label, context, false, false)
         return rowView
     }
 

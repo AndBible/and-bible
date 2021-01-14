@@ -67,7 +67,7 @@ class MyNoteItemAdapter(
             }
         }
         val labels = bookmarkControl.labelsForBookmark(item)
-        labels.firstOrNull()?.bookmarkStyle?.backgroundColor?.also {
+        labels.firstOrNull()?.color?.also {
             view.setBackgroundColor(it)
         }
 

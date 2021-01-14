@@ -38,11 +38,24 @@ import java.util.*
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 val converter = VersificationConverter()
 
+const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
+
 /**
  * How to represent bookmarks
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
+fun intToColorArray(colorInt: Int): ArrayList<Int> {
+    val ar = ArrayList<Int>()
+    ar.add(Color.red(colorInt))
+    ar.add(Color.green(colorInt))
+    ar.add(Color.blue(colorInt))
+    ar.add(Color.alpha(colorInt))
+    return ar
+}
+
 enum class BookmarkStyle(val backgroundColor: Int) {
     YELLOW_STAR(Color.argb((255*0.33).toInt(), 255, 255, 0)),
     RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
@@ -56,16 +69,10 @@ enum class BookmarkStyle(val backgroundColor: Int) {
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
     SPEAK(Color.argb(0, 255, 255, 255));
-    val colorArray: List<Int> get() {
-        val ar = ArrayList<Int>()
-        ar.add(Color.red(backgroundColor))
-        ar.add(Color.green(backgroundColor))
-        ar.add(Color.blue(backgroundColor))
-        ar.add(Color.alpha(backgroundColor))
-        return ar
-    }
-
+    val colorArray: List<Int> get() = intToColorArray(backgroundColor)
 }
+
+val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
 enum class BookmarkSortOrder {
     BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
@@ -212,8 +219,10 @@ class BookmarkEntities {
     data class Label(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var name: String = "",
-        var bookmarkStyle: BookmarkStyle? = null,
+        @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
+        @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor
     ) {
         override fun toString() = name
+        val isSpeakLabel get() = name == SPEAK_LABEL_NAME
     }
 }

@@ -61,7 +61,7 @@ import java.io.FileInputStream
 import java.util.*
 
 val BookmarkEntities.Label.displayName get() =
-    if(bookmarkStyle == BookmarkStyle.SPEAK) application.getString(R.string.speak) else name
+    if(isSpeakLabel) application.getString(R.string.speak) else name
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -86,8 +86,8 @@ object CommonUtils {
         get() {
             var versionName: String
             try {
-                val manager = BibleApplication.application.packageManager
-                val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
+                val manager = application.packageManager
+                val info = manager.getPackageInfo(application.packageName, 0)
                 versionName = info.versionName
             } catch (e: NameNotFoundException) {
                 Log.e(TAG, "Error getting package name.", e)
@@ -101,8 +101,8 @@ object CommonUtils {
             // TODO we have to change this to Long if we one day will have very long version numbers.
             var versionNumber: Int
             try {
-                val manager = BibleApplication.application.packageManager
-                val info = manager.getPackageInfo(BibleApplication.application.packageName, 0)
+                val manager = application.packageManager
+                val info = manager.getPackageInfo(application.packageName, 0)
                 versionNumber = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     info.longVersionCode.toInt()
                 } else info.versionCode
@@ -116,8 +116,8 @@ object CommonUtils {
 
     private val packageInfo: PackageInfo
         get () {
-            val manager = BibleApplication.application.packageManager
-            return manager.getPackageInfo(BibleApplication.application.packageName, 0)
+            val manager = application.packageManager
+            return manager.getPackageInfo(application.packageName, 0)
         }
 
     val isFirstInstall get() = packageInfo.firstInstallTime == packageInfo.lastUpdateTime
@@ -148,7 +148,7 @@ object CommonUtils {
      * @return
      */
     val sharedPreferences: SharedPreferences
-        get() = PreferenceManager.getDefaultSharedPreferences(BibleApplication.application.applicationContext)
+        get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
     val truncatedDate: Date
         get() = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
@@ -172,7 +172,7 @@ object CommonUtils {
 
     fun buildActivityComponent(): ActivityComponent {
         return DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
+                .applicationComponent(application.applicationComponent)
                 .build()
     }
 
@@ -290,7 +290,7 @@ object CommonUtils {
     }
 
     val resources: Resources get() =
-        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: BibleApplication.application.resources
+        CurrentActivityHolder.getInstance()?.currentActivity?.resources?: application.resources
 
 
     fun getResourceColor(resourceId: Int): Int =

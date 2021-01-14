@@ -39,8 +39,9 @@ class BookmarkColourListPrefWrapperAdapter(private val context: Context, origAda
 	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 		val view = super.getView(position, convertView, parent) as TextView
 		//val view = parent.getChildAt(0) as AppCompatRadioButton
-		val bookmarkStyle = BookmarkStyle.values()[position]
-		bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true, selectedPosition == position)
+        // TODO:
+		//val bookmarkStyle = BookmarkStyle.values()[position]
+		//bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true, selectedPosition == position)
         return view
     }
 

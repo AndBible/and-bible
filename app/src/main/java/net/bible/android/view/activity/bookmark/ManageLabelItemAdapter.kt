@@ -54,16 +54,13 @@ class ManageLabelItemAdapter(context: Context?,
         }
         val nameView = rowView.findViewById<View>(R.id.labelName) as TextView
         nameView.text = label!!.displayName
-        if (label.bookmarkStyle == null) {
-            nameView.setBackgroundColor(getThemeBackgroundColour(context))
-        } else {
-            bookmarkStyleAdapterHelper.styleView(nameView, label.bookmarkStyle, context, false, false)
-        }
+
+        bookmarkStyleAdapterHelper.styleView(nameView, label, context, false, false)
         val editButton = rowView.findViewById<View>(R.id.editLabel) as ImageView
         editButton.setOnClickListener { manageLabels.editLabel(label) }
         val deleteButton = rowView.findViewById<View>(R.id.deleteLabel) as ImageView
         deleteButton.setOnClickListener { manageLabels.delete(label) }
-        if (label.bookmarkStyle === BookmarkStyle.SPEAK) {
+        if (label.isSpeakLabel) {
             editButton.visibility = View.GONE
             deleteButton.visibility = View.GONE
         } else {

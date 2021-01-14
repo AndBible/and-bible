@@ -685,4 +685,6 @@
     <string name="bookmark_settings_assign_labels_summary">Automatically assign labels to new bookmarks</string>
     <string name="strongs_mode_title">Choose strongs mode</string>
     <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
+    <string name="label_color">Label color</string>
+    <string name="label_color_example">Example</string>
 </resources>

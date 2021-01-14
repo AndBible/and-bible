@@ -64,6 +64,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.BibleContentManager
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -136,6 +137,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
     @Inject lateinit var bibleActionBarManager: BibleActionBarManager
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
 
     // handle requests from main menu
     @Inject lateinit var mainMenuCommandHandler: MenuCommandHandler
@@ -1129,7 +1131,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                             val inputStream = contentResolver.openInputStream(data!!.data!!)
                             if (backupControl.restoreDatabaseViaIntent(inputStream!!)) {
                                 Log.d(TAG, "Restored database successfully")
-
+                                bookmarkControl.reset();
                                 windowControl.windowSync.setResyncRequired()
                                 windowControl.windowSync.reloadAllWindows()
 

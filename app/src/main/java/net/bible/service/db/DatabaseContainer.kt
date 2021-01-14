@@ -24,7 +24,9 @@ import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.BibleApplication
 import net.bible.android.database.AppDatabase
+import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.converter
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition
@@ -710,6 +712,29 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
     }
 }
 
+private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
+    override fun doMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE Label SET name='${SPEAK_LABEL_NAME}' WHERE bookmarkStyle = 'SPEAK'")
+        db.execSQL("ALTER TABLE `Label` ADD COLUMN `color` INTEGER NOT NULL DEFAULT 0")
+        val c = db.query("SELECT * from Label")
+        val idIdx = c.getColumnIndex("id")
+        val bookmarkStyleIdx = c.getColumnIndex("bookmarkStyle")
+        c.moveToFirst()
+        while(!c.isAfterLast) {
+            val id = c.getLong(idIdx)
+            val bookmarkStyle = try {BookmarkStyle.valueOf(c.getString(bookmarkStyleIdx)) }
+                                catch (e: Exception) {BookmarkStyle.BLUE_HIGHLIGHT}
+
+            val newColor = bookmarkStyle.backgroundColor
+            val newValues = ContentValues().apply {
+                put("color", newColor)
+            }
+            db.update("Label", CONFLICT_FAIL, newValues, "id = ?", arrayOf(id));
+            c.moveToNext()
+        }
+    }
+}
+
 object DatabaseContainer {
     private var instance: AppDatabase? = null
 
@@ -761,6 +786,7 @@ object DatabaseContainer {
                         WORKSPACE_BOOKMARK_35_36,
                         BOOKMARKS_BOOK_36_37,
                         MIGRATION_37_38_MyNotes_To_Bookmarks,
+                        BOOKMARKS_LABEL_COLOR_38_39,
                         // When adding new migrations, remember to increment DATABASE_VERSION too
                     )
                     .build()

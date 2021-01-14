@@ -63,7 +63,7 @@ class BookmarkItemAdapter(
         } else {
             view.speakIcon.visibility = View.GONE
         }
-        labels.firstOrNull()?.bookmarkStyle?.backgroundColor?.also {
+        labels.firstOrNull()?.color?.also {
             view.setBackgroundColor(it)
         }
 

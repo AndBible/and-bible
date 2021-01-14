@@ -139,6 +139,9 @@ interface BookmarkDao {
     @Query("SELECT * from Label ORDER BY name")
     fun allLabelsSortedByName(): List<Label>
 
+    @Query("SELECT * from Label WHERE id=:id")
+    fun labelById(id: Long): Label?
+
     @Insert fun insert(entity: Label): Long
 
     @Update fun update(entity: Label)
@@ -165,13 +168,8 @@ interface BookmarkDao {
 
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
-    @Query("SELECT * from Label WHERE bookmarkStyle = 'SPEAK' LIMIT 1")
-    fun speakLabel(): Label?
-    fun getOrCreateSpeakLabel(): Label {
-        return speakLabel()?: Label(name = "", bookmarkStyle = BookmarkStyle.SPEAK).apply {
-            id = insert(this)
-        }
-    }
+    @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
+    fun speakLabelByName(): Label?
 
     @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: Long)

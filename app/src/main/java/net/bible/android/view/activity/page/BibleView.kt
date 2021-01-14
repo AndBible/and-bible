@@ -80,6 +80,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
+import net.bible.android.database.bookmarks.intToColorArray
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
@@ -965,7 +966,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
         val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) }?: defaultStyle))
+            ClientBookmarkLabel(event.label.id, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }?: defaultStyle))
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks", 
             { bookmarks:[],
@@ -1168,7 +1169,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun getOsisObjStr(frags: List<OsisFragment>): String {
         val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.bookmarkStyle?.let { v -> ClientBookmarkStyle(v.colorArray) } ?: defaultStyle)
+            ClientBookmarkLabel(it.id, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) } ?: defaultStyle)
         })
         val bookmarks = json.encodeToString(serializer(), latestBookmarks.map { it ->
             val labels = bookmarkControl.labelsForBookmark(it).toMutableList()

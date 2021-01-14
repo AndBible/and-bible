@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:orientation="vertical"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="?android:colorBackground"
-			  android:minHeight="@dimen/bookmark_label_style_dialog_min_height">
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="?android:colorBackground"
+	android:minHeight="@dimen/bookmark_label_style_dialog_min_height">
 
 	<LinearLayout android:orientation="vertical"
 				  android:layout_width="match_parent"
@@ -23,14 +23,20 @@
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceSmall"
 			android:paddingTop="15dp"
-			android:text="@string/style"
-			android:layout_marginLeft="5dp"
-			android:id="@+id/labelStylePrompt"/>
+			android:text="@string/label_color"
+			android:layout_marginStart="5dp"
+			android:id="@+id/labelColorTitle"/>
 
-		<Spinner
+		<com.jaredrummler.android.colorpicker.ColorPickerView
+			android:id="@+id/colorPicker"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/labelStyle"/>
+			/>
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/label_color_example"
+			android:id="@+id/labelColorExample"/>
 
 	</LinearLayout>
 </LinearLayout>

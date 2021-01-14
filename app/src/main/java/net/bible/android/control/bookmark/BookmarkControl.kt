@@ -33,10 +33,12 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.bookmark.BookmarkLabelSelector
 import net.bible.android.view.activity.mynote.description
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.getSharedPreference
@@ -72,8 +74,8 @@ open class BookmarkControl @Inject constructor(
     resourceProvider: ResourceProvider
 ) {
     // TODO: proper styles!!!
-    val LABEL_ALL = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", BookmarkStyle.GREEN_HIGHLIGHT)
-    val LABEL_UNLABELLED = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", BookmarkStyle.BLUE_HIGHLIGHT)
+    val LABEL_ALL = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    val LABEL_UNLABELLED = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -291,7 +293,18 @@ open class BookmarkControl @Inject constructor(
     }
 
     private var _speakLabel: Label? = null
-    val speakLabel: Label get() = _speakLabel?: dao.getOrCreateSpeakLabel().also { _speakLabel = it }
+    val speakLabel: Label get() {
+        return _speakLabel
+            ?: dao.labelById(CommonUtils.sharedPreferences.getLong("speak_label_id", -1))
+            ?: dao.speakLabelByName()
+            ?: Label(name = SPEAK_LABEL_NAME, color = 0).apply {
+                id = dao.insert(this)
+            }.apply {
+                CommonUtils.sharedPreferences.edit().putLong("speak_label_id", id).apply()
+            }.also {
+                _speakLabel = it
+            }
+    }
 
     fun reset() {
         _speakLabel = null
