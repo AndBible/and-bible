@@ -84,6 +84,7 @@ export default {
 
     function assignLabels() {
       android.assignLabels(bookmark.value.id);
+      showNote.value = false;
     }
 
     async function removeBookmark() {

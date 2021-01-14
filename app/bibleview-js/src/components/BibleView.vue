@@ -160,7 +160,8 @@
   background-color: #717171;
   border: none;
   color: white;
-  padding: 2pt 2pt;
+  padding: 5pt 5pt;
+  border-radius: 5pt;
   margin: 2pt 2pt;
   text-align: center;
   text-decoration: none;
