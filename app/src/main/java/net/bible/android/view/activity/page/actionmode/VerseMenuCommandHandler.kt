@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page.actionmode
 import android.content.Intent
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -38,7 +37,6 @@ open class VerseMenuCommandHandler(
     private val mainActivity: MainBibleActivity,
     private val pageControl: PageControl,
     private val bookmarkControl: BookmarkControl,
-    private val myNoteControl: MyNoteControl
 ) {
     private val intentHelper = IntentHelper()
 
@@ -74,7 +72,8 @@ open class VerseMenuCommandHandler(
             }
             R.id.myNoteAddEdit -> {
                 mainActivity.fullScreen = false
-                myNoteControl.showMyNote(verseRange)
+                // TODO
+                //myNoteControl.showMyNote(verseRange)
                 mainActivity.invalidateOptionsMenu()
                 mainActivity.documentViewManager.buildView()
                 isHandled = true

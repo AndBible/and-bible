@@ -243,7 +243,6 @@ open class WindowControl @Inject constructor(
         } else {
             windowSync.setResyncBiblesRequired()
         }
-        if(activeWindowPageManager.isMyNoteShown) return
         windowSync.reloadAllWindows()
     }
 

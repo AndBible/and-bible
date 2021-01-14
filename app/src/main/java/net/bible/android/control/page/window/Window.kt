@@ -27,7 +27,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentBiblePage
-import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
@@ -154,8 +153,6 @@ open class Window (
     val initialized get() = lastUpdated != 0L
 
     fun updateText(notifyLocationChange: Boolean = false) {
-        if(pageManager.currentPage is CurrentMyNotePage) return
-
         val isVisible = isVisible
 
         Log.d(TAG, "updateText, isVisible: $isVisible")

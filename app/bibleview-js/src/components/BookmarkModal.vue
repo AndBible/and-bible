@@ -36,7 +36,6 @@
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
-      ID: {{bookmark.id}}
     </div>
     <template #title>
       {{ strings.bookmarkNote }}

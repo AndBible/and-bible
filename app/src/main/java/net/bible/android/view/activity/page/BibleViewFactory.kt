@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page
 
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.Window
@@ -46,7 +45,6 @@ class BibleViewFactory @Inject constructor(
     private val bibleKeyHandler: BibleKeyHandler,
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
-    private val myNoteControl: MyNoteControl,
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()

@@ -24,7 +24,6 @@ import android.util.Log
 import net.bible.android.SharedConstants
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
@@ -51,7 +50,6 @@ open class CurrentPageManager @Inject constructor(
         swordContentFacade: SwordContentFacade,
         swordDocumentFacade: SwordDocumentFacade,
         bibleTraverser: BibleTraverser,
-        myNoteDAO: MyNoteDAO,
         val bookmarkControl: BookmarkControl,
         val windowRepository: WindowRepository,
         )
@@ -60,7 +58,6 @@ open class CurrentPageManager @Inject constructor(
     private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
     val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
     val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO, this)
     val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
     val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
     val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
@@ -111,8 +108,6 @@ open class CurrentPageManager @Inject constructor(
         get() = currentDictionary === currentPage
     val isGenBookShown: Boolean
         get() = currentGeneralBook === currentPage
-    val isMyNoteShown: Boolean
-        get() = currentMyNotePage === currentPage
     val isMapShown: Boolean
         get() = currentMap === currentPage
 
@@ -191,8 +186,6 @@ open class CurrentPageManager @Inject constructor(
         // book should never be null but it happened on one user's phone
         return if (book == null) {
             null
-        } else if (book == currentMyNotePage.currentDocument) {
-            currentMyNotePage
         } else {
             getBookPage(book.bookCategory)
         }
@@ -206,7 +199,6 @@ open class CurrentPageManager @Inject constructor(
             BookCategory.DICTIONARY -> currentDictionary
             BookCategory.GENERAL_BOOK -> currentGeneralBook
             BookCategory.MAPS -> currentMap
-            BookCategory.OTHER -> currentMyNotePage
             else -> throw RuntimeException("Unsupported book category")
         }
 

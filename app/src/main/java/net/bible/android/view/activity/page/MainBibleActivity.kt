@@ -157,12 +157,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
     val dao get() = DatabaseContainer.db.workspaceDao()
 
-    val isMyNotes
-        get() =
-            if (::documentControl.isInitialized) {
-                documentControl.isMyNotes
-            } else false
-
     val multiWinMode
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
@@ -804,14 +798,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
 
 
         fun addSearch() {
-            searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch && !isMyNotes)
+            searchButton.visibility = if (visibleButtonCount < maxButtons && showSearch)
             {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
         }
         fun addSpeak() {
-            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped && !isMyNotes)
+            speakButton.visibility = if (visibleButtonCount < maxButtons && speakControl.isStopped)
             {
                 visibleButtonCount += 1
                 View.VISIBLE
@@ -819,7 +813,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         }
 
         fun addBookmarks() {
-            bookmarkButton.visibility = if (visibleButtonCount < maxButtons && !isMyNotes) {
+            bookmarkButton.visibility = if (visibleButtonCount < maxButtons) {
                 visibleButtonCount += 1
                 View.VISIBLE
             } else View.GONE
@@ -859,7 +853,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         val menu = PopupMenu(this, v)
         val docs = documents.sortedWith(compareBy({it.language.code}, {it.abbreviation}))
         docs.forEachIndexed { i, book ->
-            if(documentControl.isMyNotes || currentDocument != book) {
+            if(currentDocument != book) {
                 menu.menu.add(Menu.NONE, i, Menu.NONE, getString(R.string.something_with_parenthesis, book.abbreviation, book.language.code))
             }
         }
@@ -1255,11 +1249,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
                         ABEventBus.getDefault().post(ToastEvent(getString(R.string.verse_not_found)))
                         return
                     }
-                    if (pageControl.currentPageManager.isMyNoteShown) {
-                        val doc = pageControl.currentPageManager.currentBible.currentDocument
-                        pageControl.currentPageManager.setCurrentDocument(doc)
-                    }
-
                     windowControl.activeWindowPageManager.currentPage.setKey(verse)
                     return
                 }

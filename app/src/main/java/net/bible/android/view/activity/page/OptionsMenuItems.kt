@@ -60,7 +60,7 @@ abstract class GeneralPreference(
 ) : OptionsMenuItemInterface {
     override val inherited: Boolean = false
     override val visible: Boolean
-        get() = !mainBibleActivity.isMyNotes && if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
+        get() = if (onlyBibles) mainBibleActivity.documentControl.isBibleBook else true
 
     override var value: Any = false
     override fun handle() {}
