@@ -50,7 +50,7 @@ task npmInstall(type: Exec, dependsOn: npmUpgrade) {
     }
 }
 
-task webpack(type: Exec, dependsOn: npmInstall) {
+task vuecli(type: Exec, dependsOn: npmInstall) {
     inputs.file "$jsDir/package.json"
     inputs.file "$jsDir/vue.config.js"
     inputs.file "$jsDir/babel.config.js"
@@ -75,7 +75,7 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     }
 }
 
-task buildLoaderJs(type: Sync, dependsOn: webpack) {
+task buildLoaderJs(type: Sync, dependsOn: vuecli) {
     from("$jsDir/dist")
     into("src/main/assets/bibleview-js")
 }
