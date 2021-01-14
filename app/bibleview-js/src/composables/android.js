@@ -78,7 +78,7 @@ export function patchAndroidConsole() {
     }
 }
 
-export function useAndroid({allStyleRanges}, config) {
+export function useAndroid({bookmarks}, config) {
     const responsePromises = new Map();
 
     function response(callId, returnValue) {
@@ -103,12 +103,23 @@ export function useAndroid({allStyleRanges}, config) {
             calculateOffsetToVerse(range.endContainer, range.endOffset);
         const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
         const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
-        const bookmarks = union(
-            ...allStyleRanges.value.filter(
-                s => rangeInside(s.ordinalAndOffsetRange,[[startOrdinal, startOffset], [endOrdinal, endOffset]]))
-                .map(s => s.bookmarks)
+
+        function bookmarkRange(b) {
+            const offsetRange = b.offsetRange || [0, null]
+            if(b.book !== bookInitials) {
+                offsetRange[0] = 0;
+                offsetRange[1] = null;
+            }
+            return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
+        }
+
+        const filteredBookmarks = bookmarks.value.filter(b => rangeInside(
+            bookmarkRange(b), [[startOrdinal, startOffset], [endOrdinal, endOffset]])
         );
-        const result = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks};
+
+        const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
+
+        const result = {bookInitials, startOrdinal, startOffset, endOrdinal, endOffset, bookmarks: deleteBookmarks};
         console.log("querySelection", result);
         return result;
     }

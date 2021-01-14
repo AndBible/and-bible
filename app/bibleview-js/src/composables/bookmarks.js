@@ -19,7 +19,7 @@ import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
 import {arrayEq, colorLightness, intersection, mixColors, rangesOverlap} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {findNodeAtOffset, textLength, walkBackText} from "@/dom";
+import {findNodeAtOffset, walkBackText} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
@@ -111,7 +111,7 @@ export function useBookmarks(fragmentKey,
 
     const fragmentBookmarks = computed(() => {
         if(!fragmentReady.value) return [];
-        return bookmarks.value.filter(b => noOrdinalNeeded(b) || checkOrdinal(b))
+        return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
     });
 
     function truncateToOrdinalRange(bookmark) {
@@ -218,23 +218,21 @@ export function useBookmarks(fragmentKey,
         splitPoints = sortedUniqueSplitPoints(splitPoints)
 
         const styleRanges = [];
-        const labelsSet = new Set(config.bookmarks.showLabels);
 
         function filterLabels(labels) {
             if(config.bookmarks.showAll) return labels;
-            return intersection(labelsSet, new Set(labels));
+            return Array.from(intersection(new Set(config.bookmarks.showLabels), new Set(labels)));
         }
 
         for(let i = 0; i < splitPoints.length-1; i++) {
             const ordinalAndOffsetRange = [startPoint(splitPoints[i]), endPoint(splitPoints[i+1])];
             const labels = new Set();
             const labelCount = new Map();
-            const bookmarksSet = new Set();
-            bookmarks
-                .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange))
-                .forEach(b => {
-                    bookmarksSet.add(b.id);
 
+            const filteredBookmarks = bookmarks
+                .filter(b => rangesOverlap(combinedRange(b), ordinalAndOffsetRange));
+
+            filteredBookmarks.forEach(b => {
                     // Show only first label color of each bookmark. Otherwise will be
                     // confusing.
                     filterLabels(b.labels).slice(0, 1).forEach(l => {
@@ -243,12 +241,14 @@ export function useBookmarks(fragmentKey,
                     })
                 });
 
+            const containedBookmarks = filteredBookmarks.map(b => b.id);
+
             if(labels.size > 0) {
                 styleRanges.push({
                     ordinalAndOffsetRange,
                     labelCount,
                     labels: Array.from(labels),
-                    bookmarks: Array.from(bookmarksSet),
+                    bookmarks: containedBookmarks,
                 });
             }
         }

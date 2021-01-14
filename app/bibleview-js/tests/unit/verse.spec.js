@@ -170,5 +170,6 @@ describe ("bookmark test", () => {
 
     it("Range inside 1", () => expect(rangeInside([[3, 11], [3,null]], [[3,10], [4, 0]])).toBe(true));
     it("Range inside 2", () => expect(rangeInside([[3, 0], [3,null]], [[3, 0], [4, 0]])).toBe(true));
+    it("Range inside 3", () => expect(rangeInside([[314, 53], [314,null]], [[314, 53], [315, 59]])).toBe(true));
 
 });
