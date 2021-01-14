@@ -46,11 +46,6 @@
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
 
-		<net.bible.android.view.util.BookmarkColourPreference
-			android:key="default_bookmark_style_pref"
-			android:title="@string/prefs_default_bookmark_style_title"
-			android:summary="@string/prefs_default_bookmark_style_summary"/>
-
 		<ListPreference android:key="locale_pref"
 			android:title="@string/prefs_interface_locale_title"
 			android:summary="@string/prefs_interface_locale_summary"
