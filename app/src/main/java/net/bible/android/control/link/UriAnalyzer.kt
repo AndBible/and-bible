@@ -26,23 +26,14 @@ class UriAnalyzer {
         const val OSIS_PROTOCOL = "osis" //$NON-NLS-1$
         const val CONTENT_PROTOCOL = "content" //$NON-NLS-1$
 
-        const val REPORT_PROTOCOL = "report" // Report a bug, special link
         const val SWORD_PROTOCOL = "sword" //$NON-NLS-1$
         const val BIBLE_PROTOCOL = "bible" //$NON-NLS-1$
-        const val DICTIONARY_PROTOCOL = "dict" //$NON-NLS-1$
         const val GREEK_DEF_PROTOCOL = "gdef" //$NON-NLS-1$
         const val HEBREW_DEF_PROTOCOL = "hdef" //$NON-NLS-1$
         const val NOTE_PROTOCOL = "note"
         const val MYNOTE_PROTOCOL = "mynote"
-        const val ALL_GREEK_OCCURRENCES_PROTOCOL = "allgoccur" //$NON-NLS-1$
-        const val ALL_HEBREW_OCCURRENCES_PROTOCOL = "allhoccur" //$NON-NLS-1$
         const val ROBINSON_GREEK_MORPH_PROTOCOL = "robinson" //$NON-NLS-1$
         const val STRONG_PROTOCOL = "strong" //$NON-NLS-1$
-        const val HEBREW_MORPH_PROTOCOL = "hmorph" //$NON-NLS-1$
-        const val COMMENTARY_PROTOCOL = "comment" //$NON-NLS-1$
-
-        const val SCHEME_W = "ab-w" // from OSIS w tags
-        const val SCHEME_REFERENCE = "ab-reference" // from OSIS reference tags
     }
 
     enum class DocType {
@@ -59,7 +50,8 @@ class UriAnalyzer {
 	var protocol = ""
 		private set
 
-	fun analyze(urlStr: String): Boolean { // check for urls like gdef:01234
+	fun analyze(urlStr: String): Boolean {
+        // check for urls like gdef:01234
         // split the prefix from the book
         var ref = if (!urlStr.contains(":")) {
             protocol = BIBLE_PROTOCOL
