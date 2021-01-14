@@ -6,14 +6,7 @@
 <resources
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
-	<string-array name="emptyArray">
-	</string-array>
-	<string-array name="strongsModeValues">
-		<item>0</item>
-		<item>1</item>
-		<item>2</item>
-	</string-array>
-	<string-array name="strongsModeEntries">
+    <string-array name="strongsModeEntries">
 		<item>Off</item>
 		<item>Links</item>
 		<item>Text and links</item>
