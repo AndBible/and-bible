@@ -23,7 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
-import net.bible.android.view.util.UiUtils.getThemeBackgroundColour
+import net.bible.android.activity.R
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.displayName
@@ -42,11 +42,11 @@ class BookmarkLabelItemAdapter(context: Context, items: List<Label>)
         val rowView: View
         rowView = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            inflater.inflate(android.R.layout.simple_list_item_multiple_choice, parent, false)
+            inflater.inflate(R.layout.bookmark_label_item, parent, false)
         } else {
             convertView
         }
-        val nameView = rowView as CheckedTextView
+        val nameView = rowView.findViewById(R.id.checkedText) as CheckedTextView
         nameView.text = label.displayName
         bookmarkStyleAdapterHelper.styleView(nameView, label, context, false, false)
         return rowView
