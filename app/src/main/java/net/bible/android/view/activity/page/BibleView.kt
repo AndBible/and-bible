@@ -46,7 +46,6 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
-import androidx.webkit.internal.AssetHelper
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +67,6 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
@@ -156,7 +154,7 @@ data class ClientBookmarkStyle(val color: List<Int>)
 data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
 
 
-/** The WebView component that shows the main bible and commentary text */
+/** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
 class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal var windowRef: WeakReference<Window>,
@@ -325,17 +323,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     currentSelection = sel
                 }
 
-                // TODO Check if there are bookmarks.
-                // Allow user to
-                //  - remove bookmark.
-                //    * overlapping: allow user to choose removed bookmark, js side, highlighting.
-                //    * let's start by removing them all!!!
-                //  - compare translations
-                //  - share
-                //  - copy
-                //  - make "my notes"?
-                //  - "footnotes and references" - deprecated?
-
                 menuPrepared = true
                 withContext(Dispatchers.Main) {
                     menu.clear()
@@ -398,7 +385,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return super.startActionMode(ActionModeCallback(callback))
     }
 
-    // TODO: remove after Lollipop support is dropped.
+    // This can be removed after Lollipop support is dropped.
     private inner class ActionModeCallback(val callback: ActionMode.Callback): ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             callback.onCreateActionMode(mode, menu)
@@ -420,9 +407,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    /**
-     * This is not passed into the constructor due to a cyclic dependency. bjsi ->
-     */
     fun setBibleJavascriptInterface(bibleJavascriptInterface: BibleJavascriptInterface) {
         this.bibleJavascriptInterface = bibleJavascriptInterface
         addJavascriptInterface(bibleJavascriptInterface, "android")
@@ -455,18 +439,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun initialise() {
         Log.d(TAG, "initialise")
         webViewClient = BibleViewClient()
-
-        //WebViewCompat.postWebMessage(this, WebMessageCompat("test"))
-        if(WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-            val listener = WebViewCompat.WebMessageListener { view, message, sourceOrigin, isMainFrame, replyProxy ->
-                //TODO("Not yet implemented")
-                Log.d(TAG, "Message from js: ${message.data}")
-                replyProxy.postMessage("test back to js side!")
-
-            }
-            val rules = setOf("*")
-            WebViewCompat.addWebMessageListener(this, "androidBibleView", rules, listener)
-        }
 
         webChromeClient = object : WebChromeClient() {
             override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
@@ -558,11 +530,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
                     }
                     if(links.size > 1) {
-                        //contextMenuInfo = MultiLinkContextMenuInfo(links)
-                        //view.showContextMenu()
                         linkControl.loadApplicationUrl(links)
                     } else {
-                        // TODO: open link directly if only one entry
                         linkControl.loadApplicationUrl(links.first())
                     }
                     true
@@ -587,16 +556,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     linkControl.errorLink()
                     true
                 }
-                else -> true // TODO: throw some error document instead
+                else -> {
+                    Log.e(TAG, "Unsupported scheme ${uri.scheme}")
+                    true
+                }
             }
 
-            if(loaded) {
+            return if(loaded) {
                 gestureListener.setDisableSingleTapOnce(true)
                 super.shouldOverrideUrlLoading(view, req)
-                return true
-            }
-            else {
-                return super.shouldOverrideUrlLoading(view, req)
+                true
+            } else {
+                super.shouldOverrideUrlLoading(view, req)
             }
         }
 
@@ -637,20 +608,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal interface BibleViewContextMenuInfo: ContextMenuInfo {
         fun onContextItemSelected(item: MenuItem): Boolean
         fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater)
-    }
-
-    internal inner class MultiLinkContextMenuInfo(private val links: List<BibleLink>): BibleViewContextMenuInfo {
-        override fun onContextItemSelected(item: MenuItem): Boolean {
-            return linkControl.loadApplicationUrl(links[item.itemId])
-        }
-
-        override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInflater: MenuInflater) {
-            links.forEachIndexed { i, l ->
-                val title = "${l.type}:${l.target}"
-                menu.add(Menu.NONE, i, Menu.NONE, title)
-            }
-        }
-
     }
 
     internal inner class LinkLongPressContextMenuInfo(private val targetLink: String) : BibleViewContextMenuInfo {
