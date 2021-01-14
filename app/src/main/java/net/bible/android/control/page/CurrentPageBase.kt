@@ -33,6 +33,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.NoSuchKeyException
 
 /** Common functionality for different document page types
  *
@@ -268,7 +269,11 @@ abstract class CurrentPageBase protected constructor(
             localSetCurrentDocument(book)
             val keyName = entity.key
             if(!keyName.isNullOrEmpty()) {
-                doSetKey(book.getKey(keyName))
+                try {
+                    doSetKey(book.getKey(keyName))
+                } catch (e: NoSuchKeyException) {
+                    Log.e(TAG, "Key ${keyName} not found in book ${document}")
+                }
             }
         }
         currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
