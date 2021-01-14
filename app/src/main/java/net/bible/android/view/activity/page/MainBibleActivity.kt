@@ -586,13 +586,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             preferences.edit().putLong("current_workspace_id", windowRepository.id).apply()
             documentViewManager.buildView(forceUpdate = true)
             windowControl.windowSync.reloadAllWindows()
-            windowRepository.updateVisibleWindowsTextDisplaySettings()
+            windowRepository.updateAllWindowsTextDisplaySettings()
 
             ABEventBus.getDefault().post(ToastEvent(windowRepository.name))
 
             invalidateOptionsMenu()
             updateTitle()
-            //updateToolbar()
         }
 
     private fun getItemOptions(item: MenuItem): OptionsMenuItemInterface {
@@ -672,7 +671,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(itemOptions is Preference) {
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
                 }
-                windowRepository.updateVisibleWindowsTextDisplaySettings()
+                windowRepository.updateAllWindowsTextDisplaySettings()
                 invalidateOptionsMenu()
             }
             val onReset = {
@@ -1188,7 +1187,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 } else {
                     windowRepository.textDisplaySettings.colors = colors
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), windowRepository.textDisplaySettings)
-                    windowRepository.updateVisibleWindowsTextDisplaySettings()
+                    windowRepository.updateAllWindowsTextDisplaySettings()
                 }
                 resetSystemUi()
                 invalidateOptionsMenu()
@@ -1216,7 +1215,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 } else {
                     windowRepository.textDisplaySettings.bookmarks = bookmarks
                     windowRepository.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.BOOKMARK_SETTINGS), windowRepository.textDisplaySettings)
-                    windowRepository.updateVisibleWindowsTextDisplaySettings()
+                    windowRepository.updateAllWindowsTextDisplaySettings()
                 }
                 resetSystemUi()
                 invalidateOptionsMenu()
@@ -1302,7 +1301,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(requiresReload) {
                 ABEventBus.getDefault().post(SynchronizeWindowsEvent(true))
             } else {
-                windowRepository.updateVisibleWindowsTextDisplaySettings()
+                windowRepository.updateAllWindowsTextDisplaySettings()
             }
         }
         invalidateOptionsMenu()

@@ -426,12 +426,6 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    fun updateVisibleWindowsTextDisplaySettings() { // TODO: should we always use *all* version? Probably YES
-        for (it in visibleWindows) {
-            it.bibleView?.updateTextDisplaySettings()
-        }
-    }
-
     fun updateAllWindowsTextDisplaySettings() {
         for (it in windows) {
             it.bibleView?.updateTextDisplaySettings()

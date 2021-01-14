@@ -362,7 +362,7 @@ open class WindowControl @Inject constructor(
             }
         }
 
-        windowRepository.updateVisibleWindowsTextDisplaySettings()
+        windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
     fun copySettingsToWindow(window: Window, order: Int) {
