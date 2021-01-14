@@ -239,7 +239,7 @@ export function mixColors(...colors) {
 
 export function colorLightness(color) {
     // YIQ equation from Color.isDark()
-    var rgb = color.rgb().color;
-    var yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+    const rgb = color.rgb().color;
+    const yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
     return yiq / 255;
 }
