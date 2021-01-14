@@ -147,15 +147,6 @@ open class CurrentPageManager @Inject constructor(
         return nextPage
     }
 
-    /** My Note is different to all other pages.  It has no documents etc but I attempt to make it look a bit like a Commentary page
-     *
-     * @param verseRange VerseRange to add note to, start verse is the significant key searched for but range is stored
-     */
-    fun showMyNote(verseRange: Key) {
-        // TODO: my notes view?
-        setCurrentDocumentAndKey(currentBible.currentDocument, verseRange)
-    }
-
     @JvmOverloads
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,

@@ -34,6 +34,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleBook
 import java.lang.RuntimeException
 import javax.inject.Inject
 
@@ -209,6 +211,9 @@ open class BookmarkControl @Inject constructor(
     fun deleteLabels(toList: List<Long>) {
         dao.deleteLabelsByIds(toList)
     }
+
+    fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
+    fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> = dao.bookmarksForVerseRange(verseRange)
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"
