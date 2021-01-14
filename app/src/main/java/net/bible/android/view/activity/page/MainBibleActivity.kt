@@ -97,7 +97,6 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -128,7 +127,7 @@ import kotlin.math.roundToInt
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.ActionModeMenuDisplay {
+class MainBibleActivity : CustomTitlebarActivityBase() {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
@@ -1386,38 +1385,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), VerseActionModeMediator.
         return true
     }
 
-    override fun isVerseActionModeAllowed(): Boolean {
-        return !drawerLayout.isDrawerVisible(navigationView)
-    }
-
     private var actionMode: ActionMode? = null
-    private var wasFullScreen : Boolean = false
-    override fun showVerseActionModeMenu(actionModeCallbackHandler: ActionMode.Callback) {
-        Log.d(TAG, "showVerseActionModeMenu")
-
-        GlobalScope.launch(Dispatchers.Main) {
-            wasFullScreen = isFullScreen
-            fullScreen = false
-            actionMode = startSupportActionMode(actionModeCallbackHandler)
-
-            setActionModeToolbarPadding()
-
-            // Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
-            actionMode?.invalidate()
-        }
-    }
 
     private fun setActionModeToolbarPadding() {
         val toolbar = actionMode?.customView?.findViewById<Toolbar>(R.id.toolbarContextual)
         toolbar?.setPadding(leftOffset1, 0, rightOffset1, 0)
-    }
-
-    override fun clearVerseActionMode(actionMode: ActionMode) {
-        GlobalScope.launch(Dispatchers.Main) {
-            actionMode.finish()
-            this@MainBibleActivity.actionMode = null
-            fullScreen = wasFullScreen
-        }
     }
 
     /**

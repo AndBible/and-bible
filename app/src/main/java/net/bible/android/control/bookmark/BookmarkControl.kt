@@ -91,49 +91,6 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    fun addBookmarkForVerseRange(book: Book?, verseRange: VerseRange) {
-        if (!isCurrentDocumentBookmarkable) return
-        // TODO: allow having many bookmarks in same verse
-        var bookmark = dao.bookmarksStartingAtVerse(verseRange.start).firstOrNull()
-        val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-        val currentView = currentActivity.findViewById<View>(R.id.coordinatorLayout)
-        var message: Int? = null
-        if (bookmark == null) { // prepare new bookmark and add to db
-            bookmark = Bookmark(verseRange, null, book)
-            bookmark = addOrUpdateBookmark(bookmark, doNotSync = true)
-            message = R.string.bookmark_added
-        } else {
-            bookmark = dao.updateBookmarkDate(bookmark)
-            message = R.string.bookmark_date_updated
-        }
-        val actionTextColor = getResourceColor(R.color.snackbar_action_text)
-        Snackbar.make(currentView, message, Snackbar.LENGTH_LONG)
-            .setActionTextColor(actionTextColor)
-            .setAction(R.string.assign_labels) { showBookmarkLabelsActivity(currentActivity, bookmark) }.show()
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, emptyList()))
-    }
-
-    fun deleteBookmarkForVerseRange(verseRange: VerseRange) {
-        if (!isCurrentDocumentBookmarkable) return
-        // TODO: allow having many bookmarks in same verse
-        val bookmark = dao.bookmarksStartingAtVerse(verseRange.start).firstOrNull()
-        val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-        val currentView = currentActivity.findViewById<View>(android.R.id.content)
-        if (bookmark != null) {
-            deleteBookmark(bookmark, true)
-            Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show()
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
-        }
-    }
-
-    fun editBookmarkLabelsForVerseRange(verseRange: VerseRange) {
-        if (!isCurrentDocumentBookmarkable) return
-        // TODO: allow having many bookmarks in same verse
-        val bookmark = dao.bookmarksStartingAtVerse(verseRange.start).firstOrNull()?: return
-        val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-        showBookmarkLabelsActivity(currentActivity, bookmark)
-    }
-
     val allBookmarks: List<Bookmark> get() = dao.allBookmarks()
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)

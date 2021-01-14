@@ -85,7 +85,6 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
@@ -167,10 +166,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 private val pageTiltScrollControl: PageTiltScrollControl,
                 private val linkControl: LinkControl,
                 internal val bookmarkControl: BookmarkControl
-) :
-        WebView(mainBibleActivity.applicationContext),
-        DocumentView,
-        VerseActionModeMediator.VerseHighlightControl
+) : WebView(mainBibleActivity.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
@@ -1113,29 +1109,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
         executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $topOffset);")
-    }
-
-    override fun enableVerseTouchSelection() {
-        gestureListener.setVerseSelectionMode(true)
-        executeJavascriptOnUiThread("enableVerseTouchSelection()")
-    }
-
-    override fun disableVerseTouchSelection() {
-        executeJavascriptOnUiThread("disableVerseTouchSelection()")
-        gestureListener.setVerseSelectionMode(false)
-    }
-
-    override fun highlightVerse(chapterVerse: ChapterVerse, start: Boolean) {
-        val offset = if(isTopWindow) (mainBibleActivity.topOffset2 / mainBibleActivity.resources.displayMetrics.density) else 0f
-        executeJavascriptOnUiThread("highlightVerse('" + chapterVerse.toHtmlId() + "' , $start, $offset)")
-    }
-
-    override fun unhighlightVerse(chapterVerse: ChapterVerse) {
-        executeJavascriptOnUiThread("unhighlightVerse('" + chapterVerse.toHtmlId() + "')")
-    }
-
-    override fun clearVerseHighlight() {
-        executeJavascriptOnUiThread("clearVerseHighlight()")
     }
 
     internal fun executeJavascriptOnUiThread(javascript: String) {
