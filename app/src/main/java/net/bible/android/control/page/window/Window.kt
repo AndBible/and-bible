@@ -21,6 +21,7 @@ package net.bible.android.control.page.window
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -159,7 +160,7 @@ open class Window (
 
         if(!isVisible) return
 
-        Log.d(TAG, "Loading html in background")
+        Log.d(TAG, "Loading OSIS xml in background")
         var verse: Verse? = null
         var yOffsetRatio: Float? = null
         val currentPage = pageManager.currentPage
@@ -178,6 +179,9 @@ open class Window (
             val osisFrag = fetchOsis()
             val bookmarks = pageManager.currentBible.bookmarksForChapter
 
+            // BibleView initialization might take more time than loading OSIS, so let's wait for it.
+            waitForBibleView()
+
             lastUpdated = System.currentTimeMillis()
 
             if(notifyLocationChange) {
@@ -190,6 +194,12 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeFinished()
             }
         }
+
+    private suspend fun waitForBibleView() {
+        while(bibleView == null) {
+            delay(50)
+        }
+    }
 
     private suspend fun fetchOsis(): List<OsisFragment> = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage

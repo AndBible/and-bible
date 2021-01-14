@@ -105,7 +105,7 @@ class LinkControl @Inject constructor(
         return null
     }
 
-    fun loadApplicationUrl(uriStr: String): Boolean {
+    private fun loadApplicationUrl(uriStr: String): Boolean {
         val bookAndKey = getBookAndKey(uriStr) ?: return false
         showLink(bookAndKey.document, bookAndKey.key)
         return true

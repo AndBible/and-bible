@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -193,9 +194,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var latestOsisObjStr: String = ""
+    private var latestOsisObjStr: String? = null
     private var needsOsisContent: Boolean = false
-    private var htmlLoadingOngoing: Boolean = false
+    private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
                 ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
@@ -223,6 +224,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         settings.allowFileAccess = false
         settings.allowContentAccess = false
+        setOnLongClickListener(BibleViewLongClickListener())
     }
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
@@ -462,7 +464,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // if this webview becomes (in)active then must start/stop auto-scroll
         listenEvents = true
 
-        htmlLoadingOngoing = true;
         loadUrl("https://appassets.androidplatform.net/assets/bibleview-js/index.html")
     }
 
@@ -520,49 +521,49 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         .addPathHandler("/module/", ModuleAssetHandler())
         .build()
 
+
+    fun openLink(uri: Uri): Boolean = when(uri.scheme) {
+        UriConstants.SCHEME_W -> {
+            val links = mutableListOf<BibleLink>()
+            for(paramName in uri.queryParameterNames) {
+                links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
+            }
+            if(links.size > 1) {
+                linkControl.loadApplicationUrl(links)
+            } else {
+                linkControl.loadApplicationUrl(links.first())
+            }
+            true
+        }
+        UriConstants.SCHEME_REFERENCE -> {
+            val osisRef = uri.getQueryParameter("osis")
+            if(osisRef != null) {
+                linkControl.loadApplicationUrl(BibleLink("osis", osisRef))
+            } else {
+                val contentRef = uri.getQueryParameter("content")!!
+                linkControl.loadApplicationUrl(BibleLink("content", contentRef))
+            }
+            true
+        }
+        UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
+            val type = uri.getQueryParameter("type")
+            val name = uri.getQueryParameter("name")
+            linkControl.showAllOccurrences(name!!, SearchControl.SearchBibleSection.ALL, type!![0].toString())
+            true
+        }
+        UriConstants.SCHEME_ERROR -> {
+            linkControl.errorLink()
+            true
+        }
+        else -> {
+            Log.e(TAG, "Unsupported scheme ${uri.scheme}")
+            true
+        }
+    }
+
     private inner class BibleViewClient: WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
-            val uri = req.url
-            val loaded = when(uri.scheme) {
-                UriConstants.SCHEME_W -> {
-                    val links = mutableListOf<BibleLink>()
-                    for(paramName in uri.queryParameterNames) {
-                        links.addAll(uri.getQueryParameters(paramName).map { BibleLink(paramName, it) })
-                    }
-                    if(links.size > 1) {
-                        linkControl.loadApplicationUrl(links)
-                    } else {
-                        linkControl.loadApplicationUrl(links.first())
-                    }
-                    true
-                }
-                UriConstants.SCHEME_REFERENCE -> {
-                    val osisRef = uri.getQueryParameter("osis")
-                    if(osisRef != null) {
-                        linkControl.loadApplicationUrl(BibleLink("osis", osisRef))
-                    } else {
-                        val contentRef = uri.getQueryParameter("content")!!
-                        linkControl.loadApplicationUrl(BibleLink("content", contentRef))
-                    }
-                    true
-                }
-                UriConstants.SCHEME_FIND_ALL_OCCURRENCES -> {
-                    val type = uri.getQueryParameter("type")
-                    val name = uri.getQueryParameter("name")
-                    linkControl.showAllOccurrences(name!!, SearchControl.SearchBibleSection.ALL, type!![0].toString())
-                    true
-                }
-                UriConstants.SCHEME_ERROR -> {
-                    linkControl.errorLink()
-                    true
-                }
-                else -> {
-                    Log.e(TAG, "Unsupported scheme ${uri.scheme}")
-                    true
-                }
-            }
-
-            return if(loaded) {
+            return if(openLink(req.url)) {
                 gestureListener.setDisableSingleTapOnce(true)
                 super.shouldOverrideUrlLoading(view, req)
                 true
@@ -591,7 +592,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return contextMenuInfo
     }
 
-    private inner class BibleViewLongClickListener(private var defaultValue: Boolean) : OnLongClickListener {
+    private inner class BibleViewLongClickListener() : OnLongClickListener {
         override fun onLongClick(v: View): Boolean {
             Log.d(TAG, "onLongClickListener")
             val result = hitTestResult
@@ -600,7 +601,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 v.showContextMenu()
             } else {
                 contextMenuInfo = null
-                defaultValue
+                false
             }
         }
     }
@@ -617,7 +618,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 R.id.open_link_in_new_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW)
                 R.id.open_link_in_this_window -> linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS)
             }
-            linkControl.loadApplicationUrl(targetLink)
+            openLink(Uri.parse(targetLink))
             linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED)
             contextMenuInfo = null
             return true
@@ -742,9 +743,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private fun replaceOsis() {
-        var osisObjStr = ""
+        val osisObjStr = latestOsisObjStr
         synchronized(this) {
-            osisObjStr = latestOsisObjStr
             needsOsisContent = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
@@ -1150,24 +1150,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun setContentReady() {
-        synchronized(this) {
-            if(needsOsisContent) {
-                runOnUiThread {
-                    replaceOsis()
-                }
-            } else {
-                htmlLoadingOngoing = false
-                contentVisible = true
-            }
-        }
-    }
-
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
-        htmlLoadingOngoing = false;
-        replaceOsis()
+        synchronized(this) {
+            htmlLoadingOngoing = false;
+            if(latestOsisObjStr != null) {
+                replaceOsis()
+            }
+        }
     }
 
     var onDestroy: (() -> Unit)? = null
