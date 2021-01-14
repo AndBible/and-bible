@@ -123,7 +123,6 @@ export function useScroll(config) {
 
         if (jumpToOrdinal != null) {
             scrollToVerse(`v-${jumpToOrdinal}`, true);
-            //enableVerseLongTouchSelectionMode();
         } else if (doScroll) {
             console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
             const
