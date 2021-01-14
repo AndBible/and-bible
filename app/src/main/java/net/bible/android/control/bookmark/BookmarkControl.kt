@@ -50,7 +50,6 @@ import javax.inject.Inject
 
 abstract class BookmarkEvent
 
-// TODO: implement listeners and add arguments
 class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarks: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
