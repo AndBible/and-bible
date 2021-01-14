@@ -19,14 +19,11 @@ package net.bible.android.view.activity.bookmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ListView
-import kotlinx.android.synthetic.main.document_selection_with_ok.*
-import kotlinx.android.synthetic.main.manage_labels.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -109,7 +106,7 @@ class ManageLabels : ListActivityBase() {
         labels.clear()
         labels.addAll(bookmarkControl.assignableLabels.filter { !deletedLabels.contains(it.id) })
         if(showUnassigned) {
-            labels.add(bookmarkControl.LABEL_UNLABELLED)
+            labels.add(bookmarkControl.labelUnlabelled)
         }
         notifyDataSetChanged()
     }

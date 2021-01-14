@@ -20,8 +20,6 @@ package net.bible.android.control.bookmark
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import android.view.View
-import com.google.android.material.snackbar.Snackbar
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.ApplicationScope
@@ -34,18 +32,14 @@ import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.db.DatabaseContainer
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import java.lang.RuntimeException
-import java.util.*
 import javax.inject.Inject
 
 abstract class BookmarkEvent
@@ -66,9 +60,9 @@ open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
     resourceProvider: ResourceProvider
 ) {
-    // Dummy labels, used in
-    val LABEL_ALL = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
-    val LABEL_UNLABELLED = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
+    // Dummy labels for all / unlabelled
+    private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    val labelUnlabelled = Label(LABEL_UNLABELED_ID, resourceProvider.getString(R.string.label_unlabelled)?: "unlabeled", color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
 
     private val dao get() = DatabaseContainer.db.bookmarkDao()
 
@@ -145,8 +139,8 @@ open class BookmarkControl @Inject constructor(
 
     fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
         when {
-            LABEL_ALL == label -> dao.allBookmarks(orderBy)
-            LABEL_UNLABELLED == label -> dao.unlabelledBookmarks(orderBy)
+            labelAll == label -> dao.allBookmarks(orderBy)
+            labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
             else -> dao.bookmarksWithLabel(label, orderBy)
         }
 
@@ -186,8 +180,8 @@ open class BookmarkControl @Inject constructor(
         get() {
             val labelList = assignableLabels.toMutableList()
             // add special label that is automatically associated with all-bookmarks
-            labelList.add(0, LABEL_UNLABELLED)
-            labelList.add(0, LABEL_ALL)
+            labelList.add(0, labelUnlabelled)
+            labelList.add(0, labelAll)
             return labelList
         }
 
