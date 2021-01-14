@@ -402,7 +402,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun saveBookmark(doNotSync: Boolean){
-        val labelList = ArrayList<Label>()
+        val labelList = mutableSetOf<Label>()
         if(settings.autoBookmark) {
             var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)
             val playbackSettings = settings.playbackSettings.copy()
@@ -423,7 +423,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
             labelList.add(bookmarkControl.speakLabel)
 
-            bookmarkControl.setLabelsForBookmark(bookmark, labelList, doNotSync)
+            bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList(), doNotSync)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }

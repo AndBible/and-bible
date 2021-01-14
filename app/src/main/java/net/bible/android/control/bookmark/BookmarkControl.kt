@@ -201,36 +201,15 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmarkId)
     }
 
-    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
+    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>, doNotSync: Boolean = false) {
         dao.deleteLabels(bookmark)
-        dao.insert(labelIdList.map { BookmarkToLabel(bookmark.id, it) })
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
+        dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
+        if(!doNotSync)
+            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
     }
 
-    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>, doNotSync: Boolean = false) {
-        // TODO: check if we can do things simply like the above function!
-		val lbls = labels.toMutableList()
-        lbls.remove(LABEL_ALL)
-        lbls.remove(LABEL_UNLABELLED)
-
-        val prevLabels = dao.labelsForBookmark(bookmark.id)
-
-        //find those which have been deleted and remove them
-        val deleted = HashSet(prevLabels)
-        deleted.removeAll(lbls)
-
-        dao.delete(deleted.map { BookmarkToLabel(bookmark.id, it.id) })
-
-        //find those which are new and persist them
-        val added = HashSet(lbls)
-        added.removeAll(prevLabels)
-
-        dao.insert(added.map { BookmarkToLabel(bookmark.id, it.id) })
-
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, lbls.map { it.id }))
-        }
-    }
+    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>, doNotSync: Boolean = false) =
+        setLabelsByIdForBookmark(bookmark, labels.map { it.id }, doNotSync)
 
     fun insertOrUpdateLabel(label: Label): Label {
         if(label.id < 0) throw RuntimeException("Illegal negative label.id")
