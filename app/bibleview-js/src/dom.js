@@ -15,30 +15,19 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-export function findElemWithOsisID(elem) {
-    if(elem === null) return;
-    // This needs to be done unique for each OsisFragment (as there can be many).
-    if(elem.dataset && elem.dataset.osisID) {
-        return elem;
-    }
-    else if (elem.parentElement) {
-        return elem.parentElement.closest('.osis') //findElemWithOsisID(elem.parentElement);
-        //return findElemWithOsisID(elem.parentElement);
-    }
-}
 
 function findNodeAtOffsetRecursive(elem, startOffset) {
     let offset = startOffset;
     do {
         for (const c of elem.childNodes) {
-            if (c.nodeType === Node.ELEMENT_NODE && hasOsisContent(c)) { // element
+            if (c.nodeType === Node.ELEMENT_NODE && hasOsisContent(c)) {
                 const textLength = contentLength(c);
                 if (textLength >= offset) {
                     return findNodeAtOffsetRecursive(c, offset);
                 } else {
                     offset -= textLength;
                 }
-            } else if (c.nodeType === Node.TEXT_NODE && hasOsisContent(c.parentElement)) { // text
+            } else if (c.nodeType === Node.TEXT_NODE && hasOsisContent(c.parentElement)) {
                 if (c.length >= offset) {
                     return [c, offset];
                 } else {
@@ -146,7 +135,7 @@ function ordinalFromVerseElement(v) {
     return parseInt(v.id.split("-")[1]);
 }
 
-export function calculateOffsetToParent(node, parent, offset, start = true, {forceFromEnd = false} = {}) {
+export function calculateOffsetToParent(node, parent, offset, {forceFromEnd = false} = {}) {
     let e = node;
 
     let offsetNow = offset;
@@ -160,9 +149,9 @@ export function calculateOffsetToParent(node, parent, offset, start = true, {for
         } else {
             const next = e.lastChild
             if(next.nodeType === Node.TEXT_NODE) {
-                return calculateOffsetToParent(next, offsetNow + next.length, start)
+                return calculateOffsetToParent(next, offsetNow + next.length)
             } else {
-                return calculateOffsetToParent(next, offsetNow, start)
+                return calculateOffsetToParent(next, offsetNow)
             }
         }
     } else if (e.nodeType === Node.TEXT_NODE) {
@@ -225,8 +214,7 @@ export function findParentsBeforeVerseSibling(node) {
     }
 }
 
-// TODO: remove start parameter if not used...
-export function calculateOffsetToVerse(node, offset, start = true) {
+export function calculateOffsetToVerse(node, offset) {
     let parent;
     if([Node.TEXT_NODE, Node.COMMENT_NODE].includes(node.nodeType)) {
         parent = node.parentNode.closest(".verse");
@@ -253,6 +241,6 @@ export function calculateOffsetToVerse(node, offset, start = true) {
         offset = node.length
     }
 
-    offsetNow += calculateOffsetToParent(node, parent, offset, start);
+    offsetNow += calculateOffsetToParent(node, parent, offset);
     return {offset: offsetNow, ordinal: ordinalFromVerseElement(parent)}
 }
