@@ -83,11 +83,11 @@ export default {
 
 .logbox-button {
   border-radius: 5pt;
-  top: var(--top-offset);
+  bottom: var(--bottom-offset);
   position: fixed;
   padding: 0.5em;
   color: white;
-  right:50%;
+  right: 0;
   width:1em;
   height: 1em;
   animation-name: animatetop;
