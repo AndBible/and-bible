@@ -64,9 +64,7 @@ class UriAnalyzer {
         docType = when (protocol) {
             SWORD_PROTOCOL -> DocType.SPECIFIC_DOC
             OSIS_PROTOCOL -> DocType.BIBLE
-            // TODO: parse string and use current doc...
             CONTENT_PROTOCOL -> DocType.BIBLE
-            // TODO: parse string here too, might be verse range, general book link etc...
             BIBLE_PROTOCOL -> DocType.BIBLE
             GREEK_DEF_PROTOCOL -> DocType.GREEK_DIC
             HEBREW_DEF_PROTOCOL -> DocType.HEBREW_DIC
