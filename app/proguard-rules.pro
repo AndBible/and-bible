@@ -105,11 +105,15 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Change here com.yourcompany.yourpackage
 -keep,includedescriptorclasses class net.bible.android.activity.**$$serializer { *; } # <-- change package name to your app's
--keepclassmembers class net.bible.android.activity.** { # <-- change package name to your app's
+-keepclassmembers class net.bible.android.** { # <-- change package name to your app's
     *** Companion;
 }
--keepclasseswithmembers class net.bible.android.activity.** { # <-- change package name to your app's
+-keepclasseswithmembers class net.bible.android.** { # <-- change package name to your app's
     kotlinx.serialization.KSerializer serializer(...);
 }
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
+
+
+-keep class net.bible.android.database.bookmarks.VerseRangeSerializer
