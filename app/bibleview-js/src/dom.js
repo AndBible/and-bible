@@ -58,6 +58,7 @@ export function contentLength(elem) {
 function hasOsisContent(element) {
     // something with content that should be counted in offset
     if(element === null) return false;
+    if(element.nodeType === Node.DOCUMENT_TYPE_NODE) return true;
     if(element.nodeType !== Node.ELEMENT_NODE) element = element.parentElement;
     return !element.closest(".skip-offset")
 }
@@ -95,18 +96,24 @@ export function* walkBackText(e, onlyOsis = false) {
                 next = next2
             }
         } else if(next.nodeType === Node.ELEMENT_NODE) {
-            let next2 = next.lastChild;
-            if(next2 && osisCheck(next2)) {
-                next = next2
-            } else {
-                let next3;
-                next2 = next;
-                do {
-                    next3 = next2.previousSibling;
-                    next2 = next2.parentElement;
-                } while(!next3);
-                next = next3;
-            }
+            do {
+                let next2 = next.lastChild;
+                if (next2) {
+                    while (next2 && !osisCheck(next2)) {
+                        next2 = next2.previousSibling;
+                    }
+                    if (next2) next = next2;
+                }
+                if (!next2) {
+                    let next3;
+                    next2 = next;
+                    do {
+                        next3 = next2.previousSibling;
+                        next2 = next2.parentElement;
+                    } while (!next3);
+                    next = next3;
+                }
+            } while(!osisCheck(next))
         } else if(next.nodeType === Node.DOCUMENT_TYPE_NODE) {
             next = null;
         } else {
@@ -117,7 +124,8 @@ export function* walkBackText(e, onlyOsis = false) {
 
 export function findNext(e, last, onlyOsis=false) {
     const iterator = walkBackText(e, onlyOsis);
-    if(e.nodeType === Node.TEXT_NODE) {
+    const osisCheck = e => !onlyOsis || (onlyOsis && hasOsisContent(e))
+    if(e.nodeType === Node.TEXT_NODE && osisCheck(e)) {
         iterator.next();
     }
 
@@ -127,7 +135,7 @@ export function findNext(e, last, onlyOsis=false) {
 }
 
 export function textLength(element) {
-    const lastElem = walkBackText(element, true).next().value;
+    const lastElem = lastTextNode(element);
     return calculateOffsetToParent(lastElem, element, lastElem.length)
 }
 
@@ -161,21 +169,17 @@ export function calculateOffsetToParent(node, parent, offset, {forceFromEnd = fa
     }  else if(e.nodeType === Node.COMMENT_NODE) {
         offsetNow = 0;
     } else throw new Error(`Unknown node type ${e.nodeType}`);
-
-    // TODO: simplify (walkBack iteration)
-    for(
-        e = findNext(e, parent, true);
-        e && e !== parent;
-        e = findNext(e, parent, true)
-    ) {
-        if (e.nodeType === Node.ELEMENT_NODE) {
+    const iter = walkBackText(e, true);
+    if(hasOsisContent(e)) {
+        iter.next();
+    }
+    for(e of iter) {
+        if(!hasParent(e, parent)) break;
+        if (e.nodeType !== Node.TEXT_NODE) {
             throw new Error(`Error! ${e} ${e.nodeType}`);
-        } else if(e.nodeType === Node.TEXT_NODE) {
-            if (hasOsisContent(e.parentNode)) {
-                offsetNow += e.length;
-            }
-        } else {
-            console.error("Unknown node type", e.nodeType, e);
+        }
+        if (hasOsisContent(e.parentNode)) {
+            offsetNow += e.length;
         }
     }
     return offsetNow
@@ -243,4 +247,8 @@ export function calculateOffsetToVerse(node, offset) {
 
     offsetNow += calculateOffsetToParent(node, parent, offset);
     return {offset: offsetNow, ordinal: ordinalFromVerseElement(parent)}
+}
+
+export function lastTextNode(elem) {
+    return walkBackText(elem, true).next().value;
 }

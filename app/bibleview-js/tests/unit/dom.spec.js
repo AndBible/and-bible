@@ -20,7 +20,7 @@ import {
     calculateOffsetToVerse, contentLength,
     findNext, findNodeAtOffset,
     findParentsBeforeVerseSibling,
-    findPreviousSiblingWithClass, textLength, walkBackText
+    findPreviousSiblingWithClass, lastTextNode, textLength, walkBackText
 } from "@/dom";
 
 const test1 = `
@@ -47,6 +47,7 @@ const test1 = `
       text4
     </div>    
     text5
+    <b class="skip-offset">skipped</b>
   </div>
   <div id="between-1" class="skip-offset">Outside of <!-- test -->verse</div>
   <div id="between-2">legal</div>
@@ -95,6 +96,23 @@ describe("textLength tests", () => {
         expect(length).toBe(35);
     });
 });
+
+describe("lastTextNode tests", () => {
+    let dom, document;
+    beforeEach(() => {
+        dom = getDom(test1);
+        document = dom.window.document;
+    })
+
+    it("test1", () => {
+        const e = document.querySelector("#v-0")
+        const node = lastTextNode(e);
+        console.log("node", node);
+        expect(node.textContent).toBe("text5");
+    });
+});
+
+
 
 describe("findPreviousSiblingsWithClass tests", () => {
     let dom, document;
@@ -263,8 +281,16 @@ describe("findNext tests", () => {
         const e = document.querySelector("#between-1").firstChild
         const next = findNext(e, null)
         expect(next.nodeType).toBe(3)
+        expect(next.textContent).toBe("skipped");
+    })
+
+    it("test4.1", () => {
+        const e = document.querySelector("#between-1").firstChild
+        const next = findNext(e, null, true)
+        expect(next.nodeType).toBe(3)
         expect(next.textContent).toBe("text5");
     })
+
     it("test5", () => {
         const e = document.querySelector("#between-2").firstChild
         const next = findNext(e, null)
@@ -335,8 +361,16 @@ describe("calculateOffsetToVerse tests", () => {
         expect(ordinal).toBe(0)
         expect(offset).toBe(5)
     });
-    it("findLegalPosition test 2", () => {
+    it("findLegalPosition test 2 start from comment", () => {
         const elem1 = document.querySelector("#id1-2").firstChild
+
+        const {ordinal, offset} = calculateOffsetToVerse(elem1, 8)
+        expect(ordinal).toBe(0)
+        expect(offset).toBe(4*5)
+    });
+    it("findLegalPosition test 2.1 start from skip-offset", () => {
+        const sel = document.querySelector("#id1-2");
+        const elem1 = sel.childNodes[1]
 
         const {ordinal, offset} = calculateOffsetToVerse(elem1, 8)
         expect(ordinal).toBe(0)

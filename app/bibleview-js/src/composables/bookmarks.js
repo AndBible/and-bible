@@ -19,7 +19,7 @@ import {onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
 import {cloneDeep, sortBy, uniqWith} from "lodash";
 import {arrayEq, colorLightness, intersection, mixColors, rangesOverlap} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
-import {findNodeAtOffset, walkBackText} from "@/dom";
+import {findNodeAtOffset, lastTextNode} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
@@ -326,7 +326,7 @@ export function useBookmarks(fragmentKey,
     function findNodeAtOffsetWithNullOffset(elem, offset) {
         let node, off;
         if (offset === null) {
-            node = walkBackText(elem, true).next().value;
+            node = lastTextNode(elem, true);
             off = node.length;
         } else {
             [node, off] = findNodeAtOffset(elem, offset);
@@ -370,7 +370,7 @@ export function useBookmarks(fragmentKey,
                 element = highlightElements[0];
                 undoHighlights.push(undo);
             } else {
-                console.error("Highlight range failed!", {first, startOff, endOff})
+                console.error("Highlight range failed!", {first, second, firstElem, secondElem, startOff, endOff, startOff1, endOff1})
             }
         }
 
