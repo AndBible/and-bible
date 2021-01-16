@@ -53,7 +53,7 @@ export default {
     return {verseInfo, shown, ...common};
   },
   computed : {
-    isParagraph: ({type}) => type === 'x-p',
+    isParagraph: ({type, sID}) => ['x-p', 'paragraph'].includes(type) && sID,
     isPreVerse,
     isCanonical: ({canonical}) => canonical !== "false",
   },

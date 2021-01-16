@@ -35,6 +35,8 @@ import OsisSegment from "@/components/OsisSegment";
 import {AutoSleep} from "@/utils";
 import {usePoetic, useStrings} from "@/composables";
 
+const parser = new DOMParser();
+
 export default {
   name: "OsisFragment",
   components: {OsisSegment},
@@ -78,7 +80,6 @@ export default {
 
     async function populate() {
       const autoSleep = new AutoSleep();
-      const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(template, "text/xml");
       let ordinalCount = 0;
 
