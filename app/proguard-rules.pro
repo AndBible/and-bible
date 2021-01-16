@@ -105,7 +105,7 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
--keep,includedescriptorclasses class net.bible.android.activity.**$$serializer { *; } # <-- change package name to your app's
+-keep,includedescriptorclasses class net.bible.android.**$$serializer { *; } # <-- change package name to your app's
 -keepclassmembers class net.bible.android.** { # <-- change package name to your app's
     *** Companion;
 }
