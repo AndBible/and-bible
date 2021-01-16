@@ -370,7 +370,7 @@ export function useBookmarks(fragmentKey,
                 element = highlightElements[0];
                 undoHighlights.push(undo);
             } else {
-                console.error("Highlightrange failed!", {first, startOff, endOff})
+                console.error("Highlight range failed!", {first, startOff, endOff})
             }
         }
 

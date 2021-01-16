@@ -22,6 +22,7 @@
   <div v-if="showLog" @click="showLog=false" class="logbox">
     <div class="errorbox">
       <a class="error-link" href="ab-error://error">{{ strings.reportError }}</a>
+      <button class="button" @click="clearLog">{{strings.clearLog}}</button>
       <ul>
         <li
             v-for="({type, msg, count}, index) in logEntries"
@@ -35,15 +36,12 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
-import {enableLogSync} from "@/composables/android";
+import {clearLog, enableLogSync, logEntries} from "@/composables/android";
 import {onMounted, onUnmounted} from "@vue/runtime-core";
+import {useCommon} from "@/composables";
 
 export default {
   name: "ErrorBox",
-  props: {
-    logEntries: {type: Object, required: true}
-  },
   computed: {
     buttonStyle({logEntries}) {
       if (logEntries.find(v => v.type === "ERROR")) return "error";
@@ -54,7 +52,7 @@ export default {
   setup() {
     onMounted(() => enableLogSync(true))
     onUnmounted(() => enableLogSync(false))
-    return useCommon();
+    return {logEntries, clearLog, ...useCommon()};
   },
   data() {
     return {

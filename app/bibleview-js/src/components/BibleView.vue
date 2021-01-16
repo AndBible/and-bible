@@ -20,7 +20,7 @@
     <div :style="`height:${config.topOffset}px`"/>
     <div id="notes"/>
     <BookmarkModal/>
-    <ErrorBox :log-entries="logEntries"/>
+    <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
       <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
@@ -45,7 +45,7 @@
   import {useGlobalBookmarks} from "@/composables/bookmarks";
   import {Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
-  import {useAndroid} from "@/composables/android";
+  import {clearLog, useAndroid} from "@/composables/android";
   import {setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
   import BookmarkModal from "@/components/BookmarkModal";
@@ -64,7 +64,7 @@
       const topElement = ref(null);
       const {scrollToVerse} = useScroll(config);
       const globalBookmarks = useGlobalBookmarks(config);
-      const {logEntries, ...android} = useAndroid(globalBookmarks, config);
+      const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
       useInfiniteScroll(config, android, osisFragments);
 
@@ -76,7 +76,7 @@
       }, {deep: true});
 
       function replaceOsis(...s) {
-        logEntries.splice(0);
+        clearLog();
         osisFragments.splice(0)
         osisFragments.push(...s)
       }
@@ -110,7 +110,7 @@
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks,
-        config, strings, osisFragments, topElement, logEntries, currentVerse
+        config, strings, osisFragments, topElement, currentVerse
       };
     },
     computed: {

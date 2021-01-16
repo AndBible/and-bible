@@ -23,7 +23,7 @@ import {reactive} from "@vue/reactivity";
 
 let callId = 0;
 
-const logEntries = reactive([])
+export const logEntries = reactive([])
 const logEntriesTemp = [];
 
 function addLog(logEntry) {
@@ -45,6 +45,11 @@ export async function enableLogSync(value) {
             logEntries.push(...logEntriesTemp.slice(logEntries.length, logEntriesTemp.length));
         }
     }
+}
+
+export function clearLog() {
+    logEntriesTemp.splice(0);
+    logEntries.splice(0);
 }
 
 export function patchAndroidConsole() {
@@ -178,7 +183,6 @@ export function useAndroid({bookmarks}, config) {
     const exposed = {
         reportInputFocus,
         saveBookmarkNote,
-        logEntries,
         requestMoreTextAtTop,
         requestMoreTextAtEnd,
         scrolledToVerse,
@@ -191,7 +195,6 @@ export function useAndroid({bookmarks}, config) {
 
     if(config.developmentMode) return {
         ...stubsFor(exposed),
-        logEntries,
         querySelection
     }
 
