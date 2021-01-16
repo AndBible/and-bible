@@ -60,6 +60,7 @@
       const {config} = useConfig();
       const strings = useStrings();
       const osisFragments = reactive([]);
+      window.bibleViewDebug.osisFragments = osisFragments;
       const topElement = ref(null);
       const {scrollToVerse} = useScroll(config);
       const globalBookmarks = useGlobalBookmarks(config);

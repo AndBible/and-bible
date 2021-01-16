@@ -91,6 +91,7 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
@@ -99,6 +100,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
 import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URLConnection
@@ -139,9 +141,9 @@ class OsisFragment(val xml: String, val key: Key?, val bookId: String) {
 data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetRange: List<Int>?,
                           val labels: List<Long>, val book: String?, val createdAt: Long, val lastUpdatedOn: Long,
                           val notes: String?) {
-    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>) :
+    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification) :
         this(bookmark.id,
-            listOf(bookmark.ordinalStart, bookmark.ordinalEnd),
+            listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             bookmark.textRange?.clientList,
             labels.toMutableList().also { if(it.isEmpty()) it.add(LABEL_UNLABELED_ID) }, bookmark.book?.initials,
             bookmark.createdAt.time, bookmark.lastUpdatedOn.time, bookmark.notes
@@ -671,6 +673,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var latestBookmarks: List<BookmarkEntities.Bookmark> = emptyList()
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
     var bookCategory: BookCategory? = null
+    var book: Book? = null
 
     suspend fun show(osisFrags: List<OsisFragment>,
                      bookmarks: List<BookmarkEntities.Bookmark>,
@@ -701,9 +704,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
 
+        book = Books.installed().getBook(osisFrags.first().bookId)
+        bookCategory = book?.bookCategory
+
         latestBookmarks = bookmarks
         latestOsisObjStr = getOsisObjStr(osisFrags)
-        bookCategory = Books.installed().getBook(osisFrags.first().bookId).bookCategory
 
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
@@ -908,7 +913,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
-        val clientBookmark = ClientBookmark(event.bookmark, event.labels)
+        val book = book
+        if(book !is SwordBook) return
+        val clientBookmark = ClientBookmark(event.bookmark, event.labels, book.versification)
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  {bookmarks: [$bookmarkStr], labels: []});
@@ -1098,10 +1105,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
             ClientBookmarkLabel(it.id, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) } ?: defaultStyle)
         })
-        val bookmarks = json.encodeToString(serializer(), latestBookmarks.map { it ->
-            val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
-            ClientBookmark(it, labels.map { lbl -> lbl.id })
-        })
+        val book = book
+        val bookmarks = if(book is SwordBook)
+            json.encodeToString(serializer(), latestBookmarks.map { it ->
+                val labels = bookmarkControl.labelsForBookmark(it).toMutableList()
+                ClientBookmark(it, labels.map { lbl -> lbl.id }, book.versification)
+            })
+        else "[]"
+
         val xmlList = frags.joinToString(",")  { """
             |{
             |   xml: `${it.xml.replace("`", "\\`")}`, 
