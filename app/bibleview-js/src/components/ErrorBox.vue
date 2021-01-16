@@ -83,7 +83,7 @@ export default {
 
 .logbox-button {
   border-radius: 5pt;
-  bottom: var(--bottom-offset);
+  bottom: calc(2*var(--bottom-offset));
   position: fixed;
   padding: 0.5em;
   color: white;
