@@ -28,9 +28,11 @@ export default {
     subType: {type: String, default: null},
     type: {type: String, default: null},
     marker: {type: String, default: ""},
+    resp: {type: String, default: ""},
   },
   setup(props) {
-    checkUnsupportedProps(props, "type");
+    checkUnsupportedProps(props, "resp");
+    checkUnsupportedProps(props, "type", ["x-strongsMarkup"]);
     checkUnsupportedProps(props, "subType");
     return useCommon();
   },

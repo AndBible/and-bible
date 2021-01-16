@@ -53,6 +53,7 @@ export default {
     type: {type: String, default: null},
     subType: {type: String, default: null},
     n: {type: String, default: null},
+    resp: {type: String, default: null},
   },
   data() {
     return {
@@ -65,6 +66,7 @@ export default {
     isCrossReference: ({type}) => type === "crossReference"
   },
   setup(props) {
+    checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "placement");
     checkUnsupportedProps(props, "type",
         ["explanation", "translation", "crossReference", "variant", "alternative"]);

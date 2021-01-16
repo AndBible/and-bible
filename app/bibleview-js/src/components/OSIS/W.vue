@@ -35,15 +35,21 @@
 </template>
 
 <script>
-import {strongsModes, useCommon} from "@/composables";
+import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
 
 export default {
   name: "W",
   props: {
     lemma: {type: String, default: null}, // strong:H8064
     morph: {type: String, default: null}, // strongMorph:TH8792
+    src: {type: String, default: null},
+    type: {type: String, default: null},
+    subType: {type: String, default: null},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "src")
+    checkUnsupportedProps(props, "type", ["x-split"])
+    checkUnsupportedProps(props, "subType")
     function prep(string) {
       let remainingString = string;
       const res = []

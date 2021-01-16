@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Chapter",
@@ -30,8 +30,10 @@ export default {
     osisID: {type: String, default: null},
     sID: {type: String, default: null},
     eID: {type: String, default: null},
+    chapterTitle: {type: String, default: null},
   },
-  setup() {
+  setup(props) {
+    checkUnsupportedProps(props, "chapterTitle")
     return useCommon();
   },
   computed: {
