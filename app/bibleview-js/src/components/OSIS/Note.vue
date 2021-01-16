@@ -25,7 +25,7 @@
     <Modal @close="showNote = false" v-if="showNote">
       <slot/>
       <template #title>
-        {{isFootNote ? strings.noteText : strings.crossReferenceText }}
+        {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
       </template>
     </Modal>
   </div>
@@ -34,6 +34,7 @@
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import Modal from "@/components/Modal";
+import {get} from "lodash";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -62,16 +63,26 @@ export default {
   },
   computed: {
     handle: ({n}) => n || runningHandle(),
-    isFootNote: ({type}) => ["explanation", "translation"].includes(type),
+    isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative"].includes(type),
+    typeStr: ({type, typeStrings, strings}) => get(typeStrings, type, strings.footnoteTypeUndefined),
     isCrossReference: ({type}) => type === "crossReference"
   },
   setup(props) {
     checkUnsupportedProps(props, "resp");
     checkUnsupportedProps(props, "placement");
     checkUnsupportedProps(props, "type",
-        ["explanation", "translation", "crossReference", "variant", "alternative"]);
-    checkUnsupportedProps(props, "subType", ["x-gender-neutral"]);
-    return useCommon();
+        ["explanation", "translation", "crossReference", "variant", "alternative", "study"]);
+    checkUnsupportedProps(props, "subType",
+        ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
+    const {strings, ...common} = useCommon();
+    const typeStrings = {
+      explanation: strings.footnoteTypeExplanation,
+      translation: strings.footnoteTypeTranslation,
+      study: strings.footnoteTypeStudy,
+      variant: strings.footnoteTypeVariant,
+      alternative: strings.footnoteTypeAlternative,
+    };
+    return {strings, typeStrings, ...common};
   },
 }
 </script>
