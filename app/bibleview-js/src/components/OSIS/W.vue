@@ -96,7 +96,6 @@ export default {
 
 <style scoped>
   .linkstyle {
-    color: black;
     text-decoration: underline dotted;
   }
 
