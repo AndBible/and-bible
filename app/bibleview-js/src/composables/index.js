@@ -125,6 +125,7 @@ export function useConfig() {
         topOffset: 100,
         bottomOffset: 100,
         infiniteScroll: true,
+        nightMode: false,
 
         developmentMode,
         testMode,
@@ -134,7 +135,7 @@ export function useConfig() {
         window.bibleViewDebug.config = config;
     }
 
-    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial}) => {
+    setupEventBusListener(Events.SET_CONFIG, async ({config: c, initial = false, nightMode = false} = {}) => {
         const defer = new Deferred();
         if(!initial) emit(Events.CONFIG_CHANGED, defer)
         const oldValue = config.showBookmarks;
@@ -147,6 +148,7 @@ export function useConfig() {
                 console.error("Unknown setting", i, c[i]);
             }
         }
+        config.nightMode = nightMode;
         if(c.showBookmarks === undefined) {
             // eslint-disable-next-line require-atomic-updates
             config.showBookmarks = oldValue;

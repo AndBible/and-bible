@@ -50,6 +50,7 @@
   import ErrorBox from "@/components/ErrorBox";
   import BookmarkModal from "@/components/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
+  import Color from "color";
 
   export default {
     name: "BibleView",
@@ -115,9 +116,10 @@
     },
     computed: {
       styleConfig({config}) {
+        const textColor = Color(config.nightMode ? config.colors.nightTextColor: config.colors.dayTextColor);
         let style = `
           max-width: ${config.marginSize.maxWidth};
-          color: ${config.textColor};
+          color: ${textColor.hsl().string()};
           hyphens: ${config.hyphenation ? "auto": "none"};
           noise-opacity: ${config.noiseOpacity/100};
           line-spacing: ${config.lineSpacing / 10}em;
