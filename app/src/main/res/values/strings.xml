@@ -155,6 +155,8 @@
     <string name="window_pinning_menutitle">Window pinning</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
+    <string name="hide_bible_reference_overlay_title">Hide Bible reference overlay</string>
+    <string name="hide_bible_reference_overlay_summary">Never show the Bible reference overlay close to the bottom of screen when app is in fullscreen mode</string>
     <string name="font_size_title">Font size</string>
 
     <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
