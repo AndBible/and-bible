@@ -19,7 +19,6 @@
 package net.bible.service.format.osistohtml.osishandlers
 
 
-import net.bible.service.common.CommonUtils
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
 
 import org.crosswire.jsword.book.OSISUtil

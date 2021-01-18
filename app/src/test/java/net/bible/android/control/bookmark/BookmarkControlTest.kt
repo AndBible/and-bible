@@ -6,7 +6,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkStyle
-import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
@@ -36,12 +35,10 @@ class BookmarkControlTest {
     private var testLabelCounter = 0
     private var currentTestLabel: String? = null
     private var bookmarkControl: BookmarkControl? = null
-    private var bookmarkFormatSupport: BookmarkFormatSupport? = null
 
     @Before
     fun setUp() {
         bookmarkControl = BookmarkControl(Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java))
-        bookmarkFormatSupport = BookmarkFormatSupport(bookmarkControl!!)
     }
 
     @After
@@ -156,7 +153,7 @@ class BookmarkControlTest {
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
         val newBookmark = Bookmark(verseRange)
-        val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, false)
+        val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, null, false)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
     }
@@ -165,121 +162,13 @@ class BookmarkControlTest {
     fun testIsBookmarkForAnyVerseRangeWithSameStart() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
         val newBookmark = Bookmark(verseRange)
-        bookmarkControl!!.addOrUpdateBookmark(newBookmark, false)
+        bookmarkControl!!.addOrUpdateBookmark(newBookmark, null, false)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
 
         // 1 has the same start as 10 but is not the same
         val verseWithSameStart = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseWithSameStart), IsEqual.equalTo(false))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testGetVersesWithBookmarksInPassage() {
-        val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-
-        // add bookmark in range
-        val bookmark = addBookmark("ps.17.1-ps.17.2")
-        var greenLabel = Label()
-        greenLabel.name = "G"
-        greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
-        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(greenLabel))
-        addBookmark("ps.17.10")
-
-        // add bookmark out of range
-        addBookmark("ps.17.0")
-        addBookmark("ps.17.11")
-
-        // check only bookmark in range is returned
-        val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
-        MatcherAssert.assertThat(versesWithBookmarksInPassage.size, IsEqual.equalTo(3))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1], IsIterableContainingInOrder.contains(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], IsIterableContainingInOrder.contains(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[10], IsIterableContainingInOrder.contains(BookmarkStyle.YELLOW_STAR)) // default bookmark style
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testManyBookmarksInOneVerse() {
-        val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-
-        // add bookmark in range
-        val bookmark = addBookmark("ps.17.1-ps.17.2")
-        val bookmark2 = addBookmark("ps.17.2-ps.17.2")
-        var greenLabel = Label()
-        greenLabel.name = "G"
-        greenLabel.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        greenLabel = bookmarkControl!!.insertOrUpdateLabel(greenLabel)
-        var stargLabel = Label()
-        stargLabel.name = "S"
-        stargLabel.bookmarkStyle = BookmarkStyle.YELLOW_STAR
-        stargLabel = bookmarkControl!!.insertOrUpdateLabel(stargLabel)
-        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(greenLabel))
-        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(stargLabel))
-
-        // check only bookmark in range is returned
-        val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
-        MatcherAssert.assertThat(versesWithBookmarksInPassage.size, IsEqual.equalTo(2))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1]!!.size, IsEqual.equalTo(1))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.YELLOW_STAR))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2]!!.size, IsEqual.equalTo(2))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testManyBookmarksInOneVerse2() {
-        val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-
-        // add bookmark in range
-        val bookmark = addBookmark("ps.17.2-ps.17.2")
-        val bookmark2 = addBookmark("ps.17.1-ps.17.2")
-        var label1 = Label()
-        label1.name = "S"
-        label1.bookmarkStyle = BookmarkStyle.YELLOW_STAR
-        label1 = bookmarkControl!!.insertOrUpdateLabel(label1)
-        var label2 = Label()
-        label2.name = "G"
-        label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setLabelsForBookmark(bookmark, listOf(label1))
-        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label2))
-
-        // check only bookmark in range is returned
-        val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
-        MatcherAssert.assertThat(versesWithBookmarksInPassage.size, IsEqual.equalTo(2))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1]!!.size, IsEqual.equalTo(1))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.YELLOW_STAR))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2]!!.size, IsEqual.equalTo(2))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testManyBookmarksInOneVerse3() {
-        val passage = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
-
-        // add bookmark in range
-        val bookmark = addBookmark("ps.17.2-ps.17.2")
-        val bookmark2 = addBookmark("ps.17.1-ps.17.2")
-        var label2 = Label()
-        label2.name = "G"
-        label2.bookmarkStyle = BookmarkStyle.GREEN_HIGHLIGHT
-        label2 = bookmarkControl!!.insertOrUpdateLabel(label2)
-        bookmarkControl!!.setLabelsForBookmark(bookmark2, listOf(label2))
-
-        // check only bookmark in range is returned
-        val versesWithBookmarksInPassage = bookmarkFormatSupport!!.getVerseBookmarkStylesInPassage(passage)
-        MatcherAssert.assertThat(versesWithBookmarksInPassage.size, IsEqual.equalTo(2))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[1]!!.size, IsEqual.equalTo(1))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.GREEN_HIGHLIGHT))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2], Matchers.hasItem(BookmarkStyle.YELLOW_STAR))
-        MatcherAssert.assertThat(versesWithBookmarksInPassage[2]!!.size, IsEqual.equalTo(2))
     }
 
     private fun addTestVerse(): Bookmark? {
@@ -296,7 +185,7 @@ class BookmarkControlTest {
     private fun addBookmark(verse: String?): Bookmark {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
         val bookmark = Bookmark(verseRange)
-        return bookmarkControl!!.addOrUpdateBookmark(bookmark, false)
+        return bookmarkControl!!.addOrUpdateBookmark(bookmark, null, false)
     }
 
     private fun addTestLabel(): Label {

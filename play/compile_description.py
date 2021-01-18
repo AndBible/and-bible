@@ -23,10 +23,11 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 constants = yaml.load(open(os.path.join(dir_path, "constants.yml")).read(), yaml.SafeLoader)
 full_description_template = jinja2.Template(open(os.path.join(dir_path, "full_description_template.txt")).read())
+homepage_template = jinja2.Template(open(os.path.join(dir_path, "homepage_template.html")).read())
 short_description_template = jinja2.Template("{{short_description}}")
 title_template = jinja2.Template("{{title}}")
 
-def render(filename, template=full_description_template):
+def render(filename, template=full_description_template, skip_issues=False):
     description = yaml.load(open(filename).read(), yaml.SafeLoader)
 
     variables = dict(**description, **constants)
@@ -34,9 +35,10 @@ def render(filename, template=full_description_template):
     variables = {key: jinja2.Template(value).render(**variables) for key, value in variables.items()}
 
     rendered = template.render(**variables)
-    for issue in ["{{", "}}", "_"]:
-        if issue in rendered:
-            raise RuntimeError(f"Issue with full_description_template render {filename}: {rendered}")
+    if not skip_issues:
+        for issue in ["{{", "}}", "_"]:
+            if issue in rendered:
+                raise RuntimeError(f"Issue with full_description_template render {filename}: {rendered}")
     return rendered
 
 
@@ -50,6 +52,9 @@ def give_path(lang, txt_file="full_description.txt"):
 
 with open(give_path("en-US"), "w") as f:
     f.write(render(os.path.join(dir_path,"playstore-description.yml")))
+
+with open(os.path.join(dir_path, "../../homepage/index.html"), "w") as f:
+    f.write(render(os.path.join(dir_path,"playstore-description.yml"), homepage_template, skip_issues=True))
 
 translation_folder = os.path.join(dir_path, "description-translations")
 matcher = re.compile(r"^([a-zA-Z-]+)\.yml$")

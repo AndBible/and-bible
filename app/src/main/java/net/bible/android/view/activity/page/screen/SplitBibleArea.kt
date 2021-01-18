@@ -61,6 +61,7 @@ import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
+import net.bible.android.view.activity.page.BibleViewInputFocusChanged
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
@@ -443,6 +444,31 @@ class SplitBibleArea(
         }
     }
 
+    private fun ensureBibleViewVisible(view: BibleView) {
+        // TOOD: Placeholder to do something to make bibleview that has gone under soft keyboard visible when
+        // editing notes
+        /*
+        GlobalScope.launch(Dispatchers.Main) {
+            delay(200)
+            val rect = Rect().apply { view.getGlobalVisibleRect(this) }
+            val grect = Rect().apply{ mainBibleActivity.window.decorView.getGlobalVisibleRect(this)}
+            val rect2 = Rect().apply {mainBibleActivity.window.decorView.getDrawingRect(this)}
+            val rect3 = Rect().apply {mainBibleActivity.window.decorView.getHitRect(this)}
+            val rect4 = Rect().apply {mainBibleActivity.window.decorView.getGlobalVisibleRect(this)}
+            val rect5 = Rect().apply {mainBibleActivity.window.decorView.getLocalVisibleRect(this)}
+            Log.d(TAG, "Rect \n$rect \n$grect")
+        }
+         */
+    }
+
+    fun onEvent(event: BibleViewInputFocusChanged) {
+        if(event.newFocus) {
+            ensureBibleViewVisible(event.view)
+        } else {
+            // reset position
+        }
+    }
+
     private var sleepTimer: Timer = Timer("SplitBibleArea sleep timer")
     private var timerTask: TimerTask? = null
 
@@ -593,7 +619,7 @@ class SplitBibleArea(
      */
     private fun getDocumentAbbreviation(window: Window): String {
         return try {
-            val abbrv = window.pageManager.currentPage.currentDocument?.abbreviation
+            val abbrv = window.pageManager.currentPage.currentDocumentAbbreviation
             return abbrv ?: ""
             //abbrv?.substring(0, 1) ?: ""
         } catch (e: Exception) {
@@ -614,11 +640,7 @@ class SplitBibleArea(
             mainBibleActivity.invalidateOptionsMenu()
         } else {
             val onReady = {
-                if(itemOptions.requiresReload) {
-                    window.updateText()
-                } else {
-                    window.bibleView?.updateTextDisplaySettings()
-                }
+                window.bibleView?.updateTextDisplaySettings()
                 mainBibleActivity.invalidateOptionsMenu()
             }
             itemOptions.openDialog(mainBibleActivity, {onReady()}, onReady)

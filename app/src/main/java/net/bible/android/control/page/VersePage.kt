@@ -20,6 +20,8 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -72,6 +74,11 @@ abstract class VersePage protected constructor(
         if (!isInhibitChangeNotifications) {
             PassageChangeMediator.getInstance().onCurrentVerseChanged()
         }
+    }
+
+    val bookmarksForChapter: List<BookmarkEntities.Bookmark> get() {
+        val range = CommonUtils.getWholeChapter(currentBibleVerse.verse)
+        return pageManager.bookmarkControl.bookmarksForVerseRange(range)
     }
 
     companion object {

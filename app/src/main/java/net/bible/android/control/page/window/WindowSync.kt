@@ -150,7 +150,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 if (isBible && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
                         ABEventBus.getDefault()
-                            .post(ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)))
+                            .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
                         inactiveWindow.updateText()
                     }

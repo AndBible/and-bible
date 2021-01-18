@@ -30,6 +30,7 @@ import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import kotlinx.android.synthetic.main.settings_dialog.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import net.bible.android.activity.R
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
@@ -39,10 +40,12 @@ import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.BookmarkSettingsPreference
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
 import net.bible.android.view.activity.page.FontPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
+import net.bible.android.view.activity.page.MainBibleActivity.Companion.BOOKMARK_SETTINGS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.activity.page.MarginSizePreference
@@ -63,7 +66,7 @@ class TextDisplaySettingsDataStore(
         val oldValue = prefItem.value
         prefItem.value = value
         if(oldValue != value) {
-            activity.setDirty(type, prefItem.requiresReload)
+            activity.setDirty(type)
         }
     }
 
@@ -76,12 +79,11 @@ class TextDisplaySettingsDataStore(
 }
 
 fun getPrefItem(settings: SettingsBundle, key: String): OptionsMenuItemInterface {
-    try {
+    return try {
         val type = Types.valueOf(key)
-        return getPrefItem(settings, type)
-    }
-    catch (e: IllegalArgumentException) {
-        return when(key) {
+        getPrefItem(settings, type)
+    } catch (e: IllegalArgumentException) {
+        when(key) {
             "apply_to_all_workspaces" -> CommandPreference()
             else -> throw RuntimeException("Unsupported item key")
         }
@@ -103,9 +105,10 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.FONT -> FontPreference(settings)
         Types.MARGINSIZE -> MarginSizePreference(settings)
         Types.COLORS -> ColorPreference(settings)
-        Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY, requiresReload = false)
-        Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION, requiresReload = false)
+        Types.JUSTIFY -> ItemPreference(settings, Types.JUSTIFY)
+        Types.HYPHENATION -> ItemPreference(settings, Types.HYPHENATION)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
+        Types.BOOKMARK_SETTINGS -> BookmarkSettingsPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -135,7 +138,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
             }
         }
         if(itmOptions is MorphologyPreference) {
-            p.isEnabled = StrongsPreference(settingsBundle).value as Boolean
+            p.isEnabled = StrongsPreference(settingsBundle).value as Int > 0
         }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
@@ -166,19 +169,14 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val resetFunc = {
             if(prefItem is ItemPreference) {
                 prefItem.setNonSpecific()
-                activity.setDirty(prefItem.type, prefItem.requiresReload)
+                activity.setDirty(prefItem.type)
             }
             updateItem(preference)
         }
         val handled = prefItem.openDialog(activity, {
             updateItem(preference)
             if(type != null)
-                activity.setDirty(type, prefItem.requiresReload)
-            else if(prefItem.requiresReload) {
-                for(t in Types.values()) {
-                    activity.setDirty(t, true)
-                }
-            }
+                activity.setDirty(type)
         }, resetFunc)
 
         if(!handled) {
@@ -256,10 +254,8 @@ class TextDisplaySettingsActivity: ActivityBase() {
         setResult()
     }
 
-    fun setDirty(type: Types, requiresReload: Boolean = false) {
+    fun setDirty(type: Types) {
         dirtyTypes.add(type)
-        if(requiresReload)
-            this.requiresReload = true
         setResult()
     }
 
@@ -267,7 +263,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
         val resultIntent = Intent(this, ColorSettingsActivity::class.java)
 
         resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
-        resultIntent.putExtra("requiresReload", requiresReload)
         resultIntent.putExtra("reset", reset)
         resultIntent.putExtra("edited", dirtyTypes.isNotEmpty())
         resultIntent.putExtra("dirtyTypes", DirtyTypesSerializer(dirtyTypes).toJson())
@@ -291,6 +286,24 @@ class TextDisplaySettingsActivity: ActivityBase() {
                     val colors = WorkspaceEntities.Colors.fromJson(data.extras?.getString("colors")!!)
                     prefItem.value = colors
                     setDirty(Types.COLORS)
+                    fragment.updateItems()
+                }
+            }
+            BOOKMARK_SETTINGS_CHANGED -> {
+                val extras = data?.extras!!
+                val edited = extras.getBoolean("edited")
+                val reset = extras.getBoolean("reset")
+                val prefItem = getPrefItem(settingsBundle, Types.BOOKMARK_SETTINGS)
+                if(reset) {
+                    prefItem.setNonSpecific()
+                    setDirty(Types.BOOKMARK_SETTINGS)
+                    fragment.updateItems()
+                }
+                else if(edited) {
+                    val bookmarkString = data.extras?.getString("bookmarks")!!
+                    val bookmarks = json.decodeFromString(serializer<WorkspaceEntities.BookmarkDisplaySettings>(), bookmarkString)
+                    prefItem.value = bookmarks
+                    setDirty(Types.BOOKMARK_SETTINGS)
                     fragment.updateItems()
                 }
             }

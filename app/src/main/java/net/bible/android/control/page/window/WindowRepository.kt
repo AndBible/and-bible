@@ -176,6 +176,7 @@ open class WindowRepository @Inject constructor(
     fun getWindow(windowId: Long?): Window? = if(windowId == null) null else windows.find {it.id == windowId}
 
     fun addNewWindow(sourceWindow: Window? = null): Window {
+        Log.d(TAG, "addNewWindow $sourceWindow")
         val newWindow = createNewWindow(sourceWindow)
         newWindow.weight = (sourceWindow?: activeWindow).weight
 
@@ -194,6 +195,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun minimise(window: Window) {
+        Log.d(TAG, "minimise $window")
         window.windowState = WindowState.MINIMISED
 
         // has the active screen been minimised?
@@ -203,6 +205,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun close(window: Window) {
+        Log.d(TAG, "close $window, windowList before: $windowList")
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
@@ -218,6 +221,7 @@ open class WindowRepository @Inject constructor(
     }
 
     private fun destroy(window: Window) {
+        Log.d(TAG, "destroy $window")
         if (!windowList.remove(window)) {
             logger.error("Failed to remove window " + window.id)
         }
@@ -225,6 +229,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun moveWindowToPosition(window: Window, position: Int) {
+        Log.d(TAG, "moveWindowToPosition $window $position")
         val pinnedWindows = windowList.filter {it.isPinMode}.toMutableList()
         val unPinnedWindows = windowList.filter {!it.isPinMode}.toMutableList()
         val windowList = if(window.isPinMode) pinnedWindows else unPinnedWindows
@@ -274,6 +279,7 @@ open class WindowRepository @Inject constructor(
             else if(sourceWindow?.isLinksWindow == true) windowList.size
             else windowList.indexOf(sourceWindow) + 1
         windowList.add(pos, newWindow)
+        Log.d(TAG, "createNewWindow source:$sourceWindow new:$newWindow first:$first windowList after: $windowList")
         return newWindow
     }
 
@@ -341,11 +347,6 @@ open class WindowRepository @Inject constructor(
         dao.updatePageManagers(pageManagers)
     }
 
-    /** called during app start-up to restore previous state
-     *
-     * @param inState
-     */
-
     fun loadFromDb(workspaceId: Long) {
         Log.d(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = dao.workspace(workspaceId) ?: dao.firstWorkspace()
@@ -394,6 +395,7 @@ open class WindowRepository @Inject constructor(
     }
 
     fun clear(destroy: Boolean = false) {
+        Log.d(TAG, "clear $destroy")
         _activeWindow = null
         maximizedWindowId = null
         unPinnedWeight = null
@@ -424,13 +426,13 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    fun updateVisibleWindowsTextDisplaySettings() {
-        for (it in visibleWindows) {
+    fun updateAllWindowsTextDisplaySettings() {
+        for (it in windows) {
             it.bibleView?.updateTextDisplaySettings()
         }
     }
 
     companion object {
-        private const val TAG = "WinRep BibleView"
+        private const val TAG = "WinRepository"
     }
 }

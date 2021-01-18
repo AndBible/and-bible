@@ -31,37 +31,56 @@ import org.crosswire.jsword.versification.VersificationConverter
 import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
+import androidx.room.ColumnInfo
+import kotlinx.serialization.Serializable
 import java.util.*
 
 val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
 val converter = VersificationConverter()
+
+const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
 
 /**
  * How to represent bookmarks
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
+fun intToColorArray(colorInt: Int): ArrayList<Int> {
+    val ar = ArrayList<Int>()
+    ar.add(Color.red(colorInt))
+    ar.add(Color.green(colorInt))
+    ar.add(Color.blue(colorInt))
+    ar.add(Color.alpha(colorInt))
+    return ar
+}
+
 enum class BookmarkStyle(val backgroundColor: Int) {
-    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
+    YELLOW_STAR(Color.argb((255*0.33).toInt(), 255, 255, 0)),
     RED_HIGHLIGHT(Color.argb((255 * 0.28).toInt(), 213, 0, 0)),
     YELLOW_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 255, 0)),
     GREEN_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 0, 255, 0)),
     BLUE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 145, 167, 255)),
     ORANGE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 255, 165, 0)),
     PURPLE_HIGHLIGHT(Color.argb((255 * 0.33).toInt(), 128, 0, 128)),
-    UNDERLINE(0),
+    UNDERLINE(Color.argb((255 * 0.33).toInt(), 128, 99, 128)),
 
     // Special hard-coded style for Speak bookmarks. This must be last one here.
     // This is removed from the style lists.
     SPEAK(Color.argb(0, 255, 255, 255));
-
+    val colorArray: List<Int> get() = intToColorArray(backgroundColor)
 }
 
+val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
+
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT;
+    BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
+
     val sqlString get() = when(this) {
-        BIBLE_ORDER -> "Bookmark.kjvStartOrdinal"
+        BIBLE_ORDER -> "Bookmark.kjvOrdinalStart"
         CREATED_AT -> "Bookmark.createdAt"
+        LAST_UPDATED -> "Bookmark.lastUpdatedOn"
     }
 }
 
@@ -70,6 +89,11 @@ interface VerseRangeUser {
 }
 
 class BookmarkEntities {
+    @Serializable
+    class TextRange(val start: Int, val end: Int) {
+        val clientList get() = listOf(start, end)
+    }
+
     @Entity(
         indices = [
             Index("kjvOrdinalStart"), Index("kjvOrdinalEnd")
@@ -85,23 +109,37 @@ class BookmarkEntities {
 
         var ordinalStart: Int,
         var ordinalEnd: Int,
+
         var v11n: Versification,
 
         var playbackSettings: PlaybackSettings?,
 
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
+
         var createdAt: Date = Date(System.currentTimeMillis()),
-    ): VerseRangeUser {
-        constructor(verseRange: VerseRange): this(
+
+        var book: Book? = null,
+
+        var startOffset: Int?,
+        var endOffset: Int?,
+
+        @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
+        @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
+
+        ): VerseRangeUser {
+        constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
             verseRange.start.ordinal,
             verseRange.end.ordinal,
             verseRange.versification,
-            null
+            null,
+            book = book,
+            startOffset = textRange?.start,
+            endOffset = textRange?.end,
         )
 
-        constructor(id: Long, createdAt: Date, verseRange: VerseRange, playbackSettings: PlaybackSettings?): this(
+        constructor(id: Long, createdAt: Date, verseRange: VerseRange, textRange: TextRange?, book: Book?, playbackSettings: PlaybackSettings?): this(
             converter.convert(verseRange.start, KJVA).ordinal,
             converter.convert(verseRange.end, KJVA).ordinal,
             verseRange.start.ordinal,
@@ -109,8 +147,25 @@ class BookmarkEntities {
             verseRange.versification,
             playbackSettings,
             id,
-            createdAt
+            createdAt,
+            book,
+            textRange?.start,
+            textRange?.end,
         )
+
+        var textRange: TextRange?
+            get() = if(startOffset != null) {
+                TextRange(startOffset!!, endOffset!!)
+            } else null
+            set(value) {
+                if(value == null) {
+                    startOffset = null
+                    endOffset = null
+                } else {
+                    startOffset = value.start
+                    endOffset = value.end
+                }
+            }
 
         override var verseRange: VerseRange
             get() {
@@ -125,7 +180,7 @@ class BookmarkEntities {
                 kjvVerseRange = value
             }
 
-        private var kjvVerseRange: VerseRange
+        var kjvVerseRange: VerseRange
             get() {
                 val begin = Verse(KJVA, kjvOrdinalStart)
                 val end = Verse(KJVA, kjvOrdinalEnd)
@@ -160,11 +215,14 @@ class BookmarkEntities {
     )
 
     @Entity
+    @Serializable
     data class Label(
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         var name: String = "",
-        var bookmarkStyle: BookmarkStyle? = null,
+        @ColumnInfo(name = "bookmarkStyle") var bookmarkStyleDeprecated: BookmarkStyle? = null,
+        @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor
     ) {
         override fun toString() = name
+        val isSpeakLabel get() = name == SPEAK_LABEL_NAME
     }
 }

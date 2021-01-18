@@ -23,11 +23,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
-import android.widget.Spinner
+import android.widget.TextView
+import com.jaredrummler.android.colorpicker.ColorPickerView
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Callback
+import net.bible.service.common.displayName
 import javax.inject.Inject
 
 /**
@@ -49,25 +51,26 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.bookmark_label_edit, null)
         val labelName = view.findViewById<View>(R.id.labelName) as EditText
-        labelName.setText(label.name)
-        val adp = BookmarkStyleAdapter(context, android.R.layout.simple_spinner_item)
-        val labelStyle = view.findViewById<View>(R.id.labelStyle) as Spinner
-        labelStyle.adapter = adp
-        labelStyle.setSelection(adp.getBookmarkStyleOffset(label.bookmarkStyle))
-        val alert = AlertDialog.Builder(context)
+        val colorExample = view.findViewById<View>(R.id.labelColorExample) as TextView
+        labelName.setText(label.displayName)
+        val color = view.findViewById<View>(R.id.colorPicker) as ColorPickerView
+        color.color = label.color
+        colorExample.setBackgroundColor(label.color)
+        color.setOnColorChangedListener {
+            colorExample.setBackgroundColor(it)
+        }
+        AlertDialog.Builder(context)
             .setTitle(titleId)
             .setView(view)
-        alert.setPositiveButton(R.string.okay) { dialog, whichButton ->
-            val name = labelName.text.toString()
-            label.name = name
-            label.bookmarkStyle = adp.getBookmarkStyleForOffset(labelStyle.selectedItemPosition)
-            bookmarkControl.insertOrUpdateLabel(label)
-            onCreateCallback.okay()
-        }
-        alert.setNegativeButton(R.string.cancel) { dialog, whichButton ->
-            // Canceled.
-        }
-        val dialog = alert.show()
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val name = labelName.text.toString()
+                label.name = name
+                label.color = color.color
+                bookmarkControl.insertOrUpdateLabel(label)
+                onCreateCallback.okay()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     companion object {

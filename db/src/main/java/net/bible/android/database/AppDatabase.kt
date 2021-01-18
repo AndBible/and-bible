@@ -17,24 +17,33 @@
  */
 package net.bible.android.database
 
+import android.util.Base64
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 import java.util.*
 
-const val DATABASE_VERSION = 35
+const val DATABASE_VERSION = 40
 
 class Converters {
     @TypeConverter
@@ -70,6 +79,12 @@ class Converters {
     }
 
     @TypeConverter
+    fun bookToStr(v: Book?): String? = v?.initials
+
+    @TypeConverter
+    fun strToBook(s: String?): Book? = s?.let { Books.installed().getBook(s) }
+
+    @TypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {
         return p?.toJson()
     }
@@ -78,6 +93,39 @@ class Converters {
     fun strToPlaybackSettings(s: String?): PlaybackSettings? {
         return if (s != null) PlaybackSettings.fromJson(s) else null
     }
+
+    @TypeConverter
+    fun keyToStr(key: Key?): String? {
+        if(key == null) return null
+        val out = ByteArrayOutputStream()
+        val obj = ObjectOutputStream(out)
+        obj.writeObject(key)
+        return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT)
+    }
+
+    @TypeConverter
+    fun strToKey(s: String?): Key? {
+        if(s == null) return null
+        return try {
+            val inp = ByteArrayInputStream(Base64.decode(s, Base64.DEFAULT))
+            val obj = ObjectInputStream(inp)
+            obj.readObject() as Key
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @TypeConverter
+    fun strToLongList(s: String?): List<Long>? {
+        if(s == null) return null
+        return json.decodeFromString(serializer(), s)
+    }
+
+    @TypeConverter
+    fun longListToStr(obj: List<Long>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
 }
 
 @Database(
@@ -85,7 +133,6 @@ class Converters {
         BookmarkEntities.Bookmark::class,
         BookmarkEntities.Label::class,
         BookmarkEntities.BookmarkToLabel::class,
-        MyNote::class,
         ReadingPlanEntities.ReadingPlan::class,
         ReadingPlanEntities.ReadingPlanStatus::class,
         WorkspaceEntities.Workspace::class,

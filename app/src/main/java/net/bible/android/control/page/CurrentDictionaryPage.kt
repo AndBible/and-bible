@@ -18,8 +18,10 @@
 package net.bible.android.control.page
 
 import android.app.Activity
+import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -60,6 +62,32 @@ class CurrentDictionaryPage internal constructor(
         if (menuItem != null) {
             menuItem.isEnabled = false
         }
+    }
+
+    val entity: WorkspaceEntities.DictionaryPage get() {
+        return WorkspaceEntities.DictionaryPage(
+            currentDocument?.initials,
+            key,
+            currentYOffsetRatio
+        )
+    }
+
+    fun restoreFrom(entity: WorkspaceEntities.DictionaryPage?) {
+        if(entity == null) return
+        val document = entity.document
+        Log.d(TAG, "State document:$document")
+        val book = swordDocumentFacade.getDocumentByInitials(document)
+        if (book != null) {
+            Log.d(TAG, "Restored document:" + book.name)
+            // bypass setter to avoid automatic notifications
+            localSetCurrentDocument(book)
+            try {
+                doSetKey(entity.key)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
+            }
+        }
+        currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f
     }
 
     override val isSingleKey = true

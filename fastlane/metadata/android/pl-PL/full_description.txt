@@ -1,32 +1,43 @@
-Studium Biblii jest otwartoźródłową, działającą offline, całkowicie bezpłatną aplikacją do czytania Biblii bez jakichkolwiek reklam, aby ułatwić czytanie i odsłuch Pisma Świętego ludziom ze wszystkich krajów z jak największym osobistym błogosławieństwem.
+<b>Zaawansowane narzędzie do studiowania Pisma Świętego</b>
 
-* Biblie, komentarze, słowniki teologiczne, mapy i książki chrześcijańskie w przeszło 700 językach
-* nie wymaga połączenia z internetem po pierwszym pobraniu danych, włączając wyszukiwanie, notatki, komentarze, itd.
-* wiele języków interfejsu
-* wiele różnych planów czytania
-* całkowicie bezpłatna i bez reklam
-* Uwspółcześniona Biblia gdańska (2018), Biblia gdańska (1881)
-* komentarze (niedostępne w j. polskim)
-* słowniki teologiczne i kolekcja książek chrześcijańskich (niedostępne w j. polskim)
-* wszystkie dokumenty są rozprowadzane zgodnie z licencją
-* numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
-* wiele obszarów roboczych i dzielony ekran
-* możliwość umieszczanie notatek osobistych
-* elastyczne wyszukiwanie
-* zakładki
-* mapy krain biblijnych
-* możliwość odsłuchu dowolnego dokumentu
-* automatyczne przewijanie, automatyczny tryb dzienny/nocny
-* porównywanie tłumaczeń Biblii na jednym ekranie
-* jeden z najszybszych czytników Biblii na Androida
-* otwarty kod «open source» – zajrzyj lub wprowadź własne poprawki do kodu źródłowego
-* korzysta z silnika JSword od CrossWire
+Aplikacja Studium Biblii otwartoźródłowego projektu And Bible jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
 
-Jesteśmy wolontariuszami; nie wysyłamy irytujących el-listów, nie wyświetlamy męczących reklam, nie prosimy o datki, nie prosimy o rejestrację; aplikacja Studium Biblii nie zbiera jakichkolwiek danych z Twojego telefonu.
+Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam. Stworzona od podstaw na system Android, nasza aplikacja zajmuje niewiele miejsca, jest lekka i szybka.
 
-Pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechniane nie naruszając praw autorskich.
+Z polskich wersji Biblii jest dostępna jest Biblia Gdańska (z roku 1881) i Uwspółcześniona Biblia Gdańska (2018).
 
-<b>Uwagi</b>:
-* polub nas na Facebooku: https://www.facebook.com/AndBible/
-* częste pytania (w j. angielskim) dotyczące aplikacji: https://github.com/AndBible/and-bible/wiki/FAQ
-* strona projektu na GitHubie: https://github.com/AndBible/and-bible
+<b>Możliwości aplikacji Studium Biblii</b>
+
+Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to ułatwiają głębokie studiowanie Pisma Świętego. Najważniejsze z nich to:
+
+ * podzielny widok tekstu umożliwiający porównywanie tłumaczeń i czytanie komentarza
+ * obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami
+ * numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
+ * klikalne odsyłacze, przypisy i dokumenty; komentarze (niedostępne w j. polskim), kolekcje odsyłaczy (niedostępne w j. polskim) i inne materiały
+ * możliwość odczytu na głos z zakładkami, aby bez płynnie słuchać Biblii
+ * elastyczne wyszukiwanie
+ * zakładki i grupy zakładek z konfigurowalnymi kolorami
+ * notatki osobiste: możliwość dodania własnych notatek do dowolnego wersetu Biblii
+ * plany czytania: zdefiniuj własne cele czytania
+ * obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad 1500 dokumentów w 700 językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
+ * pochodzenie wszystkich dokumentów zostało sprawdzone, aby upewnić się, że mogą one być rozpowszechnianie nie naruszając praw autorskich, z tego powodu aplikacja nie zawiera takich przekładów jak np. Biblia Warszawska
+ * działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
+
+<b>Razem stwórzmy najlepszą apkę do czytania Biblii!</b>
+
+And Bible jest otwartoźródłowym projektem społecznościowym. Oznacza to, że każdy posiadający odpowiednie umiejętności może – i jest zachęcany – do uczestnictwa w rozwoju projektu poprzez:
+
+ * programowanie nowych funkcji;
+ * testowanie funkcji próbnych;
+ * tłumaczenie interfejsu programu;
+ * oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
+
+Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie https://git.io/JUnaj
+
+<b>Odnośniki</b>
+
+ * strona programu: https://andbible.github.io
+ * polub nas na Facebooku: https://www.facebook.com/AndBible/
+ * nasz kanał na YouTube: https://www.youtube.com/c/AndBible
+ * często zadawane pytania (w j. angielskim): https://git.io/JJm8E
+ * strona projektu na GitHubie: https://github.com/AndBible/and-bible

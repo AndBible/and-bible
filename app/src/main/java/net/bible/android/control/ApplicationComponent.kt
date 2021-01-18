@@ -26,7 +26,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl
 import net.bible.android.control.footnoteandref.NoteDetailCreator
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
@@ -76,7 +75,6 @@ interface ApplicationComponent {
     fun documentControl(): DocumentControl
     fun backupControl(): BackupControl
     fun bookmarkControl(): BookmarkControl
-    fun myNoteControl(): MyNoteControl
     fun noteDetailCreator(): NoteDetailCreator
     fun downloadControl(): DownloadControl
     fun pageControl(): PageControl

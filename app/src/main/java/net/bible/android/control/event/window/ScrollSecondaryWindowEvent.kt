@@ -17,10 +17,10 @@
  */
 package net.bible.android.control.event.window
 
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.window.Window
+import org.crosswire.jsword.passage.Verse
 
 /**
  * Correct bible page is shown but need to scroll to a different verse
  */
-class ScrollSecondaryWindowEvent(val window: Window, val chapterVerse: ChapterVerse) : WindowEvent
+class ScrollSecondaryWindowEvent(val window: Window, val verse: Verse) : WindowEvent

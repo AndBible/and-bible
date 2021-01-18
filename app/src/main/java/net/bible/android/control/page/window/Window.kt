@@ -21,21 +21,22 @@ package net.bible.android.control.page.window
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentBiblePage
-import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.service.format.HtmlMessageFormatter
+import net.bible.android.view.activity.page.OsisFragment
+import net.bible.service.format.OsisMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 
 class WindowChangedEvent(val window: Window)
 
@@ -153,21 +154,19 @@ open class Window (
     val initialized get() = lastUpdated != 0L
 
     fun updateText(notifyLocationChange: Boolean = false) {
-        if(pageManager.currentPage is CurrentMyNotePage) return
-
         val isVisible = isVisible
 
         Log.d(TAG, "updateText, isVisible: $isVisible")
 
         if(!isVisible) return
 
-        Log.d(TAG, "Loading html in background")
-        var chapterVerse: ChapterVerse? = null
+        Log.d(TAG, "Loading OSIS xml in background")
+        var verse: Verse? = null
         var yOffsetRatio: Float? = null
         val currentPage = pageManager.currentPage
 
         if(currentPage is CurrentBiblePage) {
-            chapterVerse = currentPage.currentChapterVerse
+            verse = currentPage.currentBibleVerse.verse
         } else {
             yOffsetRatio = currentPage.currentYOffsetRatio
         }
@@ -177,16 +176,18 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
 
-            val text = fetchText()
+            val osisFrag = fetchOsis()
+            val bookmarks = pageManager.currentBible.bookmarksForChapter
 
-            withContext(Dispatchers.Main) {
-                lastUpdated = System.currentTimeMillis()
+            // BibleView initialization might take more time than loading OSIS, so let's wait for it.
+            waitForBibleView()
 
-                if(notifyLocationChange) {
-                    bibleView?.show(text, updateLocation = true)
-                } else {
-                    bibleView?.show(text, chapterVerse = chapterVerse, yOffsetRatio = yOffsetRatio)
-                }
+            lastUpdated = System.currentTimeMillis()
+
+            if(notifyLocationChange) {
+                bibleView?.show(osisFrag, bookmarks, updateLocation = true)
+            } else {
+                bibleView?.show(osisFrag, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
             }
 
             if(notifyLocationChange)
@@ -194,7 +195,13 @@ open class Window (
             }
         }
 
-    private suspend fun fetchText(): String = withContext(Dispatchers.IO) {
+    private suspend fun waitForBibleView() {
+        while(bibleView == null) {
+            delay(50)
+        }
+    }
+
+    private suspend fun fetchOsis(): List<OsisFragment> = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -203,7 +210,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            HtmlMessageFormatter.format(R.string.error_page_too_large)
+            listOf(OsisFragment(OsisMessageFormatter.format(R.string.error_page_too_large), currentPage.key, "error"))
         }
     }
 

@@ -18,11 +18,9 @@
 
 package net.bible.android.view.activity.page
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.text.Html
@@ -37,8 +35,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R

@@ -20,14 +20,11 @@ package net.bible.android.view.activity.page
 
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
-import net.bible.android.control.mynote.MyNoteControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControlFactory
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
-import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator
-import net.bible.android.view.activity.page.actionmode.VerseMenuCommandHandler
 import java.lang.ref.WeakReference
 
 import javax.inject.Inject
@@ -46,7 +43,6 @@ class BibleViewFactory @Inject constructor(
     private val bibleKeyHandler: BibleKeyHandler,
     private val linkControl: LinkControl,
     private val bookmarkControl: BookmarkControl,
-    private val myNoteControl: MyNoteControl
 ) {
 
     private val windowBibleViewMap: MutableMap<Long, BibleView> = HashMap()
@@ -62,13 +58,8 @@ class BibleViewFactory @Inject constructor(
         if (bibleView == null) {
             val pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window)
             bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl, bibleKeyHandler,
-                pageControl, pageTiltScrollControl, linkControl)
-            val bibleViewVerseActionModeMediator = VerseActionModeMediator(mainBibleActivity, bibleView, pageControl,
-                VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl)
-            val bibleInfiniteScrollPopulator = BibleInfiniteScrollPopulator(bibleView)
-            val verseCalculator = VerseCalculator()
-            val bibleJavascriptInterface = BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl,
-                verseCalculator, bibleInfiniteScrollPopulator, bibleView)
+                pageControl, pageTiltScrollControl, linkControl, bookmarkControl)
+            val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.id = BIBLE_WEB_VIEW_ID_BASE + window.id.toInt()
             bibleView.initialise()

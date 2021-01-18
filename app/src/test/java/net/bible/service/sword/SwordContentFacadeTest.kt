@@ -6,19 +6,14 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.ParseException
-import net.bible.service.device.speak.AbstractSpeakTests
-import net.bible.service.format.usermarks.BookmarkFormatSupport
-import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.RangedPassage
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.junit.After
@@ -31,7 +26,6 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.core.IsNot.not
 import org.junit.Assert.assertThat
-import org.junit.Ignore
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 
@@ -47,7 +41,7 @@ class SwordContentFacadeTest {
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val windowControl = Mockito.mock(WindowControl::class.java)
         val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
-        swordContentFacade = SwordContentFacade(BookmarkFormatSupport(bookmarkControl), MyNoteFormatSupport(), activeWindowPageManagerProvider)
+        swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 
     @After
@@ -62,20 +56,8 @@ class SwordContentFacadeTest {
         val esv = getBook("ESV2011")
         //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "John 11:35")
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "John 11:35")
-        val html = getHtml(esv, key, true)
+        val html = getHtml(esv, key)
         assertThat(html, not(containsString("<html")))
-    }
-
-    //@Ignore("Until ESV comes back")
-    @Test
-    @Throws(Exception::class)
-    fun testReadWordsOfChrist() {
-        val esv = getBook("ESV2011")
-        //val key = PassageKeyFactory.instance().getKey((esv as SwordBook).versification, "Luke 15:4")
-        val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Luke 15:4")
-
-        val html = getHtml(esv, key, false)
-        assertThat(html, containsString("“What <a href='gdef:05101' class='strongs'>5101</a>  man <a href='gdef:00444' class='strongs'>444</a>  of <a href='gdef:01537' class='strongs'>1537</a>  you <a href='gdef:05216' class='strongs'>5216</a> , having <a href='gdef:02192' class='strongs'>2192</a>  a hundred <a href='gdef:01540' class='strongs'>1540</a>  sheep"))
     }
 
     //@Ignore("Until ESV comes back")
@@ -104,7 +86,7 @@ class SwordContentFacadeTest {
         val key = VerseRangeFactory.fromString((esv as SwordBook).versification, "Matt 18")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, key, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readOsisFragment(esv, key)
         } catch (e: ParseException) {
             "broken"
         }
@@ -119,7 +101,7 @@ class SwordContentFacadeTest {
         val verse = getVerse(esv, "Matt.18.11")
 
         val html = try {
-            swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+            swordContentFacade.readOsisFragment(esv, verse)
         } catch (e: ParseException) {
             "broken"
         }
@@ -135,7 +117,7 @@ class SwordContentFacadeTest {
             val verse = getVerse(esv, "Matt.18.$i")
 
             val html = try {
-                swordContentFacade.readHtmlTextOptimizedZTextOsis(esv, verse, false, WorkspaceEntities.TextDisplaySettings.default)
+                swordContentFacade.readOsisFragment(esv, verse)
             } catch (e: ParseException) {
                 "broken"
             }
@@ -145,10 +127,8 @@ class SwordContentFacadeTest {
 
 
     @Throws(Exception::class)
-    private fun getHtml(book: Book, key: Key, asFragment: Boolean): String {
-        val settings = WorkspaceEntities.TextDisplaySettings.default
-        settings.showStrongs = true
-        return swordContentFacade.readHtmlText(book, key, asFragment, settings)
+    private fun getHtml(book: Book, key: Key): String {
+        return swordContentFacade.readOsisFragment(book, key)
     }
 
     private fun getBook(initials: String): Book {
