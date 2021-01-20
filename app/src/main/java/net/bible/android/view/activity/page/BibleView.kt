@@ -89,6 +89,7 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.displayName
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
@@ -154,7 +155,7 @@ data class ClientBookmark(val id: Long, val ordinalRange: List<Int>, val offsetR
 data class ClientBookmarkStyle(val color: List<Int>)
 
 @Serializable
-data class ClientBookmarkLabel(val id: Long, val style: ClientBookmarkStyle)
+data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle)
 
 
 /** The WebView component that shows the bible and other documents */
@@ -926,7 +927,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
         val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }))
+            ClientBookmarkLabel(event.label.id, event.label.displayName, event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }))
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks", 
             { bookmarks:[],
@@ -1105,7 +1106,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun getOsisObjStr(frags: List<OsisFragment>): String {
         val defaultStyle = ClientBookmarkStyle(BookmarkStyle.YELLOW_STAR.colorArray)
         val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-            ClientBookmarkLabel(it.id, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) } ?: defaultStyle)
+            ClientBookmarkLabel(it.id, it.displayName, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) } ?: defaultStyle)
         })
         val book = book
         val bookmarks = if(book is SwordBook)

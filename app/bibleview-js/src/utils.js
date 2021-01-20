@@ -18,6 +18,7 @@
 import {onBeforeUnmount, onMounted, onUnmounted} from "@vue/runtime-core";
 import Color from "color";
 import {rybColorMixer} from "@/lib/ryb-color-mixer";
+import {get} from "lodash";
 
 export function setupWindowEventListener(eventType, handler, options) {
     onMounted(() => window.addEventListener(eventType, handler, options))
@@ -242,4 +243,23 @@ export function colorLightness(color) {
     const rgb = color.rgb().color;
     const yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
     return yiq / 255;
+}
+
+export function addEventFunction(event, callback, options) {
+    if(!event.eventFunctions)
+        event.eventFunctions = {};
+    const priority = get(options, "priority", 0);
+    let array = event.eventFunctions[priority];
+    if(!array) {
+        array = [];
+        event.eventFunctions[priority] = array;
+    }
+    array.push({callback, options});
+}
+
+export function getEventFunctions(event) {
+    if(!event.eventFunctions) return [];
+    const priorities = Object.keys(event.eventFunctions);
+    priorities.sort();
+    return event.eventFunctions[priorities[priorities.length -1]];
 }

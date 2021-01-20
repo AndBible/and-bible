@@ -19,7 +19,7 @@
       v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)"
       class="inlineDiv skip-offset"
   >
-    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="showNote = !showNote">
+    <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="noteClicked">
       {{handle}}
     </span>
     <Modal @close="showNote = false" v-if="showNote">
@@ -35,6 +35,8 @@
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import Modal from "@/components/Modal";
 import {get} from "lodash";
+import {ref} from "@vue/runtime-core";
+import {addEventFunction} from "@/utils";
 
 let count = 0;
 const alphabets = "abcdefghijklmnopqrstuvwxyz"
@@ -56,11 +58,6 @@ export default {
     n: {type: String, default: null},
     resp: {type: String, default: null},
   },
-  data() {
-    return {
-      showNote: false
-    }
-  },
   computed: {
     handle: ({n}) => n || runningHandle(),
     isFootNote: ({type}) => ["explanation", "translation", "study", "variant", "alternative"].includes(type),
@@ -75,6 +72,12 @@ export default {
     checkUnsupportedProps(props, "subType",
         ["x-gender-neutral", 'x-original', 'x-variant-adds', 'x-bondservant']);
     const {strings, ...common} = useCommon();
+    const showNote = ref(false);
+    function noteClicked(event) {
+      addEventFunction(event,
+          () => {showNote.value = !showNote.value},
+          {title: strings.openFootnote, priority: 20});
+    }
     const typeStrings = {
       explanation: strings.footnoteTypeExplanation,
       translation: strings.footnoteTypeTranslation,
@@ -82,7 +85,7 @@ export default {
       variant: strings.footnoteTypeVariant,
       alternative: strings.footnoteTypeAlternative,
     };
-    return {strings, typeStrings, ...common};
+    return {strings, typeStrings, showNote, noteClicked, ...common};
   },
 }
 </script>

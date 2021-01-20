@@ -134,40 +134,48 @@ if(process.env.NODE_ENV === "development") {
     testBookmarkLabels = [
         {
             id: 1,
+            name: "first",
             style: {
                 color: new Color("cyan").rgb().array() //[255, 0, 0]
             }
         },
         {
             id: 2,
+            name: "second",
             style: {
                 color: new Color("yellow").rgb().array(), //[0, 255, 0],
             }
         },
         {
             id: 3,
+            name: "third",
             style: {
                 color: new Color("magenta").rgb().array(), //[0, 0, 255],
             }
         },
         {
             id: -5,
+            name: "minusfive",
             style: {color: [255,0,0,255]}
         },
         {
             id: -1,
+            name: "minusone",
             style: {color: [255,0,0,255]}
         },
         {
             id: -2,
+            name: "minustwo",
             style: {color: [255,255,0,255]}
         },
         {
             id: -3,
+            name: "minusthree",
             style: {color: [255,0,255,255]}
         },
         {
             id: -4,
+            name: "minusfour",
             style: {color: [0,255,255,255]}
         }
     ];

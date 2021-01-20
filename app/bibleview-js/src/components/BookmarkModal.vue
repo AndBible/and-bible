@@ -70,7 +70,7 @@ export default {
     const bookmark = ref(null);
     const areYouSure = ref(null);
 
-    setupEventBusListener(Events.NOTE_CLICKED, (b) => {
+    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b) => {
       showNote.value = true;
       bookmark.value = b;
       editMode.value = !b.notes;

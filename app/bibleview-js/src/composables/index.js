@@ -22,7 +22,7 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit} from "@fortawesome/free-solid-svg-icons";
 
 let developmentMode = false;
 let testMode = false;
@@ -185,11 +185,15 @@ export function useStrings() {
         assignLabels: "Assign labels",
         bookmarkAccurate: "Bookmark was create in %s",
         ok: "Ok",
+        ambiguousSelection: "Do you want one of these?",
         cancel: "Cancel",
         removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
         closeModal: "Close",
         createdAt: "Created: %s",
         lastUpdatedOn: "Last updated: %s",
+        strongsLink: "Open strongs",
+        openFootnote: "Open footnote",
+        openBookmark: "Open bookmark (labels: %s)",
     }
 }
 
@@ -225,6 +229,7 @@ export function usePoetic(fragmentReady, fragElement) {
 
 export function useFontAwesome() {
     library.add(faEdit)
+    library.add(faBookmark)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

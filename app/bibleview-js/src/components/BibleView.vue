@@ -16,10 +16,11 @@
   -->
 
 <template>
-  <div :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+  <div @click="clicked" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
     <div id="notes"/>
     <BookmarkModal/>
+    <AmbiguousSelection v-if="ambiguousSelection" :selections="ambiguousSelection" @close="ambiguousSelection = null"/>
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
@@ -46,15 +47,16 @@
   import {Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {clearLog, useAndroid} from "@/composables/android";
-  import {setupWindowEventListener} from "@/utils";
+  import {getEventFunctions, setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
   import BookmarkModal from "@/components/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
   import Color from "color";
+  import AmbiguousSelection from "@/components/AmbiguousSelection";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox, BookmarkModal, DevelopmentMode},
+    components: {OsisFragment, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
       useFontAwesome();
 
@@ -108,10 +110,26 @@
       provide("strings", strings);
       provide("android", android);
 
+      setupEventBusListener(Events.BOOKMARK_HIGHLIGHT_CLICKED, ({event, url, bookmarks}) => {
+        console.log("clicked", {event, url, bookmarks});
+      })
+
+      const ambiguousSelection = ref(null);
+
+      function clicked(event) {
+        const eventFunctions = getEventFunctions(event);
+        if(eventFunctions.length > 0) {
+          if(eventFunctions.length === 1) eventFunctions[0].callback();
+          else {
+            ambiguousSelection.value = eventFunctions;
+          }
+        }
+      }
+
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
-        updateBookmarks: globalBookmarks.updateBookmarks,
-        config, strings, osisFragments, topElement, currentVerse
+        updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
+        config, strings, osisFragments, topElement, currentVerse, clicked
       };
     },
     computed: {
@@ -161,6 +179,10 @@
 
 .button {
   background-color: #717171;
+  &.light {
+    background-color: #bdbdbd;
+    color: black;
+  }
   border: none;
   color: white;
   padding: 5pt 5pt;

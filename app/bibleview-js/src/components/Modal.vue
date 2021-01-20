@@ -78,12 +78,12 @@ export default {
   width: 80%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   animation-name: animatetop;
-  animation-duration: 0.4s
+  animation-duration: 0.2s
 }
 
 @keyframes animatetop {
-  from {top:-300px; opacity:0}
-  to {top:0; opacity:1}
+  from {opacity:0}
+  to {opacity:1}
 }
 
 .modal-header {

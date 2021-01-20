@@ -29,7 +29,7 @@
     <template v-else><slot/></template>
   </template>
   <template v-else>
-    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink(formatLink(lemma, morph))"><slot/></span></span>
+    <span v-if="(showStrongs && lemma) || (showStrongs && config.showMorphology && morph)"><span class="linkstyle" @click="goToLink($event, formatLink(lemma, morph))"><slot/></span></span>
     <span v-else><slot/></span>
   </template>
 </template>
@@ -77,11 +77,11 @@ export default {
       // ab-w://?robinson=x&strong=y&strong=z, x and y have ' ' replaced to '_'.
       return "ab-w://?" + linkBodies.join("&")
     }
-    const common = useCommon();
-    function goToLink(url) {
-        window.location.assign(url);
+    const {strings, ...common} = useCommon();
+    function goToLink(event, url) {
+      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsLink, priority: 10});
     }
-    return {formatLink, formatName, goToLink, ...common};
+    return {formatLink, formatName, goToLink, strings, ...common};
   },
   computed: {
     showStrongs() {
