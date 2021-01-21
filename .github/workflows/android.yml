@@ -71,9 +71,8 @@ jobs:
         TAG_NAME: ${{ steps.tag_name.outputs.TAG }}
       working-directory: ./app/build/outputs/apk/release
       run: |
-        $ANDROID_HOME/build-tools/29.0.3/zipalign -v -p 4 app-release-unsigned.apk app-release-unsigned-aligned.apk
         echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.jks
-        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned-aligned.apk
+        $ANDROID_HOME/build-tools/29.0.3/apksigner sign --ks keystore.jks --ks-pass 'pass:${{ secrets.KEYSTORE_PASSPHRASE }}' --key-pass 'pass:${{ secrets.KEY_PASSPHRASE }}' --out $GITHUB_WORKSPACE/andbible-$TAG_NAME.apk app-release-unsigned.apk
         rm -f keystore.jks
 
     - name: Create release
