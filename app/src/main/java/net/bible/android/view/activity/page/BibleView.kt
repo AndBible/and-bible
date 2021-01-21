@@ -250,9 +250,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var currentSelection: Selection? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
-        mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
-
         if(menuPrepared) {
+            mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there
             menu.findItem(R.id.add_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.remove_bookmark).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
@@ -273,12 +272,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val sel = json.decodeFromString(serializer<Selection?>(), result)
                 if(sel !== null) {
                     currentSelection = sel
-                }
+                    menuPrepared = true
 
-                menuPrepared = true
-                withContext(Dispatchers.Main) {
-                    menu.clear()
-                    mode.invalidate()
+                    withContext(Dispatchers.Main) {
+                        menu.clear()
+                        mode.invalidate()
+                    }
                 }
             }
             return false
