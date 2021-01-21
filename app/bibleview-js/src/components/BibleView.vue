@@ -44,7 +44,7 @@
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
-  import {Events, setupEventBusListener} from "@/eventbus";
+  import {emit, Events, setupEventBusListener} from "@/eventbus";
   import {useScroll} from "@/composables/scroll";
   import {clearLog, useAndroid} from "@/composables/android";
   import {getEventFunctions, setupWindowEventListener} from "@/utils";
@@ -123,6 +123,8 @@
           else {
             ambiguousSelection.value = eventFunctions;
           }
+        } else {
+          emit(Events.CLOSE_MODAL);
         }
       }
 

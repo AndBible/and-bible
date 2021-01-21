@@ -359,7 +359,7 @@ export function useBookmarks(fragmentKey,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = new Color(bookmarkLabels_[0].color).darken(0.2).hsl().string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {icon, color, title, priority: 15});
+                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {icon, color, title});
             }
         }
 

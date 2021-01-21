@@ -17,22 +17,21 @@
 
 <template>
   <teleport to="#notes">
-    <div @click="$emit('close')" class="modal-backdrop">
-      <div @click="$event.stopPropagation()" class="modal-content"
-      >
-        <div @click="$emit('close')" class="modal-header">
-          <span class="title">
-            <slot name="title"/>
-          </span>
-        </div>
-        <div class="modal-body">
-          <p><slot/></p>
-        </div>
-        <div class="modal-footer">
-          <slot name="footer">
-            <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
-          </slot>
-        </div>
+    <div v-if="blocking" @click="$emit('close')" class="modal-backdrop"/>
+    <div @click="$event.stopPropagation()" class="modal-content"
+    >
+      <div @click="$emit('close')" class="modal-header">
+        <span class="title">
+          <slot name="title"/>
+        </span>
+      </div>
+      <div class="modal-body">
+        <p><slot/></p>
+      </div>
+      <div class="modal-footer">
+        <slot name="footer">
+          <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
+        </slot>
       </div>
     </div>
   </teleport>
@@ -40,16 +39,20 @@
 <script>
 
 import {inject} from "@vue/runtime-core";
-import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
+import {Events, emit, setupEventBusListener} from "@/eventbus";
 
 export default {
   name: "Modal",
   emits: ["close"],
-  setup() {
+  props: {blocking: {type: Boolean, default: false}},
+  setup(props, {emit: $emit}) {
     const config = inject("config")
-    const myModal = ref(null);
-    return {config, myModal, ...useCommon()}
+    if(!props.blocking) {
+      emit(Events.CLOSE_MODAL);
+      setupEventBusListener(Events.CLOSE_MODAL, () => $emit('close'))
+    }
+    return {config, ...useCommon()}
   }
 }
 </script>
@@ -69,13 +72,15 @@ export default {
 }
 
 .modal-content {
-  z-index: 3;
-  position: relative;
+  z-index: 2;
+  position: fixed;
   background-color: #fefefe;
-  margin: var(--top-offset) auto auto;
+  top: calc(var(--top-offset) + 20pt);
+  margin-left: -40%;
+  width: 80%;
+  left: 50%;
   padding: 0;
   border: 1px solid #888;
-  width: 80%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   animation-name: animatetop;
   animation-duration: 0.2s

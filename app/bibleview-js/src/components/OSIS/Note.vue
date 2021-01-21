@@ -66,7 +66,7 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "resp");
-    checkUnsupportedProps(props, "placement");
+    checkUnsupportedProps(props, "placement", ['foot']);
     checkUnsupportedProps(props, "type",
         ["explanation", "translation", "crossReference", "variant", "alternative", "study"]);
     checkUnsupportedProps(props, "subType",
@@ -76,7 +76,7 @@ export default {
     function noteClicked(event) {
       addEventFunction(event,
           () => {showNote.value = !showNote.value},
-          {title: strings.openFootnote, priority: 20});
+          {title: strings.openFootnote, priority: 10});
     }
     const typeStrings = {
       explanation: strings.footnoteTypeExplanation,

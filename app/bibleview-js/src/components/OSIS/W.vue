@@ -36,6 +36,7 @@
 
 <script>
 import {checkUnsupportedProps, strongsModes, useCommon} from "@/composables";
+import {addEventFunction} from "@/utils";
 
 export default {
   name: "W",
@@ -79,7 +80,7 @@ export default {
     }
     const {strings, ...common} = useCommon();
     function goToLink(event, url) {
-      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsLink, priority: 10});
+      addEventFunction(event, () => window.location.assign(url), {title: strings.strongsLink});
     }
     return {formatLink, formatName, goToLink, strings, ...common};
   },

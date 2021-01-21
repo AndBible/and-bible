@@ -185,7 +185,7 @@ export function useStrings() {
         assignLabels: "Assign labels",
         bookmarkAccurate: "Bookmark was create in %s",
         ok: "Ok",
-        ambiguousSelection: "Do you want one of these?",
+        ambiguousSelection: "Which one of these do you wish to do?",
         cancel: "Cancel",
         removeBookmarkConfirmation: "Are you sure you want to remove bookmark?",
         closeModal: "Close",

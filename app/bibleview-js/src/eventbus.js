@@ -36,6 +36,7 @@ export const Events = {
     SET_OFFSETS: "set_offsets",
     BOOKMARK_FLAG_CLICKED: "bookmark_flag_clicked",
     BOOKMARK_HIGHLIGHT_CLICKED: "bookmark_highlight_clicked",
+    CLOSE_MODAL: "close_modal",
 
     CONFIG_CHANGED: "config_changed",
 }
