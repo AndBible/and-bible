@@ -28,7 +28,7 @@
       />
     </template>
     <template v-else>
-      <p>{{bookmark.notes}}</p>
+      <p @click="editMode=true">{{bookmark.notes}}</p>
     </template>
     <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">

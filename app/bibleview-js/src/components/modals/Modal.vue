@@ -114,6 +114,9 @@ export default {
 }
 
 .modal-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
   padding: 2px 16px;
   background-color: #acacac;
   color: white;

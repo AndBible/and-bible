@@ -175,8 +175,7 @@
     color: black;
   }
   &.right {
-    position: absolute;
-    right: 0;
+    align-self: end;
   }
   border: none;
   color: white;
