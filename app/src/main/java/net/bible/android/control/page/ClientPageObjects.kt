@@ -167,7 +167,7 @@ data class ClientBookmark(val id: Long,
 }
 
 @Serializable
-data class ClientBookmarkStyle(val color: List<Int>)
+data class ClientBookmarkStyle(val color: Int)
 
 @Serializable
 data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle)

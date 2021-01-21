@@ -702,7 +702,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         if(!labelsUploaded) {
             val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-                ClientBookmarkLabel(it.id, it.displayName, it.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) })
+                ClientBookmarkLabel(it.id, it.displayName, it.color.let { v -> ClientBookmarkStyle(v) })
             })
             executeJavascriptOnUiThread("""bibleView.emit("update_labels", ${bookmarkLabels})""")
             labelsUploaded = true
@@ -879,7 +879,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
         val labelStr = json.encodeToString(serializer(),
             ClientBookmarkLabel(event.label.id, event.label.displayName,
-                event.label.color.let { v -> ClientBookmarkStyle(intToColorArray(v)) }))
+                event.label.color.let { v -> ClientBookmarkStyle(v) }))
         executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
     }
 
