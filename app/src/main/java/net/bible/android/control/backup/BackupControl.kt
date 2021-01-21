@@ -84,8 +84,10 @@ class BackupControl @Inject constructor() {
 
         var ok = true
         try {
-            out.write(inputStream.readBytes())
-            out.close()
+            withContext(Dispatchers.IO) {
+                inputStream.copyTo(out)
+                out.close()
+            }
         } catch (ex: IOException) {
             Log.e(TAG, ex.message ?: "Error occurred in backuping db")
             ok = false
@@ -141,17 +143,19 @@ class BackupControl @Inject constructor() {
         inputStream.read(header)
         if(String(header) == "SQLite format 3\u0000") {
             val out = FileOutputStream(f)
-            out.write(header)
-            out.write(inputStream.readBytes())
-            out.close()
-            val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
-            if(sqlDb.version <= DATABASE_VERSION) {
-                Log.d(TAG, "Loading from backup database with version ${sqlDb.version}")
-                DatabaseContainer.reset()
-                BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+            withContext(Dispatchers.IO) {
+                out.write(header)
+                inputStream.copyTo(out)
+                out.close()
+                val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
+                if (sqlDb.version <= DATABASE_VERSION) {
+                    Log.d(TAG, "Loading from backup database with version ${sqlDb.version}")
+                    DatabaseContainer.reset()
+                    BibleApplication.application.deleteDatabase(DATABASE_NAME)
+                    ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                }
+                sqlDb.close()
             }
-            sqlDb.close()
         }
 
         if(!ok) {
@@ -267,8 +271,10 @@ class BackupControl @Inject constructor() {
         val inputStream = FileInputStream(zipFile)
         var ok = true
         try {
-            out.write(inputStream.readBytes())
-            out.close()
+            withContext(Dispatchers.IO) {
+                inputStream.copyTo(out)
+                out.close()
+            }
         } catch (ex: IOException) {
             ok = false
         }
