@@ -100,8 +100,8 @@ class SwordContentFacadeTest {
 
         val html = try {
             swordContentFacade.readOsisFragment(esv, verse)
-        } catch (e: ParseException) {
-            "broken"
+        } catch (e: Exception) {
+            if(e is OsisError) "fixed" else "broken"
         }
         assertThat(html, not(equalTo("broken")))
     }
@@ -116,8 +116,8 @@ class SwordContentFacadeTest {
 
             val html = try {
                 swordContentFacade.readOsisFragment(esv, verse)
-            } catch (e: ParseException) {
-                "broken"
+            } catch (e: Exception) {
+                if(e is OsisError) "fixed" else "broken"
             }
             assertThat(html, not(equalTo("broken")))
         }
