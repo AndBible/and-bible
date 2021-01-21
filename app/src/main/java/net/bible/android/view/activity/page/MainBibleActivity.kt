@@ -1147,8 +1147,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
+                if (data?.data == null) return // is null when user selects no file
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupModulesToUri(data!!.data!!)
+                    backupControl.backupModulesToUri(data.data!!)
                 }
             }
             WORKSPACE_CHANGED -> {
