@@ -409,8 +409,8 @@ export function useBookmarks(documentId,
         }
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-            if(b.notes) {
+            if(b.notes && config.showMyNotes) {
+                const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = new Color(bookmarkLabel.color).darken(0.2).hsl().string()
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
