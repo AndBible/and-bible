@@ -174,6 +174,10 @@
     background-color: #bdbdbd;
     color: black;
   }
+  &.right {
+    position: absolute;
+    right: 0;
+  }
   border: none;
   color: white;
   padding: 5pt 5pt;

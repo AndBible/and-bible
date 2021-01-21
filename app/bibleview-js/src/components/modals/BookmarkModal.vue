@@ -30,7 +30,7 @@
     <template v-else>
       <p>{{bookmark.notes}}</p>
     </template>
-    <div class="info">
+    <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
       </div>
@@ -38,13 +38,14 @@
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
     </div>
     <template #title>
-      {{ strings.bookmarkNote }}
+      {{ strings.bookmarkTitle }}
       <FontAwesomeIcon v-if="bookmark.notes" @click="toggleEditMode" icon="edit"/>
     </template>
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
       <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
-      <button class="button" @click="closeNote">{{strings.closeModal}}</button>
+      <button class="button" @click="infoShown = !infoShown">{{strings.bookmarkInfo}}</button>
+      <button class="button right" @click="closeNote">{{strings.closeModal}}</button>
     </template>
   </Modal>
   <AreYouSure ref="areYouSure">
@@ -69,6 +70,7 @@ export default {
     const android = inject("android");
     const bookmark = ref(null);
     const areYouSure = ref(null);
+    const infoShown = ref(false);
 
     setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b) => {
       showNote.value = true;
@@ -108,7 +110,7 @@ export default {
     }
 
     return {
-      setFocus, showNote, editMode, closeNote, areYouSure,
+      setFocus, showNote, editMode, closeNote, areYouSure, infoShown,
       toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
       ...useCommon()
     };
