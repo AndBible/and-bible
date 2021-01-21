@@ -240,13 +240,15 @@ class WorkspaceEntities {
             fun fromJson(jsonString: String): TextDisplaySettings {
                 return json.decodeFromString(serializer(), jsonString)
             }
+            const val white = -1
+            const val black = -16777216
 
             val default get() = TextDisplaySettings(
                 colors = Colors(
-                    dayBackground = null,
-                    dayTextColor = null,
-                    nightBackground = null,
-                    nightTextColor = null,
+                    dayBackground = white,
+                    dayTextColor = black,
+                    nightBackground = black,
+                    nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0
                 ),

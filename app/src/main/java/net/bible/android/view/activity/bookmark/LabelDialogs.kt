@@ -65,7 +65,8 @@ class LabelDialogs @Inject constructor(private val bookmarkControl: BookmarkCont
             .setPositiveButton(R.string.okay) { _, _ ->
                 val name = labelName.text.toString()
                 label.name = name
-                label.color = color.color
+                // let's remove alpha
+                label.color = color.color or (255 shl 24)
                 bookmarkControl.insertOrUpdateLabel(label)
                 onCreateCallback.okay()
             }
