@@ -76,11 +76,6 @@ abstract class VersePage protected constructor(
         }
     }
 
-    val bookmarksForChapter: List<BookmarkEntities.Bookmark> get() {
-        val range = CommonUtils.getWholeChapter(currentBibleVerse.verse)
-        return pageManager.bookmarkControl.bookmarksForVerseRange(range)
-    }
-
     companion object {
         private const val TAG = "CurrentPageBase"
     }

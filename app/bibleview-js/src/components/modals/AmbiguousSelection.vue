@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,40 +16,32 @@
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false" blocking="true">
-    <slot/>
+  <Modal v-if="selections" @close="$emit('close')">
+    <template v-for="(s, index) of selections" :key="index">
+      <button class="button light" @click="s.callback(); $emit('close')">
+        <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span> {{s.options.title}}</button>
+    </template>
+    <template #title>
+      {{ strings.ambiguousSelection }}
+    </template>
     <template #footer>
-      <button class="button" @click="ok">{{strings.ok}}</button>
-      <button class="button" @click="cancel">{{strings.cancel}}</button>
+      <button class="button" @click="$emit('close')">{{strings.cancel}}</button>
     </template>
   </Modal>
 </template>
 
 <script>
-import Modal from "@/components/Modal";
-import {ref} from "@vue/reactivity";
+import Modal from "@/components/modals/Modal";
 import {useCommon} from "@/composables";
-import {Deferred} from "@/utils";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+
 export default {
-  name: "AreYouSure.vue",
-  components: {Modal},
+  name: "AmbiguousSelection.vue",
+  emits: ["close"],
+  components: {Modal, FontAwesomeIcon},
+  props: {selections: {type: Array, required: false}},
   setup() {
-    const show = ref(false);
-    let promise = null;
-    async function areYouSure() {
-      show.value = true;
-      promise = new Deferred();
-      const result = await promise.wait()
-      show.value = false;
-      return result;
-    }
-    function ok() {
-      promise.resolve(true);
-    }
-    function cancel() {
-      promise.resolve(false);
-    }
-    return {show, areYouSure, ok, cancel, ...useCommon()};
+    return useCommon();
   }
 }
 </script>

@@ -19,7 +19,6 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.view.Menu
-import net.bible.android.view.activity.page.OsisFragment
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
@@ -71,7 +70,9 @@ interface CurrentPage {
 
     fun checkCurrentDocumentStillInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: List<OsisFragment>
+    val currentPageContent: Document
+
+    fun getPageContent(key: Key): Document
 
     fun updateOptionsMenu(menu: Menu)
 

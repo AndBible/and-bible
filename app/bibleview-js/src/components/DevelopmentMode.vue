@@ -48,11 +48,11 @@ export default {
         id: -lblCount -1,
         ordinalRange: [selection.startOrdinal, selection.endOrdinal],
         offsetRange: [selection.startOffset, selection.endOffset],
-        book: selection.bookInitials,
+        bookInitials: selection.bookInitials,
         note: "Test!",
         labels: [-(lblCount++ % 5) - 1]
       }
-      emit(Events.ADD_OR_UPDATE_BOOKMARKS, {bookmarks: [bookmark], labels: []})
+      emit(Events.ADD_OR_UPDATE_BOOKMARKS, [bookmark])
       emit(Events.REMOVE_RANGES)
     }
 

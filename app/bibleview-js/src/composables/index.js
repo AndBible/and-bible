@@ -171,6 +171,7 @@ export function useStrings() {
         crossReferenceText: "Cross references",
         findAllOccurrences: "Find all occurrences",
         reportError: "Report an error",
+        errorTitle: "Error occurred",
         footnoteTypeUndefined: "Undefined type",
         footnoteTypeStudy: "Study",
         footnoteTypeExplanation: "Explanation",
@@ -183,7 +184,7 @@ export function useStrings() {
         editNotePlaceholder: "Edit a note for bookmark",
         removeBookmark: "Remove bookmark",
         assignLabels: "Assign labels",
-        bookmarkAccurate: "Bookmark was create in %s",
+        bookmarkAccurate: "Bookmark was created in %s",
         ok: "Ok",
         ambiguousSelection: "Which one of these do you wish to do?",
         cancel: "Cancel",
@@ -217,14 +218,6 @@ export function useCommon() {
     }
 
     return {config, strings, sprintf, split, formatTimestamp}
-}
-
-export function usePoetic(fragmentReady, fragElement) {
-    /* TODO: implement.
-        Need to find elements within fragElement with poetic class in them.
-        Then make ranges of matching sID & eID.
-        Then use dom-highlight-range to alter text-indent.
-     */
 }
 
 export function useFontAwesome() {

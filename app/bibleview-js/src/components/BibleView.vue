@@ -24,23 +24,16 @@
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
-      <div v-for="({contents, showTransition}, index) in osisFragments" :key="index">
-        <template v-for="(data, idx) in contents" :key="data.key">
-          <div :id="`f-${data.key}`" class="fragment">
-            <OsisFragment :show-transition="showTransition" :data="data"/>
-          </div>
-          <div v-if="contents.length > 1 && idx < contents.length" class="divider" />
-        </template>
-      </div>
+      <Document v-for="document in documents" :key="document.id" :document="document"/>
     </div>
     <div id="bottom"/>
   </div>
 </template>
 <script>
-  import OsisFragment from "@/components/OsisFragment";
-  import {provide, reactive, watch} from "@vue/runtime-core";
+  import Document from "@/components/documents/Document";
+  import {provide, reactive} from "@vue/runtime-core";
   import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
-  import {testData} from "@/testdata";
+  import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
   import {useInfiniteScroll} from "@/composables/infinite-scroll";
   import {useGlobalBookmarks} from "@/composables/bookmarks";
@@ -49,39 +42,34 @@
   import {clearLog, useAndroid} from "@/composables/android";
   import {getEventFunctions, setupWindowEventListener} from "@/utils";
   import ErrorBox from "@/components/ErrorBox";
-  import BookmarkModal from "@/components/BookmarkModal";
+  import BookmarkModal from "@/components/modals/BookmarkModal";
   import DevelopmentMode from "@/components/DevelopmentMode";
   import Color from "color";
-  import AmbiguousSelection from "@/components/AmbiguousSelection";
+  import AmbiguousSelection from "@/components/modals/AmbiguousSelection";
 
   export default {
     name: "BibleView",
-    components: {OsisFragment, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
+    components: {Document, ErrorBox, BookmarkModal, DevelopmentMode, AmbiguousSelection},
     setup() {
       useFontAwesome();
 
       const {config} = useConfig();
       const strings = useStrings();
-      const osisFragments = reactive([]);
-      window.bibleViewDebug.osisFragments = osisFragments;
+      const documents = reactive([]);
+      window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
       const {scrollToVerse} = useScroll(config);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
-      useInfiniteScroll(config, android, osisFragments);
 
-      watch(() => osisFragments, () => {
-        for(const frag of osisFragments) {
-            globalBookmarks.updateBookmarkLabels(...frag.bookmarkLabels);
-            globalBookmarks.updateBookmarks(...frag.bookmarks);
-        }
-      }, {deep: true});
+      useInfiniteScroll(config, android, documents);
 
-      function replaceOsis(...s) {
+      function replaceDocument(...docs) {
         clearLog();
-        osisFragments.splice(0)
-        osisFragments.push(...s)
+        globalBookmarks.clearBookmarks();
+        documents.splice(0)
+        documents.push(...docs)
       }
 
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
@@ -90,19 +78,20 @@
         scrollToVerse(`v-${verseBeforeConfigChange}`, true)
       })
 
-      setupEventBusListener(Events.REPLACE_OSIS, replaceOsis);
+      setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);
       setupWindowEventListener("error", (e) => {
         console.error("Error caught", e.message, `on ${e.filename}:${e.colno}`);
       });
 
       if(config.developmentMode) {
         console.log("populating test data");
-        replaceOsis(...testData)
+        globalBookmarks.updateBookmarkLabels(...testBookmarkLabels)
+        replaceDocument(...testData)
       }
 
       setupEventBusListener(Events.SET_TITLE, (title) => {
-        const key = osisFragments[0].contents[0].key
-        document.title = `${title}/${key} (${process.env.NODE_ENV})`
+        const id = documents[0].id
+        document.title = `${title}/${id} (${process.env.NODE_ENV})`
       });
 
       provide("globalBookmarks", globalBookmarks);
@@ -131,7 +120,7 @@
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, osisFragments, topElement, currentVerse, clicked
+        config, strings, documents, topElement, currentVerse, clicked
       };
     },
     computed: {

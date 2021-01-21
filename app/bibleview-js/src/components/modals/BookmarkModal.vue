@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -31,8 +31,8 @@
       <p>{{bookmark.notes}}</p>
     </template>
     <div class="info">
-      <div v-if="bookmark.book">
-        {{ sprintf(strings.bookmarkAccurate, bookmark.book) }}
+      <div v-if="bookmark.bookName">
+        {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
@@ -53,13 +53,13 @@
 </template>
 
 <script>
-import Modal from "@/components/Modal";
+import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
 import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import AreYouSure from "@/components/AreYouSure";
+import AreYouSure from "@/components/modals/AreYouSure";
 export default {
   name: "BookmarkModal",
   components: {Modal, FontAwesomeIcon, AreYouSure},

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,27 +16,25 @@
   -->
 
 <template>
-  <p>
-    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><slot/>
-  </p>
+    <template v-for="(fragment,idx) in osisFragments" :key="fragment.key">
+      <OsisFragment :fragment="fragment" :show-transition="document.showTransition"/>
+      <div v-if="osisFragments.length > 1 && idx < osisFragments.length" class="divider" />
+    </template>
 </template>
 
 <script>
-import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
+import OsisFragment from "@/components/documents/OsisFragment";
 
 export default {
-  name: "Figure",
-  props: {src: {type: String, required: true}},
-  setup() {
-    const {bookInitials} = inject("documentInfo");
-    return {...useCommon(), bookInitials};
+  name: "OsisDocument.vue",
+  components: {OsisFragment},
+  props: {
+    document: {type: Object, required: true},
   },
+  setup(props) {
+    // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
+    const {id, type, osisFragments, bookInitials, bookName, key} = props.document;
+    return {osisFragments};
+  }
 }
 </script>
-
-<style scoped>
-.imageStyle {
-  max-width: 100%;
-}
-</style>

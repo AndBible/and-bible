@@ -24,16 +24,17 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.Document
+import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.OsisFragment
-import net.bible.service.format.OsisMessageFormatter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -176,8 +177,7 @@ open class Window (
                 PassageChangeMediator.getInstance().contentChangeStarted()
             }
 
-            val osisFrag = fetchOsis()
-            val bookmarks = pageManager.currentBible.bookmarksForChapter
+            val doc = fetchDocument()
 
             // BibleView initialization might take more time than loading OSIS, so let's wait for it.
             waitForBibleView()
@@ -185,9 +185,9 @@ open class Window (
             lastUpdated = System.currentTimeMillis()
 
             if(notifyLocationChange) {
-                bibleView?.show(osisFrag, bookmarks, updateLocation = true)
+                bibleView?.show(doc, updateLocation = true)
             } else {
-                bibleView?.show(osisFrag, bookmarks, verse = verse, yOffsetRatio = yOffsetRatio)
+                bibleView?.show(doc, verse = verse, yOffsetRatio = yOffsetRatio)
             }
 
             if(notifyLocationChange)
@@ -209,7 +209,7 @@ open class Window (
         }
     }
 
-    private suspend fun fetchOsis(): List<OsisFragment> = withContext(Dispatchers.IO) {
+    private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument
@@ -218,7 +218,7 @@ open class Window (
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()
-            listOf(OsisFragment(OsisMessageFormatter.format(R.string.error_page_too_large), currentPage.key, "error"))
+            ErrorDocument(BibleApplication.application.resources.getString(R.string.error_page_too_large))
         }
     }
 

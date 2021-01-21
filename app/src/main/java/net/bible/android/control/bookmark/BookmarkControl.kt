@@ -213,7 +213,13 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
-    fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> = dao.bookmarksForVerseRange(verseRange)
+    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false): List<Bookmark> {
+        val bookmarks = dao.bookmarksForVerseRange(verseRange)
+        if(withLabels) for (b in bookmarks) {
+            b.labelIds = labelsForBookmark(b).map { it.id }
+        }
+        return bookmarks
+    }
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

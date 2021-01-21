@@ -32,7 +32,6 @@ import net.bible.service.common.Logger
 import net.bible.service.common.ParseException
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
-import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.format.Note
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
@@ -58,6 +57,8 @@ import org.xml.sax.ContentHandler
 import java.util.*
 import javax.inject.Inject
 
+class OsisError(message: String): Exception(message)
+
 /** JSword facade
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -69,7 +70,7 @@ open class SwordContentFacade @Inject constructor(
 
     /** top level method to fetch html from the raw document data
      */
-    @Throws(ParseException::class)
+    @Throws(ParseException::class, OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?,): String {
         var book = book
         var key = key
@@ -81,12 +82,11 @@ open class SwordContentFacade @Inject constructor(
             book == null || key == null -> ""
             Books.installed().getBook(book.initials) == null -> {
                 Log.w(TAG, "Book may have been uninstalled:$book")
-                val errorMsg = application.getString(R.string.document_not_installed, book.initials)
-                format(errorMsg)
+                throw OsisError(application.getString(R.string.document_not_installed, book.initials))
             }
             !bookContainsAnyOf(book, key) -> {
                 Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                format(R.string.error_key_not_in_document)
+                throw OsisError(application.getString(R.string.error_key_not_in_document))
             }
             else -> {
                 readXmlTextStandardJSwordMethod(book, key)

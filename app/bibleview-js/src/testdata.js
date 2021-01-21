@@ -47,7 +47,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30850, 30850],
             offsetRange: null,
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -55,7 +55,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30852, 30852],
             offsetRange: [50, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -63,7 +63,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30852, 30852],
             offsetRange: [40, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -71,7 +71,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30852, 30852],
             offsetRange: [30, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -79,7 +79,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30852, 30852],
             offsetRange: [20, 60],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -87,7 +87,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30852, 30853],
             offsetRange: [10, 50],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -95,7 +95,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30835, 30836],
             offsetRange: [10, 50],
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -103,7 +103,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30839, 30842],
             offsetRange: null,
             labels: [2],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         },
         {
@@ -111,7 +111,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30843, 30843],
             labels: [3],
             offsetRange: null,
-            book: null,
+            bookInitials: null,
             notes: null,
         },
         {
@@ -119,7 +119,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30842, 30846],
             labels: [3],
             offsetRange: null,
-            book: null,
+            bookInitials: null,
             notes: null,
         },
         {
@@ -127,7 +127,7 @@ if(process.env.NODE_ENV === "development") {
             ordinalRange: [30838, 30838],
             offsetRange: [10, 50],
             labels: [1, 2],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: "Testinote",
         },
     ];
@@ -180,8 +180,19 @@ if(process.env.NODE_ENV === "development") {
         }
     ];
 
-    testData = testData.map(v => ({contents: [{xml: v, key:`KJV--${count++}`}], bookmarks: testBookmarks, bookmarkLabels: testBookmarkLabels}));
-    testData[2].contents[0].ordinalRange = [30835, 30852]
+    testData = testData.map(
+        v => ({
+            type: "bible",
+            osisFragments: [
+                {
+                    xml: v,
+                    key:`KJV--${count++}`,
+                    features: {},
+                }
+            ],
+            bookInitials: "KJV",
+            bookmarks: testBookmarks,
+        }));
+    testData[2].ordinalRange = [30835, 30852]
     window.testData = testData;
-
 }
