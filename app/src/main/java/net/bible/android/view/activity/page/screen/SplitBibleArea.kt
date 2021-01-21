@@ -579,6 +579,9 @@ class SplitBibleArea(
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
+        val isSettingDisabled = CommonUtils.sharedPreferences.getBoolean("hide_bible_reference_overlay", false)
+        if (isSettingDisabled) return
+
         val show = mainBibleActivity.fullScreen && _show
         if(show) {
             bibleReferenceOverlay.visibility = View.VISIBLE
