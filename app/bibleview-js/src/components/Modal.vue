@@ -57,7 +57,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .modal-backdrop {
   display: block;
   position: fixed;
@@ -83,7 +83,11 @@ export default {
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
   animation-name: animatetop;
-  animation-duration: 0.2s
+  animation-duration: 0.2s;
+  .night & {
+    background-color: black;
+    color: #bdbdbd;
+  }
 }
 
 @keyframes animatetop {
@@ -96,6 +100,11 @@ export default {
   background-color: #acacac;
   color: white;
   font-weight: bold;
+
+  .night & {
+    background-color: #454545;
+    color: #bdbdbd;
+  }
 }
 
 .modal-body {
@@ -108,6 +117,10 @@ export default {
   padding: 2px 16px;
   background-color: #acacac;
   color: white;
+  .night & {
+    background-color: #454545;
+    color: #bdbdbd;
+  }
 }
 
 </style>

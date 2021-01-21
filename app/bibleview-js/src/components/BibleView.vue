@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div @click="clicked" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
+  <div @click="clicked" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
     <div id="notes"/>
     <BookmarkModal/>
