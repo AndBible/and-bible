@@ -6,6 +6,12 @@
 <resources
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
+    <string-array name="strongsModeEntries">
+		<item>Off</item>
+		<item>Links</item>
+		<item>Text and links</item>
+	</string-array>
+
 	<string-array name="documentTypes">
 		<item>@string/doc_type_all</item>
 		<item>@string/doc_type_bible</item>

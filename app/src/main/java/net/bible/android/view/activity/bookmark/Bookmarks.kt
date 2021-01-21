@@ -32,6 +32,10 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.bookmarks.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
@@ -43,7 +47,12 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.sharedPreferences
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.view.activity.mynote.description
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
+import java.lang.IllegalArgumentException
 import java.util.*
 import javax.inject.Inject
 
@@ -61,10 +70,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @Inject lateinit var swordContentFacade: SwordContentFacade
     @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
-    // language spinner
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
-    private var labelArrayAdapter: ArrayAdapter<Label>? = null
 
     // the document list
     private val bookmarkList: MutableList<Bookmark> = ArrayList()
@@ -93,13 +100,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun initialiseView() {
         listActionModeHelper = ListActionModeHelper(listView, R.menu.bookmark_context_menu)
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id -> listActionModeHelper!!.startActionMode(this@Bookmarks, position) }
+        listView.onItemLongClickListener = OnItemLongClickListener{
+            _, _, position, _ -> listActionModeHelper!!.startActionMode(this@Bookmarks, position)
+        }
 
         //prepare the Label spinner
         loadLabelList()
-        labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList)
-        labelArrayAdapter!!.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        labelSpinner.adapter = labelArrayAdapter
 
         // check for pre-selected label e.g. when returning via History using Back button
         if (selectedLabelNo >= 0 && selectedLabelNo < labelList.size) {
@@ -113,11 +119,13 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
             override fun onNothingSelected(arg0: AdapterView<*>?) {}
         }
-        loadBookmarkList()
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider)
+        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
+            this, bookmarkList, bookmarkControl, swordContentFacade, activeWindowPageManagerProvider
+        )
         listAdapter = bookmarkArrayAdapter
+        loadBookmarkList()
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -132,28 +140,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    @SuppressLint("MissingSuperCall")
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "Restoring state after return from label editing")
-        // the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
-        val prevLabel = labelList[selectedLabelNo]
-
-        // reload labels
-        loadLabelList()
-        val prevLabelPos = labelList.indexOf(prevLabel)
-        selectedLabelNo = if (prevLabelPos >= 0) {
-            prevLabelPos
-        } else {
-            // this should be 'All'
-            0
-        }
-        labelSpinner.setSelection(selectedLabelNo)
-
-        // the label may have been renamed so cause the list to update it's text
-        labelArrayAdapter!!.notifyDataSetChanged()
-        loadBookmarkList()
-    }
-
     /** allow activity to enhance intent to correctly restore state  */
     override fun getIntentForHistoryList(): Intent {
         Log.d(TAG, "Saving label no in History Intent")
@@ -162,14 +148,25 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return intent
     }
 
-    private fun assignLabels(bookmarks: List<Bookmark>) {
-        val bookmarkIds = LongArray(bookmarks.size)
-        for (i in bookmarks.indices) {
-            bookmarkIds[i] = bookmarks[i].id
+    private fun assignLabels(bookmarks: List<Bookmark>) = GlobalScope.launch(Dispatchers.IO) {
+        val labels = mutableSetOf<Long>()
+        for (b in bookmarks) {
+            labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
-        val intent = Intent(this, BookmarkLabels::class.java)
-        intent.putExtra(BookmarkControl.BOOKMARK_IDS_EXTRA, bookmarkIds)
-        startActivityForResult(intent, 1)
+
+        val intent = Intent(this@Bookmarks, ManageLabels::class.java)
+        intent.putExtra(BookmarkControl.LABEL_IDS_EXTRA, labels.toLongArray())
+        val result = awaitIntent(intent)
+        val labelIds = result?.resultData?.extras?.getLongArray(BookmarkControl.LABEL_IDS_EXTRA)
+        if(labelIds != null) {
+            for (b in bookmarks) {
+                bookmarkControl.changeLabelsForBookmark(b, labelIds.toList())
+            }
+        }
+        withContext(Dispatchers.Main) {
+            loadLabelList()
+            loadBookmarkList()
+        }
     }
 
     private fun delete(bookmarks: List<Bookmark>) {
@@ -182,6 +179,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     private fun loadLabelList() {
         labelList.clear()
         labelList.addAll(bookmarkControl.allLabels)
+        val labelArrayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labelList.map { it.displayName })
+        labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        labelSpinner.adapter = labelArrayAdapter
     }
 
     /** a spinner has changed so refilter the doc list
@@ -192,7 +192,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 bookmarkList.clear()
-                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel))
+                bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
                 notifyDataSetChanged()
 
                 // if in action mode then must exit because the data has changed, invalidating selections
@@ -227,6 +227,25 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return true
     }
 
+    private fun changeBookmarkSortOrder() {
+        bookmarkSortOrder = when (bookmarkSortOrder) {
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT
+            BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
+            else -> BookmarkSortOrder.CREATED_AT
+        }
+    }
+
+    private var bookmarkSortOrder: BookmarkSortOrder
+        get() {
+            val bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_ORDER.toString())
+            return try {
+                BookmarkSortOrder.valueOf(bookmarkSortOrderStr!!)
+            } catch (e: IllegalArgumentException) { BookmarkSortOrder.BIBLE_ORDER }
+        }
+        private set(bookmarkSortOrder) {
+            CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
+        }
+
     /**
      * on Click handlers
      */
@@ -236,8 +255,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.sortByToggle -> {
                 isHandled = true
                 try {
-                    bookmarkControl.changeBookmarkSortOrder()
-                    val sortDesc = bookmarkControl.bookmarkSortOrderDescription
+                    changeBookmarkSortOrder()
+                    val sortDesc = bookmarkSortOrder.description
                     Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show()
                     loadBookmarkList()
                 } catch (e: Exception) {
@@ -248,7 +267,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.manageLabels -> {
                 isHandled = true
                 val intent = Intent(this, ManageLabels::class.java)
-                startActivityForResult(intent, 1)
+                startActivityForResult(intent, REQUEST_MANAGE_LABELS)
             }
         }
         if (!isHandled) {
@@ -266,6 +285,14 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return true
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == REQUEST_MANAGE_LABELS) {
+            loadLabelList()
+            loadBookmarkList()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun isItemChecked(position: Int): Boolean {
         return listView.isItemChecked(position)
     }
@@ -279,6 +306,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     }
 
     companion object {
+        private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
         private const val TAG = "Bookmarks"
+        private const val REQUEST_MANAGE_LABELS = 10
     }
 }

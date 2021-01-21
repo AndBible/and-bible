@@ -56,11 +56,15 @@ class BookmarkItemAdapter(
         } else {
             convertView as BookmarkListItem
         }
-        val isSpeak = bookmarkControl.isSpeakBookmark(item)
+        val labels = bookmarkControl.labelsForBookmark(item)
+        val isSpeak = labels.contains(bookmarkControl.speakLabel)
         if (isSpeak) {
             view.speakIcon.visibility = View.VISIBLE
         } else {
             view.speakIcon.visibility = View.GONE
+        }
+        labels.firstOrNull()?.color?.also {
+            view.verseContentText.setBackgroundColor(it)
         }
 
         // Set value for the first text field

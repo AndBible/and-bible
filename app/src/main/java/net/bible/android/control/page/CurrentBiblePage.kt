@@ -22,6 +22,7 @@ import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -62,10 +63,10 @@ class CurrentBiblePage(
     /**
      * Get a fragment for specified chapter of Bible to be inserted at top of bottom of original text
      */
-    fun getFragmentForChapter(chapter: Int): String? {
+    fun getFragmentForChapter(chapter: Int): List<OsisFragment> {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
         val wholeChapter = getWholeChapter(verseForFragment, showIntros)
-        return getPageContent(wholeChapter, true)
+        return getPageContent(wholeChapter)
     }
 
     private fun nextChapter() {
@@ -174,6 +175,17 @@ class CurrentBiblePage(
             val oldChapterVerse = currentBibleVerse.chapterVerse
             if(chapterVerse != oldChapterVerse) {
                 currentBibleVerse.chapterVerse = chapterVerse
+                onVerseChange()
+            }
+        }
+
+    var currentVerseOrdinal: Int
+        get() = currentBibleVerse.verse.ordinal
+        set(value) {
+            val old = currentBibleVerse.verse.ordinal
+
+            if(value != old) {
+                currentBibleVerse.verse = Verse(currentBibleVerse.verse.versification, value)
                 onVerseChange()
             }
         }

@@ -426,8 +426,8 @@ open class WindowRepository @Inject constructor(
         }
     }
 
-    fun updateVisibleWindowsTextDisplaySettings() {
-        for (it in visibleWindows) {
+    fun updateAllWindowsTextDisplaySettings() {
+        for (it in windows) {
             it.bibleView?.updateTextDisplaySettings()
         }
     }

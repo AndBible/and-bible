@@ -428,7 +428,7 @@ class SpeakControl @Inject constructor(
         if (!isPaused && !isSpeaking) {
             // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
             if (ev.updateBookmark) {
-                bookmarkControl.updateBookmarkSettings(ev.speakSettings.playbackSettings)
+                bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings)
             }
         } else if (isSpeaking) {
             pause(true)

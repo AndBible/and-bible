@@ -28,7 +28,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.base.DocumentView
-import net.bible.android.view.activity.mynote.MyNoteViewBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
 
@@ -43,7 +42,6 @@ class AfterRemoveWebViewEvent
 @MainBibleActivityScope
 class DocumentViewManager @Inject constructor(
 	private val mainBibleActivity: MainBibleActivity,
-	private val myNoteViewBuilder: MyNoteViewBuilder,
 	private val windowControl: WindowControl
 ) {
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
@@ -69,7 +67,6 @@ class DocumentViewManager @Inject constructor(
     private fun removeView() {
         parent.removeAllViews()
         ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
-        myNoteViewBuilder.afterRemove()
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
@@ -82,34 +79,25 @@ class DocumentViewManager @Inject constructor(
 
     @Synchronized
     fun buildView(forceUpdate: Boolean = false) {
-        if (myNoteViewBuilder.isMyNoteViewType) {
+        val view = buildWebViews(forceUpdate)
+        if(lastView != view) {
             removeView()
-            mainBibleActivity.resetSystemUi()
-            lastView = myNoteViewBuilder.addMyNoteView(parent)
-        } else {
-            val view = buildWebViews(forceUpdate)
-            if(lastView != view) {
-                removeView()
-                lastView = view
-                parent.addView(view,
-                    LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT)
-                )
-            }
-            ABEventBus.getDefault().post(WebViewsBuiltEvent())
+            lastView = view
+            parent.addView(view,
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT)
+            )
         }
+        ABEventBus.getDefault().post(WebViewsBuiltEvent())
     }
 
     val documentView: DocumentView?
         get() = getDocumentView(windowControl.activeWindow)
 
     private fun getDocumentView(window: Window): DocumentView? {
-        return if (myNoteViewBuilder.isMyNoteViewType) {
-            myNoteViewBuilder.view
-        } else { // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-            splitBibleArea?.bibleViewFactory?.getOrCreateBibleView(window)
-        }
+        // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
+        return splitBibleArea?.bibleViewFactory?.getOrCreateBibleView(window)
     }
 
     fun clearBibleViewFactory() {

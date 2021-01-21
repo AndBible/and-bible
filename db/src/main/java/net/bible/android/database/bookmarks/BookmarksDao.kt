@@ -31,12 +31,24 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import java.util.*
 
+const val orderByString = """
+CASE
+    WHEN :orderBy = 'BIBLE_ORDER' THEN Bookmark.kjvOrdinalStart
+    WHEN :orderBy = 'CREATED_AT' THEN Bookmark.createdAt
+    WHEN :orderBy = 'LAST_UPDATED' THEN Bookmark.lastUpdatedOn
+END"""
+
 @Dao
 interface BookmarkDao {
-    @Query("SELECT * from Bookmark ORDER BY :orderBy")
+    @Query("SELECT * from Bookmark ORDER BY $orderByString")
     fun allBookmarks(orderBy: String): List<Bookmark>
     fun allBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        allBookmarks(orderBy.sqlString)
+        allBookmarks(orderBy.name)
+
+    @Query("SELECT * from Bookmark WHERE notes IS NOT NULL ORDER BY $orderByString")
+    fun allBookmarksWithNotes(orderBy: String): List<Bookmark>
+    fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> =
+        allBookmarksWithNotes(orderBy.name)
 
     @Query("SELECT * from Bookmark where id = :bookmarkId")
     fun bookmarkById(bookmarkId: Long): Bookmark
@@ -44,11 +56,12 @@ interface BookmarkDao {
     @Query("SELECT * from Bookmark where id IN (:bookmarkIds)")
     fun bookmarksByIds(bookmarkIds: List<Long>): List<Bookmark>
 
-    @Query("""SELECT * from Bookmark where 
-        :rangeStart <= kjvOrdinalStart <= :rangeEnd OR
-        :rangeStart <= kjvOrdinalEnd <= :rangeEnd OR 
-        (kjvOrdinalStart <= :rangeEnd AND :rangeStart >= kjvOrdinalEnd) OR
-        (kjvOrdinalStart <= :rangeStart <= kjvOrdinalEnd AND kjvOrdinalStart <= :rangeEnd <= kjvOrdinalEnd)
+    @Query("""SELECT * from Bookmark where
+        kjvOrdinalStart BETWEEN :rangeStart AND :rangeEnd OR
+        kjvOrdinalEnd BETWEEN :rangeStart AND :rangeEnd OR 
+        (:rangeStart BETWEEN kjvOrdinalStart AND kjvOrdinalEnd AND 
+         :rangeEnd BETWEEN kjvOrdinalStart AND kjvOrdinalEnd
+        )
         """)
     fun bookmarksForKjvOrdinalRange(rangeStart: Int, rangeEnd: Int): List<Bookmark>
     fun bookmarksForVerseRange(verseRange: VerseRange): List<Bookmark> {
@@ -91,32 +104,43 @@ interface BookmarkDao {
         return entity
     }
 
+    @Delete fun deleteBookmarks(bs: List<Bookmark>)
     @Delete fun delete(b: Bookmark)
+
+
+    @Query("DELETE FROM Bookmark WHERE id IN (:bs)")
+    fun deleteBookmarksById(bs: List<Long>)
 
     @Query("""
         SELECT * FROM Bookmark WHERE NOT EXISTS 
             (SELECT * FROM BookmarkToLabel WHERE Bookmark.id = BookmarkToLabel.bookmarkId)
-            ORDER BY :orderBy
+            ORDER BY $orderByString
         """)
     fun unlabelledBookmarks(orderBy: String): List<Bookmark>
     fun unlabelledBookmarks(orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        unlabelledBookmarks(orderBy.sqlString)
+        unlabelledBookmarks(orderBy.name)
 
 
     @Query("""
         SELECT Bookmark.* FROM Bookmark 
             JOIN BookmarkToLabel ON Bookmark.id = BookmarkToLabel.bookmarkId 
             JOIN Label ON BookmarkToLabel.labelId = Label.id
-            WHERE Label.id = :labelId ORDER BY :orderBy
+            WHERE Label.id = :labelId ORDER BY $orderByString
         """)
     fun bookmarksWithLabel(labelId: Long, orderBy: String): List<Bookmark>
     fun bookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark>
-        = bookmarksWithLabel(label.id, orderBy.sqlString)
+        = bookmarksWithLabel(label.id, orderBy.name)
+
+    @Query("UPDATE Bookmark SET notes=:notes WHERE id=:bookmarkId")
+    fun saveBookmarkNote(bookmarkId: Long, notes: String?)
 
     // Labels
 
     @Query("SELECT * from Label ORDER BY name")
     fun allLabelsSortedByName(): List<Label>
+
+    @Query("SELECT * from Label WHERE id=:id")
+    fun labelById(id: Long): Label?
 
     @Insert fun insert(entity: Label): Long
 
@@ -136,16 +160,21 @@ interface BookmarkDao {
 
     @Delete fun delete(entity: BookmarkToLabel): Int
 
+    @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
+    fun clearLabels(bookmarkId: Long)
+    fun clearLabels(bookmark: Bookmark) = clearLabels(bookmark.id)
+
     @Delete fun delete(entities: List<BookmarkToLabel>): Int
 
     @Insert fun insert(entities: List<BookmarkToLabel>): List<Long>
 
-    @Query("SELECT * from Label WHERE bookmarkStyle = 'SPEAK' LIMIT 1")
-    fun speakLabel(): Label?
-    fun getOrCreateSpeakLabel(): Label {
-        return speakLabel()?: Label(name = "", bookmarkStyle = BookmarkStyle.SPEAK).apply {
-            id = insert(this)
-        }
-    }
+    @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
+    fun speakLabelByName(): Label?
 
+    @Query("DELETE FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId")
+    fun deleteLabels(bookmarkId: Long)
+    fun deleteLabels(bookmark: BookmarkEntities.Bookmark) = deleteLabels(bookmark.id)
+
+    @Query("DELETE FROM Label WHERE id IN (:toList)")
+    fun deleteLabelsByIds(toList: List<Long>)
 }

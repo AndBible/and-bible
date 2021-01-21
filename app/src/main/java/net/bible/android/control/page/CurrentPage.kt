@@ -19,8 +19,7 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.view.Menu
-import net.bible.service.common.ParseException
-import net.bible.service.format.Note
+import net.bible.android.view.activity.page.OsisFragment
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
@@ -29,6 +28,9 @@ import org.crosswire.jsword.passage.Key
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 interface CurrentPage {
+    val currentDocumentAbbreviation: String get () = currentDocument?.abbreviation?: ""
+    val currentDocumentName: String get() = currentDocument?.name?:""
+
     val bookCategory: BookCategory
     val pageManager: CurrentPageManager
 
@@ -69,7 +71,7 @@ interface CurrentPage {
 
     fun checkCurrentDocumentStillInstalled(): Boolean
     /** get a page to display  */
-    val currentPageContent: String
+    val currentPageContent: List<OsisFragment>
 
     fun updateOptionsMenu(menu: Menu)
 

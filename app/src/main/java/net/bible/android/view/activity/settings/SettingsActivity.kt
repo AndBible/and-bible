@@ -25,8 +25,6 @@ import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.util.BookmarkColorPreferenceDialog
-import net.bible.android.view.util.BookmarkColourPreference
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import net.bible.service.device.ScreenSettings.systemModeAvailable
 
@@ -47,13 +45,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 	override fun onDisplayPreferenceDialog(preference: Preference?) {
 		if(parentFragmentManager.findFragmentByTag("customTag") != null)
 			return
-		if(preference is BookmarkColourPreference) {
-			val f = BookmarkColorPreferenceDialog.newInstance(preference.key, preference.findIndexOfValue(preference.value))
-			f.setTargetFragment(this, 0)
-			f.show(parentFragmentManager, "customTag")
-		} else {
-			super.onDisplayPreferenceDialog(preference)
-		}
+
+        super.onDisplayPreferenceDialog(preference)
 	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

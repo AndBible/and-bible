@@ -67,7 +67,7 @@
     <string name="error_executing_search">Invalid search query</string>
 
     <!-- Preferences -->
-    <string name="prefs_show_verseno_summary">Show verse numbers</string>
+    <string name="prefs_show_verseno_summary">Show chapter &amp; verse numbers</string>
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
 
@@ -79,11 +79,9 @@
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_text_size_title">Font preferences</string>
 
-    <string name="prefs_show_verseno_title">Verse numbers</string>
+    <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
-    <string name="prefs_default_bookmark_style_title">Default bookmark style</string>
-    <string name="prefs_default_bookmark_style_summary">Highlight colour or icon</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_strongs_title">Strong\'s numbers</string>
@@ -151,7 +149,7 @@
     <string name="line_spacing_title">Line spacing</string>
     <string name="line_spacing_summary">Set the space between lines</string>
     <string name="select_none">Select none</string>
-    <string name="reset_are_you_sure">Are you sure that you want to reset all values?</string>
+    <string name="reset_are_you_sure">Are you sure that you want to reset all of these values?</string>
     <string name="window_pinning_menutitle">Window pinning</string>
     <string name="hide_window_buttons_title">Hide window buttons</string>
     <string name="hide_window_buttons_summary">Window buttons that are displayed on right side of the bible views are hidden. Window navigation bar on the bottom is still displayed and you may open window popup menu by long-clicking them.</string>
@@ -200,8 +198,6 @@
 
     <!--  Strongs -->
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
-    <string name="all_greek_occurrences">Find all occurrences</string>
-    <string name="all_hebrew_occurrences">Find all occurrences</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
 
@@ -230,7 +226,6 @@
     <string name="do_not_ask_again">Yes, do not ask any more</string>
     <string name="recommended_document">Recommended!</string>
     <string name="about_version_history">Version history: %s</string>
-    <string name="download_failed">Failed to download %s</string>
     <string name="download_errors">Download errors</string>
     <string name="failed_repositories_message">Could not connect to the following document repositories: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
@@ -242,7 +237,6 @@
     <string name="extracting_zip_file">Extracting Zip file now…</string>
     <string name="checking_zip_file">Checking given file…</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
-    <string name="module_already_installed">File contains a module that is already installed</string>
     <string name="install_zip_title">Please wait. Loading Zip file.</string>
     <string name="overwrite_files">Following files already exists: %s Overwrite?</string>
     <string name="overwrite_files_title">Overwrite files?</string>
@@ -306,7 +300,6 @@
 
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
-    <string name="verse_action_copy">Copy</string>
     <string name="share_verse">Share…</string>
     <string name="share_verse_subject_2">A Bible verse has been shared with you using %s.</string>
     <string name="compare_translations">Compare translations</string>
@@ -318,18 +311,12 @@
 
     <!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
-    <string name="add_bookmark">Add bookmark</string>
-    <string name="delete_bookmark">Delete bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
-    <string name="bookmark_date_updated">Bookmark date updated</string>
-    <string name="bookmark_deleted">Bookmark deleted</string>
-    <string name="bookmark_labels">Bookmark Labels</string>
-    <string name="manage_labels">Manage Bookmark Labels</string>
+    <string name="manage_labels">Manage Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
-    <string name="style">Style</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
@@ -470,9 +457,7 @@
 
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
-    <string name="mynote_add">Add My Note</string>
-    <string name="mynote_saved">My Note saved</string>
-    
+
     <!-- Backup and restore -->
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules">Backup Documents to…</string>
@@ -483,7 +468,6 @@
     <string name="loading_backup">Loading database from backup…</string>
     <string name="backup_success2">My Notes, Bookmarks, Reading Plans and Workspaces backed up successfully.</string>
     <string name="backup_modules_success">Selected modules backed up successfully.</string>
-    <string name="error_no_backup_file">Backup file was not found</string>
 
     <string name="backup_modules_email_subject_2">%s modules backup</string>
     <string name="backup_modules_email_message_2">Attached is your %s modules backup, which contains the following modules: %s</string>
@@ -491,10 +475,7 @@
     <string name="backup_email_subject_2">%s database backup</string>
     <string name="backup_email_message_2">Your %s database containing bookmarks, notes, reading plans and workspaces is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
-    <string name="backup_restore_title">Restore from where?</string>
-    <string name="backup_restore_message">Restore from phone storage or pick backup file manually (you can choose also from Google Drive etc.)?</string>
     <string name="backup_phone_storage">Phone storage</string>
-    <string name="backup_manually">Pick file</string>
     <string name="backup_backup_title">Backup to where?</string>
     <string name="backup_backup_message">Backup to phone or elsewhere via Share function (email, Google Drive etc.)?</string>
     <string name="backup_share">Share</string>
@@ -550,7 +531,6 @@
     <string name="error">Error</string>
     <string name="please_wait">Please wait…</string>
     <string name="all">All</string>
-    <string name="default_value">@string/lang_default</string>
     <string name="edit">Edit</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
     <string name="verse_not_found">Verse not found</string>
@@ -672,4 +652,19 @@
     <string name="something_with_parenthesis">%s (%s)</string>
     <string name="first_time_help_do_not_show_again">I understand</string>
     <string name="first_time_help_show_next_time">Show again next time</string>
+    <string name="add_bookmark1">Bookmark</string>
+    <string name="remove_bookmark">Remove</string>
+    <string name="bookmark_settings_title">Bookmarking settings</string>
+    <string name="window_bookmark_settings_title">Window bookmark settings</string>
+    <string name="workspace_bookmark_settings_title">Workspace bookmark settings</string>
+    <string name="bookmark_settings_show_labels_title">Show bookmark labels</string>
+    <string name="bookmark_settings_show_all_title">Show all bookmark labels</string>
+    <string name="bookmark_settings_assign_labels_title">Assign labels to new bookmarks</string>
+    <string name="prefs_bookmark_settings_summary">Bookmark settings summary</string>
+    <string name="bookmark_settings_show_labels_summary">Show only specified labels</string>
+    <string name="bookmark_settings_assign_labels_summary">Automatically assign labels to new bookmarks</string>
+    <string name="strongs_mode_title">Choose strongs mode</string>
+    <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
+    <string name="label_color">Label color</string>
+    <string name="label_color_example">Example</string>
 </resources>

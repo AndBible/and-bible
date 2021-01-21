@@ -27,6 +27,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse as JswordVerse
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
@@ -38,6 +39,12 @@ val json = Json {
 }
 
 class WorkspaceEntities {
+    data class DictionaryPage(
+        val document: String?,
+        val key: Key?,
+        val currentYOffsetRatio: Float?
+    )
+
     data class Page(
         val document: String?,
         val key: String?,
@@ -86,7 +93,7 @@ class WorkspaceEntities {
         @PrimaryKey var windowId: Long,
         @Embedded(prefix="bible_") val biblePage: BiblePage,
         @Embedded(prefix="commentary_") val commentaryPage: CommentaryPage?,
-        @Embedded(prefix="dictionary_") val dictionaryPage: Page?,
+        @Embedded(prefix="dictionary_") val dictionaryPage: DictionaryPage?,
         @Embedded(prefix="general_book_") val generalBookPage: Page?,
         @Embedded(prefix="map_") val mapPage: Page?,
         val currentCategoryName: String,
@@ -112,6 +119,13 @@ class WorkspaceEntities {
     )
 
     @Serializable
+    data class BookmarkDisplaySettings(
+        @ColumnInfo(defaultValue = "NULL") var showAll: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showLabels: List<Long>? = null,
+        @ColumnInfo(defaultValue = "NULL") var assignLabels: List<Long>? = null,
+    )
+
+    @Serializable
     data class Colors(
         @ColumnInfo(defaultValue = "NULL") var dayTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var dayBackground: Int?,
@@ -134,7 +148,7 @@ class WorkspaceEntities {
     data class TextDisplaySettings(
         @Embedded(prefix="margin_size_") var marginSize: MarginSize? = null,
         @Embedded(prefix="colors_") var colors: Colors? = null,
-        @ColumnInfo(defaultValue = "NULL") var showStrongs: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL", name = "showStrongs") var strongsMode: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showMorphology: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showFootNotes: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showRedLetters: Boolean? = null,
@@ -146,7 +160,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var justifyText: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var hyphenation: Boolean? = null,
         @Embedded(prefix="font_") var font: Font? = null,
-        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null
+        @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
+        @Embedded(prefix="bookmarks_") var bookmarks: BookmarkDisplaySettings? = null,
     ) {
         enum class Types {
             FONT,
@@ -164,10 +179,11 @@ class WorkspaceEntities {
             VERSEPERLINE,
             BOOKMARKS,
             MYNOTES,
+            BOOKMARK_SETTINGS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
-            Types.STRONGS -> showStrongs
+            Types.STRONGS -> strongsMode
             Types.MORPH -> showMorphology
             Types.FOOTNOTES -> showFootNotes
             Types.REDLETTERS -> showRedLetters
@@ -182,11 +198,12 @@ class WorkspaceEntities {
             Types.HYPHENATION -> hyphenation
             Types.LINE_SPACING -> lineSpacing
             Types.FONT -> font?.copy()
+            Types.BOOKMARK_SETTINGS -> bookmarks
         }
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> showStrongs = value as Boolean?
+                Types.STRONGS -> strongsMode = value as Int?
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.REDLETTERS -> showRedLetters = value as Boolean?
@@ -201,6 +218,7 @@ class WorkspaceEntities {
                 Types.HYPHENATION -> hyphenation = value as Boolean?
                 Types.FONT -> font = value as Font?
                 Types.LINE_SPACING -> lineSpacing = value as Int?
+                Types.BOOKMARK_SETTINGS -> bookmarks = value as BookmarkDisplaySettings?
             }
         }
 
@@ -241,7 +259,7 @@ class WorkspaceEntities {
                     fontSize = 16,
                     fontFamily = "sans-serif"
                 ),
-                showStrongs = false,
+                strongsMode = 0,
                 showMorphology = false,
                 showFootNotes = false,
                 showRedLetters = false,
@@ -252,7 +270,12 @@ class WorkspaceEntities {
                 showMyNotes = true,
                 justifyText = true,
                 hyphenation = true,
-                lineSpacing = 16
+                lineSpacing = 16,
+                bookmarks = BookmarkDisplaySettings(
+                    showAll = true,
+                    showLabels = emptyList(),
+                    assignLabels = emptyList(),
+                ),
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
