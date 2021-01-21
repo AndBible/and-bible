@@ -1139,10 +1139,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             REQUEST_PICK_FILE_FOR_BACKUP_DB -> {
+                if (data?.data == null) return // is null when user selects no file
                 mainBibleActivity.windowRepository.saveIntoDb()
                 DatabaseContainer.db.sync()
                 GlobalScope.launch(Dispatchers.IO) {
-                    backupControl.backupDatabaseToUri(data!!.data!!)
+                    backupControl.backupDatabaseToUri(data.data!!)
                 }
             }
             REQUEST_PICK_FILE_FOR_BACKUP_MODULES -> {
