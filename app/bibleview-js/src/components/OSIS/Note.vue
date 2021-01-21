@@ -33,7 +33,7 @@
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import Modal from "@/components/Modal";
+import Modal from "@/components/modals/Modal";
 import {get} from "lodash";
 import {ref} from "@vue/runtime-core";
 import {addEventFunction} from "@/utils";

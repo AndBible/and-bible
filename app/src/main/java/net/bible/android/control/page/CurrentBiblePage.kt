@@ -22,15 +22,16 @@ import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
-import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 /** Reference to current passage shown by viewer
  *
@@ -60,13 +61,22 @@ class CurrentBiblePage(
         previousChapter()
     }
 
-    /**
-     * Get a fragment for specified chapter of Bible to be inserted at top of bottom of original text
-     */
-    fun getFragmentForChapter(chapter: Int): List<OsisFragment> {
+    fun getDocumentForChapter(chapter: Int): Document {
         val verseForFragment = Verse(versification, verseSelected.book, chapter, 1)
         val wholeChapter = getWholeChapter(verseForFragment, showIntros)
         return getPageContent(wholeChapter)
+    }
+
+    override fun getPageContent(key: Key): Document {
+        val verseRange = key as VerseRange
+        val doc = super.getPageContent(verseRange)
+        return if(doc is OsisDocument) {
+            val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+            BibleDocument(
+                osisFragments = doc.osisFragments, swordBook = doc.book as SwordBook,
+                bookmarks = bookmarksForChapter, verseRange = verseRange
+            )
+        } else doc
     }
 
     private fun nextChapter() {

@@ -16,32 +16,40 @@
   -->
 
 <template>
-  <Modal v-if="selections" @close="$emit('close')">
-    <template v-for="(s, index) of selections" :key="index">
-      <button class="button light" @click="s.callback(); $emit('close')">
-        <span :style="`color: ${s.options.color}`"><FontAwesomeIcon v-if="s.options.icon" :icon="s.options.icon"/></span> {{s.options.title}}</button>
-    </template>
-    <template #title>
-      {{ strings.ambiguousSelection }}
-    </template>
+  <Modal v-if="show" @close="show=false" blocking="true">
+    <slot/>
     <template #footer>
-      <button class="button" @click="$emit('close')">{{strings.cancel}}</button>
+      <button class="button" @click="ok">{{strings.ok}}</button>
+      <button class="button" @click="cancel">{{strings.cancel}}</button>
     </template>
   </Modal>
 </template>
 
 <script>
-import Modal from "@/components/Modal";
+import Modal from "@/components/modals/Modal";
+import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-
+import {Deferred} from "@/utils";
 export default {
-  name: "AmbiguousSelection.vue",
-  emits: ["close"],
-  components: {Modal, FontAwesomeIcon},
-  props: {selections: {type: Array, required: false}},
+  name: "AreYouSure.vue",
+  components: {Modal},
   setup() {
-    return useCommon();
+    const show = ref(false);
+    let promise = null;
+    async function areYouSure() {
+      show.value = true;
+      promise = new Deferred();
+      const result = await promise.wait()
+      show.value = false;
+      return result;
+    }
+    function ok() {
+      promise.resolve(true);
+    }
+    function cancel() {
+      promise.resolve(false);
+    }
+    return {show, areYouSure, ok, cancel, ...useCommon()};
   }
 }
 </script>

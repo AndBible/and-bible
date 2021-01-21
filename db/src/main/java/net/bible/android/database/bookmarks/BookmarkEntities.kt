@@ -32,6 +32,7 @@ import org.crosswire.jsword.versification.system.SystemKJVA
 import org.crosswire.jsword.versification.system.Versifications
 import android.graphics.Color
 import androidx.room.ColumnInfo
+import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import java.util.*
 
@@ -125,7 +126,6 @@ class BookmarkEntities {
 
         @ColumnInfo(defaultValue = "NULL") var notes: String? = null,
         @ColumnInfo(defaultValue = "0") var lastUpdatedOn: Date = Date(System.currentTimeMillis()),
-
         ): VerseRangeUser {
         constructor(verseRange: VerseRange, textRange: TextRange? = null,  book: Book? = null): this(
             converter.convert(verseRange.start, KJVA).ordinal,
@@ -197,6 +197,7 @@ class BookmarkEntities {
             } else {
                 null
             }
+        @Ignore var labelIds: List<Long>? = null
     }
 
     @Entity(

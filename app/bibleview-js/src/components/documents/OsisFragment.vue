@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -14,6 +14,7 @@
   - You should have received a copy of the GNU General Public License along with And Bible.
   - If not, see http://www.gnu.org/licenses/.
   -->
+
 <template>
   <div ref="fragElement">
     <transition-group name="fade">
@@ -28,48 +29,31 @@
 </template>
 
 <script>
-import {inject, provide} from "@vue/runtime-core";
-import {useBookmarks} from "@/composables/bookmarks";
 import {reactive, ref} from "@vue/reactivity";
-import OsisSegment from "@/components/OsisSegment";
+import {useStrings} from "@/composables";
 import {AutoSleep} from "@/utils";
-import {usePoetic, useStrings} from "@/composables";
+import OsisSegment from "@/components/documents/OsisSegment";
 
 const parser = new DOMParser();
 
 export default {
   name: "OsisFragment",
-  components: {OsisSegment},
   props: {
-    data: {type: Object, required: true},
     showTransition: {type: Boolean, default: false},
+    fragment: {type: Object, required: true},
   },
+  components: {OsisSegment},
   setup(props) {
-    // Props for this component is considered to be read-only.
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {
       xml,
       key: fragmentKey,
-      ordinalRange = null,
-      features: {type: featureType = null, keyName: featureKeyName = null} = {}} = props.data;
+      features: {type: featureType = null, keyName: featureKeyName = null}
+    } = props.fragment;
+
     const fragmentReady = ref(!props.showTransition);
     const strings = useStrings();
     const fragElement = ref(null);
-
-    // TODO: check if these are used
-    const [book, osisID] = fragmentKey.split("--");
-
-    const globalBookmarks = inject("globalBookmarks");
-    const config = inject("config");
-
-    // Disable bookmarks for non-bible documents
-    if(ordinalRange) {
-      // To remove verse 0 from ordinalRange (is always included)
-      const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
-      useBookmarks(fragmentKey, realOrdinalRange, globalBookmarks, book, fragmentReady, config);
-    }
-    usePoetic(fragElement, fragmentReady);
-    provide("fragmentInfo", {fragmentKey, book, osisID});
 
     const template = xml
         .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,

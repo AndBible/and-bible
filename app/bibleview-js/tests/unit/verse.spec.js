@@ -132,7 +132,7 @@ describe ("bookmark test", () => {
         const ordinalRange = [0,1];
         updateBookmarks({
             id: 1,
-            book: "KJV",
+            bookInitials: "KJV",
             ordinalRange,
             offsetRange: [1, 2],
             labels: [0]

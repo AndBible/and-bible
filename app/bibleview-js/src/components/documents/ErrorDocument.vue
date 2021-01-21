@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
   -
   - This file is part of And Bible (http://github.com/AndBible/and-bible).
   -
@@ -16,27 +16,29 @@
   -->
 
 <template>
-  <p>
-    <img alt="Image" class="imageStyle" :src="`/module/${bookInitials}/${src}`"/><slot/>
-  </p>
+  <div>
+    <h2>{{strings.errorTitle}}</h2>
+    <p>
+      {{document.errorMessage}}
+    </p>
+    <a href="ab-error://">{{strings.reportError}}</a>
+  </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
-import {inject} from "@vue/runtime-core";
 
 export default {
-  name: "Figure",
-  props: {src: {type: String, required: true}},
-  setup() {
-    const {bookInitials} = inject("documentInfo");
-    return {...useCommon(), bookInitials};
+  name: "ErrorDocument",
+  props: {
+    document: {type: Object, required: true},
   },
+  setup() {
+    return useCommon()
+  }
 }
 </script>
 
 <style scoped>
-.imageStyle {
-  max-width: 100%;
-}
+
 </style>

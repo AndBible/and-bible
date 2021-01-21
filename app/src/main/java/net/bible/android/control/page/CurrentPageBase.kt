@@ -20,14 +20,14 @@ package net.bible.android.control.page
 import android.util.Log
 import android.view.Menu
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.CommonUtils
-import net.bible.service.format.OsisMessageFormatter.Companion.format
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
@@ -138,36 +138,42 @@ abstract class CurrentPageBase protected constructor(
 
     override val isSingleKey: Boolean = false
 
-    override val currentPageContent: List<OsisFragment> get() = getPageContent(key)
+    override val currentPageContent: Document get() {
+        val key = key
+        return if(key == null) errorDocument else getPageContent(key)
+    }
 
-    protected fun getPageContent(key: Key?): List<OsisFragment> {
+    override fun getPageContent(key: Key): Document {
+        val currentDocument = currentDocument!!
         return try {
-            val currentDocument = currentDocument!!
-            synchronized(currentDocument) {
-                if(key is BookAndKeyList) {
-                    key.map {
-                        if (it is BookAndKey) {
-                            OsisFragment(swordContentFacade.readOsisFragment(it.document, it), it, it.document.initials)
-                        } else throw RuntimeException("Not supported")
+            OsisDocument(
+                book = currentDocument,
+                key = key,
+                osisFragments = synchronized(currentDocument) {
+                    if(key is BookAndKeyList) {
+                        key.map {
+                            if (it is BookAndKey) {
+                                OsisFragment(swordContentFacade.readOsisFragment(it.document, it), it, it.document.initials)
+                            } else throw RuntimeException("Not supported")
+                        }
+                    } else {
+                        val frag = swordContentFacade.readOsisFragment(currentDocument, key)
+                        listOf (if (frag.isEmpty()) {
+                            throw OsisError(application.getString(R.string.error_no_content))
+                        } else
+                            OsisFragment(frag, key, currentDocument.initials)
+                        )
                     }
-                } else {
-                    val frag = swordContentFacade.readOsisFragment(currentDocument, key)
-                    listOf (if (frag.isEmpty()) {
-                        OsisFragment(format(R.string.error_no_content), key, currentDocument.initials)
-                    } else
-                        OsisFragment(frag, key, currentDocument.initials)
-                    )
                 }
-            }
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Error getting bible text", e)
-            val app = BibleApplication.application
-            val reportBug = app.getString(R.string.send_bug_report_title)
-            val link = "<a href='report://'>${reportBug}</a>."
-            val string = BibleApplication.application.getString(R.string.error_occurred_with_link, link)
-            listOf(OsisFragment(format(string), key, currentDocument?.initials?: "error"))
+            if(e is OsisError) ErrorDocument(e.message) else errorDocument
         }
     }
+
+    private val errorDocument: ErrorDocument get() =
+        ErrorDocument(application.getString(R.string.error_occurred))
 
     override fun checkCurrentDocumentStillInstalled(): Boolean {
         if (_currentDocument != null) {

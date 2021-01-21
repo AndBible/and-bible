@@ -60,6 +60,11 @@ export function useGlobalBookmarks(config) {
             bookmarks.set(v.id, v)
         }
     }
+
+    function clearBookmarks() {
+        bookmarks.clear();
+    }
+
     setupEventBusListener(Events.REMOVE_RANGES, () => {
         window.getSelection().removeAllRanges();
     })
@@ -70,10 +75,11 @@ export function useGlobalBookmarks(config) {
         }
     });
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, ({bookmarks = [], labels = []} = {}) => {
-        updateBookmarkLabels(...labels)
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, (bookmarks) => {
         updateBookmarks(...bookmarks)
     });
+
+    setupEventBusListener(Events.UPDATE_LABELS, labels => updateBookmarkLabels(...labels))
 
     const filteredBookmarks = computed(() => {
         if(!config.showBookmarks) return [];
@@ -85,18 +91,19 @@ export function useGlobalBookmarks(config) {
 
     window.bibleViewDebug.bookmarks = bookmarks;
     window.bibleViewDebug.allStyleRanges = allStyleRanges;
+    window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
 
     return {
         bookmarkLabels, bookmarkMap: bookmarks, bookmarks: filteredBookmarks, labelsUpdated,
-        updateBookmarkLabels, updateBookmarks, allStyleRanges
+        updateBookmarkLabels, updateBookmarks, allStyleRanges, clearBookmarks
     }
 }
 
-export function useBookmarks(fragmentKey,
+export function useBookmarks(documentId,
                              ordinalRange,
                              {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
-                             book,
-                             fragmentReady,
+                             bookInitials,
+                             documentReady,
                              config) {
 
     const isMounted = ref(0);
@@ -111,8 +118,8 @@ export function useBookmarks(fragmentKey,
         && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
-    const fragmentBookmarks = computed(() => {
-        if(!fragmentReady.value) return [];
+    const documentBookmarks = computed(() => {
+        if(!documentReady.value) return [];
         return bookmarks.value.filter(b => (noOrdinalNeeded(b) || checkOrdinal(b)))
     });
 
@@ -132,7 +139,7 @@ export function useBookmarks(fragmentKey,
 
     function combinedRange(b) {
         b = truncateToOrdinalRange(b);
-        if(b.book !== book) {
+        if(b.bookInitials !== bookInitials) {
             b.offsetRange[0] = 0;
             b.offsetRange[1] = null;
         }
@@ -210,7 +217,7 @@ export function useBookmarks(fragmentKey,
         labelsUpdated.value;
 
         let splitPoints = [];
-        const bookmarks = fragmentBookmarks.value;
+        const bookmarks = documentBookmarks.value;
 
         for(const b of bookmarks.map(v => combinedRange(v))) {
             splitPoints.push(b[0])
@@ -364,10 +371,10 @@ export function useBookmarks(fragmentKey,
         }
 
         if(!startOff && !endOff) {
-            element = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
+            element = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
-                const elem = document.querySelector(`#f-${fragmentKey} #v-${ord}`);
+                const elem = document.querySelector(`#doc-${documentId} #v-${ord}`);
                 const oldStyle = elem.style;
                 elem.style = style;
                 elem.addEventListener("click", addBookmarkEventFunctions)
@@ -378,10 +385,10 @@ export function useBookmarks(fragmentKey,
 
             }
         } else {
-            const firstElem = document.querySelector(`#f-${fragmentKey} #v-${startOrdinal}`);
-            const secondElem = document.querySelector(`#f-${fragmentKey} #v-${endOrdinal}`);
+            const firstElem = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
+            const secondElem = document.querySelector(`#doc-${documentId} #v-${endOrdinal}`);
             if (firstElem === null || secondElem === null) {
-                console.error("Element is not found!", fragmentKey, startOrdinal, endOrdinal);
+                console.error("Element is not found!", documentId, startOrdinal, endOrdinal);
                 return;
             }
             const [first, startOff1] = findNodeAtOffsetWithNullOffset(firstElem, startOff);

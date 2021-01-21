@@ -43,7 +43,7 @@ describe("useBookmark tests", () => {
             ordinalRange,
             offsetRange,
             labels: [1],
-            book: "KJV",
+            bookInitials: "KJV",
             notes: null,
         });
     }

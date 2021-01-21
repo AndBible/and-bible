@@ -102,16 +102,19 @@ export function useAndroid({bookmarks}, config) {
         const selection = window.getSelection();
         if (selection.rangeCount < 1 || selection.collapsed) return null;
         const range = selection.getRangeAt(0);
+        const documentElem = range.startContainer.parentElement.closest(".bible-document");
+        if(!documentElem) return null
+
+        const bookInitials = documentElem.dataset.bookInitials;
+
         const {ordinal: startOrdinal, offset: startOffset} =
             calculateOffsetToVerse(range.startContainer, range.startOffset, true);
         const {ordinal: endOrdinal, offset: endOffset} =
             calculateOffsetToVerse(range.endContainer, range.endOffset);
-        const fragmentId = range.startContainer.parentElement.closest(".fragment").id;
-        const [bookInitials, bookOrdinals] = fragmentId.slice(2, fragmentId.length).split("--");
 
         function bookmarkRange(b) {
             const offsetRange = b.offsetRange || [0, null]
-            if(b.book !== bookInitials) {
+            if(b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
                 offsetRange[1] = null;
             }
@@ -144,12 +147,12 @@ export function useAndroid({bookmarks}, config) {
         return returnValue
     }
 
-    async function requestMoreTextAtTop() {
-        return await deferredCall((callId) => android.requestMoreTextAtTop(callId));
+    async function requestPreviousChapter() {
+        return await deferredCall((callId) => android.requestPreviousChapter(callId));
     }
 
-    async function requestMoreTextAtEnd() {
-        return await deferredCall((callId) => android.requestMoreTextAtEnd(callId));
+    async function requestNextChapter() {
+        return await deferredCall((callId) => android.requestNextChapter(callId));
     }
 
     function scrolledToVerse(ordinal) {
@@ -183,8 +186,8 @@ export function useAndroid({bookmarks}, config) {
     const exposed = {
         reportInputFocus,
         saveBookmarkNote,
-        requestMoreTextAtTop,
-        requestMoreTextAtEnd,
+        requestPreviousChapter,
+        requestNextChapter,
         scrolledToVerse,
         setClientReady,
         querySelection,
