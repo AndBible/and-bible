@@ -5,8 +5,6 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.page.OsisFragment
 import net.bible.service.common.ParseException
 import net.bible.test.DatabaseResetter
 
