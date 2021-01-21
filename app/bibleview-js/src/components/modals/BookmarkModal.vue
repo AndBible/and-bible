@@ -116,9 +116,13 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .edit-area {
   width: 100%;
+  .night & {
+    background-color: black;
+    color: white;
+  }
 }
 .info {
   font-size: 80%;
