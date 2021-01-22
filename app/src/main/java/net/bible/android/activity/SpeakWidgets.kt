@@ -30,8 +30,8 @@ import android.view.View
 import android.widget.RemoteViews
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkEvent
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
@@ -157,10 +157,10 @@ class SpeakWidgetManager {
         }
     }
 
-    fun onEvent(ev: SynchronizeWindowsEvent) {
+    fun onEvent(ev: BookmarkEvent) {
         val manager = AppWidgetManager.getInstance(app)
-        for (i in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-            updateBookmarkWidget(app, manager, i)
+        for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
+            updateBookmarkWidget(app, manager, widgetId)
         }
     }
 

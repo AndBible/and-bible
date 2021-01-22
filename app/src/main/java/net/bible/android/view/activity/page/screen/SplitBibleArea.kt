@@ -620,16 +620,9 @@ class SplitBibleArea(
     /**
      * Get the first initial of the doc in the window to show in the minimise restore button
      */
-    private fun getDocumentAbbreviation(window: Window): String {
-        return try {
-            val abbrv = window.pageManager.currentPage.currentDocumentAbbreviation
-            return abbrv ?: ""
-            //abbrv?.substring(0, 1) ?: ""
-        } catch (e: Exception) {
-            " "
-        }
-
-    }
+    private fun getDocumentAbbreviation(window: Window): String = try {
+        window.pageManager.currentPage.currentDocumentAbbreviation
+    } catch (e: Exception) {" "}
 
     private fun handlePrefItem(window: Window, item: MenuItem) {
         val itemOptions = getItemOptions(window, item)

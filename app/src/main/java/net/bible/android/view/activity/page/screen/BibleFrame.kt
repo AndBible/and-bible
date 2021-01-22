@@ -152,13 +152,12 @@ class BibleFrame(
 
     private fun createTextButton(text: String, onClickListener: (View) -> Unit,
                                  onLongClickListener: ((View) -> Boolean)? = null,
-                                 window: Window?): WindowButtonWidget {
-        return WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
+                                 window: Window?): WindowButtonWidget =
+        WindowButtonWidget(window, windowControl, false, mainBibleActivity).apply {
             this.text = text
             setOnClickListener(onClickListener)
             setOnLongClickListener(onLongClickListener)
         }
-    }
 
     fun updateWindowButton() {
         removeView(windowButton)
