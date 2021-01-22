@@ -185,9 +185,9 @@ open class Window (
             lastUpdated = System.currentTimeMillis()
 
             if(notifyLocationChange) {
-                bibleView?.show(doc, updateLocation = true)
+                bibleView?.loadDocument(doc, updateLocation = true)
             } else {
-                bibleView?.show(doc, verse = verse, yOffsetRatio = yOffsetRatio)
+                bibleView?.loadDocument(doc, verse = verse, yOffsetRatio = yOffsetRatio)
             }
 
             if(notifyLocationChange)

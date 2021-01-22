@@ -80,7 +80,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.bookmarks.intToColorArray
 import net.bible.android.database.json
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.SharedActivityState
@@ -145,9 +144,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val gestureListener  = BibleGestureListener(mainBibleActivity)
 
     private var toBeDestroyed = false
-    private var latestDocumentStr: String? = null
-    private var needsOsisContent: Boolean = false
-    private var htmlLoadingOngoing: Boolean = true
+
+    @Volatile private var latestDocumentStr: String? = null
+    @Volatile private var needsDocument: Boolean = false
+    @Volatile private var htmlLoadingOngoing: Boolean = true
         set(value) {
             if(value != field) {
                 ABEventBus.getDefault().post(if(value) IncrementBusyCount() else DecrementBusyCount())
@@ -621,10 +621,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var firstDocument: Document? = null
 
-    suspend fun show(document: Document,
-                     updateLocation: Boolean = false,
-                     verse: Verse? = null,
-                     yOffsetRatio: Float? = null)
+    suspend fun loadDocument(document: Document,
+                             updateLocation: Boolean = false,
+                             verse: Verse? = null,
+                             yOffsetRatio: Float? = null)
     {
         val currentPage = window.pageManager.currentPage
         bookmarkLabels = bookmarkControl.allLabels
@@ -649,7 +649,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         Log.d(TAG, "Show $initialVerse, $jumpToYOffsetRatio Window:$window, settings: topOffset:${topOffset}, \n actualSettings: ${displaySettings.toJson()}")
         this.firstDocument = document
-        latestDocumentStr = document.asJson
+        synchronized(this) {
+            latestDocumentStr = document.asJson
+            needsDocument = true
+        }
 
         withContext(Dispatchers.Main) {
             updateBackgroundColor()
@@ -660,10 +663,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         if(!htmlLoadingOngoing) {
             withContext(Dispatchers.Main) {
                 replaceDocument()
-            }
-        } else {
-            synchronized(this) {
-                needsOsisContent = true
             }
         }
     }
@@ -693,7 +692,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun replaceDocument() {
         val documentStr = latestDocumentStr
         synchronized(this) {
-            needsOsisContent = false
+            needsDocument = false
             contentVisible = true
             minChapter = initialVerse?.chapter ?: -1
             maxChapter = initialVerse?.chapter ?: -1
@@ -1080,11 +1079,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun hasChapterLoaded(chapter: Int) = chapter in minChapter..maxChapter
 
     fun setClientReady() {
-        synchronized(this) {
-            htmlLoadingOngoing = false;
-            if(latestDocumentStr != null && needsOsisContent) {
-                replaceDocument()
-            }
+        htmlLoadingOngoing = false;
+        if(latestDocumentStr != null && needsDocument) {
+            replaceDocument()
         }
     }
 
