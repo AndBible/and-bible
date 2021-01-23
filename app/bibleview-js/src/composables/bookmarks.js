@@ -267,8 +267,7 @@ export function useBookmarks(documentId,
         const _bookmarkLabels = Array.from(labels).map(v => ({
             id: v,
             label: bookmarkLabels.get(v)
-        }));
-
+        })).filter(l => !l.label.noHighlight);
         switch(config.bookmarkingMode) {
             case bookmarkingModes.verticalColorBars:
                 return verticalColorbarStyleForLabels(_bookmarkLabels, labelCount);
@@ -303,7 +302,6 @@ export function useBookmarks(documentId,
     function verticalColorbarStyleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
-            if(s.isSpeak) continue
             let c = new Color(s.color)
             c = c.alpha(config.nightMode? 0.8 : 0.3)
             for(let i = 0; i<labelCount.get(id)-1; i++) {
@@ -361,7 +359,7 @@ export function useBookmarks(documentId,
 
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
-                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
+                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l)).filter(l => !l.noHighlight);
                 const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
                 const icon = b.notes ? "edit" : "bookmark"
@@ -409,7 +407,7 @@ export function useBookmarks(documentId,
         }
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.isSpeak);
+            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.noHighlight);
             if(speakLabel) {
                 const color = new Color("red").darken(0.2).hsl().string()
                 const iconElement = getIconElement(speakIcon, color);
