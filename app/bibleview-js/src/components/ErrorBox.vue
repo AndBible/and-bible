@@ -104,7 +104,7 @@ export default {
 }
 
 .error-ERROR {
-  color: #ff0000;
+  color: #ff8888;
 }
 
 .error-WARN {
