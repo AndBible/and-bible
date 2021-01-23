@@ -317,9 +317,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
             if(callback is ActionMode.Callback2) {
-                return callback.onGetContentRect(mode, view, outRect)
+                callback.onGetContentRect(mode, view, outRect)
             } else {
-                return super.onGetContentRect(mode, view, outRect)
+                super.onGetContentRect(mode, view, outRect)
             }
         }
     }
@@ -1019,7 +1019,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $topOffset);")
     }
 
-    internal fun executeJavascriptOnUiThread(javascript: String) {
+    private fun executeJavascriptOnUiThread(javascript: String) {
         runOnUiThread { executeJavascript(javascript) }
     }
 
