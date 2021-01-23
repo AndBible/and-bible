@@ -45,7 +45,7 @@ class BookmarkControlTest {
     fun tearDown() {
         val bookmarks = bookmarkControl!!.allBookmarks
         for (dto in bookmarks) {
-            bookmarkControl!!.deleteBookmark(dto, false)
+            bookmarkControl!!.deleteBookmark(dto)
         }
         val labels = bookmarkControl!!.allLabels
         for (dto in labels) {
@@ -88,7 +88,7 @@ class BookmarkControlTest {
         addTestVerse()
         var bookmarks = bookmarkControl!!.allBookmarks
         val toDelete = bookmarks[0]
-        bookmarkControl!!.deleteBookmark(toDelete, false)
+        bookmarkControl!!.deleteBookmark(toDelete)
         bookmarks = bookmarkControl!!.allBookmarks
         for (bookmark in bookmarks) {
             Assert.assertFalse("delete failed", bookmark.id == toDelete.id)
@@ -153,7 +153,7 @@ class BookmarkControlTest {
     fun testVerseRange() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5))
         val newBookmark = Bookmark(verseRange)
-        val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, null, false)
+        val newDto = bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
         Assert.assertThat(newDto.verseRange, IsEqual.equalTo(verseRange))
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseRange.start), IsEqual.equalTo(true))
     }
@@ -162,7 +162,7 @@ class BookmarkControlTest {
     fun testIsBookmarkForAnyVerseRangeWithSameStart() {
         val verseRange = VerseRange(KJV_VERSIFICATION, Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10))
         val newBookmark = Bookmark(verseRange)
-        bookmarkControl!!.addOrUpdateBookmark(newBookmark, null, false)
+        bookmarkControl!!.addOrUpdateBookmark(newBookmark, null)
         val startVerse = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(startVerse), IsEqual.equalTo(true))
 
@@ -185,7 +185,7 @@ class BookmarkControlTest {
     private fun addBookmark(verse: String?): Bookmark {
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
         val bookmark = Bookmark(verseRange)
-        return bookmarkControl!!.addOrUpdateBookmark(bookmark, null, false)
+        return bookmarkControl!!.addOrUpdateBookmark(bookmark, null)
     }
 
     private fun addTestLabel(): Label {
