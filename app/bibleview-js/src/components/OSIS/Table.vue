@@ -16,15 +16,19 @@
   -->
 
 <template>
-  <table><slot/></table>
+  <table :border="border"><slot/></table>
 </template>
 
 <script>
-import {useCommon} from "@/composables";
+import {checkUnsupportedProps, useCommon} from "@/composables";
 
 export default {
   name: "Table",
-  setup() {
+  props: {
+    border: {type: String, default: null},
+  },
+  setup(props) {
+    checkUnsupportedProps(props, "border", ["1", "0"])
     return useCommon();
   },
 }
