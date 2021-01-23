@@ -70,7 +70,7 @@ export default {
   width: 100%;
   top: var(--top-offset);
   bottom: var(--bottom-offset);
-  background-color: rgba(88, 57, 57, 0.9);
+  background-color: rgba(87, 56, 56, 0.9);
 }
 
 .errorbox {
@@ -104,7 +104,7 @@ export default {
 }
 
 .error-ERROR {
-  color: #ff8888;
+  color: #ff7f7f;
 }
 
 .error-WARN {
@@ -113,7 +113,7 @@ export default {
 
 .error-link {
   font-size: 200%;
-  color: red;
+  color: #ff7f7f;
   padding-left: 1.5em;
 }
 
