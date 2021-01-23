@@ -17,8 +17,8 @@
 
 <template>
   <teleport to="#notes">
-    <div v-if="blocking" @click="$emit('close')" class="modal-backdrop"/>
-    <div @click="$event.stopPropagation()" class="modal-content"
+    <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
+    <div @click.stop class="modal-content"
     >
       <div @click="$emit('close')" class="modal-header">
         <span class="title">

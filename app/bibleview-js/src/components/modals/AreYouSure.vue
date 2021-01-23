@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <Modal v-if="show" @close="show=false" blocking="true">
+  <Modal v-if="show" @close="show=false" blocking>
     <slot/>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>
