@@ -411,7 +411,11 @@ export function useBookmarks(documentId,
             if(speakLabel) {
                 const color = new Color("red").darken(0.2).hsl().string()
                 const iconElement = getIconElement(speakIcon, color);
-                const title = sprintf(strings.openBookmark, b.id);
+
+                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
+                const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
+                const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon: "headphones", color}));
                 element.parentElement.insertBefore(iconElement, element);
@@ -422,7 +426,12 @@ export function useBookmarks(documentId,
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = new Color(bookmarkLabel.color).darken(0.2).hsl().string()
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
-                const title = sprintf(strings.openBookmark, b.id);
+
+                // TODO: remove repetition...
+                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
+                const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
+                const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon, color}));
                 element.parentElement.insertBefore(iconElement, element);

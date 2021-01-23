@@ -38,7 +38,7 @@
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
     </div>
     <template #title>
-      {{ strings.bookmarkTitle }}
+      {{ sprintf(strings.bookmarkTitle, bookmark.verseRange) }}
       <FontAwesomeIcon v-if="bookmark.notes" @click="toggleEditMode" icon="edit"/>
     </template>
     <template #footer>

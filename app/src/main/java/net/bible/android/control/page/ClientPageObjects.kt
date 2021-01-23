@@ -149,7 +149,8 @@ data class ClientBookmark(val id: Long,
                           val bookName: String?,
                           val createdAt: Long,
                           val lastUpdatedOn: Long,
-                          val notes: String?
+                          val notes: String?,
+                          val verseRange: String
 ) {
     constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification) :
         this(id = bookmark.id,
@@ -163,7 +164,8 @@ data class ClientBookmark(val id: Long,
             bookAbbreviation = bookmark.book?.abbreviation,
             createdAt = bookmark.createdAt.time,
             lastUpdatedOn = bookmark.lastUpdatedOn.time,
-            notes = bookmark.notes
+            notes = bookmark.notes,
+            verseRange = bookmark.verseRange.name
         )
 }
 

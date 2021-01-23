@@ -179,7 +179,7 @@ export function useStrings() {
         footnoteTypeAlternative: "Alternative",
         footnoteTypeTranslation: "Translation",
         clearLog: "Clear error log",
-        bookmarkTitle: "Bookmark & My Notes",
+        bookmarkTitle: "Bookmark & My Notes: %s",
         bookmarkInfo: "Info",
         editNote: "Edit",
         editNotePlaceholder: "Edit a note for bookmark",
