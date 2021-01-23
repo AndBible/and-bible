@@ -332,19 +332,19 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         isSpeaking = false
     }
 
-    private fun updateBookmark(doNotSync: Boolean = false) {
+    private fun updateBookmark() {
         removeBookmark()
-        saveBookmark(doNotSync)
+        saveBookmark()
     }
 
     override fun savePosition(fractionCompleted: Float) {}
 
     override var isSpeaking: Boolean = false
 
-    override fun stop(doNotSync: Boolean) {
+    override fun stop() {
         reset()
         if(isSpeaking) {
-            updateBookmark(doNotSync)
+            updateBookmark()
         }
         isSpeaking = false
         bookmark = null
@@ -389,22 +389,25 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
                 bookmarkControl.setLabelsForBookmark(bookmark, labelList)
                 Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
-                bookmarkControl.deleteBookmark(bookmark, true)
+                bookmarkControl.deleteBookmark(bookmark)
                 Log.d("SpeakBookmark", "Removed bookmark from $bookmark")
             }
             this.bookmark = null
         }
     }
 
-    private fun saveBookmark(doNotSync: Boolean){
+    private fun saveBookmark() {
         val labelList = mutableSetOf<Label>()
         if(settings.autoBookmark) {
-            var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)
+            var bookmark = bookmarkControl.firstBookmarkStartingAtVerse(startVerse)?.run {
+                if(textRange != null) null else this
+            }
+
             val playbackSettings = settings.playbackSettings.copy()
             playbackSettings.bookId = book.initials
 
@@ -412,18 +415,18 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 playbackSettings.bookmarkWasCreated = true
                 bookmark = Bookmark(VerseRange(startVerse.versification, startVerse), null, null)
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
             }
             else {
                 playbackSettings.bookmarkWasCreated = bookmark.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.labelsForBookmark(bookmark))
                 bookmark.playbackSettings = playbackSettings
-                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark, doNotSync = true)
+                bookmark = bookmarkControl.addOrUpdateBookmark(bookmark)
             }
 
             labelList.add(bookmarkControl.speakLabel)
 
-            bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList(), doNotSync)
+            bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())
             Log.d("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }

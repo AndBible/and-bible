@@ -171,7 +171,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private fun delete(bookmarks: List<Bookmark>) {
         for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark, false)
+            bookmarkControl.deleteBookmark(bookmark)
         }
         loadBookmarkList()
     }

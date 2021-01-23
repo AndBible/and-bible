@@ -32,7 +32,7 @@ interface SpeakTextProvider {
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause()
-    fun stop(doNotSync: Boolean)
+    fun stop()
     fun rewind(amount: SpeakSettings.RewindAmount?)
     fun forward(amount: SpeakSettings.RewindAmount?)
     fun getText(utteranceId: String): String

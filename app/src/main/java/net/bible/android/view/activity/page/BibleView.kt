@@ -68,7 +68,6 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
-import net.bible.android.control.page.ClientBookmarkStyle
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.PageControl
@@ -89,7 +88,6 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.displayName
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -699,9 +697,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         if(!labelsUploaded) {
-            val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map {
-                ClientBookmarkLabel(it.id, it.displayName, it.color.let { v -> ClientBookmarkStyle(v) })
-            })
+            val bookmarkLabels = json.encodeToString(serializer(), bookmarkLabels.map { ClientBookmarkLabel(it) })
             executeJavascriptOnUiThread("""bibleView.emit("update_labels", ${bookmarkLabels})""")
             labelsUploaded = true
        }
@@ -875,14 +871,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val labelStr = json.encodeToString(serializer(),
-            ClientBookmarkLabel(event.label.id, event.label.displayName,
-                event.label.color.let { v -> ClientBookmarkStyle(v) }))
+        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(event.label))
         executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
     }
 
     fun onEvent(event: BookmarksDeletedEvent) {
-        val bookmarkIds = json.encodeToString(serializer(), event.bookmarks)
+        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
         executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
     }
 

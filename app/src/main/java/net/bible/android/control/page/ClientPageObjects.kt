@@ -24,6 +24,7 @@ import net.bible.android.control.bookmark.LABEL_UNLABELED_ID
 import net.bible.android.control.versification.toV11n
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.json
+import net.bible.service.common.displayName
 import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.FeatureType
@@ -167,8 +168,15 @@ data class ClientBookmark(val id: Long,
 }
 
 @Serializable
-data class ClientBookmarkStyle(val color: Int)
+data class ClientBookmarkStyle(val color: Int, val icon: String?, val isSpeak: Boolean)
 
 @Serializable
-data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle)
+data class ClientBookmarkLabel(val id: Long, val name: String, val style: ClientBookmarkStyle) {
+    constructor(label: BookmarkEntities.Label): this(
+        label.id, label.displayName,
+        label.color.let {v ->
+            ClientBookmarkStyle(v, null, label.isSpeakLabel)
+        }
+    )
+}
 

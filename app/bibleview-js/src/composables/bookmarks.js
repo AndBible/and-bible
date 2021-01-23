@@ -22,12 +22,13 @@ import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
 import {Events, setupEventBusListener, emit} from "@/eventbus";
 import {highlightRange} from "@/lib/highlight-range";
-import {faEdit, faBookmark} from "@fortawesome/free-solid-svg-icons";
+import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
 import {bookmarkingModes} from "@/composables/index";
 import {sprintf} from "sprintf-js";
 
+const speakIcon = icon(faHeadphones);
 const editIcon = icon(faEdit);
 const bookmarkIcon = icon(faBookmark);
 
@@ -69,13 +70,11 @@ export function useGlobalBookmarks(config) {
         window.getSelection().removeAllRanges();
     })
 
-    setupEventBusListener(Events.DELETE_BOOKMARKS, (bookmarkIds) => {
-        for(const bId of bookmarkIds) {
-            bookmarks.delete(bId);
-        }
+    setupEventBusListener(Events.DELETE_BOOKMARKS, bookmarkIds => {
+        for(const bId of bookmarkIds) bookmarks.delete(bId)
     });
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, (bookmarks) => {
+    setupEventBusListener(Events.ADD_OR_UPDATE_BOOKMARKS, bookmarks => {
         updateBookmarks(...bookmarks)
     });
 
@@ -304,6 +303,7 @@ export function useBookmarks(documentId,
     function verticalColorbarStyleForLabels(bookmarkLabels, labelCount) {
         let colors = [];
         for(const {label: s, id} of bookmarkLabels) {
+            if(s.isSpeak) continue
             let c = new Color(s.color)
             c = c.alpha(config.nightMode? 0.8 : 0.3)
             for(let i = 0; i<labelCount.get(id)-1; i++) {
@@ -409,6 +409,12 @@ export function useBookmarks(documentId,
         }
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
+            if(b.labels.map(l => bookmarkLabels.get(l)).find(v => v.isSpeak)) {
+                const color = new Color("red").darken(0.2).hsl().string()
+                const iconElement = getIconElement(speakIcon, color);
+                element.parentElement.insertBefore(iconElement, element);
+                undoHighlights.push(() => iconElement.remove());
+            }
             if(b.notes && config.showMyNotes) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                 const icon = b.notes ? "edit" : "bookmark"

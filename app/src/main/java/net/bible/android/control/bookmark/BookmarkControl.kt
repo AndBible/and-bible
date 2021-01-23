@@ -24,8 +24,8 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
-import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
+import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PlaybackSettings
@@ -36,13 +36,12 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
-import java.lang.RuntimeException
 import javax.inject.Inject
 
 abstract class BookmarkEvent
 
 class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>): BookmarkEvent()
-class BookmarksDeletedEvent(val bookmarks: List<Long>): BookmarkEvent()
+class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
 const val LABEL_ALL_ID = -999L
@@ -81,7 +80,7 @@ open class BookmarkControl @Inject constructor(
 
     fun allBookmarksWithNotes(orderBy: BookmarkSortOrder): List<Bookmark> = dao.allBookmarksWithNotes(orderBy)
 
-    fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null, doNotSync: Boolean=false): Bookmark {
+    fun addOrUpdateBookmark(bookmark: Bookmark, labels: List<Long>?=null): Bookmark {
         if(bookmark.id != 0L) {
             dao.update(bookmark)
         } else {
@@ -93,11 +92,9 @@ open class BookmarkControl @Inject constructor(
             dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
         }
 
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(
-                BookmarkAddedOrUpdatedEvent(bookmark, labels ?: dao.labelsForBookmark(bookmark.id).map { it.id })
-            )
-        }
+        ABEventBus.getDefault().post(
+            BookmarkAddedOrUpdatedEvent(bookmark, labels ?: dao.labelsForBookmark(bookmark.id).map { it.id })
+        )
         return bookmark
     }
 
@@ -107,25 +104,19 @@ open class BookmarkControl @Inject constructor(
 
     fun firstBookmarkStartingAtVerse(key: Verse): Bookmark? = dao.bookmarksStartingAtVerse(key).firstOrNull()
 
-    fun deleteBookmark(bookmark: Bookmark, doNotSync: Boolean = false) {
+    fun deleteBookmark(bookmark: Bookmark) {
         dao.delete(bookmark)
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
-        }
+        ABEventBus.getDefault().post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
-    fun deleteBookmarks(bookmarks: List<Bookmark>, doNotSync: Boolean = false) {
+    fun deleteBookmarks(bookmarks: List<Bookmark>) {
         dao.deleteBookmarks(bookmarks)
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
-        }
+        ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
-    fun deleteBookmarksById(bookmarkIds: List<Long>, doNotSync: Boolean = false) {
+    fun deleteBookmarksById(bookmarkIds: List<Long>) {
         dao.deleteBookmarksById(bookmarkIds)
-        if(!doNotSync) {
-            ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarkIds))
-        }
+        ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarkIds))
     }
 
     fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
@@ -139,15 +130,14 @@ open class BookmarkControl @Inject constructor(
         return dao.labelsForBookmark(bookmark.id)
     }
 
-    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>, doNotSync: Boolean = false) {
+    fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
         dao.deleteLabels(bookmark)
         dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
-        if(!doNotSync)
-            ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
     }
 
-    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>, doNotSync: Boolean = false) =
-        setLabelsByIdForBookmark(bookmark, labels.map { it.id }, doNotSync)
+    fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>) =
+        setLabelsByIdForBookmark(bookmark, labels.map { it.id })
 
     fun insertOrUpdateLabel(label: Label): Label {
         if(label.id < 0) throw RuntimeException("Illegal negative label.id")
@@ -178,13 +168,18 @@ open class BookmarkControl @Inject constructor(
     val speakLabel: Label get() {
         return _speakLabel
             ?: dao.labelById(CommonUtils.sharedPreferences.getLong("speak_label_id", -1))
+                ?.also {
+                    _speakLabel = it
+                }
             ?: dao.speakLabelByName()
+                ?.also {
+                    CommonUtils.sharedPreferences.edit().putLong("speak_label_id", it.id).apply()
+                    _speakLabel = it
+                }
             ?: Label(name = SPEAK_LABEL_NAME, color = 0).apply {
                 id = dao.insert(this)
-            }.apply {
                 CommonUtils.sharedPreferences.edit().putLong("speak_label_id", id).apply()
-            }.also {
-                _speakLabel = it
+                _speakLabel = this
             }
     }
 
