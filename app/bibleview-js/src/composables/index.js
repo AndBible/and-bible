@@ -194,6 +194,8 @@ export function useStrings() {
         createdAt: "Created: %s",
         lastUpdatedOn: "Last updated: %s",
         strongsLink: "Open strongs",
+        externalLink: "Open external link",
+        referenceLink: "Open reference link",
         openFootnote: "Open footnote",
         openBookmark: "Open bookmark (labels: %s)",
     }

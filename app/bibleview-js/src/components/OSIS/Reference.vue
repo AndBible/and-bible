@@ -16,11 +16,12 @@
   -->
 
 <template>
-  <a class="reference" :href="`ab-reference://?${queryParams}`" ref="content"><slot/></a>
+  <a class="reference" @click="openLink(link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
+import {addEventFunction} from "@/utils";
 
 export default {
   name: "Reference",
@@ -35,11 +36,18 @@ export default {
         return "content=" + encodeURI(this.$refs.content.innerText);
       }
       return "osis=" + encodeURI(this.osisRef)
+    },
+    link({queryParams}) {
+      return `ab-reference://?${queryParams}`
     }
   },
   setup(props) {
     checkUnsupportedProps(props, "type");
-    return useCommon();
+    const {strings, ...common} = useCommon();
+    function openLink(event, url) {
+      addEventFunction(event, () => window.location.assign(url), {title: strings.referenceLink});
+    }
+    return {openLink, ...common};
   },
 }
 
