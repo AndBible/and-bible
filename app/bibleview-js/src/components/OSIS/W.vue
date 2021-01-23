@@ -18,13 +18,13 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a>-<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)">{{formatName(lemma)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="strongs" :href="formatLink(lemma)" @click.prevent="goToLink($event, formatLink(lemma))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)">{{formatName(morph)}}</a></span>
+      <slot/><span class="skip-offset">&nbsp;<a class="morph" :href="formatLink(morph)" @click.prevent="goToLink($event, formatLink(morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><slot/></template>
   </template>
