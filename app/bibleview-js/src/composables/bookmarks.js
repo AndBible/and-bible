@@ -409,9 +409,13 @@ export function useBookmarks(documentId,
         }
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            if(b.labels.map(l => bookmarkLabels.get(l)).find(v => v.isSpeak)) {
+            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.isSpeak);
+            if(speakLabel) {
                 const color = new Color("red").darken(0.2).hsl().string()
                 const iconElement = getIconElement(speakIcon, color);
+                const title = sprintf(strings.openBookmark, b.id);
+                iconElement.addEventListener("click", event => addEventFunction(event,
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon, color}));
                 element.parentElement.insertBefore(iconElement, element);
                 undoHighlights.push(() => iconElement.remove());
             }
