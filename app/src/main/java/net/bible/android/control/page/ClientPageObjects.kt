@@ -175,7 +175,7 @@ data class ClientBookmarkLabel(val id: Long, val name: String, val style: Client
     constructor(label: BookmarkEntities.Label): this(
         label.id, label.displayName,
         label.color.let {v ->
-            ClientBookmarkStyle(v, null, label.isSpeakLabel)
+            ClientBookmarkStyle(v, if(label.isSpeakLabel) "headphones" else null, label.isSpeakLabel)
         }
     )
 }

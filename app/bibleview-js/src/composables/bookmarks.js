@@ -407,7 +407,7 @@ export function useBookmarks(documentId,
         }
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
-            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.noHighlight);
+            const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
             if(speakLabel) {
                 const color = new Color("red").darken(0.2).hsl().string()
                 const iconElement = getIconElement(speakIcon, color);
