@@ -63,7 +63,7 @@ abstract class CurrentPageBase protected constructor(
             if(key is BookAndKeyList) {
                 return key.joinToString(", ") { (it as BookAndKey).document.abbreviation }
             }
-            return super.currentDocumentName
+            return super.currentDocumentAbbreviation
         }
 
     override var _key: Key? = null
