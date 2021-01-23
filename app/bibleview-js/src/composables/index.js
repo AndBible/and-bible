@@ -22,7 +22,7 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faBookmark, faEdit} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 
 let developmentMode = false;
 let testMode = false;
@@ -224,6 +224,7 @@ export function useCommon() {
 }
 
 export function useFontAwesome() {
+    library.add(faHeadphones)
     library.add(faEdit)
     library.add(faBookmark)
 }

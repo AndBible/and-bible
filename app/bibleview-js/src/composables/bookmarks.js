@@ -415,7 +415,7 @@ export function useBookmarks(documentId,
                 const iconElement = getIconElement(speakIcon, color);
                 const title = sprintf(strings.openBookmark, b.id);
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon, color}));
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon: "headphones", color}));
                 element.parentElement.insertBefore(iconElement, element);
                 undoHighlights.push(() => iconElement.remove());
             }
