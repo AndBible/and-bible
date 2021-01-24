@@ -31,7 +31,7 @@
 </template>
 <script>
   import Document from "@/components/documents/Document";
-  import {provide, reactive} from "@vue/runtime-core";
+  import {nextTick, provide, reactive} from "@vue/runtime-core";
   import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
@@ -65,10 +65,11 @@
 
       useInfiniteScroll(config, android, documents);
 
-      function replaceDocument(...docs) {
+      async function replaceDocument(...docs) {
         clearLog();
         globalBookmarks.clearBookmarks();
         documents.splice(0)
+        await nextTick()
         documents.push(...docs)
       }
 
