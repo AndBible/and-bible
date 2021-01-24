@@ -172,6 +172,9 @@ open class Window (
             yOffsetRatio = currentPage.currentYOffsetRatio
         }
 
+        displayedBook = currentPage.currentDocument
+        displayedKey = currentPage.key
+
         GlobalScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
                 PassageChangeMediator.getInstance().contentChangeStarted()

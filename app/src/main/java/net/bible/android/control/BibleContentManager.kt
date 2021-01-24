@@ -35,7 +35,7 @@ import javax.inject.Inject
  */
 @MainBibleActivityScope
 class BibleContentManager @Inject
-constructor(private val documentViewManager: DocumentViewManager, private val windowControl: WindowControl) {
+constructor(private val windowControl: WindowControl) {
     init {
         PassageChangeMediator.getInstance().setBibleContentManager(this)
     }
@@ -45,7 +45,6 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         val window = window_?: windowControl.activeWindow
         val currentPage = window.pageManager.currentPage
         val document = currentPage.currentDocument
-        val key = currentPage.key
         val verse = window.pageManager.currentVersePage.currentBibleVerse.verse
         val book = window.pageManager.currentVersePage.currentBibleVerse.currentBibleBook
         val previousDocument = window.displayedBook
@@ -65,13 +64,5 @@ constructor(private val documentViewManager: DocumentViewManager, private val wi
         else {
             window.updateText(notifyLocationChange = true)
         }
-
-        window.displayedBook = document
-        window.displayedKey = key
-    }
-
-    companion object {
-
-        private val TAG = "BibleContentManager"
     }
 }
