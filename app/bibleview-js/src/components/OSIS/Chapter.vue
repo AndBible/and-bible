@@ -17,7 +17,7 @@
 
 <template>
   <div class="chapter-number" v-if="config.showChapterNumbers && startTag">{{sprintf(strings.chapterNum, chapterNum)}}</div>
-  <div class="inlineDiv"><slot/></div>
+  <slot/>
 </template>
 
 <script>

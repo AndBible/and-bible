@@ -248,6 +248,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     var currentSelection: Selection? = null
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
+        Log.d(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
         if(menuPrepared) {
             mode.menuInflater.inflate(R.menu.bibleview_selection, menu)
             // For some reason, these do not seem to be correct from XML, even though specified there

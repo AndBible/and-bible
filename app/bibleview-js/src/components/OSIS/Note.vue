@@ -15,9 +15,9 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <div
+  <span
       v-if="(config.showCrossReferences && isCrossReference) || (config.showFootNotes && isFootNote)"
-      class="inlineDiv skip-offset"
+      class="skip-offset"
   >
     <span :class="{noteHandle: true, isFootNote, isCrossReference}" @click="noteClicked">
       {{handle}}
@@ -28,7 +28,7 @@
         {{isFootNote ? sprintf(strings.noteText, typeStr) : strings.crossReferenceText }}
       </template>
     </Modal>
-  </div>
+  </span>
 </template>
 
 <script>

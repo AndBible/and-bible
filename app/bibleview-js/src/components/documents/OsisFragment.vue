@@ -18,7 +18,7 @@
 <template>
   <div ref="fragElement">
     <transition-group name="fade">
-      <div class="inlineDiv" v-for="{key, template} in templates" :key="key">
+      <div v-for="{key, template} in templates" :key="key">
         <OsisSegment :osis-template="template" />
       </div>
     </transition-group>

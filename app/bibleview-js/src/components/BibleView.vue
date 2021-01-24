@@ -156,10 +156,6 @@
   vertical-align: super;
 }
 
-.inlineDiv {
-  display: inline;
-}
-
 .divider {
   height: 1em;
 }
