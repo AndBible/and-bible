@@ -63,9 +63,9 @@ class ManageLabels : ListActivityBase() {
 
         showUnassigned = intent.getBooleanExtra("showUnassigned", false)
         val title = intent.getStringExtra("title")
-        selectMultiple = CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
+        selectMultiple = checkedLabels.size > 1 || CommonUtils.sharedPreferences.getBoolean("assignLabelsSelectMultiple", false)
         selectMultipleSwitch.isChecked = selectMultiple
-        selectMultipleSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+        selectMultipleSwitch.setOnCheckedChangeListener { _, isChecked ->
             selectMultiple = isChecked
             CommonUtils.sharedPreferences.edit().putBoolean("assignLabelsSelectMultiple", selectMultiple).apply()
         }
