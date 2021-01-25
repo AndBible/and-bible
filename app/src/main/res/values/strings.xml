@@ -669,4 +669,5 @@
     <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
+    <string name="select_multiple">Select multiple</string>
 </resources>

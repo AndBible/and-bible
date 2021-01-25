@@ -107,7 +107,6 @@
         <activity
             android:name="net.bible.android.view.activity.bookmark.ManageLabels"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog.Alert"
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks" />
         <activity

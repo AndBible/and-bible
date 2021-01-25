@@ -1,51 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Choose Book
- 
- @author Martin Denham [mjdenham at gmail dot com]
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-	<ListView	android:id="@android:id/list" 
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:choiceMode="singleChoice"
-		android:visibility="visible"
-		android:layout_above="@+id/button_panel"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/relativeLayout2"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/selectMultipleSwitch"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/select_multiple"
+		android:paddingTop="10dp"
+		android:paddingBottom="10dp"
+		android:paddingStart="10dp"
+		android:paddingEnd="10dp"
+		style="@style/TextAppearance.AppCompat.Widget.Switch"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		/>
+
+	<ListView
+		android:id="@android:id/list"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_above="@+id/button_panel"
+		app:layout_constraintBottom_toTopOf="@+id/button_panel"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/selectMultipleSwitch" />
 	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/button_panel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-	    android:layout_alignParentBottom="true">
-		<Button android:id="@+id/newLabel"
-			android:text="@string/new_label"
+	<LinearLayout
+		android:id="@+id/button_panel"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent">
+
+		<Button
+			android:id="@+id/newLabel"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:onClick="onNewLabel"/>
+			android:onClick="onNewLabel"
+			android:text="@string/new_label" />
+
 		<Space
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_weight="1" />
+
+		<Button
+			android:id="@+id/cancel"
+			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			/>
-		<Button android:id="@+id/cancel"
-			android:text="@string/cancel"
 			android:onClick="onCancel"
+			android:text="@string/cancel" />
+
+		<Button
+			android:id="@+id/okButton"
 			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
-			android:layout_weight="1"/>
-		<Button android:id="@+id/okButton"
-			android:text="@string/okay"
-			style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
+			android:layout_weight="1"
 			android:onClick="onOkay"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"/>
+			android:text="@string/okay" />
 	</LinearLayout>
-</RelativeLayout>	
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -31,7 +31,7 @@
 </template>
 <script>
   import Document from "@/components/documents/Document";
-  import {nextTick, provide, reactive} from "@vue/runtime-core";
+  import {nextTick, provide, reactive, watch} from "@vue/runtime-core";
   import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
@@ -90,10 +90,17 @@
         replaceDocument(...testData)
       }
 
+      let titlePrefix = ""
       setupEventBusListener(Events.SET_TITLE, (title) => {
-        const id = documents[0].id
-        document.title = `${title}/${id} (${process.env.NODE_ENV})`
+        titlePrefix = title;
       });
+
+      watch(documents, () => {
+        if(documents.length > 0) {
+          const id = documents[0].id
+          document.title = `${titlePrefix}/${id} (${process.env.NODE_ENV})`
+        }
+      })
 
       provide("globalBookmarks", globalBookmarks);
       provide("config", config);
