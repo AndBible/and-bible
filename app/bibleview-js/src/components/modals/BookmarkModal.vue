@@ -21,7 +21,6 @@
       <textarea
           @focusin="setFocus(true)"
           @focusout="setFocus(false)"
-          :rows="bookmarkNoteRows"
           :placeholder="strings.editNotePlaceholder"
           class="edit-area"
           v-model="bookmark.notes"
@@ -56,7 +55,7 @@
 <script>
 import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {computed, ref} from "@vue/reactivity";
+import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -100,18 +99,13 @@ export default {
       e.stopPropagation();
     }
 
-    const bookmarkNoteRows = computed(() => {
-      if(bookmark.value.notes === null) return 2;
-      return Array.from(bookmark.value.notes.matchAll(/\n/g)).length + 2
-    });
-
     function setFocus(value) {
       android.reportInputFocus(value);
     }
 
     return {
       setFocus, showNote, editMode, closeNote, areYouSure, infoShown,
-      toggleEditMode, removeBookmark,  assignLabels,  bookmark, bookmarkNoteRows,
+      toggleEditMode, removeBookmark,  assignLabels,  bookmark,
       ...useCommon()
     };
   },
