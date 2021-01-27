@@ -189,7 +189,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         val redownloadTextView = findViewById<TextView>(R.id.redownloadMessage)
         if (previousInstallDetected) {
             // do something
-            Log.i(TAG, "A previous install was detected")
+            Log.d(TAG, "A previous install was detected")
             redownloadTextView.text = getString(R.string.redownload_message)
             redownloadTextView.visibility = View.VISIBLE
             redownloadButton?.setOnClickListener {

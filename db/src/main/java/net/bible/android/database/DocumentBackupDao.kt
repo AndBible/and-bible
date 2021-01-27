@@ -17,6 +17,9 @@ interface DocumentBackupDao {
     @Insert
     fun insertDocuments(documents: List<DocumentBackup>)
 
+    @Query("""SELECT * FROM DocumentBackup WHERE osisId = :osisId""")
+    fun getBook(osisId: String): DocumentBackup
+
     @Query("""SELECT * from DocumentBackup""")
     fun getKnownInstalled(): List<DocumentBackup>
 

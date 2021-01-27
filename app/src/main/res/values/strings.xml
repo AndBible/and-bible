@@ -680,4 +680,5 @@
     <string name="assign_labels_new_bookmark">Assign labels to new bookmark</string>
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
+    <string name="download_dialog_message">The following books could not be downloaded:</string>
 </resources>
