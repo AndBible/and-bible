@@ -36,7 +36,7 @@ import {useCommon} from "@/composables";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
-  name: "AmbiguousSelection.vue",
+  name: "AmbiguousSelection",
   emits: ["close"],
   components: {Modal, FontAwesomeIcon},
   props: {selections: {type: Array, required: false}},

@@ -16,22 +16,24 @@
   -->
 
 <template>
-  <teleport to="#notes">
+  <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
-    <div @click.stop class="modal-content"
-    >
-      <div @click="$emit('close')" class="modal-header">
-        <span class="title">
-          <slot name="title"/>
-        </span>
-      </div>
-      <div class="modal-body">
-        <p><slot/></p>
-      </div>
-      <div class="modal-footer">
-        <slot name="footer">
-          <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
-        </slot>
+    <div :class="{blocking}">
+      <div @click.stop :class="{'modal-content': true, blocking}"
+      >
+        <div @click="$emit('close')" class="modal-header">
+          <span class="title">
+            <slot name="title"/>
+          </span>
+        </div>
+        <div class="modal-body">
+          <slot/>
+        </div>
+        <div class="modal-footer">
+          <slot name="footer">
+            <button class="button" @click="$emit('close')">{{strings.closeModal}}</button>
+          </slot>
+        </div>
       </div>
     </div>
   </teleport>
@@ -61,7 +63,7 @@ export default {
 .modal-backdrop {
   display: block;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   padding-top: 10px;
   left: 0;
   top: 0;
@@ -72,10 +74,13 @@ export default {
 }
 
 .modal-content {
-  z-index: 2;
+  z-index: 1;
+  .blocking & {
+    z-index: 3;
+  }
   position: fixed;
   background-color: #fefefe;
-  top: calc(var(--top-offset) + 20pt);
+  top: calc(var(--top-offset) + 10pt);
   margin-left: -40%;
   width: 80%;
   left: 50%;
@@ -108,9 +113,10 @@ export default {
 }
 
 .modal-body {
-  max-height: calc(100vh - var(--top-offset) - 70pt);
-  overflow: auto;
-  padding: 2px 16px;
+  --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 85pt);
+  max-height: var(--max-height);
+  padding: 5px 5px;
+  margin: 5pt 5pt;
 }
 
 .modal-footer {

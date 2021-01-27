@@ -96,5 +96,10 @@ class BibleJavascriptInterface(
         mainBibleActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(link)))
     }
 
+    @JavascriptInterface
+    fun setActionMode(enabled: Boolean) {
+        bibleView.actionModeEnabled = enabled
+    }
+
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

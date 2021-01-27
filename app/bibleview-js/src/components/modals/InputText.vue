@@ -18,9 +18,9 @@
 <template>
   <Modal v-if="show" @close="show=false" blocking>
     <template #title>
-      <slot name="title"/>
+      <slot/>
     </template>
-    <slot/>
+    <input class="text-input" ref="inputElement" :placeholder="strings.inputPlaceholder" v-model="text"/>
     <template #footer>
       <button class="button" @click="ok">{{strings.ok}}</button>
       <button class="button" @click="cancel">{{strings.cancel}}</button>
@@ -33,30 +33,39 @@ import Modal from "@/components/modals/Modal";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {Deferred} from "@/utils";
+import {nextTick} from "@vue/runtime-core";
 export default {
-  name: "AreYouSure",
+  name: "InputText",
   components: {Modal},
   setup() {
+    const text = ref("");
     const show = ref(false);
+    const inputElement = ref(null);
     let promise = null;
-    async function areYouSure() {
+    async function inputText(initialValue="") {
+      text.value =initialValue;
       show.value = true;
       promise = new Deferred();
+      await nextTick();
+      inputElement.value.focus();
       const result = await promise.wait()
       show.value = false;
       return result;
     }
     function ok() {
-      promise.resolve(true);
+      promise.resolve(text.value);
     }
     function cancel() {
-      promise.resolve(false);
+      promise.resolve(null);
     }
-    return {show, areYouSure, ok, cancel, ...useCommon()};
+    return {show, inputText, ok, cancel, text, inputElement, ...useCommon()};
   }
 }
 </script>
 
 <style scoped>
-
+.text-input {
+  padding: 5pt;
+  margin: 5pt;
+}
 </style>

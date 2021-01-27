@@ -183,7 +183,12 @@ export function useAndroid({bookmarks}, config) {
         android.openExternalLink(link);
     }
 
+    function setActionMode(value) {
+        android.setActionMode(value);
+    }
+
     const exposed = {
+        setActionMode,
         reportInputFocus,
         saveBookmarkNote,
         requestPreviousChapter,

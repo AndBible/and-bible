@@ -352,7 +352,7 @@ export function useBookmarks(documentId,
 
     function highlightStyleRange(styleRange) {
         const [[startOrdinal, startOff], [endOrdinal, endOff]] = styleRange.ordinalAndOffsetRange;
-        let element;
+        let firstElement, lastElement;
         const style = styleForStyleRange(styleRange)
 
         const bookmarks = styleRange.bookmarks.map(bId => bookmarkMap.get(bId));
@@ -364,12 +364,13 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = new Color(bookmarkLabels_[0].color).darken(0.2).hsl().string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {icon, color, title});
+                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {icon, color, title});
             }
         }
 
         if(!startOff && !endOff) {
-            element = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
+            firstElement = document.querySelector(`#doc-${documentId} #v-${startOrdinal}`);
+            lastElement = firstElement;
             const lastOrdinal = (endOff === null ? endOrdinal : endOrdinal - 1)
             for(let ord = startOrdinal; ord <= lastOrdinal; ord ++) {
                 const elem = document.querySelector(`#doc-${documentId} #v-${ord}`);
@@ -398,7 +399,8 @@ export function useBookmarks(documentId,
             const highlightResult = highlightRange(range, 'span', {style});
             if(highlightResult) {
                 const {undo, highlightElements} = highlightResult;
-                element = highlightElements[0];
+                firstElement = highlightElements[0];
+                lastElement = highlightElements[highlightElements.length - 1];
                 highlightElements.forEach(elem => elem.addEventListener("click", event => addBookmarkEventFunctions(event)));
                 undoHighlights.push(undo);
             } else {
@@ -417,8 +419,8 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon: "headphones", color}));
-                element.parentElement.insertBefore(iconElement, element);
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {title, icon: "headphones", color}));
+                firstElement.parentElement.insertBefore(iconElement, firstElement);
                 undoHighlights.push(() => iconElement.remove());
             }
             if(b.notes && config.showMyNotes) {
@@ -433,8 +435,8 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b), {title, icon, color}));
-                element.parentElement.insertBefore(iconElement, element);
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {title, icon, color}));
+                lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }
         }

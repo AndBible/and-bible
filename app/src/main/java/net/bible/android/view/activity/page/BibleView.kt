@@ -283,6 +283,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    var actionModeEnabled: Boolean = true
+
     fun stopSelection(removeRanges: Boolean = false) {
         currentSelection = null
         menuPrepared = false
@@ -298,6 +300,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            if(!actionModeEnabled) return true
             val wasUpdated2 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated1 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
@@ -343,6 +346,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            if(!actionModeEnabled) return true
             val wasUpdated1 = callback.onPrepareActionMode(mode, menu)
             val wasUpdated2 = onPrepareActionMenu(mode, menu)
             return wasUpdated1 || wasUpdated2
@@ -449,7 +453,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     object UriConstants {
         const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
-        const val SCHEME_REFERENCE = "ab-reference"
+        const val SCHEME_REFERENCE = "osis"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 

@@ -16,19 +16,8 @@
   -->
 
 <template>
-  <Modal v-if="showNote" @close="closeNote">
-    <template v-if="editMode">
-      <textarea
-          @focusin="setFocus(true)"
-          @focusout="setFocus(false)"
-          :placeholder="strings.editNotePlaceholder"
-          class="edit-area"
-          v-model="bookmark.notes"
-      />
-    </template>
-    <template v-else>
-      <p @click="editMode=true">{{bookmark.notes}}</p>
-    </template>
+  <Modal v-if="showBookmark" @close="closeBookmark">
+    <EditableText :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
     <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
@@ -37,17 +26,23 @@
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
     </div>
     <template #title>
+      <span :style="`color:${labelColor}`">
+        <FontAwesomeIcon v-if="bookmark.notes" icon="edit"/>
+        <FontAwesomeIcon v-else icon="bookmark"/>
+      </span>
       {{ sprintf(strings.bookmarkTitle, bookmark.verseRange) }}
-      <FontAwesomeIcon v-if="bookmark.notes" @click="toggleEditMode" icon="edit"/>
     </template>
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
       <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
       <button class="button" @click="infoShown = !infoShown">{{strings.bookmarkInfo}}</button>
-      <button class="button right" @click="closeNote">{{strings.closeModal}}</button>
+      <button class="button right" @click="closeBookmark">{{strings.closeModal}}</button>
     </template>
   </Modal>
   <AreYouSure ref="areYouSure">
+    <template #title>
+      {{ strings.removeBookmarkConfirmationTitle }}
+    </template>
     {{ strings.removeBookmarkConfirmation }}
   </AreYouSure>
 </template>
@@ -55,57 +50,68 @@
 <script>
 import Modal from "@/components/modals/Modal";
 import {Events, setupEventBusListener} from "@/eventbus";
-import {ref} from "@vue/reactivity";
+import {computed, ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
+import Color from "color";
+import EditableText from "@/components/EditableText";
+import {debounce} from "lodash";
+
 export default {
   name: "BookmarkModal",
-  components: {Modal, FontAwesomeIcon, AreYouSure},
+  components: {EditableText, Modal, FontAwesomeIcon, AreYouSure},
   setup() {
-    const showNote = ref(false);
-    const editMode = ref(false);
+    const showBookmark = ref(false);
     const android = inject("android");
     const bookmark = ref(null);
     const areYouSure = ref(null);
     const infoShown = ref(false);
+    const label = ref({});
 
-    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b) => {
-      showNote.value = true;
+    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels) => {
+      showBookmark.value = true;
       bookmark.value = b;
-      editMode.value = !b.notes;
+      label.value = labels[0];
     })
 
-    function closeNote() {
-      showNote.value = false;
+    function closeBookmark() {
+      showBookmark.value = false;
       android.saveBookmarkNote(bookmark.value.id, bookmark.value.notes);
     }
 
     function assignLabels() {
       android.assignLabels(bookmark.value.id);
-      showNote.value = false;
+      showBookmark.value = false;
     }
 
     async function removeBookmark() {
       if(await areYouSure.value.areYouSure()) {
-        showNote.value = false;
+        showBookmark.value = false;
         android.removeBookmark(bookmark.value.id);
       }
     }
 
-    function toggleEditMode(e) {
-      editMode.value = !editMode.value;
-      e.stopPropagation();
-    }
+    const bookmarkComputed = computed(() => {
+      if(bookmark.value) return bookmark.value;
+      return {
+        id: null,
+        notes: null,
+      }
+    });
 
-    function setFocus(value) {
-      android.reportInputFocus(value);
-    }
+    const labelColor = computed(() => {
+        return Color(label.value.color).darken(0.2).hsl().string();
+    });
+
+    const changeNote = debounce((text) => {
+      bookmark.value.notes = text;
+    }, 500)
 
     return {
-      setFocus, showNote, editMode, closeNote, areYouSure, infoShown,
-      toggleEditMode, removeBookmark,  assignLabels,  bookmark,
+      showBookmark, closeBookmark, areYouSure, infoShown,
+      removeBookmark,  assignLabels,  bookmark: bookmarkComputed, labelColor, changeNote,
       ...useCommon()
     };
   },
@@ -113,14 +119,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.edit-area {
-  width: 100%;
-  .night & {
-    background-color: black;
-    color: white;
-  }
-}
 .info {
+  background: rgba(0,0,0,0.1);
+  .night & {
+    background: rgba(255,255,255,0.1);
+
+  }
+  margin-top: 10pt;
   font-size: 80%;
 }
+
 </style>

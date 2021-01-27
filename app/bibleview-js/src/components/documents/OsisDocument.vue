@@ -26,7 +26,7 @@
 import OsisFragment from "@/components/documents/OsisFragment";
 
 export default {
-  name: "OsisDocument.vue",
+  name: "OsisDocument",
   components: {OsisFragment},
   props: {
     document: {type: Object, required: true},

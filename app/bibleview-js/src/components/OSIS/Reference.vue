@@ -38,7 +38,7 @@ export default {
       return "osis=" + encodeURI(this.osisRef)
     },
     link({queryParams}) {
-      return `ab-reference://?${queryParams}`
+      return `osis://?${queryParams}`
     }
   },
   setup(props) {

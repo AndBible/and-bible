@@ -18,9 +18,11 @@
 <template>
   <div @click="clicked" :class="{night: config.nightMode}" :style="`--bottom-offset: ${config.bottomOffset}px; --top-offset: ${config.topOffset}px;`">
     <div :style="`height:${config.topOffset}px`"/>
-    <div id="notes"/>
-    <BookmarkModal/>
-    <AmbiguousSelection v-if="ambiguousSelection" :selections="ambiguousSelection" @close="ambiguousSelection = null"/>
+    <div id="modals"/>
+    <template v-if="mounted">
+      <BookmarkModal/>
+      <AmbiguousSelection v-if="ambiguousSelection" :selections="ambiguousSelection" @close="ambiguousSelection = null"/>
+    </template>
     <ErrorBox/>
     <DevelopmentMode :current-verse="currentVerse" v-if="config.developmentMode"/>
     <div id="top" ref="topElement" :style="styleConfig">
@@ -31,7 +33,7 @@
 </template>
 <script>
   import Document from "@/components/documents/Document";
-  import {nextTick, provide, reactive, watch} from "@vue/runtime-core";
+  import {nextTick, onMounted, onUnmounted, provide, reactive, watch} from "@vue/runtime-core";
   import {useConfig, useFontAwesome, useStrings, useVerseNotifier} from "@/composables";
   import {testBookmarkLabels, testData} from "@/testdata";
   import {ref} from "@vue/reactivity";
@@ -124,11 +126,14 @@
           emit(Events.CLOSE_MODAL);
         }
       }
+      const mounted = ref(false);
+      onMounted(() => mounted.value = true)
+      onUnmounted(() => mounted.value = false)
 
       return {
         makeBookmarkFromSelection: globalBookmarks.makeBookmarkFromSelection,
         updateBookmarks: globalBookmarks.updateBookmarks, ambiguousSelection,
-        config, strings, documents, topElement, currentVerse, clicked
+        config, strings, documents, topElement, currentVerse, clicked, mounted
       };
     },
     computed: {

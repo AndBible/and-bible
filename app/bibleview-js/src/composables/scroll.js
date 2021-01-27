@@ -120,6 +120,7 @@ export function useScroll(config) {
         setToolbarOffset(topOffset, bottomOffset, {immediate: true, doNotScroll: !doScroll});
 
         await nextTick(); // Do scrolling only after view has been settled (fonts etc)
+        await nextTick(); // One more nextTick() due to 2-tick behavior of replaceDocument
 
         if (jumpToOrdinal != null) {
             scrollToVerse(`v-${jumpToOrdinal}`, true);
