@@ -113,7 +113,7 @@ export default {
 <style lang="scss">
 @import '~pell/src/pell.scss';
 .pell-content {
-  height: 150pt;
+  height: 60pt;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
 }
 
@@ -133,8 +133,6 @@ export default {
 <style scoped lang="scss">
 .edit-area {
   width: 100%;
-  height: 100%;
-  max-height: var(--max-height);
   .night & {
     background-color: black;
     color: white;

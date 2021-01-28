@@ -121,7 +121,7 @@ export default {
 }
 
 .modal-body {
-  --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 85pt);
+  --max-height: calc(100vh - var(--top-offset) - var(--bottom-offset) - 110pt);
   padding: 5px 5px;
   margin: 5pt 5pt;
 }
