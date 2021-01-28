@@ -313,7 +313,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(!initialized)
             requestSdcardPermission()
 
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
         speakTransport.visibility = View.GONE
 
         if(!initialized) {
