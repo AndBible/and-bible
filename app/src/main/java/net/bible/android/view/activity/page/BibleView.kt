@@ -1030,7 +1030,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         val jumpToId = "v-${toVerse.ordinal}"
         val now = if(!contentVisible || restoreOngoing) "true" else "false"
-        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', $now, $topOffset);")
+        executeJavascript("bibleView.emit('scroll_to_verse', '$jumpToId', {now: $now, delta: $topOffset});")
     }
 
     private fun executeJavascriptOnUiThread(javascript: String) {

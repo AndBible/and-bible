@@ -44,6 +44,14 @@ class CurrentMyNotePage internal constructor(
         return NotesDocument(bookmarksForChapter, verseRange)
     }
 
+    override fun next() {
+        setKey(pageManager.currentBible.getKeyPlus(1))
+    }
+
+    override fun previous() {
+        setKey(pageManager.currentBible.getKeyPlus(-1))
+    }
+
     override val currentDocument: Book
 		get () {
 			try {

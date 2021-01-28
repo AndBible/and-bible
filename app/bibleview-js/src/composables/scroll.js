@@ -84,13 +84,16 @@ export function useScroll(config) {
         }
     }
 
-    function scrollToVerse(toId, now, delta = config.topOffset) {
+    function scrollToVerse(toId, {now = false, delta = config.topOffset, force = false}) {
         console.log("scrollToVerse", toId, now, delta);
         stopScrolling();
         if(delta !== config.topOffset) {
             config.topOffset = delta;
         }
-        const toElement = document.getElementById(toId)
+        let toElement = document.getElementById(toId)
+        if(force && toElement == null) {
+            toElement = document.getElementById("top")
+        }
 
         if (toElement != null) {
             const diff = toElement.offsetTop - window.pageYOffset;
@@ -123,7 +126,7 @@ export function useScroll(config) {
         await nextTick(); // One more nextTick() due to 2-tick behavior of replaceDocument
 
         if (jumpToOrdinal != null) {
-            scrollToVerse(`v-${jumpToOrdinal}`, true);
+            scrollToVerse(`v-${jumpToOrdinal}`, {now: true, force: true});
         } else if (doScroll) {
             console.log("jumpToYOffsetRatio", jumpToYOffsetRatio);
             const
@@ -132,7 +135,7 @@ export function useScroll(config) {
             doScrolling(y, 0)
         } else {
             console.log("scrolling to beginning of document (now)");
-            scrollToVerse(null, true);
+            scrollToVerse(null, {now: true, force: true});
         }
 
         console.log("Content is set ready!");
