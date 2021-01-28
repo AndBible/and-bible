@@ -17,7 +17,7 @@
 
 <template>
   <Modal v-if="showBookmark" @close="closeBookmark">
-    <EditableText constraint-height :edit-directly="!bookmark.notes" :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
+    <EditableText constraint-height :edit-directly="editDirectly" :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
     <div v-if="bookmark.notes" class="my-notes-link">
       <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
     </div>
@@ -72,8 +72,9 @@ export default {
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const label = ref({});
-
-    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels) => {
+    const editDirectly = ref(false);
+    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels, {open = false} = {}) => {
+      editDirectly.value = open || !b.notes;
       showBookmark.value = true;
       bookmark.value = b;
       label.value = labels[0];
@@ -113,7 +114,7 @@ export default {
     }, 500)
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown,
+      showBookmark, closeBookmark, areYouSure, infoShown, editDirectly,
       removeBookmark,  assignLabels,  bookmark: bookmarkComputed, labelColor, changeNote,
       ...useCommon()
     };

@@ -68,14 +68,8 @@ export default {
 
     function editNote(b) {
       const bookmarkLabels_ = b.labels.map(l => globalBookmarks.bookmarkLabels.get(l)).filter(l => !l.noHighlight);
-      emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_)
+      emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_, {open: true})
     }
-
-    function scrollToVerse(ordinal) {
-
-    }
-
-    setupEventBusListener(Events.SCROLL_TO_VERSE, scrollToVerse)
 
     return {notes, save, editNotes, editNote, ...useCommon()}
   }
