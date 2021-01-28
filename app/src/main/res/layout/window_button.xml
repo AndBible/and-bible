@@ -88,8 +88,8 @@
         />
     <ImageView
         android:id="@+id/docType"
-        android:layout_width="15dip"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="15dip"
         android:layout_marginTop="2dip"
         android:layout_marginRight="2dip"
         app:tint="@color/bar_window_button_category_tint"
