@@ -48,8 +48,7 @@ class CurrentBiblePage(
 
     override val bookCategory = BookCategory.BIBLE
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = GridChoosePassageBook::class.java
+    override val keyChooserActivity = GridChoosePassageBook::class.java
 
     override fun next() {
         Log.d(TAG, "Next")

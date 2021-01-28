@@ -40,8 +40,7 @@ class CurrentMapPage internal constructor(
 
     override val bookCategory = BookCategory.MAPS
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = ChooseMapKey::class.java
+    override val keyChooserActivity = ChooseMapKey::class.java
 
     /** set key without notification
      *

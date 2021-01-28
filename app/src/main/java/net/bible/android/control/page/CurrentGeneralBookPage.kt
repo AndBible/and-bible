@@ -40,8 +40,7 @@ class CurrentGeneralBookPage internal constructor(
 
     override val bookCategory = BookCategory.GENERAL_BOOK
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = ChooseGeneralBookKey::class.java
+    override val keyChooserActivity = ChooseGeneralBookKey::class.java
 
     /** set key without notification
      *

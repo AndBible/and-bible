@@ -41,8 +41,7 @@ class CurrentDictionaryPage internal constructor(
 {
     override val bookCategory = BookCategory.DICTIONARY
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = ChooseDictionaryWord::class.java
+    override val keyChooserActivity = ChooseDictionaryWord::class.java
 
     override fun doSetKey(key: Key?) {
         this._key = key

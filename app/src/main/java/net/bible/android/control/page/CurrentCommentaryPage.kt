@@ -17,7 +17,6 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -33,6 +32,7 @@ import org.crosswire.jsword.passage.Verse
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
 open class CurrentCommentaryPage internal constructor(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
@@ -44,8 +44,7 @@ open class CurrentCommentaryPage internal constructor(
 
     override val bookCategory = BookCategory.COMMENTARY
 
-    override val keyChooserActivity: Class<out Activity?>?
-        get() = GridChoosePassageBook::class.java
+    override val keyChooserActivity = GridChoosePassageBook::class.java
 
     /* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
@@ -84,7 +83,7 @@ open class CurrentCommentaryPage internal constructor(
                     nextVer = bibleTraverser.getNextVerse(currentPassageBook, nextVer)
                 }
             } else { // move to next book if required
-// allow standard loop structure by changing num to positive
+                     // allow standard loop structure by changing num to positive
                 num = -num
                 for (i in 0 until num) {
                     nextVer = bibleTraverser.getPrevVerse(currentPassageBook, nextVer)
@@ -112,9 +111,6 @@ open class CurrentCommentaryPage internal constructor(
 	 * @see net.bible.android.control.CurrentPage#getKey()
 	 */
     override val key: Key get() = currentBibleVerse.getVerseSelected(versification)
-
-    open val numberOfVersesDisplayed: Int
-        get() = 1
 
     override val isSingleKey = true
 
