@@ -181,7 +181,7 @@ data class ClientBookmark(val id: Long,
             bookAbbreviation = bookmark.book?.abbreviation,
             createdAt = bookmark.createdAt.time,
             lastUpdatedOn = bookmark.lastUpdatedOn.time,
-            notes = bookmark.notes,
+            notes = if(bookmark.notes?.trim()?.isEmpty() == true) null else bookmark.notes,
             verseRange = bookmark.verseRange.name,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
         )

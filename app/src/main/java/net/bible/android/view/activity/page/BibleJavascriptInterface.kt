@@ -61,7 +61,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveBookmarkNote(bookmarkId: Long, note: String?) {
-        bibleView.bookmarkControl.saveBookmarkNote(bookmarkId, note)
+        bibleView.bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
