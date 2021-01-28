@@ -176,8 +176,8 @@ class MyNotes : ListActivityBase(), ActionModeActivity {
     private fun myNoteSelected(myNote: BookmarkEntities.Bookmark) {
         Log.d(TAG, "User Note selected:" + myNote.verseRange)
         try {
-            val currentDoc = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument
-            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(currentDoc, myNote.verseRange)
+            val myNotes = activeWindowPageManagerProvider.activeWindowPageManager.currentMyNotePage.currentDocument
+            activeWindowPageManagerProvider.activeWindowPageManager.setCurrentDocumentAndKey(myNotes, myNote.verseRange)
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show note", e)
             instance.showErrorMsg(R.string.error_occurred, e)
