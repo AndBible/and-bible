@@ -161,24 +161,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) isInMultiWindowMode else false
 
     // Top offset with only statusbar and toolbar
-    val topOffset2: Int get() {
-        return topOffset1 + if (!(isFullScreen && actionMode == null)) actionBarHeight else 0
-    }
+    val topOffset2 = 0
+
     // Top offset with only statusbar and toolbar taken into account always
     val topOffsetWithActionBar get() = topOffset1 + actionBarHeight
 
     // Offsets with system insets only
-    private var topOffset1 = 0
-        get() = if(isFullScreen && actionMode == null) 0 else field
-
-    private var bottomOffset1 = 0
-        get() = if(isFullScreen || (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && multiWinMode)) 0 else field
-
-    var rightOffset1 = 0
-        get() = if(isFullScreen) 0 else field
-
-    var leftOffset1 = 0
-        get() = if(isFullScreen) 0 else field
+    private val topOffset1 = 0
+    private val bottomOffset1 = 0
+    val rightOffset1 = 0
+    val leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
@@ -217,34 +209,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         backupControl.clearBackupDir()
         windowRepository.initialize()
-        var firstTime = true
 
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, insets: WindowInsetsCompat ->
-            if (!isPaused) {
-                val heightChanged =
-                    bottomOffset1 != insets.systemWindowInsetBottom || topOffset1 != insets.systemWindowInsetTop
-                val widthChanged =
-                    leftOffset1 != insets.systemWindowInsetLeft || rightOffset1 != insets.systemWindowInsetRight
-                bottomOffset1 = insets.systemWindowInsetBottom
-                topOffset1 = insets.systemWindowInsetTop
-                leftOffset1 = insets.systemWindowInsetLeft
-                rightOffset1 = insets.systemWindowInsetRight
-                Log.d(TAG, "onApplyWindowInsets $bottomOffset1 $topOffset1 $leftOffset1 $rightOffset1")
-
-                if (firstTime) {
-                    postInitialize()
-                }
-
-                if (widthChanged || heightChanged)
-                    displaySizeChanged(firstTime)
-
-                if (firstTime)
-                    firstTime = false
-            }
-
-            ViewCompat.onApplyWindowInsets(view, insets)
-        }
-
+        postInitialize()
 
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
@@ -905,7 +871,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val sharedActivityState = SharedActivityState.instance
 
     private fun hideSystemUI() {
-        var uiFlags = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        var uiFlags = (
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             or View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -923,12 +890,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
-        var uiFlags = (
-            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            )
-
+        var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!ScreenSettings.nightMode) {
                 uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
