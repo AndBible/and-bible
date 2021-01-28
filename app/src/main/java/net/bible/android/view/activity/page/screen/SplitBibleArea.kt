@@ -99,6 +99,8 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
     }
 }
 
+class RestoreButtonsVisibilityChanged
+
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(
 ): FrameLayout(mainBibleActivity) {
@@ -575,6 +577,7 @@ class SplitBibleArea(
     private var restoreButtonsVisible = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", true)
         set(value) {
             CommonUtils.sharedPreferences.edit().putBoolean("restoreButtonsVisible", value).apply()
+            ABEventBus.getDefault().post(RestoreButtonsVisibilityChanged())
             field = value
         }
 

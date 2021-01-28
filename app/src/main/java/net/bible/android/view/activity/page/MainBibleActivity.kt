@@ -50,8 +50,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.android.synthetic.main.main_bible_view.*
@@ -149,6 +147,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var navigationBarHeight = 0
     private var actionBarHeight = 0
     private var transportBarHeight = 0
+    private var windowButtonHeight = 0
 
     private var hasHwKeys: Boolean = false
 
@@ -174,6 +173,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
+
+    // Bottom offset with navigation bar and transport bar and window buttons
+    val bottomOffset3 get() = bottomOffset2 + if (restoreButtonsVisible) windowButtonHeight else 0
+
+    private val restoreButtonsVisible get() = CommonUtils.sharedPreferences.getBoolean("restoreButtonsVisible", false)
 
     private var isPaused = false
     /**
@@ -210,7 +214,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         backupControl.clearBackupDir()
         windowRepository.initialize()
 
-        postInitialize()
+        runOnUiThread {
+            postInitialize()
+            displaySizeChanged(true)
+        }
 
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
@@ -229,6 +236,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
             transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        }
+
+        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
+            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
 
         toolbar.setContentInsetsAbsolute(0, 0)

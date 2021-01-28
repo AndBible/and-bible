@@ -32,6 +32,7 @@
 
 		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
+		<item name="windowButtonHeight">40dp</item>
 		<item name="toolbarTextColor">@color/white</item>
 
 		<item name="separatorBackgroundColor">#B1B1B1</item>

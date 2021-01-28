@@ -85,6 +85,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.PageTiltScroller
+import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
@@ -913,7 +914,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if(isTopWindow && contentVisible && window.isVisible)
+        if((isTopWindow || isBottomWindow) && contentVisible && window.isVisible)
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
+    }
+
+    fun onEvent(event: RestoreButtonsVisibilityChanged) {
+        if(isBottomWindow && contentVisible && window.isVisible)
             executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset);")
     }
 
@@ -937,7 +943,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     val bottomOffset
         get() =
             if(isBottomWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.bottomOffset2
+                (mainBibleActivity.bottomOffset3
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 
