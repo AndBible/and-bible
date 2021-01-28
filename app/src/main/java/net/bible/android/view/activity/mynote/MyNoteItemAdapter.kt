@@ -18,6 +18,8 @@
 package net.bible.android.view.activity.mynote
 
 import android.content.Context
+import android.os.Build
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -60,7 +62,13 @@ class MyNoteItemAdapter(
         // set value for the second text field
         if (view.text2 != null) {
             try {
-                view.text2.text = item.notes
+                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    Html.fromHtml(item.notes)
+                }
+
+                view.text2.text = spanned
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
                 view.text2.text = ""
