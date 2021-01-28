@@ -198,11 +198,13 @@ open class CurrentPageManager @Inject constructor(
     }
 
     fun getBookPage(book: Book?): CurrentPage? {
-        // book should never be null but it happened on one user's phone
         return if (book == null) {
             null
         } else {
-            getBookPage(book.bookCategory.documentCategory)
+            if(book.osisID == "Commentaries.MyNote")
+                currentMyNotePage
+            else
+                getBookPage(book.bookCategory.documentCategory)
         }
 
     }

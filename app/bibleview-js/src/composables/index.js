@@ -165,6 +165,7 @@ export function useConfig() {
 
 export function useStrings() {
     return {
+        openMyNotes: "Open in My Notes window",
         chapterNum: "— %d —",
         verseNum: "%d ",
         noteText: "Footnotes (%s)",

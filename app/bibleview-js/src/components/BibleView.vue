@@ -68,6 +68,7 @@
       useInfiniteScroll(config, android, documents);
 
       async function replaceDocument(...docs) {
+        emit(Events.CLOSE_MODAL);
         clearLog();
         globalBookmarks.clearBookmarks();
         documents.splice(0)

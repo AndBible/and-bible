@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
@@ -63,7 +64,8 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class LinkControl @Inject constructor(
-	private val windowControl: WindowControl,
+    private val windowControl: WindowControl,
+	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
 	private val swordDocumentFacade: SwordDocumentFacade,
 	private val errorReportControl: ErrorReportControl)
@@ -290,6 +292,13 @@ class LinkControl @Inject constructor(
 
     fun setWindowMode(windowMode: String) {
         this.windowMode = windowMode
+    }
+
+    fun openMyNotes(id: Long): Boolean {
+        val bookmark = bookmarkControl.bookmarksByIds(listOf(id)).firstOrNull() ?: return false
+        val key = bookmark.verseRange
+        showLink(currentPageManager.currentMyNotePage.currentDocument, key)
+        return true
     }
 
     companion object {

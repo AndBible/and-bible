@@ -72,7 +72,6 @@ import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
-import net.bible.android.control.page.NotesDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -457,6 +456,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_ERROR = "ab-error"
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "osis"
+        const val SCHEME_MYNOTES = "my-notes"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -489,6 +489,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 linkControl.loadApplicationUrl(links.first())
             }
             true
+        }
+        UriConstants.SCHEME_MYNOTES -> {
+            val id = uri.getQueryParameter("id")?.toLongOrNull()
+            if(id != null) {
+                linkControl.openMyNotes(id)
+            } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
             val osisRef = uri.getQueryParameter("osis")

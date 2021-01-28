@@ -18,6 +18,9 @@
 <template>
   <Modal v-if="showBookmark" @close="closeBookmark">
     <EditableText constraint-height :edit-directly="!bookmark.notes" :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
+    <div class="my-notes-link">
+      <a v-if="bookmark.notes" :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+    </div>
     <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
@@ -127,6 +130,10 @@ export default {
   }
   margin-top: 10pt;
   font-size: 80%;
+}
+.my-notes-link {
+  padding-top: 10pt;
+  font-size: smaller;
 }
 
 </style>
