@@ -85,6 +85,7 @@ export default {
 }
 
 .modal-content {
+  opacity: 0.95;
   z-index: 1;
   .blocking & {
     z-index: 3;
