@@ -42,7 +42,7 @@ open class CurrentCommentaryPage internal constructor(
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
 
-    override val bookCategory = BookCategory.COMMENTARY
+    override val documentCategory = DocumentCategory.COMMENTARY
 
     override val keyChooserActivity = GridChoosePassageBook::class.java
 

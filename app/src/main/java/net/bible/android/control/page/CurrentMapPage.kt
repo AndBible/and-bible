@@ -38,7 +38,7 @@ class CurrentMapPage internal constructor(
     CurrentPage
 {
 
-    override val bookCategory = BookCategory.MAPS
+    override val documentCategory = DocumentCategory.MAPS
 
     override val keyChooserActivity = ChooseMapKey::class.java
 

@@ -18,39 +18,31 @@
 package net.bible.android.control.page
 
 import android.util.Log
-import net.bible.android.control.mynote.MyNoteDAO
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.control.versification.ConvertibleVerseRange
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeSwordBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
-import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.KeyUtil
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import java.io.IOException
 
-/** Provide information for My Note page
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
 class CurrentMyNotePage internal constructor(
 	currentVerse: CurrentBibleVerse,
 	bibleTraverser: BibleTraverser,
 	swordContentFacade: SwordContentFacade,
 	swordDocumentFacade: SwordDocumentFacade,
-	private val myNoteDAO: MyNoteDAO,
     pageManager: CurrentPageManager
 ) : CurrentCommentaryPage(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, pageManager), CurrentPage
 {
-    private var currentNoteVerseRange: ConvertibleVerseRange? = null
-    // just one fake book for every note
     private var fakeMyNoteBook: Book? = null
     private var fakeMyNoteBookVersification: Versification? = null
-    override val currentPageContent: String get() = myNoteDAO.getMyNoteTextByKey(key)
+    override val currentPageContent: Document get() {
+        val verseRange = CommonUtils.getWholeChapter(currentBibleVerse.verse, false)
+        val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+        return NotesDocument(bookmarksForChapter, verseRange)
+    }
 
     override val currentDocument: Book
 		get () {
@@ -79,27 +71,11 @@ class CurrentMyNotePage internal constructor(
 	//TODO doesn't work currently - enable later
 	override val isSpeakable: Boolean = false
 
-    override val bookCategory = BookCategory.OTHER
+    override val documentCategory = DocumentCategory.MYNOTE
 
     private val currentVersification: Versification
         get() = currentBibleVerse.versificationOfLastSelectedVerse
 
-    /**
-     * Set key without notification
-     */
-    override fun doSetKey(key: Key?) {
-        if (key != null) {
-            val verse = KeyUtil.getVerse(key)
-            val verseRange: VerseRange
-            verseRange = if (key is VerseRange) {
-                key
-            } else {
-                VerseRange(verse.versification, verse)
-            }
-            currentNoteVerseRange = ConvertibleVerseRange(verseRange)
-            currentBibleVerse.setVerseSelected(versification, verse)
-        }
-    }
 
     /** Do not run VersePage implementation of localSetCurrentDocument
      * because that is not for notes
@@ -108,27 +84,8 @@ class CurrentMyNotePage internal constructor(
         localSetCurrentDocument(doc, true)
     }
 
-    /* (non-Javadoc)
-	 * @see net.bible.android.control.CurrentPage#getKey()
-	 */
-    override val key: Key
-        get() = if (currentNoteVerseRange != null) {
-            currentNoteVerseRange!!.getVerseRange(versification)
-        } else {
-            currentBibleVerse.getVerseSelected(versification)
-        }
 
-	override fun setKey(key: Key) {
-		_key = key
-        doSetKey(key)
-	}
-
-    override val numberOfVersesDisplayed: Int
-        get() = if (currentNoteVerseRange != null) currentNoteVerseRange!!.verseRange.cardinality else 1
-
-    override val isSingleKey: Boolean get()  {
-        return currentNoteVerseRange == null || currentNoteVerseRange!!.verseRange.cardinality == 1
-    }
+    override val isSingleKey = false
 
     companion object {
         private const val MY_NOTE_DUMMY_CONF = """[MyNote]

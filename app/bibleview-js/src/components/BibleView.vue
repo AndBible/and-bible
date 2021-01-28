@@ -99,8 +99,9 @@
 
       watch(documents, () => {
         if(documents.length > 0) {
-          const id = documents[0].id
-          document.title = `${titlePrefix}/${id} (${process.env.NODE_ENV})`
+          const id = documents[0].id;
+          const type = documents[0].type;
+          document.title = `${titlePrefix}/${type}/${id} (${process.env.NODE_ENV})`
         }
       })
 

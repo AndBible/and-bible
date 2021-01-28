@@ -20,6 +20,7 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.toV11n
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
@@ -32,6 +33,7 @@ import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.Versification
 
 /** Reference to current passage shown by viewer
  *
@@ -46,7 +48,7 @@ class CurrentBiblePage(
 ) : VersePage(true, currentBibleVerse, bibleTraverser, swordContentFacade,
         swordDocumentFacade, pageManager), CurrentPage {
 
-    override val bookCategory = BookCategory.BIBLE
+    override val documentCategory = DocumentCategory.BIBLE
 
     override val keyChooserActivity = GridChoosePassageBook::class.java
 
@@ -188,13 +190,13 @@ class CurrentBiblePage(
             }
         }
 
-    var currentVerseOrdinal: Int
-        get() = currentBibleVerse.verse.ordinal
-        set(value) {
-            val old = currentBibleVerse.verse.ordinal
+    val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
-            if(value != old) {
-                currentBibleVerse.verse = Verse(currentBibleVerse.verse.versification, value)
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification?) {
+            val old = currentBibleVerse.verse.ordinal
+            val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+            if(newVerse.ordinal != old) {
+                currentBibleVerse.verse = newVerse
                 onVerseChange()
             }
         }

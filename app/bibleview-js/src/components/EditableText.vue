@@ -17,14 +17,14 @@
 
 <template>
   <div :style="parentStyle">
-    <div class="edit-button" @click="editMode=!editMode">
+    <div class="edit-button" @click="editMode = !editMode">
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div class="editor-container" v-if="editMode">
       <TextEditor :text="text || ''" @changed="$emit('changed', $event)"/>
     </div>
     <template v-else>
-      <div class="notes-display">
+      <div :class="{'notes-display': true, constraintHeight}">
         <div v-html="text || ''"/>
       </div>
     </template>
@@ -35,19 +35,25 @@
 import {ref} from "@vue/reactivity";
 import TextEditor from "@/components/TextEditor";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {watch} from "@vue/runtime-core";
 
 export default {
   name: "EditableText",
   components: {TextEditor, FontAwesomeIcon},
-  emits: ["changed"],
+  emits: ["changed", "closed"],
   props: {
+    editDirectly:{type: Boolean, default: false},
     text:{type: String, default: null},
-    maxHeight: {type: String, default: null}
+    maxHeight: {type: String, default: null},
+    constraintHeight: {type: Boolean, default: false},
   },
-  setup(props) {
-    const editMode = ref(!props.text);
+  setup(props, {emit}) {
+    const editMode = ref(props.editDirectly);
     const parentStyle = ref("");
     parentStyle.value = props.maxHeight ? `--max-height: ${props.maxHeight};`: "--max-height: 100pt;";
+    watch(editMode, mode => {
+      if(!mode) emit("closed");
+    })
     return {editMode, parentStyle}
   }
 }
@@ -55,10 +61,13 @@ export default {
 
 <style lang="scss" scoped>
 .notes-display {
+  width: calc(100% - 22pt);
+}
+.constraintHeight {
   overflow-y: auto;
-  max-width: calc(100% - 22pt);
   max-height: calc(var(--max-height) - 17px);
 }
+
 .editor-container {
   max-width: calc(100% - 22pt);
 }

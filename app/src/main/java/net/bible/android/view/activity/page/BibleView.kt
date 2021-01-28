@@ -70,6 +70,9 @@ import net.bible.android.control.page.ClientBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
+import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.NotesDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -90,7 +93,6 @@ import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.KeyUtil
@@ -636,8 +638,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var jumpToYOffsetRatio = yOffsetRatio
 
         if (lastUpdated == 0L || updateLocation) {
-            if (currentPage is CurrentBiblePage) {
-                initialVerse = KeyUtil.getVerse(window.pageManager.currentBible.currentBibleVerse.verse)
+            if (listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+                initialVerse = KeyUtil.getVerse(window.pageManager.currentBibleVerse.verse)
             } else {
                 jumpToYOffsetRatio = currentPage.currentYOffsetRatio
             }
@@ -678,7 +680,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    private var initialVerse: Verse? = null
+    internal var initialVerse: Verse? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
 
     fun updateTextDisplaySettings() {
@@ -867,8 +869,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
-        if(document !is BibleDocument) return
-        val clientBookmark = ClientBookmark(event.bookmark, event.labels, document.swordBook.versification)
+        if(document !is DocumentWithBookmarks) return
+        val clientBookmark = ClientBookmark(event.bookmark, event.labels,
+            if(document is BibleDocument) document.swordBook.versification else null
+        )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
@@ -966,7 +970,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private fun doCheckWindows(force: Boolean = false) {
         if(checkWindows || force) {
             executeJavascript("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {doNotScroll: true});")
-            if (window.pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
+            if (window.pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
                 scrollOrJumpToVerse(window.pageManager.currentBible.currentBibleVerse.verse, true)
             }
             checkWindows = false

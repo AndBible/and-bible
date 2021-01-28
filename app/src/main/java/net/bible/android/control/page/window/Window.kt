@@ -31,6 +31,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.page.BibleView
@@ -166,8 +167,8 @@ open class Window (
         var yOffsetRatio: Float? = null
         val currentPage = pageManager.currentPage
 
-        if(currentPage is CurrentBiblePage) {
-            verse = currentPage.currentBibleVerse.verse
+        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            verse = pageManager.currentBibleVerse.verse
         } else {
             yOffsetRatio = currentPage.currentYOffsetRatio
         }

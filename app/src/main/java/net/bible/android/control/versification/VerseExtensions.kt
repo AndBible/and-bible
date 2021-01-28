@@ -29,6 +29,6 @@ fun Verse.toV11n(v11n: Versification): Verse = converter.convert(this, v11n)
 val Verse.entity get() = WorkspaceEntities.Verse(versification.name, book.ordinal, chapter, verse)
 val Verse.chapterVerse: ChapterVerse get() = ChapterVerse(chapter, verse)
 
-fun VerseRange.toV11n(v11n: Versification): VerseRange = VerseRange(v11n, start.toV11n(v11n), end.toV11n(v11n))
+fun VerseRange.toV11n(v11n: Versification?): VerseRange = if(v11n != null) VerseRange(v11n, start.toV11n(v11n), end.toV11n(v11n)) else this
 fun VerseRange.isConvertibleTo(v11n: Versification): Boolean = start.isConvertibleTo(v11n) && end.isConvertibleTo(v11n)
 

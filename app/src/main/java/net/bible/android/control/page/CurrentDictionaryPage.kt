@@ -17,7 +17,6 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.util.Log
 import android.view.Menu
 import net.bible.android.activity.R
@@ -25,7 +24,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -39,7 +37,7 @@ class CurrentDictionaryPage internal constructor(
 ) : CachedKeyPage(false, swordContentFacade, swordDocumentFacade, pageManager),
     CurrentPage
 {
-    override val bookCategory = BookCategory.DICTIONARY
+    override val documentCategory = DocumentCategory.DICTIONARY
 
     override val keyChooserActivity = ChooseDictionaryWord::class.java
 
@@ -83,7 +81,7 @@ class CurrentDictionaryPage internal constructor(
             try {
                 doSetKey(entity.key)
             } catch (e: Exception) {
-                Log.e(TAG, "Error restoring key for document category:" + bookCategory.getName())
+                Log.e(TAG, "Error restoring key for document category:" + documentCategory.name)
             }
         }
         currentYOffsetRatio = entity.currentYOffsetRatio ?: 0f

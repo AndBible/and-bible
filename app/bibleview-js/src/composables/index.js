@@ -201,6 +201,8 @@ export function useStrings() {
         referenceLink: "Open reference link",
         openFootnote: "Open footnote",
         openBookmark: "Open bookmark (labels: %s)",
+        noNotes: "No notes for current chapter",
+        verses: "Verse %s",
     }
 }
 

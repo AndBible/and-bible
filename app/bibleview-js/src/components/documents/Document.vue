@@ -18,6 +18,7 @@
   <OsisDocument v-if="document.type === DocumentTypes.OSIS_DOCUMENT" :document="document"/>
   <BibleDocument v-else-if="document.type === DocumentTypes.BIBLE_DOCUMENT" :document="document"/>
   <ErrorDocument v-else-if="document.type === DocumentTypes.ERROR_DOCUMENT" :document="document"/>
+  <MyNotesDocument v-else-if="document.type === DocumentTypes.MY_NOTES" :document="document"/>
 </template>
 
 <script>
@@ -26,9 +27,10 @@
   import {DocumentTypes} from "@/constants";
   import BibleDocument from "@/components/documents/BibleDocument";
   import {provide} from "@vue/runtime-core";
+  import MyNotesDocument from "@/components/documents/MyNotesDocument";
   export default {
     name: "Document",
-    components: {BibleDocument, ErrorDocument, OsisDocument},
+    components: {MyNotesDocument, BibleDocument, ErrorDocument, OsisDocument},
     props: {
       document: {type: Object, required: true},
     },

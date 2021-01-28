@@ -22,6 +22,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.ChapterVerse
 import net.bible.android.control.page.CurrentPage
+import net.bible.android.control.page.DocumentCategory
 import net.bible.service.device.ScreenSettings
 
 import org.crosswire.jsword.book.BookCategory
@@ -134,10 +135,11 @@ class WindowSync(private val windowRepository: WindowRepository) {
         if (targetKey != null && inactivePage != null) {
             // Not just bibles and commentaries get this far so NOT always fine to convert key to verse
             val targetVerse = if (targetKey is Verse) KeyUtil.getVerse(targetKey) else null
-            val bookCategory = inactivePage.currentDocument?.bookCategory
-            val isGeneralBook = BookCategory.GENERAL_BOOK == bookCategory
-            val isBible = BookCategory.BIBLE == bookCategory
-            val isCommentary = BookCategory.COMMENTARY == bookCategory
+            val bookCategory = inactivePage.documentCategory
+            val isGeneralBook = DocumentCategory.GENERAL_BOOK == bookCategory
+            val isBible = DocumentCategory.BIBLE == bookCategory
+            val isMyNotes = DocumentCategory.MYNOTE == bookCategory
+            val isCommentary = DocumentCategory.COMMENTARY == bookCategory
             val isUnsynchronizedCommentary = !inactiveWindow.isSynchronised && isCommentary
             val isSynchronizedCommentary = inactiveWindow.isSynchronised && isCommentary
             val currentVerse = if (inactiveWindowKey is Verse) {KeyUtil.getVerse(inactiveWindowKey)} else null
@@ -147,7 +149,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
                 inactiveWindow.updateText()
 
             } else {
-                if (isBible && currentVerse != null && targetVerse != null) {
+                if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
                         ABEventBus.getDefault()
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))

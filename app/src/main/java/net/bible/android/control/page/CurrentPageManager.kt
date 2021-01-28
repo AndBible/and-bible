@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 
 import javax.inject.Inject
@@ -46,6 +47,25 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+
+enum class DocumentCategory {
+    BIBLE, COMMENTARY, DICTIONARY, GENERAL_BOOK, MAPS, MYNOTE;
+
+    val bookCategory: BookCategory get() = BookCategory.valueOf(this.name)
+}
+
+val BookCategory.documentCategory: DocumentCategory get() {
+    return when(this) {
+        BookCategory.BIBLE -> DocumentCategory.BIBLE
+        BookCategory.COMMENTARY -> DocumentCategory.COMMENTARY
+        BookCategory.DICTIONARY -> DocumentCategory.DICTIONARY
+        BookCategory.GENERAL_BOOK -> DocumentCategory.GENERAL_BOOK
+        BookCategory.MAPS -> DocumentCategory.MAPS
+        else -> throw RuntimeException("Unsupported category")
+    }
+}
+
 open class CurrentPageManager @Inject constructor(
         swordContentFacade: SwordContentFacade,
         swordDocumentFacade: SwordDocumentFacade,
@@ -55,9 +75,10 @@ open class CurrentPageManager @Inject constructor(
         )
 {
     // use the same verse in the commentary and bible to keep them in sync
-    private val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
+    val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
     val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
     val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, this)
     val currentDictionary = CurrentDictionaryPage(swordContentFacade, swordDocumentFacade, this)
     val currentGeneralBook = CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade, this)
     val currentMap = CurrentMapPage(swordContentFacade, swordDocumentFacade, this)
@@ -104,6 +125,9 @@ open class CurrentPageManager @Inject constructor(
         get() = currentCommentary === currentPage
     val isBibleShown: Boolean
         get() = currentBible === currentPage
+    val isMyNotesShown: Boolean
+        get() = currentMyNotePage === currentPage
+
     val isDictionaryShown: Boolean
         get() = currentDictionary === currentPage
     val isGenBookShown: Boolean
@@ -178,19 +202,19 @@ open class CurrentPageManager @Inject constructor(
         return if (book == null) {
             null
         } else {
-            getBookPage(book.bookCategory)
+            getBookPage(book.bookCategory.documentCategory)
         }
 
     }
 
-    private fun getBookPage(bookCategory: BookCategory): CurrentPage =
+    private fun getBookPage(bookCategory: DocumentCategory): CurrentPage =
         when (bookCategory) {
-            BookCategory.BIBLE -> currentBible
-            BookCategory.COMMENTARY -> currentCommentary
-            BookCategory.DICTIONARY -> currentDictionary
-            BookCategory.GENERAL_BOOK -> currentGeneralBook
-            BookCategory.MAPS -> currentMap
-            else -> throw RuntimeException("Unsupported book category")
+            DocumentCategory.BIBLE -> currentBible
+            DocumentCategory.COMMENTARY -> currentCommentary
+            DocumentCategory.DICTIONARY -> currentDictionary
+            DocumentCategory.GENERAL_BOOK -> currentGeneralBook
+            DocumentCategory.MAPS -> currentMap
+            DocumentCategory.MYNOTE -> currentMyNotePage
         }
 
     fun showBible() {
@@ -207,7 +231,7 @@ open class CurrentPageManager @Inject constructor(
             currentDictionary.entity.copy(),
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
-            currentPage.bookCategory.getName(),
+            currentPage.documentCategory.name,
             textDisplaySettings.copy()
         )
 
@@ -222,7 +246,12 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
-        val restoredBookCategory = BookCategory.fromString(pageManagerEntity.currentCategoryName)
+
+        val restoredBookCategory = try {
+            DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)
+        } catch (e: IllegalArgumentException) {
+            BookCategory.fromString(pageManagerEntity.currentCategoryName).documentCategory
+        }
         val settings = pageManagerEntity.textDisplaySettings
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)

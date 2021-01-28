@@ -20,7 +20,6 @@ package net.bible.android.control.page
 import android.app.Activity
 import android.view.Menu
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
 /**
@@ -30,7 +29,7 @@ interface CurrentPage {
     val currentDocumentAbbreviation: String get () = currentDocument?.abbreviation?: ""
     val currentDocumentName: String get() = currentDocument?.name?:""
 
-    val bookCategory: BookCategory
+    val documentCategory: DocumentCategory
     val pageManager: CurrentPageManager
 
     val keyChooserActivity: Class<out Activity?>?

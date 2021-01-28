@@ -17,13 +17,11 @@
  */
 package net.bible.android.control.page
 
-import android.app.Activity
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -38,7 +36,7 @@ class CurrentGeneralBookPage internal constructor(
     CurrentPage
 {
 
-    override val bookCategory = BookCategory.GENERAL_BOOK
+    override val documentCategory = DocumentCategory.GENERAL_BOOK
 
     override val keyChooserActivity = ChooseGeneralBookKey::class.java
 

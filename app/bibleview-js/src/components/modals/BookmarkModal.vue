@@ -17,7 +17,7 @@
 
 <template>
   <Modal v-if="showBookmark" @close="closeBookmark">
-    <EditableText :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
+    <EditableText constraint-height :edit-directly="!bookmark.notes" :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
     <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}

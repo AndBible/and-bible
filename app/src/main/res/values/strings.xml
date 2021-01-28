@@ -670,4 +670,5 @@
     <string name="label_color">Label color</string>
     <string name="label_color_example">Example</string>
     <string name="select_multiple">Select multiple</string>
+    <string name="mynotes_error_loading">Error in loading document</string>
 </resources>

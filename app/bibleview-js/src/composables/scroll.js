@@ -90,7 +90,7 @@ export function useScroll(config) {
         if(delta !== config.topOffset) {
             config.topOffset = delta;
         }
-        const toElement = document.getElementById(toId) || document.getElementById("top");
+        const toElement = document.getElementById(toId)
 
         if (toElement != null) {
             const diff = toElement.offsetTop - window.pageYOffset;

@@ -74,6 +74,7 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -512,7 +513,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         speakButton.setOnClickListener { speakControl.toggleSpeak() }
         speakButton.setOnLongClickListener {
-            val isBible = windowControl.activeWindowPageManager.currentPage.bookCategory == BookCategory.BIBLE
+            val isBible = windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
             val intent = Intent(this, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
             startActivity(intent)
             true

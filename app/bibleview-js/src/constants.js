@@ -19,4 +19,5 @@ export const DocumentTypes = {
     BIBLE_DOCUMENT: "bible",
     OSIS_DOCUMENT: "osis",
     ERROR_DOCUMENT: "error",
+    MY_NOTES: "notes",
 }

@@ -19,7 +19,6 @@ package net.bible.android.control.page
 
 import android.util.Log
 import android.view.Menu
-import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
@@ -197,10 +196,10 @@ abstract class CurrentPageBase protected constructor(
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
         val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
-            CommonUtils.sharedPreferences.getString("default-${bookCategory.name}", ""))
+            CommonUtils.sharedPreferences.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(bookCategory)
+            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory)
             if (books.size > 0) books[0] else null
         }()
     }

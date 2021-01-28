@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
@@ -32,7 +33,6 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -60,7 +60,7 @@ open class BookmarkControl @Inject constructor(
 
 	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
         val pageManager = activeWindowPageManagerProvider.activeWindowPageManager
-        if (pageManager.currentPage.bookCategory == BookCategory.BIBLE) {
+        if (pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
             updateBookmarkPlaybackSettings(pageManager.currentBible.singleKey, settings)
         }
     }

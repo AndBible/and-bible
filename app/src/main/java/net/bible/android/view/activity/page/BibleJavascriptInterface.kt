@@ -36,8 +36,8 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun scrolledToVerse(verseOrdinal: Int) {
-        if (currentPageManager.isBibleShown) {
-            currentPageManager.currentBible.currentVerseOrdinal = verseOrdinal
+        if (currentPageManager.isBibleShown || currentPageManager.isMyNotesShown) {
+            currentPageManager.currentBible.setCurrentVerseOrdinal(verseOrdinal, bibleView.initialVerse?.versification)
         }
     }
 

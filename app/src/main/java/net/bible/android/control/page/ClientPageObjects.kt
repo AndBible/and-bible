@@ -54,6 +54,9 @@ fun mapToJson(map: Map<String, String>) =
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 fun wrapString(str: String): String = "\"$str\""
+val VerseRange.abbreviated: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
+
+interface DocumentWithBookmarks
 
 interface Document {
     val asJson: String get() {
@@ -71,23 +74,20 @@ class ErrorDocument(private val errorMessage: String?): Document {
         )
 }
 
-
 open class OsisDocument(
     val osisFragments: List<OsisFragment>,
     val book: Book,
     val key: Key,
 ): Document {
-    override val asHashMap: Map<String, String> get () {
-        return mapOf(
-            "id" to wrapString("${book.initials}-${key.uniqueId}"),
-            "type" to wrapString("osis"),
-            "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
-            "bookInitials" to wrapString(book.initials),
-            "bookAbbreviation" to wrapString(book.abbreviation),
-            "bookName" to wrapString(book.name),
-            "key" to wrapString(key.uniqueId),
-        )
-    }
+    override val asHashMap: Map<String, String> get () = mapOf(
+        "id" to wrapString("${book.initials}-${key.uniqueId}"),
+        "type" to wrapString("osis"),
+        "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
+        "bookInitials" to wrapString(book.initials),
+        "bookAbbreviation" to wrapString(book.abbreviation),
+        "bookName" to wrapString(book.name),
+        "key" to wrapString(key.uniqueId),
+    )
 }
 
 class BibleDocument(
@@ -95,7 +95,7 @@ class BibleDocument(
     val verseRange: VerseRange,
     osisFragments: List<OsisFragment>,
     val swordBook: SwordBook
-): OsisDocument(osisFragments, swordBook, verseRange) {
+): OsisDocument(osisFragments, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBookmark(it, it.labelIds!!, swordBook.versification) }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
@@ -105,6 +105,22 @@ class BibleDocument(
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
         }
     }
+}
+
+class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
+                    val verseRange: VerseRange): Document, DocumentWithBookmarks
+{
+    override val asHashMap: Map<String, Any>
+        get() {
+            val bookmarks = bookmarks.map { ClientBookmark(it, it.labelIds!!, verseRange.versification) }
+            return mapOf(
+                "id" to wrapString(verseRange.uniqueId),
+                "type" to wrapString("notes"),
+                "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "verseRange" to wrapString(verseRange.name),
+                "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal))
+            )
+        }
 }
 
 class OsisFragment(
@@ -150,9 +166,10 @@ data class ClientBookmark(val id: Long,
                           val createdAt: Long,
                           val lastUpdatedOn: Long,
                           val notes: String?,
-                          val verseRange: String
+                          val verseRange: String,
+                          val verseRangeAbbreviated: String,
 ) {
-    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification) :
+    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification?) :
         this(id = bookmark.id,
             ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             offsetRange = bookmark.textRange?.clientList,
@@ -165,7 +182,8 @@ data class ClientBookmark(val id: Long,
             createdAt = bookmark.createdAt.time,
             lastUpdatedOn = bookmark.lastUpdatedOn.time,
             notes = bookmark.notes,
-            verseRange = bookmark.verseRange.name
+            verseRange = bookmark.verseRange.name,
+            verseRangeAbbreviated = bookmark.verseRange.abbreviated,
         )
 }
 
