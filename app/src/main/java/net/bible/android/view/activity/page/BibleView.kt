@@ -515,16 +515,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private inner class BibleViewClient: WebViewClient() {
-        override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
-            return if(openLink(req.url)) {
-                gestureListener.setDisableSingleTapOnce(true)
-                super.shouldOverrideUrlLoading(view, req)
-                true
-            } else {
-                super.shouldOverrideUrlLoading(view, req)
-            }
-        }
-
         override fun onLoadResource(view: WebView, url: String) {
             Log.d(TAG, "onLoadResource:$url")
             super.onLoadResource(view, url)
@@ -535,9 +525,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             Log.e(TAG, description)
         }
 
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(request.getUrl())
-        }
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
+            assetLoader.shouldInterceptRequest(request.url)
     }
 
     private var contextMenuInfo: BibleViewContextMenuInfo? = null
