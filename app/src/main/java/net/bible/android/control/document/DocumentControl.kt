@@ -86,7 +86,12 @@ class DocumentControl @Inject constructor(
         get () = swordDocumentFacade.bibles.sortedBy { it -> bookFilter.test(it) }
 
     val commentariesForVerse: List<Book>
-        get () = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { it -> commentaryFilter.test(it) }
+        get () {
+            val myNotesDoc = currentPage.currentMyNotePage.currentDocument
+            val docs = swordDocumentFacade.getBooks(BookCategory.COMMENTARY).sortedBy { commentaryFilter.test(it) }.toMutableList()
+            docs.add(myNotesDoc)
+            return docs
+        }
 
     val isBibleBook: Boolean
         get () = currentDocument?.bookCategory == BookCategory.BIBLE
