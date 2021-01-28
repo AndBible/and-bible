@@ -520,6 +520,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             super.onLoadResource(view, url)
         }
 
+        override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
+            return if(openLink(req.url)) {
+                super.shouldOverrideUrlLoading(view, req)
+                true
+            } else {
+                super.shouldOverrideUrlLoading(view, req)
+            }
+        }
+
+
         override fun onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
             super.onReceivedError(view, errorCode, description, failingUrl)
             Log.e(TAG, description)
