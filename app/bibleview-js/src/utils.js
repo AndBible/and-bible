@@ -263,3 +263,33 @@ export function getEventFunctions(event) {
     priorities.sort();
     return event.eventFunctions[priorities[priorities.length -1]];
 }
+
+export function draggableElement(element, dragHandle) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    dragHandle.addEventListener("touchstart", dragMouseDown);
+
+    function dragMouseDown(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        document.addEventListener("touchend", closeDragElement);
+        document.addEventListener("touchmove", elementDrag);
+    }
+
+    function elementDrag(e) {
+        const touch = e.touches[0];
+        pos1 = pos3 - touch.clientX;
+        pos2 = pos4 - touch.clientY;
+        pos3 = touch.clientX;
+        pos4 = touch.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.removeEventListener("touchend", closeDragElement);
+        document.removeEventListener("touchmove", elementDrag);
+    }
+}

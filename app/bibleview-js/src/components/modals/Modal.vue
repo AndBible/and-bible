@@ -19,14 +19,14 @@
   <teleport to="#modals">
     <div v-if="blocking" @click.stop="$emit('close')" class="modal-backdrop"/>
     <div :class="{blocking}">
-      <div @click.stop :class="{'modal-content': true, blocking}"
+      <div ref="modal" @click.stop :class="{'modal-content': true, blocking}"
       >
-        <div @click="$emit('close')" class="modal-header">
+        <div ref="header" class="modal-header">
           <span class="title">
             <slot name="title"/>
           </span>
         </div>
-        <div class="modal-body">
+        <div v-if="ready" class="modal-body">
           <slot/>
         </div>
         <div class="modal-footer">
@@ -40,21 +40,32 @@
 </template>
 <script>
 
-import {inject} from "@vue/runtime-core";
+import {inject, onMounted} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {Events, emit, setupEventBusListener} from "@/eventbus";
+import {ref} from "@vue/reactivity";
+import {draggableElement} from "@/utils";
 
 export default {
   name: "Modal",
   emits: ["close"],
   props: {blocking: {type: Boolean, default: false}},
-  setup(props, {emit: $emit}) {
-    const config = inject("config")
-    if(!props.blocking) {
+  setup: function (props, {emit: $emit}) {
+    const config = inject("config");
+    const modal = ref(null);
+    const header = ref(null);
+    const ready = ref(false);
+    onMounted(async () => {
+      modal.value.style.top = `calc(${window.scrollY}px + var(--top-offset) + 10pt)`;
+      modal.value.style.left = `calc((100% - 80%) / 2)`;
+      draggableElement(modal.value, header.value);
+      ready.value = true;
+    });
+    if (!props.blocking) {
       emit(Events.CLOSE_MODAL);
       setupEventBusListener(Events.CLOSE_MODAL, () => $emit('close'))
     }
-    return {config, ...useCommon()}
+    return {config, modal, header, ready, ...useCommon()}
   }
 }
 </script>
@@ -78,12 +89,9 @@ export default {
   .blocking & {
     z-index: 3;
   }
-  position: fixed;
+  position: absolute;
   background-color: #fefefe;
-  top: calc(var(--top-offset) + 10pt);
-  margin-left: -40%;
   width: 80%;
-  left: 50%;
   padding: 0;
   border: 1px solid #888;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
