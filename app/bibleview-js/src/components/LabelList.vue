@@ -39,6 +39,10 @@ export default {
 
 <style scoped>
 .label {
+  color: white;
+  .night & {
+    color: #d7d7d7;
+  }
   font-size: small;
   border-radius: 6pt;
   padding-left: 4pt;
