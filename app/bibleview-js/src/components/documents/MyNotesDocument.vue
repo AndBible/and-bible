@@ -83,11 +83,7 @@ export default {
 
 <style scoped>
 .note-container {
-  margin: 5pt;
-  background: rgba(255, 255, 255, 0.3);
-  .night & {
-    background: rgba(255, 255, 255, 0.05);
-  }
+  margin: 2pt;
 }
 .edit-button {
   position: absolute;
