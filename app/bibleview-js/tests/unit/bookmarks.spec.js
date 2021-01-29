@@ -33,6 +33,7 @@ describe("useBookmark tests", () => {
             gb,
             "KJV",
             fragmentReady,
+            {adjustedColor: () => null},
             config
         );
     });

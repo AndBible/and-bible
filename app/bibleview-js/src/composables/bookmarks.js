@@ -103,11 +103,11 @@ export function useBookmarks(documentId,
                              {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
                              bookInitials,
                              documentReady,
+                             {adjustedColor},
                              config) {
 
     const isMounted = ref(0);
     const strings = inject("strings");
-    const {adjustedColor} = useCommon();
 
     onMounted(() => isMounted.value ++);
     onUnmounted( () => isMounted.value --);

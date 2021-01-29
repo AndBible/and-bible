@@ -44,12 +44,12 @@ export default {
     globalBookmarks.updateBookmarks(...bookmarks);
 
     const config = inject("config");
-
+    const common = useCommon();
       // To remove verse 0 from ordinalRange (is always included)
     const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
-    useBookmarks(id, realOrdinalRange, globalBookmarks, bookInitials, ref(true), config);
+    useBookmarks(id, realOrdinalRange, globalBookmarks, bookInitials, ref(true), common, config);
 
-    return {bookInitials, ...useCommon()}
+    return {bookInitials, ...common}
   }
 }
 </script>
