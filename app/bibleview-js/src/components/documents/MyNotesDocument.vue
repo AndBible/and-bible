@@ -27,7 +27,7 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
 
-    <b>{{ sprintf(strings.verses, b.verseRangeAbbreviated) }}</b>
+    <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <LabelList :labels="labelsFor(b)"/>
     <div v-html="b.notes"/>
   </div>
 </template>
@@ -36,12 +36,13 @@
 import {computed} from "@vue/reactivity";
 import {inject} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {emit, Events} from "@/eventbus";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import LabelList from "@/components/LabelList";
 
 export default {
   name: "MyNotesDocument",
-  components: {FontAwesomeIcon},
+  components: {LabelList, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
@@ -71,7 +72,11 @@ export default {
       emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_, {open: true})
     }
 
-    return {notes, save, editNotes, editNote, ...useCommon()}
+    function labelsFor(b) {
+      return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
+    }
+
+    return {notes, save, editNotes, editNote, labelsFor, ...useCommon()}
   }
 }
 </script>

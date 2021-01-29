@@ -117,7 +117,7 @@ export default {
 
   .night & {
     background-color: #454545;
-    color: #bdbdbd;
+    color: #e2e2e2;
   }
 }
 

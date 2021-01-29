@@ -39,7 +39,7 @@
         <FontAwesomeIcon v-if="bookmark.notes" icon="edit"/>
         <FontAwesomeIcon v-else icon="bookmark"/>
       </span>
-      {{ sprintf(strings.bookmarkTitle, bookmark.verseRange) }}
+      {{ bookmark.verseRangeAbbreviated }} <LabelList :labels="labels"/>
     </template>
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
@@ -67,10 +67,11 @@ import AreYouSure from "@/components/modals/AreYouSure";
 import Color from "color";
 import EditableText from "@/components/EditableText";
 import {debounce} from "lodash";
+import LabelList from "@/components/LabelList";
 
 export default {
   name: "BookmarkModal",
-  components: {EditableText, Modal, FontAwesomeIcon, AreYouSure},
+  components: {LabelList, EditableText, Modal, FontAwesomeIcon, AreYouSure},
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
@@ -78,12 +79,15 @@ export default {
     const areYouSure = ref(null);
     const infoShown = ref(false);
     const label = ref({});
+    const labels = ref([]);
     const editDirectly = ref(false);
-    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels, {open = false} = {}) => {
+    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels_, {open = false} = {}) => {
       editDirectly.value = open || !b.notes;
+      if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
       bookmark.value = b;
-      label.value = labels[0];
+      label.value = labels_[0];
+      labels.value = labels_;
     })
 
     function closeBookmark() {
@@ -110,8 +114,10 @@ export default {
       }
     });
 
+    const {adjustedColor, ...common} = useCommon();
+
     const labelColor = computed(() => {
-        return Color(label.value.color).darken(0.2).hsl().string();
+        return adjustedColor(label.value.color).string();
     });
 
     const changeNote = debounce((text) => {
@@ -120,8 +126,8 @@ export default {
 
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, editDirectly,
-      removeBookmark,  assignLabels,  bookmark: bookmarkComputed, labelColor, changeNote,
-      ...useCommon()
+      removeBookmark,  assignLabels,  bookmark: bookmarkComputed, labelColor, changeNote, labels,
+      ...common
     };
   },
 }
@@ -138,5 +144,6 @@ export default {
 
   font-size: smaller;
 }
+
 
 </style>

@@ -26,6 +26,7 @@ import {inject, provide} from "@vue/runtime-core";
 import {useBookmarks} from "@/composables/bookmarks";
 import {ref} from "@vue/reactivity";
 import OsisFragment from "@/components/documents/OsisFragment";
+import {useCommon} from "@/composables";
 
 export default {
   name: "BibleDocument",
@@ -48,7 +49,7 @@ export default {
     const realOrdinalRange = ordinalRange ? [ordinalRange[0]+1, ordinalRange[1]]: null;
     useBookmarks(id, realOrdinalRange, globalBookmarks, bookInitials, ref(true), config);
 
-    return {bookInitials}
+    return {bookInitials, ...useCommon()}
   }
 }
 </script>

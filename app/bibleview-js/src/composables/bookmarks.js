@@ -25,7 +25,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
-import {bookmarkingModes} from "@/composables/index";
+import {bookmarkingModes, useCommon} from "@/composables/index";
 import {sprintf} from "sprintf-js";
 
 const speakIcon = icon(faHeadphones);
@@ -107,6 +107,7 @@ export function useBookmarks(documentId,
 
     const isMounted = ref(0);
     const strings = inject("strings");
+    const {adjustedColor} = useCommon();
 
     onMounted(() => isMounted.value ++);
     onUnmounted( () => isMounted.value --);
@@ -363,7 +364,7 @@ export function useBookmarks(documentId,
                 const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
                 const icon = b.notes ? "edit" : "bookmark"
-                const color = new Color(bookmarkLabels_[0].color).darken(0.2).hsl().string();
+                const color = adjustedColor(bookmarkLabels_[0].color).string();
                 addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {icon, color, title});
             }
         }
@@ -411,7 +412,7 @@ export function useBookmarks(documentId,
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
             const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
             if(speakLabel) {
-                const color = new Color("red").darken(0.2).hsl().string()
+                const color = adjustedColor("red").string()
                 const iconElement = getIconElement(speakIcon, color);
 
                 const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
@@ -426,7 +427,7 @@ export function useBookmarks(documentId,
             if(b.notes && config.showMyNotes) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                 const icon = b.notes ? "edit" : "bookmark"
-                const color = new Color(bookmarkLabel.color).darken(0.2).hsl().string()
+                const color = adjustedColor(bookmarkLabel.color).string()
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
 
                 // TODO: remove repetition...

@@ -23,6 +23,7 @@ import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import Color from "color";
 
 let developmentMode = false;
 let testMode = false;
@@ -180,7 +181,6 @@ export function useStrings() {
         footnoteTypeAlternative: "Alternative",
         footnoteTypeTranslation: "Translation",
         clearLog: "Clear error log",
-        bookmarkTitle: "Bookmark & My Notes: %s",
         bookmarkInfo: "Info",
         editNote: "Edit",
         editNotePlaceholder: "Edit a note for bookmark",
@@ -226,7 +226,17 @@ export function useCommon() {
         return new Date(timestamp).toLocaleString()
     }
 
-    return {config, strings, sprintf, split, formatTimestamp}
+    function adjustedColor(color) {
+        let col = Color(color);
+        if(config.nightMode) {
+            col = col.darken(0.2);
+        } else {
+            col = col.darken(0.2);
+        }
+        return col.hsl();
+    }
+
+    return {config, strings, sprintf, split, adjustedColor, formatTimestamp}
 }
 
 export function useFontAwesome() {

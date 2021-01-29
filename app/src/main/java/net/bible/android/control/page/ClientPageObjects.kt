@@ -31,6 +31,7 @@ import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.UUID.randomUUID
 
@@ -54,7 +55,16 @@ fun mapToJson(map: Map<String, String>) =
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 fun wrapString(str: String): String = "\"$str\""
-val VerseRange.abbreviated: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
+val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
+val VerseRange.abbreviated: String get() {
+    synchronized(BookName::class) {
+        val wasFullBookName = BookName.isFullBookName()
+        BookName.setFullBookName(false)
+        val shorter = name
+        BookName.setFullBookName(wasFullBookName)
+        return shorter
+    }
+}
 
 interface DocumentWithBookmarks
 
@@ -167,6 +177,7 @@ data class ClientBookmark(val id: Long,
                           val lastUpdatedOn: Long,
                           val notes: String?,
                           val verseRange: String,
+                          val verseRangeOnlyNumber: String,
                           val verseRangeAbbreviated: String,
 ) {
     constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification?) :
@@ -183,6 +194,7 @@ data class ClientBookmark(val id: Long,
             lastUpdatedOn = bookmark.lastUpdatedOn.time,
             notes = if(bookmark.notes?.trim()?.isEmpty() == true) null else bookmark.notes,
             verseRange = bookmark.verseRange.name,
+            verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
         )
 }
