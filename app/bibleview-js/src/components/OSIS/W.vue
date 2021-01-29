@@ -99,15 +99,4 @@ export default {
   .linkstyle {
     text-decoration: underline dotted;
   }
-
-  .strongs {
-    color: #4b9700;
-  }
-  .morph {
-    color: #8d0097;
-    /*
-    font-size: 50%;
-    vertical-align: super;
-    */
-  }
 </style>

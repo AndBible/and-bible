@@ -17,16 +17,22 @@
 
 <template>
   <Modal v-if="showBookmark" @close="closeBookmark">
-    <EditableText constraint-height :edit-directly="editDirectly" :text="bookmark.notes || ''" @changed="changeNote" max-height="inherit"/>
-    <div v-if="bookmark.notes" class="my-notes-link">
-      <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
-    </div>
+    <EditableText
+        v-if="!infoShown"
+        constraint-height
+        :edit-directly="editDirectly" :text="bookmark.notes || ''"
+        @changed="changeNote"
+        max-height="inherit"
+    />
     <div v-show="infoShown" class="info">
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
+      <div v-if="bookmark.notes" class="my-notes-link">
+        <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
+      </div>
     </div>
     <template #title>
       <span :style="`color:${labelColor}`">
@@ -38,7 +44,7 @@
     <template #footer>
       <button class="button" @click="removeBookmark">{{strings.removeBookmark}}</button>
       <button class="button" @click="assignLabels">{{strings.assignLabels}}</button>
-      <button class="button" @click="infoShown = !infoShown">{{strings.bookmarkInfo}}</button>
+      <button :class="{'button': true, toggled: infoShown}" @click="infoShown = !infoShown">{{strings.bookmarkInfo}}</button>
       <button class="button right" @click="closeBookmark">{{strings.closeModal}}</button>
     </template>
   </Modal>
@@ -87,7 +93,6 @@ export default {
 
     function assignLabels() {
       android.assignLabels(bookmark.value.id);
-      showBookmark.value = false;
     }
 
     async function removeBookmark() {
@@ -124,11 +129,6 @@ export default {
 
 <style scoped lang="scss">
 .info {
-  background: rgba(0,0,0,0.1);
-  .night & {
-    background: rgba(255,255,255,0.1);
-
-  }
   margin-top: 10pt;
   font-size: 80%;
 }

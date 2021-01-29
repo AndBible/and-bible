@@ -181,6 +181,12 @@
 
 .button {
   background-color: #717171;
+  + .toggled {
+    background-color: #474747;
+    &.light {
+      background-color: #d5d5d5;
+    }
+  }
   &.light {
     background-color: #bdbdbd;
     color: black;

@@ -113,7 +113,7 @@ export default {
 <style lang="scss">
 @import '~pell/src/pell.scss';
 .pell-content {
-  height: 60pt;
+  height: 65pt;
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
 }
 

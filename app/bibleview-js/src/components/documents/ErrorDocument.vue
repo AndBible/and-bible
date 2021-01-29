@@ -21,7 +21,7 @@
     <p>
       {{document.errorMessage}}
     </p>
-    <a href="ab-error://">{{strings.reportError}}</a>
+    <a class="error-link" href="ab-error://">{{strings.reportError}}</a>
   </div>
 </template>
 
@@ -39,6 +39,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+  .error-link {
+    color: red;
+  }
 </style>

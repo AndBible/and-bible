@@ -63,6 +63,7 @@ export default {
 .notes-display {
   width: calc(100% - 22pt);
 }
+
 .constraintHeight {
   overflow-y: auto;
   max-height: calc(var(--max-height) - 17px);

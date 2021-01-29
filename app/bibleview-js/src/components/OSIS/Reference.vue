@@ -53,8 +53,3 @@ export default {
 
 </script>
 
-<style scoped>
-  .reference {
-    color: red;
-  }
-</style>
