@@ -88,11 +88,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .note-container {
   margin: 10pt 2pt 2pt;
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.3);
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
   border-width: 1pt;
   border-radius: 10pt;
   padding: 5pt;
