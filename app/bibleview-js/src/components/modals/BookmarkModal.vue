@@ -29,7 +29,7 @@
         <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
       </div>
       <div v-if="bookmark.bookName">
-        {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
+        <span v-html="sprintf(strings.bookmarkAccurate, originalBookLink)"/>
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
@@ -135,9 +135,12 @@ export default {
       bookmarkNotes.value = text;
     }, 500)
 
+    const originalBookLink = computed(() =>
+        `<a href="osis://?osis=${bookmark.value.bookInitials}:${bookmark.value.firstVerseRef}">${bookmark.value.bookName}</a>`)
+
     return {
       showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,
-      removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels,
+      removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels, originalBookLink,
       ...common
     };
   },

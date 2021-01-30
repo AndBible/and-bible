@@ -177,6 +177,7 @@ data class ClientBookmark(val id: Long,
                           val lastUpdatedOn: Long,
                           val notes: String?,
                           val verseRange: String,
+                          val firstVerseRef: String,
                           val verseRangeOnlyNumber: String,
                           val verseRangeAbbreviated: String,
                           val text: String?,
@@ -198,6 +199,7 @@ data class ClientBookmark(val id: Long,
             verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
             text = bookmark.text,
+            firstVerseRef = bookmark.verseRange.start.osisRef
         )
 }
 
