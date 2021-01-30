@@ -25,7 +25,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {faEdit, faBookmark, faHeadphones} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import Color from "color";
-import {bookmarkingModes, useCommon} from "@/composables/index";
+import {bookmarkingModes} from "@/composables/index";
 import {sprintf} from "sprintf-js";
 
 const speakIcon = icon(faHeadphones);
@@ -212,12 +212,15 @@ export function useBookmarks(documentId,
             return point;
     }
 
+    const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => b.bookInitials === bookInitials))
+    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => b.bookInitials !== bookInitials))
+
     const styleRanges = computed(() => {
         isMounted.value;
         labelsUpdated.value;
 
         let splitPoints = [];
-        const bookmarks = documentBookmarks.value;
+        const bookmarks = highlightBookmarks.value;
 
         for(const b of bookmarks.map(v => combinedRange(v))) {
             splitPoints.push(b[0])
@@ -445,6 +448,26 @@ export function useBookmarks(documentId,
         }
     }
 
+    function addMarkers() {
+        for (const b of markerBookmarks.value) {
+            const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
+            const icon = b.notes ? "edit" : "bookmark"
+            const color = adjustedColor(bookmarkLabel.color).string()
+            const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
+
+            // TODO: remove repetition...
+            const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
+            const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
+            const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+            const lastElement = document.querySelector(`#doc-${documentId} #v-${b.ordinalRange[1]}`);
+
+            iconElement.addEventListener("click", event => addEventFunction(event,
+                () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color}));
+            lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+            undoHighlights.push(() => iconElement.remove());
+        }
+    }
+
     watch(styleRanges, (newValue) => {
         if(!isMounted.value) return;
         undoHighlights.reverse();
@@ -453,6 +476,7 @@ export function useBookmarks(documentId,
         for (const s of newValue) {
             highlightStyleRange(s);
         }
+        addMarkers();
     }, {flush: 'post'});
 
     onMounted(() => {
