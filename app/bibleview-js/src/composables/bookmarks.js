@@ -411,7 +411,7 @@ export function useBookmarks(documentId,
 
         for(const b of bookmarks.filter(b=>arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
             const speakLabel = b.labels.map(l => bookmarkLabels.get(l)).find(v => v.icon === "headphones");
-            if(speakLabel) {
+            if (speakLabel) {
                 const color = adjustedColor("red").string()
                 const iconElement = getIconElement(speakIcon, color);
 
@@ -424,7 +424,9 @@ export function useBookmarks(documentId,
                 firstElement.parentElement.insertBefore(iconElement, firstElement);
                 undoHighlights.push(() => iconElement.remove());
             }
-            if(b.notes && config.showMyNotes) {
+        }
+        if(config.showMyNotes) {
+            for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabel.color).string()

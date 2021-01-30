@@ -80,7 +80,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [20, 60],
             labels: [1],
             bookInitials: "KJV",
-            notes: null,
+            notes: "test",
         },
         {
             id: 5,
