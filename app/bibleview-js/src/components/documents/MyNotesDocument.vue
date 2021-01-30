@@ -22,17 +22,18 @@
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
   </div>
-  <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
+  <div class="note-container verse" v-for="(b, index) in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
     <div class="edit-button" @click.stop="editNote(b)">
       <FontAwesomeIcon icon="edit"/>
     </div>
-
-    <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b>
-    <LabelList :labels="labelsFor(b)"/>
-    <div class="bible-text" v-if="b.text">
-      <q>{{abbreviated(b.text, 40)}}</q>
+    <div>
+      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
+      <div class="notes">
+        <div v-html="b.notes"/>
+      </div>
+      <LabelList :labels="labelsFor(b)"/>
+      <hr v-if="index < notes.length - 1"/>
     </div>
-    <div v-html="b.notes"/>
   </div>
 </template>
 
@@ -93,6 +94,10 @@ export default {
   text-indent: 5pt;
   margin-bottom: 2pt;
   font-style: italic;
+}
+
+.notes {
+  text-indent: 2pt;
 }
 
 .edit-button {
