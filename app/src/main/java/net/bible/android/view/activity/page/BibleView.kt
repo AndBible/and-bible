@@ -876,8 +876,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: BookmarkAddedOrUpdatedEvent) {
         val document = firstDocument
         if(document !is DocumentWithBookmarks) return
-        val clientBookmark = ClientBookmark(event.bookmark, event.labels,
-            if(document is BibleDocument) document.swordBook.versification else null
+        val clientBookmark = ClientBookmark(event.bookmark, if(document is BibleDocument) document.swordBook.versification else null
         )
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""

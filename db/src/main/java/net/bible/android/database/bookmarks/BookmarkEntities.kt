@@ -198,6 +198,7 @@ class BookmarkEntities {
                 null
             }
         @Ignore var labelIds: List<Long>? = null
+        @Ignore var text: String? = null
     }
 
     @Entity(

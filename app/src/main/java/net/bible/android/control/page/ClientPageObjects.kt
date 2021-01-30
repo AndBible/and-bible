@@ -107,7 +107,7 @@ class BibleDocument(
     val swordBook: SwordBook
 ): OsisDocument(osisFragments, swordBook, verseRange), DocumentWithBookmarks {
     override val asHashMap: Map<String, String> get () {
-        val bookmarks = bookmarks.map { ClientBookmark(it, it.labelIds!!, swordBook.versification) }
+        val bookmarks = bookmarks.map { ClientBookmark(it, swordBook.versification) }
         val vrInV11n = verseRange.toV11n(swordBook.versification)
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", json.encodeToString(serializer(), bookmarks))
@@ -122,7 +122,7 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
 {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, it.labelIds!!, verseRange.versification) }
+            val bookmarks = bookmarks.map { ClientBookmark(it, verseRange.versification) }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
                 "type" to wrapString("notes"),
@@ -179,12 +179,13 @@ data class ClientBookmark(val id: Long,
                           val verseRange: String,
                           val verseRangeOnlyNumber: String,
                           val verseRangeAbbreviated: String,
+                          val text: String?,
 ) {
-    constructor(bookmark: BookmarkEntities.Bookmark, labels: List<Long>, v11n: Versification?) :
+    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification?) :
         this(id = bookmark.id,
             ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             offsetRange = bookmark.textRange?.clientList,
-            labels = labels.toMutableList().also {
+            labels = bookmark.labelIds!!.toMutableList().also {
                 if(it.isEmpty()) it.add(LABEL_UNLABELED_ID)
             },
             bookInitials = bookmark.book?.initials,
@@ -196,6 +197,7 @@ data class ClientBookmark(val id: Long,
             verseRange = bookmark.verseRange.name,
             verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
+            text = bookmark.text,
         )
 }
 

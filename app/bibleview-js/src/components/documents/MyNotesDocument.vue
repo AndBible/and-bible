@@ -27,7 +27,11 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
 
-    <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <LabelList :labels="labelsFor(b)"/>
+    <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b>
+    <LabelList :labels="labelsFor(b)"/>
+    <div class="bible-text" v-if="b.text">
+      <q>{{abbreviated(b.text, 40)}}</q>
+    </div>
     <div v-html="b.notes"/>
   </div>
 </template>
@@ -84,6 +88,13 @@ export default {
 .note-container {
   margin: 2pt;
 }
+.bible-text {
+  margin-top: 2pt;
+  text-indent: 5pt;
+  margin-bottom: 2pt;
+  font-style: italic;
+}
+
 .edit-button {
   position: absolute;
   height: 20pt;

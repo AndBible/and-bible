@@ -129,6 +129,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1, 2],
             bookInitials: "KJV",
             notes: "Testinote",
+            text: "asdf asdf asdf asdf asdf asdf",
         },
     ];
     testBookmarkLabels = [

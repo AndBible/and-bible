@@ -33,6 +33,7 @@ import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -40,7 +41,7 @@ import javax.inject.Inject
 
 abstract class BookmarkEvent
 
-class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark, val labels: List<Long>): BookmarkEvent()
+class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
@@ -50,6 +51,7 @@ const val LABEL_UNLABELED_ID = -998L
 @ApplicationScope
 open class BookmarkControl @Inject constructor(
 	private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider,
+    private val swordContentFacade: SwordContentFacade,
     resourceProvider: ResourceProvider
 ) {
     // Dummy labels for all / unlabelled
@@ -92,8 +94,10 @@ open class BookmarkControl @Inject constructor(
             dao.insert(labels.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
         }
 
+        addText(bookmark)
+        addLabels(bookmark)
         ABEventBus.getDefault().post(
-            BookmarkAddedOrUpdatedEvent(bookmark, labels ?: dao.labelsForBookmark(bookmark.id).map { it.id })
+            BookmarkAddedOrUpdatedEvent(bookmark)
         )
         return bookmark
     }
@@ -133,7 +137,9 @@ open class BookmarkControl @Inject constructor(
     fun setLabelsByIdForBookmark(bookmark: Bookmark, labelIdList: List<Long>) {
         dao.deleteLabels(bookmark)
         dao.insert(labelIdList.filter { it > 0 }.map { BookmarkToLabel(bookmark.id, it) })
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark, labelIdList))
+        addText(bookmark)
+        bookmark.labelIds = labelIdList
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
     }
 
     fun setLabelsForBookmark(bookmark: Bookmark, labels: List<Label>) =
@@ -197,10 +203,10 @@ open class BookmarkControl @Inject constructor(
 
     fun saveBookmarkNote(bookmarkId: Long, note: String?) {
         dao.saveBookmarkNote(bookmarkId, note)
-        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(
-            dao.bookmarkById(bookmarkId),
-            dao.labelsForBookmark(bookmarkId).map { it.id })
-        )
+        val bookmark = dao.bookmarkById(bookmarkId)
+        addLabels(bookmark)
+        addText(bookmark)
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
     }
 
     fun deleteLabels(toList: List<Long>) {
@@ -208,12 +214,38 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun bookmarksInBook(book: BibleBook): List<Bookmark> = dao.bookmarksInBook(book)
-    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false): List<Bookmark> {
+    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<Bookmark> {
         val bookmarks = dao.bookmarksForVerseRange(verseRange)
         if(withLabels) for (b in bookmarks) {
-            b.labelIds = labelsForBookmark(b).map { it.id }
+            addLabels(b)
+        }
+        if(withText) for (b in bookmarks.filter { it.book !== null }) {
+            addText(b)
         }
         return bookmarks
+    }
+
+    private fun addLabels(b: Bookmark) {
+        b.labelIds = labelsForBookmark(b).map { it.id }
+    }
+
+    private fun addText(b: Bookmark) {
+        val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(b.book, it) }
+        val startOffset = b.startOffset ?: 0
+        var startVerse = verseTexts.first()
+        var endOffset = b.endOffset ?: startVerse.length
+        if(verseTexts.size == 1) {
+            b.text = startVerse.slice(startOffset until endOffset)
+        } else if(verseTexts.size > 1) {
+            startVerse = startVerse.slice(startOffset until startVerse.length)
+            var endVerse = verseTexts.last()
+            endOffset = b.endOffset ?: endVerse.length
+            endVerse = endVerse.slice(0 until endOffset)
+            val middleVerses = if(verseTexts.size > 2) {
+                verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
+            } else ""
+            b.text = "$startVerse$middleVerses$endVerse"
+        }
     }
 
     companion object {
