@@ -8,6 +8,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter.resetDatabase
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -39,7 +41,9 @@ class BookmarkControlTest {
 
     @Before
     fun setUp() {
-        bookmarkControl = BookmarkControl(Mockito.mock(WindowControl::class.java), Mockito.mock(SwordContentFacade::class.java), Mockito.mock(AndroidResourceProvider::class.java))
+        val mocked = Mockito.mock(SwordContentFacade::class.java)
+        Mockito.`when`(mocked.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
+        bookmarkControl = BookmarkControl(Mockito.mock(WindowControl::class.java), mocked, Mockito.mock(AndroidResourceProvider::class.java))
     }
 
     @After

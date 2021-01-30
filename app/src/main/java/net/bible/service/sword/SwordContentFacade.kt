@@ -142,7 +142,7 @@ open class SwordContentFacade @Inject constructor(
      * a reference, appropriate for the book, of one or more entries
      */
     @Throws(NoSuchKeyException::class, BookException::class, ParseException::class)
-    fun getCanonicalText(book: Book?, key: Key?): String {
+    open fun getCanonicalText(book: Book?, key: Key?): String {
         return try {
             val data = BookData(book, key)
             val osissep = data.saxEventProvider

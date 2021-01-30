@@ -218,6 +218,7 @@ open class AbstractSpeakTests {
     @Before
     open fun setup() {
         ShadowLog.stream = System.out
+        Mockito.`when`(mocked.getCanonicalText(Mockito.any(), Mockito.any())).thenReturn("test")
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
@@ -252,7 +253,8 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
+        val mocked = Mockito.mock(SwordContentFacade::class.java)
+        val bookmarkControl = BookmarkControl(windowControl, mocked ,mock(AndroidResourceProvider::class.java))
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }

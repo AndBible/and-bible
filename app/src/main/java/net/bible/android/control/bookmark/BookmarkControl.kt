@@ -230,6 +230,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: Bookmark) {
+        if(b.book == null) return
         val verseTexts = b.verseRange.map {  swordContentFacade.getCanonicalText(b.book, it) }
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
