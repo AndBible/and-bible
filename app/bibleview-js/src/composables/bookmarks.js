@@ -365,7 +365,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabels_[0].color).string();
-                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {icon, color, title});
+                addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title});
             }
         }
 
@@ -420,7 +420,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {title, icon: "headphones", color}));
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon: "headphones", color}));
                 firstElement.parentElement.insertBefore(iconElement, firstElement);
                 undoHighlights.push(() => iconElement.remove());
             }
@@ -436,7 +436,7 @@ export function useBookmarks(documentId,
                 const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
-                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b, bookmarkLabels_), {title, icon, color}));
+                    () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color}));
                 lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
                 undoHighlights.push(() => iconElement.remove());
             }

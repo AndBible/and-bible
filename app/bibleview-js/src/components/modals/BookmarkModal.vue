@@ -20,7 +20,7 @@
     <EditableText
         v-if="!infoShown"
         constraint-height
-        :edit-directly="editDirectly" :text="bookmark.notes || ''"
+        :edit-directly="editDirectly" :text="bookmarkNotes || ''"
         @changed="changeNote"
         max-height="inherit"
     />
@@ -30,13 +30,13 @@
       </div>
       {{ sprintf(strings.createdAt, formatTimestamp(bookmark.createdAt)) }}<br/>
       {{ sprintf(strings.lastUpdatedOn, formatTimestamp(bookmark.lastUpdatedOn)) }}<br/>
-      <div v-if="bookmark.notes" class="my-notes-link">
+      <div v-if="bookmarkNotes" class="my-notes-link">
         <a :href="`my-notes://?id=${bookmark.id}`">{{ strings.openMyNotes }}</a>
       </div>
     </div>
     <template #title>
       <span :style="`color:${labelColor}`">
-        <FontAwesomeIcon v-if="bookmark.notes" icon="edit"/>
+        <FontAwesomeIcon v-if="bookmarkNotes" icon="edit"/>
         <FontAwesomeIcon v-else icon="bookmark"/>
       </span>
       {{ bookmark.verseRangeAbbreviated }} <LabelList :labels="labels"/>
@@ -64,7 +64,6 @@ import {useCommon} from "@/composables";
 import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
-import Color from "color";
 import EditableText from "@/components/EditableText";
 import {debounce} from "lodash";
 import LabelList from "@/components/LabelList";
@@ -75,24 +74,41 @@ export default {
   setup() {
     const showBookmark = ref(false);
     const android = inject("android");
-    const bookmark = ref(null);
     const areYouSure = ref(null);
     const infoShown = ref(false);
-    const label = ref({});
-    const labels = ref([]);
+    const bookmarkId = ref(null);
+
+    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
+
+    const bookmark = computed(() => {
+      return bookmarkMap.get(bookmarkId.value);
+    });
+
+    const labels = computed(() => {
+      if(!bookmark.value) return [];
+      return bookmark.value.labels.map(l => bookmarkLabels.get(l))
+    });
+
+    const label = computed(() => labels.value[0]);
+    const bookmarkNotes = ref(null);
+    let originalNotes = null;
     const editDirectly = ref(false);
-    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (b, labels_, {open = false} = {}) => {
-      editDirectly.value = open || !b.notes;
+    setupEventBusListener(Events.BOOKMARK_FLAG_CLICKED, (bookmarkId_, {open = false} = {}) => {
+      bookmarkId.value = bookmarkId_;
+      bookmarkNotes.value = bookmark.value.notes;
+      originalNotes = bookmark.value.notes;
+      editDirectly.value = open || !bookmark.value.notes;
       if(!showBookmark.value) infoShown.value = false;
       showBookmark.value = true;
-      bookmark.value = b;
-      label.value = labels_[0];
-      labels.value = labels_;
-    })
+    });
 
     function closeBookmark() {
       showBookmark.value = false;
-      android.saveBookmarkNote(bookmark.value.id, bookmark.value.notes);
+      if(originalNotes !== bookmarkNotes.value)
+        android.saveBookmarkNote(bookmark.value.id, bookmarkNotes.value);
+
+      bookmarkNotes.value = null;
+      originalNotes = null;
     }
 
     function assignLabels() {
@@ -106,14 +122,6 @@ export default {
       }
     }
 
-    const bookmarkComputed = computed(() => {
-      if(bookmark.value) return bookmark.value;
-      return {
-        id: null,
-        notes: null,
-      }
-    });
-
     const {adjustedColor, ...common} = useCommon();
 
     const labelColor = computed(() => {
@@ -121,12 +129,12 @@ export default {
     });
 
     const changeNote = debounce((text) => {
-      bookmark.value.notes = text;
+      bookmarkNotes.value = text;
     }, 500)
 
     return {
-      showBookmark, closeBookmark, areYouSure, infoShown, editDirectly,
-      removeBookmark,  assignLabels,  bookmark: bookmarkComputed, labelColor, changeNote, labels,
+      showBookmark, closeBookmark, areYouSure, infoShown, editDirectly, bookmarkNotes,
+      removeBookmark,  assignLabels,  bookmark, labelColor, changeNote, labels,
       ...common
     };
   },
