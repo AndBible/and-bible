@@ -32,7 +32,6 @@
         <div v-html="b.notes"/>
       </div>
       <LabelList :labels="labelsFor(b)"/>
-      <hr v-if="index < notes.length - 1"/>
     </div>
   </div>
 </template>
@@ -87,7 +86,12 @@ export default {
 
 <style scoped>
 .note-container {
-  margin: 2pt;
+  margin: 10pt 2pt 2pt;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.3);
+  border-width: 1pt;
+  border-radius: 10pt;
+  padding: 5pt;
 }
 .bible-text {
   margin-top: 2pt;
