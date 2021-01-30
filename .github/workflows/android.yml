@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     branches: [ develop, current-stable, release/* ]
-    tags: [ build-*, beta-*, production-* ]
+    tags: [ build-*, alpha-*, beta-*, production-* ]
   pull_request:
     branches: [ develop, current-stable ]
 
