@@ -429,7 +429,7 @@ export function useBookmarks(documentId,
             for (const b of bookmarks.filter(b => b.notes && arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
                 const icon = b.notes ? "edit" : "bookmark"
-                const color = adjustedColor(bookmarkLabel.color).string()
+                const color = adjustedColor(bookmarkLabel.color).string();
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
                 console.log("b", b);
                 const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
@@ -443,18 +443,33 @@ export function useBookmarks(documentId,
     }
 
     function addMarkers() {
+        const bookmarkMap = new Map();
         for (const b of markerBookmarks.value) {
-            const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
-            const icon = b.notes ? "edit" : "bookmark"
-            const color = adjustedColor(bookmarkLabel.color).string()
-            const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
-
-            const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
-            const lastElement = document.querySelector(`#doc-${documentId} #v-${b.ordinalRange[1]}`);
-
-            iconElement.addEventListener("click", event => addEventFunction(event,
-                () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color}));
+            const key = b.ordinalRange[1];
+            const value = bookmarkMap.get(key) || [];
+            value.push(b);
+            bookmarkMap.set(key, value);
+        }
+        for(const [lastOrdinal, bookmarkList] of bookmarkMap) {
+            const lastElement = document.querySelector(`#doc-${documentId} #v-${lastOrdinal}`);
+            const bookmarkLabel = bookmarkLabels.get(bookmarkList[0].labels[0]);
+            const color = adjustedColor(bookmarkLabel.color).string();
+            const iconElement = getIconElement(bookmarkIcon, color);
+            iconElement.addEventListener("click", event => {
+                for(const b of bookmarkList) {
+                    const bookmarkLabel = bookmarkLabels.get(b.labels[0]);
+                    const color = adjustedColor(bookmarkLabel.color).string();
+                    const icon = b.notes ? "edit" : "bookmark"
+                    const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
+                    addEventFunction(event,
+                        () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color});
+                }
+            });
+            if(bookmarkList.length>1) {
+                iconElement.appendChild(document.createTextNode(bookmarkList.length));
+            }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
+
             undoHighlights.push(() => iconElement.remove());
         }
     }
