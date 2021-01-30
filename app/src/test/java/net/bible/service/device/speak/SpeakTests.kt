@@ -252,7 +252,7 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(SwordContentFacade::class.java),mock(AndroidResourceProvider::class.java))
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }

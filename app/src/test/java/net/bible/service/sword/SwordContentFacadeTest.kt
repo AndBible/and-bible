@@ -38,7 +38,7 @@ class SwordContentFacadeTest {
     fun setUp() {
         val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
         val windowControl = Mockito.mock(WindowControl::class.java)
-        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(windowControl, Mockito.mock(SwordContentFacade::class.java),Mockito.mock(AndroidResourceProvider::class.java))
         swordContentFacade = SwordContentFacade(activeWindowPageManagerProvider)
     }
 
