@@ -25,6 +25,9 @@
         max-height="inherit"
     />
     <div v-show="infoShown" class="info">
+      <div class="bible-text">
+        <q v-if="bookmark.text"><i>{{ bookmark.text }}</i></q>
+      </div>
       <div v-if="bookmark.bookName">
         {{ sprintf(strings.bookmarkAccurate, bookmark.bookName) }}
       </div>
@@ -145,6 +148,8 @@ export default {
 .info {
   margin-top: 10pt;
   font-size: 80%;
+  overflow-y: auto;
+  max-height: calc(var(--max-height) - 25pt);
 }
 .my-notes-link {
   padding-top: 10pt;
@@ -152,6 +157,10 @@ export default {
 
   font-size: smaller;
 }
-
+.bible-text {
+  text-indent: 5pt;
+  margin-bottom: 10pt;
+  font-style: italic;
+}
 
 </style>
