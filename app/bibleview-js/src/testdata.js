@@ -49,6 +49,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 9,
@@ -57,6 +58,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 8,
@@ -65,6 +67,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 7,
@@ -73,6 +76,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 6,
@@ -80,6 +84,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: [20, 60],
             labels: [1],
             bookInitials: "KJV",
+            text: "test",
             notes: "test",
         },
         {
@@ -89,6 +94,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 4,
@@ -97,6 +103,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [1],
             bookInitials: "KJV",
             notes: null,
+            text: "test",
         },
         {
             id: 0,
@@ -113,6 +120,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: null,
             bookInitials: null,
             notes: null,
+            text: "test",
         },
         {
             id: 2,
@@ -121,6 +129,7 @@ if(process.env.NODE_ENV === "development") {
             offsetRange: null,
             bookInitials: null,
             notes: null,
+            text: "test",
         },
         {
             id: 3,

@@ -16,7 +16,7 @@
  */
 
 import {inject, onMounted, onUnmounted, reactive, watch} from "@vue/runtime-core";
-import {cloneDeep, sortBy, truncate, uniqWith} from "lodash";
+import {cloneDeep, sortBy, uniqWith} from "lodash";
 import {addEventFunction, arrayEq, colorLightness, intersection, mixColors, rangesOverlap} from "@/utils";
 import {computed, ref} from "@vue/reactivity";
 import {findNodeAtOffset, lastTextNode} from "@/dom";
@@ -103,7 +103,7 @@ export function useBookmarks(documentId,
                              {bookmarks, bookmarkMap, bookmarkLabels, labelsUpdated},
                              bookInitials,
                              documentReady,
-                             {adjustedColor},
+                             {adjustedColor, abbreviated},
                              config) {
 
     const isMounted = ref(0);
@@ -364,8 +364,7 @@ export function useBookmarks(documentId,
         function addBookmarkEventFunctions(event) {
             for (const b of bookmarks) {
                 const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l)).filter(l => !l.noHighlight);
-                const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
-                const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabels_[0].color).string();
                 addEventFunction(event, () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {icon, color, title});
@@ -418,9 +417,7 @@ export function useBookmarks(documentId,
                 const color = adjustedColor("red").string()
                 const iconElement = getIconElement(speakIcon, color);
 
-                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
-                const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
-                const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon: "headphones", color}));
@@ -434,11 +431,8 @@ export function useBookmarks(documentId,
                 const icon = b.notes ? "edit" : "bookmark"
                 const color = adjustedColor(bookmarkLabel.color).string()
                 const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
-
-                // TODO: remove repetition...
-                const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
-                const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
-                const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+                console.log("b", b);
+                const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
 
                 iconElement.addEventListener("click", event => addEventFunction(event,
                     () => emit(Events.BOOKMARK_FLAG_CLICKED, b.id), {title, icon, color}));
@@ -455,10 +449,7 @@ export function useBookmarks(documentId,
             const color = adjustedColor(bookmarkLabel.color).string()
             const iconElement = getIconElement(b.notes ? editIcon : bookmarkIcon, color);
 
-            // TODO: remove repetition...
-            const bookmarkLabels_ = b.labels.map(l => bookmarkLabels.get(l));
-            const labelTitles = bookmarkLabels_.map(l => l.name).join(",");
-            const title = sprintf(strings.openBookmark, truncate(labelTitles, 15));
+            const title = sprintf(strings.openBookmark, abbreviated(b.text, 15));
             const lastElement = document.querySelector(`#doc-${documentId} #v-${b.ordinalRange[1]}`);
 
             iconElement.addEventListener("click", event => addEventFunction(event,
