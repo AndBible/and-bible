@@ -22,7 +22,7 @@
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
   </div>
-  <div class="note-container verse" v-for="(b, index) in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
+  <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
     <div class="edit-button" @click.stop="editNote(b)">
       <FontAwesomeIcon icon="edit"/>
     </div>
@@ -31,7 +31,7 @@
       <div class="notes">
         <div v-html="b.notes"/>
       </div>
-      <LabelList :labels="labelsFor(b)"/>
+      <LabelList @click="assignLabels(b)" :labels="labelsFor(b)"/>
     </div>
   </div>
 </template>
@@ -79,7 +79,11 @@ export default {
       return b.labels.map(l => globalBookmarks.bookmarkLabels.get(l));
     }
 
-    return {notes, save, editNotes, editNote, labelsFor, ...useCommon()}
+    function assignLabels(bookmark) {
+      android.assignLabels(bookmark.id);
+    }
+
+    return {notes, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
   }
 }
 </script>
