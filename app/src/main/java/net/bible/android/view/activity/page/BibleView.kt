@@ -528,9 +528,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             super.onLoadResource(view, url)
         }
 
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
+            return if(openLink(Uri.parse(url))) {
+                true
+            } else {
+                super.shouldOverrideUrlLoading(view, url)
+            }
+        }
         override fun shouldOverrideUrlLoading(view: WebView, req: WebResourceRequest): Boolean {
             return if(openLink(req.url)) {
-                super.shouldOverrideUrlLoading(view, req)
                 true
             } else {
                 super.shouldOverrideUrlLoading(view, req)

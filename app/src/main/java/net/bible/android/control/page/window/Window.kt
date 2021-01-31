@@ -202,7 +202,7 @@ open class Window (
     private suspend fun waitForBibleView() {
         var time = 0L
         val delayMillis = 50L
-        val timeout = 1000L
+        val timeout = 5000L
         while(bibleView == null) {
             delay(delayMillis)
             time += delayMillis;
