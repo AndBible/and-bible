@@ -166,10 +166,9 @@
   color: #7b7bff;
 }
 .icon {
-  width: 0.7em;
-  height: 0.7em;
-  font-size: 80%;
-  padding: 1pt;
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
   vertical-align: super;
 }
 
