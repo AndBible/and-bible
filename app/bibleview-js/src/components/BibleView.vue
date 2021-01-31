@@ -162,7 +162,9 @@
   }
 </script>
 <style lang="scss">
-
+.night a {
+  color: #7b7bff;
+}
 .icon {
   width: 0.7em;
   height: 0.7em;

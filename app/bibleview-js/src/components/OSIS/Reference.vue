@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <a class="reference" @click="openLink(link)" :href="link" ref="content"><slot/></a>
+  <a class="reference" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
