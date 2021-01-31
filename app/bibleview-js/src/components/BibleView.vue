@@ -171,6 +171,12 @@
   font-size: 50%;
   vertical-align: super;
 }
+.super-script {
+  position: relative;
+  top: -0.1em;
+  font-size: 100%;
+  vertical-align: super;
+}
 
 .divider {
   height: 1em;

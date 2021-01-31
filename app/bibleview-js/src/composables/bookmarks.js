@@ -470,7 +470,10 @@ export function useBookmarks(documentId,
                 }
             });
             if(bookmarkList.length>1) {
-                iconElement.appendChild(document.createTextNode(bookmarkList.length));
+                const sup = document.createElement("span")
+                sup.classList.add("super-script")
+                sup.appendChild(document.createTextNode(bookmarkList.length));
+                iconElement.appendChild(sup);
             }
             lastElement.parentNode.insertBefore(iconElement, lastElement.nextSibling);
 
