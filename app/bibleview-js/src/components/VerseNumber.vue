@@ -35,6 +35,6 @@ export default {
 .verseNumber {
   color: gray;
   vertical-align: top;
-  font-size: 0.7em;
+  font-size: 70%;
 }
 </style>

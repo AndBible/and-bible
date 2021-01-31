@@ -182,6 +182,7 @@
 }
 
 .button {
+  font-size: 90%;
   background-color: #717171;
   + .toggled {
     background-color: #474747;

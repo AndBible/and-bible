@@ -93,7 +93,7 @@ export default {
 <style scoped lang="scss">
 .note-handle-base {
   vertical-align: top;
-  font-size: 0.7em;
+  font-size: 70%;
   padding: 0.5em;
 }
 

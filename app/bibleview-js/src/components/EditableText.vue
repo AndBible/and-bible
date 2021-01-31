@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :style="parentStyle">
+  <div :style="parentStyle" class="editable-text">
     <div class="edit-button" @click="editMode = !editMode">
       <FontAwesomeIcon icon="edit"/>
     </div>
@@ -79,5 +79,11 @@ export default {
   right: 5px;
   color: #939393;
 }
-
+</style>
+<style>
+.editable-text ul {
+  margin-top: 5pt;
+  margin-bottom: 5pt;
+  padding-left: 15pt;
+}
 </style>

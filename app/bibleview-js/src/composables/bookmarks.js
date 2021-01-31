@@ -212,8 +212,12 @@ export function useBookmarks(documentId,
             return point;
     }
 
-    const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => b.bookInitials === bookInitials))
-    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => b.bookInitials !== bookInitials))
+    function showHighlight(b) {
+        return b.offsetRange == null || b.bookInitials === bookInitials
+    }
+
+    const highlightBookmarks = computed(() => documentBookmarks.value.filter(b => showHighlight(b)))
+    const markerBookmarks = computed(() => documentBookmarks.value.filter(b => !showHighlight(b)))
 
     const styleRanges = computed(() => {
         isMounted.value;
