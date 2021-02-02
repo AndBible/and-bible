@@ -64,3 +64,24 @@ export default {
 
 </script>
 
+<style lang="scss" scoped>
+a {
+  &.clicked {
+    color: green;
+  }
+  &.last-clicked {
+    color: red;
+  }
+  .night & {
+
+    &.clicked {
+      color: #73d573;
+    }
+
+    &.last-clicked {
+      color: #de6e6e;
+    }
+  }
+}
+
+</style>

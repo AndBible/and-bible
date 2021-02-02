@@ -164,22 +164,8 @@
 <style lang="scss">
 a {
   color: blue;
-  &.clicked {
-    color: green;
-  }
-  &.last-clicked {
-    color: red;
-  }
-  .night & {
+  & .night {
     color: #7b7bff;
-
-    &.clicked {
-      color: #73d573;
-    }
-    &.last-clicked {
-      color: #de6e6e;
-    }
-
   }
 }
 
