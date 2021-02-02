@@ -162,9 +162,27 @@
   }
 </script>
 <style lang="scss">
-.night a {
-  color: #7b7bff;
+a {
+  color: blue;
+  &.clicked {
+    color: green;
+  }
+  &.last-clicked {
+    color: red;
+  }
+  .night & {
+    color: #7b7bff;
+
+    &.clicked {
+      color: #73d573;
+    }
+    &.last-clicked {
+      color: #de6e6e;
+    }
+
+  }
 }
+
 .icon {
   position: relative;
   top: -0.5em;

@@ -16,12 +16,15 @@
   -->
 
 <template>
-  <a class="reference" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
+  <a :class="{reference: true, clicked, 'last-clicked': lastClicked}" @click="openLink($event, link)" :href="link" ref="content"><slot/></a>
 </template>
 
 <script>
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {addEventFunction} from "@/utils";
+import {ref} from "@vue/reactivity";
+
+let cancelFunc = () => {};
 
 export default {
   name: "Reference",
@@ -43,11 +46,19 @@ export default {
   },
   setup(props) {
     checkUnsupportedProps(props, "type");
+    const clicked = ref(false);
+    const lastClicked = ref(false);
     const {strings, ...common} = useCommon();
     function openLink(event, url) {
-      addEventFunction(event, () => window.location.assign(url), {title: strings.referenceLink});
+      addEventFunction(event, () => {
+        window.location.assign(url)
+        cancelFunc();
+        clicked.value = true;
+        lastClicked.value = true;
+        cancelFunc = () => lastClicked.value = false;
+      }, {title: strings.referenceLink});
     }
-    return {openLink, ...common};
+    return {openLink, clicked, lastClicked, ...common};
   },
 }
 
