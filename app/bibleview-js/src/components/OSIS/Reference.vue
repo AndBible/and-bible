@@ -73,7 +73,6 @@ a {
     color: red;
   }
   .night & {
-
     &.clicked {
       color: #73d573;
     }

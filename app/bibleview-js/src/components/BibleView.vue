@@ -164,7 +164,7 @@
 <style lang="scss">
 a {
   color: blue;
-  & .night {
+  .night & {
     color: #7b7bff;
   }
 }
