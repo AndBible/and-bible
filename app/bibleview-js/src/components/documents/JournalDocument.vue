@@ -16,18 +16,18 @@
   -->
 
 <template>
-  <div v-if="notes.length === 0">
-    {{strings.noNotes}}
+  <div v-if="bookmarks.length === 0">
+    {{strings.emptyJournal}}
   </div>
   <div v-else>
     <h2>{{ document.verseRange }}</h2>
   </div>
-  <div class="note-container verse" v-for="b in notes" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
+  <div class="note-container verse" v-for="b in bookmarks" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
     <div class="edit-button" @click.stop="editNote(b)">
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div>
-      <b>{{ sprintf(strings.verses, b.verseRangeOnlyNumber) }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
+      <b>{{  b.verseRange }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
       <div class="notes">
         <div v-html="b.notes"/>
       </div>
@@ -45,23 +45,24 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LabelList from "@/components/LabelList";
 
 export default {
-  name: "MyNotesDocument",
+  name: "JournalDocument",
   components: {LabelList, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
-    const {bookmarks} = props.document;
+    const {bookmarks, label} = props.document;
 
     const globalBookmarks = inject("globalBookmarks");
     const android = inject("android");
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const notes = computed(() => {
-      return globalBookmarks.bookmarks.value.filter(b => b.notes !== null)
+    const filteredBookmarks = computed(() => {
+      return globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id))
     });
+
 
     function editNotes(b, newText) {
       b.notes = newText;
@@ -83,7 +84,7 @@ export default {
       android.assignLabels(bookmark.id);
     }
 
-    return {notes, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
+    return {bookmarks: filteredBookmarks, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
   }
 }
 </script>

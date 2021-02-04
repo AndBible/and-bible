@@ -198,11 +198,13 @@ export function useStrings() {
         createdAt: "Created: %s",
         lastUpdatedOn: "Last updated: %s",
         strongsLink: "Open strongs",
+        journalLink: "Open journal",
         externalLink: "Open external link",
         referenceLink: "Open reference link",
         openFootnote: "Open footnote",
         openBookmark: "Open bookmark (%s)",
         noNotes: "No My Notes for this chapter",
+        emptyJournal: "Empty journal",
         verses: "Verse %s",
     }
 }

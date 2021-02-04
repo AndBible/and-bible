@@ -20,8 +20,11 @@ package net.bible.android.control.page
 import android.view.Menu
 import net.bible.android.activity.R
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.JournalKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current passage shown by viewer
@@ -39,6 +42,15 @@ class CurrentGeneralBookPage internal constructor(
     override val documentCategory = DocumentCategory.GENERAL_BOOK
 
     override val keyChooserActivity = ChooseGeneralBookKey::class.java
+
+    override val currentPageContent: Document
+        get() {
+            val key = key
+            return if(key is JournalKey) {
+                val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
+                JournalDocument(key.label, bookmarks)
+            } else super.currentPageContent
+        }
 
     /** set key without notification
      *
@@ -76,7 +88,26 @@ class CurrentGeneralBookPage internal constructor(
     override val isSearchable: Boolean
         get() = false
 
+    val journalDocument: Book get() {
+        return _journalDocument?: FakeBookFactory.createFakeRepoSwordBook("My Note", JOURNAL_DUMMY_CONF, "").apply {
+            _journalDocument = this
+        }
+    }
+
     companion object {
+        var _journalDocument: Book? = null
         private const val TAG = "CurrentGeneralBookPage"
     }
 }
+
+const val JOURNAL_DUMMY_CONF = """[Journal]
+Description=Journal
+Category=Generic Books
+ModDrv=zCom
+BlockType=CHAPTER
+Lang=en
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+DataPath=./modules/comments/zcom/journal/
+About=
+Versification="""

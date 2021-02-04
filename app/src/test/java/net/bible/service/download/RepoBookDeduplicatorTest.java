@@ -27,7 +27,7 @@ public class RepoBookDeduplicatorTest {
 
 	@Test
 	public void testAdd1() throws Exception {
-		Book svBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
+		Book svBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
 		List<Book> books = Arrays.asList(svBook);
 		
 		repoBookDeduplicator.addAll(books);
@@ -37,11 +37,11 @@ public class RepoBookDeduplicatorTest {
 
 	@Test
 	public void testAddNewer() throws Exception {
-		Book svBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
+		Book svBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
 		List<Book> books1 = Arrays.asList(svBook);
 		repoBookDeduplicator.addAll(books1);
 
-		Book svBookNewer = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
+		Book svBookNewer = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
 		List<Book> books2 = Arrays.asList(svBookNewer);
 		
 		repoBookDeduplicator.addAll(books2);
@@ -52,11 +52,11 @@ public class RepoBookDeduplicatorTest {
 
 	@Test
 	public void testAddOlder() throws Exception {
-		Book svBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
+		Book svBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
 		List<Book> books1 = Arrays.asList(svBook);
 		repoBookDeduplicator.addAll(books1);
 
-		Book svBookOlder = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
+		Book svBookOlder = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
 		List<Book> books2 = Arrays.asList(svBookOlder);
 		
 		repoBookDeduplicator.addAll(books2);
@@ -67,7 +67,7 @@ public class RepoBookDeduplicatorTest {
 
 	@Test
 	public void testAddIfNotExists() throws Exception {
-		Book svBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
+		Book svBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
 		List<Book> books1 = Arrays.asList(svBook);
 		repoBookDeduplicator.addAll(books1);
 		
@@ -79,11 +79,11 @@ public class RepoBookDeduplicatorTest {
 
 	@Test
 	public void testAddIfNotExistsNewer() throws Exception {
-		Book svBook = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
+		Book svBook = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.0", null);
 		List<Book> books1 = Arrays.asList(svBook);
 		repoBookDeduplicator.addAll(books1);
 
-		Book svBookNewer = FakeSwordBookFactory.createFakeRepoBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
+		Book svBookNewer = FakeBookFactory.createFakeRepoSwordBook("DEF", "[DEF]\nLang=sv\nCategory=Biblical Texts\nVersion=1.0.1", null);
 		List<Book> books2 = Arrays.asList(svBookNewer);
 		
 		repoBookDeduplicator.addIfNotExists(books2);

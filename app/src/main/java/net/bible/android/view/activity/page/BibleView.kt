@@ -457,6 +457,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_W = "ab-w"
         const val SCHEME_REFERENCE = "osis"
         const val SCHEME_MYNOTES = "my-notes"
+        const val SCHEME_JOURNAL = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
     }
 
@@ -494,6 +495,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val id = uri.getQueryParameter("id")?.toLongOrNull()
             if(id != null) {
                 linkControl.openMyNotes(id)
+            } else false
+        }
+        UriConstants.SCHEME_JOURNAL -> {
+            val id = uri.getQueryParameter("id")?.toLongOrNull()
+            if(id != null) {
+                linkControl.openJournal(id)
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {

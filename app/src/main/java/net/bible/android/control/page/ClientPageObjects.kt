@@ -133,6 +133,22 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
         }
 }
 
+class JournalDocument(val label: BookmarkEntities.Label, val bookmarks: List<BookmarkEntities.Bookmark>): Document, DocumentWithBookmarks
+{
+    override val asHashMap: Map<String, Any>
+        get() {
+            val bookmarks = bookmarks.map { ClientBookmark(it, it.v11n) }
+            val clientLabel = ClientBookmarkLabel(label)
+            return mapOf(
+                "id" to wrapString("journal_${label.id}"),
+                "type" to wrapString("journal"),
+                "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "label" to json.encodeToString(serializer(), clientLabel),
+            )
+        }
+}
+
+
 class OsisFragment(
     val xml: String,
     val key: Key?,

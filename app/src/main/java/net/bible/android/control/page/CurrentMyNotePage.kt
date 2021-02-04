@@ -20,7 +20,7 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
-import net.bible.service.download.FakeSwordBookFactory
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
@@ -57,7 +57,7 @@ class CurrentMyNotePage internal constructor(
 			try {
 				if (fakeMyNoteBook == null || fakeMyNoteBookVersification == null || fakeMyNoteBookVersification != currentVersification) {
 					val v11n = currentVersification
-					fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", MY_NOTE_DUMMY_CONF + v11n.name, "")
+					fakeMyNoteBook = FakeBookFactory.createFakeRepoSwordBook("My Note", MY_NOTE_DUMMY_CONF + v11n.name, "")
 					fakeMyNoteBookVersification = v11n
 				}
 			} catch (e: IOException) {

@@ -123,12 +123,18 @@ open class BookmarkControl @Inject constructor(
         ABEventBus.getDefault().post(BookmarksDeletedEvent(bookmarkIds))
     }
 
-    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER): List<Bookmark> =
-        when {
+    fun getBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false): List<Bookmark> {
+        val bookmarks = when {
             labelAll == label -> dao.allBookmarks(orderBy)
             labelUnlabelled == label -> dao.unlabelledBookmarks(orderBy)
             else -> dao.bookmarksWithLabel(label, orderBy)
         }
+        if(addData) for (it in bookmarks) {
+            addText(it)
+            addLabels(it)
+        }
+        return bookmarks
+    }
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
@@ -248,6 +254,8 @@ open class BookmarkControl @Inject constructor(
             b.text = "$startVerse$middleVerses$endVerse"
         }
     }
+
+    fun labelById(id: Long): Label? = dao.labelById(id)
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

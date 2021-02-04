@@ -17,22 +17,29 @@
 
 <template>
   <div class="label-list">
-    <span v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @click="goToJournal($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
+import {addEventFunction} from "@/utils";
 
 export default {
   props: {labels: {type: Array, required: true}},
   name: "LabelList",
   setup() {
-    const {adjustedColor, ...common} = useCommon();
+    const {adjustedColor, strings, ...common} = useCommon();
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
-    return {labelStyle, ...common}
+
+    function goToJournal(event, label) {
+      const url = `journal://?id=${label.id}`
+      addEventFunction(event, () => window.location.assign(url), {title: strings.journalLink});
+    }
+
+    return {labelStyle, goToJournal, ...common}
   }
 }
 </script>
