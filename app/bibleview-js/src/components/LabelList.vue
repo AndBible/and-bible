@@ -17,26 +17,26 @@
 
 <template>
   <div class="label-list">
-    <span @click="goToJournal($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
+    <span @touchstart.stop="goToJournal($event, label)" v-for="label in labels" :key="label.id" :style="labelStyle(label)" class="label">{{label.name}}</span>
   </div>
 </template>
 
 <script>
 import {useCommon} from "@/composables";
-import {addEventFunction} from "@/utils";
 
 export default {
   props: {labels: {type: Array, required: true}},
   name: "LabelList",
   setup() {
-    const {adjustedColor, strings, ...common} = useCommon();
+    const {adjustedColor, ...common} = useCommon();
     function labelStyle(label) {
       return "background-color: " + adjustedColor(label.color).string() + ";";
     }
 
     function goToJournal(event, label) {
+      if(label.id <= 0) return;
       const url = `journal://?id=${label.id}`
-      addEventFunction(event, () => window.location.assign(url), {title: strings.journalLink});
+      window.location.assign(url);
     }
 
     return {labelStyle, goToJournal, ...common}
