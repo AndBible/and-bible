@@ -19,6 +19,7 @@ package net.bible.android.control.page
 
 import android.view.Menu
 import net.bible.android.activity.R
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.JournalKey
@@ -91,6 +92,16 @@ class CurrentGeneralBookPage internal constructor(
     val journalDocument: Book get() {
         return _journalDocument?: FakeBookFactory.createFakeRepoSwordBook("My Note", JOURNAL_DUMMY_CONF, "").apply {
             _journalDocument = this
+        }
+    }
+
+    override fun restoreFrom(entity: WorkspaceEntities.Page?) {
+        if(entity?.document == journalDocument.initials) {
+            val (_, id) = entity!!.key!!.split(":")
+            val label = pageManager.bookmarkControl.labelById(id.toLong())
+            if(label != null) doSetKey(JournalKey(label))
+        } else {
+            super.restoreFrom(entity)
         }
     }
 
