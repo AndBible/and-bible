@@ -48,8 +48,10 @@ class CurrentGeneralBookPage internal constructor(
         get() {
             val key = key
             return if(key is JournalKey) {
+                pageManager.bookmarkControl.sanitizeOrder(key.label)
                 val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
                 val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
+
                 JournalDocument(key.label, bookmarks, journalTextEntries)
             } else super.currentPageContent
         }
@@ -63,15 +65,27 @@ class CurrentGeneralBookPage internal constructor(
     }
 
     override fun next() {
-        getKeyPlus(1).let {
-			setKey(it)
-		}
+        val key = key
+        if(key is JournalKey) {
+            val nextLabel = pageManager.bookmarkControl.getNextLabel(key.label)
+            setKey(JournalKey(nextLabel))
+        } else {
+            getKeyPlus(1).let {
+                setKey(it)
+            }
+        }
     }
 
     override fun previous() {
-        getKeyPlus(-1).let {
-			setKey(it)
-		}
+        val key = key
+        if(key is JournalKey) {
+            val nextLabel = pageManager.bookmarkControl.getPrevLabel(key.label)
+            setKey(JournalKey(nextLabel))
+        } else {
+            getKeyPlus(-1).let {
+                setKey(it)
+            }
+        }
     }
 
     override fun updateOptionsMenu(menu: Menu) {

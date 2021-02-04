@@ -105,8 +105,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun insertOrUpdateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
-        bookmarkControl.insertOrUpdateJournalTextEntry(
+    fun updateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
+        bookmarkControl.updateJournalTextEntry(
             BookmarkEntities.JournalTextEntry(
                 id = id,
                 labelId = labelId,

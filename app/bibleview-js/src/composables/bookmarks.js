@@ -62,9 +62,9 @@ export function useGlobalBookmarks(config) {
         }
     }
 
-    function updateBookmarkOrdering(...entries) {
-        for(const v of entries) {
-            bookmarks.get(v.id).orderNumber = v.orderNumber;
+    function updateBookmarkOrdering(...bookmarkLabelEntries) {
+        for(const v of bookmarkLabelEntries) {
+            bookmarks.get(v.bookmarkId).orderNumber = v.orderNumber;
         }
     }
 

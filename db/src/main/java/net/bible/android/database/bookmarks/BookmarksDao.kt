@@ -181,7 +181,7 @@ interface BookmarkDao {
     @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getBookmarkToLabelsForBookmark(bookmarkId: Long): List<BookmarkToLabel>
 
-    @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:labelId""")
+    @Query("""SELECT * FROM BookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber""")
     fun getBookmarkToLabelsForLabel(labelId: Long): List<BookmarkToLabel>
 
     @Query("""SELECT * FROM BookmarkToLabel WHERE bookmarkId=:bookmarkId AND labelId=:labelId""")

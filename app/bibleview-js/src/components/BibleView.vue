@@ -60,7 +60,9 @@
       const documents = reactive([]);
       window.bibleViewDebug.documents = documents;
       const topElement = ref(null);
-      const {scrollToVerse} = useScroll(config);
+      const scroll = useScroll(config);
+      const {scrollToId} = scroll;
+      provide("scroll", scroll);
       const globalBookmarks = useGlobalBookmarks(config);
       const android = useAndroid(globalBookmarks, config);
       const {currentVerse} = useVerseNotifier(config, android, topElement);
@@ -79,7 +81,7 @@
       setupEventBusListener(Events.CONFIG_CHANGED, async (deferred) => {
         const verseBeforeConfigChange = currentVerse.value;
         await deferred.wait();
-        scrollToVerse(`v-${verseBeforeConfigChange}`, true)
+        scrollToId(`v-${verseBeforeConfigChange}`, true)
       })
 
       setupEventBusListener(Events.REPLACE_DOCUMENT, replaceDocument);

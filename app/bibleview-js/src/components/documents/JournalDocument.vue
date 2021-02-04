@@ -17,6 +17,9 @@
 
 <template>
   <AreYouSure ref="areYouSureDelete">
+    <template #title>
+      {{ strings.removeJournalConfirmationTitle }}
+    </template>
     {{ strings.doYouWantToDeleteEntry }}
   </AreYouSure>
   <div v-if="journalEntries.length === 0">
@@ -25,7 +28,7 @@
   <div v-else>
     <h2>{{ document.label.name }}</h2>
   </div>
-  <div v-for="j in journalEntries" :key="j.id">
+  <div v-for="j in journalEntries" :id="`${j.type}-${j.id}`" :key="`${j.type}-${j.id}`">
     <div class="note-container">
       <template v-if="j.type===JournalEntryTypes.BOOKMARK">
         <div class="edit-button" @click.stop="editBookmark(j)">
@@ -37,7 +40,7 @@
         <FontAwesomeIcon icon="trash"/>
       </div>
       <div class="notes">
-        <EditableText :edit-directly="j.new" :text="journalText(j)" @closed="journalTextChanged(j, $event)"/>
+        <EditableText :edit-directly="j.new" :text="journalText(j)" @opened="editOpened(j)" @closed="journalTextChanged(j, $event)"/>
       </div>
     </div>
     <div class="add-entry" @click.stop="addNewEntryAfter(j)">
@@ -48,7 +51,7 @@
 
 <script>
 import {computed, ref} from "@vue/reactivity";
-import {inject, reactive, provide} from "@vue/runtime-core";
+import {inject, reactive, provide, nextTick} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {sortBy} from "lodash";
@@ -92,6 +95,7 @@ export default {
     const {bookmarks, label} = props.document;
     const journal = useJournal(label);
     provide("journal", journal);
+    const {scrollToId} = inject("scroll");
 
     const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering, deleteJournal} = journal;
 
@@ -109,11 +113,20 @@ export default {
       entries = sortBy(entries, ['orderNumber']);
       return entries;
     });
+    let adding = false;
 
-    setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
+    setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, async ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
+      if(adding) {
+        journal.new = true
+        adding = false;
+      }
       globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
       updateJournalOrdering(...journalsOrdered);
-      updateJournalTextEntries(journal)
+      updateJournalTextEntries(journal);
+      await nextTick();
+      if(journal.new) {
+        scrollToId(`${journal.type}-${journal.id}`, {duration: 300})
+      }
     })
 
     setupEventBusListener(Events.DELETE_JOURNAL, journalId => {
@@ -146,7 +159,7 @@ export default {
         entry.notes = newText;
       } else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
         entry.text = newText;
-        android.insertOrUpdateJournalTextEntry(entry);
+        android.updateJournalTextEntry(entry);
       }
     }
     function journalText(entry) {
@@ -155,6 +168,7 @@ export default {
     }
 
     function addNewEntryAfter(entry) {
+      adding = true;
       android.createNewJournalEntry(label.id, entry.type, entry.id);
     }
 
@@ -171,10 +185,15 @@ export default {
       }
     }
 
+    async function editOpened(entry) {
+      await nextTick();
+      scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
+    }
+
     return {
       journalEntries, journalText, journalTextChanged, save, editNotes,
       editBookmark, labelsFor, assignLabels, editableJournalEntry,
-      addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete,
+      addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete, editOpened,
       ...useCommon()
     }
   }

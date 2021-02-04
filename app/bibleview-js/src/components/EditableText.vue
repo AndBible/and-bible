@@ -37,10 +37,12 @@ import TextEditor from "@/components/TextEditor";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {watch} from "@vue/runtime-core";
 
+let cancelOpen = () => {}
+
 export default {
   name: "EditableText",
   components: {TextEditor, FontAwesomeIcon},
-  emits: ["closed", "changed"],
+  emits: ["closed", "changed", "opened"],
   props: {
     editDirectly:{type: Boolean, default: false},
     text:{type: String, default: null},
@@ -52,8 +54,19 @@ export default {
     const parentStyle = ref("");
     const editText = ref(props.text);
     parentStyle.value = props.maxHeight ? `--max-height: ${props.maxHeight};`: "--max-height: 100pt;";
+
+    function cancelFunc() {
+      editMode.value = false;
+    }
     watch(editMode, mode => {
       if(!mode) emit("closed", editText.value);
+      else {
+        emit("opened")
+        if(cancelFunc !== cancelOpen) {
+          cancelOpen()
+        }
+        cancelOpen = cancelFunc
+      }
     })
     watch(() => props.text, t => {
       editText.value = t;

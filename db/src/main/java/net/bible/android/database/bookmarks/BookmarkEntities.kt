@@ -233,7 +233,6 @@ class BookmarkEntities {
         var indentLevel: Int = 0,
     ) {
         @Ignore val type: String = "journal"
-        @Ignore var new: Boolean = false
     }
 
     @Entity

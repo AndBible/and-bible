@@ -187,8 +187,8 @@ export function useAndroid({bookmarks}, config) {
         android.setActionMode(value);
     }
 
-    function insertOrUpdateJournalTextEntry(entry) {
-        android.insertOrUpdateJournalTextEntry(entry.id, entry.labelId, entry.text, entry.indentLevel, entry.orderNum);
+    function updateJournalTextEntry(entry) {
+        android.updateJournalTextEntry(entry.id, entry.labelId, entry.text, entry.indentLevel, entry.orderNum);
     }
 
     function updateJournalBookmark(bookmark, labelId) {
@@ -219,7 +219,7 @@ export function useAndroid({bookmarks}, config) {
         removeBookmark,
         assignLabels,
         openExternalLink,
-        insertOrUpdateJournalTextEntry,
+        updateJournalTextEntry,
         updateJournalBookmark,
         createNewJournalEntry,
         deleteJournalEntry,
