@@ -46,7 +46,11 @@ class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
 
-class JournalTextEntryAddedOrUpdatedEvent(val journalTextEntry: BookmarkEntities.JournalTextEntry)
+class JournalTextEntryAddedOrUpdatedEvent(
+    val journalTextEntry: BookmarkEntities.JournalTextEntry,
+    val bookmarkToLabelsOrderChanged: List<BookmarkToLabel>,
+    val journalOrderChanged: List<BookmarkEntities.JournalTextEntry>
+)
 
 const val LABEL_ALL_ID = -999L
 const val LABEL_UNLABELED_ID = -998L
@@ -138,6 +142,8 @@ open class BookmarkControl @Inject constructor(
         }
         return bookmarks
     }
+
+    fun bookmarksByLabelId(labelId: Long) = dao.bookmarksWithLabel(labelId, BookmarkSortOrder.ORDER_NUMBER)
 
     fun labelsForBookmark(bookmark: Bookmark): List<Label> {
         return dao.labelsForBookmark(bookmark.id)
@@ -235,7 +241,9 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addLabels(b: Bookmark) {
-        b.labelIds = labelsForBookmark(b).map { it.id }
+        val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b.id)
+        b.bookmarkToLabels = bookmarkToLabels
+        b.labelIds = bookmarkToLabels.map { it.labelId }
     }
 
     private fun addText(b: Bookmark) {
@@ -264,11 +272,33 @@ open class BookmarkControl @Inject constructor(
         return dao.journalTextEntriesByLabelId(label.id)
     }
 
-    fun createOrUpdateJournalTextEntry(entry: BookmarkEntities.JournalTextEntry) {
+    fun insertOrUpdateJournalTextEntry(entry: BookmarkEntities.JournalTextEntry) {
         if(entry.id != 0L) dao.update(entry)
         else dao.insert(entry).also { entry.id = it }
-        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry))
     }
+
+    fun updateBookmarkToLabel(bookmarkToLabel: BookmarkToLabel) {
+        dao.update(bookmarkToLabel)
+        val bookmark = dao.bookmarkById(bookmarkToLabel.bookmarkId)
+        addText(bookmark)
+        addLabels(bookmark)
+        ABEventBus.getDefault().post(BookmarkAddedOrUpdatedEvent(bookmark))
+    }
+
+    fun updateBookmarkTimestamp(bookmarkId: Long) {
+        dao.updateBookmarkDate(dao.bookmarkById(bookmarkId))
+    }
+
+    fun journalsByLabelId(labelId: Long): List<BookmarkEntities.JournalTextEntry> = dao.journalTextEntriesByLabelId(labelId)
+
+    fun getBookmarkToLabel(bookmarkId: Long, labelId: Long): BookmarkToLabel? = dao.getBookmarkToLabel(bookmarkId, labelId)
+
+    fun getJournalById(journalTextEntryId: Long): BookmarkEntities.JournalTextEntry? = dao.journalTextEntryById(journalTextEntryId)
+
+    fun bookmarkToLabelsByLabelId(labelId: Long): List<BookmarkToLabel> = dao.getBookmarkToLabelsForLabel(labelId)
+
+    fun updateBookmarkToLabels(bookmarkToLabels: List<BookmarkToLabel>) = dao.updateBookmarkToLabels(bookmarkToLabels)
+    fun updateJournalTextEntries(journalTextEntries: List<BookmarkEntities.JournalTextEntry>) = dao.updateJournalTextEntries(journalTextEntries)
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

@@ -22,7 +22,7 @@ import {computed} from "@vue/reactivity";
 import {throttle} from "lodash";
 import {emit, Events, setupEventBusListener} from "@/eventbus";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faBookmark, faEdit, faHeadphones} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faEdit, faHeadphones, faPlus, faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import Color from "color";
 
 let developmentMode = false;
@@ -205,6 +205,7 @@ export function useStrings() {
         openBookmark: "Open bookmark (%s)",
         noNotes: "No My Notes for this chapter",
         emptyJournal: "Empty journal",
+        journalModalTitle: "Edit journal entry",
         verses: "Verse %s",
     }
 }
@@ -254,6 +255,7 @@ export function useFontAwesome() {
     library.add(faHeadphones)
     library.add(faEdit)
     library.add(faBookmark)
+    library.add(faPlusCircle)
 }
 
 export function checkUnsupportedProps(props, attributeName, values = []) {

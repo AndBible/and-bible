@@ -736,10 +736,10 @@ private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
 
 private val JOURNAL_39_40 = object : Migration(39, 40) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `JournalTextEntry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `labelId` INTEGER NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER DEFAULT null, `indentLevel` INTEGER NOT NULL, FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `JournalTextEntry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `labelId` INTEGER NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL, FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_JournalTextEntry_labelId` ON `JournalTextEntry` (`labelId`)")
 
-        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `orderNumber` INTEGER DEFAULT NULL")
+        db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `orderNumber` INTEGER NOT NULL DEFAULT -1")
         db.execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `indentLevel` INTEGER NOT NULL DEFAULT 0")
     }
 }

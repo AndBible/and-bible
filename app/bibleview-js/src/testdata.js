@@ -50,6 +50,9 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            indentLevel: 0,
+            type: "bookmark",
+            verseRange: "Phil 1:2",
         },
         {
             id: 9,
@@ -59,6 +62,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 8,
@@ -68,6 +72,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 7,
@@ -77,6 +82,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 6,
@@ -86,6 +92,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             text: "test",
             notes: "test",
+            type: "bookmark",
         },
         {
             id: 5,
@@ -95,6 +102,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 4,
@@ -104,6 +112,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 0,
@@ -112,6 +121,7 @@ if(process.env.NODE_ENV === "development") {
             labels: [2],
             bookInitials: "KJV",
             notes: null,
+            type: "bookmark",
         },
         {
             id: 1,
@@ -121,6 +131,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: null,
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 2,
@@ -130,6 +141,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: null,
             notes: null,
             text: "test",
+            type: "bookmark",
         },
         {
             id: 3,
@@ -139,6 +151,7 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             notes: "Testinote",
             text: "asdf asdf asdf asdf asdf asdf",
+            type: "bookmark",
         },
     ];
     testBookmarkLabels = [
@@ -189,7 +202,28 @@ if(process.env.NODE_ENV === "development") {
             style: {color: [0,255,255,255]}
         }
     ];
-
+    const journalTextEntries = [
+            {
+                id: 1,
+                text: "Journal text 1",
+                labelId: 1,
+                orderNumber: 1,
+                indentLevel: 0,
+                type: "journal",
+            },
+            {
+                id: 2,
+                text: "Journal text 2",
+                labelId: 1,
+                orderNumber: 2,
+                indentLevel: 1,
+                type: "journal",
+            },
+        ];
+    testBookmarks.forEach(b => {
+        b.verseRange = "Phil 1:2";
+        b.notes = "Bookmark notes asdf asdf asdf asdf";
+    })
     testData = testData.map(
         v => ({
             type: "bible",
@@ -203,6 +237,12 @@ if(process.env.NODE_ENV === "development") {
             bookInitials: "KJV",
             bookmarks: testBookmarks,
         }));
-    testData[2].ordinalRange = [30835, 30852]
+    testData[2].ordinalRange = [30835, 30852];
+    testData = [{
+        type: "journal",
+        label: testBookmarkLabels[0],
+        bookmarks: testBookmarks,
+        journalTextEntries,
+    }];
     window.testData = testData;
 }

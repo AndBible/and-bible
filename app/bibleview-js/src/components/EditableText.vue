@@ -21,11 +21,11 @@
       <FontAwesomeIcon icon="edit"/>
     </div>
     <div class="editor-container" v-if="editMode">
-      <TextEditor :text="text || ''" @changed="$emit('changed', $event)"/>
+      <TextEditor :text="editText || ''" @changed="textChanged"/>
     </div>
     <template v-else>
       <div :class="{'notes-display': true, constraintHeight}">
-        <div v-html="text || ''"/>
+        <div v-html="editText || ''"/>
       </div>
     </template>
   </div>
@@ -40,7 +40,7 @@ import {watch} from "@vue/runtime-core";
 export default {
   name: "EditableText",
   components: {TextEditor, FontAwesomeIcon},
-  emits: ["changed", "closed"],
+  emits: ["closed", "changed"],
   props: {
     editDirectly:{type: Boolean, default: false},
     text:{type: String, default: null},
@@ -50,11 +50,19 @@ export default {
   setup(props, {emit}) {
     const editMode = ref(props.editDirectly);
     const parentStyle = ref("");
+    const editText = ref(props.text);
     parentStyle.value = props.maxHeight ? `--max-height: ${props.maxHeight};`: "--max-height: 100pt;";
     watch(editMode, mode => {
-      if(!mode) emit("closed");
+      if(!mode) emit("closed", editText.value);
     })
-    return {editMode, parentStyle}
+    watch(() => props.text, t => {
+      editText.value = t;
+    })
+    function textChanged(newText) {
+      editText.value = newText
+      emit("changed", newText);
+    }
+    return {editMode, parentStyle, editText, textChanged}
   }
 }
 </script>
@@ -76,8 +84,13 @@ export default {
   position: absolute;
   height: 20pt;
   width: 20pt;
-  right: 5px;
+  right: 0;
+  top: 0;
   color: #939393;
+}
+.editable-text {
+  position: relative;
+  min-height: 1.5em;
 }
 </style>
 <style>

@@ -100,7 +100,10 @@ class CurrentGeneralBookPage internal constructor(
         if(entity?.document == journalDocument.initials) {
             val (_, id) = entity!!.key!!.split(":")
             val label = pageManager.bookmarkControl.labelById(id.toLong())
-            if(label != null) doSetKey(JournalKey(label))
+            if(label != null) {
+                doSetKey(JournalKey(label))
+                localSetCurrentDocument(journalDocument)
+            }
         } else {
             super.restoreFrom(entity)
         }

@@ -22,6 +22,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.webkit.JavascriptInterface
+import net.bible.android.control.bookmark.JournalTextEntryAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -32,6 +33,7 @@ class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    val bookmarkControl get() = bibleView.bookmarkControl
 
     var notificationsEnabled = false
 
@@ -62,12 +64,12 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveBookmarkNote(bookmarkId: Long, note: String?) {
-        bibleView.bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
+        bookmarkControl.saveBookmarkNote(bookmarkId, if(note?.trim()?.isEmpty() == true) null else note)
     }
 
     @JavascriptInterface
     fun removeBookmark(bookmarkId: Long) {
-        bibleView.bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
+        bookmarkControl.deleteBookmarksById(listOf(bookmarkId))
     }
 
     @JavascriptInterface
@@ -103,8 +105,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun createOrUpdateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
-        bibleView.bookmarkControl.createOrUpdateJournalTextEntry(
+    fun insertOrUpdateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
+        bookmarkControl.insertOrUpdateJournalTextEntry(
             BookmarkEntities.JournalTextEntry(
                 id = id,
                 labelId = labelId,
@@ -114,6 +116,38 @@ class BibleJavascriptInterface(
             )
         )
     }
+
+    @JavascriptInterface
+    fun updateJournalBookmark(labelId: Long, bookmarkId: Long, indentLevel: Int, orderNum: Int) {
+        bookmarkControl.updateBookmarkTimestamp(bookmarkId)
+        bookmarkControl.updateBookmarkToLabel(
+            BookmarkEntities.BookmarkToLabel(
+                labelId = labelId,
+                bookmarkId = bookmarkId,
+                indentLevel = indentLevel,
+                orderNumber = orderNum
+            )
+        )
+    }
+
+    @JavascriptInterface
+    fun createNewJournalEntry(labelId: Long, entryType: String, afterEntryId: Long) {
+        val entryOrderNumber: Int = when (entryType) {
+            "bookmark" -> bookmarkControl.getBookmarkToLabel(afterEntryId, labelId)!!.orderNumber
+            "journal" -> bookmarkControl.getJournalById(afterEntryId)!!.orderNumber
+            else -> throw RuntimeException("illegal entry type")
+        }
+        val entry = BookmarkEntities.JournalTextEntry(labelId = labelId, orderNumber = entryOrderNumber + 1)
+        entry.new = true
+        val bookmarkToLabels = bookmarkControl.bookmarkToLabelsByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach {it.orderNumber++}
+        val journals = bookmarkControl.journalsByLabelId(labelId).filter { it.orderNumber > entryOrderNumber }.onEach { it.orderNumber++ }
+
+        bookmarkControl.updateBookmarkToLabels(bookmarkToLabels)
+        bookmarkControl.updateJournalTextEntries(journals)
+        bookmarkControl.insertOrUpdateJournalTextEntry(entry)
+        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry, bookmarkToLabels, journals))
+    }
+
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"
 }

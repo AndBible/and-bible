@@ -76,13 +76,7 @@ enum class BookmarkStyle(val backgroundColor: Int) {
 val defaultLabelColor = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor
 
 enum class BookmarkSortOrder {
-    BIBLE_ORDER, CREATED_AT, LAST_UPDATED;
-
-    val sqlString get() = when(this) {
-        BIBLE_ORDER -> "Bookmark.kjvOrdinalStart"
-        CREATED_AT -> "Bookmark.createdAt"
-        LAST_UPDATED -> "Bookmark.lastUpdatedOn"
-    }
+    BIBLE_ORDER, CREATED_AT, LAST_UPDATED, ORDER_NUMBER;
 }
 
 interface VerseRangeUser {
@@ -199,6 +193,7 @@ class BookmarkEntities {
             }
         @Ignore var labelIds: List<Long>? = null
         @Ignore var text: String? = null
+        @Ignore var bookmarkToLabels: List<BookmarkToLabel>? = null
     }
 
     @Entity(
@@ -211,13 +206,14 @@ class BookmarkEntities {
             Index("labelId")
         ]
     )
+    @Serializable
     data class BookmarkToLabel(
         val bookmarkId: Long,
         val labelId: Long,
 
         // Journal display variables
-        @ColumnInfo(defaultValue = "NULL") val orderNumber: Int? = null,
-        @ColumnInfo(defaultValue = "0") val indentLevel: Int = 0,
+        @ColumnInfo(defaultValue = "-1") var orderNumber: Int = -1,
+        @ColumnInfo(defaultValue = "0") var indentLevel: Int = 0,
     )
 
     @Entity(
@@ -233,9 +229,12 @@ class BookmarkEntities {
         @PrimaryKey(autoGenerate = true) var id: Long = 0,
         val labelId: Long,
         val text: String = "",
-        @ColumnInfo(defaultValue = "null") val orderNumber: Int? = null,
-        val indentLevel: Int = 0,
-    )
+        var orderNumber: Int,
+        var indentLevel: Int = 0,
+    ) {
+        @Ignore val type: String = "journal"
+        @Ignore var new: Boolean = false
+    }
 
     @Entity
     @Serializable

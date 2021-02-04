@@ -20,7 +20,8 @@
     <EditableText
         v-if="!infoShown"
         constraint-height
-        :edit-directly="editDirectly" :text="bookmarkNotes || ''"
+        :edit-directly="editDirectly"
+        :text="bookmarkNotes || ''"
         @changed="changeNote"
         max-height="inherit"
     />
@@ -68,7 +69,6 @@ import {inject} from "@vue/runtime-core";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import AreYouSure from "@/components/modals/AreYouSure";
 import EditableText from "@/components/EditableText";
-import {debounce} from "lodash";
 import LabelList from "@/components/LabelList";
 
 export default {
@@ -131,9 +131,9 @@ export default {
         return adjustedColor(label.value.color).string();
     });
 
-    const changeNote = debounce((text) => {
+    const changeNote = text => {
       bookmarkNotes.value = text;
-    }, 500)
+    }
 
     const originalBookLink = computed(() =>
         `<a href="osis://?osis=${bookmark.value.bookInitials}:${bookmark.value.firstVerseRef}">${bookmark.value.bookName}</a>`)

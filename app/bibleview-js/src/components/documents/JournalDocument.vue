@@ -16,53 +16,95 @@
   -->
 
 <template>
-  <div v-if="bookmarks.length === 0">
+  <div v-if="journalEntries.length === 0">
     {{strings.emptyJournal}}
   </div>
   <div v-else>
-    <h2>{{ document.verseRange }}</h2>
+    <h2>{{ document.label.name }}</h2>
   </div>
-  <div class="note-container verse" v-for="b in bookmarks" :key="b.id" :id="`v-${b.ordinalRange[0]}`">
-    <div class="edit-button" @click.stop="editNote(b)">
-      <FontAwesomeIcon icon="edit"/>
-    </div>
-    <div>
-      <b>{{  b.verseRange }}</b> <q v-if="b.text" class="bible-text">{{abbreviated(b.text, 40)}}</q>
+  <div v-for="j in journalEntries" :key="j.id">
+    <div class="note-container">
+      <template v-if="j.type===JournalEntryTypes.BOOKMARK">
+        <div class="edit-button" @click.stop="editBookmark(j)">
+          <FontAwesomeIcon icon="bookmark"/>
+        </div>
+        <b>{{ j.verseRange }}</b> <q v-if="j.text" class="bible-text">{{abbreviated(j.text, 40)}}</q>
+      </template>
       <div class="notes">
-        <div v-html="b.notes"/>
+        <EditableText :edit-directly="j.new" :text="journalText(j)" @closed="journalTextChanged(j, $event)"/>
       </div>
-      <LabelList :labels="labelsFor(b)"/>
+    </div>
+    <div class="add-entry" @click.stop="addNewEntryAfter(j)">
+      <FontAwesomeIcon icon="plus-circle"/>
     </div>
   </div>
 </template>
 
 <script>
-import {computed} from "@vue/reactivity";
-import {inject} from "@vue/runtime-core";
+import {computed, ref} from "@vue/reactivity";
+import {inject, reactive, provide} from "@vue/runtime-core";
 import {useCommon} from "@/composables";
-import {emit, Events} from "@/eventbus";
+import {emit, Events, setupEventBusListener} from "@/eventbus";
+import {sortBy} from "lodash";
+import EditableText from "@/components/EditableText";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LabelList from "@/components/LabelList";
+
+const JournalEntryTypes = {
+  BOOKMARK: "bookmark",
+  JOURNAL_TEXT: "journal",
+}
+
+function useJournal(label) {
+  const journalTextEntries = reactive(new Map());
+
+  function updateJournalTextEntries(...entries) {
+    for(const e of entries)
+      if(e.labelId === label.id)
+        journalTextEntries.set(e.id, e);
+  }
+
+  function updateJournalOrdering(...entries) {
+    for(const e of entries) {
+      journalTextEntries.get(e.id).orderNumber = e.orderNumber;
+    }
+  }
+  return {journalTextEntries, updateJournalTextEntries, updateJournalOrdering};
+}
 
 export default {
   name: "JournalDocument",
-  components: {LabelList, FontAwesomeIcon},
+  components: {EditableText, FontAwesomeIcon},
   props: {
     document: {type: Object, required: true},
   },
   setup(props) {
     // eslint-disable-next-line vue/no-setup-props-destructure
     const {bookmarks, label} = props.document;
+    const journal = useJournal(label);
+    provide("journal", journal);
+
+    const {journalTextEntries, updateJournalTextEntries, updateJournalOrdering} = journal;
+
+    updateJournalTextEntries(...props.document.journalTextEntries);
 
     const globalBookmarks = inject("globalBookmarks");
     const android = inject("android");
 
     globalBookmarks.updateBookmarks(...bookmarks);
 
-    const filteredBookmarks = computed(() => {
-      return globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id))
+    const journalEntries = computed(() => {
+      let entries = [];
+      entries.push(...globalBookmarks.bookmarks.value.filter(b => b.labels.includes(label.id)))
+      entries.push(...journalTextEntries.values())
+      entries = sortBy(entries, ['orderNumber']);
+      return entries;
     });
 
+    setupEventBusListener(Events.ADD_OR_UPDATE_JOURNAL, ({journal, bookmarkToLabelsOrdered, journalsOrdered}) => {
+      globalBookmarks.updateBookmarkOrdering(...bookmarkToLabelsOrdered);
+      updateJournalOrdering(...journalsOrdered);
+      updateJournalTextEntries(journal)
+    })
 
     function editNotes(b, newText) {
       b.notes = newText;
@@ -71,9 +113,10 @@ export default {
     function save(b) {
       android.saveBookmarkNote(b.id, b.notes);
     }
+    const editableJournalEntry = ref(null);
 
-    function editNote(b) {
-      emit(Events.BOOKMARK_FLAG_CLICKED, b.id, {open: true})
+    function editBookmark(bookmark) {
+      emit(Events.BOOKMARK_FLAG_CLICKED, bookmark.id, {open: true})
     }
 
     function labelsFor(b) {
@@ -84,13 +127,36 @@ export default {
       android.assignLabels(bookmark.id);
     }
 
-    return {bookmarks: filteredBookmarks, save, editNotes, editNote, labelsFor, assignLabels, ...useCommon()}
+    function journalTextChanged(entry, newText) {
+      if(entry.type === JournalEntryTypes.BOOKMARK) {
+        entry.notes = newText;
+      } else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) {
+        entry.text = newText;
+        android.insertOrUpdateJournalTextEntry(entry);
+      }
+    }
+    function journalText(entry) {
+      if(entry.type === JournalEntryTypes.BOOKMARK) return entry.notes;
+      else if(entry.type === JournalEntryTypes.JOURNAL_TEXT) return entry.text;
+    }
+
+    function addNewEntryAfter(entry) {
+      android.createNewJournalEntry(label.id, entry.type, entry.id);
+    }
+
+    return {
+      journalEntries, journalText, journalTextChanged, save, editNotes,
+      editBookmark, labelsFor, assignLabels, editableJournalEntry,
+      addNewEntryAfter,
+      JournalEntryTypes,
+      ...useCommon()}
   }
 }
 </script>
 
 <style scoped lang="scss">
 .note-container {
+  position: relative;
   margin: 10pt 2pt 2pt;
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.3);
@@ -118,5 +184,14 @@ export default {
   width: 20pt;
   right: 5px;
   color: #939393;
+}
+.add-entry {
+  margin-left: 50%;
+  font-size: 0.8em;
+  height: 1em;
+  color: rgba(0, 0, 0, 0.5);
+  .night & {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 </style>

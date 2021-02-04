@@ -901,9 +901,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     fun onEvent(event: JournalTextEntryAddedOrUpdatedEvent) {
         val journalJson = json.encodeToString(serializer(), event.journalTextEntry)
+        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+        val journals = json.encodeToString(serializer(), event.journalOrderChanged)
         if(firstDocument !is JournalDocument) return
         executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_journal",  [$journalJson]);
+            bibleView.emit("add_or_update_journal",  {journal: $journalJson, bookmarkToLabelsOrdered: $bookmarkToLabels, journalsOrdered: $journals});
         """.trimIndent())
     }
 

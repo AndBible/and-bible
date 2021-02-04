@@ -140,7 +140,7 @@ class JournalDocument(
 ): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
-            val bookmarks = bookmarks.map { ClientBookmark(it, it.v11n) }
+            val bookmarks = bookmarks.map { ClientBookmark(it, label = label) }
             val clientLabel = ClientBookmarkLabel(label)
             return mapOf(
                 "id" to wrapString("journal_${label.id}"),
@@ -189,7 +189,9 @@ class OsisFragment(
 data class ClientBookmark(val id: Long,
                           val ordinalRange: List<Int>,
                           val offsetRange: List<Int>?,
-                          val labels: List<Long>,
+                          val labels: List<Long>, // TODO: better to rename to labelIds
+                          val indentLevel: Int?,
+                          val orderNumber: Int?,
                           val bookInitials: String?,
                           val bookAbbreviation: String?,
                           val bookName: String?,
@@ -202,7 +204,7 @@ data class ClientBookmark(val id: Long,
                           val verseRangeAbbreviated: String,
                           val text: String?,
 ) {
-    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification?) :
+    constructor(bookmark: BookmarkEntities.Bookmark, v11n: Versification? = null, label: BookmarkEntities.Label? = null) :
         this(id = bookmark.id,
             ordinalRange = listOf(bookmark.verseRange.toV11n(v11n).start.ordinal, bookmark.verseRange.toV11n(v11n).end.ordinal),
             offsetRange = bookmark.textRange?.clientList,
@@ -219,8 +221,23 @@ data class ClientBookmark(val id: Long,
             verseRangeOnlyNumber = bookmark.verseRange.onlyNumber,
             verseRangeAbbreviated = bookmark.verseRange.abbreviated,
             text = bookmark.text,
-            firstVerseRef = bookmark.verseRange.start.osisRef
+            firstVerseRef = bookmark.verseRange.start.osisRef,
+            indentLevel = indentLevel(bookmark, label),
+            orderNumber = orderNumber(bookmark, label),
         )
+
+    val type: String = "bookmark"
+
+    companion object{
+        fun indentLevel(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
+            label?: return null
+            return bookmark.bookmarkToLabels?.find { it.labelId == label.id }?.indentLevel
+        }
+        fun orderNumber(bookmark: BookmarkEntities.Bookmark, label: BookmarkEntities.Label?): Int? {
+            label?: return null
+            return bookmark.bookmarkToLabels?.find { it.labelId == label.id }?.orderNumber
+        }
+    }
 }
 
 @Serializable

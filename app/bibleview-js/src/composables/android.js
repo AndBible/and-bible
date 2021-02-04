@@ -187,6 +187,18 @@ export function useAndroid({bookmarks}, config) {
         android.setActionMode(value);
     }
 
+    function insertOrUpdateJournalTextEntry(entry) {
+        android.insertOrUpdateJournalTextEntry(entry.id, entry.labelId, entry.text, entry.indentLevel, entry.orderNum);
+    }
+
+    function updateJournalBookmark(bookmark, labelId) {
+        android.updateJournalBookmark(labelId, bookmark.id, bookmark.indentLevel, bookmark.orderNum);
+    }
+
+    function createNewJournalEntry(labelId, afterEntryType, afterEntryId) {
+        android.createNewJournalEntry(labelId, afterEntryType, afterEntryId);
+    }
+
     const exposed = {
         setActionMode,
         reportInputFocus,
@@ -199,6 +211,9 @@ export function useAndroid({bookmarks}, config) {
         removeBookmark,
         assignLabels,
         openExternalLink,
+        insertOrUpdateJournalTextEntry,
+        updateJournalBookmark,
+        createNewJournalEntry,
     }
 
     if(config.developmentMode) return {

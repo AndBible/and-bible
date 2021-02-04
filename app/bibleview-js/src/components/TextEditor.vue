@@ -23,13 +23,14 @@
 </template>
 
 <script>
-import {inject, onMounted, onUnmounted, watch} from "@vue/runtime-core";
+import {inject, onMounted, onUnmounted} from "@vue/runtime-core";
 import {ref} from "@vue/reactivity";
 import {useCommon} from "@/composables";
 import {init, exec} from "pell";
 import InputText from "@/components/modals/InputText";
 import {faBible, faListOl, faListUl} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
+import {debounce} from "lodash";
 
 export default {
   name: "TextEditor",
@@ -87,25 +88,23 @@ export default {
     onMounted(() => {
       editor.value = init({
         element: editorElement.value,
-        onChange: html => emit('changed', html),
+        onChange: debounce(html => emit('changed', html), 500),
         actions: [
           'bold', 'italic', 'underline', oList, uList, bibleLink
         ],
       });
       editor.value.content.innerHTML = props.text;
       editor.value.content.focus();
-      android.setActionMode(false);
+      //android.setActionMode(false);
     });
 
     onUnmounted(() => {
-      android.setActionMode(true);
+      // TODO: remove setActionMode
+      //android.setActionMode(true);
     })
 
     const editText = ref(props.text);
 
-    watch(editText, txt => {
-      console.log("text", txt);
-    })
     return {setFocus, editorElement, ...useCommon(), editText, inputText}
   }
 }
@@ -117,26 +116,36 @@ export default {
   max-height: calc(var(--max-height) - #{$pell-button-height} - 2*#{$pell-content-padding});
 }
 
-.night .pell-button {
-  background-color: black;
-  color: white;
+.pell-button {
+  color: inherit;
+
+  .night & {
+    color: inherit;
+  }
 }
-.night .pell-button-selected {
-  background-color: #7d7d7d;
+
+.pell-button-selected {
+  background-color: rgba(0, 0, 0, 0.2);
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
-.night .pell-actionbar {
-  background-color: black;
-  color: white;
+
+.pell-actionbar {
+  background-color: inherit;
+  .night & {
+    color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 </style>
 <style scoped lang="scss">
 .edit-area {
   width: 100%;
-  .night & {
-    background-color: black;
-    color: white;
-  }
+//  .night & {
+//    background-color: black;
+//    color: white;
+//  }
 }
 
 
