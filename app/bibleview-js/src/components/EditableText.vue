@@ -81,6 +81,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~@/common.scss";
 .notes-display {
   width: calc(100% - 22pt);
 }
@@ -94,12 +95,12 @@ export default {
   max-width: calc(100% - 22pt);
 }
 .edit-button {
+  @extend .journal-button;
   position: absolute;
   height: 20pt;
   width: 20pt;
   right: 0;
   top: 0;
-  color: #939393;
 }
 .editable-text {
   position: relative;

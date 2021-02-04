@@ -34,7 +34,13 @@
         <div class="edit-button" @click.stop="editBookmark(j)">
           <FontAwesomeIcon icon="bookmark"/>
         </div>
-        <b>{{ j.verseRange }}</b> <q v-if="j.text" class="bible-text">{{abbreviated(j.text, 40)}}</q>
+        <b>{{ j.verseRange }}</b>
+        <template v-if="j.text">
+          &nbsp;
+          <q v-if="isExpanded(j)" @click.stop="toggleExpanded(j)" class="bible-text"><span v-html="j.fullText"/></q>
+          <q v-if="!isExpanded(j)" @click.stop="toggleExpanded(j)" class="bible-text">{{abbreviated(j.text, 40)}}</q>
+        </template>
+
       </template>
       <div class="delete-button" @click.stop="deleteEntry(j)">
         <FontAwesomeIcon icon="trash"/>
@@ -190,17 +196,32 @@ export default {
       scrollToId(`${entry.type}-${entry.id}`, {duration: 300})
     }
 
+    const expanded = reactive(new Set());
+
+    function isExpanded(entry) {
+        return expanded.has(entry.id);
+    }
+
+    function toggleExpanded(entry) {
+      if(expanded.has(entry.id)) {
+        expanded.delete(entry.id)
+      } else {
+        expanded.add(entry.id);
+      }
+    }
+
     return {
       journalEntries, journalText, journalTextChanged, save, editNotes,
       editBookmark, labelsFor, assignLabels, editableJournalEntry,
       addNewEntryAfter, deleteEntry, JournalEntryTypes, areYouSureDelete, editOpened,
-      ...useCommon()
+      isExpanded, toggleExpanded,...useCommon()
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+@import "~@/common.scss";
 .note-container {
   position: relative;
   margin: 10pt 2pt 2pt;
@@ -223,27 +244,31 @@ export default {
 .notes {
   text-indent: 2pt;
 }
+
 .edit-button {
+  @extend .journal-button;
   position: absolute;
   right: 10pt;
   z-index: 1;
-  color: #939393;
 }
 
 .delete-button {
+  @extend .journal-button;
   position: absolute;
   right: 30pt;
   z-index: 1;
-  color: #939393;
 }
 
 .add-entry {
+  @extend .journal-button;
   margin-left: 50%;
   font-size: 0.8em;
   height: 1em;
-  color: rgba(0, 0, 0, 0.5);
-  .night & {
-    color: rgba(255, 255, 255, 0.5);
-  }
+}
+</style>
+
+<style>
+.highlight {
+  font-weight: bold;
 }
 </style>

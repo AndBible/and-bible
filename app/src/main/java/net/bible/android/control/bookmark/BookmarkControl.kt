@@ -255,17 +255,22 @@ open class BookmarkControl @Inject constructor(
         val startOffset = b.startOffset ?: 0
         var startVerse = verseTexts.first()
         var endOffset = b.endOffset ?: startVerse.length
+        val start = startVerse.slice(0 until startOffset)
         if(verseTexts.size == 1) {
+            val end = startVerse.slice(endOffset until startVerse.length)
             b.text = startVerse.slice(startOffset until endOffset)
+            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
         } else if(verseTexts.size > 1) {
             startVerse = startVerse.slice(startOffset until startVerse.length)
             var endVerse = verseTexts.last()
             endOffset = b.endOffset ?: endVerse.length
             endVerse = endVerse.slice(0 until endOffset)
+            val end = endVerse.slice(endOffset until endVerse.length)
             val middleVerses = if(verseTexts.size > 2) {
                 verseTexts.slice(1 until verseTexts.size-1).joinToString(" ")
             } else ""
             b.text = "$startVerse$middleVerses$endVerse"
+            b.fullText = """$start<span class="highlight">${b.text}</span>$end"""
         }
     }
 
