@@ -133,8 +133,11 @@ class NotesDocument(val bookmarks: List<BookmarkEntities.Bookmark>,
         }
 }
 
-class JournalDocument(val label: BookmarkEntities.Label, val bookmarks: List<BookmarkEntities.Bookmark>): Document, DocumentWithBookmarks
-{
+class JournalDocument(
+    val label: BookmarkEntities.Label,
+    val bookmarks: List<BookmarkEntities.Bookmark>,
+    val journalTextEntries: List<BookmarkEntities.JournalTextEntry>,
+): Document, DocumentWithBookmarks {
     override val asHashMap: Map<String, Any>
         get() {
             val bookmarks = bookmarks.map { ClientBookmark(it, it.v11n) }
@@ -143,6 +146,7 @@ class JournalDocument(val label: BookmarkEntities.Label, val bookmarks: List<Boo
                 "id" to wrapString("journal_${label.id}"),
                 "type" to wrapString("journal"),
                 "bookmarks" to json.encodeToString(serializer(), bookmarks),
+                "journalTextEntries" to json.encodeToString(serializer(), journalTextEntries),
                 "label" to json.encodeToString(serializer(), clientLabel),
             )
         }

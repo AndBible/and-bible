@@ -24,6 +24,7 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 
 
@@ -99,6 +100,19 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun setActionMode(enabled: Boolean) {
         bibleView.actionModeEnabled = enabled
+    }
+
+    @JavascriptInterface
+    fun createOrUpdateJournalTextEntry(id: Long, labelId: Long, text: String, indentLevel: Int, orderNum: Int) {
+        bibleView.bookmarkControl.createOrUpdateJournalTextEntry(
+            BookmarkEntities.JournalTextEntry(
+                id = id,
+                labelId = labelId,
+                text = text,
+                indentLevel = indentLevel,
+                orderNumber = orderNum
+            )
+        )
     }
 
 	private val TAG get() = "BibleView[${bibleView.windowRef.get()?.id}] JSInt"

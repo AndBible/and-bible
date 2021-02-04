@@ -213,7 +213,28 @@ class BookmarkEntities {
     )
     data class BookmarkToLabel(
         val bookmarkId: Long,
-        val labelId: Long
+        val labelId: Long,
+
+        // Journal display variables
+        @ColumnInfo(defaultValue = "NULL") val orderNumber: Int? = null,
+        @ColumnInfo(defaultValue = "0") val indentLevel: Int = 0,
+    )
+
+    @Entity(
+        foreignKeys = [
+            ForeignKey(entity = Label::class, parentColumns = ["id"], childColumns = ["labelId"], onDelete = ForeignKey.CASCADE)
+        ],
+        indices = [
+            Index("labelId")
+        ]
+    )
+    @Serializable
+    data class JournalTextEntry(
+        @PrimaryKey(autoGenerate = true) var id: Long = 0,
+        val labelId: Long,
+        val text: String = "",
+        @ColumnInfo(defaultValue = "null") val orderNumber: Int? = null,
+        val indentLevel: Int = 0,
     )
 
     @Entity

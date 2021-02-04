@@ -143,6 +143,13 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE id=:id")
     fun labelById(id: Long): Label?
 
+    @Query("SELECT * from JournalTextEntry WHERE labelId=:id")
+    fun journalTextEntriesByLabelId(id: Long): List<BookmarkEntities.JournalTextEntry>
+
+    @Insert fun insert(entity: BookmarkEntities.JournalTextEntry): Long
+
+    @Update fun update(entity: BookmarkEntities.JournalTextEntry)
+
     @Insert fun insert(entity: Label): Long
 
     @Update fun update(entity: Label)

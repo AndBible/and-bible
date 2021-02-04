@@ -49,7 +49,8 @@ class CurrentGeneralBookPage internal constructor(
             val key = key
             return if(key is JournalKey) {
                 val bookmarks = pageManager.bookmarkControl.getBookmarksWithLabel(key.label, addData = true)
-                JournalDocument(key.label, bookmarks)
+                val journalTextEntries = pageManager.bookmarkControl.getJournalTextEntriesForLabel(key.label)
+                JournalDocument(key.label, bookmarks, journalTextEntries)
             } else super.currentPageContent
         }
 

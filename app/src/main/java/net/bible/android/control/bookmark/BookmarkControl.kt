@@ -24,6 +24,7 @@ import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -44,6 +45,8 @@ abstract class BookmarkEvent
 class BookmarkAddedOrUpdatedEvent(val bookmark: Bookmark): BookmarkEvent()
 class BookmarksDeletedEvent(val bookmarkIds: List<Long>): BookmarkEvent()
 class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
+
+class JournalTextEntryAddedOrUpdatedEvent(val journalTextEntry: BookmarkEntities.JournalTextEntry)
 
 const val LABEL_ALL_ID = -999L
 const val LABEL_UNLABELED_ID = -998L
@@ -256,6 +259,16 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun labelById(id: Long): Label? = dao.labelById(id)
+
+    fun getJournalTextEntriesForLabel(label: Label): List<BookmarkEntities.JournalTextEntry> {
+        return dao.journalTextEntriesByLabelId(label.id)
+    }
+
+    fun createOrUpdateJournalTextEntry(entry: BookmarkEntities.JournalTextEntry) {
+        if(entry.id != 0L) dao.update(entry)
+        else dao.insert(entry).also { entry.id = it }
+        ABEventBus.getDefault().post(JournalTextEntryAddedOrUpdatedEvent(entry))
+    }
 
     companion object {
         const val LABEL_IDS_EXTRA = "bookmarkLabelIds"

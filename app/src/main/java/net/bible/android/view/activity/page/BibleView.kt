@@ -58,6 +58,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
+import net.bible.android.control.bookmark.JournalTextEntryAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
@@ -72,6 +73,7 @@ import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.DocumentWithBookmarks
+import net.bible.android.control.page.JournalDocument
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.window.DecrementBusyCount
@@ -894,6 +896,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val bookmarkStr = json.encodeToString(serializer(), clientBookmark)
         executeJavascriptOnUiThread("""
             bibleView.emit("add_or_update_bookmarks",  [$bookmarkStr]);
+        """.trimIndent())
+    }
+
+    fun onEvent(event: JournalTextEntryAddedOrUpdatedEvent) {
+        val journalJson = json.encodeToString(serializer(), event.journalTextEntry)
+        if(firstDocument !is JournalDocument) return
+        executeJavascriptOnUiThread("""
+            bibleView.emit("add_or_update_journal",  [$journalJson]);
         """.trimIndent())
     }
 
